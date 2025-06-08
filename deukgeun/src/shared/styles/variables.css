@@ -1,0 +1,31 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+
+:root {
+    /* ===== 폰트 ===== */
+    --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui,
+      Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo',
+      'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  
+    /* ===== 컬러 ===== */
+    --color-bg-primary: #000000;
+    --color-bg-secondary: #111111;
+    --color-bg-muted: #1a1a1a;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #d4d4d4;
+    --color-text-muted: #9ca3af;
+    --color-accent: #ffe500; /* buttermax 노란색 느낌 */
+  
+    /* ===== 보더 & 라운드 ===== */
+    --border-radius-sm: 0.5rem;
+    --border-radius-lg: 1rem;
+  
+    /* ===== 트랜지션 ===== */
+    --transition-fast: all 0.2s ease-in-out;
+    --transition-medium: all 0.4s ease-in-out;
+    --transition-slow: all 0.7s ease-in-out;
+  
+    /* ===== 그림자 ===== */
+    --shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.3);
+    --shadow-hard: 0 8px 28px rgba(0, 0, 0, 0.5);
+  }
+  

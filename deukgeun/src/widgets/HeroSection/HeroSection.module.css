@@ -151,7 +151,7 @@
 .content h1 { font-size:3rem; }
 .content p { margin-top:1rem; opacity:0.8; font-size:1.25rem; } */
 
-.wrapper {
+/* .wrapper {
     position: relative;
     width: 100%;
     height: 100vh;
@@ -174,7 +174,6 @@
     width: 100%;
     height: 100%;
     background-color: black;
-    /* 마우스 위치를 이용한 원형 마스크 */
     -webkit-mask-image: radial-gradient(circle 120px at var(--x, 50%) var(--y, 50%), transparent 0%, black 100%);
     mask-image: radial-gradient(circle 120px at var(--x, 50%) var(--y, 50%), transparent 0%, black 100%);
     transition: mask-position 0.1s ease;
@@ -193,7 +192,7 @@
     width: 100%;
     height: 100%;
     z-index: 0;
-    pointer-events: none; /* Canvas 위 마우스 이벤트 허용 안 함 */
+    pointer-events: none;
   }
   
   .content {
@@ -218,4 +217,149 @@
     h1 {
       font-size: 4.5rem;
     }
+  } */  
+
+
+  
+/* .wrapper {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background-color: black;
+}
+
+.yellowLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffe500;
+  z-index: 0;
+}
+
+.maskLayer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+
+  -webkit-mask-image: radial-gradient(circle 120px at var(--x, 50%) var(--y, 50%), transparent 0%, black 100%);
+  mask-image: radial-gradient(circle 120px at var(--x, 50%) var(--y, 50%), transparent 0%, black 100%);
+  transition: mask-position 0.1s ease;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.canvas {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+h1 {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+p {
+  margin-top: 1rem;
+  font-size: 1.25rem;
+  color: #ddd;
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 4.5rem;
   }
+} */
+
+.wrapper {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background-color: black;
+}
+
+.yellowLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffe500;
+  z-index: 0;
+}
+
+.maskLayer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  -webkit-mask-image: radial-gradient(circle 120px at var(--x, 50%) var(--y, 50%), transparent 0%, black 100%);
+  mask-image: radial-gradient(circle 120px at var(--x, 50%) var(--y, 50%), transparent 0%, black 100%);
+  transition: mask-position 0.1s ease;
+
+  z-index: 1;
+  color: white;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.canvas {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  max-width: 90%;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+p {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #ddd;
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 4rem;
+  }
+  p {
+    font-size: 1.5rem;
+  }
+}

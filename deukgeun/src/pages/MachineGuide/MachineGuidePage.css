@@ -1,0 +1,237 @@
+/* .machineGuidePage {
+    padding: 80px 20px;
+    background: #0e0e0e;
+    min-height: 100vh;
+    font-family: 'Arial', sans-serif;
+    color: white;
+  }
+  
+  .machineGuidePage__header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 40px;
+    backdrop-filter: blur(10px);
+    background-color: rgba(20, 20, 20, 0.5);
+    z-index: 100;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .machineGuidePage__title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin: 0;
+  }
+  
+  .machineGuidePage__list {
+    margin-top: 120px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+  }
+  
+  .machineGuideCard {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    background-color: #1a1a1a;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+  
+  .machineGuideCard:hover {
+    transform: translateY(-5px);
+  }
+  
+  .machineGuideCard__image {
+    width: 100%;
+    height: 220px;
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(100%) brightness(0.7);
+    transition: filter 0.5s ease;
+  }
+  
+  .machineGuideCard:hover .machineGuideCard__image {
+    filter: grayscale(0%) brightness(1);
+  }
+  
+  .machineGuideCard__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+    z-index: 1;
+  }
+  
+  .machineGuideCard__info {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 2;
+    color: white;
+  }
+  
+  .machineGuideCard__info h2 {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+  
+  .machineGuideCard__info p {
+    margin: 8px 0 12px;
+    font-size: 0.95rem;
+    color: #ddd;
+  }
+  
+  .machineGuideCard__btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: white;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  
+  .machineGuideCard:hover .machineGuideCard__btn {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+   */
+   .machineGuidePage {
+    padding: 80px 20px;
+    background: #0e0e0e;
+    min-height: 100vh;
+    font-family: 'Arial', sans-serif;
+    color: white;
+  }
+  
+  /* 헤더 Glassmorphism 스타일 */
+  .machineGuidePage__header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 40px;
+    backdrop-filter: blur(10px);
+    background-color: rgba(20, 20, 20, 0.5);
+    z-index: 100;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .machineGuidePage__title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin: 0;
+  }
+  
+  /* 카드 리스트 */
+  .machineGuidePage__list {
+    margin-top: 120px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+  }
+  
+  /* 카드 박스 */
+  .machineGuideCard {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    background-color: #1a1a1a;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+  
+  .machineGuideCard:hover {
+    transform: translateY(-5px);
+  }
+  
+  /* 이미지 영역 */
+  .machineGuideCard__image {
+    width: 100%;
+    height: 220px;
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(100%) brightness(0.7);
+    transition: filter 0.5s ease;
+  }
+  
+  /* Hover 시 이미지 컬러 복원 */
+  .machineGuideCard:hover .machineGuideCard__image {
+    filter: grayscale(0%) brightness(1);
+  }
+  
+  /* 카드 오버레이 (어둡게 덮기용) */
+  .machineGuideCard__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+    z-index: 1;
+  }
+  
+  /* 텍스트 정보 */
+  .machineGuideCard__info {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 2;
+    color: white;
+  }
+  
+  .machineGuideCard__info h2 {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+  
+  .machineGuideCard__info p {
+    margin: 8px 0 12px;
+    font-size: 0.95rem;
+    color: #ddd;
+  }
+  
+  /* 버튼 */
+  .machineGuideCard__btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: white;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease, background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .machineGuideCard:hover .machineGuideCard__btn {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* 버튼 Hover 효과 */
+  .machineGuideCard__btn:hover {
+    background: white;
+    color: #0e0e0e;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+  }
+  
+  .machineGuideCard:hover .machineGuideCard__info p {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    border-radius: 6px;
+    padding: 4px 8px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }

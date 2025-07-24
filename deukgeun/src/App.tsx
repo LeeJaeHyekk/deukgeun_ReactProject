@@ -4,7 +4,7 @@ import LoginPage from '@pages/login/LoginPage';
 import ErrorPage from '@pages/Error/ErrorPage';
 import SignUpPage from '@pages/Sign up/SignUpPage';
 import MachineGuidePage from '@pages/MachineGuide/MachineGuidePage';
-import CommunityPage from '@pages/Community/CommunityPage';
+import CommunityPage from '@features/community/CommunityPage';
 
 function App() {
   return (

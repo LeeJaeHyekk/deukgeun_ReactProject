@@ -1,0 +1,26 @@
+.card {
+    cursor: pointer;
+    border-radius: 1rem;
+    padding: 1rem;
+    background-color: #27272a;
+    color: white;
+    user-select: none;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .card:hover {
+    transform: scale(1.05);
+  }
+  
+  .title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+  }
+  
+  .content {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    margin: 0;
+  }
+  

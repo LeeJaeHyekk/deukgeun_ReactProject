@@ -1,0 +1,44 @@
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+  }
+  
+  .modal {
+    background-color: white;
+    color: black;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    max-width: 28rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .content {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .closeBtn {
+    margin-top: 1rem;
+    color: #2563eb;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0;
+  }
+  .closeBtn:hover {
+    text-decoration: underline;
+  }
+  

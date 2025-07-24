@@ -1,0 +1,24 @@
+/* .container {
+    column-count: 4;
+    column-gap: 1.5rem;
+    width: 100%;
+    padding: 1rem;
+  }
+  
+  .item {
+    break-inside: avoid;
+    margin-bottom: 1.5rem;
+  }
+   */
+   .post-grid-container {
+    column-count: 4;
+    column-gap: 1.5rem;
+    width: 100%;
+    padding: 1rem;
+  }
+  
+  .post-grid-item {
+    break-inside: avoid;
+    margin-bottom: 1.5rem;
+    display: block;
+  }

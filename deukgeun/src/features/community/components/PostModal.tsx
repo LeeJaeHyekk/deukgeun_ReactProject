@@ -1,77 +1,70 @@
-// import { motion, AnimatePresence } from 'framer-motion'
+// import { motion, AnimatePresence } from "framer-motion";
+// import styles from "./PostModal.module.css";
 
 // interface Post {
-//     id: number;
-//     title: string;
-//     content: string;
-//     author: string;
-//     createdAt: string;
-//   }
-  
-//   interface PostModalProps {
-//     post: Post;
-//     onClose: () => void;
-//   }
+//   id: number;
+//   title: string;
+//   content: string;
+//   author: string;
+//   createdAt: string;
+// }
+
+// interface PostModalProps {
+//   post: Post;
+//   onClose: () => void;
+// }
 
 // export const PostModal = ({ post, onClose }: PostModalProps) => {
-//   return (  
+//   return (
 //     <AnimatePresence>
 //       <motion.div
-//         className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
-//         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+//         className={styles.backdrop}
+//         initial={{ opacity: 0 }}
+//         animate={{ opacity: 1 }}
+//         exit={{ opacity: 0 }}
 //         onClick={onClose}
 //       >
 //         <motion.div
-//           className="bg-white text-black p-6 rounded-xl max-w-md w-full"
+//           className={styles.modal}
 //           initial={{ scale: 0.9, opacity: 0 }}
 //           animate={{ scale: 1, opacity: 1 }}
 //           exit={{ scale: 0.9, opacity: 0 }}
 //           onClick={(e) => e.stopPropagation()}
 //         >
-//           <h2 className="text-xl font-bold mb-2">{post.title}</h2>
-//           <p className="text-sm">{post.content}</p>
-//           <button className="mt-4 text-blue-500" onClick={onClose}>Close</button>
+//           <h2 className={styles.title}>{post.title}</h2>
+//           <p className={styles.content}>{post.content}</p>
+//           <button className={styles.closeBtn} onClick={onClose}>
+//             Close
+//           </button>
 //         </motion.div>
 //       </motion.div>
 //     </AnimatePresence>
-//   )
-// }
-import { motion, AnimatePresence } from 'framer-motion'
-import './PostModal.module.css'
+//   );
+// };
 
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-  author: string;
-  createdAt: string;
-}
+// components/PostModal.tsx
+import styles from "./PostModal.module.css";
+import { Project } from "./PostCard";
 
 interface PostModalProps {
-  post: Post;
+  post: Project;
   onClose: () => void;
 }
 
 export const PostModal = ({ post, onClose }: PostModalProps) => {
   return (
-    <AnimatePresence>
-      <motion.div
-        className="backdrop"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        onClick={onClose}
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div
+        className={styles.modalContent}
+        onClick={(e) => e.stopPropagation()} // 모달 내부 클릭 시 닫힘 방지
       >
-        <motion.div
-          className="modal"
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <h2 className="title">{post.title}</h2>
-          <p className="content">{post.content}</p>
-          <button className="closeBtn" onClick={onClose}>Close</button>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
-  )
-}
+        <h2>{post.title}</h2>
+        <p>Category: {post.category}</p>
+        <img src={post.imageUrl} alt={post.title} />
+        <button onClick={onClose} className={styles.closeButton}>
+          닫기
+        </button>
+      </div>
+    </div>
+  );
+};

@@ -1,24 +1,51 @@
-/* .container {
-    column-count: 4;
-    column-gap: 1.5rem;
-    width: 100%;
-    padding: 1rem;
-  }
-  
-  .item {
-    break-inside: avoid;
-    margin-bottom: 1.5rem;
-  }
-   */
-   .post-grid-container {
-    column-count: 4;
-    column-gap: 1.5rem;
-    width: 100%;
-    padding: 1rem;
-  }
-  
-  .post-grid-item {
-    break-inside: avoid;
-    margin-bottom: 1.5rem;
-    display: block;
-  }
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 32px;
+}
+
+.project-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.card {
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+  display: flex;
+  align-items: end;
+  background-color: #000;
+}
+
+.card-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-footer {
+  position: relative;
+  z-index: 1;
+  padding: 24px;
+  pointer-events: none;
+}
+
+.category {
+  font-size: 12px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.title {
+  font-size: 20px;
+  text-transform: uppercase;
+}

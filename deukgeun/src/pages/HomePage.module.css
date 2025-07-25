@@ -1,0 +1,339 @@
+.homePage {
+  font-family: "Pretendard", sans-serif;
+  color: #333;
+}
+
+/* 네비게이션 바 */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 64px;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.navMenu {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+  flex: 1;
+  justify-content: space-around;
+  margin-left: 40px;
+  padding: 0;
+  margin: 0;
+}
+
+.navMenuItem {
+  position: relative;
+  color: white;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.3s;
+  padding-bottom: 4px;
+}
+
+.navMenuItem:hover {
+  color: #f87171;
+}
+
+.navMenuItem::after {
+  content: "";
+  position: absolute;
+  bottom: 0; /* 아래에 딱 붙도록 수정 */
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #ef4444;
+  transition: width 0.3s ease;
+}
+
+.navMenuItem:hover::after {
+  width: 100%;
+}
+
+/* Hero Section */
+.heroSection {
+  position: relative;
+  height: 900px;
+  overflow: hidden;
+}
+
+.heroVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* 반투명 레이어 */
+  backdrop-filter: blur(2px); /* Glassmorphism */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  padding: 2rem;
+}
+
+.heroOverlay h1 {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.heroOverlay p {
+  font-size: 1.2rem;
+  margin-top: 1rem;
+}
+
+/* Service Section */
+.serviceSection {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.serviceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  padding: 3rem 2rem;
+}
+
+.serviceCard {
+  /* background: #1e1e1e; */
+  background-image: linear-gradient(
+    to right top,
+    rgba(63, 58, 61, 0.9),
+    rgba(61, 57, 61, 0.9),
+    rgba(58, 57, 61, 0.9),
+    rgba(56, 57, 60, 0.9),
+    rgba(54, 56, 59, 0.9),
+    rgba(54, 56, 59, 0.9),
+    rgba(53, 56, 58, 0.9),
+    rgba(53, 56, 58, 0.9),
+    rgba(53, 57, 58, 0.9),
+    rgba(54, 58, 59, 0.9),
+    rgba(54, 58, 59, 0.9),
+    rgba(55, 59, 59, 0.9)
+  );
+  color: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.serviceCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* My Info Section */
+.pageWrapper {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center; /* 좌우 중앙 정렬 */
+  align-items: center; /* 상하 중앙 정렬 */
+  background: linear-gradient(135deg, #121212, #1f1f1f);
+  padding: 20px;
+  box-sizing: border-box;
+  font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #eee;
+}
+
+/* 메인 콘텐츠 박스 */
+.wrapper {
+  width: 100%;
+  max-width: 480px;
+  padding: 32px 28px;
+  border-radius: 20px;
+  background: rgba(30, 30, 30, 0.8);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  transition: box-shadow 0.3s ease;
+}
+
+.wrapper:hover {
+  box-shadow: 0 25px 70px rgba(255, 110, 196, 0.6);
+}
+
+/* 프로필 영역 */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ff6ec422;
+  transition: border-color 0.3s ease;
+  box-shadow: 0 0 10px #ff6ec4aa;
+}
+
+.avatar:hover {
+  border-color: #ff6ec4;
+  box-shadow: 0 0 14px #ff6ec4ee;
+}
+
+.userMeta {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.username {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  user-select: none;
+}
+
+.level {
+  font-size: 1rem;
+  background: linear-gradient(135deg, #ff6ec4, #7873f5);
+  padding: 6px 14px;
+  border-radius: 16px;
+  color: white;
+  font-weight: 600;
+  user-select: none;
+  box-shadow: 0 2px 8px #ff6ec4cc;
+  transition: box-shadow 0.3s ease;
+}
+
+.settingIcon {
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #ffffffcc;
+  transition: color 0.25s ease;
+  user-select: none;
+}
+
+.settingIcon:hover {
+  color: #ff6ec4;
+}
+
+/* 정보 블록 */
+.infoBlock {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 38px;
+}
+
+@media (max-width: 420px) {
+  .infoBlock {
+    grid-template-columns: 1fr;
+  }
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #aaaaaacc;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  user-select: none;
+}
+
+.value {
+  color: #ff6ec4;
+  font-size: 1.1rem;
+  font-weight: 600;
+  user-select: text;
+}
+
+/* 액션 버튼 그룹 */
+.actions {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.actionBtn {
+  flex: 1 1 140px;
+  min-width: 140px;
+  background: #ff6ec420;
+  border: 1.5px solid #ff6ec4;
+  padding: 14px 26px;
+  border-radius: 22px;
+  color: #ff6ec4;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+  text-align: center;
+  box-shadow: 0 4px 12px #ff6ec466;
+}
+
+.actionBtn:hover {
+  background: #ff6ec4;
+  color: #fff;
+  box-shadow: 0 6px 18px #ff6ec4cc;
+}
+
+.logoutBtn {
+  flex: 1 1 140px;
+  min-width: 140px;
+  background: transparent;
+  border: 1.5px solid #ff4c4c;
+  color: #ff4c4c;
+  padding: 14px 26px;
+  border-radius: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+  user-select: none;
+  text-align: center;
+  box-shadow: 0 4px 12px #ff4c4c55;
+}
+
+.logoutBtn:hover {
+  background: #ff4c4cdd;
+  color: #fff;
+  box-shadow: 0 6px 18px #ff4c4ccc;
+}
+/* Footer Section */
+
+.footerSection {
+  background: #111;
+  color: #bbb;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  font-size: 0.9rem;
+}

@@ -1,21 +1,9 @@
-import './HomePage.css';
+import "./HomePage.css";
 
 export default function HomePage() {
   return (
     <div className="homePage">
-
-      {/* <nav className="navBar">
-        <div className="nav-logo">득근득근</div>
-        <div className="navMenu">
-          <div className="navItem glass">Search Gym</div>
-          <div className="navItem glass">Machine Guide</div>
-          <div className="navItem glass">Community</div>
-          <div className="navItem glass">Challenge</div>
-          <div className="navItem glass">My Page</div>
-        </div>
-      </nav> */}
-
-<nav className="navbar">
+      <nav className="navbar">
         <div className="logo">DGG</div>
         <ul className="nav-menu">
           <li>Search for Gym</li>

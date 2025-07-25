@@ -15,6 +15,7 @@
     "@tanstack/react-query": "^5.79.2",
     "autoprefixer": "^10.4.21",
     "axios": "^1.9.0",
+    "framer-motion": "^12.23.9",
     "gsap": "^3.13.0",
     "motion": "^12.16.0",
     "postcss": "^8.5.4",

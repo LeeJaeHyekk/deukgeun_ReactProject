@@ -1,44 +1,82 @@
-.backdrop {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0,0,0,0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 50;
-  }
-  
-  .modal {
-    background-color: white;
-    color: black;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    max-width: 28rem;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  .title {
-    font-size: 1.25rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-  }
-  
-  .content {
-    font-size: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .closeBtn {
-    margin-top: 1rem;
-    color: #2563eb;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    padding: 0;
-  }
-  .closeBtn:hover {
-    text-decoration: underline;
-  }
-  
+/* .backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.modal {
+  background-color: white;
+  color: black;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  max-width: 28rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.content {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.closeBtn {
+  margin-top: 1rem;
+  color: #2563eb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0;
+}
+.closeBtn:hover {
+  text-decoration: underline;
+} */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modalContent {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+}
+
+.modalContent img {
+  max-width: 100%;
+  margin-top: 1rem;
+  border-radius: 8px;
+}
+
+.closeButton {
+  margin-top: 1.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: #333;
+  color: white;
+  cursor: pointer;
+  border-radius: 6px;
+}

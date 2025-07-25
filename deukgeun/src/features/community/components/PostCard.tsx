@@ -1,79 +1,60 @@
-// import { motion } from 'framer-motion'
+// import styles from "./PostCard.module.css";
 
-// interface Post {
+// export interface Project {
 //   id: number;
 //   title: string;
-//   content: string;
-//   author: string;
-//   createdAt: string;
+//   category: string;
+//   imageUrl: string;
 // }
 
-// interface PostCardProps {
-//   post: Post;
-//   index: number;
-//   onClick: (post: Post) => void;
+// interface ProjectCardProps {
+//   project: Project;
 // }
 
-// export const PostCard = ({ post, index, onClick }: PostCardProps) => {
-//   const direction = index % 2 === 0 ? -10 : 10;
-
+// export const ProjectCard = ({ project }: ProjectCardProps) => {
 //   return (
-//     <motion.div 
-//       onClick={() => onClick(post)}  
-//       className="bg-neutral-800 rounded-xl p-4 cursor-pointer hover:scale-105 transition-all"
-//       animate={{
-//         y: [0, direction, 0],
-//       }}
-//       transition={{
-//         repeat: Infinity,
-//         repeatType: 'loop',
-//         duration: 4,
-//         delay: (index % 4) * 0.3,
-//       }}
-//     >
-//       <h2 className="text-xl font-semibold">{post.title}</h2>
-//       <p className="text-sm text-gray-400">{post.content}</p>
-//     </motion.div>
+//     <a href={`/projects/${project.id}`} className={styles.projectCard}>
+//       <article className={styles.card}>
+//         {/* <img src={project.imageUrl} alt={project.title} className="image" /> */}
+//         <figure className={styles.cardImage}>
+//           <img
+//             src={project.imageUrl}
+//             alt={project.title}
+//             className={styles.image}
+//           />
+//         </figure>
+//         <footer className="card-footer">
+//           <p className={styles.category}>{project.category}</p>
+//           <h4 className={styles.title}>{project.title}</h4>
+//         </footer>
+//       </article>
+//     </a>
 //   );
 // };
+// components/ProjectCard.tsx
+import styles from "./PostCard.module.css";
 
-import { motion } from 'framer-motion'
-import './PostCard.module.css'
-
-interface Post {
+export interface Project {
   id: number;
   title: string;
-  content: string;
-  author: string;
-  createdAt: string;
+  category: string;
+  imageUrl: string;
 }
 
-interface PostCardProps {
-  post: Post;
-  index: number;
-  onClick: (post: Post) => void;
+interface ProjectCardProps {
+  project: Project;
 }
 
-export const PostCard = ({ post, index, onClick }: PostCardProps) => {
-  const direction = index % 2 === 0 ? -10 : 10;
-
+export const ProjectCard = ({ project }: ProjectCardProps) => {
   return (
-    <motion.div 
-      onClick={() => onClick(post)}  
-      className="card"
-      animate={{
-        y: [0, direction, 0],
-      }}
-      transition={{
-        repeat: Infinity,
-        repeatType: 'loop',
-        duration: 4,
-        delay: (index % 4) * 0.3,
-      }}
-    >
-      <h2 className="title">{post.title}</h2>
-      <p className="content">{post.content}</p>
-    </motion.div>
-  )
-}
-
+    <article className={styles.card}>
+      <figure className={styles.imageWrapper}>
+        <img src={project.imageUrl} alt={project.title} />
+      </figure>
+      <div className={styles.content}>
+        <h3>{project.title}</h3>
+        <p>{project.category}</p>
+      </div>
+    </article>
+  );
+};

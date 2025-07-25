@@ -1,4 +1,68 @@
+// import { useState } from "react";
+// import styles from "./LoginPage.module.css";
+
+// export default function LoginPage() {
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [loading, setLoading] = useState(false);
+
+//   const handleLogin = () => {
+//     setLoading(true);
+//     setTimeout(() => setLoading(false), 2000);
+//   };
+
+//   return (
+//     <div className={styles.pageWrapper}>
+//       <div className={styles.loginBox}>
+//         <h1 className={styles.logo}>DukGeunDukGeun</h1>
+
+//         <input
+//           type="text"
+//           placeholder="이메일 또는 닉네임"
+//           className={styles.input}
+//         />
+
+//         <div className={styles.passwordWrapper}>
+//           <input
+//             type={showPassword ? "text" : "password"}
+//             placeholder="비밀번호"
+//             className={styles.passwordInput}
+//           />
+//           <span
+//             onClick={() => setShowPassword(!showPassword)}
+//             className={styles.eyeIcon}
+//           >
+//             {showPassword ? "🙈" : "👁️"}
+//           </span>
+//         </div>
+
+//         <button onClick={handleLogin} className={styles.loginButton}>
+//           {loading ? "로그인 중..." : "로그인"}
+//         </button>
+
+//         <div className={styles.divider}>또는</div>
+
+//         <div className={styles.socialWrapper}>
+//           <button className={styles.kakaoBtn}>🟡 카카오로 로그인</button>
+//           <button className={styles.googleBtn}>🔵 Google로 로그인</button>
+//         </div>
+
+//         <div className={styles.linkRow}>
+//           <span className={styles.link}>회원가입</span>
+//           <span className={styles.link}>아이디 찾기</span>
+//           <span className={styles.link}>비밀번호 찾기</span>
+//         </div>
+
+//         <div className={styles.recaptcha}>
+//           <p className={styles.recaptchaText}>구글 reCAPTCHA 적용 영역</p>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
 import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import styles from "./LoginPage.module.css";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -6,70 +70,75 @@ export default function LoginPage() {
 
   const handleLogin = () => {
     setLoading(true);
-    // 실제 로그인 처리 로직
-    setTimeout(() => setLoading(false), 2000); // 시뮬레이션용
+    setTimeout(() => setLoading(false), 2000);
+  };
+
+  const handleNavigation = (route: string) => {
+    console.log(`Navigating to: ${route}`);
+    // 실제 라우팅 처리 시 next/router 또는 react-router-dom 사용
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "0 auto", padding: 20 }}>
-      <h1 style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20 }}>로그인</h1>
+    <div className={styles.pageWrapper}>
+      <div className={styles.loginBox}>
+        <h1 className={styles.logo}>DukGeunDukGeun</h1>
 
-      <input type="text" placeholder="ID (이메일 또는 닉네임)" style={{ width: "100%", marginBottom: 10 }} />
-      
-      <div style={{ position: "relative", marginBottom: 10 }}>
         <input
-          type={showPassword ? "text" : "password"}
-          placeholder="비밀번호"
-          style={{ width: "100%", paddingRight: 30 }}
+          type="text"
+          placeholder="이메일 또는 닉네임"
+          className={styles.input}
         />
-        <span
-          onClick={() => setShowPassword(!showPassword)}
-          style={{ position: "absolute", right: 8, top: 8, cursor: "pointer", fontSize: 12 }}
-        >
-          {showPassword ? "🙈" : "👁️"}
-        </span>
-      </div>
 
-      <div style={{ marginBottom: 10 }}>
-        <label>
-          <input type="checkbox" /> 자동 로그인
-        </label>
-      </div>
+        <div className={styles.passwordWrapper}>
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="비밀번호"
+            className={styles.passwordInput}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className={styles.eyeButton}
+            aria-label="비밀번호 보기 토글"
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </button>
+        </div>
 
-      <button onClick={handleLogin} style={{ width: "100%", padding: 10 }}>
-        {loading ? "로그인 중..." : "로그인"}
-      </button>
-
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 14 }}>
-        <span style={{ cursor: "pointer", color: "#007bff" }}>회원가입</span>
-        <span style={{ cursor: "pointer", color: "#007bff" }}>아이디 찾기</span>
-        <span style={{ cursor: "pointer", color: "#007bff" }}>비밀번호 찾기</span>
-      </div>
-
-      <div style={{ marginTop: 20, textAlign: "center" }}>
-        {/* 소셜 로그인 자리 */}
-        <button style={{ width: "100%", padding: 8, backgroundColor: "#f7e600", border: "none", marginBottom: 8 }}>
-          🟡 카카오로 로그인
+        <button onClick={handleLogin} className={styles.loginButton}>
+          {loading ? "로그인 중..." : "로그인"}
         </button>
-        <button style={{ width: "100%", padding: 8, backgroundColor: "#4285F4", color: "#fff", border: "none" }}>
-          🔵 Google로 로그인
-        </button>
-      </div>
 
-      <div style={{ marginTop: 20 }}>
-        {/* reCAPTCHA 자리 */}
-        <p>[reCAPTCHA 자리]</p>
-        <div style={{
-          width: '100%',
-          height: 78,
-          backgroundColor: '#f0f0f0',
-          border: '1px solid #ccc',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 14
-        }}>
-          구글 reCAPTCHA 영역
+        <div className={styles.divider}>또는</div>
+
+        <div className={styles.socialWrapper}>
+          <button className={styles.kakaoBtn}>🟡 카카오로 로그인</button>
+          <button className={styles.googleBtn}>🔵 Google로 로그인</button>
+        </div>
+
+        <div className={styles.linkRow}>
+          <button
+            className={styles.linkBtn}
+            onClick={() => handleNavigation("register")}
+          >
+            회원가입
+          </button>
+          <button
+            className={styles.linkBtn}
+            onClick={() => handleNavigation("find-id")}
+          >
+            아이디 찾기
+          </button>
+          <button
+            className={styles.linkBtn}
+            onClick={() => handleNavigation("find-password")}
+          >
+            비밀번호 찾기
+          </button>
+        </div>
+
+        <div className={styles.recaptcha}>
+          <p className={styles.recaptchaText}>구글 reCAPTCHA 적용 영역</p>
         </div>
       </div>
     </div>

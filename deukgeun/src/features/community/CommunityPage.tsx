@@ -1,14 +1,3 @@
-// import { PostGrid } from './components/PostGrid'
-
-// export default function CommunityPage() {
-//   return (
-//     <div className="min-h-screen bg-neutral-950 text-white p-6">
-//       <h1 className="text-3xl font-bold mb-6">Community</h1>
-//       <PostGrid />
-//     </div>
-//   )
-// }
-
 import { ProjectGrid } from "./components/PostGrid";
 import styles from "./CommunityPage.module.css";
 

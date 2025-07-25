@@ -1,28 +1,15 @@
-/* .container {
-    min-height: 100vh;
-    background-color: #121212; 
-    color: white;
-    padding: 1.5rem; 
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .title {
-    font-size: 1.875rem; 
-    font-weight: 700; 
-    margin-bottom: 1.5rem; 
-  } */
-  .container {
-    min-height: 100vh;
-    background-color: #121212; /* bg-neutral-950과 비슷한 색상 */
-    color: white;
-    padding: 1.5rem; /* p-6 */
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .title {
-    font-size: 1.875rem; /* text-3xl */
-    font-weight: 700; /* font-bold */
-    margin-bottom: 1.5rem; /* mb-6 */
-  }
+.container {
+  width: auto;
+  min-height: 100vh;
+  background-color: #121212; /* bg-neutral-950과 비슷한 색상 */
+  color: white;
+  padding: 1.5rem; /* p-6 */
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 700; /* font-bold */
+  margin-bottom: 1.5rem; /* mb-6 */
+}

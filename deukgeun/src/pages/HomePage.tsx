@@ -49,7 +49,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className={styles.infoBlock}>
+        {/* <div className={styles.infoBlock}>
           <div>
             <span className={styles.label}>운동 부위</span>
             <span className={styles.value}>🔥 가슴 + 삼두</span>
@@ -65,6 +65,24 @@ export default function HomePage() {
           <div>
             <span className={styles.label}>최근 운동일</span>
             <span className={styles.value}>2025.07.24</span>
+          </div>
+        </div> */}
+        <div className={styles.infoBlock}>
+          <div className={styles.infoItem}>
+            <p className={styles.label}>운동 부위</p>
+            <p className={styles.value}>🔥 가슴 + 삼두</p>
+          </div>
+          <div className={styles.infoItem}>
+            <p className={styles.label}>이메일</p>
+            <p className={styles.value}>jaehyuk@email.com</p>
+          </div>
+          <div className={styles.infoItem}>
+            <p className={styles.label}>진행 중 미션</p>
+            <p className={styles.value}>2개</p>
+          </div>
+          <div className={styles.infoItem}>
+            <p className={styles.label}>최근 운동일</p>
+            <p className={styles.value}>2025.07.24</p>
           </div>
         </div>
 

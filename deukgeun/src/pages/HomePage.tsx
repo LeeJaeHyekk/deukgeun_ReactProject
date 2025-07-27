@@ -1,28 +1,10 @@
 import styles from "./HomePage.module.css";
+import { Navigation } from "@widgets/Navigation/Navigation";
 
 export default function HomePage() {
   return (
     <div className={styles.homePage}>
-      {/* <nav className={styles.navbar}>
-        <div className={styles.logo}>DGG</div>
-        <ul className={styles.navMenu}>
-          <li>Search for Gym</li>
-          <li>Machine Guide</li>
-          <li>Community</li>
-          <li>Challenge</li>
-          <li>My Page</li>
-        </ul>
-      </nav> */}
-      <nav className={styles.navbar}>
-        <div className={styles.logo}>DGG</div>
-        <ul className={styles.navMenu}>
-          <li className={styles.navMenuItem}>Search for Gym</li>
-          <li className={styles.navMenuItem}>Machine Guide</li>
-          <li className={styles.navMenuItem}>Community</li>
-          <li className={styles.navMenuItem}>Challenge</li>
-          <li className={styles.navMenuItem}>My Page</li>
-        </ul>
-      </nav>
+      <Navigation />
 
       {/* Hero Section */}
       <div className={styles.heroSection}>

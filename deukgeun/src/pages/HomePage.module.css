@@ -1,68 +1,7 @@
 .homePage {
   font-family: "Pretendard", sans-serif;
   color: #333;
-}
-
-/* 네비게이션 바 */
-.navbar {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 64px;
-  padding: 0 40px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.15);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 1000;
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: #fff;
-}
-
-.navMenu {
-  display: flex;
-  gap: 40px;
-  list-style: none;
-  flex: 1;
-  justify-content: space-around;
-  margin-left: 40px;
-  padding: 0;
-  margin: 0;
-}
-
-.navMenuItem {
-  position: relative;
-  color: white;
-  font-weight: 500;
-  font-size: 16px;
-  cursor: pointer;
-  transition: color 0.3s;
-  padding-bottom: 4px;
-}
-
-.navMenuItem:hover {
-  color: #f87171;
-}
-
-.navMenuItem::after {
-  content: "";
-  position: absolute;
-  bottom: 0; /* 아래에 딱 붙도록 수정 */
-  left: 0;
-  width: 0%;
-  height: 2px;
-  background-color: #ef4444;
-  transition: width 0.3s ease;
-}
-
-.navMenuItem:hover::after {
-  width: 100%;
+  background: linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%);
 }
 
 /* Hero Section */

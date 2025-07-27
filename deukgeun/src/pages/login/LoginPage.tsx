@@ -1,65 +1,3 @@
-// import { useState } from "react";
-// import styles from "./LoginPage.module.css";
-
-// export default function LoginPage() {
-//   const [showPassword, setShowPassword] = useState(false);
-//   const [loading, setLoading] = useState(false);
-
-//   const handleLogin = () => {
-//     setLoading(true);
-//     setTimeout(() => setLoading(false), 2000);
-//   };
-
-//   return (
-//     <div className={styles.pageWrapper}>
-//       <div className={styles.loginBox}>
-//         <h1 className={styles.logo}>DukGeunDukGeun</h1>
-
-//         <input
-//           type="text"
-//           placeholder="이메일 또는 닉네임"
-//           className={styles.input}
-//         />
-
-//         <div className={styles.passwordWrapper}>
-//           <input
-//             type={showPassword ? "text" : "password"}
-//             placeholder="비밀번호"
-//             className={styles.passwordInput}
-//           />
-//           <span
-//             onClick={() => setShowPassword(!showPassword)}
-//             className={styles.eyeIcon}
-//           >
-//             {showPassword ? "🙈" : "👁️"}
-//           </span>
-//         </div>
-
-//         <button onClick={handleLogin} className={styles.loginButton}>
-//           {loading ? "로그인 중..." : "로그인"}
-//         </button>
-
-//         <div className={styles.divider}>또는</div>
-
-//         <div className={styles.socialWrapper}>
-//           <button className={styles.kakaoBtn}>🟡 카카오로 로그인</button>
-//           <button className={styles.googleBtn}>🔵 Google로 로그인</button>
-//         </div>
-
-//         <div className={styles.linkRow}>
-//           <span className={styles.link}>회원가입</span>
-//           <span className={styles.link}>아이디 찾기</span>
-//           <span className={styles.link}>비밀번호 찾기</span>
-//         </div>
-
-//         <div className={styles.recaptcha}>
-//           <p className={styles.recaptchaText}>구글 reCAPTCHA 적용 영역</p>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import styles from "./LoginPage.module.css";
@@ -81,7 +19,7 @@ export default function LoginPage() {
   return (
     <div className={styles.pageWrapper}>
       <div className={styles.loginBox}>
-        <h1 className={styles.logo}>DukGeunDukGeun</h1>
+        <h1 className={styles.logo}>득근 득근</h1>
 
         <input
           type="text"

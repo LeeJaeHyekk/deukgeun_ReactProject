@@ -1,0 +1,21 @@
+.tag {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: 9999px;
+  border: 1px solid #3b82f6;
+  background: rgba(255, 255, 255, 0.8);
+  color: #2563eb;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s ease;
+}
+
+.tag:hover {
+  background: #bfdbfe;
+}
+
+.active {
+  background-color: #2563eb;
+  color: white;
+}

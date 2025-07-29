@@ -15,9 +15,16 @@
 }
 
 .logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: #fff;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.logoImage {
+  max-width: 120px;
+  max-height: 63px;
+  height: 63px; /* 네비게이션 높이(64px)에 비례하여 적절하게 조절 */
+  object-fit: contain;
 }
 
 .navMenu {
@@ -33,7 +40,7 @@
 
 .navMenuItem {
   position: relative;
-  color: white;
+  color: black;
   font-weight: 500;
   font-size: 16px;
   cursor: pointer;

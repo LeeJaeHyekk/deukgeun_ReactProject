@@ -4,7 +4,7 @@ export const Navigation = () => {
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
-        <img src="" alt="" />
+        <img src="/img/logo.png" alt="Logo" className={styles.logoImage} />
       </div>
       <ul className={styles.navMenu}>
         <li className={styles.navMenuItem}>Search for Gym</li>

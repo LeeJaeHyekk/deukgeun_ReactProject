@@ -3,7 +3,9 @@ import styles from "./Navigation.module.css";
 export const Navigation = () => {
   return (
     <nav className={styles.navbar}>
-      <div className={styles.logo}>DGG</div>
+      <div className={styles.logo}>
+        <img src="" alt="" />
+      </div>
       <ul className={styles.navMenu}>
         <li className={styles.navMenuItem}>Search for Gym</li>
         <li className={styles.navMenuItem}>Machine Guide</li>

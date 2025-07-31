@@ -1,0 +1,77 @@
+import dotenv from "dotenv";
+
+/**
+ * 환경 변수 로드
+ * .env 파일에서 환경 변수를 읽어와 process.env에 설정합니다.
+ */
+dotenv.config();
+
+/**
+ * 애플리케이션 설정 객체
+ * 환경 변수에서 값을 읽어와 타입 안전한 설정 객체로 제공합니다.
+ * 각 설정값에 대한 기본값을 제공하여 개발 환경에서의 편의성을 높입니다.
+ */
+export const config = {
+  /**
+   * Node.js 실행 환경
+   * development, production, test 등의 값을 가질 수 있습니다.
+   */
+  NODE_ENV: process.env.NODE_ENV || "development",
+
+  /**
+   * 서버가 리스닝할 포트 번호
+   * 기본값은 3001번 포트입니다.
+   */
+  PORT: process.env.PORT || 3001,
+
+  // MySQL Database 설정
+  /**
+   * MySQL 데이터베이스 호스트 주소
+   * 기본값은 localhost입니다.
+   */
+  DB_HOST: process.env.DB_HOST || "localhost",
+
+  /**
+   * MySQL 데이터베이스 포트 번호
+   * 기본값은 3306번 포트입니다.
+   */
+  DB_PORT: parseInt(process.env.DB_PORT || "3306"),
+
+  /**
+   * MySQL 데이터베이스 사용자명
+   * 기본값은 root입니다.
+   */
+  DB_USERNAME: process.env.DB_USERNAME || "root",
+
+  /**
+   * MySQL 데이터베이스 비밀번호
+   * 기본값은 빈 문자열입니다.
+   */
+  DB_PASSWORD: process.env.DB_PASSWORD || "",
+
+  /**
+   * MySQL 데이터베이스 이름
+   * 기본값은 deukgeun_db입니다.
+   */
+  DB_NAME: process.env.DB_NAME || "deukgeun_db",
+
+  // JWT 설정
+  /**
+   * JWT 토큰 서명에 사용할 비밀키
+   * 프로덕션 환경에서는 반드시 강력한 비밀키로 설정해야 합니다.
+   */
+  JWT_SECRET: process.env.JWT_SECRET || "your-secret-key",
+
+  /**
+   * JWT 토큰의 만료 기간
+   * 기본값은 7일입니다.
+   */
+  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "7d",
+
+  // CORS 설정
+  /**
+   * CORS 허용할 오리진 주소
+   * 프론트엔드 애플리케이션의 주소를 설정합니다.
+   */
+  CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:3000",
+};

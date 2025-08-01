@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-
 /**
  * 환경 변수 로드
  * .env 파일에서 환경 변수를 읽어와 process.env에 설정합니다.

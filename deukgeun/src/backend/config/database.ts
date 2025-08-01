@@ -1,6 +1,7 @@
 import { createConnection } from "typeorm";
 import { config } from "./env";
 import { Post } from "../entities/Post";
+import { Gym } from "../entities/Gym";
 
 /**
  * TypeORM 데이터베이스 연결 설정
@@ -36,7 +37,7 @@ export const AppDataSource = createConnection({
 
   // 엔티티 클래스 목록
   // TypeORM이 관리할 데이터베이스 테이블과 매핑되는 클래스들입니다.
-  entities: [Post],
+  entities: [Post, Gym],
 
   // 구독자 목록 (현재 사용하지 않음)
   subscribers: [],

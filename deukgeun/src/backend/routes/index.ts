@@ -1,5 +1,6 @@
 import { Router } from "express";
-import postRoutes from "./post.route";
+import postRoutes from "./post";
+// import gymRoutes from "./gym";
 
 /**
  * Express 라우터 인스턴스 생성

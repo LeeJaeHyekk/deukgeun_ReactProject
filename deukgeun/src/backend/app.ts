@@ -6,6 +6,7 @@ import "reflect-metadata";
 import { errorHandler } from "./middlewares/errorHandler";
 import routes from "./routes";
 import { AppDataSource } from "./config/database";
+import postRouter from "./routes/post";
 
 /**
  * Express 애플리케이션 인스턴스 생성
@@ -47,6 +48,7 @@ app.use(express.urlencoded({ extended: true }));
  * /api 경로로 들어오는 모든 요청을 routes 모듈로 전달합니다.
  */
 app.use("/api", routes);
+app.use("/api/posts", postRouter);
 
 /**
  * 전역 에러 핸들러 미들웨어

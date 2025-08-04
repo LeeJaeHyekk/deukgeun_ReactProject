@@ -29,7 +29,7 @@ class AutoUpdateScheduler {
   private intervalId: NodeJS.Timeout | null = null;
   private isRunning = false;
 
-  constructor(config: SchedulerConfig) {
+  constructor(config?: Partial<SchedulerConfig>) {
     this.config = { ...DEFAULT_CONFIG, ...config };
   }
 
@@ -201,7 +201,7 @@ export function initializeScheduler(
     globalScheduler.stop();
   }
 
-  globalScheduler = new AutoUpdateScheduler(config || {});
+  globalScheduler = new AutoUpdateScheduler(config);
   globalScheduler.start();
   return globalScheduler;
 }

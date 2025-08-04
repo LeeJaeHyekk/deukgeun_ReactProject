@@ -2,175 +2,125 @@ import { connectDatabase } from "../config/database";
 import { searchWithEnhancedSources } from "../services/enhancedCrawlerService";
 import { Gym } from "../entities/Gym";
 
+// Test gyms with various facility information
+const testGyms = [
+  "스포애니 헬스클럽",
+  "올리브영 피트니스",
+  "크로스핏 서울",
+  "요가스튜디오 나무",
+  "PT센터 강남",
+  "24시간 헬스장",
+  "주차가능 피트니스",
+  "샤워시설 헬스클럽",
+  "그룹PT 스튜디오",
+  "에어로빅 센터",
+];
+
 async function testEnhancedCrawler() {
   try {
+    console.log("🚀 향상된 크롤러 테스트 시작");
+    console.log("📡 데이터베이스 연결 중...");
+
     const connection = await connectDatabase();
-    console.log("📡 DB 연결 성공");
+    console.log("✅ 데이터베이스 연결 성공");
 
-    // 테스트용 헬스장들 (시설 정보가 다양한 것들)
-    const testGyms = [
-      "스포애니 강남점",
-      "올리브영 피트니스",
-      "크로스핏 강남",
-      "요가스튜디오",
-      "PT센터",
-      "24시간 헬스장",
-      "주차가능 헬스클럽",
-      "샤워시설 헬스장",
-      "그룹PT 스튜디오",
-      "GX 클럽",
-    ];
-
-    console.log("🧪 향상된 크롤링 테스트 시작");
-    console.log(`📊 테스트 대상: ${testGyms.length}개 헬스장`);
-
+    const gymRepo = connection.getRepository(Gym);
     let successCount = 0;
-    let errorCount = 0;
-    const results: {
-      name: string;
-      success: boolean;
-      source?: string;
-      confidence?: number;
-      facilities?: {
-        hasPT: boolean;
-        hasGX: boolean;
-        hasGroupPT: boolean;
-        hasParking: boolean;
-        hasShower: boolean;
-        is24Hours: boolean;
-      };
-    }[] = [];
+    let totalPT = 0;
+    let totalGX = 0;
+    let totalGroupPT = 0;
+    let totalParking = 0;
+    let totalShower = 0;
+    let total24Hours = 0;
+
+    console.log(`\n🔍 ${testGyms.length}개 테스트 헬스장 검색 시작`);
 
     for (let i = 0; i < testGyms.length; i++) {
       const gymName = testGyms[i];
-      console.log(`\n🔍 [${i + 1}/${testGyms.length}] 테스트: ${gymName}`);
+      console.log(`\n📊 [${i + 1}/${testGyms.length}] ${gymName} 검색 중...`);
 
       try {
         const result = await searchWithEnhancedSources(gymName);
 
         if (result) {
-          console.log(
-            `✅ 성공: ${gymName} → ${result.name} [${result.source}] (신뢰도: ${result.confidence})`
-          );
-          console.log(
-            `🏋️ 시설 정보: PT=${result.hasPT}, GX=${result.hasGX}, GroupPT=${result.hasGroupPT}, 주차=${result.hasParking}, 샤워=${result.hasShower}, 24시간=${result.is24Hours}`
-          );
-
           successCount++;
-          results.push({
-            name: gymName,
-            success: true,
-            source: result.source,
-            confidence: result.confidence,
-            facilities: {
-              hasPT: result.hasPT || false,
-              hasGX: result.hasGX || false,
-              hasGroupPT: result.hasGroupPT || false,
-              hasParking: result.hasParking || false,
-              hasShower: result.hasShower || false,
-              is24Hours: result.is24Hours || false,
-            },
-          });
-        } else {
-          console.log(`❌ 실패: ${gymName}`);
-          errorCount++;
-          results.push({
-            name: gymName,
-            success: false,
-          });
-        }
+          console.log(`✅ ${gymName} - 검색 성공`);
+          console.log(`📍 주소: ${result.address}`);
+          console.log(`📞 전화: ${result.phone || "정보 없음"}`);
+          console.log(`🏋️ 시설 정보:`);
+          console.log(`  - PT: ${result.hasPT ? "✅" : "❌"}`);
+          console.log(`  - GX: ${result.hasGX ? "✅" : "❌"}`);
+          console.log(`  - GroupPT: ${result.hasGroupPT ? "✅" : "❌"}`);
+          console.log(`  - 주차: ${result.hasParking ? "✅" : "❌"}`);
+          console.log(`  - 샤워: ${result.hasShower ? "✅" : "❌"}`);
+          console.log(`  - 24시간: ${result.is24Hours ? "✅" : "❌"}`);
+          console.log(`  - 운영시간: ${result.openHour || "정보 없음"}`);
+          console.log(
+            `🎯 소스: ${result.source} (신뢰도: ${result.confidence})`
+          );
 
-        // API 요청 간격 조절
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+          // Count facilities
+          if (result.hasPT) totalPT++;
+          if (result.hasGX) totalGX++;
+          if (result.hasGroupPT) totalGroupPT++;
+          if (result.hasParking) totalParking++;
+          if (result.hasShower) totalShower++;
+          if (result.is24Hours) total24Hours++;
+        } else {
+          console.log(`❌ ${gymName} - 검색 결과 없음`);
+        }
       } catch (error) {
-        console.error(`⚠️ 오류: ${gymName} - ${(error as Error).message}`);
-        errorCount++;
-        results.push({
-          name: gymName,
-          success: false,
-        });
+        console.error(`❌ ${gymName} - 검색 오류:`, error);
       }
+
+      // Rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
-    console.log("\n📊 테스트 결과:");
-    console.log(`✅ 성공: ${successCount}개`);
-    console.log(`❌ 실패: ${errorCount}개`);
+    // Facility statistics
+    console.log(`\n📊 시설 정보 통계:`);
     console.log(
-      `📈 성공률: ${Math.round((successCount / testGyms.length) * 100)}%`
+      `✅ 성공: ${successCount}/${testGyms.length} (${(
+        (successCount / testGyms.length) *
+        100
+      ).toFixed(1)}%)`
+    );
+    console.log(`🏋️ 시설별 검출률:`);
+    console.log(
+      `  - PT: ${totalPT}/${successCount} (${
+        successCount > 0 ? ((totalPT / successCount) * 100).toFixed(1) : 0
+      }%)`
+    );
+    console.log(
+      `  - GX: ${totalGX}/${successCount} (${
+        successCount > 0 ? ((totalGX / successCount) * 100).toFixed(1) : 0
+      }%)`
+    );
+    console.log(
+      `  - GroupPT: ${totalGroupPT}/${successCount} (${
+        successCount > 0 ? ((totalGroupPT / successCount) * 100).toFixed(1) : 0
+      }%)`
+    );
+    console.log(
+      `  - 주차: ${totalParking}/${successCount} (${
+        successCount > 0 ? ((totalParking / successCount) * 100).toFixed(1) : 0
+      }%)`
+    );
+    console.log(
+      `  - 샤워: ${totalShower}/${successCount} (${
+        successCount > 0 ? ((totalShower / successCount) * 100).toFixed(1) : 0
+      }%)`
+    );
+    console.log(
+      `  - 24시간: ${total24Hours}/${successCount} (${
+        successCount > 0 ? ((total24Hours / successCount) * 100).toFixed(1) : 0
+      }%)`
     );
 
-    console.log("\n📋 상세 결과:");
-    results.forEach((result, index) => {
-      const status = result.success ? "✅" : "❌";
-      const source = result.source ? ` [${result.source}]` : "";
-      const confidence = result.confidence
-        ? ` (신뢰도: ${result.confidence})`
-        : "";
-      const facilities = result.facilities
-        ? ` | PT:${result.facilities.hasPT} GX:${result.facilities.hasGX} GroupPT:${result.facilities.hasGroupPT} 주차:${result.facilities.hasParking} 샤워:${result.facilities.hasShower} 24시간:${result.facilities.is24Hours}`
-        : "";
-
-      console.log(
-        `${index + 1}. ${status} ${
-          result.name
-        }${source}${confidence}${facilities}`
-      );
-    });
-
-    // 시설 정보 통계
-    const successfulResults = results.filter((r) => r.success && r.facilities);
-    if (successfulResults.length > 0) {
-      console.log("\n📈 시설 정보 통계:");
-      const stats = {
-        hasPT: successfulResults.filter((r) => r.facilities?.hasPT).length,
-        hasGX: successfulResults.filter((r) => r.facilities?.hasGX).length,
-        hasGroupPT: successfulResults.filter((r) => r.facilities?.hasGroupPT)
-          .length,
-        hasParking: successfulResults.filter((r) => r.facilities?.hasParking)
-          .length,
-        hasShower: successfulResults.filter((r) => r.facilities?.hasShower)
-          .length,
-        is24Hours: successfulResults.filter((r) => r.facilities?.is24Hours)
-          .length,
-      };
-
-      console.log(
-        `🏋️ PT 제공: ${stats.hasPT}/${successfulResults.length} (${Math.round(
-          (stats.hasPT / successfulResults.length) * 100
-        )}%)`
-      );
-      console.log(
-        `🎵 GX 제공: ${stats.hasGX}/${successfulResults.length} (${Math.round(
-          (stats.hasGX / successfulResults.length) * 100
-        )}%)`
-      );
-      console.log(
-        `👥 그룹PT 제공: ${stats.hasGroupPT}/${
-          successfulResults.length
-        } (${Math.round((stats.hasGroupPT / successfulResults.length) * 100)}%)`
-      );
-      console.log(
-        `🚗 주차 가능: ${stats.hasParking}/${
-          successfulResults.length
-        } (${Math.round((stats.hasParking / successfulResults.length) * 100)}%)`
-      );
-      console.log(
-        `🚿 샤워 시설: ${stats.hasShower}/${
-          successfulResults.length
-        } (${Math.round((stats.hasShower / successfulResults.length) * 100)}%)`
-      );
-      console.log(
-        `⏰ 24시간 운영: ${stats.is24Hours}/${
-          successfulResults.length
-        } (${Math.round((stats.is24Hours / successfulResults.length) * 100)}%)`
-      );
-    }
-
     await connection.close();
-    process.exit(0);
+    console.log("\n✅ 향상된 크롤러 테스트 완료");
   } catch (error) {
     console.error("❌ 테스트 중 오류 발생:", error);
-    process.exit(1);
   }
 }
 

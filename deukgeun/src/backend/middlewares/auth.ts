@@ -1,61 +1,60 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { config } from "../config/env";
+import { verifyAccessToken } from "../utils/jwt";
+import { logger } from "../utils/logger";
 
-/**
- * 인증된 요청을 위한 Request 인터페이스 확장
- * JWT 토큰에서 추출한 사용자 정보를 req.user에 저장합니다.
- */
-interface AuthRequest extends Request {
-  user?: any;
+// Request 인터페이스 확장
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        userId: number;
+      };
+    }
+  }
 }
 
-/**
- * JWT 토큰 기반 인증 미들웨어
- * 요청 헤더의 Authorization 토큰을 검증하여 사용자 인증을 처리합니다.
- *
- * @param {AuthRequest} req - 확장된 Express 요청 객체
- * @param {Response} res - Express 응답 객체
- * @param {NextFunction} next - Express 다음 미들웨어 함수
- */
-export const auth = (req: AuthRequest, res: Response, next: NextFunction) => {
+export function authenticateToken(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
-    /**
-     * Authorization 헤더에서 Bearer 토큰 추출
-     * "Bearer <token>" 형태에서 토큰 부분만 분리합니다.
-     */
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
 
-    /**
-     * 토큰이 존재하지 않는 경우 401 Unauthorized 응답
-     */
     if (!token) {
-      return res
-        .status(401)
-        .json({ message: "Access denied. No token provided." });
+      return res.status(401).json({ message: "액세스 토큰이 필요합니다." });
     }
 
-    /**
-     * JWT 토큰 검증 및 디코딩
-     * config.JWT_SECRET를 사용하여 토큰의 유효성을 확인합니다.
-     */
-    const decoded = jwt.verify(token, config.JWT_SECRET);
+    const payload = verifyAccessToken(token);
+    if (!payload) {
+      return res.status(403).json({ message: "유효하지 않은 토큰입니다." });
+    }
 
-    /**
-     * 디코딩된 사용자 정보를 요청 객체에 저장
-     * 이후 미들웨어에서 req.user로 접근할 수 있습니다.
-     */
-    req.user = decoded;
-
-    /**
-     * 인증 성공 시 다음 미들웨어로 진행
-     */
+    req.user = payload;
     next();
   } catch (error) {
-    /**
-     * 토큰 검증 실패 시 400 Bad Request 응답
-     * 잘못된 토큰이나 만료된 토큰의 경우입니다.
-     */
-    res.status(400).json({ message: "Invalid token." });
+    logger.error("토큰 인증 중 오류:", error);
+    return res.status(500).json({ message: "서버 오류가 발생했습니다." });
   }
-};
+}
+
+// 선택적 인증 미들웨어 (토큰이 있으면 검증, 없으면 통과)
+export function optionalAuth(req: Request, res: Response, next: NextFunction) {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (token) {
+      const payload = verifyAccessToken(token);
+      if (payload) {
+        req.user = payload;
+      }
+    }
+
+    next();
+  } catch (error) {
+    logger.error("선택적 인증 중 오류:", error);
+    next(); // 오류가 발생해도 계속 진행
+  }
+}

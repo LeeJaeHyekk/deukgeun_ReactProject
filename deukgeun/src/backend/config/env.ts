@@ -14,9 +14,15 @@ export const config = {
   DB_PASSWORD: process.env.DB_PASSWORD || "",
   DB_NAME: process.env.DB_NAME || "gym_db",
 
+  // reCAPTCHA configuration
+  RECAPTCHA_SECRET: process.env.RECAPTCHA_SECRET || "your-secret-key",
+
   // JWT configuration
-  JWT_SECRET: process.env.JWT_SECRET || "your-secret-key",
-  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "7d",
+  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || "your-access-secret-key",
+  JWT_REFRESH_SECRET:
+    process.env.JWT_REFRESH_SECRET || "your-refresh-secret-key",
+  JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
+  JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
 
   // CORS configuration
   CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:3000",
@@ -25,10 +31,10 @@ export const config = {
   KAKAO_API_KEY:
     process.env.KAKAO_REST_MAP_API_KEY || "your_kakao_api_key_here",
 
-  // Naver API configuration
-  NAVER_CLIENT_ID: process.env.NAVER_CLIENT_ID || "your_naver_client_id_here",
-  NAVER_CLIENT_SECRET:
-    process.env.NAVER_CLIENT_SECRET || "your_naver_client_secret_here",
+  // Naver API configuration (commented out)
+  // NAVER_CLIENT_ID: process.env.NAVER_CLIENT_ID || "your_naver_client_id_here",
+  // NAVER_CLIENT_SECRET:
+  //   process.env.NAVER_CLIENT_SECRET || "your_naver_client_secret_here",
 
   // Google Places API configuration
   GOOGLE_PLACES_API_KEY:

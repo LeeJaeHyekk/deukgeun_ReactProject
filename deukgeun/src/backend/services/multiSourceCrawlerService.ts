@@ -64,48 +64,40 @@ async function searchKakaoMap(query: string): Promise<SearchResult[]> {
 }
 
 // Search Naver Map API (requires Naver Developer Center API key)
-async function searchNaverMap(query: string): Promise<SearchResult[]> {
-  try {
-    const response = await axios.get(
-      `https://openapi.naver.com/v1/search/local.json`,
-      {
-        params: {
-          query: query + " 헬스장",
-          display: 10,
-        },
-        headers: {
-          "X-Naver-Client-Id": config.NAVER_CLIENT_ID,
-          "X-Naver-Client-Secret": config.NAVER_CLIENT_SECRET,
-        },
-      }
-    );
+// async function searchNaverMap(query: string): Promise<SearchResult[]> {
+//   try {
+//     const response = await axios.get(
+//       "https://openapi.naver.com/v1/search/local.json",
+//       {
+//         params: {
+//           query: query,
+//           display: 10,
+//         },
+//         headers: {
+//           "X-Naver-Client-Id": config.NAVER_CLIENT_ID,
+//           "X-Naver-Client-Secret": config.NAVER_CLIENT_SECRET,
+//         },
+//       }
+//     );
 
-    if (!response.data.items) return [];
+//     if (!response.data.items || response.data.items.length === 0) {
+//       return [];
+//     }
 
-    return response.data.items
-      .filter((item: any) => {
-        const title = item.title.toLowerCase();
-        return (
-          title.includes("헬스") ||
-          title.includes("피트니스") ||
-          title.includes("짐") ||
-          title.includes("gym")
-        );
-      })
-      .map((item: any) => ({
-        name: item.title.replace(/<[^>]*>/g, ""), // Remove HTML tags
-        address: item.address,
-        phone: item.telephone,
-        latitude: 0, // Naver search API doesn't provide coordinates
-        longitude: 0,
-        source: "naver_map",
-        confidence: 0.7,
-      }));
-  } catch (error) {
-    console.error("Naver Map API error:", error);
-    return [];
-  }
-}
+//     return response.data.items.map((item: any) => ({
+//       name: item.title.replace(/<[^>]*>/g, ""),
+//       address: item.address,
+//       phone: item.telephone,
+//       latitude: parseFloat(item.mapx) || 0,
+//       longitude: parseFloat(item.mapy) || 0,
+//       source: "naver_map",
+//       confidence: 0.85,
+//     }));
+//   } catch (error) {
+//     console.warn(`⚠️ Naver Map API error: ${error}`);
+//     return [];
+//   }
+// }
 
 // Search Google Places API (requires Google Places API key)
 async function searchGooglePlaces(query: string): Promise<SearchResult[]> {
@@ -304,13 +296,13 @@ export async function searchWithMultipleSources(
       // Search in parallel across multiple sources
       const [
         kakaoResults,
-        naverResults,
+        // naverResults, // Commented out
         googleResults,
         kakaoWebResults,
         naverWebResults,
       ] = await Promise.all([
         searchKakaoMap(query),
-        searchNaverMap(query),
+        // searchNaverMap(query), // Commented out
         searchGooglePlaces(query),
         crawlKakaoMapWeb(query),
         crawlNaverMapWeb(query),
@@ -318,7 +310,7 @@ export async function searchWithMultipleSources(
 
       allResults.push(
         ...kakaoResults,
-        ...naverResults,
+        // ...naverResults, // Commented out
         ...googleResults,
         ...kakaoWebResults,
         ...naverWebResults

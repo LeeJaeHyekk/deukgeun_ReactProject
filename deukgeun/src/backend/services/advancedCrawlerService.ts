@@ -60,55 +60,56 @@ async function searchSeoulOpenData(query: string): Promise<SearchResult[]> {
   }
 }
 
-// 네이버 블로그/카페 검색을 통한 간접 정보 수집
-async function searchNaverBlog(query: string): Promise<SearchResult[]> {
-  try {
-    const response = await axios.get(
-      `https://openapi.naver.com/v1/search/blog.json`,
-      {
-        params: {
-          query: `${query} 헬스장 주소`,
-          display: 10,
-          sort: "date",
-        },
-        headers: {
-          "X-Naver-Client-Id": config.NAVER_CLIENT_ID,
-          "X-Naver-Client-Secret": config.NAVER_CLIENT_SECRET,
-        },
-      }
-    );
+// Search Naver Blog for gym information
+// async function searchNaverBlog(query: string): Promise<SearchResult[]> {
+//   try {
+//     const response = await axios.get(
+//       "https://openapi.naver.com/v1/search/blog.json",
+//       {
+//         params: {
+//           query: query + " 헬스장 주소",
+//           display: 10,
+//         },
+//         headers: {
+//           "X-Naver-Client-Id": config.NAVER_CLIENT_ID,
+//           "X-Naver-Client-Secret": config.NAVER_CLIENT_SECRET,
+//         },
+//       }
+//     );
 
-    if (!response.data.items) return [];
+//     if (!response.data.items || response.data.items.length === 0) {
+//       return [];
+//     }
 
-    const results: SearchResult[] = [];
+//     const results: SearchResult[] = [];
 
-    // 블로그 내용에서 주소 정보 추출 (간단한 정규식 사용)
-    response.data.items.forEach((item: any) => {
-      const content = item.description;
+//     // Extract address information from blog content
+//     response.data.items.forEach((item: any) => {
+//       const content = item.description;
 
-      // 서울시 주소 패턴 매칭
-      const addressMatch = content.match(/서울[^0-9]*[0-9-]+/);
-      if (addressMatch) {
-        results.push({
-          name: query,
-          address: addressMatch[0],
-          phone: "",
-          latitude: 0,
-          longitude: 0,
-          source: "naver_blog",
-          confidence: 0.4, // 블로그 정보는 신뢰도가 낮음
-        });
-      }
-    });
+//       // Match Seoul address patterns
+//       const addressMatch = content.match(/서울[^0-9]*[0-9-]+/);
+//       if (addressMatch) {
+//         results.push({
+//           name: query,
+//           address: addressMatch[0],
+//           phone: "",
+//           latitude: 0,
+//           longitude: 0,
+//           source: "naver_blog",
+//           confidence: 0.6,
+//         });
+//       }
+//     });
 
-    return results;
-  } catch (error) {
-    console.warn(
-      `⚠️ 네이버 블로그 검색 실패: ${query} - ${(error as Error).message}`
-    );
-    return [];
-  }
-}
+//     return results;
+//   } catch (error) {
+//     console.warn(
+//       `⚠️ 네이버 블로그 검색 실패: ${query} - ${(error as Error).message}`
+//     );
+//     return [];
+//   }
+// }
 
 // 인스타그램 해시태그 검색 (공개 정보만)
 async function searchInstagramHashtag(query: string): Promise<SearchResult[]> {
@@ -382,7 +383,7 @@ export async function searchWithAdvancedSources(
     // 병렬로 여러 소스에서 검색
     const searchPromises = [
       searchSeoulOpenData(query),
-      searchNaverBlog(query),
+      // searchNaverBlog(query), // 네이버 블로그 검색 주석 처리
       searchGymDirectory(query),
       searchFacebookPage(query),
       searchInstagramHashtag(query),

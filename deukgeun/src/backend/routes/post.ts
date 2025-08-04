@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { PostController } from "../controllers/post.controller";
-import { auth } from "../middlewares/auth";
+import { authenticateToken } from "../middlewares/auth";
 
 /**
  * Express 라우터 인스턴스 생성
@@ -25,8 +25,8 @@ const postController = new PostController();
  */
 router.get("/", postController.getAllPosts);
 router.get("/:id", postController.getPostById);
-router.post("/", auth, postController.createPost);
-router.put("/:id", auth, postController.updatePost);
-router.delete("/:id", auth, postController.deletePost);
+router.post("/", authenticateToken, postController.createPost);
+router.put("/:id", authenticateToken, postController.updatePost);
+router.delete("/:id", authenticateToken, postController.deletePost);
 
 export default router;

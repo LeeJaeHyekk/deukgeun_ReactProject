@@ -1,19 +1,45 @@
 import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import styles from "./LoginPage.module.css";
 
+// 로그인 응답 타입 정의
+interface LoginResponse {
+  message: string;
+  accessToken: string;
+  user: {
+    id: number;
+    email: string;
+    nickname: string;
+  };
+}
+
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setLoading(true);
-    setTimeout(() => setLoading(false), 2000);
-  };
+    try {
+      const recaptchaToken = "dummy-token"; // TODO: 실제 reCAPTCHA token 발급 필요
 
-  const handleNavigation = (route: string) => {
-    console.log(`Navigating to: ${route}`);
-    // 실제 라우팅 처리 시 next/router 또는 react-router-dom 사용
+      const response = await axios.post<LoginResponse>(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
+        { email, password, recaptchaToken },
+        { withCredentials: true } // refreshToken 쿠키 저장
+      );
+
+      localStorage.setItem("accessToken", response.data.accessToken);
+      navigate("/");
+    } catch (error: any) {
+      alert(error.response?.data?.message || "로그인 실패");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -23,6 +49,8 @@ export default function LoginPage() {
 
         <input
           type="text"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           placeholder="이메일 또는 닉네임"
           className={styles.input}
         />
@@ -30,6 +58,8 @@ export default function LoginPage() {
         <div className={styles.passwordWrapper}>
           <input
             type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="비밀번호"
             className={styles.passwordInput}
           />
@@ -43,7 +73,11 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <button onClick={handleLogin} className={styles.loginButton}>
+        <button
+          onClick={handleLogin}
+          className={styles.loginButton}
+          disabled={loading}
+        >
           {loading ? "로그인 중..." : "로그인"}
         </button>
 
@@ -56,27 +90,27 @@ export default function LoginPage() {
 
         <div className={styles.linkRow}>
           <button
+            onClick={() => navigate("/signup")}
             className={styles.linkBtn}
-            onClick={() => handleNavigation("register")}
           >
             회원가입
           </button>
           <button
+            onClick={() => navigate("/find-id")}
             className={styles.linkBtn}
-            onClick={() => handleNavigation("find-id")}
           >
             아이디 찾기
           </button>
           <button
+            onClick={() => navigate("/find-password")}
             className={styles.linkBtn}
-            onClick={() => handleNavigation("find-password")}
           >
             비밀번호 찾기
           </button>
         </div>
 
         <div className={styles.recaptcha}>
-          <p className={styles.recaptchaText}>구글 reCAPTCHA 적용 영역</p>
+          <p className={styles.recaptchaText}>구글 reCAPTCHA 적용 예정</p>
         </div>
       </div>
     </div>

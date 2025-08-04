@@ -44,6 +44,14 @@
 }
 
 /* 
+  에러 상태 스타일
+  */
+.selectorError {
+  border-color: #ff6b6b !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.2) !important;
+}
+
+/* 
   오른쪽 화살표 아이콘 여백 조정 
   */
 .icon {

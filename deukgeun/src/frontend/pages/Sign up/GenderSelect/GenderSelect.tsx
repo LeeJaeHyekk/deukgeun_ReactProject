@@ -6,9 +6,10 @@ import { useState } from "react";
 interface GenderSelectProps {
   value: string;
   onChange: (value: string) => void;
+  error?: string;
 }
 
-export const GenderSelect = ({ value, onChange }: GenderSelectProps) => {
+export const GenderSelect = ({ value, onChange, error }: GenderSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleOptions = () => setIsOpen(!isOpen);
 
@@ -19,7 +20,10 @@ export const GenderSelect = ({ value, onChange }: GenderSelectProps) => {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.selector} onClick={toggleOptions}>
+      <div
+        className={`${styles.selector} ${error ? styles.selectorError : ""}`}
+        onClick={toggleOptions}
+      >
         <span>{value || "성별 선택"}</span>
         <FaChevronDown className={styles.icon} />
       </div>

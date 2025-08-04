@@ -32,8 +32,14 @@
   margin-bottom: 20px;
 }
 
+/* ===== 입력 그룹 스타일 ===== */
+.inputGroup {
+  margin-bottom: 16px;
+}
+
 /* ===== 기본 입력 필드 스타일 ===== */
 .input {
+  width: 100%;
   padding: 14px 18px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
@@ -44,6 +50,7 @@
   font-size: 15px;
   box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(4px);
+  box-sizing: border-box;
 }
 
 .input:focus {
@@ -55,6 +62,71 @@
 .input::placeholder {
   color: rgba(255, 255, 255, 0.4);
   font-size: 14px;
+}
+
+/* ===== 에러 상태 스타일 ===== */
+.inputError {
+  border-color: #ff6b6b !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.2) !important;
+}
+
+.errorText {
+  display: block;
+  color: #ff6b6b;
+  font-size: 12px;
+  margin-top: 4px;
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+/* ===== 비밀번호 입력 필드 스타일 ===== */
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.passwordInput {
+  width: 100%;
+  padding: 14px 18px;
+  padding-right: 50px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  border: 1px solid transparent;
+  outline: none;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+  font-size: 15px;
+  box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+  box-sizing: border-box;
+}
+
+.passwordInput:focus {
+  border: 1px solid #ffffff55;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.passwordInput::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+}
+
+.eyeButton {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  transition: color 0.2s ease;
+  padding: 4px;
+}
+
+.eyeButton:hover {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* ===== 셀렉트박스(드롭다운) 기본 스타일 ===== */
@@ -93,8 +165,9 @@
 .fileWrapper {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   color: white;
+  margin-bottom: 16px;
 }
 
 .hiddenFileInput {
@@ -102,7 +175,10 @@
 }
 
 .fileLabel {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 12px 18px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
@@ -121,9 +197,30 @@
 }
 
 .fileInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-size: 13px;
   color: #eee;
-  padding-left: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+}
+
+.removeButton {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.removeButton:hover {
+  background: rgba(255, 107, 107, 0.1);
 }
 
 /* ===== 리캡차 박스 스타일 ===== */
@@ -143,23 +240,78 @@
 /* ===== 제출 및 취소 버튼 ===== */
 .submitButton,
 .cancelButton {
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 8px;
+  width: 100%;
+  padding: 14px;
+  margin-top: 16px;
+  border-radius: 12px;
   font-size: 16px;
+  font-weight: bold;
   border: none;
   cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
 }
 
 .submitButton {
-  background-color: #3897f0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .cancelButton {
-  background-color: transparent;
-  color: #f0f0f0;
-  border: 1px solid #ccc;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: 12px;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.cancelButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===== 로그인 링크 ===== */
+.loginLink {
+  text-align: center;
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+.linkButton {
+  background: none;
+  border: none;
+  color: #667eea;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.linkButton:hover:not(:disabled) {
+  color: #5a6fd8;
+}
+
+.linkButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* ===== 공통 트리거 버튼과 드롭다운 영역 ===== */

@@ -179,26 +179,46 @@ export default function LoginPage() {
         <div className={styles.divider}>또는</div>
 
         <div className={styles.socialWrapper}>
-          <button className={styles.kakaoBtn}>🟡 카카오로 로그인</button>
-          <button className={styles.googleBtn}>🔵 Google로 로그인</button>
+          <button
+            type="button"
+            className={styles.kakaoBtn}
+            disabled={loading}
+            onClick={() => showToast("카카오 로그인은 준비 중입니다.", "info")}
+          >
+            🟡 카카오로 로그인
+          </button>
+          <button
+            type="button"
+            className={styles.googleBtn}
+            disabled={loading}
+            onClick={() => showToast("Google 로그인은 준비 중입니다.", "info")}
+          >
+            🔵 Google로 로그인
+          </button>
         </div>
 
         <div className={styles.linkRow}>
           <button
+            type="button"
             onClick={() => navigate("/signup")}
             className={styles.linkBtn}
+            disabled={loading}
           >
             회원가입
           </button>
           <button
+            type="button"
             onClick={() => navigate("/find-id")}
             className={styles.linkBtn}
+            disabled={loading}
           >
             아이디 찾기
           </button>
           <button
+            type="button"
             onClick={() => navigate("/find-password")}
             className={styles.linkBtn}
+            disabled={loading}
           >
             비밀번호 찾기
           </button>

@@ -161,9 +161,15 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 은은한 그림자 */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.kakaoBtn:hover {
+.kakaoBtn:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.kakaoBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .googleBtn {
@@ -177,9 +183,15 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 은은한 그림자 */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.googleBtn:hover {
+.googleBtn:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.googleBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .linkRow {
@@ -198,8 +210,13 @@
   padding: 0;
   transition: color 0.2s ease;
 }
-.linkBtn:hover {
+.linkBtn:hover:not(:disabled) {
   color: #6b8ebf; /* 호버 시 살짝 진해지는 효과 */
+}
+
+.linkBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .recaptcha {

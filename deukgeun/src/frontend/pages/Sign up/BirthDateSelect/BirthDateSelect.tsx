@@ -3,6 +3,12 @@ import { useState } from "react";
 import styles from "./BirthDateSelect.module.css";
 import { ChevronDown } from "lucide-react";
 
+interface BirthdaySelectProps {
+  value: { year: string; month: string; day: string };
+  onChange: (value: { year: string; month: string; day: string }) => void;
+  error?: string;
+}
+
 const generateOptions = (start: number, end: number) => {
   const options = [];
   for (let i = start; i <= end; i++) {
@@ -11,18 +17,21 @@ const generateOptions = (start: number, end: number) => {
   return options;
 };
 
-export function BirthdaySelect() {
-  const [year, setYear] = useState<string | null>(null);
-  const [month, setMonth] = useState<string | null>(null);
-  const [day, setDay] = useState<string | null>(null);
+export function BirthdaySelect({
+  value,
+  onChange,
+  error,
+}: BirthdaySelectProps) {
   const [openDropdown, setOpenDropdown] = useState<
     "year" | "month" | "day" | null
   >(null);
 
-  const handleSelect = (type: "year" | "month" | "day", value: string) => {
-    if (type === "year") setYear(value);
-    if (type === "month") setMonth(value);
-    if (type === "day") setDay(value);
+  const handleSelect = (
+    type: "year" | "month" | "day",
+    selectedValue: string
+  ) => {
+    const newValue = { ...value, [type]: selectedValue };
+    onChange(newValue);
     setOpenDropdown(null);
   };
 
@@ -31,12 +40,12 @@ export function BirthdaySelect() {
       {/** 연도 */}
       <div className={styles.selectorGroup}>
         <div
-          className={styles.selector}
+          className={`${styles.selector} ${error ? styles.selectorError : ""}`}
           onClick={() =>
             setOpenDropdown(openDropdown === "year" ? null : "year")
           }
         >
-          <div>{year ?? "연도"}</div>
+          <div>{value.year || "연도"}</div>
           <ChevronDown className={styles.icon} size={18} />
         </div>
         {openDropdown === "year" && (
@@ -57,12 +66,12 @@ export function BirthdaySelect() {
       {/** 월 */}
       <div className={styles.selectorGroup}>
         <div
-          className={styles.selector}
+          className={`${styles.selector} ${error ? styles.selectorError : ""}`}
           onClick={() =>
             setOpenDropdown(openDropdown === "month" ? null : "month")
           }
         >
-          <div>{month ?? "월"}</div>
+          <div>{value.month || "월"}</div>
           <ChevronDown className={styles.icon} size={18} />
         </div>
         {openDropdown === "month" && (
@@ -83,10 +92,10 @@ export function BirthdaySelect() {
       {/** 일 */}
       <div className={styles.selectorGroup}>
         <div
-          className={styles.selector}
+          className={`${styles.selector} ${error ? styles.selectorError : ""}`}
           onClick={() => setOpenDropdown(openDropdown === "day" ? null : "day")}
         >
-          <div>{day ?? "일"}</div>
+          <div>{value.day || "일"}</div>
           <ChevronDown className={styles.icon} size={18} />
         </div>
         {openDropdown === "day" && (

@@ -2,6 +2,7 @@ import { createConnection } from "typeorm";
 import { config } from "./env";
 import { Post } from "../entities/Post";
 import { Gym } from "../entities/Gym";
+import { User } from "../entities/User";
 
 // TypeORM database connection configuration
 export const connectDatabase = async () => {
@@ -26,7 +27,7 @@ export const connectDatabase = async () => {
 
     // Auto-sync schema only in development environment
     // Set to false in production to prevent data loss
-    synchronize: config.NODE_ENV === "development",
+    synchronize: false,
 
     // Enable SQL query logging only in development environment
     // Used for debugging purposes
@@ -34,7 +35,7 @@ export const connectDatabase = async () => {
 
     // Entity class list
     // Classes that map to database tables managed by TypeORM
-    entities: [Post, Gym],
+    entities: [Post, Gym, User],
 
     // Subscriber list (currently not used)
     subscribers: [],

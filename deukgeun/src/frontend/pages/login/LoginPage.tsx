@@ -1,42 +1,78 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { authApi, LoginRequest } from "@features/auth/api/authApi";
+import { validation, showToast, storage } from "@shared/lib";
+import {
+  executeRecaptcha,
+  getDummyRecaptchaToken,
+} from "@shared/lib/recaptcha";
 import styles from "./LoginPage.module.css";
-
-// 로그인 응답 타입 정의
-interface LoginResponse {
-  message: string;
-  accessToken: string;
-  user: {
-    id: number;
-    email: string;
-    nickname: string;
-  };
-}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
   const navigate = useNavigate();
 
+  // 폼 검증
+  const validateForm = (): boolean => {
+    const newErrors: { email?: string; password?: string } = {};
+
+    if (!validation.required(email)) {
+      newErrors.email = "이메일을 입력해주세요.";
+    } else if (!validation.email(email)) {
+      newErrors.email = "유효한 이메일 주소를 입력해주세요.";
+    }
+
+    if (!validation.required(password)) {
+      newErrors.password = "비밀번호를 입력해주세요.";
+    } else if (!validation.password(password)) {
+      newErrors.password = "비밀번호는 최소 8자 이상이어야 합니다.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleLogin = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
     try {
-      const recaptchaToken = "dummy-token"; // TODO: 실제 reCAPTCHA token 발급 필요
+      // reCAPTCHA 토큰 생성
+      let recaptchaToken: string;
+      try {
+        recaptchaToken = await executeRecaptcha("login");
+      } catch (error) {
+        // reCAPTCHA 실패 시 개발용 더미 토큰 사용
+        recaptchaToken = getDummyRecaptchaToken();
+      }
 
-      const response = await axios.post<LoginResponse>(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
-        { email, password, recaptchaToken },
-        { withCredentials: true } // refreshToken 쿠키 저장
-      );
+      const loginData: LoginRequest = {
+        email: email.trim().toLowerCase(),
+        password,
+        recaptchaToken,
+      };
 
-      localStorage.setItem("accessToken", response.data.accessToken);
+      const response = await authApi.login(loginData);
+
+      // 토큰 저장
+      storage.set("accessToken", response.accessToken);
+      storage.set("user", response.user);
+
+      showToast("로그인 성공!", "success");
       navigate("/");
     } catch (error: any) {
-      alert(error.response?.data?.message || "로그인 실패");
+      const errorMessage =
+        error.response?.data?.message || "로그인에 실패했습니다.";
+      showToast(errorMessage, "error");
     } finally {
       setLoading(false);
     }
@@ -47,39 +83,98 @@ export default function LoginPage() {
       <div className={styles.loginBox}>
         <h1 className={styles.logo}>득근 득근</h1>
 
-        <input
-          type="text"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="이메일 또는 닉네임"
-          className={styles.input}
-        />
-
-        <div className={styles.passwordWrapper}>
-          <input
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="비밀번호"
-            className={styles.passwordInput}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className={styles.eyeButton}
-            aria-label="비밀번호 보기 토글"
-          >
-            {showPassword ? <FaEyeSlash /> : <FaEye />}
-          </button>
-        </div>
-
-        <button
-          onClick={handleLogin}
-          className={styles.loginButton}
-          disabled={loading}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}
         >
-          {loading ? "로그인 중..." : "로그인"}
-        </button>
+          <div className={styles.inputGroup}>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (errors.email) {
+                  setErrors((prev) => ({ ...prev, email: undefined }));
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !loading) {
+                  e.preventDefault();
+                  handleLogin();
+                }
+              }}
+              placeholder="이메일"
+              className={`${styles.input} ${
+                errors.email ? styles.inputError : ""
+              }`}
+              autoComplete="email"
+              aria-describedby={errors.email ? "email-error" : undefined}
+            />
+            {errors.email && (
+              <span id="email-error" className={styles.errorText}>
+                {errors.email}
+              </span>
+            )}
+          </div>
+
+          <div className={styles.inputGroup}>
+            <div className={styles.passwordWrapper}>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) {
+                    setErrors((prev) => ({ ...prev, password: undefined }));
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !loading) {
+                    e.preventDefault();
+                    handleLogin();
+                  }
+                }}
+                placeholder="비밀번호"
+                className={`${styles.passwordInput} ${
+                  errors.password ? styles.inputError : ""
+                }`}
+                autoComplete="current-password"
+                aria-describedby={
+                  errors.password ? "password-error" : undefined
+                }
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className={styles.eyeButton}
+                aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {errors.password && (
+              <span id="password-error" className={styles.errorText}>
+                {errors.password}
+              </span>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            className={styles.loginButton}
+            disabled={loading}
+            aria-describedby={loading ? "loading-description" : undefined}
+          >
+            {loading ? "로그인 중..." : "로그인"}
+          </button>
+          {loading && (
+            <span id="loading-description" className="sr-only">
+              로그인 처리 중입니다.
+            </span>
+          )}
+        </form>
 
         <div className={styles.divider}>또는</div>
 
@@ -110,7 +205,10 @@ export default function LoginPage() {
         </div>
 
         <div className={styles.recaptcha}>
-          <p className={styles.recaptchaText}>구글 reCAPTCHA 적용 예정</p>
+          <p className={styles.recaptchaText}>
+            이 사이트는 reCAPTCHA 및 Google 개인정보처리방침과 서비스 약관의
+            적용을 받습니다.
+          </p>
         </div>
       </div>
     </div>

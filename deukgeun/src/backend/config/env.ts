@@ -73,4 +73,63 @@ export const config = {
    * 프론트엔드 애플리케이션의 주소를 설정합니다.
    */
   CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:3000",
+
+  // 카카오맵 API 설정
+  /**
+   * 카카오맵 REST API 키
+   * 카카오 개발자 센터에서 발급받은 REST API 키를 설정합니다.
+   */
+  KAKAO_API_KEY: process.env.KAKAO_REST_MAP_API_KEY,
+
+  // 네이버 API 설정
+  /**
+   * 네이버 검색 API 클라이언트 ID
+   * 네이버 개발자 센터에서 발급받은 클라이언트 ID를 설정합니다.
+   */
+  NAVER_CLIENT_ID: process.env.NAVER_CLIENT_ID,
+
+  /**
+   * 네이버 검색 API 클라이언트 시크릿
+   * 네이버 개발자 센터에서 발급받은 클라이언트 시크릿을 설정합니다.
+   */
+  NAVER_CLIENT_SECRET: process.env.NAVER_CLIENT_SECRET,
+
+  // 구글 플레이스 API 설정
+  /**
+   * 구글 플레이스 API 키
+   * Google Cloud Console에서 발급받은 Places API 키를 설정합니다.
+   */
+  GOOGLE_PLACES_API_KEY: process.env.GOOGLE_PLACES_API_KEY,
+
+  // 서울시 공공데이터 API 설정
+  /**
+   * 서울시 공공데이터 API 키
+   * 서울시 공공데이터 포털에서 발급받은 API 키를 설정합니다.
+   */
+  SEOUL_OPENAPI_KEY: process.env.SEOUL_OPENAPI_KEY,
+
+  // 자동 업데이트 스케줄러 설정
+  /**
+   * 자동 업데이트 실행 시간 (24시간 형식)
+   * 기본값은 오전 6시입니다.
+   */
+  AUTO_UPDATE_HOUR: parseInt(process.env.AUTO_UPDATE_HOUR || "6"),
+
+  /**
+   * 자동 업데이트 실행 분
+   * 기본값은 0분입니다.
+   */
+  AUTO_UPDATE_MINUTE: parseInt(process.env.AUTO_UPDATE_MINUTE || "0"),
+
+  /**
+   * 자동 업데이트 타입
+   * enhanced, basic, multisource, advanced 중 선택
+   */
+  AUTO_UPDATE_TYPE: process.env.AUTO_UPDATE_TYPE || "enhanced",
+
+  /**
+   * 자동 업데이트 활성화 여부
+   * true 또는 false
+   */
+  AUTO_UPDATE_ENABLED: process.env.AUTO_UPDATE_ENABLED === "true",
 };

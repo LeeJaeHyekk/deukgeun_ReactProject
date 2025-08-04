@@ -28,6 +28,19 @@ export class PostService {
   }
 
   /**
+   * 특정 사용자의 포스트 목록을 조회합니다.
+   * @param {number} userId - 조회할 사용자의 ID
+   * @returns {Promise<Post[]>} 해당 사용자의 포스트 목록 배열
+   */
+  async getPostsByUserId(userId: number): Promise<Post[]> {
+    const postRepository = getRepository(Post);
+    return await postRepository.find({
+      where: { userId },
+      order: { createdAt: "DESC" },
+    });
+  }
+
+  /**
    * 새로운 포스트를 생성합니다.
    * @param {Partial<Post>} postData - 생성할 포스트 데이터 (제목, 내용, 작성자 등)
    * @returns {Promise<Post>} 생성된 포스트 객체

@@ -1,8 +1,8 @@
-import express from "express";
-import cors from "cors";
-import helmet from "helmet";
-import morgan from "morgan";
-import cookieParser from "cookie-parser";
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -11,7 +11,11 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5176"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://localhost:5174",
+    ],
     credentials: true,
   })
 );
@@ -112,6 +116,65 @@ app.post("/api/auth/logout", (req, res) => {
     })
     .status(200)
     .json({ message: "로그아웃 되었습니다." });
+});
+
+// Auth check endpoint
+app.get("/api/auth/check", (req, res) => {
+  const token = req.cookies?.refreshToken;
+
+  if (token) {
+    res.json({
+      message: "인증됨",
+      authenticated: true,
+    });
+  } else {
+    res.status(401).json({
+      message: "인증되지 않음",
+      authenticated: false,
+    });
+  }
+});
+
+// Register endpoint for testing
+app.post("/api/auth/register", (req, res) => {
+  const { email, password, nickname, recaptchaToken } = req.body;
+
+  // Basic validation
+  if (!email || !password || !nickname || !recaptchaToken) {
+    return res.status(400).json({
+      message: "모든 필드를 입력하세요.",
+      required: ["email", "password", "nickname", "recaptchaToken"],
+    });
+  }
+
+  // Email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      message: "유효한 이메일 주소를 입력하세요.",
+    });
+  }
+
+  // For testing purposes, always succeed
+  const accessToken = "test-access-token-" + Date.now();
+  const refreshToken = "test-refresh-token-" + Date.now();
+
+  res
+    .cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
+    .json({
+      message: "회원가입 성공",
+      accessToken,
+      user: {
+        id: 2,
+        email: email,
+        nickname: nickname,
+      },
+    });
 });
 
 // Start server

@@ -3,151 +3,109 @@ import { schedulerAPI } from "../services/autoUpdateScheduler";
 
 const router = Router();
 
-// 스케줄러 상태 조회
+// Get current scheduler status
 router.get("/status", (req, res) => {
   try {
     const status = schedulerAPI.status();
-    res.json({
-      success: true,
-      data: status,
-    });
+    res.json({ success: true, data: status });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: (error as Error).message,
-    });
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to get scheduler status" });
   }
 });
 
-// 스케줄러 시작
+// Start scheduler with optional configuration
 router.post("/start", (req, res) => {
   try {
     const config = req.body;
     const scheduler = schedulerAPI.start(config);
-    res.json({
-      success: true,
-      message: "스케줄러가 시작되었습니다.",
-      data: scheduler.getStatus(),
-    });
+    res.json({ success: true, message: "Scheduler started successfully" });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: (error as Error).message,
-    });
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to start scheduler" });
   }
 });
 
-// 스케줄러 중지
+// Stop scheduler
 router.post("/stop", (req, res) => {
   try {
-    const result = schedulerAPI.stop();
-    res.json({
-      success: true,
-      message: result.message,
-    });
+    schedulerAPI.stop();
+    res.json({ success: true, message: "Scheduler stopped successfully" });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: (error as Error).message,
-    });
+    res.status(500).json({ success: false, error: "Failed to stop scheduler" });
   }
 });
 
-// 설정 업데이트
+// Update scheduler configuration
 router.put("/config", (req, res) => {
   try {
     const config = req.body;
-    const result = schedulerAPI.updateConfig(config);
-    res.json({
-      success: true,
-      message: result.message,
-    });
+    schedulerAPI.updateConfig(config);
+    res.json({ success: true, message: "Scheduler configuration updated" });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: (error as Error).message,
-    });
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: "Failed to update scheduler configuration",
+      });
   }
 });
 
-// 수동 업데이트 실행
+// Manually trigger update with specified type
 router.post("/manual-update", async (req, res) => {
   try {
     const { updateType } = req.body;
-    const result = await schedulerAPI.manualUpdate(updateType);
+    await schedulerAPI.manualUpdate(updateType);
     res.json({
       success: true,
-      message: result.message,
+      message: "Manual update completed successfully",
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: (error as Error).message,
-    });
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to run manual update" });
   }
 });
 
-// 즉시 업데이트 실행 (향상된 크롤링)
+// Specific endpoints for each update type
 router.post("/update/enhanced", async (req, res) => {
   try {
-    const result = await schedulerAPI.manualUpdate("enhanced");
-    res.json({
-      success: true,
-      message: result.message,
-    });
+    await schedulerAPI.manualUpdate("enhanced");
+    res.json({ success: true, message: "Enhanced update completed" });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: (error as Error).message,
-    });
+    res.status(500).json({ success: false, error: "Enhanced update failed" });
   }
 });
 
-// 즉시 업데이트 실행 (기본 크롤링)
 router.post("/update/basic", async (req, res) => {
   try {
-    const result = await schedulerAPI.manualUpdate("basic");
-    res.json({
-      success: true,
-      message: result.message,
-    });
+    await schedulerAPI.manualUpdate("basic");
+    res.json({ success: true, message: "Basic update completed" });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: (error as Error).message,
-    });
+    res.status(500).json({ success: false, error: "Basic update failed" });
   }
 });
 
-// 즉시 업데이트 실행 (멀티소스 크롤링)
 router.post("/update/multisource", async (req, res) => {
   try {
-    const result = await schedulerAPI.manualUpdate("multisource");
-    res.json({
-      success: true,
-      message: result.message,
-    });
+    await schedulerAPI.manualUpdate("multisource");
+    res.json({ success: true, message: "Multi-source update completed" });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: (error as Error).message,
-    });
+    res
+      .status(500)
+      .json({ success: false, error: "Multi-source update failed" });
   }
 });
 
-// 즉시 업데이트 실행 (고급 크롤링)
 router.post("/update/advanced", async (req, res) => {
   try {
-    const result = await schedulerAPI.manualUpdate("advanced");
-    res.json({
-      success: true,
-      message: result.message,
-    });
+    await schedulerAPI.manualUpdate("advanced");
+    res.json({ success: true, message: "Advanced update completed" });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: (error as Error).message,
-    });
+    res.status(500).json({ success: false, error: "Advanced update failed" });
   }
 });
 

@@ -3,19 +3,17 @@ import path from "path";
 import { createConnection } from "typeorm";
 import { Gym } from "../entities/Gym";
 import { filterGyms } from "./gymUtils";
-import { tmToWgs84 } from "../utils/coordinateUtils";
+import { convertTMToWGS84 } from "../utils/coordinateUtils";
 import { config } from "../config/env";
 
-// API 관련 상수
+// API related constants
 const API_KEY = process.env.VITE_GYM_API_KEY;
 const SERVICE_NAME = "LOCALDATA_104201";
 const DATA_TYPE = "json";
 const START_INDEX = 1;
 const END_INDEX = 999;
 
-/**
- * 테스트용 더미 헬스장 데이터 생성
- */
+// Create dummy gym data for testing
 const createDummyGyms = (): Partial<Gym>[] => {
   return [
     {
@@ -51,11 +49,9 @@ const createDummyGyms = (): Partial<Gym>[] => {
   ];
 };
 
-/**
- * 서울시 공공데이터 API에서 헬스장 데이터를 가져와 파싱
- */
+// Fetch gym data from Seoul Open Data API and parse
 const fetchGymsFromAPI = async (): Promise<Partial<Gym>[]> => {
-  // API 키가 없거나 잘못된 경우 더미 데이터 사용
+  // Use dummy data if API key is not set
   if (!API_KEY || API_KEY === "your_seoul_openapi_key_here") {
     console.log("⚠️ API 키가 설정되지 않아 더미 데이터를 사용합니다.");
     return createDummyGyms();
@@ -75,9 +71,9 @@ const fetchGymsFromAPI = async (): Promise<Partial<Gym>[]> => {
     throw new Error("Invalid data format from Seoul OpenAPI");
   }
 
-  // 필요한 필드만 추출
+  // Extract only required fields
   return gymsRaw.map((item: any) => {
-    const { lat, lng } = tmToWgs84(Number(item.X), Number(item.Y));
+    const { lat, lon } = convertTMToWGS84(Number(item.X), Number(item.Y));
     return {
       id: item.MGTNO,
       name: item.BPLCNM,
@@ -87,7 +83,7 @@ const fetchGymsFromAPI = async (): Promise<Partial<Gym>[]> => {
       openTime: undefined,
       closeTime: undefined,
       latitude: lat,
-      longitude: lng,
+      longitude: lon,
       is24Hours: false,
       hasParking: false,
       hasShower: false,

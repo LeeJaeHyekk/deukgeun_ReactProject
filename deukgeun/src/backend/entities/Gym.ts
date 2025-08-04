@@ -1,48 +1,30 @@
-// src/entities/Gym.ts
-
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  PrimaryColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
 export class Gym {
-  @PrimaryColumn()
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
   name: string;
 
-  @Column({ nullable: true })
-  phone?: string;
-
   @Column()
   address: string;
 
-  @Column("decimal", { precision: 10, scale: 7 })
+  @Column({ nullable: true })
+  phone: string;
+
+  @Column({ type: "decimal", precision: 10, scale: 7, nullable: true })
   latitude: number;
 
-  @Column("decimal", { precision: 10, scale: 7 })
+  @Column({ type: "decimal", precision: 10, scale: 7, nullable: true })
   longitude: number;
 
-  @Column({ default: false })
-  hasParking: boolean;
-
-  @Column({ default: false })
-  hasShower: boolean;
+  @Column({ nullable: true })
+  facilities: string;
 
   @Column({ nullable: true })
-  imageUrl?: string;
-
-  @Column({ nullable: true })
-  openHour?: string;
-
-  @Column({ nullable: true })
-  facilities?: string;
+  openHour: string;
 
   @Column({ default: false })
   is24Hours: boolean;
@@ -56,9 +38,19 @@ export class Gym {
   @Column({ default: false })
   hasGroupPT: boolean;
 
-  @CreateDateColumn()
+  @Column({ default: false })
+  hasParking: boolean;
+
+  @Column({ default: false })
+  hasShower: boolean;
+
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @Column({
+    type: "timestamp",
+    default: () => "CURRENT_TIMESTAMP",
+    onUpdate: "CURRENT_TIMESTAMP",
+  })
   updatedAt: Date;
 }

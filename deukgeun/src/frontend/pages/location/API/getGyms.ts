@@ -1,14 +1,3 @@
-// import { Gym } from "../types/gym";
-
-// export const getGyms = async (): Promise<Gym[]> => {
-//   const response = await fetch("/api/gyms"); // 라우트는 프로젝트에 맞게 조정
-//   if (!response.ok) {
-//     throw new Error("Failed to fetch gym list");
-//   }
-//   const data: Gym[] = await response.json();
-//   return data;
-// };
-
 import { Gym } from "../types/gym";
 
 const API_KEY = import.meta.env.VITE_GIM_API_KEY;

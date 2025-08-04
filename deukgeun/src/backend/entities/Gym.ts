@@ -30,9 +30,6 @@ export class Gym {
   longitude: number;
 
   @Column({ default: false })
-  is24Hours: boolean;
-
-  @Column({ default: false })
   hasParking: boolean;
 
   @Column({ default: false })
@@ -40,6 +37,24 @@ export class Gym {
 
   @Column({ nullable: true })
   imageUrl?: string;
+
+  @Column({ nullable: true })
+  openHour?: string;
+
+  @Column({ nullable: true })
+  facilities?: string;
+
+  @Column({ default: false })
+  is24Hours: boolean;
+
+  @Column({ default: false })
+  hasGX: boolean;
+
+  @Column({ default: false })
+  hasPT: boolean;
+
+  @Column({ default: false })
+  hasGroupPT: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

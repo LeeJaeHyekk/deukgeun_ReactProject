@@ -5,6 +5,7 @@ import morgan from "morgan";
 import "reflect-metadata";
 import { errorHandler } from "./middlewares/errorHandler";
 import routes from "./routes";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -12,6 +13,7 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(morgan("combined"));
+app.use(cookieParser());
 
 // Request body parsing middleware
 app.use(express.json());

@@ -70,7 +70,7 @@ export const authApi = {
   // Check if user is authenticated
   checkAuth: async (): Promise<boolean> => {
     try {
-      await api.get("/auth/check");
+      await api.get("/api/auth/check");
       return true;
     } catch {
       return false;

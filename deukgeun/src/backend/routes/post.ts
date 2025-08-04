@@ -18,12 +18,14 @@ const postController = new PostController();
  * 포스트 관련 API 라우트 정의
  *
  * GET /api/posts - 모든 포스트 목록 조회 (인증 불필요)
+ * GET /api/posts/my - 현재 사용자의 포스트 목록 조회 (인증 필요)
  * GET /api/posts/:id - 특정 포스트 조회 (인증 불필요)
  * POST /api/posts - 새 포스트 생성 (인증 필요)
  * PUT /api/posts/:id - 포스트 수정 (인증 필요)
  * DELETE /api/posts/:id - 포스트 삭제 (인증 필요)
  */
 router.get("/", postController.getAllPosts);
+router.get("/my", authenticateToken, postController.getMyPosts);
 router.get("/:id", postController.getPostById);
 router.post("/", authenticateToken, postController.createPost);
 router.put("/:id", authenticateToken, postController.updatePost);

@@ -2,7 +2,7 @@ import app from "./app";
 import { createConnection } from "typeorm";
 import { autoInitializeScheduler } from "./services/autoUpdateScheduler";
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
 createConnection()
   .then(() => {

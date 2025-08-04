@@ -32,23 +32,23 @@ export const config = {
 // API Endpoints
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: "/auth/login",
-    REGISTER: "/auth/register",
-    REFRESH: "/auth/refresh",
-    LOGOUT: "/auth/logout",
+    LOGIN: "/api/auth/login",
+    REGISTER: "/api/auth/register",
+    REFRESH: "/api/auth/refresh",
+    LOGOUT: "/api/auth/logout",
   },
   USER: {
-    PROFILE: "/user/profile",
-    UPDATE: "/user/update",
+    PROFILE: "/api/user/profile",
+    UPDATE: "/api/user/update",
   },
   POSTS: {
-    LIST: "/posts",
-    CREATE: "/posts",
-    DETAIL: (id: number) => `/posts/${id}`,
+    LIST: "/api/posts",
+    CREATE: "/api/posts",
+    DETAIL: (id: number) => `/api/posts/${id}`,
   },
   GYMS: {
-    LIST: "/gyms",
-    SEARCH: "/gyms/search",
-    DETAIL: (id: number) => `/gyms/${id}`,
+    LIST: "/api/gyms",
+    SEARCH: "/api/gyms/search",
+    DETAIL: (id: number) => `/api/gyms/${id}`,
   },
 } as const;

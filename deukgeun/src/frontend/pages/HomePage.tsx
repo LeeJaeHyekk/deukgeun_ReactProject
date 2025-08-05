@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import styles from "./HomePage.module.css";
 import { Navigation } from "@widgets/Navigation/Navigation";
 import { LoadingOverlay } from "@shared/ui/LoadingOverlay/LoadingOverlay";
+import { useUserStore } from "@shared/store/userStore";
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<any>(null);
+  const user = useUserStore((state) => state.user);
 
   // 로딩 상태를 일정 시간 후 false로 바꿈 (예시: 2초 후 해제)
   useEffect(() => {
@@ -39,7 +41,9 @@ export default function HomePage() {
           muted
           loop
           playsInline
+          preload="metadata"
           className={styles.heroVideo}
+          onError={(e) => console.error("Video loading error:", e)}
         />
         <div className={styles.heroOverlay}>
           <h1>운동의 시작, 득근득근</h1>
@@ -67,7 +71,7 @@ export default function HomePage() {
           />
           <div className={styles.userMeta}>
             <div className={styles.username}>
-              JaeHyuk
+              hyuk
               <span className={styles.level}>Lv.3</span>
             </div>
             <div className={styles.settingIcon}>⚙️</div>
@@ -81,7 +85,7 @@ export default function HomePage() {
           </div>
           <div className={styles.infoItem}>
             <p className={styles.label}>이메일</p>
-            <p className={styles.value}>jaehyuk@email.com</p>
+            <p className={styles.value}>ssy02134</p>
           </div>
           <div className={styles.infoItem}>
             <p className={styles.label}>진행 중 미션</p>

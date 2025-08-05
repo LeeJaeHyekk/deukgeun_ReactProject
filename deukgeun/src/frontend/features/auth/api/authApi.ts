@@ -1,6 +1,7 @@
 // features/auth/api/authApi.ts
 import { api } from "@shared/api";
 import { API_ENDPOINTS } from "@shared/config";
+import axios, { type AxiosResponse } from "axios";
 
 // Types
 export interface LoginRequest {
@@ -49,7 +50,11 @@ export interface LogoutResponse {
 export const authApi = {
   // Login
   login: async (data: LoginRequest): Promise<LoginResponse> => {
-    return api.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, data);
+    const response: AxiosResponse<LoginResponse> = await api.post(
+      API_ENDPOINTS.AUTH.LOGIN,
+      data
+    );
+    return response.data;
   },
 
   // Register

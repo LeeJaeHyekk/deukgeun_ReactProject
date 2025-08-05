@@ -5,13 +5,13 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
 
 // Security middleware
 app.use(helmet());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5176"],
+    origin: ["http://localhost:3001", "http://localhost:5176"],
     credentials: true,
   })
 );

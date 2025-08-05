@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import ReCAPTCHA from "react-google-recaptcha";
 import { authApi, LoginRequest } from "@features/auth/api/authApi";
-import { validation, showToast, storage } from "@shared/lib";
-import {
-  executeRecaptcha,
-  getDummyRecaptchaToken,
-} from "@shared/lib/recaptcha";
+import { validation, showToast } from "@shared/lib";
+import { useAuthContext } from "@shared/contexts/AuthContext";
+import { config } from "@shared/config";
+import { useUserStore } from "@shared/store/userStore";
 import styles from "./LoginPage.module.css";
 
 export default function LoginPage() {
@@ -14,14 +14,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {}
-  );
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    recaptcha?: string;
+  }>({});
+  const [error, setError] = useState<string>("");
   const navigate = useNavigate();
+  const { login } = useAuthContext();
 
   // 폼 검증
   const validateForm = (): boolean => {
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: {
+      email?: string;
+      password?: string;
+      recaptcha?: string;
+    } = {};
 
     if (!validation.required(email)) {
       newErrors.email = "이메일을 입력해주세요.";
@@ -35,47 +44,87 @@ export default function LoginPage() {
       newErrors.password = "비밀번호는 최소 8자 이상이어야 합니다.";
     }
 
+    if (!recaptchaToken) {
+      newErrors.recaptcha = "보안 인증을 완료해주세요.";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const res = await authApi.login({
+      email,
+      password,
+      recaptchaToken: recaptchaToken!,
+    });
+    const user = res.user;
+    const token = res.accessToken;
+
+    if (!user) {
+      showToast("로그인에 실패했습니다.", "error");
+      return;
+    }
+
+    useUserStore.getState().setUser({
+      id: user.id,
+      username: user.nickname,
+      email: user.email,
+      accessToken: token,
+    });
+
+    navigate("/"); // 홈으로 리디렉션
+
     if (!validateForm()) {
       return;
     }
 
     setLoading(true);
-    try {
-      // reCAPTCHA 토큰 생성
-      let recaptchaToken: string;
-      try {
-        recaptchaToken = await executeRecaptcha("login");
-      } catch (error) {
-        // reCAPTCHA 실패 시 개발용 더미 토큰 사용
-        recaptchaToken = getDummyRecaptchaToken();
-      }
+    setError(""); // 로그인 시도 시 에러 초기화
 
+    try {
       const loginData: LoginRequest = {
         email: email.trim().toLowerCase(),
         password,
-        recaptchaToken,
+        recaptchaToken: recaptchaToken!,
       };
 
       const response = await authApi.login(loginData);
 
-      // 토큰 저장
-      storage.set("accessToken", response.accessToken);
-      storage.set("user", response.user);
+      // 인증 상태 업데이트
+      login(response.user, response.accessToken);
 
       showToast("로그인 성공!", "success");
-      navigate("/");
+
+      // 홈으로 이동
+      setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 1000);
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || "로그인에 실패했습니다.";
+      setError(errorMessage);
       showToast(errorMessage, "error");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRecaptchaChange = (token: string | null) => {
+    // 개발 환경에서는 더미 토큰 사용
+    const finalToken =
+      process.env.NODE_ENV === "development"
+        ? "dummy-token-for-development"
+        : token;
+
+    setRecaptchaToken(finalToken);
+    // reCAPTCHA 완료 시 해당 에러 초기화
+    if (finalToken && errors.recaptcha) {
+      setErrors((prev) => ({ ...prev, recaptcha: undefined }));
+    }
+    setError(""); // 전체 에러 메시지도 초기화
   };
 
   return (
@@ -86,7 +135,7 @@ export default function LoginPage() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handleLogin();
+            handleLogin(e);
           }}
         >
           <div className={styles.inputGroup}>
@@ -102,7 +151,7 @@ export default function LoginPage() {
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !loading) {
                   e.preventDefault();
-                  handleLogin();
+                  handleLogin(e);
                 }
               }}
               placeholder="이메일"
@@ -133,7 +182,7 @@ export default function LoginPage() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !loading) {
                     e.preventDefault();
-                    handleLogin();
+                    handleLogin(e);
                   }
                 }}
                 placeholder="비밀번호"
@@ -157,6 +206,22 @@ export default function LoginPage() {
             {errors.password && (
               <span id="password-error" className={styles.errorText}>
                 {errors.password}
+              </span>
+            )}
+          </div>
+
+          <div className={styles.recaptchaContainer}>
+            <ReCAPTCHA
+              sitekey={config.RECAPTCHA_SITE_KEY}
+              onChange={handleRecaptchaChange}
+              className={styles.recaptchaWidget}
+              aria-describedby={
+                errors.recaptcha ? "recaptcha-error" : undefined
+              }
+            />
+            {errors.recaptcha && (
+              <span id="recaptcha-error" className={styles.errorText}>
+                {errors.recaptcha}
               </span>
             )}
           </div>
@@ -230,6 +295,7 @@ export default function LoginPage() {
             적용을 받습니다.
           </p>
         </div>
+        {error && <p className={styles.errorMessage}>{error}</p>}
       </div>
     </div>
   );

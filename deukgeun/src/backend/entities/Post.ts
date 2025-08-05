@@ -42,6 +42,13 @@ export class Post {
   author!: string;
 
   /**
+   * 포스트 작성자 ID
+   * 사용자 테이블과의 외래키 관계를 위한 필드입니다.
+   */
+  @Column({ type: "int" })
+  userId!: number;
+
+  /**
    * 포스트 생성 시간
    * 엔티티가 처음 저장될 때 자동으로 설정됩니다.
    */

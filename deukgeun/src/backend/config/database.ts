@@ -1,4 +1,4 @@
-import { createConnection } from "typeorm";
+import { createConnection, getConnection } from "typeorm";
 import { config } from "./env";
 import { Post } from "../entities/Post";
 import { Gym } from "../entities/Gym";
@@ -6,6 +6,16 @@ import { User } from "../entities/User";
 
 // TypeORM database connection configuration
 export const connectDatabase = async () => {
+  try {
+    // 기존 연결이 있는지 확인
+    const existingConnection = getConnection();
+    if (existingConnection.isConnected) {
+      return existingConnection;
+    }
+  } catch (error) {
+    // 연결이 없으면 새로 생성
+  }
+
   const connection = await createConnection({
     // Database type configuration
     type: "mysql",

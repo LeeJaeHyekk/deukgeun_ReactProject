@@ -25,3 +25,13 @@ dist-ssr
 
 .env
 .env.local
+
+# TypeScript build artifacts
+*.tsbuildinfo
+build/
+
+# JavaScript files (to prevent duplicates)
+**/*.js
+**/*.jsx
+!node_modules/**/*.js
+!node_modules/**/*.jsx

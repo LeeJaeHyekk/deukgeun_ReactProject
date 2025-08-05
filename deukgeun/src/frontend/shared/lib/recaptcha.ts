@@ -16,6 +16,10 @@ declare global {
 
 // reCAPTCHA 스크립트 로드
 export const loadRecaptchaScript = (): Promise<void> => {
+  if (typeof window === "undefined") {
+    return Promise.resolve();
+  }
+
   return new Promise((resolve, reject) => {
     if (window.grecaptcha) {
       resolve();
@@ -86,7 +90,7 @@ export const getDummyRecaptchaToken = (): string => {
     )
   ) {
     // Test key인 경우 더미 토큰 반환
-    return "dummy-recaptcha-token-for-development";
+    return "dummy-token-for-development";
   }
   return "";
 };

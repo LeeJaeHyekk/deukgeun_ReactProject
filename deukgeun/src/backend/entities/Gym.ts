@@ -5,13 +5,13 @@ export class Gym {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: "varchar", length: 255 })
   name: string;
 
-  @Column()
+  @Column({ type: "varchar", length: 255 })
   address: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   phone: string;
 
   @Column({ type: "decimal", precision: 10, scale: 7, nullable: true })
@@ -20,28 +20,28 @@ export class Gym {
   @Column({ type: "decimal", precision: 10, scale: 7, nullable: true })
   longitude: number;
 
-  @Column({ nullable: true })
+  @Column({ type: "text", nullable: true })
   facilities: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   openHour: string;
 
-  @Column({ default: false })
+  @Column({ type: "tinyint", default: 0 })
   is24Hours: boolean;
 
-  @Column({ default: false })
+  @Column({ type: "tinyint", default: 0 })
   hasGX: boolean;
 
-  @Column({ default: false })
+  @Column({ type: "tinyint", default: 0 })
   hasPT: boolean;
 
-  @Column({ default: false })
+  @Column({ type: "tinyint", default: 0 })
   hasGroupPT: boolean;
 
-  @Column({ default: false })
+  @Column({ type: "tinyint", default: 0 })
   hasParking: boolean;
 
-  @Column({ default: false })
+  @Column({ type: "tinyint", default: 0 })
   hasShower: boolean;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

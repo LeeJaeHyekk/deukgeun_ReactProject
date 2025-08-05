@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { getRepository } from "typeorm";
 import { User } from "../entities/User";
 import bcrypt from "bcrypt";
 import { verifyRecaptcha } from "../utils/recaptcha";
@@ -7,14 +6,10 @@ import { createTokens, verifyRefreshToken } from "../utils/jwt";
 import { logger } from "../utils/logger";
 import { connectDatabase } from "../config/database";
 
-const userRepository = connectDatabase().then((connection) => {
-  return connection.getRepository(User);
-});
-
 export async function login(req: Request, res: Response) {
   try {
     const { email, password, recaptchaToken } = req.body;
-
+    console.log("로그인 요청 body:", req.body);
     // 입력 검증
     if (!email || !password || !recaptchaToken) {
       return res.status(400).json({
@@ -40,7 +35,8 @@ export async function login(req: Request, res: Response) {
         .json({ message: "reCAPTCHA 검증에 실패했습니다." });
     }
 
-    const userRepo = getRepository(User);
+    const connection = await connectDatabase();
+    const userRepo = connection.getRepository(User);
     const user = await userRepo.findOne({ where: { email } });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -92,7 +88,8 @@ export async function refreshToken(req: Request, res: Response) {
         .json({ message: "Refresh token이 유효하지 않습니다." });
     }
 
-    const userRepo = getRepository(User);
+    const connection = await connectDatabase();
+    const userRepo = connection.getRepository(User);
     const user = await userRepo.findOne({ where: { id: payload.userId } });
 
     if (!user) {
@@ -143,6 +140,25 @@ export function logout(req: Request, res: Response) {
   }
 }
 
+export function checkAuth(req: Request, res: Response) {
+  try {
+    // authenticateToken 미들웨어를 통해 이미 검증된 사용자 정보
+    if (!req.user) {
+      return res.status(401).json({ message: "인증되지 않은 사용자입니다." });
+    }
+
+    logger.info(`인증 상태 확인 - User ID: ${req.user.userId}`);
+
+    res.status(200).json({
+      message: "인증된 사용자입니다.",
+      authenticated: true,
+    });
+  } catch (error) {
+    logger.error("인증 상태 확인 중 오류:", error);
+    return res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+}
+
 export const register = async (req: Request, res: Response) => {
   try {
     const { email, password, recaptchaToken } = req.body;
@@ -179,7 +195,8 @@ export const register = async (req: Request, res: Response) => {
         .json({ message: "reCAPTCHA 검증에 실패했습니다." });
     }
 
-    const userRepo = getRepository(User);
+    const connection = await connectDatabase();
+    const userRepo = connection.getRepository(User);
     const existingUser = await userRepo.findOne({ where: { email } });
     if (existingUser) {
       return res.status(409).json({ message: "이미 가입된 이메일입니다." });

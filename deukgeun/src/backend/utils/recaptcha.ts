@@ -9,6 +9,15 @@ export async function verifyRecaptcha(token: string): Promise<boolean> {
       return false;
     }
 
+    // 개발 환경에서 더미 토큰 허용
+    if (
+      config.NODE_ENV === "development" &&
+      token.includes("dummy-token-for-development")
+    ) {
+      logger.info("개발 환경에서 더미 reCAPTCHA 토큰 허용");
+      return true;
+    }
+
     const secret = config.RECAPTCHA_SECRET;
     if (!secret || secret === "your-secret-key") {
       logger.error("reCAPTCHA 시크릿 키가 설정되지 않았습니다.");

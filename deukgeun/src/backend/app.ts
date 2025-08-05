@@ -11,7 +11,12 @@ const app = express();
 
 // Security middleware
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // 프론트엔드 주소
+    credentials: true, // 쿠키/인증 정보 전달 허용
+  })
+);
 app.use(morgan("combined"));
 app.use(cookieParser());
 

@@ -4,7 +4,7 @@ dotenv.config();
 
 export const config = {
   // Server configuration
-  PORT: parseInt(process.env.PORT || "3001"),
+  PORT: parseInt(process.env.PORT || "5000"),
   NODE_ENV: process.env.NODE_ENV || "development",
 
   // MySQL Database configuration
@@ -25,7 +25,7 @@ export const config = {
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
 
   // CORS configuration
-  CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:5173",
+  CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:3001",
 
   // Kakao Map API configuration
   KAKAO_API_KEY:

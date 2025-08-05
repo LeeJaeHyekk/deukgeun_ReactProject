@@ -21,4 +21,16 @@ export default defineConfig({
       "@assets": path.resolve(__dirname, "./src/frontend/assets"),
     },
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "index.html"),
+      },
+    },
+    outDir: "dist",
+    emptyOutDir: true,
+  },
+  esbuild: {
+    exclude: ["**/*.js", "**/*.jsx"],
+  },
 });

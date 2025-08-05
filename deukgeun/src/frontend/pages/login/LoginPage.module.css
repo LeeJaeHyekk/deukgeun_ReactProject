@@ -8,52 +8,48 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  /* 기존의 입체적인 회색 그라데이션 유지 - 페이지 전체 배경 */
   background: linear-gradient(to bottom, #b0b0b0 0%, #969696 80%, #7c7c7c 100%);
-  height: 100vh;
+  min-height: 100vh;
   padding: 20px;
-  box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+  box-sizing: border-box;
 }
 
 .loginBox {
   width: 100%;
-  max-width: 400px;
-  /* 로그인 박스 배경: 아주 미세하게 따뜻한 느낌이 나는 부드러운 흰색 */
-  background-color: #f3f3f3; /* 기존 순수 흰색 대신 미세한 따뜻함 추가 */
-  padding: 32px;
-  border-radius: 16px; /* 인스타그램처럼 더 부드러운 모서리 */
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* 더 부드럽고 은은한 그림자 */
-  color: #333333; /* 로그인 박스 내 기본 텍스트 색상 (어두운 회색) */
+  max-width: 420px;
+  background-color: #f3f3f3;
+  padding: 40px 32px;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  color: #333333;
   box-sizing: border-box;
+  margin: auto;
 }
 
 .logo {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: bold;
   text-align: center;
-  margin-bottom: 24px;
-  /* 로고 색상: 로그인 박스 배경(밝은 톤)에 잘 보이면서도 부드러운 어두운 회색 */
+  margin-bottom: 32px;
   color: #4a4a4a;
 }
 
 .inputGroup {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .input,
 .passwordInput {
   width: 100%;
-  height: 48px;
-  padding: 12px;
-  border-radius: 12px; /* 입력 필드 모서리도 부드럽게 */
-  /* 입력 필드 배경: 로그인 박스 배경보다 살짝 어둡지만 여전히 밝고 부드러운 회색 */
-  background-color: #f5f5f5; /* 기존 #F0F0F0 대신 더 밝고 부드러움 */
-  /* 입력 필드 텍스트 색상: 어두운 회색으로 변경하여 가독성 높임 */
+  height: 52px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background-color: #f5f5f5;
   color: #333333;
-  border: 1px solid #e5e5e5; /* 미세하고 부드러운 테두리 */
+  border: 1px solid #e5e5e5;
   font-size: 16px;
   box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease; /* 포커스 효과를 위한 트랜지션 */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .input:focus,
@@ -78,6 +74,14 @@
   font-weight: 500;
 }
 
+.errorMessage {
+  color: #ff6b6b;
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .passwordWrapper {
   position: relative;
   display: flex;
@@ -96,17 +100,16 @@
 
 .loginButton {
   width: 100%;
-  height: 48px;
+  height: 52px;
   border: none;
-  /* 로그인 버튼 배경: 채도를 낮춘 차분하고 세련된 블루 */
-  background-color: #6b8ebf; /* 기존 #5C85E0 대신 더 차분하고 조화로운 블루 */
+  background-color: #6b8ebf;
   color: white;
   font-weight: bold;
-  border-radius: 12px; /* 버튼 모서리도 부드럽게 */
+  border-radius: 12px;
   cursor: pointer;
   font-size: 16px;
-  margin-top: 8px;
-  box-shadow: 0 4px 10px rgba(107, 142, 191, 0.3); /* 버튼에 어울리는 그림자 */
+  margin-top: 24px;
+  box-shadow: 0 4px 10px rgba(107, 142, 191, 0.3);
   transition: background-color 0.2s ease, transform 0.2s ease,
     box-shadow 0.2s ease;
 }
@@ -119,8 +122,7 @@
 
 .divider {
   text-align: center;
-  margin: 20px 0; /* 여백 조정 */
-  /* 구분선 텍스트 색상: 부드러운 회색 */
+  margin: 32px 0;
   color: #a0a0a0;
   position: relative;
   font-size: 14px;
@@ -147,7 +149,8 @@
 .socialWrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* 간격 조정 */
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .kakaoBtn {
@@ -197,7 +200,8 @@
 .linkRow {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px; /* 여백 조정 */
+  margin-top: 24px;
+  margin-bottom: 24px;
 }
 
 .linkBtn {
@@ -220,8 +224,10 @@
 }
 
 .recaptcha {
-  margin-top: 24px; /* 여백 조정 */
+  margin-top: 0;
   text-align: center;
+  padding-top: 16px;
+  border-top: 1px solid #e5e5e5;
 }
 
 .recaptchaText {
@@ -230,25 +236,47 @@
   color: #909090;
 }
 
-/* 비밀번호 입력 필드 아이콘 공간 확보 */
+.recaptchaContainer {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  padding: 16px 0;
+  border-top: 1px solid #e5e5e5;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.recaptchaWidget {
+  transform: scale(0.9);
+  transform-origin: center;
+}
+
+.recaptchaWidget > div {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
 .passwordInput {
-  padding-right: 40px;
+  padding-right: 48px;
 }
 
 .eyeButton {
   position: absolute;
-  right: 10px;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
-  /* 아이콘 색상: 회색 톤에 맞춰 조정 */
   color: #888888;
   font-size: 18px;
   transition: color 0.2s ease;
+  padding: 8px;
+  border-radius: 4px;
 }
 
 .eyeButton:hover {
-  color: #555555; /* 호버 시 살짝 진해지는 효과 */
+  color: #555555;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 /* 스크린 리더용 클래스 */
@@ -266,30 +294,62 @@
 
 /* 반응형 */
 @media (max-width: 480px) {
+  .pageWrapper {
+    padding: 16px;
+  }
+
   .loginBox {
-    padding: 24px;
-    border-radius: 12px; /* 모바일에서는 살짝 덜 둥글게 */
+    padding: 32px 24px;
+    border-radius: 12px;
   }
 
   .logo {
-    font-size: 24px;
+    font-size: 28px;
+    margin-bottom: 24px;
   }
+
   .input,
   .loginButton,
   .passwordInput,
   .kakaoBtn,
   .googleBtn {
-    height: 44px;
-    font-size: 14px;
-    border-radius: 10px; /* 모바일에서는 살짝 덜 둥글게 */
+    height: 48px;
+    font-size: 16px;
+    border-radius: 10px;
   }
+
+  .inputGroup {
+    margin-bottom: 16px;
+  }
+
+  .loginButton {
+    margin-top: 20px;
+  }
+
   .divider {
-    margin: 12px 0;
+    margin: 24px 0;
   }
+
+  .socialWrapper {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
   .linkRow {
-    margin-top: 12px;
+    margin-top: 20px;
+    margin-bottom: 20px;
   }
+
   .recaptcha {
-    margin-top: 16px;
+    padding-top: 12px;
+  }
+
+  .recaptchaContainer {
+    margin: 16px 0;
+    padding: 12px 0;
+  }
+
+  .recaptchaWidget {
+    transform: scale(0.85);
   }
 }

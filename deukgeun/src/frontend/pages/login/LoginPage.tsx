@@ -88,23 +88,20 @@ export default function LoginPage() {
 
       console.log("🧪 로그인 응답:", response);
 
-      if (!response.user) {
+      if (!response || !response.user) {
         console.log("🧪 로그인 실패: 사용자 정보 없음");
         showToast("로그인에 실패했습니다.", "error");
         setLoading(false);
         return;
       }
 
-      // Zustand 상태 업데이트
-      const userData = {
-        id: response.user.id,
-        nickname: response.user.nickname,
-        email: response.user.email,
+      // AuthContext의 login 함수 사용 (Zustand + storage 모두 업데이트)
+      console.log("🧪 AuthContext login 호출");
+      const userWithToken = {
+        ...response.user,
         accessToken: response.accessToken,
       };
-
-      console.log("🧪 Zustand에 저장할 사용자 데이터:", userData);
-      useUserStore.getState().setUser(userData);
+      login(userWithToken, response.accessToken);
 
       console.log("🧪 로그인 성공!");
       showToast("로그인 성공!", "success");

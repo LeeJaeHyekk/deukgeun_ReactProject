@@ -5,9 +5,22 @@ import path from "path";
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,
+    port: process.env.FRONTEND_PORT
+      ? parseInt(process.env.FRONTEND_PORT)
+      : 5173,
     host: true,
     strictPort: false,
+    proxy: {
+      "/api": {
+        target: process.env.VITE_BACKEND_URL || "http://localhost:5000",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, "/api"),
+      },
+    },
+  },
+  assetsInclude: ["*.mp4"],
+  optimizeDeps: {
+    exclude: ["*.mp4"],
   },
   resolve: {
     alias: {

@@ -13,7 +13,7 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: "http://localhost:5173", // 프론트엔드 주소
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
     credentials: true, // 쿠키/인증 정보 전달 허용
   })
 );

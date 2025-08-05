@@ -24,6 +24,17 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuthContext();
 
+  // 🧪 디버깅용 로그 (기존 코드에 영향 없음)
+  console.log("🧪 LoginPage 렌더링");
+  console.log("🧪 현재 상태:", {
+    email,
+    password,
+    loading,
+    recaptchaToken,
+    errors,
+    error,
+  });
+
   // 폼 검증
   const validateForm = (): boolean => {
     const newErrors: {
@@ -55,34 +66,14 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const res = await authApi.login({
-      email,
-      password,
-      recaptchaToken: recaptchaToken!,
-    });
-    const user = res.user;
-    const token = res.accessToken;
-
-    if (!user) {
-      showToast("로그인에 실패했습니다.", "error");
-      return;
-    }
-
-    useUserStore.getState().setUser({
-      id: user.id,
-      username: user.nickname,
-      email: user.email,
-      accessToken: token,
-    });
-
-    navigate("/"); // 홈으로 리디렉션
-
     if (!validateForm()) {
+      console.log("🧪 폼 검증 실패");
       return;
     }
 
+    console.log("🧪 로그인 시도 시작");
     setLoading(true);
-    setError(""); // 로그인 시도 시 에러 초기화
+    setError("");
 
     try {
       const loginData: LoginRequest = {
@@ -91,24 +82,43 @@ export default function LoginPage() {
         recaptchaToken: recaptchaToken!,
       };
 
+      console.log("🧪 로그인 데이터:", { ...loginData, password: "***" });
+
       const response = await authApi.login(loginData);
 
-      // 인증 상태 업데이트
-      login(response.user, response.accessToken);
+      console.log("🧪 로그인 응답:", response);
 
+      if (!response.user) {
+        console.log("🧪 로그인 실패: 사용자 정보 없음");
+        showToast("로그인에 실패했습니다.", "error");
+        setLoading(false);
+        return;
+      }
+
+      // Zustand 상태 업데이트
+      const userData = {
+        id: response.user.id,
+        nickname: response.user.nickname,
+        email: response.user.email,
+        accessToken: response.accessToken,
+      };
+
+      console.log("🧪 Zustand에 저장할 사용자 데이터:", userData);
+      useUserStore.getState().setUser(userData);
+
+      console.log("🧪 로그인 성공!");
       showToast("로그인 성공!", "success");
 
-      // 홈으로 이동
-      setTimeout(() => {
-        navigate("/", { replace: true });
-      }, 1000);
+      navigate("/", { replace: true });
     } catch (error: any) {
+      console.log("🧪 로그인 에러:", error);
       const errorMessage =
         error.response?.data?.message || "로그인에 실패했습니다.";
       setError(errorMessage);
       showToast(errorMessage, "error");
     } finally {
       setLoading(false);
+      console.log("🧪 로그인 처리 완료");
     }
   };
 
@@ -119,6 +129,10 @@ export default function LoginPage() {
         ? "dummy-token-for-development"
         : token;
 
+    console.log("🧪 reCAPTCHA 토큰 변경:", {
+      originalToken: token,
+      finalToken,
+    });
     setRecaptchaToken(finalToken);
     // reCAPTCHA 완료 시 해당 에러 초기화
     if (finalToken && errors.recaptcha) {

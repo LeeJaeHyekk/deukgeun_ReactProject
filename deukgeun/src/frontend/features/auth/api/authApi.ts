@@ -51,12 +51,12 @@ export const authApi = {
   // Login
   login: async (data: LoginRequest): Promise<LoginResponse> => {
     console.log("✅ 로그인 요청:", data);
-    const response: AxiosResponse<LoginResponse> = await api.post(
+    const response = await api.post<LoginResponse>(
       API_ENDPOINTS.AUTH.LOGIN,
       data
     );
     console.log("✅ 로그인 응답:", response);
-    return response.data;
+    return response;
   },
 
   // Register

@@ -1,6 +1,7 @@
 import { Gym } from "../types/gym";
+import { GYM_CONFIG } from "@shared/lib/env";
 
-const API_KEY = import.meta.env.VITE_GIM_API_KEY;
+const API_KEY = GYM_CONFIG.API_KEY;
 const SERVICE_NAME = "LOCALDATA_104201";
 const DATA_TYPE = "json";
 const START_INDEX = 1;

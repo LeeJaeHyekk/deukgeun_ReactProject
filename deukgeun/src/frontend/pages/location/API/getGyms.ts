@@ -1,4 +1,4 @@
-import { Gym } from "../types/gym";
+import { Gym } from "../types";
 import { GYM_CONFIG } from "@shared/lib/env";
 
 const API_KEY = GYM_CONFIG.API_KEY;

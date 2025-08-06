@@ -1,5 +1,5 @@
 import { getGyms } from "../pages/location/API/getGyms";
-import { Gym } from "../pages/location/types/gym";
+import { Gym } from "../pages/location/types";
 
 /**
  * 프론트엔드에서 API를 호출하여 헬스장 데이터를 가져오고

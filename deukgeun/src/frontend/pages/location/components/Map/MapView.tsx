@@ -85,7 +85,7 @@ export const MapView = ({ position, gyms }: Props) => {
 
     gyms.forEach((gym) => {
       const marker = new window.kakao.maps.Marker({
-        position: new window.kakao.maps.LatLng(gym.y, gym.x),
+        position: new window.kakao.maps.LatLng(gym.latitude, gym.longitude),
       });
       marker.setMap(map);
     });

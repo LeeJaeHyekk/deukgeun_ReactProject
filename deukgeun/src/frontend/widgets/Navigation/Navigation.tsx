@@ -22,12 +22,14 @@ export const Navigation = () => {
       </div>
       <ul className={styles.navMenu}>
         {menuItems.map(({ label, path }) => (
-          <li key={path} className={styles.navMenuItem}>
-            <Link to={path}>{label}</Link>
+          <li key={path}>
+            <Link to={path} className={styles.navMenuItem}>
+              {label}
+            </Link>
           </li>
         ))}
         <li className={styles.navMenuItem}>
-          <Link to={user ? "/mypage" : "/login"}>
+          <Link to={user ? "/mypage" : "/login"} className={styles.navMenuItem}>
             {user ? "마이페이지" : "로그인"}
           </Link>
         </li>

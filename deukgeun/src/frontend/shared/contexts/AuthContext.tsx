@@ -21,14 +21,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const auth = useAuth();
 
   // 🧪 디버깅용 로그 (기존 코드에 영향 없음)
+  console.log("🧪 AuthProvider 렌더링");
   console.log("🧪 로그인 여부:", auth.isLoggedIn);
   console.log("🧪 현재 유저:", auth.user);
+  console.log("🧪 로딩 상태:", auth.isLoading);
 
-  return (
-    <AuthContext.Provider value={auth}>
-      {!auth.isLoading && children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 }
 
 export function useAuthContext() {

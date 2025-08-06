@@ -12,6 +12,7 @@
   background: rgba(255, 255, 255, 0.15);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 1000;
+  font-family: "Helvetica Neue", sans-serif;
 }
 
 .logo {
@@ -24,6 +25,7 @@
   max-width: 120px;
   max-height: 63px;
   height: 63px; /* 네비게이션 높이(64px)에 비례하여 적절하게 조절 */
+  filter: brightness(60%) saturate(60%) contrast(110%);
   object-fit: contain;
 }
 
@@ -40,12 +42,14 @@
 
 .navMenuItem {
   position: relative;
-  color: black;
+  color: #f1f3f5;
   font-weight: 500;
   font-size: 16px;
   cursor: pointer;
   transition: color 0.3s;
   padding-bottom: 4px;
+  text-transform: capitalize;
+  text-decoration: none;
 }
 
 .navMenuItem:hover {
@@ -68,6 +72,12 @@
 }
 
 .a {
+  display: inline-block;
   text-decoration: none;
-  color: inherit;
+  color: #f1f3f5; /* 인스타 기본 텍스트 색상 */
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 10px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }

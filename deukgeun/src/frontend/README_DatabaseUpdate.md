@@ -35,7 +35,7 @@ src/frontend/
 VITE_GIM_API_KEY=your_seoul_openapi_key_here
 
 # 백엔드 서버 URL
-VITE_BACKEND_URL=http://localhost:3001
+VITE_BACKEND_URL=http://localhost:5000
 ```
 
 ### 2. 서울시 공공데이터 API 키 발급

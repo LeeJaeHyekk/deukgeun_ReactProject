@@ -67,7 +67,7 @@ function filterValidGyms(gyms: Gym[]): Gym[] {
  */
 async function saveGymsToDatabase(gyms: Gym[]) {
   const backendUrl =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   try {
     const response = await fetch(`${backendUrl}/api/gyms/bulk-update`, {
@@ -104,7 +104,7 @@ async function saveGymsToDatabase(gyms: Gym[]) {
  */
 export async function checkDatabaseStatus() {
   const backendUrl =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   try {
     const response = await fetch(`${backendUrl}/api/gyms/status`);

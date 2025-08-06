@@ -10,6 +10,8 @@ import { useUserStore } from "@shared/store/userStore";
 import styles from "./LoginPage.module.css";
 
 export default function LoginPage() {
+  console.log("🧪 LoginPage 렌더링 시작");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -28,15 +30,17 @@ export default function LoginPage() {
   console.log("🧪 LoginPage 렌더링");
   console.log("🧪 현재 상태:", {
     email,
-    password,
+    password: password ? "***" : "",
     loading,
-    recaptchaToken,
+    recaptchaToken: recaptchaToken ? "있음" : "없음",
     errors,
     error,
   });
 
   // 폼 검증
   const validateForm = (): boolean => {
+    console.log("🧪 LoginPage - 폼 검증 시작");
+
     const newErrors: {
       email?: string;
       password?: string;
@@ -60,11 +64,14 @@ export default function LoginPage() {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const isValid = Object.keys(newErrors).length === 0;
+    console.log("🧪 LoginPage - 폼 검증 결과:", { isValid, errors: newErrors });
+    return isValid;
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("🧪 LoginPage - 로그인 폼 제출");
 
     if (!validateForm()) {
       console.log("🧪 폼 검증 실패");
@@ -106,7 +113,7 @@ export default function LoginPage() {
       console.log("🧪 로그인 성공!");
       showToast("로그인 성공!", "success");
 
-      navigate("/", { replace: true });
+      // 자동 리다이렉트는 App.tsx의 RedirectIfLoggedIn에서 처리
     } catch (error: any) {
       console.log("🧪 로그인 에러:", error);
       const errorMessage =
@@ -137,6 +144,8 @@ export default function LoginPage() {
     }
     setError(""); // 전체 에러 메시지도 초기화
   };
+
+  console.log("🧪 LoginPage - 렌더링 완료");
 
   return (
     <div className={styles.pageWrapper}>

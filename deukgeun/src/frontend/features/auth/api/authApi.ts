@@ -66,7 +66,30 @@ export const authApi = {
 
   // Refresh token
   refreshToken: async (): Promise<RefreshResponse> => {
-    return api.post<RefreshResponse>(API_ENDPOINTS.AUTH.REFRESH);
+    console.log("🔄 refreshToken API 호출 시작");
+    console.log("🔄 호출 URL:", API_ENDPOINTS.AUTH.REFRESH);
+    console.log(
+      "🔄 API_BASE_URL:",
+      import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
+    );
+
+    try {
+      const response = await api.post<RefreshResponse>(
+        API_ENDPOINTS.AUTH.REFRESH
+      );
+      console.log("✅ refreshToken API 성공:", response);
+      return response;
+    } catch (error: any) {
+      console.error("❌ refreshToken API 실패:", error);
+      console.error("❌ 에러 상세:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        url: error.config?.url,
+        method: error.config?.method,
+      });
+      throw error;
+    }
   },
 
   // Logout

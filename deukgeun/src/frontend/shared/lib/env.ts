@@ -21,7 +21,7 @@ export const GYM_CONFIG = {
 
 // Backend Configuration
 export const BACKEND_CONFIG = {
-  URL: getEnvVar("VITE_BACKEND_URL", "http://localhost:3001"),
+  URL: getEnvVar("VITE_BACKEND_URL", "http://localhost:5000"),
 } as const;
 
 // reCAPTCHA Configuration

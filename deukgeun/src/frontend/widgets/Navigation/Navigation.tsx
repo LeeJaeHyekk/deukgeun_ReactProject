@@ -1,5 +1,4 @@
-// Navigation.tsx
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUserStore } from "@shared/store/userStore";
 import { useAuthContext } from "@shared/contexts/AuthContext";
 import styles from "./Navigation.module.css";
@@ -12,21 +11,14 @@ const menuItems = [
 ];
 
 export const Navigation = () => {
-  console.log("🧪 Navigation 렌더링 시작");
-
   const user = useUserStore((state) => state.user);
-  const { isLoggedIn } = useAuthContext();
+  const { isLoggedIn, logout } = useAuthContext();
+  const navigate = useNavigate();
 
-  console.log("🧪 Navigation 상태:", {
-    user: user
-      ? { id: user.id, email: user.email, nickname: user.nickname }
-      : null,
-    isLoggedIn,
-    showMyPage: isLoggedIn && user,
-    showLogin: !isLoggedIn || !user,
-  });
-
-  console.log("🧪 Navigation 렌더링 완료");
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <nav className={styles.navbar}>
@@ -43,14 +35,30 @@ export const Navigation = () => {
             </Link>
           </li>
         ))}
-        <li className={styles.navMenuItem}>
-          <Link
-            to={isLoggedIn && user ? "/mypage" : "/login"}
-            className={styles.navMenuItem}
-          >
-            {isLoggedIn && user ? "마이페이지" : "로그인"}
-          </Link>
-        </li>
+
+        {!isLoggedIn || !user ? (
+          <li>
+            <Link to="/login" className={styles.navMenuItem}>
+              Login
+            </Link>
+          </li>
+        ) : (
+          <>
+            <li>
+              <Link to="/mypage" className={styles.navMenuItem}>
+                My Page
+              </Link>
+            </li>
+            <li>
+              <button
+                onClick={handleLogout}
+                className={`${styles.navMenuItem} ${styles.buttonLink}`}
+              >
+                Logout
+              </button>
+            </li>
+          </>
+        )}
       </ul>
     </nav>
   );

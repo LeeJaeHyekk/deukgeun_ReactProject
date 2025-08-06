@@ -81,3 +81,33 @@
   border-radius: 6px;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
+
+.buttonLink {
+  all: unset;
+  position: relative;
+  color: #f1f3f5;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  padding-bottom: 4px;
+  text-transform: capitalize;
+}
+
+.buttonLink:hover {
+  color: #f87171;
+}
+
+.buttonLink::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #ef4444;
+  transition: width 0.3s ease;
+}
+
+.buttonLink:hover::after {
+  width: 100%;
+}

@@ -1,63 +1,5 @@
-// import { create } from "zustand";
-// import { User } from "@shared/types/user";
-
-// interface User {
-//   id: number;
-//   username: string;
-//   email: string;
-//   accessToken: string;
-// }
-
-// interface UserStore {
-//   user: User | null;
-//   token: string | null;
-//   isLoggedIn: boolean;
-//   setUser: (user: User) => void;
-//   setToken: (token: string | null) => void;
-//   clearUser: () => void;
-// }
-
-// export const useUserStore = create<UserStore>((set) => ({
-//   user: JSON.parse(localStorage.getItem("user") || "null"),
-//   setUser: (user: User | null) => {
-//     if (user) localStorage.setItem("user", JSON.stringify(user));
-//     else localStorage.removeItem("user");
-//     set({ user });
-//   },
-//   clearUser: () => {
-//     localStorage.removeItem("user");
-//     set({ user: null });
-//   },
-// }));
-
-// export const useUserStore = create<UserStore>((set) => ({
-//   user: JSON.parse(localStorage.getItem("user") || "null"),
-//   token: localStorage.getItem("token"),
-//   setUser: (user) => {
-//     if (user) localStorage.setItem("user", JSON.stringify(user));
-//     else localStorage.removeItem("user");
-//     set({ user });
-//   },
-//   setToken: (token) => {
-//     if (token) localStorage.setItem("token", token);
-//     else localStorage.removeItem("token");
-//     set({ token });
-//   },
-//   clearUser: () => {
-//     localStorage.removeItem("user");
-//     localStorage.removeItem("token");
-//     set({ user: null, token: null });
-//   },
-// }));
-
-// export const useUserStore = create<UserStore>((set) => ({
-//   user: null,
-//   isLoggedIn: false,
-//   setUser: (user: User) => set({ user, isLoggedIn: true }),
-// clearUser: () => set({ user: null, isLoggedIn: false }),
-// }));
-
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 import { User } from "@shared/types/user";
 
 interface UserStore {
@@ -69,16 +11,117 @@ interface UserStore {
   updateUser: (updates: Partial<User>) => void;
 }
 
-export const useUserStore = create<UserStore>((set, get) => ({
-  user: null,
-  isLoggedIn: false,
-  setUser: (user: User) => set({ user, isLoggedIn: true }),
-  clearUser: () => set({ user: null, isLoggedIn: false }),
-  // 선택적: 사용자 정보 업데이트
-  updateUser: (updates: Partial<User>) => {
-    const currentUser = get().user;
-    if (currentUser) {
-      set({ user: { ...currentUser, ...updates } });
+// export const useUserStore = create<UserStore>()(
+//   persist(
+//     (set, get) => ({
+//       user: null,
+//       isLoggedIn: false,
+//       setUser: (user: User) => {
+//         console.log("🧪 userStore - setUser 호출:", {
+//           id: user.id,
+//           email: user.email,
+//           nickname: user.nickname,
+//         });
+//         set({ user, isLoggedIn: true });
+//         console.log("🧪 userStore - 사용자 설정 완료");
+//       },
+//       clearUser: () => {
+//         console.log("🧪 userStore - clearUser 호출");
+//         set({ user: null, isLoggedIn: false });
+//         console.log("🧪 userStore - 사용자 클리어 완료");
+//       },
+//       // 선택적: 사용자 정보 업데이트
+//       updateUser: (updates: Partial<User>) => {
+//         console.log("🧪 userStore - updateUser 호출:", updates);
+//         const currentUser = get().user;
+//         if (currentUser) {
+//           const updatedUser = { ...currentUser, ...updates };
+//           console.log("🧪 userStore - 사용자 업데이트:", {
+//             id: updatedUser.id,
+//             email: updatedUser.email,
+//             nickname: updatedUser.nickname,
+//           });
+//           set({ user: updatedUser });
+//         } else {
+//           console.log("🧪 userStore - 업데이트할 사용자가 없음");
+//         }
+//       },
+//     }),
+//     {
+//       name: "user-storage", // localStorage 키 이름
+//       partialize: (state) => {
+//         console.log("🧪 userStore - localStorage 저장:", {
+//           user: state.user
+//             ? { id: state.user.id, email: state.user.email }
+//             : null,
+//           isLoggedIn: state.isLoggedIn,
+//         });
+//         return {
+//           user: state.user,
+//           isLoggedIn: state.isLoggedIn,
+//         };
+//       }, // 저장할 상태만 선택
+//       onRehydrateStorage: () => (state) => {
+//         console.log("🧪 userStore - localStorage 복원:", {
+//           user: state?.user
+//             ? { id: state.user.id, email: state.user.email }
+//             : null,
+//           isLoggedIn: state?.isLoggedIn,
+//         });
+//       },
+//     }
+//   )
+// );
+export const useUserStore = create<UserStore>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      isLoggedIn: false,
+      setUser: (user: User) => {
+        console.log("🧪 userStore - setUser 호출:", {
+          id: user.id,
+          email: user.email,
+          nickname: user.nickname,
+        });
+        set({ user, isLoggedIn: true });
+        console.log("🧪 userStore - 사용자 설정 완료");
+      },
+      clearUser: () => {
+        console.log("🧪 userStore - clearUser 호출");
+        set({ user: null, isLoggedIn: false });
+        console.log("🧪 userStore - 사용자 클리어 완료");
+      },
+      updateUser: (updates: Partial<User>) => {
+        const currentUser = get().user;
+        if (currentUser) {
+          const updatedUser = { ...currentUser, ...updates };
+          set({ user: updatedUser });
+        }
+      },
+    }),
+    {
+      name: "user-storage",
+      storage: createJSONStorage(() => localStorage), // ✅ 올바른 storage 설정
+      partialize: (state) => {
+        console.log("🧪 userStore - localStorage 저장:", {
+          user: state.user
+            ? { id: state.user.id, email: state.user.email }
+            : null,
+          isLoggedIn: state.isLoggedIn,
+        });
+        return {
+          user: state.user,
+          isLoggedIn: state.isLoggedIn,
+        };
+      },
+      onRehydrateStorage: () => (state) => {
+        console.log("🧪 userStore - localStorage 복원:", {
+          user: state?.user
+            ? { id: state.user.id, email: state.user.email }
+            : null,
+          isLoggedIn: state?.isLoggedIn,
+        });
+      },
     }
-  },
-}));
+  )
+);

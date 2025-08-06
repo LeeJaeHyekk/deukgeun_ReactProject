@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styles from "./HomePage.module.css";
 import { Navigation } from "@widgets/Navigation/Navigation";
 import { LoadingOverlay } from "@shared/ui/LoadingOverlay/LoadingOverlay";
@@ -7,65 +7,15 @@ import { useAuthContext } from "@shared/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
-  console.log("🧪 HomePage 렌더링 시작");
-
   const [isLoading, setIsLoading] = useState(false);
   const user = useUserStore((state) => state.user);
   const { logout, isLoggedIn } = useAuthContext();
   const navigate = useNavigate();
 
-  // 🧪 디버깅용 로그
-  console.log("🧪 HomePage 렌더링");
-  console.log(
-    "🧪 현재 사용자:",
-    user ? { id: user.id, email: user.email, nickname: user.nickname } : null
-  );
-  console.log("🧪 로그인 상태:", isLoggedIn);
-  console.log("🧪 로컬 로딩 상태:", isLoading);
-
-  const handleLogout = async () => {
-    console.log("🧪 HomePage - 로그아웃 버튼 클릭");
-    try {
-      setIsLoading(true);
-      console.log("🧪 HomePage - 로그아웃 시작");
-      await logout();
-      console.log("🧪 HomePage - 로그아웃 성공");
-    } catch (error) {
-      console.error("🧪 HomePage - 로그아웃 실패:", error);
-    } finally {
-      setIsLoading(false);
-      console.log("🧪 HomePage - 로그아웃 처리 완료");
-    }
-  };
-
-  const handleLogin = () => {
-    console.log("🧪 HomePage - 로그인 버튼 클릭, 로그인 페이지로 이동");
-    navigate("/login");
-  };
-
-  console.log("🧪 HomePage - 렌더링할 UI 결정:", {
-    showLogoutButton: isLoggedIn && user,
-    showLoginButton: !isLoggedIn || !user,
-    showMyInfoSection: isLoggedIn && user,
-  });
-
   return (
     <div className={styles.homePage}>
       <LoadingOverlay show={isLoading} />
       <Navigation />
-
-      {/* 인증 상태에 따른 버튼 표시 */}
-      <div className={styles.authButtons}>
-        {isLoggedIn && user ? (
-          <button className={styles.logoutBtn} onClick={handleLogout}>
-            로그아웃
-          </button>
-        ) : (
-          <button className={styles.loginBtn} onClick={handleLogin}>
-            로그인
-          </button>
-        )}
-      </div>
 
       {/* Hero Section */}
       <div className={styles.heroSection}>
@@ -80,18 +30,18 @@ export default function HomePage() {
           onError={(e) => console.error("Video loading error:", e)}
         />
         <div className={styles.heroOverlay}>
-          <h1>운동의 시작, 득근득근</h1>
-          <p>위치 기반 헬스 서비스부터 머신 가이드까지 한 번에</p>
+          <h1>득근득근</h1>
+          <p>과거의 나를 뛰어넘는 것이 진정한 성장이다.</p>
         </div>
       </div>
 
       {/* Service Section */}
       <div className={styles.serviceSection}>
         <div className={styles.serviceGrid}>
-          <div className={styles.serviceCard}> 헬스장 위치</div>
-          <div className={styles.serviceCard}> 머신 가이드</div>
-          <div className={styles.serviceCard}> 커뮤니티</div>
-          <div className={styles.serviceCard}> 운동 기록일지</div>
+          <div className={styles.serviceCard}>헬스장 위치</div>
+          <div className={styles.serviceCard}>머신 가이드</div>
+          <div className={styles.serviceCard}>커뮤니티</div>
+          <div className={styles.serviceCard}>운동 기록일지</div>
         </div>
       </div>
 

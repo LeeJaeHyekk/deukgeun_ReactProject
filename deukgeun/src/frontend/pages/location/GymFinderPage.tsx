@@ -7,6 +7,7 @@ import { FilterTag } from "./components/FilterTag/FilterTag";
 import { GymList } from "./components/Map/GymList";
 import { fetchGymsByKeyword } from "./API/kakao";
 import { Gym } from "./types";
+import { KAKAO_CONFIG, validateEnvironment } from "@shared/lib/env";
 
 // TypeScript용 전역 선언
 declare global {
@@ -39,6 +40,12 @@ export default function GymFinderPage() {
   useEffect(() => {
     if (!position) return;
 
+    // 환경 변수 검증
+    if (!validateEnvironment()) {
+      console.error("Required environment variables are missing");
+      return;
+    }
+
     const initializeMap = () => {
       const container = document.getElementById("kakao-map");
       if (!container) {
@@ -66,11 +73,18 @@ export default function GymFinderPage() {
       return;
     }
 
+    const apiKey = KAKAO_CONFIG.JAVASCRIPT_API_KEY;
+    console.log("Kakao Maps API Key:", apiKey);
+    if (!apiKey) {
+      console.error(
+        "Kakao Maps API key is not configured. Please set VITE_LOCATION_JAVASCRIPT_MAP_API_KEY in your src/frontend/.env file"
+      );
+      return;
+    }
+
     const script = document.createElement("script");
     script.id = "kakao-map-sdk-script";
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${
-      import.meta.env.VITE_LOCATION_JAVASCRIPT_MAP_API_KEY
-    }&autoload=false`;
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`;
     script.async = true;
 
     script.onload = () => {

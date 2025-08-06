@@ -1,6 +1,8 @@
 import { Gym } from "../types";
+import { KAKAO_CONFIG } from "@shared/lib/env";
 
-const KAKAO_API_KEY = import.meta.env.VITE_LOCATION_REST_MAP_API_KEY;
+const KAKAO_API_KEY = KAKAO_CONFIG.REST_API_KEY;
+console.log("Kakao REST API Key:", KAKAO_API_KEY);
 
 export async function fetchGymsByKeyword(
   query: string,

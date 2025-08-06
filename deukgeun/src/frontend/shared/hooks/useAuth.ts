@@ -100,7 +100,7 @@
 // }
 
 // ✅ useAuth.ts (수정)
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { storage } from "../lib";
 import { authApi } from "../../features/auth/api/authApi";
 import { useUserStore } from "../store/userStore"; // ✅ zustand store 사용
@@ -108,6 +108,7 @@ import { User } from "@shared/types/user";
 
 export function useAuth() {
   const { user, setUser, clearUser } = useUserStore(); // ✅ zustand state 구독
+  const isInitialized = useRef(false); // 초기화 상태 추적
 
   const isLoggedIn = !!user;
   const isLoading = false; // ✅ 필요하면 zustand에 로딩 추가 가능
@@ -172,11 +173,15 @@ export function useAuth() {
     } finally {
       storage.clear();
       clearUser();
+      // 로그아웃 후 새로고침하여 완전히 초기 상태로 리셋
+      window.location.reload();
     }
   }, [clearUser]);
 
-  // 🧪 새로고침 시 storage에서 사용자 정보 복원
+  // 🧪 컴포넌트 마운트 시 한 번만 실행되도록 수정
   useEffect(() => {
+    if (isInitialized.current) return;
+
     console.log("🧪 useEffect 실행 - storage에서 사용자 정보 복원");
 
     // Zustand에 사용자 정보가 없지만 storage에는 있는 경우
@@ -194,7 +199,9 @@ export function useAuth() {
         setUser({ ...storedUser, accessToken: token });
       }
     }
-  }, [user, setUser]);
+
+    isInitialized.current = true;
+  }, []); // 의존성 배열을 비워서 한 번만 실행
 
   return {
     isLoggedIn,

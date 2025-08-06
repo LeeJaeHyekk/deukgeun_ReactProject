@@ -28,9 +28,12 @@ export default function HomePage() {
     <div className={styles.homePage}>
       <LoadingOverlay show={isLoading} />
       <Navigation />
-      <button className={styles.logoutBtn} onClick={handleLogout}>
-        로그아웃
-      </button>
+      {/* 로그인된 경우에만 로그아웃 버튼 표시 */}
+      {user && (
+        <button className={styles.logoutBtn} onClick={handleLogout}>
+          로그아웃
+        </button>
+      )}
 
       {/* Hero Section */}
       <div className={styles.heroSection}>
@@ -60,29 +63,30 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* My Info Section */}
-
-      <section className={styles.myInfoSummary}>
-        <div className={styles.myInfoCard}>
-          <img
-            src="/img/user-avatar.png"
-            alt="아바타"
-            className={styles.avatarSmall}
-          />
-          <div>
-            <p>
-              <strong>{user?.nickname || "사용자"}</strong> (Lv.3)
-            </p>
-            <p>🔥 오늘의 운동: 가슴 + 삼두</p>
+      {/* My Info Section - 로그인된 경우에만 표시 */}
+      {user && (
+        <section className={styles.myInfoSummary}>
+          <div className={styles.myInfoCard}>
+            <img
+              src="/img/user-avatar.png"
+              alt="아바타"
+              className={styles.avatarSmall}
+            />
+            <div>
+              <p>
+                <strong>{user.nickname}</strong> (Lv.3)
+              </p>
+              <p>🔥 오늘의 운동: 가슴 + 삼두</p>
+            </div>
+            <button
+              onClick={() => navigate("/mypage")}
+              className={styles.detailBtn}
+            >
+              자세히
+            </button>
           </div>
-          <button
-            onClick={() => navigate("/mypage")}
-            className={styles.detailBtn}
-          >
-            자세히
-          </button>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Footer Section */}
       <footer className={styles.footerSection}>

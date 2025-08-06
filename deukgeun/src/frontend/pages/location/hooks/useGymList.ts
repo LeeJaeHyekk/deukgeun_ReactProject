@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getGyms } from "../API/getGyms";
-import { Gym } from "../types/gym";
+import { Gym } from "../types";
 
 export const useGymList = () => {
   const [gyms, setGyms] = useState<Gym[]>([]);

@@ -3,35 +3,34 @@ import styles from "./HomePage.module.css";
 import { Navigation } from "@widgets/Navigation/Navigation";
 import { LoadingOverlay } from "@shared/ui/LoadingOverlay/LoadingOverlay";
 import { useUserStore } from "@shared/store/userStore";
+import { useAuthContext } from "@shared/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const user = useUserStore((state) => state.user);
+  const { logout } = useAuthContext();
+  const navigate = useNavigate();
+  // 🧪 디버깅용 로그
+  console.log("🧪 HomePage 렌더링");
+  console.log("🧪 현재 사용자:", user);
 
-  // 로딩 상태를 일정 시간 후 false로 바꿈 (예시: 2초 후 해제)
-  useEffect(() => {
-    // 🚩 실제 필요한 데이터 호출
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const res = await fetch("/api/home-data"); // 예시
-        const result = await res.json();
-        setData(result);
-      } catch (error) {
-        console.error("데이터 불러오기 실패", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const handleLogout = async () => {
+    try {
+      await logout();
+      console.log("🧪 로그아웃 성공");
+    } catch (error) {
+      console.error("🧪 로그아웃 실패:", error);
+    }
+  };
 
   return (
     <div className={styles.homePage}>
       <LoadingOverlay show={isLoading} />
       <Navigation />
+      <button className={styles.logoutBtn} onClick={handleLogout}>
+        로그아웃
+      </button>
 
       {/* Hero Section */}
       <div className={styles.heroSection}>
@@ -62,45 +61,26 @@ export default function HomePage() {
       </div>
 
       {/* My Info Section */}
-      <section className={styles.wrapper}>
-        <div className={styles.profile}>
+
+      <section className={styles.myInfoSummary}>
+        <div className={styles.myInfoCard}>
           <img
             src="/img/user-avatar.png"
-            alt="유저 아바타"
-            className={styles.avatar}
+            alt="아바타"
+            className={styles.avatarSmall}
           />
-          <div className={styles.userMeta}>
-            <div className={styles.username}>
-              hyuk
-              <span className={styles.level}>Lv.3</span>
-            </div>
-            <div className={styles.settingIcon}>⚙️</div>
+          <div>
+            <p>
+              <strong>{user?.nickname || "사용자"}</strong> (Lv.3)
+            </p>
+            <p>🔥 오늘의 운동: 가슴 + 삼두</p>
           </div>
-        </div>
-
-        <div className={styles.infoBlock}>
-          <div className={styles.infoItem}>
-            <p className={styles.label}>운동 부위</p>
-            <p className={styles.value}>🔥 가슴 + 삼두</p>
-          </div>
-          <div className={styles.infoItem}>
-            <p className={styles.label}>이메일</p>
-            <p className={styles.value}>ssy02134</p>
-          </div>
-          <div className={styles.infoItem}>
-            <p className={styles.label}>진행 중 미션</p>
-            <p className={styles.value}>2개</p>
-          </div>
-          <div className={styles.infoItem}>
-            <p className={styles.label}>최근 운동일</p>
-            <p className={styles.value}>2025.07.24</p>
-          </div>
-        </div>
-
-        <div className={styles.actions}>
-          <button className={styles.actionBtn}>회원정보 수정</button>
-          <button className={styles.actionBtn}>운동 기록 보기</button>
-          <button className={styles.logoutBtn}>로그아웃</button>
+          <button
+            onClick={() => navigate("/mypage")}
+            className={styles.detailBtn}
+          >
+            자세히
+          </button>
         </div>
       </section>
 

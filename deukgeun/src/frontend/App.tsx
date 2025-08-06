@@ -7,6 +7,7 @@ import SignUpPage from "@pages/Sign up/SignUpPage";
 import MachineGuidePage from "@pages/MachineGuide/MachineGuidePage";
 import CommunityPage from "@features/community/CommunityPage";
 import GymFinderPage from "@pages/location/GymFinderPage";
+import MyPage from "@pages/Mypage/myPage";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/machine-guide" element={<MachineGuidePage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/location" element={<GymFinderPage />} />
+          <Route path="/mypage" element={<MyPage />} />
           <Route path="*" element={<ErrorPage />} />
         </Routes>
       </BrowserRouter>

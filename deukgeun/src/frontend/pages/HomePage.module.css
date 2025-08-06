@@ -271,6 +271,69 @@
   color: #fff;
   box-shadow: 0 6px 18px #ff4c4ccc;
 }
+
+.myInfoSummary {
+  display: flex;
+  justify-content: center;
+  margin: 32px auto;
+}
+
+.myInfoCard {
+  display: flex;
+  width: 88%;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 28px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.myInfoCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+.avatarSmall {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #999;
+}
+
+.myInfoCard p {
+  margin: 2px 0;
+  font-size: 0.95rem;
+  color: #f1f1f1;
+}
+
+.myInfoCard strong {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #ffffff;
+}
+
+.detailBtn {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #f0f0f0;
+  padding: 8px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.detailBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
+}
+
 /* Footer Section */
 
 .footerSection {

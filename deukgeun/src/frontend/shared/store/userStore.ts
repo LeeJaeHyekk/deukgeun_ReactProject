@@ -65,11 +65,20 @@ interface UserStore {
   isLoggedIn: boolean;
   setUser: (user: User) => void;
   clearUser: () => void;
+  // 선택적: 사용자 정보 업데이트
+  updateUser: (updates: Partial<User>) => void;
 }
 
-export const useUserStore = create<UserStore>((set) => ({
+export const useUserStore = create<UserStore>((set, get) => ({
   user: null,
   isLoggedIn: false,
   setUser: (user: User) => set({ user, isLoggedIn: true }),
   clearUser: () => set({ user: null, isLoggedIn: false }),
+  // 선택적: 사용자 정보 업데이트
+  updateUser: (updates: Partial<User>) => {
+    const currentUser = get().user;
+    if (currentUser) {
+      set({ user: { ...currentUser, ...updates } });
+    }
+  },
 }));

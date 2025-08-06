@@ -100,7 +100,7 @@
 // }
 
 // ✅ useAuth.ts (수정)
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { storage } from "../lib";
 import { authApi } from "../../features/auth/api/authApi";
 import { useUserStore } from "../store/userStore"; // ✅ zustand store 사용
@@ -111,6 +111,12 @@ export function useAuth() {
 
   const isLoggedIn = !!user;
   const isLoading = false; // ✅ 필요하면 zustand에 로딩 추가 가능
+
+  // 🧪 디버깅용 로그
+  console.log("🧪 useAuth 훅 실행");
+  console.log("🧪 현재 Zustand user:", user);
+  console.log("🧪 Storage token:", storage.get("accessToken"));
+  console.log("🧪 Storage user:", storage.get("user"));
 
   const checkAuthStatus = useCallback(async () => {
     const token = storage.get("accessToken");
@@ -168,6 +174,27 @@ export function useAuth() {
       clearUser();
     }
   }, [clearUser]);
+
+  // 🧪 새로고침 시 storage에서 사용자 정보 복원
+  useEffect(() => {
+    console.log("🧪 useEffect 실행 - storage에서 사용자 정보 복원");
+
+    // Zustand에 사용자 정보가 없지만 storage에는 있는 경우
+    if (!user) {
+      const token = storage.get("accessToken");
+      const storedUser = storage.get("user");
+
+      console.log("🧪 Storage에서 복원 시도:", {
+        token: !!token,
+        storedUser: !!storedUser,
+      });
+
+      if (token && storedUser) {
+        console.log("🧪 Storage에서 사용자 정보 복원");
+        setUser({ ...storedUser, accessToken: token });
+      }
+    }
+  }, [user, setUser]);
 
   return {
     isLoggedIn,

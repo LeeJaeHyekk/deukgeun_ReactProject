@@ -19,6 +19,9 @@ export class User {
   @Column({ type: "varchar", nullable: true })
   nickname: string;
 
+  @Column({ default: "user" })
+  role: "user" | "admin";
+
   @CreateDateColumn()
   createdAt: Date;
 }

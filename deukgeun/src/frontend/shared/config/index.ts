@@ -51,4 +51,12 @@ export const API_ENDPOINTS = {
     SEARCH: "/api/gyms/search",
     DETAIL: (id: number) => `/api/gyms/${id}`,
   },
+  MACHINES: {
+    LIST: "/api/machines",
+    CREATE: "/api/machines",
+    DETAIL: (id: number) => `/api/machines/${id}`,
+    UPDATE: (id: number) => `/api/machines/${id}`,
+    DELETE: (id: number) => `/api/machines/${id}`,
+    FILTER: "/api/machines/filter",
+  },
 } as const;

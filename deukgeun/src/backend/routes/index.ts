@@ -3,6 +3,7 @@ import postRoutes from "./post";
 import schedulerRoutes from "./scheduler";
 import authRoutes from "./auth";
 import gymRoutes from "./gym";
+import machineRoutes from "./machine";
 
 const router = Router();
 
@@ -18,11 +19,16 @@ if (!authRoutes) {
 if (!gymRoutes) {
   throw new Error("Gym routes not found.");
 }
+if (!machineRoutes) {
+  throw new Error("Machine routes not found.");
+}
+
 // API routes
 router.use("/posts", postRoutes);
 router.use("/scheduler", schedulerRoutes);
 router.use("/auth", authRoutes);
 router.use("/gyms", gymRoutes);
+router.use("/machines", machineRoutes);
 
 router.use("*", (req, res) => {
   res.status(404).json({ message: "API route not found" });

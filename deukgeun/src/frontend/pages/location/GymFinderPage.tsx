@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import styles from "./GymFinderPage.module.css";
 import { Navigation } from "@widgets/Navigation/Navigation";
 import { SearchBar } from "./components/Map/SearchBar";
@@ -32,6 +32,11 @@ export default function GymFinderPage() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
+
+  // 맵 관련 refs
+  const mapRef = useRef<any>(null);
+  const currentLocationMarkerRef = useRef<any>(null);
+  const gymMarkersRef = useRef<any[]>([]);
 
   const kakaoApiKey = import.meta.env.VITE_LOCATION_JAVASCRIPT_MAP_API_KEY;
 
@@ -123,7 +128,11 @@ export default function GymFinderPage() {
         level: 3,
       };
 
-      new window.kakao.maps.Map(container, options);
+      mapRef.current = new window.kakao.maps.Map(container, options);
+
+      // 현재 위치 마커 추가
+      addCurrentLocationMarker();
+
       setIsMapLoaded(true);
     };
 
@@ -140,6 +149,125 @@ export default function GymFinderPage() {
       if (script) script.remove();
     };
   }, [position, isMapLoaded, kakaoApiKey]);
+
+  // 현재 위치 마커 추가 함수
+  const addCurrentLocationMarker = () => {
+    if (!mapRef.current || !position) return;
+
+    // 기존 현재 위치 마커 제거
+    if (currentLocationMarkerRef.current) {
+      currentLocationMarkerRef.current.setMap(null);
+    }
+
+    // 현재 위치 마커 생성 (파란색 원형 마커)
+    const currentLocationMarker = new window.kakao.maps.Marker({
+      position: new window.kakao.maps.LatLng(position.lat, position.lng),
+      map: mapRef.current,
+    });
+
+    // 현재 위치 마커 스타일 설정
+    const currentLocationImage = new window.kakao.maps.MarkerImage(
+      "data:image/svg+xml;base64," +
+        btoa(`
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="14" fill="#d1d5db" stroke="white" stroke-width="3"/>
+          <circle cx="16" cy="16" r="8" fill="white"/>
+          <circle cx="16" cy="16" r="4" fill="#374151"/>
+        </svg>
+      `),
+      new window.kakao.maps.Size(32, 32)
+    );
+
+    currentLocationMarker.setImage(currentLocationImage);
+    currentLocationMarkerRef.current = currentLocationMarker;
+
+    // 현재 위치 인포윈도우 추가
+    const infowindow = new window.kakao.maps.InfoWindow({
+      content:
+        '<div style="padding:8px 12px;font-size:14px;font-weight:600;background:#d1d5db;color:#374151;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);">📍 현재 위치</div>',
+    });
+
+    window.kakao.maps.event.addListener(
+      currentLocationMarker,
+      "click",
+      function () {
+        infowindow.open(mapRef.current, currentLocationMarker);
+      }
+    );
+  };
+
+  // 헬스장 마커 추가 함수
+  const addGymMarkers = () => {
+    if (!mapRef.current || !gyms.length) return;
+
+    // 기존 헬스장 마커들 제거
+    gymMarkersRef.current.forEach((marker) => {
+      marker.setMap(null);
+    });
+    gymMarkersRef.current = [];
+
+    // 헬스장 마커들 추가
+    gyms.forEach((gym, index) => {
+      const marker = new window.kakao.maps.Marker({
+        position: new window.kakao.maps.LatLng(gym.latitude, gym.longitude),
+        map: mapRef.current,
+      });
+
+      // 헬스장 마커 스타일 설정 (빨간색 핀)
+      const gymImage = new window.kakao.maps.MarkerImage(
+        "data:image/svg+xml;base64," +
+          btoa(`
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#EA4335"/>
+            <circle cx="12" cy="9" r="2.5" fill="white"/>
+          </svg>
+        `),
+        new window.kakao.maps.Size(24, 24)
+      );
+
+      marker.setImage(gymImage);
+
+      // 헬스장 인포윈도우 생성
+      const infowindow = new window.kakao.maps.InfoWindow({
+        content: `
+          <div style="padding:10px;min-width:200px;">
+            <h3 style="margin:0 0 5px 0;font-size:14px;font-weight:bold;">${
+              gym.name
+            }</h3>
+            <p style="margin:0 0 3px 0;font-size:12px;color:#666;">${
+              gym.address
+            }</p>
+            ${
+              gym.phone
+                ? `<p style="margin:0 0 3px 0;font-size:12px;color:#666;">${gym.phone}</p>`
+                : ""
+            }
+            ${
+              gym.rating
+                ? `<p style="margin:0;font-size:12px;color:#666;">평점: ${gym.rating.toFixed(
+                    1
+                  )}</p>`
+                : ""
+            }
+          </div>
+        `,
+      });
+
+      // 마커 클릭 이벤트
+      window.kakao.maps.event.addListener(marker, "click", function () {
+        infowindow.open(mapRef.current, marker);
+      });
+
+      gymMarkersRef.current.push(marker);
+    });
+  };
+
+  // 헬스장 목록이 변경될 때마다 마커 업데이트
+  useEffect(() => {
+    if (isMapLoaded && gyms.length > 0) {
+      addGymMarkers();
+    }
+  }, [gyms, isMapLoaded]);
 
   // 검색 처리
   const handleSearch = async (query: string) => {
@@ -209,10 +337,47 @@ export default function GymFinderPage() {
     setSortDirection(newDirection);
   };
 
-  // 헬스장 클릭 처리
+  // 헬스장 클릭 처리 - 맵에서 해당 위치로 이동
   const handleGymClick = (gym: Gym) => {
     console.log("헬스장 클릭:", gym);
-    // 여기에 헬스장 상세 정보 모달이나 페이지 이동 로직 추가
+
+    if (mapRef.current) {
+      // 맵 중심을 해당 헬스장 위치로 이동
+      const newPosition = new window.kakao.maps.LatLng(
+        gym.latitude,
+        gym.longitude
+      );
+      mapRef.current.panTo(newPosition);
+
+      // 줌 레벨을 더 가깝게 설정 (더 확대)
+      mapRef.current.setLevel(2);
+
+      // 해당 헬스장 마커 찾기
+      const gymMarker = gymMarkersRef.current.find((marker) => {
+        const markerPos = marker.getPosition();
+        return (
+          markerPos.getLat() === gym.latitude &&
+          markerPos.getLng() === gym.longitude
+        );
+      });
+
+      // 마커 클릭 이벤트 트리거 (인포윈도우 표시)
+      if (gymMarker) {
+        window.kakao.maps.event.trigger(gymMarker, "click");
+      }
+    }
+  };
+
+  // 현재 위치로 이동하는 함수
+  const moveToCurrentLocation = () => {
+    if (mapRef.current && position) {
+      const currentPosition = new window.kakao.maps.LatLng(
+        position.lat,
+        position.lng
+      );
+      mapRef.current.panTo(currentPosition);
+      mapRef.current.setLevel(3);
+    }
   };
 
   // 필터링 및 정렬된 헬스장 목록
@@ -268,6 +433,13 @@ export default function GymFinderPage() {
           <section className={styles.mapSection}>
             <div className={styles.mapHeader}>
               <h2>헬스장 위치</h2>
+              <button
+                onClick={moveToCurrentLocation}
+                className={styles.currentLocationButton}
+                title="현재 위치로 이동"
+              >
+                📍 현재 위치
+              </button>
             </div>
             <div id="kakao-map" className={styles.map}></div>
           </section>

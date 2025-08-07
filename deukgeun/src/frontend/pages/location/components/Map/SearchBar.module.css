@@ -23,16 +23,19 @@
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
   outline: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .searchInput::placeholder {
-  color: #ccc;
+  color: #e0e0e0;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .searchButton {
   padding: 12px 20px;
-  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-  color: #000;
+  background: #d1d5db;
+  color: #374151;
   font-weight: 600;
   border: none;
   border-radius: 12px;
@@ -41,6 +44,7 @@
 }
 
 .searchButton:hover {
+  background: #e5e7eb;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 16px rgba(209, 213, 219, 0.4);
 }

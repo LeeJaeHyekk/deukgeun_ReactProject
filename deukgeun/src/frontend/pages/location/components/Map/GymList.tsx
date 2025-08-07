@@ -31,7 +31,7 @@ export function GymList({
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h3>헬스장 목록 ({gyms.length}개)</h3>
+        <h3>{gyms.length}개</h3>
         <SortSelect
           sortBy={sortBy}
           sortDirection={sortDirection}

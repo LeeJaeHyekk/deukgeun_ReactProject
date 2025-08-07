@@ -1,16 +1,19 @@
 .card {
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .imageContainer {
@@ -41,7 +44,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #212529;
+  color: #fff;
   flex: 1;
 }
 
@@ -57,7 +60,7 @@
 
 .address {
   margin: 0;
-  color: #6c757d;
+  color: #ccc;
   font-size: 14px;
   line-height: 1.4;
 }
@@ -75,7 +78,7 @@
 
 .ratingText {
   font-size: 14px;
-  color: #495057;
+  color: #fff;
   font-weight: 500;
 }
 
@@ -86,8 +89,8 @@
 }
 
 .facilityTag {
-  background-color: #e9ecef;
-  color: #495057;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 12px;
@@ -99,8 +102,8 @@
 .hours {
   margin: 0;
   font-size: 14px;
-  color: #6c757d;
+  color: #ccc;
   display: flex;
   align-items: center;
   gap: 4px;
-} 
+}

@@ -5,9 +5,14 @@ import { logger } from "./logger";
 const ACCESS_TOKEN_SECRET = config.JWT_ACCESS_SECRET;
 const REFRESH_TOKEN_SECRET = config.JWT_REFRESH_SECRET;
 
-export function createTokens(userId: number) {
+interface JwtPayload {
+  userId: number;
+  role: "user" | "admin";
+}
+
+export function createTokens(userId: number, role: "user" | "admin") {
   try {
-    const accessToken = jwt.sign({ userId }, ACCESS_TOKEN_SECRET, {
+    const accessToken = jwt.sign({ userId, role }, ACCESS_TOKEN_SECRET, {
       expiresIn: "15m",
     });
 
@@ -22,18 +27,18 @@ export function createTokens(userId: number) {
   }
 }
 
-export function verifyRefreshToken(token: string): { userId: number } | null {
+export function verifyRefreshToken(token: string): JwtPayload | null {
   try {
-    return jwt.verify(token, REFRESH_TOKEN_SECRET) as { userId: number };
+    return jwt.verify(token, REFRESH_TOKEN_SECRET) as JwtPayload;
   } catch (error) {
     logger.warn("Refresh token 검증 실패:", error);
     return null;
   }
 }
 
-export function verifyAccessToken(token: string): { userId: number } | null {
+export function verifyAccessToken(token: string): JwtPayload | null {
   try {
-    return jwt.verify(token, ACCESS_TOKEN_SECRET) as { userId: number };
+    return jwt.verify(token, ACCESS_TOKEN_SECRET) as JwtPayload;
   } catch (error) {
     logger.warn("Access token 검증 실패:", error);
     return null;

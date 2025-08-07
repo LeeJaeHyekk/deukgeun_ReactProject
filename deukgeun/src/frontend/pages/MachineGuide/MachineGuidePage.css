@@ -1,134 +1,308 @@
-.machineGuidePage {
-  padding: 80px 20px;
-  background: #0e0e0e;
+.machine-guide-page {
   min-height: 100vh;
-  font-family: "Arial", sans-serif;
-  color: white;
+  background: linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%);
+  color: #fff;
+  padding-top: 5%;
 }
 
-/* 헤더 Glassmorphism 스타일 */
-.machineGuidePage__header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  padding: 20px 40px;
-  backdrop-filter: blur(10px);
-  background-color: rgba(20, 20, 20, 0.5);
-  z-index: 100;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.machine-guide-container {
+  max-width: 935px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  box-sizing: border-box;
 }
 
-.machineGuidePage__title {
-  font-size: 2.5rem;
-  font-weight: bold;
+/* 헤더 */
+.machine-guide-header {
   text-align: center;
+  margin-bottom: 40px;
+}
+
+.machine-guide-header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 8px 0;
+}
+
+.machine-guide-header p {
+  font-size: 16px;
+  color: #ccc;
   margin: 0;
 }
 
-/* 카드 리스트 */
-.machineGuidePage__list {
-  margin-top: 120px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 30px;
-}
-
-/* 카드 박스 */
-.machineGuideCard {
-  position: relative;
-  overflow: hidden;
-  border-radius: 16px;
-  background-color: #1a1a1a;
-  transition: transform 0.3s ease;
-  cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-
-.machineGuideCard:hover {
-  transform: translateY(-5px);
-}
-
-/* 이미지 영역 */
-.machineGuideCard__image {
+/* 검색 및 필터 */
+.machine-guide-controls {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
   width: 100%;
-  height: 220px;
-  background-size: cover;
-  background-position: center;
-  filter: grayscale(100%) brightness(0.7);
-  transition: filter 0.5s ease;
 }
 
-/* Hover 시 이미지 컬러 복원 */
-.machineGuideCard:hover .machineGuideCard__image {
-  filter: grayscale(0%) brightness(1);
+.machine-search {
+  margin-bottom: 16px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* 카드 오버레이 (어둡게 덮기용) */
-.machineGuideCard__overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.2),
-    rgba(0, 0, 0, 0.6)
-  );
-  z-index: 1;
+.machine-search-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
-/* 텍스트 정보 */
-.machineGuideCard__info {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  z-index: 2;
-  color: white;
-}
-
-.machineGuideCard__info h2 {
-  margin: 0;
-  font-size: 1.4rem;
-}
-
-.machineGuideCard__info p {
-  margin: 8px 0 12px;
-  font-size: 0.95rem;
-  color: #ddd;
-}
-
-/* 버튼 */
-.machineGuideCard__btn {
+.machine-search-input:focus {
+  outline: none;
+  border-color: #0095f6;
   background: rgba(255, 255, 255, 0.1);
-  border: 1px solid white;
+}
+
+.machine-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.machine-filter-select {
+  flex: 1;
+  min-width: 120px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  max-width: 100%;
+  backdrop-filter: blur(10px);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.machine-filter-select:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.machine-filter-select:focus {
+  outline: none;
+  border-color: #0095f6;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 4px rgba(0, 149, 246, 0.2);
+}
+
+/* 드롭다운 옵션 스타일 */
+.machine-filter-select option {
+  background: rgba(30, 30, 30, 0.9);
+  color: #fff;
+  padding: 12px 16px;
+  border: none;
+}
+
+/* 결과 정보 */
+.machine-guide-info {
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.machine-guide-info p {
+  margin: 0;
+  font-size: 14px;
+  color: #fff;
+}
+
+.machine-guide-info strong {
+  color: #0095f6;
+  font-weight: 600;
+}
+
+/* 기구 목록 그리드 */
+.machine-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 로딩 상태 */
+.machine-guide-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 20px;
+}
+
+.machine-guide-loading p {
+  font-size: 16px;
+  color: #ccc;
+  margin: 0;
+}
+
+/* 에러 상태 */
+.machine-guide-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 20px;
+  text-align: center;
+}
+
+.machine-guide-error h2 {
+  font-size: 20px;
+  color: #ed4956;
+  margin: 0;
+}
+
+.machine-guide-error p {
+  font-size: 16px;
+  color: #ccc;
+  margin: 0;
+}
+
+.machine-guide-error button {
   padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  background: #0095f6;
   color: white;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.4s ease, transform 0.4s ease, background-color 0.3s ease,
-    color 0.3s ease;
-}
-
-.machineGuideCard:hover .machineGuideCard__btn {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* 버튼 Hover 효과 */
-.machineGuideCard__btn:hover {
-  background: white;
-  color: #0e0e0e;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
-}
-
-.machineGuideCard:hover .machineGuideCard__info p {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: white;
+  border: none;
   border-radius: 6px;
-  padding: 4px 8px;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.machine-guide-error button:hover {
+  background: #0081d6;
+}
+
+/* 빈 상태 */
+.machine-guide-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 40px;
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.machine-guide-empty h3 {
+  font-size: 18px;
+  color: #fff;
+  margin: 0;
+}
+
+.machine-guide-empty p {
+  font-size: 14px;
+  color: #ccc;
+  margin: 0;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .machine-guide-container {
+    padding: 20px 16px;
+    box-sizing: border-box;
+  }
+
+  .machine-guide-header h1 {
+    font-size: 24px;
+  }
+
+  .machine-guide-header p {
+    font-size: 14px;
+  }
+
+  .machine-guide-controls {
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  .machine-filters {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .machine-filter-select {
+    min-width: auto;
+    max-width: 100%;
+  }
+
+  .machine-guide-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .machine-guide-container {
+    padding: 16px 12px;
+    box-sizing: border-box;
+  }
+
+  .machine-guide-header h1 {
+    font-size: 20px;
+  }
+
+  .machine-guide-controls {
+    padding: 12px;
+    box-sizing: border-box;
+  }
+
+  .machine-search-input,
+  .machine-filter-select {
+    font-size: 13px;
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+
+  .machine-guide-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }

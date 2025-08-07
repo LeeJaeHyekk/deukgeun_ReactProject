@@ -46,7 +46,7 @@ export async function login(req: Request, res: Response) {
         .json({ message: "이메일 또는 비밀번호가 틀렸습니다." });
     }
 
-    const { accessToken, refreshToken } = createTokens(user.id);
+    const { accessToken, refreshToken } = createTokens(user.id, user.role);
 
     logger.info(`로그인 성공 - User ID: ${user.id}, Email: ${email}`);
 
@@ -100,7 +100,8 @@ export async function refreshToken(req: Request, res: Response) {
     }
 
     const { accessToken, refreshToken: newRefreshToken } = createTokens(
-      user.id
+      user.id,
+      user.role
     );
 
     logger.info(`토큰 갱신 성공 - User ID: ${user.id}`);
@@ -206,7 +207,10 @@ export const register = async (req: Request, res: Response) => {
     const newUser = userRepo.create({ email, password: hashedPassword });
     await userRepo.save(newUser);
 
-    const { accessToken, refreshToken } = createTokens(newUser.id);
+    const { accessToken, refreshToken } = createTokens(
+      newUser.id,
+      newUser.role
+    );
 
     logger.info(`회원가입 성공 - User ID: ${newUser.id}, Email: ${email}`);
 

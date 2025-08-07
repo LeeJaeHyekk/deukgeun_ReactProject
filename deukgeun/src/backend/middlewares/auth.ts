@@ -8,6 +8,7 @@ declare global {
     interface Request {
       user?: {
         userId: number;
+        role: "user" | "admin";
       };
     }
   }
@@ -58,3 +59,10 @@ export function optionalAuth(req: Request, res: Response, next: NextFunction) {
     next(); // 오류가 발생해도 계속 진행
   }
 }
+
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (req.user?.role !== "admin") {
+    return res.status(403).json({ message: "관리자만 접근할 수 있습니다." });
+  }
+  next();
+};

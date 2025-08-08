@@ -11,6 +11,21 @@ function createTestTokens(role: "user" | "admin") {
 // 샘플 기구 데이터
 const sampleMachines = [
   {
+    machine_key: "chin_up_dip_station_001",
+    name_ko: "친업 앤 딥 스테이션",
+    name_en: "Chin-up and Dip Station",
+    image_url:
+      "http://localhost:5000/img/machine/plate_chin-up-and-dip-station.png",
+    short_desc: "상체 근력을 종합적으로 발달시키는 기구입니다.",
+    detail_desc:
+      "친업과 딥스 운동을 할 수 있는 복합 운동 기구로, 가슴, 등, 삼두근 등 상체 전반의 근력을 발달시키는데 매우 효과적입니다.",
+    category: "상체" as const,
+    difficulty_level: "중급" as const,
+    target_muscle: ["광배근", "대흉근", "삼두근", "이두근"],
+    positive_effect: "상체 근력 향상, 코어 강화, 전반적인 근지구력 향상",
+    video_url: "https://example.com/videos/chin_up_dip.mp4",
+  },
+  {
     machine_key: "chest_press_001",
     name_ko: "체스트 프레스",
     name_en: "Chest Press",

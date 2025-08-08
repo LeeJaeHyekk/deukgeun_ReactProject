@@ -395,12 +395,297 @@
 
 /* Footer Section */
 .footerSection {
-  background: #111;
-  color: #bbb;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+  color: #fff;
+  margin-top: 60px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footerContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* 메인 Footer 영역 */
+.footerMain {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+  padding: 60px 0 40px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 회사 정보 컬럼 */
+.footerColumn:first-child {
+  padding-right: 40px;
+}
+
+.footerLogo {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.footerLogoImg {
+  width: 40px;
+  height: 40px;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
+.footerLogo h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #fff;
+}
+
+.footerDescription {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 24px;
+}
+
+.socialLinks {
+  display: flex;
+  gap: 16px;
+}
+
+.socialLink {
+  display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 2rem;
-  padding: 2rem;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.socialLink:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Footer 컬럼 공통 스타일 */
+.footerColumn h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  color: #fff;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.footerColumn h4::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 1px;
+}
+
+.footerLinks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footerLinks li {
+  margin-bottom: 12px;
+}
+
+.footerLinks a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
   font-size: 0.9rem;
+  transition: all 0.3s ease;
+  position: relative;
+  padding-left: 0;
+}
+
+.footerLinks a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s ease;
+}
+
+.footerLinks a:hover {
+  color: #fff;
+  padding-left: 8px;
+}
+
+.footerLinks a:hover::before {
+  width: 100%;
+}
+
+/* 하단 Footer 영역 */
+.footerBottom {
+  padding: 24px 0;
+}
+
+.footerBottomContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.copyright {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.footerBottomLinks {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.footerBottomLinks a {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.3s ease;
+}
+
+.footerBottomLinks a:hover {
+  color: #fff;
+}
+
+.separator {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.8rem;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .footerMain {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px 30px;
+    padding: 50px 0 30px 0;
+  }
+
+  .footerColumn:first-child {
+    grid-column: 1 / -1;
+    padding-right: 0;
+    text-align: center;
+  }
+
+  .footerLogo {
+    justify-content: center;
+  }
+
+  .socialLinks {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .footerSection {
+    margin-top: 40px;
+  }
+
+  .footerContainer {
+    padding: 0 16px;
+  }
+
+  .footerMain {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 40px 0 30px 0;
+  }
+
+  .footerColumn:first-child {
+    text-align: center;
+  }
+
+  .footerColumn h4 {
+    text-align: center;
+  }
+
+  .footerColumn h4::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .footerLinks {
+    text-align: center;
+  }
+
+  .footerLinks a:hover {
+    padding-left: 0;
+  }
+
+  .footerBottomContent {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footerSection {
+    margin-top: 30px;
+  }
+
+  .footerContainer {
+    padding: 0 12px;
+  }
+
+  .footerMain {
+    padding: 30px 0 20px 0;
+    gap: 25px;
+  }
+
+  .footerLogo h3 {
+    font-size: 1.3rem;
+  }
+
+  .footerDescription {
+    font-size: 0.9rem;
+  }
+
+  .socialLink {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .footerColumn h4 {
+    font-size: 1rem;
+  }
+
+  .footerLinks a {
+    font-size: 0.85rem;
+  }
+
+  .copyright {
+    font-size: 0.8rem;
+  }
+
+  .footerBottomLinks {
+    gap: 12px;
+  }
+
+  .footerBottomLinks a {
+    font-size: 0.8rem;
+  }
 }

@@ -142,11 +142,111 @@ export default function HomePage() {
 
       {/* Footer Section */}
       <footer className={styles.footerSection}>
-        <div>회사소개</div>
-        <div>개인정보처리방침</div>
-        <div>이용약관</div>
-        <div>고객센터</div>
-        <div>문의하기</div>
+        <div className={styles.footerContainer}>
+          {/* 메인 Footer 영역 */}
+          <div className={styles.footerMain}>
+            {/* 회사 정보 */}
+            <div className={styles.footerColumn}>
+              <div className={styles.footerLogo}>
+                <img
+                  src="/img/logo.png"
+                  alt="득근득근"
+                  className={styles.footerLogoImg}
+                />
+                <h3>득근득근</h3>
+              </div>
+              <p className={styles.footerDescription}>
+                과거의 나를 뛰어넘는 것이 진정한 성장이다.
+                <br />
+                당신의 건강한 변화를 응원합니다.
+              </p>
+              <div className={styles.socialLinks}>
+                <a href="#" className={styles.socialLink}>
+                  📱
+                </a>
+                <a href="#" className={styles.socialLink}>
+                  📧
+                </a>
+                <a href="#" className={styles.socialLink}>
+                  💬
+                </a>
+              </div>
+            </div>
+
+            {/* 서비스 */}
+            <div className={styles.footerColumn}>
+              <h4>서비스</h4>
+              <ul className={styles.footerLinks}>
+                <li>
+                  <a href="/location">헬스장 찾기</a>
+                </li>
+                <li>
+                  <a href="/machine-guide">머신 가이드</a>
+                </li>
+                <li>
+                  <a href="/community">커뮤니티</a>
+                </li>
+                <li>
+                  <a href="/missions">운동 기록일지</a>
+                </li>
+              </ul>
+            </div>
+
+            {/* 고객지원 */}
+            <div className={styles.footerColumn}>
+              <h4>고객지원</h4>
+              <ul className={styles.footerLinks}>
+                <li>
+                  <a href="/faq">자주 묻는 질문</a>
+                </li>
+                <li>
+                  <a href="/contact">문의하기</a>
+                </li>
+                <li>
+                  <a href="/feedback">피드백</a>
+                </li>
+                <li>
+                  <a href="/help">도움말</a>
+                </li>
+              </ul>
+            </div>
+
+            {/* 회사 정보 */}
+            <div className={styles.footerColumn}>
+              <h4>회사 정보</h4>
+              <ul className={styles.footerLinks}>
+                <li>
+                  <a href="/about">회사소개</a>
+                </li>
+                <li>
+                  <a href="/privacy">개인정보처리방침</a>
+                </li>
+                <li>
+                  <a href="/terms">이용약관</a>
+                </li>
+                <li>
+                  <a href="/careers">채용정보</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* 하단 Footer 영역 */}
+          <div className={styles.footerBottom}>
+            <div className={styles.footerBottomContent}>
+              <p className={styles.copyright}>
+                © 2024 득근득근. All rights reserved.
+              </p>
+              <div className={styles.footerBottomLinks}>
+                <a href="/privacy">개인정보처리방침</a>
+                <span className={styles.separator}>|</span>
+                <a href="/terms">이용약관</a>
+                <span className={styles.separator}>|</span>
+                <a href="/contact">고객센터</a>
+              </div>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );

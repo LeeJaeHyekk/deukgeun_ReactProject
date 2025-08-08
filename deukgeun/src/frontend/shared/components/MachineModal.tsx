@@ -1,11 +1,11 @@
-import React from "react";
-import { Machine } from "../types/machine";
-import "./MachineModal.css";
+import React from "react"
+import { Machine } from "../types/machine"
+import "./MachineModal.css"
 
 interface MachineModalProps {
-  machine: Machine | null;
-  isOpen: boolean;
-  onClose: () => void;
+  machine: Machine | null
+  isOpen: boolean
+  onClose: () => void
 }
 
 export const MachineModal: React.FC<MachineModalProps> = ({
@@ -13,41 +13,41 @@ export const MachineModal: React.FC<MachineModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  if (!isOpen || !machine) return null;
+  if (!isOpen || !machine) return null
 
   const getDifficultyColor = (difficulty?: string) => {
     switch (difficulty) {
       case "초급":
-        return "#4CAF50";
+        return "#4CAF50"
       case "중급":
-        return "#FF9800";
+        return "#FF9800"
       case "고급":
-        return "#F44336";
+        return "#F44336"
       default:
-        return "#9E9E9E";
+        return "#9E9E9E"
     }
-  };
+  }
 
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "상체":
-        return "#2196F3";
+        return "#2196F3"
       case "하체":
-        return "#4CAF50";
+        return "#4CAF50"
       case "전신":
-        return "#9C27B0";
+        return "#9C27B0"
       case "기타":
-        return "#FF9800";
+        return "#FF9800"
       default:
-        return "#9E9E9E";
+        return "#9E9E9E"
     }
-  };
+  }
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      onClose();
+      onClose()
     }
-  };
+  }
 
   return (
     <div className="machine-modal-overlay" onClick={handleBackdropClick}>
@@ -132,5 +132,5 @@ export const MachineModal: React.FC<MachineModalProps> = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

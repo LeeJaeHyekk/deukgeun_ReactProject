@@ -1,11 +1,11 @@
-import { createConnection } from "typeorm";
-import { connectDatabase } from "../config/database";
+import { createConnection } from "typeorm"
+import { connectDatabase } from "../config/database"
 
 async function createLevelTables() {
   try {
-    console.log("데이터베이스 연결 중...");
-    const connection = await connectDatabase();
-    console.log("데이터베이스 연결 성공!");
+    console.log("데이터베이스 연결 중...")
+    const connection = await connectDatabase()
+    console.log("데이터베이스 연결 성공!")
 
     // 테이블 생성 쿼리들
     const queries = [
@@ -82,34 +82,34 @@ async function createLevelTables() {
         INDEX idx_streak_type (streakType),
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
       )`,
-    ];
+    ]
 
     // 쿼리 실행
     for (let i = 0; i < queries.length; i++) {
-      const query = queries[i];
-      console.log(`테이블 생성 중... (${i + 1}/${queries.length})`);
-      await connection.query(query);
+      const query = queries[i]
+      console.log(`테이블 생성 중... (${i + 1}/${queries.length})`)
+      await connection.query(query)
     }
 
-    console.log("모든 레벨 시스템 테이블이 성공적으로 생성되었습니다!");
+    console.log("모든 레벨 시스템 테이블이 성공적으로 생성되었습니다!")
 
     // 기존 사용자들을 위한 기본 레벨 데이터 생성
-    console.log("기존 사용자들을 위한 기본 레벨 데이터 생성 중...");
+    console.log("기존 사용자들을 위한 기본 레벨 데이터 생성 중...")
     await connection.query(`
       INSERT IGNORE INTO user_levels (userId, level, currentExp, totalExp, seasonExp)
       SELECT id, 1, 0, 0, 0 FROM users
-    `);
+    `)
 
-    console.log("기본 레벨 데이터 생성 완료!");
+    console.log("기본 레벨 데이터 생성 완료!")
 
-    await connection.close();
-    console.log("데이터베이스 연결 종료");
-    process.exit(0);
+    await connection.close()
+    console.log("데이터베이스 연결 종료")
+    process.exit(0)
   } catch (error) {
-    console.error("테이블 생성 중 오류 발생:", error);
-    process.exit(1);
+    console.error("테이블 생성 중 오류 발생:", error)
+    process.exit(1)
   }
 }
 
 // 스크립트 실행
-createLevelTables();
+createLevelTables()

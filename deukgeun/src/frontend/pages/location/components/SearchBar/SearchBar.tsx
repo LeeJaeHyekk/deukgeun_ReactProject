@@ -1,4 +1,4 @@
-import styles from "./SearchBar.module.css";
+import styles from "./SearchBar.module.css"
 
 export const SearchBar = () => {
   return (
@@ -10,5 +10,5 @@ export const SearchBar = () => {
       />
       <button className={styles.button}>🔍 헬스장 찾기</button>
     </div>
-  );
-};
+  )
+}

@@ -6,36 +6,40 @@ import {
   Index,
   ManyToOne,
   JoinColumn,
-} from "typeorm";
-import { User } from "./User";
+} from "typeorm"
+import { User } from "./User"
 
 @Entity("user_rewards")
 export class UserReward {
   @PrimaryGeneratedColumn()
-  id!: number;
+  id!: number
 
   @Column({ type: "int" })
   @Index()
-  userId!: number;
+  userId!: number
 
   @Column({ type: "varchar", length: 50 })
-  rewardType!: string;
+  @Index()
+  rewardType!: string
 
   @Column({ type: "varchar", length: 100 })
-  rewardId!: string;
-
-  @CreateDateColumn()
   @Index()
-  claimedAt!: Date;
+  rewardId!: string
 
   @Column({ type: "timestamp", nullable: true })
-  expiresAt?: Date;
+  claimedAt?: Date
+
+  @Column({ type: "timestamp", nullable: true })
+  expiresAt?: Date
 
   @Column({ type: "json", nullable: true })
-  metadata?: any;
+  metadata?: Record<string, unknown>
+
+  @CreateDateColumn()
+  createdAt!: Date
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })
-  user!: User;
+  user!: User
 }

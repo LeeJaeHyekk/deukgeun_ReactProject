@@ -5,22 +5,22 @@ import {
   CreateDateColumn,
   Unique,
   Index,
-} from "typeorm";
+} from "typeorm"
 
 @Entity("post_likes")
 @Unique(["postId", "userId"]) // 한 사용자당 한 포스트에 1회만 좋아요
 export class PostLike {
   @PrimaryGeneratedColumn()
-  id!: number;
+  id!: number
 
   @Column({ type: "int" })
   @Index()
-  postId!: number;
+  postId!: number
 
   @Column({ type: "int" })
   @Index()
-  userId!: number;
+  userId!: number
 
   @CreateDateColumn()
-  createdAt!: Date;
+  createdAt!: Date
 }

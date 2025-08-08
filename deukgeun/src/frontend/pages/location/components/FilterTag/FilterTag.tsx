@@ -1,9 +1,9 @@
-import styles from "./FilterTag.module.css";
+import styles from "./FilterTag.module.css"
 
 interface Props {
-  label: string;
-  active: boolean;
-  onClick: () => void;
+  label: string
+  active: boolean
+  onClick: () => void
 }
 
 export const FilterTag = ({ label, active, onClick }: Props) => {
@@ -14,5 +14,5 @@ export const FilterTag = ({ label, active, onClick }: Props) => {
     >
       {label}
     </button>
-  );
-};
+  )
+}

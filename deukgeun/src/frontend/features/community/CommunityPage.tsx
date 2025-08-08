@@ -1,408 +1,231 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Navigation } from "@widgets/Navigation/Navigation";
-import { useAuth } from "@shared/hooks/useAuth";
-import { showToast } from "@shared/lib";
-import { useNavigate } from "react-router-dom";
-import styles from "./CommunityPage.module.css";
-import { FeedCard } from "@features/community/components/FeedCard";
-import { PostDetailModal } from "@features/community/components/PostDetailModal";
-import { postsApi, likesApi } from "@shared/api";
+import { useState, useEffect, useCallback } from "react"
+import { postsApi, likesApi } from "@shared/api"
+import { showToast } from "@shared/lib"
+import { PostGrid } from "./components/PostGrid"
+import { PostModal } from "./components/PostModal"
+import { PostDetailModal } from "./components/PostDetailModal"
+import styles from "./CommunityPage.module.css"
 
-type PostCategory = "운동루틴" | "팁" | "다이어트" | "기구가이드" | "기타";
+// 타입 정의
+interface PostCategory {
+  id: number
+  name: string
+  count: number
+}
 
 interface Post {
-  id: number;
-  title: string;
-  content: string;
-  author: string;
-  userId: number;
-  createdAt: string;
-  category: PostCategory;
-  tags?: string[];
-  thumbnail_url?: string | null;
-  images?: string[] | null;
-  like_count: number;
-  comment_count: number;
+  id: number
+  title: string
+  content: string
+  author: {
+    id: number
+    nickname: string
+  }
+  category: string
+  likes: number
+  comments: number
+  createdAt: string
+  updatedAt: string
 }
 
 interface PostListResponse {
-  data: Post[];
-  total: number;
-  page: number;
-  limit: number;
+  posts: Post[]
+  total: number
+  page: number
+  limit: number
 }
 
 export default function CommunityPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [limit] = useState(12);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<
-    "all" | PostCategory
-  >("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<"latest" | "popular">("latest");
-  const [showCreatePost, setShowCreatePost] = useState(false);
-  const [newPost, setNewPost] = useState({
-    title: "",
-    content: "",
-    category: "운동루틴" as PostCategory,
-  });
+  const [posts, setPosts] = useState<Post[]>([])
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<string>("")
   const [availableCategories, setAvailableCategories] = useState<
     PostCategory[]
-  >(["운동루틴", "팁", "다이어트", "기구가이드", "기타"]);
-  const [activePost, setActivePost] = useState<Post | null>(null);
-  const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
+  >([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [loading, setLoading] = useState(false)
 
-  const { isLoggedIn, user } = useAuth();
-  const navigate = useNavigate();
+  const limit = 12
 
+  // 카테고리 목록 가져오기
   useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/login");
-      return;
-    }
-    // 카테고리 목록 동기화
     postsApi
-      .categoriesLive()
-      .then((categories) => setAvailableCategories(categories))
-      .catch(() => {
-        // 실패 시 기본값 사용
-        setAvailableCategories([
-          "운동루틴",
-          "팁",
-          "다이어트",
-          "기구가이드",
-          "기타",
-        ]);
-      });
-  }, [isLoggedIn, navigate]);
+      .categories()
+      .then(response => {
+        const categories = response.data.data as PostCategory[]
+        setAvailableCategories(categories)
+      })
+      .catch((error: unknown) => {
+        console.error("카테고리 로드 실패:", error)
+        showToast("카테고리를 불러오는데 실패했습니다.", "error")
+      })
+  }, [])
 
-  // 서버 정렬/필터 사용
-  const sortedPosts = posts;
+  // 게시글 목록 가져오기
+  const fetchPosts = useCallback(
+    async (page: number = 1, category?: string) => {
+      setLoading(true)
+      try {
+        const selectedCategoryParam = category || selectedCategory
 
-  const selectedCategoryParam = useMemo(
-    () => (selectedCategory === "all" ? undefined : selectedCategory),
-    [selectedCategory]
-  );
+        const res = await postsApi.list({
+          category: selectedCategoryParam,
+          page,
+          limit,
+        })
 
-  async function fetchPosts() {
-    setIsLoading(true);
-    try {
-      const res = (await postsApi.list({
-        category: selectedCategoryParam as any,
-        q: searchTerm || undefined,
-        sort: sortBy,
-        page,
-        limit,
-      })) as PostListResponse;
-      setPosts(res.data);
-      setTotal(res.total);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+        const postListResponse = res.data.data as PostListResponse
 
-  useEffect(() => {
-    fetchPosts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategoryParam, searchTerm, sortBy, page, limit]);
-
-  const handleCreatePost = async () => {
-    if (!newPost.title.trim()) {
-      showToast("제목을 입력해주세요", "error");
-      return;
-    }
-    if (!newPost.content.trim()) {
-      showToast("내용을 입력해주세요", "error");
-      return;
-    }
-    if (!user) {
-      showToast("로그인이 필요합니다", "error");
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      await postsApi.create({
-        title: newPost.title.trim(),
-        content: newPost.content.trim(),
-        author: user.nickname,
-        // 카테고리는 서버 기본값 사용 (DB 마이그레이션 정합성 확보 전까지 안전 처리)
-        tags: [],
-        images: [],
-        thumbnail_url: null,
-      });
-      showToast("게시글이 등록되었습니다", "success");
-      setShowCreatePost(false);
-      setNewPost({
-        title: "",
-        content: "",
-        category: "운동루틴" as PostCategory,
-      });
-      // 최신 목록 갱신
-      await fetchPosts();
-    } catch (e) {
-      showToast("게시글 등록 중 오류가 발생했습니다", "error");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleLike = async (postId: number) => {
-    const alreadyLiked = likedIds.has(postId);
-    try {
-      if (alreadyLiked) {
-        await likesApi.unlike(postId);
-      } else {
-        await likesApi.like(postId);
+        setPosts(postListResponse.posts)
+        setTotalPages(Math.ceil(postListResponse.total / limit))
+        setCurrentPage(page)
+      } catch (error: unknown) {
+        console.error("게시글 로드 실패:", error)
+        showToast("게시글을 불러오는데 실패했습니다.", "error")
+      } finally {
+        setLoading(false)
       }
-      setLikedIds((prev) => {
-        const next = new Set(prev);
-        alreadyLiked ? next.delete(postId) : next.add(postId);
-        return next;
-      });
-      setPosts((prev) =>
-        prev.map((p) =>
-          p.id === postId
-            ? { ...p, like_count: p.like_count + (alreadyLiked ? -1 : 1) }
-            : p
-        )
-      );
-    } catch (e) {
-      // 인터셉터에서 에러 토스트 처리
+    },
+    [selectedCategory, limit]
+  )
+
+  // 카테고리 변경 시 게시글 다시 로드
+  useEffect(() => {
+    fetchPosts(1, selectedCategory)
+  }, [selectedCategory])
+
+  // 페이지 변경 시 게시글 다시 로드
+  useEffect(() => {
+    fetchPosts(currentPage)
+  }, [currentPage])
+
+  // 새 게시글 작성
+  const handleCreatePost = async (postData: {
+    title: string
+    content: string
+    category: string
+  }) => {
+    try {
+      await postsApi.create(postData)
+      showToast("게시글이 성공적으로 작성되었습니다.", "success")
+      setIsModalOpen(false)
+      fetchPosts(1) // 첫 페이지로 돌아가서 새 게시글 확인
+    } catch (error: unknown) {
+      console.error("게시글 작성 실패:", error)
+      showToast("게시글 작성에 실패했습니다.", "error")
     }
-  };
-
-  const handleOpenPost = (post: Post) => setActivePost(post);
-  const handleClosePost = () => setActivePost(null);
-
-  if (!isLoggedIn) {
-    return null;
   }
 
-  const categories = [
-    { id: "all", label: "전체", count: posts.length },
-    {
-      id: "운동루틴",
-      label: "운동루틴",
-      count: posts.filter((p) => p.category === "운동루틴").length,
-    },
-    {
-      id: "팁",
-      label: "팁",
-      count: posts.filter((p) => p.category === "팁").length,
-    },
-    {
-      id: "다이어트",
-      label: "다이어트",
-      count: posts.filter((p) => p.category === "다이어트").length,
-    },
-    {
-      id: "기구가이드",
-      label: "기구가이드",
-      count: posts.filter((p) => p.category === "기구가이드").length,
-    },
-  ];
+  // 게시글 좋아요
+  const handleLikePost = async (postId: number) => {
+    try {
+      await likesApi.like(postId)
+      showToast("좋아요를 눌렀습니다.", "success")
+      fetchPosts(currentPage) // 목록 새로고침
+    } catch (error: unknown) {
+      console.error("좋아요 실패:", error)
+      showToast("좋아요 처리에 실패했습니다.", "error")
+    }
+  }
+
+  // 게시글 상세 보기
+  const handleOpenPost = (post: Post) => {
+    setSelectedPost(post)
+    setIsDetailModalOpen(true)
+  }
+
+  // 게시글 수정
+  const handleUpdatePost = async (
+    postId: number,
+    updateData: { title: string; content: string; category: string }
+  ) => {
+    try {
+      await postsApi.update(postId, updateData)
+      showToast("게시글이 성공적으로 수정되었습니다.", "success")
+      setIsDetailModalOpen(false)
+      fetchPosts(currentPage)
+    } catch (error: unknown) {
+      console.error("게시글 수정 실패:", error)
+      showToast("게시글 수정에 실패했습니다.", "error")
+    }
+  }
+
+  // 게시글 삭제
+  const handleDeletePost = async (postId: number) => {
+    try {
+      await postsApi.remove(postId)
+      showToast("게시글이 성공적으로 삭제되었습니다.", "success")
+      setIsDetailModalOpen(false)
+      fetchPosts(currentPage)
+    } catch (error: unknown) {
+      console.error("게시글 삭제 실패:", error)
+      showToast("게시글 삭제에 실패했습니다.", "error")
+    }
+  }
 
   return (
-    <div className={styles.communityPage}>
-      <Navigation />
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>커뮤니티</h1>
+        <p className={styles.subtitle}>함께 운동하고 경험을 나누어보세요</p>
 
-      <div className={styles.container}>
-        {/* 헤더 */}
-        <header className={styles.header}>
-          <h1>커뮤니티</h1>
-          <p>운동 동료들과 정보를 공유하고 소통해보세요</p>
-        </header>
+        <div className={styles.controls}>
+          {/* 카테고리 필터 */}
+          <select
+            value={selectedCategory}
+            onChange={e => setSelectedCategory(e.target.value)}
+            className={styles.categorySelect}
+          >
+            <option value="">전체 카테고리</option>
+            {availableCategories.map(category => (
+              <option key={category.id} value={category.name}>
+                {category.name} ({category.count})
+              </option>
+            ))}
+          </select>
 
-        {/* 컨트롤 섹션 */}
-        <section className={styles.controls}>
-          {/* 검색 및 정렬 */}
-          <div className={styles.searchSort}>
-            <div className={styles.searchBox}>
-              <input
-                type="text"
-                placeholder="게시글 검색..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={styles.searchInput}
-              />
-            </div>
-
-            <div className={styles.sortSelect}>
-              <select
-                value={sortBy}
-                onChange={(e) =>
-                  setSortBy(e.target.value as "latest" | "popular")
-                }
-                className={styles.select}
-              >
-                <option value="latest">최신순</option>
-                <option value="popular">인기순</option>
-              </select>
-            </div>
-          </div>
-
-          {/* 카테고리 + 글쓰기 동일 구역 배치 */}
-          <div className={styles.categoriesRow}>
-            <div className={styles.categories}>
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  className={`${styles.categoryBtn} ${
-                    selectedCategory === category.id ? styles.active : ""
-                  }`}
-                  onClick={() => {
-                    setSelectedCategory(category.id as PostCategory | "all");
-                    setPage(1);
-                  }}
-                >
-                  {category.label} ({category.count})
-                </button>
-              ))}
-            </div>
-
-            <button
-              className={styles.createPostBtn}
-              onClick={() => setShowCreatePost(true)}
-            >
-              ✏️ 글쓰기
-            </button>
-          </div>
-        </section>
-
-        {/* 게시글 목록 */}
-        <section className={styles.postsSection}>
-          {sortedPosts.length === 0 ? (
-            <div className={styles.emptyState}>
-              <h3>게시글이 없습니다</h3>
-              <p>첫 번째 게시글을 작성해보세요!</p>
-            </div>
-          ) : (
-            <div className={styles.postsGrid}>
-              {sortedPosts.map((post) => (
-                <FeedCard
-                  key={post.id}
-                  post={{
-                    id: post.id,
-                    title: post.title,
-                    content: post.content,
-                    author: post.author,
-                    authorAvatar: "/img/user-avatar.png",
-                    createdAt: new Date(post.createdAt)
-                      .toISOString()
-                      .split("T")[0],
-                    likes: post.like_count,
-                    comments: post.comment_count,
-                    category: post.category,
-                    tags: post.tags || [],
-                  }}
-                  onClick={() => setActivePost(post)}
-                  onLike={() => handleLike(post.id)}
-                />
-              ))}
-            </div>
-          )}
-        </section>
+          {/* 새 게시글 작성 버튼 */}
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className={styles.createButton}
+          >
+            새 게시글 작성
+          </button>
+        </div>
       </div>
 
-      {/* 글쓰기 모달 */}
-      {showCreatePost && (
-        <div
-          className={styles.modalOverlay}
-          onClick={() => setShowCreatePost(false)}
-        >
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2>새 게시글 작성</h2>
-              <button
-                className={styles.closeBtn}
-                onClick={() => setShowCreatePost(false)}
-              >
-                ✕
-              </button>
-            </div>
+      {/* 게시글 그리드 */}
+      <PostGrid
+        posts={posts}
+        onPostClick={handleOpenPost}
+        onLikeClick={handleLikePost}
+        loading={loading}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
 
-            <div className={styles.modalContent}>
-              <select
-                value={newPost.category}
-                onChange={(e) =>
-                  setNewPost({
-                    ...newPost,
-                    category: e.target.value as PostCategory,
-                  })
-                }
-                className={styles.categorySelect}
-              >
-                {availableCategories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-
-              <input
-                type="text"
-                placeholder="제목을 입력하세요"
-                value={newPost.title}
-                onChange={(e) =>
-                  setNewPost({ ...newPost, title: e.target.value })
-                }
-                className={styles.titleInput}
-              />
-
-              <textarea
-                placeholder="내용을 입력하세요"
-                value={newPost.content}
-                onChange={(e) =>
-                  setNewPost({ ...newPost, content: e.target.value })
-                }
-                className={styles.contentInput}
-                rows={6}
-              />
-            </div>
-
-            <div className={styles.modalActions}>
-              <button
-                className={styles.cancelBtn}
-                onClick={() => setShowCreatePost(false)}
-              >
-                취소
-              </button>
-              <button
-                className={styles.submitBtn}
-                onClick={handleCreatePost}
-                disabled={isSubmitting}
-              >
-                작성하기
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* 새 게시글 작성 모달 */}
+      {isModalOpen && (
+        <PostModal
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleCreatePost}
+          categories={availableCategories}
+        />
       )}
 
-      {activePost && (
+      {/* 게시글 상세 모달 */}
+      {isDetailModalOpen && selectedPost && (
         <PostDetailModal
-          post={{
-            id: activePost.id,
-            title: activePost.title,
-            content: activePost.content,
-            author: activePost.author,
-            authorAvatar: "/img/user-avatar.png",
-            createdAt: new Date(activePost.createdAt)
-              .toISOString()
-              .split("T")[0],
-            category: activePost.category,
-            tags: activePost.tags || [],
-            likes: activePost.like_count,
-            comments: activePost.comment_count,
-          }}
-          onClose={handleClosePost}
+          post={selectedPost}
+          onClose={() => setIsDetailModalOpen(false)}
+          onUpdate={handleUpdatePost}
+          onDelete={handleDeletePost}
         />
       )}
     </div>
-  );
+  )
 }

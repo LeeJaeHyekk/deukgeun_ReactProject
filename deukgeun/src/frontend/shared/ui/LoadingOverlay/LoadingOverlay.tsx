@@ -1,12 +1,12 @@
 // src/shared/ui/LoadingOverlay/LoadingOverlay.tsx
-import styles from "./LoadingOverlay.module.css";
+import styles from "./LoadingOverlay.module.css"
 
 interface LoadingOverlayProps {
-  show: boolean;
+  show: boolean
 }
 
 export const LoadingOverlay = ({ show }: LoadingOverlayProps) => {
-  if (!show) return null;
+  if (!show) return null
 
   return (
     <div className={styles.overlay}>
@@ -19,5 +19,5 @@ export const LoadingOverlay = ({ show }: LoadingOverlayProps) => {
       />
       <p className={styles.text}>Loading...</p>
     </div>
-  );
-};
+  )
+}

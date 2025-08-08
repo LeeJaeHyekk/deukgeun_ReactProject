@@ -1,14 +1,14 @@
-import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import { User } from "@shared/types/user";
+import { create } from "zustand"
+import { persist, createJSONStorage } from "zustand/middleware"
+import { User } from "@shared/types/user"
 
 interface UserStore {
-  user: User | null;
-  isLoggedIn: boolean;
-  setUser: (user: User) => void;
-  clearUser: () => void;
+  user: User | null
+  isLoggedIn: boolean
+  setUser: (user: User) => void
+  clearUser: () => void
   // 선택적: 사용자 정보 업데이트
-  updateUser: (updates: Partial<User>) => void;
+  updateUser: (updates: Partial<User>) => void
 }
 
 // export const useUserStore = create<UserStore>()(
@@ -82,46 +82,46 @@ export const useUserStore = create<UserStore>()(
           id: user.id,
           email: user.email,
           nickname: user.nickname,
-        });
-        set({ user, isLoggedIn: true });
-        console.log("🧪 userStore - 사용자 설정 완료");
+        })
+        set({ user, isLoggedIn: true })
+        console.log("🧪 userStore - 사용자 설정 완료")
       },
       clearUser: () => {
-        console.log("🧪 userStore - clearUser 호출");
-        set({ user: null, isLoggedIn: false });
-        console.log("🧪 userStore - 사용자 클리어 완료");
+        console.log("🧪 userStore - clearUser 호출")
+        set({ user: null, isLoggedIn: false })
+        console.log("🧪 userStore - 사용자 클리어 완료")
       },
       updateUser: (updates: Partial<User>) => {
-        const currentUser = get().user;
+        const currentUser = get().user
         if (currentUser) {
-          const updatedUser = { ...currentUser, ...updates };
-          set({ user: updatedUser });
+          const updatedUser = { ...currentUser, ...updates }
+          set({ user: updatedUser })
         }
       },
     }),
     {
       name: "user-storage",
       storage: createJSONStorage(() => localStorage), // ✅ 올바른 storage 설정
-      partialize: (state) => {
+      partialize: state => {
         console.log("🧪 userStore - localStorage 저장:", {
           user: state.user
             ? { id: state.user.id, email: state.user.email }
             : null,
           isLoggedIn: state.isLoggedIn,
-        });
+        })
         return {
           user: state.user,
           isLoggedIn: state.isLoggedIn,
-        };
+        }
       },
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => state => {
         console.log("🧪 userStore - localStorage 복원:", {
           user: state?.user
             ? { id: state.user.id, email: state.user.email }
             : null,
           isLoggedIn: state?.isLoggedIn,
-        });
+        })
       },
     }
   )
-);
+)

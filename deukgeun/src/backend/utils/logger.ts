@@ -1,15 +1,15 @@
-import winston from "winston";
-import path from "path";
+import winston from "winston"
+import path from "path"
 
 // Create logs directory path
-const logsDir = path.join(process.cwd(), "logs");
+const logsDir = path.join(process.cwd(), "logs")
 
 // Define log format
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   winston.format.errors({ stack: true }),
   winston.format.json()
-);
+)
 
 // Create logger instance
 const logger = winston.createLogger({
@@ -27,7 +27,7 @@ const logger = winston.createLogger({
       filename: path.join(logsDir, "combined.log"),
     }),
   ],
-});
+})
 
 // Add console transport in non-production environments
 if (process.env.NODE_ENV !== "production") {
@@ -38,7 +38,7 @@ if (process.env.NODE_ENV !== "production") {
         winston.format.simple()
       ),
     })
-  );
+  )
 }
 
-export { logger };
+export { logger }

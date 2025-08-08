@@ -1,6 +1,6 @@
-import { connectDatabase } from "../config/database";
-import { MachineService } from "../services/machineService";
-import { CreateMachineRequest } from "../types/machine";
+import { connectDatabase } from "../config/database"
+import { MachineService } from "../services/machineService"
+import { CreateMachineRequest } from "../types/machine"
 
 /**
  * Machine 데이터 임포트 스크립트
@@ -173,90 +173,86 @@ const machineDataList: CreateMachineRequest[] = [
     difficulty_level: "중급",
     video_url: undefined,
   },
-];
+]
 
 async function importFromList() {
-  let connection;
+  let connection
 
   try {
     // 데이터베이스 연결
-    connection = await connectDatabase();
-    console.log("데이터베이스에 연결되었습니다.");
+    connection = await connectDatabase()
+    console.log("데이터베이스에 연결되었습니다.")
 
-    const machineService = new MachineService();
-    const shouldUpdate = process.argv.includes("--update");
+    const machineService = new MachineService()
+    const shouldUpdate = process.argv.includes("--update")
 
-    console.log(`총 ${machineDataList.length}개의 머신을 처리합니다.`);
+    console.log(`총 ${machineDataList.length}개의 머신을 처리합니다.`)
     if (shouldUpdate) {
-      console.log("업데이트 모드로 실행됩니다.");
+      console.log("업데이트 모드로 실행됩니다.")
     }
-    console.log("---");
+    console.log("---")
 
     for (const machineData of machineDataList) {
       try {
         // 기존 데이터 확인 (machine_key로 중복 체크)
         const existingMachine = await machineService.getMachineByKey(
           machineData.machine_key
-        );
+        )
 
         if (existingMachine) {
-          console.log(
-            `머신 키 '${machineData.machine_key}'가 이미 존재합니다.`
-          );
+          console.log(`머신 키 '${machineData.machine_key}'가 이미 존재합니다.`)
           console.log("기존 머신 정보:", {
             id: existingMachine.id,
             name: existingMachine.name_ko,
             category: existingMachine.category,
             difficulty: existingMachine.difficulty_level,
-          });
+          })
 
           if (shouldUpdate) {
-            console.log("업데이트를 진행합니다...");
+            console.log("업데이트를 진행합니다...")
             const updatedMachine = await machineService.updateMachine(
               existingMachine.id,
               machineData
-            );
+            )
             if (updatedMachine) {
               console.log(
                 "✅ 머신이 성공적으로 업데이트되었습니다:",
                 updatedMachine.name_ko
-              );
+              )
             } else {
-              console.log("❌ 머신 업데이트에 실패했습니다.");
+              console.log("❌ 머신 업데이트에 실패했습니다.")
             }
           } else {
-            console.log(
-              "⏭️  건너뜁니다. (업데이트하려면 --update 플래그 사용)"
-            );
+            console.log("⏭️  건너뜁니다. (업데이트하려면 --update 플래그 사용)")
           }
         } else {
           // 새 머신 생성
-          console.log(`새 머신 '${machineData.name_ko}'을 생성합니다...`);
-          const newMachine = await machineService.createMachine(machineData);
+          console.log(`새 머신 '${machineData.name_ko}'을 생성합니다...`)
+          const newMachine = await machineService.createMachine(machineData)
           console.log(
             "✅ 새 머신이 성공적으로 생성되었습니다:",
             newMachine.name_ko
-          );
-          console.log("   생성된 머신 ID:", newMachine.id);
+          )
+          console.log("   생성된 머신 ID:", newMachine.id)
         }
 
-        console.log("---");
+        console.log("---")
       } catch (error) {
-        console.error(`❌ 머신 '${machineData.name_ko}' 처리 중 오류:`, error);
-        console.log("---");
+        console.error(`❌ 머신 '${machineData.name_ko}' 처리 중 오류:`, error)
+        console.log("---")
       }
     }
 
-    console.log("모든 머신 처리 완료!");
+    console.log("모든 머신 처리 완료!")
   } catch (error) {
-    console.error("오류가 발생했습니다:", error);
+    console.error("오류가 발생했습니다:", error)
   } finally {
     if (connection) {
-      await connection.close();
-      console.log("데이터베이스 연결이 종료되었습니다.");
+      await connection.close()
+      console.log("데이터베이스 연결이 종료되었습니다.")
     }
   }
 }
 
 // 스크립트 실행
-importFromList().catch(console.error);
+importFromList().catch(console.error)

@@ -3,37 +3,46 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
   Index,
   ManyToOne,
   JoinColumn,
-} from "typeorm";
-import { User } from "./User";
+} from "typeorm"
+import { User } from "./User"
 
 @Entity("milestones")
 export class Milestone {
   @PrimaryGeneratedColumn()
-  id!: number;
+  id!: number
 
   @Column({ type: "int" })
   @Index()
-  userId!: number;
-
-  @Column({ type: "varchar", length: 50 })
-  @Index()
-  milestoneType!: string;
+  userId!: number
 
   @Column({ type: "varchar", length: 100 })
-  milestoneId!: string;
-
-  @CreateDateColumn()
   @Index()
-  achievedAt!: Date;
+  milestoneType!: string
+
+  @Column({ type: "varchar", length: 200 })
+  description!: string
+
+  @Column({ type: "boolean", default: false })
+  achieved!: boolean
+
+  @Column({ type: "timestamp", nullable: true })
+  achievedAt?: Date
 
   @Column({ type: "json", nullable: true })
-  metadata?: any;
+  metadata?: Record<string, unknown>
+
+  @CreateDateColumn()
+  createdAt!: Date
+
+  @UpdateDateColumn()
+  updatedAt!: Date
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })
-  user!: User;
+  user!: User
 }

@@ -5,31 +5,31 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
-} from "typeorm";
+} from "typeorm"
 
 @Entity("comments")
 export class Comment {
   @PrimaryGeneratedColumn()
-  id!: number;
+  id!: number
 
   @Column({ type: "int" })
   @Index()
-  postId!: number;
+  postId!: number
 
   @Column({ type: "int" })
   @Index()
-  userId!: number;
+  userId!: number
 
   @Column({ type: "varchar", length: 100 })
-  author!: string;
+  author!: string
 
   @Column({ type: "text" })
-  content!: string;
+  content!: string
 
   @CreateDateColumn()
   @Index()
-  createdAt!: Date;
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updatedAt!: Date;
+  updatedAt!: Date
 }

@@ -1,130 +1,163 @@
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
-import { config } from "../config";
-import { storage, showToast } from "../lib";
+import axios, {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios"
+import { config } from "@shared/config"
+import { storage } from "@shared/lib"
 
-// Define error response interface
-interface ErrorResponse {
-  message: string;
-  [key: string]: any;
+// API 응답 타입 정의
+export interface ApiResponse<T = unknown> {
+  success: boolean
+  message: string
+  data?: T
+  error?: string
 }
 
-// Create axios instance
-const apiClient: AxiosInstance = axios.create({
-  baseURL: config.API_BASE_URL,
-  timeout: 10000,
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Request interceptor
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = storage.get("accessToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
   }
-);
+}
 
-// Response interceptor
-apiClient.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response;
-  },
-  async (error: AxiosError) => {
-    const originalRequest = error.config as any;
+// API 클라이언트 설정
+const createApiClient = (): AxiosInstance => {
+  const instance = axios.create({
+    baseURL: config.API_BASE_URL,
+    timeout: 10000,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
 
-    // Handle 401 Unauthorized
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        console.log("🔄 API 인터셉터: 토큰 갱신 시도");
-
-        // Try to refresh token - 올바른 경로 사용
-        const refreshResponse = await axios.post(
-          `${config.API_BASE_URL}/api/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
-
-        const { accessToken } = refreshResponse.data;
-        storage.set("accessToken", accessToken);
-
-        console.log("✅ API 인터셉터: 토큰 갱신 성공");
-
-        // Retry original request
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-        return apiClient(originalRequest);
-      } catch (refreshError) {
-        console.log("❌ API 인터셉터: 토큰 갱신 실패", refreshError);
-
-        // Refresh failed, clear storage and redirect to login
-        storage.clear();
-
-        // 현재 페이지가 로그인 페이지가 아닌 경우에만 리다이렉트
-        if (window.location.pathname !== "/login") {
-          window.location.href = "/login";
-        }
-
-        return Promise.reject(refreshError);
+  // 요청 인터셉터 - 토큰 추가
+  instance.interceptors.request.use(
+    (config: InternalAxiosRequestConfig) => {
+      const token = storage.get("accessToken")
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`
       }
+      return config
+    },
+    (error: Error) => {
+      return Promise.reject(error)
     }
+  )
 
-    // Handle other errors
-    const errorData = error.response?.data as ErrorResponse | undefined;
-    const errorMessage = errorData?.message || "서버 오류가 발생했습니다.";
-    showToast(errorMessage, "error");
+  // 응답 인터셉터 - 토큰 갱신
+  instance.interceptors.response.use(
+    (response: AxiosResponse) => {
+      return response
+    },
+    async (error: Error & { response?: { status: number } }) => {
+      const originalRequest = error as Error & {
+        config?: AxiosRequestConfig & { _retry?: boolean }
+        response?: { status: number }
+      }
 
-    return Promise.reject(error);
-  }
-);
+      if (
+        originalRequest.response?.status === 401 &&
+        !originalRequest.config?._retry
+      ) {
+        originalRequest.config = originalRequest.config || {}
+        originalRequest.config._retry = true
 
-// API helper functions
+        try {
+          const refreshResponse = await instance.post("/api/auth/refresh")
+          const { accessToken } = refreshResponse.data.data
+
+          storage.set("accessToken", accessToken)
+
+          if (originalRequest.config.headers) {
+            originalRequest.config.headers.Authorization = `Bearer ${accessToken}`
+          }
+
+          return instance(originalRequest.config)
+        } catch (refreshError: unknown) {
+          // 토큰 갱신 실패 시 로그아웃
+          storage.remove("accessToken")
+          storage.remove("user")
+          window.location.href = "/login"
+          return Promise.reject(refreshError)
+        }
+      }
+
+      return Promise.reject(error)
+    }
+  )
+
+  return instance
+}
+
+// API 클라이언트 인스턴스
+const apiClient = createApiClient()
+
+// 타입 안전한 API 메서드들
 export const api = {
-  get: <T = any>(url: string, config?: any) =>
-    apiClient.get<T>(url, config).then((response) => response.data),
+  get: <T = unknown>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<ApiResponse<T>>> => {
+    return apiClient.get<ApiResponse<T>>(url, config)
+  },
 
-  post: <T = any>(url: string, data?: any, config?: any) =>
-    apiClient.post<T>(url, data, config).then((response) => response.data),
+  post: <T = unknown>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<ApiResponse<T>>> => {
+    return apiClient.post<ApiResponse<T>>(url, data, config)
+  },
 
-  put: <T = any>(url: string, data?: any, config?: any) =>
-    apiClient.put<T>(url, data, config).then((response) => response.data),
+  put: <T = unknown>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<ApiResponse<T>>> => {
+    return apiClient.put<ApiResponse<T>>(url, data, config)
+  },
 
-  delete: <T = any>(url: string, config?: any) =>
-    apiClient.delete<T>(url, config).then((response) => response.data),
+  delete: <T = unknown>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<ApiResponse<T>>> => {
+    return apiClient.delete<ApiResponse<T>>(url, config)
+  },
 
-  patch: <T = any>(url: string, data?: any, config?: any) =>
-    apiClient.patch<T>(url, data, config).then((response) => response.data),
-};
+  patch: <T = unknown>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<ApiResponse<T>>> => {
+    return apiClient.patch<ApiResponse<T>>(url, data, config)
+  },
+}
 
 // Community specific helpers
 export const postsApi = {
   list: (params?: {
-    category?: string;
-    q?: string;
-    sort?: "latest" | "popular";
-    page?: number;
-    limit?: number;
+    category?: string
+    q?: string
+    sort?: "latest" | "popular"
+    page?: number
+    limit?: number
   }) => api.get(`/api/posts`, { params }),
   categories: () => api.get(`/api/posts/categories`),
   categoriesLive: () => api.get(`/api/posts/categories/live`),
   detail: (id: number) => api.get(`/api/posts/${id}`),
-  create: (data: any) => api.post(`/api/posts`, data),
-  update: (id: number, data: any) => api.put(`/api/posts/${id}`, data),
+  create: (data: unknown) => api.post(`/api/posts`, data),
+  update: (id: number, data: unknown) => api.put(`/api/posts/${id}`, data),
   remove: (id: number) => api.delete(`/api/posts/${id}`),
-};
+}
 
 export const likesApi = {
   like: (postId: number) => api.post(`/api/likes/${postId}`),
   unlike: (postId: number) => api.delete(`/api/likes/${postId}`),
-};
+}
 
 export const commentsApi = {
   list: (postId: number, params?: { page?: number; limit?: number }) =>
@@ -132,6 +165,6 @@ export const commentsApi = {
   create: (postId: number, data: { content: string }) =>
     api.post(`/api/comments/${postId}`, data),
   remove: (commentId: number) => api.delete(`/api/comments/${commentId}`),
-};
+}
 
-export default apiClient;
+export default apiClient

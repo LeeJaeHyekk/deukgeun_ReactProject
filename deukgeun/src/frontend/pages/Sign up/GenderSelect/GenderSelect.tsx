@@ -1,22 +1,22 @@
 // GenderSelect.tsx
-import styles from "./GenderSelect.module.css";
-import { FaChevronDown } from "react-icons/fa";
-import { useState } from "react";
+import styles from "./GenderSelect.module.css"
+import { FaChevronDown } from "react-icons/fa"
+import { useState } from "react"
 
 interface GenderSelectProps {
-  value: string;
-  onChange: (value: string) => void;
-  error?: string;
+  value: string
+  onChange: (value: string) => void
+  error?: string
 }
 
 export const GenderSelect = ({ value, onChange, error }: GenderSelectProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const toggleOptions = () => setIsOpen(!isOpen);
+  const [isOpen, setIsOpen] = useState(false)
+  const toggleOptions = () => setIsOpen(!isOpen)
 
   const handleSelect = (selectedGender: string) => {
-    onChange(selectedGender);
-    setIsOpen(false);
-  };
+    onChange(selectedGender)
+    setIsOpen(false)
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -38,5 +38,5 @@ export const GenderSelect = ({ value, onChange, error }: GenderSelectProps) => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}

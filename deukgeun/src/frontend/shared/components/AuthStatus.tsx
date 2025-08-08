@@ -1,10 +1,10 @@
-import { useAuthContext } from "../contexts/AuthContext";
+import { useAuthContext } from "../contexts/AuthContext"
 
 export function AuthStatus() {
-  const { isLoggedIn, user, isLoading, logout } = useAuthContext();
+  const { isLoggedIn, user, isLoading, logout } = useAuthContext()
 
   if (isLoading) {
-    return <div>인증 상태 확인 중...</div>;
+    return <div>인증 상태 확인 중...</div>
   }
 
   return (
@@ -25,5 +25,5 @@ export function AuthStatus() {
         </div>
       )}
     </div>
-  );
+  )
 }

@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
-} from "typeorm";
+} from "typeorm"
 
 /**
  * 포스트 엔티티 클래스
@@ -19,35 +19,35 @@ export class Post {
    * 자동으로 증가하는 정수값으로 설정됩니다.
    */
   @PrimaryGeneratedColumn()
-  id!: number;
+  id!: number
 
   /**
    * 포스트 제목
    * 최대 255자까지 저장 가능한 문자열입니다.
    */
   @Column({ type: "varchar", length: 255 })
-  title!: string;
+  title!: string
 
   /**
    * 포스트 내용
    * 긴 텍스트를 저장할 수 있는 text 타입입니다.
    */
   @Column({ type: "text" })
-  content!: string;
+  content!: string
 
   /**
    * 포스트 작성자
    * 최대 100자까지 저장 가능한 문자열입니다.
    */
   @Column({ type: "varchar", length: 100 })
-  author!: string;
+  author!: string
 
   /**
    * 포스트 작성자 ID
    * 사용자 테이블과의 외래키 관계를 위한 필드입니다.
    */
   @Column({ type: "int" })
-  userId!: number;
+  userId!: number
 
   // 추가 필드들
   @Column({
@@ -56,23 +56,23 @@ export class Post {
     default: "기타",
   })
   @Index()
-  category!: "운동루틴" | "팁" | "다이어트" | "기구가이드" | "기타";
+  category!: "운동루틴" | "팁" | "다이어트" | "기구가이드" | "기타"
 
   @Column({ type: "json", nullable: true })
-  tags?: string[];
+  tags?: string[]
 
   @Column({ type: "varchar", length: 255, nullable: true })
-  thumbnail_url?: string;
+  thumbnail_url?: string
 
   @Column({ type: "json", nullable: true })
-  images?: string[];
+  images?: string[]
 
   @Column({ type: "int", default: 0 })
   @Index()
-  like_count!: number;
+  like_count!: number
 
   @Column({ type: "int", default: 0 })
-  comment_count!: number;
+  comment_count!: number
 
   /**
    * 포스트 생성 시간
@@ -80,12 +80,12 @@ export class Post {
    */
   @CreateDateColumn()
   @Index()
-  createdAt!: Date;
+  createdAt!: Date
 
   /**
    * 포스트 수정 시간
    * 엔티티가 업데이트될 때마다 자동으로 갱신됩니다.
    */
   @UpdateDateColumn()
-  updatedAt!: Date;
+  updatedAt!: Date
 }

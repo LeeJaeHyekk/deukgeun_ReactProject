@@ -1,35 +1,35 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { useUserStore } from "@shared/store/userStore";
-import { useAuthContext } from "@shared/contexts/AuthContext";
-import styles from "./Navigation.module.css";
+import { Link, useNavigate } from "react-router-dom"
+import { useState } from "react"
+import { useUserStore } from "@shared/store/userStore"
+import { useAuthContext } from "@shared/contexts/AuthContext"
+import styles from "./Navigation.module.css"
 
 const menuItems = [
   { label: "Search for Gym", path: "/location" },
   { label: "Machine Guide", path: "/machine-guide" },
   { label: "Community", path: "/community" },
   { label: "Challenge", path: "/missions" },
-];
+]
 
 export const Navigation = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const user = useUserStore((state) => state.user);
-  const { isLoggedIn, logout } = useAuthContext();
-  const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const user = useUserStore(state => state.user)
+  const { isLoggedIn, logout } = useAuthContext()
+  const navigate = useNavigate()
 
   const handleLogout = () => {
-    logout();
-    navigate("/login");
-    setIsMobileMenuOpen(false);
-  };
+    logout()
+    navigate("/login")
+    setIsMobileMenuOpen(false)
+  }
 
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
 
   const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
+    setIsMobileMenuOpen(false)
+  }
 
   return (
     <nav className={styles.navbar}>
@@ -156,5 +156,5 @@ export const Navigation = () => {
         <div className={styles.mobileMenuOverlay} onClick={closeMobileMenu} />
       )}
     </nav>
-  );
-};
+  )
+}

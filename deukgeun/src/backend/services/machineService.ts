@@ -1,21 +1,21 @@
-import { getRepository } from "typeorm";
-import { Machine } from "../entities/Machine";
+import { getRepository } from "typeorm"
+import { Machine } from "../entities/Machine"
 import {
   MachineRepository,
   CreateMachineRequest,
   UpdateMachineRequest,
   MachineFilterQuery,
-} from "../types/machine";
+} from "../types/machine"
 
 /**
  * Machine 관련 비즈니스 로직을 처리하는 서비스 클래스
  * TypeORM을 사용하여 데이터베이스와 상호작용하며 CRUD 작업을 수행합니다.
  */
 export class MachineService {
-  private machineRepository: MachineRepository;
+  private machineRepository: MachineRepository
 
   constructor() {
-    this.machineRepository = getRepository(Machine);
+    this.machineRepository = getRepository(Machine)
   }
 
   /**
@@ -27,19 +27,19 @@ export class MachineService {
     // machine_key 중복 검사
     const existingMachine = await this.machineRepository.findOne({
       where: { machine_key: machineData.machine_key },
-    });
+    })
 
     if (existingMachine) {
       throw new Error(
         `machine_key '${machineData.machine_key}'는 이미 존재합니다.`
-      );
+      )
     }
 
     // 데이터 정제 (XSS 방지)
-    const sanitizedData = this.sanitizeMachineData(machineData);
+    const sanitizedData = this.sanitizeMachineData(machineData)
 
-    const machine = this.machineRepository.create(sanitizedData);
-    return await this.machineRepository.save(machine);
+    const machine = this.machineRepository.create(sanitizedData)
+    return await this.machineRepository.save(machine)
   }
 
   /**
@@ -49,7 +49,7 @@ export class MachineService {
   async getAllMachines(): Promise<Machine[]> {
     return await this.machineRepository.find({
       order: { created_at: "DESC" },
-    });
+    })
   }
 
   /**
@@ -60,7 +60,7 @@ export class MachineService {
   async getMachineById(id: number): Promise<Machine | null> {
     return await this.machineRepository.findOne({
       where: { id },
-    });
+    })
   }
 
   /**
@@ -71,7 +71,7 @@ export class MachineService {
   async getMachineByKey(machineKey: string): Promise<Machine | null> {
     return await this.machineRepository.findOne({
       where: { machine_key: machineKey },
-    });
+    })
   }
 
   /**
@@ -86,14 +86,14 @@ export class MachineService {
   ): Promise<Machine | null> {
     const machine = await this.machineRepository.findOne({
       where: { id },
-    });
+    })
 
     if (!machine) {
-      return null;
+      return null
     }
 
-    this.machineRepository.merge(machine, updateData);
-    return await this.machineRepository.save(machine);
+    this.machineRepository.merge(machine, updateData)
+    return await this.machineRepository.save(machine)
   }
 
   /**
@@ -102,8 +102,8 @@ export class MachineService {
    * @returns {Promise<boolean>} 삭제 성공 여부
    */
   async deleteMachine(id: number): Promise<boolean> {
-    const result = await this.machineRepository.delete(id);
-    return result.affected ? result.affected > 0 : false;
+    const result = await this.machineRepository.delete(id)
+    return result.affected ? result.affected > 0 : false
   }
 
   /**
@@ -112,27 +112,27 @@ export class MachineService {
    * @returns {Promise<Machine[]>} 필터링된 Machine 목록
    */
   async filterMachines(filters: MachineFilterQuery): Promise<Machine[]> {
-    const query = this.machineRepository.createQueryBuilder("machine");
+    const query = this.machineRepository.createQueryBuilder("machine")
 
     if (filters.category) {
       query.andWhere("machine.category = :category", {
         category: filters.category,
-      });
+      })
     }
 
     if (filters.difficulty) {
       query.andWhere("machine.difficulty_level = :difficulty", {
         difficulty: filters.difficulty,
-      });
+      })
     }
 
     if (filters.target) {
       query.andWhere("JSON_CONTAINS(machine.target_muscle, :target)", {
         target: `"${filters.target}"`,
-      });
+      })
     }
 
-    return await query.getMany();
+    return await query.getMany()
   }
 
   /**
@@ -158,9 +158,9 @@ export class MachineService {
         ? this.sanitizeString(data.video_url)
         : undefined,
       target_muscle: data.target_muscle
-        ? data.target_muscle.map((muscle) => this.sanitizeString(muscle))
+        ? data.target_muscle.map(muscle => this.sanitizeString(muscle))
         : undefined,
-    };
+    }
   }
 
   /**
@@ -173,6 +173,6 @@ export class MachineService {
       .replace(/[<>]/g, "") // HTML 태그 제거
       .replace(/javascript:/gi, "") // JavaScript 프로토콜 제거
       .replace(/on\w+=/gi, "") // 이벤트 핸들러 제거
-      .trim();
+      .trim()
   }
 }

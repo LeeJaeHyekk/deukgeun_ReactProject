@@ -1,12 +1,12 @@
-import { useState } from "react";
-import styles from "./HomePage.module.css";
-import { Navigation } from "@widgets/Navigation/Navigation";
-import { LoadingOverlay } from "@shared/ui/LoadingOverlay/LoadingOverlay";
-import { useUserStore } from "@shared/store/userStore";
-import { useAuthContext } from "@shared/contexts/AuthContext";
-import { useLevel } from "@shared/hooks/useLevel";
-import { useStats } from "@shared/hooks/useStats";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react"
+import styles from "./HomePage.module.css"
+import { Navigation } from "@widgets/Navigation/Navigation"
+import { LoadingOverlay } from "@shared/ui/LoadingOverlay/LoadingOverlay"
+import { useUserStore } from "@shared/store/userStore"
+import { useAuthContext } from "@shared/contexts/AuthContext"
+import { useLevel } from "@shared/hooks/useLevel"
+import { useStats } from "@shared/hooks/useStats"
+import { useNavigate } from "react-router-dom"
 import {
   MapPin,
   Dumbbell,
@@ -18,36 +18,32 @@ import {
   Target,
   Star,
   Award,
-  Clock,
-  CheckCircle,
   MessageCircle,
-  Heart,
-  Calendar,
   Trophy,
-} from "lucide-react";
+} from "lucide-react"
 
 export default function HomePage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const user = useUserStore((state) => state.user);
-  const { logout, isLoggedIn } = useAuthContext();
+  const [isLoading] = useState(false)
+  const user = useUserStore(state => state.user)
+  const { isLoggedIn } = useAuthContext()
   const {
     currentLevel,
     progressPercentage,
     isLoading: levelLoading,
-  } = useLevel();
-  const { stats, isLoading: statsLoading } = useStats();
-  const navigate = useNavigate();
+  } = useLevel()
+  const { stats, isLoading: statsLoading } = useStats()
+  const navigate = useNavigate()
 
   // 통계 데이터 포맷팅 함수
   const formatNumber = (num: number): string => {
     if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(1)}M+`;
+      return `${(num / 1000000).toFixed(1)}M+`
     } else if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}K+`;
+      return `${(num / 1000).toFixed(1)}K+`
     } else {
-      return `${num}+`;
+      return `${num}+`
     }
-  };
+  }
 
   return (
     <div className={styles.homePage}>
@@ -64,7 +60,7 @@ export default function HomePage() {
           playsInline
           preload="metadata"
           className={styles.heroVideo}
-          onError={(e) => console.error("Video loading error:", e)}
+          onError={e => console.error("Video loading error:", e)}
         />
         <div className={styles.heroOverlay}>
           <div className={styles.heroContent}>
@@ -190,8 +186,8 @@ export default function HomePage() {
                 {statsLoading
                   ? "..."
                   : stats
-                  ? formatNumber(stats.activeUsers)
-                  : "0"}
+                    ? formatNumber(stats.activeUsers)
+                    : "0"}
               </h3>
               <p>활성 사용자</p>
             </div>
@@ -205,8 +201,8 @@ export default function HomePage() {
                 {statsLoading
                   ? "..."
                   : stats
-                  ? formatNumber(stats.totalGyms)
-                  : "0"}
+                    ? formatNumber(stats.totalGyms)
+                    : "0"}
               </h3>
               <p>등록된 헬스장</p>
             </div>
@@ -220,8 +216,8 @@ export default function HomePage() {
                 {statsLoading
                   ? "..."
                   : stats
-                  ? formatNumber(stats.totalPosts)
-                  : "0"}
+                    ? formatNumber(stats.totalPosts)
+                    : "0"}
               </h3>
               <p>커뮤니티 게시글</p>
             </div>
@@ -235,8 +231,8 @@ export default function HomePage() {
                 {statsLoading
                   ? "..."
                   : stats
-                  ? formatNumber(stats.achievements)
-                  : "0"}
+                    ? formatNumber(stats.achievements)
+                    : "0"}
               </h3>
               <p>달성된 업적</p>
             </div>
@@ -498,5 +494,5 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
-  );
+  )
 }

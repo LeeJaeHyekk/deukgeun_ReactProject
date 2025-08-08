@@ -1,12 +1,12 @@
-import { Router } from "express";
-import { authenticateToken } from "../middlewares/auth";
-import { likePost, unlikePost } from "../controllers/likeController";
+import { Router } from "express"
+import { authenticateToken } from "../middlewares/auth"
+import { likePost, unlikePost } from "../controllers/likeController"
 
-const router = Router();
+const router = Router()
 
 // POST /api/likes/:id
-router.post("/:id", authenticateToken, likePost);
+router.post("/:id", authenticateToken, likePost)
 // DELETE /api/likes/:id
-router.delete("/:id", authenticateToken, unlikePost);
+router.delete("/:id", authenticateToken, unlikePost)
 
-export default router;
+export default router

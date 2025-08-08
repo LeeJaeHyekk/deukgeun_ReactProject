@@ -11,42 +11,72 @@
 /* ===== 중앙 컨테이너(카드) 스타일 ===== */
 .container {
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
+  border-radius: 20px;
   backdrop-filter: blur(12px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-  padding: 32px;
+  padding: 40px 32px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   color: white;
 }
 
-/* ===== 페이지 제목 ===== */
-.title {
-  font-size: 28px;
-  font-weight: bold;
+/* ===== 헤더 영역 ===== */
+.header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ===== 폼 스타일 ===== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* ===== 입력 그룹 스타일 ===== */
 .inputGroup {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
+}
+
+/* ===== 입력 래퍼 ===== */
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 /* ===== 기본 입력 필드 스타일 ===== */
 .input {
   width: 100%;
-  padding: 14px 18px;
+  padding: 16px 20px;
+  padding-right: 50px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
   color: white;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   outline: none;
-  transition: border 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
   font-size: 15px;
   box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(4px);
@@ -54,8 +84,8 @@
 }
 
 .input:focus {
-  border: 1px solid #ffffff55;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.12);
 }
 
@@ -64,19 +94,61 @@
   font-size: 14px;
 }
 
-/* ===== 에러 상태 스타일 ===== */
-.inputError {
-  border-color: #ff6b6b !important;
-  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.2) !important;
+/* ===== 유효성 검증 상태 스타일 ===== */
+.inputValid {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1) !important;
 }
 
-.errorText {
+.inputError {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* ===== 검증 아이콘 ===== */
+.validIcon {
+  position: absolute;
+  right: 16px;
+  color: #10b981;
+  font-size: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+.errorIcon {
+  position: absolute;
+  right: 16px;
+  color: #ef4444;
+  font-size: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ===== 검증 메시지 ===== */
+.validationMessage {
   display: block;
-  color: #ff6b6b;
   font-size: 12px;
-  margin-top: 4px;
+  margin-top: 6px;
   margin-left: 4px;
   font-weight: 500;
+  animation: fadeIn 0.3s ease;
+}
+
+.validationSuccess {
+  color: #10b981;
+}
+
+.validationError {
+  color: #ef4444;
+}
+
+/* ===== 에러 상태 스타일 ===== */
+.errorText {
+  display: block;
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 6px;
+  margin-left: 4px;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease;
 }
 
 /* ===== 비밀번호 입력 필드 스타일 ===== */
@@ -88,14 +160,14 @@
 
 .passwordInput {
   width: 100%;
-  padding: 14px 18px;
+  padding: 16px 20px;
   padding-right: 50px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
   color: white;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   outline: none;
-  transition: border 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
   font-size: 15px;
   box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(4px);
@@ -103,8 +175,8 @@
 }
 
 .passwordInput:focus {
-  border: 1px solid #ffffff55;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.12);
 }
 
@@ -122,11 +194,13 @@
   color: rgba(255, 255, 255, 0.6);
   font-size: 16px;
   transition: color 0.2s ease;
-  padding: 4px;
+  padding: 8px;
+  border-radius: 6px;
 }
 
 .eyeButton:hover {
   color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* ===== 셀렉트박스(드롭다운) 기본 스타일 ===== */
@@ -142,21 +216,21 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   border-radius: 12px;
-  padding: 14px 16px;
-  font-size: 14px;
+  padding: 16px 20px;
+  font-size: 15px;
   color: white;
   backdrop-filter: blur(4px);
   transition: all 0.3s ease;
   background-image: url("data:image/svg+xml,%3Csvg fill='white' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.25 7.5l4.25 4.5 4.25-4.5H5.25z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
+  background-position: right 16px center;
   background-size: 16px;
 }
 
 .select:focus {
-  border: 1px solid #ffffff55;
+  border-color: rgba(255, 255, 255, 0.3);
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.12);
 }
@@ -179,21 +253,22 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 18px;
+  padding: 16px 20px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
   color: white;
   font-size: 14px;
   text-align: center;
   cursor: pointer;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   backdrop-filter: blur(4px);
   transition: all 0.3s ease;
 }
 
 .fileLabel:hover {
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
 
 .fileInfo {
@@ -202,25 +277,27 @@
   justify-content: space-between;
   font-size: 13px;
   color: #eee;
-  padding: 8px 12px;
+  padding: 12px 16px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .removeButton {
   background: none;
   border: none;
-  color: #ff6b6b;
+  color: #ef4444;
   cursor: pointer;
   font-size: 14px;
-  padding: 4px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
 }
 
 .removeButton:hover {
-  background: rgba(255, 107, 107, 0.1);
+  background: rgba(239, 68, 68, 0.1);
+  transform: scale(1.1);
 }
 
 /* ===== 리캡차 박스 스타일 ===== */
@@ -233,15 +310,22 @@
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  border-radius: 8px;
+  border-radius: 12px;
   backdrop-filter: blur(6px);
+}
+
+.recaptchaText {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  line-height: 1.4;
 }
 
 /* ===== 제출 및 취소 버튼 ===== */
 .submitButton,
 .cancelButton {
   width: 100%;
-  padding: 14px;
+  padding: 16px;
   margin-top: 16px;
   border-radius: 12px;
   font-size: 16px;
@@ -272,13 +356,14 @@
 .cancelButton {
   background: rgba(255, 255, 255, 0.1);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   margin-top: 12px;
 }
 
 .cancelButton:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
 }
 
 .cancelButton:disabled {
@@ -321,12 +406,12 @@
 }
 
 .trigger {
-  padding: 14px 18px;
+  padding: 16px 20px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
   color: white;
   font-size: 15px;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   backdrop-filter: blur(4px);
   box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
@@ -336,8 +421,8 @@
 .trigger:hover,
 .trigger:focus {
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid #ffffff40;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
 }
 
 .arrow {
@@ -372,4 +457,69 @@
 
 .option:hover {
   background: rgba(255, 255, 255, 0.15);
+}
+
+/* ===== 애니메이션 ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== 반응형 디자인 ===== */
+@media (max-width: 768px) {
+  .page {
+    padding: 20px 12px;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 32px 24px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .input,
+  .passwordInput {
+    padding: 14px 18px;
+    font-size: 14px;
+  }
+
+  .submitButton,
+  .cancelButton {
+    padding: 14px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 24px 20px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .input,
+  .passwordInput {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .fileLabel {
+    padding: 14px 16px;
+    font-size: 13px;
+  }
 }

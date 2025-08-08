@@ -1,65 +1,79 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express"
 
 /**
  * 보안 헤더 미들웨어
  */
-export const securityHeaders = (req: Request, res: Response, next: NextFunction) => {
+export const securityHeaders = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   // XSS Protection
-  res.setHeader("X-XSS-Protection", "1; mode=block");
-  
+  res.setHeader("X-XSS-Protection", "1; mode=block")
+
   // Content Type Options
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  
+  res.setHeader("X-Content-Type-Options", "nosniff")
+
   // Frame Options (Clickjacking 방지)
-  res.setHeader("X-Frame-Options", "DENY");
-  
+  res.setHeader("X-Frame-Options", "DENY")
+
   // Strict Transport Security (HTTPS 강제)
-  res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-  
+  res.setHeader(
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains"
+  )
+
   // Content Security Policy
   res.setHeader(
     "Content-Security-Policy",
     "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"
-  );
-  
+  )
+
   // Referrer Policy
-  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-  
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin")
+
   // Permissions Policy
   res.setHeader(
     "Permissions-Policy",
     "geolocation=(), microphone=(), camera=()"
-  );
+  )
 
-  next();
-};
+  next()
+}
 
 /**
  * CORS 보안 강화 미들웨어
  */
-export const corsSecurity = (req: Request, res: Response, next: NextFunction) => {
+export const corsSecurity = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   // 허용된 Origin만 접근 가능
   const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:3000",
-    "https://yourdomain.com" // 프로덕션 도메인
-  ];
-  
-  const origin = req.headers.origin;
-  
+    "https://yourdomain.com", // 프로덕션 도메인
+  ]
+
+  const origin = req.headers.origin
+
   if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Origin", origin)
   }
-  
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  
+
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  )
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization")
+  res.setHeader("Access-Control-Allow-Credentials", "true")
+
   // Preflight 요청 처리
   if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return;
+    res.status(200).end()
+    return
   }
-  
-  next();
-};
+
+  next()
+}

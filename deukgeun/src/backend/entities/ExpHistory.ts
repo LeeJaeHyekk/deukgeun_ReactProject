@@ -6,37 +6,37 @@ import {
   Index,
   ManyToOne,
   JoinColumn,
-} from "typeorm";
-import { User } from "./User";
+} from "typeorm"
+import { User } from "./User"
 
 @Entity("exp_history")
 export class ExpHistory {
   @PrimaryGeneratedColumn()
-  id!: number;
+  id!: number
 
   @Column({ type: "int" })
   @Index()
-  userId!: number;
+  userId!: number
 
   @Column({ type: "varchar", length: 50 })
   @Index()
-  actionType!: string;
+  actionType!: string
 
   @Column({ type: "int" })
-  expGained!: number;
+  expGained!: number
 
   @Column({ type: "varchar", length: 100 })
-  source!: string;
+  source!: string
 
   @Column({ type: "json", nullable: true })
-  metadata?: any;
+  metadata?: Record<string, unknown>
 
   @CreateDateColumn()
   @Index()
-  createdAt!: Date;
+  createdAt!: Date
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })
-  user!: User;
+  user!: User
 }

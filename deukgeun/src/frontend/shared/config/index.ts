@@ -27,7 +27,7 @@ export const config = {
     TOAST_DURATION: 3000,
     LOADING_DELAY: 500,
   },
-} as const;
+} as const
 
 // API Endpoints
 export const API_ENDPOINTS = {
@@ -36,6 +36,7 @@ export const API_ENDPOINTS = {
     REGISTER: "/api/auth/register",
     REFRESH: "/api/auth/refresh",
     LOGOUT: "/api/auth/logout",
+    CHECK: "/api/auth/check",
   },
   USER: {
     PROFILE: "/api/user/profile",
@@ -59,4 +60,4 @@ export const API_ENDPOINTS = {
     DELETE: (id: number) => `/api/machines/${id}`,
     FILTER: "/api/machines/filter",
   },
-} as const;
+} as const

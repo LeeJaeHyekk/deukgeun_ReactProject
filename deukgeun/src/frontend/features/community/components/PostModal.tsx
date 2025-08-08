@@ -1,92 +1,141 @@
 // components/PostModal.tsx
-import { useState } from "react";
-import styles from "./PostModal.module.css";
-interface Project {
-  id: number;
-  title: string;
-  category: string;
-  imageUrl: string;
-  content?: string;
+import { useState } from "react"
+import { showToast } from "@shared/lib"
+import styles from "./PostModal.module.css"
+
+interface PostCategory {
+  id: number
+  name: string
+  count: number
 }
-import { Heart, MessageCircle, X } from "lucide-react";
 
 interface PostModalProps {
-  post: Project;
-  onClose: () => void;
+  onClose: () => void
+  onSubmit: (postData: {
+    title: string
+    content: string
+    category: string
+  }) => Promise<void>
+  categories: PostCategory[]
 }
 
-export const PostModal = ({ post, onClose }: PostModalProps) => {
-  const [likes, setLikes] = useState(0);
-  const [showComments, setShowComments] = useState(false);
-  const [comments, setComments] = useState<string[]>([]);
-  const [newComment, setNewComment] = useState("");
+export function PostModal({ onClose, onSubmit, categories }: PostModalProps) {
+  const [formData, setFormData] = useState({
+    title: "",
+    content: "",
+    category: categories.length > 0 ? categories[0].name : "",
+  })
+  const [loading, setLoading] = useState(false)
 
-  const handleLike = () => setLikes((prev) => prev + 1);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
 
-  const toggleComments = () => setShowComments((prev) => !prev);
+    if (!formData.title.trim()) {
+      showToast("제목을 입력해주세요.", "error")
+      return
+    }
 
-  const handleAddComment = () => {
-    if (newComment.trim() === "") return;
-    setComments((prev) => [...prev, newComment.trim()]);
-    setNewComment("");
-  };
+    if (!formData.content.trim()) {
+      showToast("내용을 입력해주세요.", "error")
+      return
+    }
+
+    if (!formData.category) {
+      showToast("카테고리를 선택해주세요.", "error")
+      return
+    }
+
+    setLoading(true)
+    try {
+      await onSubmit(formData)
+      onClose()
+    } catch (error: unknown) {
+      console.error("게시글 작성 실패:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        {/* 닫기 버튼 */}
-        <button className={styles.closeButton} onClick={onClose}>
-          <X size={24} />
-        </button>
-
-        {/* 이미지 */}
-        <img
-          src={post.imageUrl}
-          alt={post.title}
-          className={styles.postImage}
-        />
-
-        {/* 본문 */}
-        <div className={styles.postDetails}>
-          <h2>{post.title}</h2>
-          <p className={styles.category}>{post.category}</p>
-        </div>
-
-        {/* Footer (좋아요, 댓글) */}
-        <div className={styles.postFooter}>
-          <button className={styles.iconButton} onClick={handleLike}>
-            <Heart />
-            <span>{likes}</span>
-          </button>
-
-          <button className={styles.iconButton} onClick={toggleComments}>
-            <MessageCircle />
-            <span>{comments.length}</span>
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.modal} onClick={e => e.stopPropagation()}>
+        <div className={styles.header}>
+          <h2>새 게시글 작성</h2>
+          <button className={styles.closeButton} onClick={onClose}>
+            ✕
           </button>
         </div>
 
-        {/* 댓글 리스트 */}
-        {showComments && (
-          <div className={styles.commentSection}>
-            <ul className={styles.commentList}>
-              {comments.map((comment, index) => (
-                <li key={index}>{comment}</li>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.field}>
+            <label htmlFor="category">카테고리</label>
+            <select
+              id="category"
+              value={formData.category}
+              onChange={e =>
+                setFormData({ ...formData, category: e.target.value })
+              }
+              className={styles.select}
+              required
+            >
+              <option value="">카테고리를 선택하세요</option>
+              {categories.map(category => (
+                <option key={category.id} value={category.name}>
+                  {category.name}
+                </option>
               ))}
-            </ul>
-
-            {/* 댓글 입력 */}
-            <div className={styles.commentInputArea}>
-              <input
-                type="text"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="댓글을 입력하세요"
-              />
-              <button onClick={handleAddComment}>게시</button>
-            </div>
+            </select>
           </div>
-        )}
+
+          <div className={styles.field}>
+            <label htmlFor="title">제목</label>
+            <input
+              id="title"
+              type="text"
+              value={formData.title}
+              onChange={e =>
+                setFormData({ ...formData, title: e.target.value })
+              }
+              className={styles.input}
+              placeholder="제목을 입력하세요"
+              required
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="content">내용</label>
+            <textarea
+              id="content"
+              value={formData.content}
+              onChange={e =>
+                setFormData({ ...formData, content: e.target.value })
+              }
+              className={styles.textarea}
+              placeholder="내용을 입력하세요"
+              rows={8}
+              required
+            />
+          </div>
+
+          <div className={styles.actions}>
+            <button
+              type="button"
+              onClick={onClose}
+              className={styles.cancelButton}
+              disabled={loading}
+            >
+              취소
+            </button>
+            <button
+              type="submit"
+              className={styles.submitButton}
+              disabled={loading}
+            >
+              {loading ? "작성 중..." : "작성하기"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-  );
-};
+  )
+}

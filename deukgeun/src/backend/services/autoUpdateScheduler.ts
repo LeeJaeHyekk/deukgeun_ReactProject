@@ -1,19 +1,19 @@
-import { Repository } from "typeorm";
-import { Gym } from "../entities/Gym";
-import { connectDatabase } from "../config/database";
-import { updateGymDetailsWithEnhancedSources } from "./enhancedCrawlerService";
-import { updateGymDetails } from "./gymCrawlerService";
-import { updateGymDetailsWithMultipleSources } from "./multiSourceCrawlerService";
-import { updateGymDetailsWithAdvancedSources } from "./advancedCrawlerService";
-import { logger } from "../utils/logger";
+import { Repository } from "typeorm"
+import { Gym } from "../entities/Gym"
+import { connectDatabase } from "../config/database"
+import { updateGymDetailsWithEnhancedSources } from "./enhancedCrawlerService"
+import { updateGymDetails } from "./gymCrawlerService"
+import { updateGymDetailsWithMultipleSources } from "./multiSourceCrawlerService"
+import { updateGymDetailsWithAdvancedSources } from "./advancedCrawlerService"
+import { logger } from "../utils/logger"
 
-type UpdateType = "enhanced" | "basic" | "multisource" | "advanced";
+type UpdateType = "enhanced" | "basic" | "multisource" | "advanced"
 
 interface SchedulerConfig {
-  hour: number; // Execution hour (24-hour format)
-  minute: number; // Execution minute
-  updateType: UpdateType; // Update method to use
-  enabled: boolean; // Scheduler activation status
+  hour: number // Execution hour (24-hour format)
+  minute: number // Execution minute
+  updateType: UpdateType // Update method to use
+  enabled: boolean // Scheduler activation status
 }
 
 // Default configuration
@@ -22,142 +22,142 @@ const DEFAULT_CONFIG: SchedulerConfig = {
   minute: 0, // 0 minutes
   updateType: "enhanced", // Use enhanced crawling
   enabled: true,
-};
+}
 
 class AutoUpdateScheduler {
-  private config: SchedulerConfig;
-  private intervalId: NodeJS.Timeout | null = null;
-  private isRunning = false;
+  private config: SchedulerConfig
+  private intervalId: NodeJS.Timeout | null = null
+  private isRunning = false
 
   constructor(config?: Partial<SchedulerConfig>) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.config = { ...DEFAULT_CONFIG, ...config }
   }
 
   // Calculate next execution time
   private calculateNextRunTime(): Date {
-    const now = new Date();
-    const nextRun = new Date();
-    nextRun.setHours(this.config.hour, this.config.minute, 0, 0);
+    const now = new Date()
+    const nextRun = new Date()
+    nextRun.setHours(this.config.hour, this.config.minute, 0, 0)
 
     // If today's execution time has passed, set to tomorrow
     if (nextRun <= now) {
-      nextRun.setDate(nextRun.getDate() + 1);
+      nextRun.setDate(nextRun.getDate() + 1)
     }
 
-    return nextRun;
+    return nextRun
   }
 
   // Start scheduler
   start(): void {
     if (this.intervalId) {
-      logger.info("Scheduler is already running");
-      return;
+      logger.info("Scheduler is already running")
+      return
     }
 
     if (!this.config.enabled) {
-      logger.info("Scheduler is disabled");
-      return;
+      logger.info("Scheduler is disabled")
+      return
     }
 
     logger.info(
       `Starting auto-update scheduler for ${this.config.updateType} at ${
         this.config.hour
       }:${this.config.minute.toString().padStart(2, "0")}`
-    );
+    )
 
     // Schedule next execution
-    this.scheduleNextRun();
+    this.scheduleNextRun()
 
     // If execution time has already passed today, run immediately
-    const nextRun = this.calculateNextRunTime();
-    const now = new Date();
+    const nextRun = this.calculateNextRunTime()
+    const now = new Date()
     if (
       nextRun.getDate() === now.getDate() &&
       nextRun.getTime() <= now.getTime()
     ) {
-      this.executeUpdate();
+      this.executeUpdate()
     }
   }
 
   // Execute update
   private async executeUpdate(): Promise<void> {
     if (this.isRunning) {
-      logger.warn("Update is already running, skipping");
-      return;
+      logger.warn("Update is already running, skipping")
+      return
     }
 
-    this.isRunning = true;
-    logger.info(`Starting ${this.config.updateType} update`);
+    this.isRunning = true
+    logger.info(`Starting ${this.config.updateType} update`)
 
     try {
       // Database connection
-      const connection = await connectDatabase();
-      const gymRepo = connection.getRepository(Gym);
+      const connection = await connectDatabase()
+      const gymRepo = connection.getRepository(Gym)
 
       // Execute selected update method
       switch (this.config.updateType) {
         case "enhanced":
-          await updateGymDetailsWithEnhancedSources(gymRepo);
-          break;
+          await updateGymDetailsWithEnhancedSources(gymRepo)
+          break
         case "basic":
-          await updateGymDetails(gymRepo);
-          break;
+          await updateGymDetails(gymRepo)
+          break
         case "multisource":
-          await updateGymDetailsWithMultipleSources(gymRepo);
-          break;
+          await updateGymDetailsWithMultipleSources(gymRepo)
+          break
         case "advanced":
-          await updateGymDetailsWithAdvancedSources(gymRepo);
-          break;
+          await updateGymDetailsWithAdvancedSources(gymRepo)
+          break
         default:
-          await updateGymDetailsWithEnhancedSources(gymRepo);
+          await updateGymDetailsWithEnhancedSources(gymRepo)
       }
 
       // Close database connection
-      await connection.close();
-      logger.info(`${this.config.updateType} update completed successfully`);
+      await connection.close()
+      logger.info(`${this.config.updateType} update completed successfully`)
     } catch (error) {
-      logger.error(`Error during ${this.config.updateType} update:`, error);
+      logger.error(`Error during ${this.config.updateType} update:`, error)
     } finally {
-      this.isRunning = false;
+      this.isRunning = false
       // Calculate next execution time and schedule
-      this.scheduleNextRun();
+      this.scheduleNextRun()
     }
   }
 
   // Schedule next execution
   private scheduleNextRun(): void {
-    const nextRun = this.calculateNextRunTime();
-    const delay = nextRun.getTime() - Date.now();
+    const nextRun = this.calculateNextRunTime()
+    const delay = nextRun.getTime() - Date.now()
 
     this.intervalId = setTimeout(() => {
-      this.executeUpdate();
-    }, delay);
+      this.executeUpdate()
+    }, delay)
 
-    logger.info(`Next update scheduled for ${nextRun.toLocaleString()}`);
+    logger.info(`Next update scheduled for ${nextRun.toLocaleString()}`)
   }
 
   // Stop scheduler
   stop(): void {
     if (this.intervalId) {
-      clearTimeout(this.intervalId);
-      this.intervalId = null;
-      logger.info("Scheduler stopped");
+      clearTimeout(this.intervalId)
+      this.intervalId = null
+      logger.info("Scheduler stopped")
     }
   }
 
   // Restart scheduler
   restart(): void {
-    this.stop();
-    this.start();
+    this.stop()
+    this.start()
   }
 
   // Update configuration
   updateConfig(newConfig: Partial<SchedulerConfig>): void {
-    this.config = { ...this.config, ...newConfig };
-    logger.info("Scheduler configuration updated");
+    this.config = { ...this.config, ...newConfig }
+    logger.info("Scheduler configuration updated")
 
     if (this.intervalId) {
-      this.restart();
+      this.restart()
     }
   }
 
@@ -171,104 +171,104 @@ class AutoUpdateScheduler {
       schedule: `${this.config.hour}:${this.config.minute
         .toString()
         .padStart(2, "0")}`,
-    };
+    }
   }
 
   // Manual update execution
   async runManualUpdate(updateType?: UpdateType): Promise<void> {
-    const typeToUse = updateType || this.config.updateType;
-    logger.info(`Manual ${typeToUse} update requested`);
+    const typeToUse = updateType || this.config.updateType
+    logger.info(`Manual ${typeToUse} update requested`)
 
-    const originalType = this.config.updateType;
-    this.config.updateType = typeToUse;
+    const originalType = this.config.updateType
+    this.config.updateType = typeToUse
 
     try {
-      await this.executeUpdate();
+      await this.executeUpdate()
     } finally {
-      this.config.updateType = originalType;
+      this.config.updateType = originalType
     }
   }
 }
 
 // Global scheduler instance
-let globalScheduler: AutoUpdateScheduler | null = null;
+let globalScheduler: AutoUpdateScheduler | null = null
 
 // Initialize and start scheduler
 export function initializeScheduler(
   config?: Partial<SchedulerConfig>
 ): AutoUpdateScheduler {
   if (globalScheduler) {
-    globalScheduler.stop();
+    globalScheduler.stop()
   }
 
-  globalScheduler = new AutoUpdateScheduler(config);
-  globalScheduler.start();
-  return globalScheduler;
+  globalScheduler = new AutoUpdateScheduler(config)
+  globalScheduler.start()
+  return globalScheduler
 }
 
 // Get scheduler instance
 export function getScheduler(): AutoUpdateScheduler | null {
-  return globalScheduler;
+  return globalScheduler
 }
 
 // Stop scheduler
 export function stopScheduler(): void {
   if (globalScheduler) {
-    globalScheduler.stop();
-    globalScheduler = null;
+    globalScheduler.stop()
+    globalScheduler = null
   }
 }
 
 // Manual update execution
 export async function runManualUpdate(updateType?: UpdateType): Promise<void> {
   if (globalScheduler) {
-    await globalScheduler.runManualUpdate(updateType);
+    await globalScheduler.runManualUpdate(updateType)
   } else {
-    throw new Error("Scheduler not initialized");
+    throw new Error("Scheduler not initialized")
   }
 }
 
 // Get scheduler status
 export function getSchedulerStatus() {
-  return globalScheduler ? globalScheduler.getStatus() : null;
+  return globalScheduler ? globalScheduler.getStatus() : null
 }
 
 // Load configuration from environment variables
 function loadConfigFromEnv(): Partial<SchedulerConfig> {
-  const config: Partial<SchedulerConfig> = {};
+  const config: Partial<SchedulerConfig> = {}
 
   // Execution time settings
-  const hour = parseInt(process.env.AUTO_UPDATE_HOUR || "6");
-  const minute = parseInt(process.env.AUTO_UPDATE_MINUTE || "0");
+  const hour = parseInt(process.env.AUTO_UPDATE_HOUR || "6")
+  const minute = parseInt(process.env.AUTO_UPDATE_MINUTE || "0")
 
-  if (hour >= 0 && hour <= 23) config.hour = hour;
-  if (minute >= 0 && minute <= 59) config.minute = minute;
+  if (hour >= 0 && hour <= 23) config.hour = hour
+  if (minute >= 0 && minute <= 59) config.minute = minute
 
   // Update type settings
-  const updateType = process.env.AUTO_UPDATE_TYPE;
+  const updateType = process.env.AUTO_UPDATE_TYPE
   if (
     updateType &&
     ["enhanced", "basic", "multisource", "advanced"].includes(updateType)
   ) {
-    config.updateType = updateType as UpdateType;
+    config.updateType = updateType as UpdateType
   }
 
   // Activation settings
   if (process.env.AUTO_UPDATE_ENABLED !== undefined) {
-    config.enabled = process.env.AUTO_UPDATE_ENABLED === "true";
+    config.enabled = process.env.AUTO_UPDATE_ENABLED === "true"
   }
 
-  return config;
+  return config
 }
 
 // Auto-initialize scheduler on application startup
 export function autoInitializeScheduler(): void {
   try {
-    const envConfig = loadConfigFromEnv();
-    initializeScheduler(envConfig);
-    logger.info("Auto-update scheduler initialized from environment variables");
+    const envConfig = loadConfigFromEnv()
+    initializeScheduler(envConfig)
+    logger.info("Auto-update scheduler initialized from environment variables")
   } catch (error) {
-    logger.error("Failed to initialize auto-update scheduler:", error);
+    logger.error("Failed to initialize auto-update scheduler:", error)
   }
 }
 
@@ -276,29 +276,29 @@ export function autoInitializeScheduler(): void {
 export const schedulerAPI = {
   // Start scheduler
   start: (config?: Partial<SchedulerConfig>) => {
-    return initializeScheduler(config);
+    return initializeScheduler(config)
   },
 
   // Stop scheduler
   stop: () => {
-    stopScheduler();
+    stopScheduler()
   },
 
   // Get status
   status: () => {
-    return getSchedulerStatus();
+    return getSchedulerStatus()
   },
 
   // Manual update
   manualUpdate: async (updateType?: UpdateType) => {
-    await runManualUpdate(updateType);
+    await runManualUpdate(updateType)
   },
 
   // Update configuration
   updateConfig: (config: Partial<SchedulerConfig>) => {
-    const scheduler = getScheduler();
+    const scheduler = getScheduler()
     if (scheduler) {
-      scheduler.updateConfig(config);
+      scheduler.updateConfig(config)
     }
   },
-};
+}

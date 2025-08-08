@@ -1,37 +1,37 @@
-import apiClient from "./index";
+import apiClient from "./index"
 
 export interface PlatformStats {
-  activeUsers: number;
-  totalGyms: number;
-  totalPosts: number;
-  achievements: number;
+  activeUsers: number
+  totalGyms: number
+  totalPosts: number
+  achievements: number
 }
 
 export interface DetailedStats {
   monthlyUsers: Array<{
-    month: string;
-    count: number;
-  }>;
+    month: string
+    count: number
+  }>
   gymDistribution: Array<{
-    district: string;
-    count: number;
-  }>;
+    district: string
+    count: number
+  }>
   levelDistribution: Array<{
-    level: number;
-    count: number;
-  }>;
+    level: number
+    count: number
+  }>
 }
 
 export const statsApi = {
   // 플랫폼 기본 통계 조회
   getPlatformStats: async (): Promise<PlatformStats> => {
-    const response = await apiClient.get("/stats/platform");
-    return response.data.data;
+    const response = await apiClient.get("/api/stats/platform")
+    return response.data.data
   },
 
   // 상세 통계 조회 (관리자용)
   getDetailedStats: async (): Promise<DetailedStats> => {
-    const response = await apiClient.get("/stats/detailed");
-    return response.data.data;
+    const response = await apiClient.get("/api/stats/detailed")
+    return response.data.data
   },
-};
+}

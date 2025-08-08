@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from "axios"
 
-const BASE_URL = "http://localhost:5000/api";
+const BASE_URL = "http://localhost:5000/api"
 
 // 등록된 정적 자산 목록과 파일명 매핑 (public/img/machine 기준)
 // 키는 정규화된 이름(영문)이고 값은 실제 파일명입니다.
@@ -20,7 +20,7 @@ const fileNameMap: Record<string, string> = {
   "squat rack": "squat-rack.png",
   treadmill: "treadmill-running.gif",
   "wide full down": "plate-loaded-wide-pulldown.png",
-};
+}
 
 // 추가 별칭(동의어) → 메인 키로 매핑
 const aliasMap: Record<string, string> = {
@@ -44,127 +44,127 @@ const aliasMap: Record<string, string> = {
   // 정규화 후 실제 문자열 매칭
   "plateloaded wide pulldown": "wide full down",
   "plate wide fulldown": "wide full down",
-};
+}
 
 function normalize(source: string | undefined | null): string {
-  if (!source) return "";
+  if (!source) return ""
   return source
     .toLowerCase()
     .replace(/[_-]+/g, " ")
     .replace(/[^a-z0-9\s]/g, "")
     .replace(/\s+/g, " ")
-    .trim();
+    .trim()
 }
 
 function normalizeKeyLike(source: string | undefined | null): string {
   // machine_key에서 숫자 시퀀스 제거 등 가벼운 정리
-  const base = normalize(source);
+  const base = normalize(source)
   return base
     .replace(/\b\d+\b/g, "")
     .replace(/\s+/g, " ")
-    .trim();
+    .trim()
 }
 
 function applyAlias(key: string): string {
-  return aliasMap[key] ?? key;
+  return aliasMap[key] ?? key
 }
 
 async function updateMachineImages() {
-  console.log("🖼️  머신 이미지 URL 일괄 업데이트 시작\n");
+  console.log("🖼️  머신 이미지 URL 일괄 업데이트 시작\n")
 
   // 1) 전체 머신 조회
-  const list = await axios.get(`${BASE_URL}/machines`);
-  const machines: any[] = list.data?.data || [];
+  const list = await axios.get(`${BASE_URL}/machines`)
+  const machines: any[] = list.data?.data || []
   if (machines.length === 0) {
-    console.log("⚠️  업데이트할 머신 데이터가 없습니다.");
-    return;
+    console.log("⚠️  업데이트할 머신 데이터가 없습니다.")
+    return
   }
 
   // 2) 파일명 키 세트 만들기 (정규화)
-  const normalizedFileKeyToFileName = new Map<string, string>();
+  const normalizedFileKeyToFileName = new Map<string, string>()
   Object.entries(fileNameMap).forEach(([key, fileName]) => {
-    const norm = applyAlias(normalize(key));
-    if (norm) normalizedFileKeyToFileName.set(norm, fileName);
-  });
+    const norm = applyAlias(normalize(key))
+    if (norm) normalizedFileKeyToFileName.set(norm, fileName)
+  })
 
-  let updatedCount = 0;
-  let skippedCount = 0;
-  let notFoundCount = 0;
+  let updatedCount = 0
+  let skippedCount = 0
+  let notFoundCount = 0
 
   // 3) 각 머신에 대해 매칭 시도 후 업데이트
   for (const m of machines) {
-    const byEn = applyAlias(normalize(m.name_en));
-    const byKo = normalize(m.name_ko); // 한글은 보조
-    const byKey = applyAlias(normalizeKeyLike(m.machine_key));
+    const byEn = applyAlias(normalize(m.name_en))
+    const byKo = normalize(m.name_ko) // 한글은 보조
+    const byKey = applyAlias(normalizeKeyLike(m.machine_key))
 
     // 후보 키들 (우선순위: 영문명 → 키 → 한글명의 영문 발음 유사 매칭은 제외)
-    const candidates = [byEn, byKey];
+    const candidates = [byEn, byKey]
 
-    let matchedFile: string | undefined;
+    let matchedFile: string | undefined
     for (const c of candidates) {
-      if (!c) continue;
+      if (!c) continue
       if (normalizedFileKeyToFileName.has(c)) {
-        matchedFile = normalizedFileKeyToFileName.get(c);
-        break;
+        matchedFile = normalizedFileKeyToFileName.get(c)
+        break
       }
       // 복합어 분해 후 부분일치 보정 (예: "plate loaded leg press" ⟷ "leg press")
-      const words = c.split(" ");
+      const words = c.split(" ")
       for (let size = Math.min(3, words.length); size >= 2; size--) {
         for (let start = 0; start + size <= words.length; start++) {
-          const sub = words.slice(start, start + size).join(" ");
-          const subAliased = applyAlias(sub);
+          const sub = words.slice(start, start + size).join(" ")
+          const subAliased = applyAlias(sub)
           if (normalizedFileKeyToFileName.has(subAliased)) {
-            matchedFile = normalizedFileKeyToFileName.get(subAliased);
-            break;
+            matchedFile = normalizedFileKeyToFileName.get(subAliased)
+            break
           }
         }
-        if (matchedFile) break;
+        if (matchedFile) break
       }
-      if (matchedFile) break;
+      if (matchedFile) break
     }
 
     if (!matchedFile) {
-      notFoundCount++;
+      notFoundCount++
       console.log(
         `- 매칭 실패: id=${m.id}, name_ko=${m.name_ko}, name_en=${
           m.name_en || "-"
         }`
-      );
+      )
       // 디버깅: 정규화된 문자열들 출력
-      console.log(`  디버깅 - byEn: "${byEn}", byKey: "${byKey}"`);
-      continue;
+      console.log(`  디버깅 - byEn: "${byEn}", byKey: "${byKey}"`)
+      continue
     }
 
-    const nextUrl = `/img/machine/${matchedFile}`;
+    const nextUrl = `/img/machine/${matchedFile}`
     if (m.image_url === nextUrl) {
-      skippedCount++;
-      continue;
+      skippedCount++
+      continue
     }
 
     try {
-      await axios.put(`${BASE_URL}/machines/${m.id}`, { image_url: nextUrl });
-      updatedCount++;
-      console.log(`✅ 업데이트: id=${m.id}, ${m.name_ko} → ${nextUrl}`);
+      await axios.put(`${BASE_URL}/machines/${m.id}`, { image_url: nextUrl })
+      updatedCount++
+      console.log(`✅ 업데이트: id=${m.id}, ${m.name_ko} → ${nextUrl}`)
     } catch (err: any) {
       console.log(
         `❌ 실패: id=${m.id}, ${m.name_ko} → ${nextUrl}`,
         err?.response?.data || err?.message
-      );
+      )
     }
   }
 
-  console.log("\n📊 결과 요약");
-  console.log(`- 업데이트: ${updatedCount}`);
-  console.log(`- 동일하여 스킵: ${skippedCount}`);
-  console.log(`- 매칭 실패: ${notFoundCount}`);
-  console.log("\n🎯 이미지 URL 업데이트 완료!");
+  console.log("\n📊 결과 요약")
+  console.log(`- 업데이트: ${updatedCount}`)
+  console.log(`- 동일하여 스킵: ${skippedCount}`)
+  console.log(`- 매칭 실패: ${notFoundCount}`)
+  console.log("\n🎯 이미지 URL 업데이트 완료!")
 }
 
 if (require.main === module) {
-  updateMachineImages().catch((e) => {
-    console.error(e);
-    process.exit(1);
-  });
+  updateMachineImages().catch(e => {
+    console.error(e)
+    process.exit(1)
+  })
 }
 
-export { updateMachineImages };
+export { updateMachineImages }

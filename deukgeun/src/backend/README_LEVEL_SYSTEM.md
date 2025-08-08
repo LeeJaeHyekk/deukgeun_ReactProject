@@ -165,15 +165,15 @@ npm run dev
 ### 백엔드에서 경험치 부여
 
 ```typescript
-import { LevelService } from "../services/levelService";
+import { LevelService } from "../services/levelService"
 
-const levelService = new LevelService();
+const levelService = new LevelService()
 
 // 게시글 작성 시 경험치 부여
 await levelService.grantExp(userId, "post", "post_creation", {
   postId: 123,
   title: "게시글 제목",
-});
+})
 ```
 
 ### 프론트엔드에서 레벨 정보 표시
@@ -280,13 +280,11 @@ function MyComponent() {
 ### 일반적인 문제들
 
 1. **경험치가 부여되지 않음**
-
    - 쿨다운 확인
    - 일일 한도 확인
    - 로그 확인
 
 2. **레벨업이 되지 않음**
-
    - 경험치 계산 확인
    - 데이터베이스 연결 확인
 

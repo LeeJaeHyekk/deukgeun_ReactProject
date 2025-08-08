@@ -1,6 +1,6 @@
-import dotenv from "dotenv";
+import dotenv from "dotenv"
 
-dotenv.config();
+dotenv.config()
 
 export const config = {
   // Server configuration
@@ -49,4 +49,4 @@ export const config = {
   AUTO_UPDATE_MINUTE: parseInt(process.env.AUTO_UPDATE_MINUTE || "0"),
   AUTO_UPDATE_TYPE: process.env.AUTO_UPDATE_TYPE || "enhanced",
   AUTO_UPDATE_ENABLED: process.env.AUTO_UPDATE_ENABLED === "true",
-};
+}

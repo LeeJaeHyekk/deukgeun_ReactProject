@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from "typeorm"
 
 @Entity()
@@ -36,8 +37,10 @@ export class User {
   role: "user" | "admin"
 
   @CreateDateColumn()
+  @Index()
   createdAt: Date
 
   @UpdateDateColumn()
+  @Index()
   updatedAt: Date
 }

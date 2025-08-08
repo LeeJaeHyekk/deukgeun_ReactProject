@@ -1,0 +1,29 @@
+.workout-calendar {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-placeholder {
+  text-align: center;
+  color: #666;
+}
+
+.calendar-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.calendar-message {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.calendar-description {
+  font-size: 0.9rem;
+  color: #999;
+  line-height: 1.4;
+}

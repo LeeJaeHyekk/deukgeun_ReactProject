@@ -60,4 +60,10 @@ export const API_ENDPOINTS = {
     DELETE: (id: number) => `/api/machines/${id}`,
     FILTER: "/api/machines/filter",
   },
+  WORKOUTS: {
+    PLANS: "/api/workouts/plans",
+    SESSIONS: "/api/workouts/sessions",
+    GOALS: "/api/workouts/goals",
+    PROGRESS: "/api/workouts/progress",
+  },
 } as const

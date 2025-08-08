@@ -70,12 +70,20 @@
   position: relative;
   background: #f8f9fa;
   min-height: 400px;
+  max-height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .machine-modal-image-section img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  min-height: 300px;
+  max-height: 600px;
+  object-fit: contain;
+  object-position: center;
 }
 
 .machine-modal-badges {
@@ -182,6 +190,13 @@
 
   .machine-modal-image-section {
     min-height: 300px;
+    max-height: 400px;
+  }
+
+  .machine-modal-image-section img {
+    min-height: 250px;
+    max-height: 400px;
+    object-fit: contain;
   }
 
   .machine-modal-info-section {
@@ -209,6 +224,13 @@
 
   .machine-modal-image-section {
     min-height: 250px;
+    max-height: 350px;
+  }
+
+  .machine-modal-image-section img {
+    min-height: 200px;
+    max-height: 350px;
+    object-fit: contain;
   }
 
   .machine-modal-info-section {

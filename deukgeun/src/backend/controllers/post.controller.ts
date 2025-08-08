@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { PostService } from "../services/post.service";
 import { getRepository } from "typeorm";
 import { User } from "../entities/User";
+import { LevelService } from "../services/levelService";
 
 /**
  * 포스트 관련 HTTP 요청을 처리하는 컨트롤러 클래스
@@ -9,9 +10,11 @@ import { User } from "../entities/User";
  */
 export class PostController {
   private postService: PostService;
+  private levelService: LevelService;
 
   constructor() {
     this.postService = new PostService();
+    this.levelService = new LevelService();
   }
 
   /**
@@ -117,6 +120,20 @@ export class PostController {
       }
 
       const newPost = await this.postService.createPost(postData);
+
+      // 게시글 작성 경험치 부여
+      try {
+        await this.levelService.grantExp(
+          req.user.userId,
+          "post",
+          "post_creation",
+          { postId: newPost.id, title: newPost.title }
+        );
+      } catch (levelError) {
+        // 경험치 부여 실패는 게시글 생성에 영향을 주지 않음
+        console.error("경험치 부여 실패:", levelError);
+      }
+
       res.status(201).json(newPost);
     } catch (error) {
       next(error);

@@ -2,8 +2,10 @@ import { Request, Response } from "express";
 import { getRepository } from "typeorm";
 import { Comment } from "../entities/Comment";
 import { PostService } from "../services/post.service";
+import { LevelService } from "../services/levelService";
 
 const postService = new PostService();
+const levelService = new LevelService();
 
 export const getComments = async (req: Request, res: Response) => {
   try {
@@ -36,14 +38,34 @@ export const createComment = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "content is required" });
     }
     const repo = getRepository(Comment);
+    // 사용자 정보를 가져와서 nickname 사용
+    const userRepo = getRepository("User");
+    const user = (await userRepo.findOne({
+      where: { id: req.user.userId },
+    })) as any;
+
     const comment = repo.create({
       postId: parseInt(id),
       userId: req.user.userId,
-      author: req.user.nickname || "익명",
+      author: user?.nickname || "익명",
       content,
     });
     const saved = await repo.save(comment);
     await postService.adjustCommentCount(parseInt(id), 1);
+
+    // 댓글 작성 경험치 부여
+    try {
+      await levelService.grantExp(
+        req.user.userId,
+        "comment",
+        "comment_creation",
+        { commentId: saved.id, postId: parseInt(id) }
+      );
+    } catch (levelError) {
+      // 경험치 부여 실패는 댓글 생성에 영향을 주지 않음
+      console.error("경험치 부여 실패:", levelError);
+    }
+
     return res.status(201).json(saved);
   } catch (e) {
     return res.status(500).json({ message: "Failed to create comment" });

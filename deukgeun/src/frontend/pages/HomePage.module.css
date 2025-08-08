@@ -90,26 +90,36 @@
 .myInfoSummary {
   display: flex;
   justify-content: center;
-  margin: 32px auto;
+  margin: 40px auto;
+  padding: 0 20px;
 }
 
 .myInfoCard {
   display: flex;
-  width: 88%;
   align-items: center;
-  gap: 16px;
-  padding: 20px 28px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  gap: 24px;
+  width: 100%;
+  max-width: 600px;
+  padding: 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
 }
 
 .myInfoCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.userInfoSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
 }
 
 .avatarSmall {
@@ -117,36 +127,199 @@
   height: 56px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #999;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+  transition: border-color 0.3s ease;
 }
 
-.myInfoCard p {
-  margin: 2px 0;
-  font-size: 0.95rem;
-  color: #f1f1f1;
+.myInfoCard:hover .avatarSmall {
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
-.myInfoCard strong {
-  font-weight: 600;
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.userName {
+  margin: 0;
   font-size: 1.1rem;
+  font-weight: 600;
   color: #ffffff;
+  line-height: 1.2;
+}
+
+.userEmail {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.2;
+}
+
+.workoutStatus {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+.levelSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.levelBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+}
+
+.myInfoCard:hover .levelBadge {
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  transform: scale(1.05);
+}
+
+.levelNumber {
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.levelProgress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 80px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
 }
 
 .detailBtn {
-  margin-left: auto;
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
-  color: #f0f0f0;
-  padding: 8px 16px;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.85rem;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .detailBtn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive design for myInfo section */
+@media (max-width: 768px) {
+  .myInfoCard {
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .userInfoSection {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .levelSection {
+    flex-direction: row;
+    gap: 16px;
+  }
+
+  .levelProgress {
+    width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .myInfoSummary {
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+
+  .myInfoCard {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .avatarSmall {
+    width: 48px;
+    height: 48px;
+  }
+
+  .userName {
+    font-size: 1rem;
+  }
+
+  .userEmail {
+    font-size: 0.8rem;
+  }
+
+  .workoutStatus {
+    font-size: 0.85rem;
+  }
+
+  .levelBadge {
+    width: 40px;
+    height: 40px;
+  }
+
+  .levelNumber {
+    font-size: 12px;
+  }
+
+  .levelProgress {
+    width: 70px;
+  }
+
+  .progressText {
+    font-size: 10px;
+  }
+
+  .detailBtn {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
 }
 
 /* Footer Section */

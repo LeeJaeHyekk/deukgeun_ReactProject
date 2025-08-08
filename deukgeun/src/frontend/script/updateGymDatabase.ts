@@ -1,5 +1,21 @@
-import { getGyms } from "../pages/location/API/getGyms";
-import { Gym } from "../pages/location/types";
+import { getGymsForScript } from "./getGymsForScript";
+import { scriptEnv, validateEnv } from "./env";
+
+// Gym 타입 정의 (스크립트용)
+interface Gym {
+  id: string;
+  name: string;
+  type: string;
+  address: string;
+  phone: string;
+  openTime?: string;
+  closeTime?: string;
+  latitude: number;
+  longitude: number;
+}
+
+// 환경변수 검증
+validateEnv();
 
 /**
  * 프론트엔드에서 API를 호출하여 헬스장 데이터를 가져오고
@@ -11,7 +27,7 @@ export async function updateGymDatabase() {
 
     // 1. 서울시 공공데이터 API에서 헬스장 데이터 가져오기
     console.log("📡 서울시 공공데이터 API에서 헬스장 정보를 가져오는 중...");
-    const gyms = await getGyms();
+    const gyms = await getGymsForScript();
     console.log(
       `✅ ${gyms.length}개의 헬스장 데이터를 성공적으로 가져왔습니다.`
     );
@@ -66,8 +82,8 @@ function filterValidGyms(gyms: Gym[]): Gym[] {
  * 백엔드 API를 통해 헬스장 데이터를 데이터베이스에 저장
  */
 async function saveGymsToDatabase(gyms: Gym[]) {
-  const backendUrl =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  // 스크립트 환경변수 사용
+  const backendUrl = scriptEnv.VITE_BACKEND_URL;
 
   try {
     const response = await fetch(`${backendUrl}/api/gyms/bulk-update`, {
@@ -79,7 +95,7 @@ async function saveGymsToDatabase(gyms: Gym[]) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorData = (await response.json().catch(() => ({}))) as any;
       throw new Error(
         `백엔드 API 오류: ${response.status} - ${
           errorData.message || response.statusText
@@ -87,7 +103,7 @@ async function saveGymsToDatabase(gyms: Gym[]) {
       );
     }
 
-    const result = await response.json();
+    const result = (await response.json()) as any;
     console.log(
       `💾 ${result.savedCount}개의 헬스장 데이터가 데이터베이스에 저장되었습니다.`
     );
@@ -103,8 +119,8 @@ async function saveGymsToDatabase(gyms: Gym[]) {
  * 데이터베이스 최신화 상태 확인
  */
 export async function checkDatabaseStatus() {
-  const backendUrl =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  // 스크립트 환경변수 사용
+  const backendUrl = scriptEnv.VITE_BACKEND_URL;
 
   try {
     const response = await fetch(`${backendUrl}/api/gyms/status`);
@@ -122,14 +138,12 @@ export async function checkDatabaseStatus() {
 }
 
 // 스크립트 실행 (Node.js 환경에서 직접 실행할 때)
-if (typeof window === "undefined") {
-  updateGymDatabase()
-    .then((result) => {
-      console.log("최신화 결과:", result);
-      process.exit(result.success ? 0 : 1);
-    })
-    .catch((error) => {
-      console.error("스크립트 실행 실패:", error);
-      process.exit(1);
-    });
-}
+updateGymDatabase()
+  .then((result) => {
+    console.log("최신화 결과:", result);
+    process.exit(result.success ? 0 : 1);
+  })
+  .catch((error) => {
+    console.error("스크립트 실행 실패:", error);
+    process.exit(1);
+  });

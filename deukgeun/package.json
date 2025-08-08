@@ -12,9 +12,12 @@
     "check-ports": "node scripts/check-ports.js",
     "build": "vite build",
     "build:type-check": "tsc --noEmit",
+    "build:scripts": "tsc --project tsconfig.scripts.json",
     "lint": "eslint . --ext .ts,.tsx",
     "preview": "vite preview",
-    "test:getGyms": "node --loader ts-node/esm src/script/testGetGyms.ts"
+    "test:getGyms": "node --loader ts-node/esm src/script/testGetGyms.ts",
+    "script:save-gym-data": "ts-node --project tsconfig.scripts.json src/frontend/script/saveGymData.ts",
+    "script:update-gym-db": "ts-node --project tsconfig.scripts.json src/frontend/script/updateGymDatabase.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.1.2",
@@ -22,6 +25,7 @@
     "@tanstack/react-query": "^5.79.2",
     "autoprefixer": "^10.4.21",
     "axios": "^1.11.0",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "framer-motion": "^12.23.9",
     "gsap": "^3.13.0",

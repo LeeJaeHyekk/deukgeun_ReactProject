@@ -1,10 +1,10 @@
-/* 페이지 래퍼 - 필요시 사용 */
+/* 페이지 래퍼 - 전체 페이지 레이아웃 */
 .pageWrapper {
   min-height: 100vh;
   width: 100vw;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   background: linear-gradient(135deg, #121212, #1f1f1f);
   padding: 20px;
   box-sizing: border-box;
@@ -15,8 +15,8 @@
 /* 메인 콘텐츠 박스 */
 .wrapper {
   width: 100%;
-  max-width: 480px;
-  padding: 40px 32px;
+  max-width: 1200px;
+  padding: 40px;
   border-radius: 20px;
   background: rgba(30, 30, 30, 0.8);
   backdrop-filter: blur(15px);
@@ -24,7 +24,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 40px;
   transition: box-shadow 0.3s ease;
 }
 
@@ -32,59 +32,70 @@
   box-shadow: 0 25px 70px rgba(255, 110, 196, 0.6);
 }
 
-/* 프로필 영역 */
+/* 섹션 제목 */
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 20px 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(255, 110, 196, 0.3);
+}
+
+/* Header Section */
+.headerSection {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .profile {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 24px;
 }
 
 .avatar {
-  width: 88px;
-  height: 88px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #ff6ec422;
+  border: 4px solid #ff6ec422;
   transition: border-color 0.3s ease;
-  box-shadow: 0 0 10px #ff6ec4aa;
+  box-shadow: 0 0 20px #ff6ec4aa;
 }
 
 .avatar:hover {
   border-color: #ff6ec4;
-  box-shadow: 0 0 14px #ff6ec4ee;
+  box-shadow: 0 0 25px #ff6ec4ee;
 }
 
 .userMeta {
-  flex: 1;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
 }
 
 .username {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #fff;
-  display: flex;
-  align-items: center;
-  gap: 12px;
   user-select: none;
 }
 
-.level {
+.userEmail {
   font-size: 1rem;
-  background: linear-gradient(135deg, #ff6ec4, #7873f5);
-  padding: 6px 14px;
-  border-radius: 16px;
-  color: white;
-  font-weight: 600;
+  color: #cccccc;
   user-select: none;
-  box-shadow: 0 2px 8px #ff6ec4cc;
-  transition: box-shadow 0.3s ease;
 }
 
 .settingIcon {
-  font-size: 1.3rem;
+  position: absolute;
+  top: 0;
+  right: -40px;
+  font-size: 1.5rem;
   cursor: pointer;
   color: #ffffffcc;
   transition: color 0.25s ease;
@@ -104,109 +115,123 @@
   box-shadow: 0 0 0 2px #ff6ec4;
 }
 
-/* 정보 블록 */
-.infoBlock {
+/* Level Section */
+.levelSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.myPageLevelDisplay {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Stats Section */
+.statsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.statsGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px 32px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.statsCard {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.statsCard:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 110, 196, 0.2);
+}
+
+.statsHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.statsIcon {
+  font-size: 1.5rem;
+}
+
+.statsTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #cccccc;
+  margin: 0;
+}
+
+.statsValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ff6ec4;
+  margin-bottom: 4px;
+}
+
+.statsSubtitle {
+  font-size: 0.9rem;
+  color: #aaaaaa;
+  margin: 0;
+}
+
+/* Info Section */
+.infoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
 }
 
 .infoItem {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.infoItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.infoHeader {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .wrapper {
-    padding: 32px 24px;
-    gap: 24px;
-  }
-
-  .profile {
-    gap: 16px;
-  }
-
-  .avatar {
-    width: 72px;
-    height: 72px;
-  }
-
-  .username {
-    font-size: 1.3rem;
-  }
-
-  .level {
-    font-size: 0.9rem;
-    padding: 4px 12px;
-  }
-
-  .actions {
-    gap: 16px;
-  }
-
-  .actionBtn,
-  .logoutBtn {
-    flex: 1 1 120px;
-    min-width: 120px;
-    padding: 12px 20px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .wrapper {
-    padding: 24px 20px;
-    gap: 20px;
-  }
-
-  .avatar {
-    width: 64px;
-    height: 64px;
-  }
-
-  .username {
-    font-size: 1.2rem;
-    gap: 8px;
-  }
-
-  .level {
-    font-size: 0.8rem;
-    padding: 3px 10px;
-  }
-
-  .actions {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .actionBtn,
-  .logoutBtn {
-    flex: none;
-    min-width: 100%;
-    padding: 14px 20px;
-  }
-}
-
-@media (max-width: 420px) {
-  .infoBlock {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .wrapper {
-    padding: 20px 16px;
-  }
+.infoIcon {
+  font-size: 1.2rem;
 }
 
 .label {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #aaaaaacc;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.07em;
   user-select: none;
+  margin: 0;
 }
 
 .value {
@@ -214,68 +239,177 @@
   font-size: 1.1rem;
   font-weight: 600;
   user-select: text;
+  margin: 0;
 }
 
-/* 액션 버튼 그룹 */
-.actions {
+/* Actions Section */
+.actionsSection {
   display: flex;
-  gap: 18px;
-  justify-content: center;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
 }
 
 .actionBtn {
-  flex: 1 1 140px;
-  min-width: 140px;
-  background: #ff6ec420;
-  border: 1.5px solid #ff6ec4;
-  padding: 14px 26px;
-  border-radius: 22px;
-  color: #ff6ec4;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   user-select: none;
   text-align: center;
-  box-shadow: 0 4px 12px #ff6ec466;
   outline: none;
+  border: none;
+  font-size: 1rem;
 }
 
-.actionBtn:hover,
-.actionBtn:focus {
+.actionBtn.primary {
+  background: #ff6ec420;
+  border: 1.5px solid #ff6ec4;
+  color: #ff6ec4;
+  box-shadow: 0 4px 12px #ff6ec466;
+}
+
+.actionBtn.primary:hover,
+.actionBtn.primary:focus {
   background: #ff6ec4;
   color: #fff;
   box-shadow: 0 6px 18px #ff6ec4cc;
 }
 
-.actionBtn:focus-visible {
-  box-shadow: 0 0 0 2px #ff6ec4, 0 6px 18px #ff6ec4cc;
+.actionBtn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 
-.logoutBtn {
-  flex: 1 1 140px;
-  min-width: 140px;
+.actionBtn.secondary:hover,
+.actionBtn.secondary:focus {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 6px 18px rgba(255, 255, 255, 0.2);
+}
+
+.actionBtn.danger {
   background: transparent;
   border: 1.5px solid #ff4c4c;
   color: #ff4c4c;
-  padding: 14px 26px;
-  border-radius: 22px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease;
-  user-select: none;
-  text-align: center;
   box-shadow: 0 4px 12px #ff4c4c55;
-  outline: none;
 }
 
-.logoutBtn:hover,
-.logoutBtn:focus {
+.actionBtn.danger:hover,
+.actionBtn.danger:focus {
   background: #ff4c4cdd;
   color: #fff;
   box-shadow: 0 6px 18px #ff4c4ccc;
 }
 
-.logoutBtn:focus-visible {
-  box-shadow: 0 0 0 2px #ff4c4c, 0 6px 18px #ff4c4ccc;
+.buttonIcon {
+  font-size: 1.1rem;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .wrapper {
+    padding: 32px 24px;
+    gap: 32px;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .infoGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .pageWrapper {
+    padding: 16px;
+  }
+
+  .wrapper {
+    padding: 24px 20px;
+    gap: 24px;
+  }
+
+  .profile {
+    gap: 20px;
+  }
+
+  .avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .username {
+    font-size: 1.6rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    grid-template-columns: 1fr;
+  }
+
+  .settingIcon {
+    position: static;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wrapper {
+    padding: 20px 16px;
+    gap: 20px;
+  }
+
+  .profile {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .avatar {
+    width: 80px;
+    height: 80px;
+  }
+
+  .username {
+    font-size: 1.4rem;
+  }
+
+  .userEmail {
+    font-size: 0.9rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.3rem;
+  }
+
+  .statsValue {
+    font-size: 1.6rem;
+  }
+
+  .actionBtn {
+    padding: 14px 20px;
+    font-size: 0.9rem;
+  }
 }

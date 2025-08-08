@@ -21,7 +21,7 @@ const machineDataList: CreateMachineRequest[] = [
     category: "상체",
     target_muscle: ["가슴 상부", "어깨", "삼두근", "광배근", "코어"],
     difficulty_level: "중급",
-    video_url: null,
+    video_url: undefined,
   },
   {
     machine_key: "chin_up_and_dip_station",
@@ -37,7 +37,7 @@ const machineDataList: CreateMachineRequest[] = [
     category: "상체",
     target_muscle: ["광배근", "이두근", "삼두근", "대흉근", "코어"],
     difficulty_level: "초급",
-    video_url: null,
+    video_url: undefined,
   },
   {
     machine_key: "ground_base_combo_incline2",
@@ -53,7 +53,7 @@ const machineDataList: CreateMachineRequest[] = [
     category: "상체",
     target_muscle: ["상부 가슴", "어깨", "삼두근", "광배근", "코어"],
     difficulty_level: "중급",
-    video_url: null,
+    video_url: undefined,
   },
   {
     machine_key: "selectorized_lat_pulldown",
@@ -148,7 +148,7 @@ const machineDataList: CreateMachineRequest[] = [
     category: "하체",
     target_muscle: ["햄스트링", "슬와근"],
     difficulty_level: "중급",
-    video_url: null,
+    video_url: undefined,
   },
   {
     machine_key: "plate_loaded_multi_station_gym_equipment",
@@ -171,7 +171,7 @@ const machineDataList: CreateMachineRequest[] = [
       "삼각근",
     ],
     difficulty_level: "중급",
-    video_url: null,
+    video_url: undefined,
   },
 ];
 

@@ -46,7 +46,7 @@ export const handleApiError = (error: any): string => {
 // Toast Message (Simple implementation)
 export const showToast = (
   message: string,
-  type: "success" | "error" | "info" = "info"
+  type: "success" | "error" | "info" | "warning" = "info"
 ) => {
   // Create toast element
   const toast = document.createElement("div");
@@ -74,6 +74,7 @@ export const showToast = (
     success: "#4CAF50",
     error: "#F44336",
     info: "#2196F3",
+    warning: "#FF9800",
   };
   toast.style.backgroundColor = colors[type];
 

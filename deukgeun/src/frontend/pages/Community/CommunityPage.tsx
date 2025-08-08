@@ -3,6 +3,8 @@ import { Navigation } from "@widgets/Navigation/Navigation";
 import { useAuth } from "@shared/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import styles from "./CommunityPage.module.css";
+import { FeedCard } from "@features/community/components/FeedCard";
+import { PostDetailModal } from "@features/community/components/PostDetailModal";
 
 interface Post {
   id: number;
@@ -110,6 +112,7 @@ export default function CommunityPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"latest" | "popular">("latest");
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const [activePost, setActivePost] = useState<Post | null>(null);
   const [newPost, setNewPost] = useState({
     title: "",
     content: "",
@@ -174,6 +177,9 @@ export default function CommunityPage() {
       )
     );
   };
+
+  const handleOpenPost = (post: Post) => setActivePost(post);
+  const handleClosePost = () => setActivePost(null);
 
   if (!isLoggedIn) {
     return null;
@@ -252,54 +258,12 @@ export default function CommunityPage() {
           ) : (
             <div className={styles.postsGrid}>
               {sortedPosts.map((post) => (
-                <article key={post.id} className={styles.postCard}>
-                  <div className={styles.postHeader}>
-                    <div className={styles.authorInfo}>
-                      <img
-                        src={post.authorAvatar}
-                        alt={post.author}
-                        className={styles.authorAvatar}
-                      />
-                      <div>
-                        <span className={styles.authorName}>{post.author}</span>
-                        <span className={styles.postDate}>
-                          {post.createdAt}
-                        </span>
-                      </div>
-                    </div>
-                    <span className={styles.category}>{post.category}</span>
-                  </div>
-
-                  <div className={styles.postContent}>
-                    <h3 className={styles.postTitle}>{post.title}</h3>
-                    <p className={styles.postExcerpt}>
-                      {post.content.length > 100
-                        ? `${post.content.substring(0, 100)}...`
-                        : post.content}
-                    </p>
-                  </div>
-
-                  <div className={styles.postTags}>
-                    {post.tags.map((tag) => (
-                      <span key={tag} className={styles.tag}>
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className={styles.postActions}>
-                    <button
-                      className={styles.actionBtn}
-                      onClick={() => handleLike(post.id)}
-                    >
-                      ❤️ {post.likes}
-                    </button>
-                    <button className={styles.actionBtn}>
-                      💬 {post.comments}
-                    </button>
-                    <button className={styles.actionBtn}>📤 공유</button>
-                  </div>
-                </article>
+                <FeedCard
+                  key={post.id}
+                  post={post}
+                  onClick={handleOpenPost}
+                  onLike={handleLike}
+                />
               ))}
             </div>
           )}
@@ -371,6 +335,10 @@ export default function CommunityPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {activePost && (
+        <PostDetailModal post={activePost} onClose={handleClosePost} />
       )}
     </div>
   );

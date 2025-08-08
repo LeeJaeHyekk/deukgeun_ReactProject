@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from "typeorm";
 
 /**
@@ -48,11 +49,37 @@ export class Post {
   @Column({ type: "int" })
   userId!: number;
 
+  // 추가 필드들
+  @Column({
+    type: "enum",
+    enum: ["운동루틴", "팁", "다이어트", "기구가이드", "기타"],
+    default: "기타",
+  })
+  @Index()
+  category!: "운동루틴" | "팁" | "다이어트" | "기구가이드" | "기타";
+
+  @Column({ type: "json", nullable: true })
+  tags?: string[];
+
+  @Column({ type: "varchar", length: 255, nullable: true })
+  thumbnail_url?: string;
+
+  @Column({ type: "json", nullable: true })
+  images?: string[];
+
+  @Column({ type: "int", default: 0 })
+  @Index()
+  like_count!: number;
+
+  @Column({ type: "int", default: 0 })
+  comment_count!: number;
+
   /**
    * 포스트 생성 시간
    * 엔티티가 처음 저장될 때 자동으로 설정됩니다.
    */
   @CreateDateColumn()
+  @Index()
   createdAt!: Date;
 
   /**

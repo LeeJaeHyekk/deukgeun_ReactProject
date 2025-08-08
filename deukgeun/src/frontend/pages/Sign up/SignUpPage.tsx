@@ -52,6 +52,25 @@ export default function SignUpPage() {
   };
 
   // 이미지 변경 핸들러
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setProfileImage(file);
+    }
+  };
+
+  // 이미지 제거 핸들러
+  const handleRemoveImage = () => {
+    setProfileImage(null);
+    // input 요소의 value도 초기화
+    const fileInput = document.getElementById(
+      "profileImage"
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
+
   // 폼 검증 함수
   const validateForm = (): boolean => {
     const newErrors: typeof errors = {};

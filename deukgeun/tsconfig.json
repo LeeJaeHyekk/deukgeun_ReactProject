@@ -2,6 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./src/frontend",
     "paths": {
+      "@/*": ["./*"],
       "@app/*": ["app/*"],
       "@pages/*": ["pages/*"],
       "@widgets/*": ["widgets/*"],
@@ -18,12 +19,21 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
     "allowJs": false,
-    "checkJs": false
+    "checkJs": false,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"]
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "build", "**/*.js", "**/*.jsx"]
+  "include": ["src/frontend/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "**/*.js",
+    "**/*.jsx",
+    "src/backend/**/*"
+  ]
 }

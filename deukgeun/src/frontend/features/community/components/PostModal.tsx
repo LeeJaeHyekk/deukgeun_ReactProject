@@ -1,7 +1,13 @@
 // components/PostModal.tsx
 import { useState } from "react";
 import styles from "./PostModal.module.css";
-import { Project } from "./PostCard";
+interface Project {
+  id: number;
+  title: string;
+  category: string;
+  imageUrl: string;
+  content?: string;
+}
 import { Heart, MessageCircle, X } from "lucide-react";
 
 interface PostModalProps {

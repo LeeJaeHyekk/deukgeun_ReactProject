@@ -1,11 +1,17 @@
-import { Gym } from "../types";
-import { GYM_CONFIG } from "@shared/lib/env";
+import { SCRIPT_GYM_CONFIG } from "./env";
 
-const API_KEY = GYM_CONFIG.API_KEY;
-const SERVICE_NAME = "LOCALDATA_104201";
-const DATA_TYPE = "json";
-const START_INDEX = 1;
-const END_INDEX = 999;
+// Gym 타입 정의 (스크립트용)
+interface Gym {
+  id: string;
+  name: string;
+  type: string;
+  address: string;
+  phone: string;
+  openTime?: string;
+  closeTime?: string;
+  latitude: number;
+  longitude: number;
+}
 
 // API 응답 타입 정의
 interface SeoulOpenAPIResponse {
@@ -14,7 +20,18 @@ interface SeoulOpenAPIResponse {
   };
 }
 
-export const getGyms = async (): Promise<Gym[]> => {
+const SERVICE_NAME = "LOCALDATA_104201";
+const DATA_TYPE = "json";
+const START_INDEX = 1;
+const END_INDEX = 999;
+
+export const getGymsForScript = async (): Promise<Gym[]> => {
+  const API_KEY = SCRIPT_GYM_CONFIG.API_KEY;
+
+  if (!API_KEY) {
+    throw new Error("GYM_API_KEY is not set in environment variables");
+  }
+
   const url = `http://openapi.seoul.go.kr:8088/${API_KEY}/${DATA_TYPE}/${SERVICE_NAME}/${START_INDEX}/${END_INDEX}`;
 
   const response = await fetch(url);

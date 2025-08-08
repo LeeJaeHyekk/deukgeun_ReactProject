@@ -6,6 +6,11 @@ import { User } from "../entities/User";
 import { Machine } from "../entities/Machine";
 import { Comment } from "../entities/Comment";
 import { PostLike } from "../entities/Like";
+import { UserLevel } from "../entities/UserLevel";
+import { ExpHistory } from "../entities/ExpHistory";
+import { UserReward } from "../entities/UserReward";
+import { Milestone } from "../entities/Milestone";
+import { UserStreak } from "../entities/UserStreak";
 
 // TypeORM database connection configuration
 export const connectDatabase = async () => {
@@ -48,7 +53,19 @@ export const connectDatabase = async () => {
 
     // Entity class list
     // Classes that map to database tables managed by TypeORM
-    entities: [Post, Gym, User, Machine, Comment, PostLike],
+    entities: [
+      Post,
+      Gym,
+      User,
+      Machine,
+      Comment,
+      PostLike,
+      UserLevel,
+      ExpHistory,
+      UserReward,
+      Milestone,
+      UserStreak,
+    ],
 
     // Subscriber list (currently not used)
     subscribers: [],

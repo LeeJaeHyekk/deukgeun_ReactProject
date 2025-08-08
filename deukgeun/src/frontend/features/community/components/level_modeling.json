@@ -1,0 +1,581 @@
+{
+  "level_system": {
+    "exp_rules": {
+      "daily_exp_cap": 500,
+      "action_type_limits": {
+        "checkin": {
+          "exp": 10,
+          "cooldown_sec": 86400
+        },
+        "post": {
+          "exp": 20,
+          "min_length": 50,
+          "cooldown_sec": 300,
+          "content_validation_score": {
+            "enabled": true,
+            "min_score": 0.5,
+            "weight": 1.2,
+            "note": "초기에는 룰 기반 필터링, AI/ML 기반 품질 평가 점진 도입 권장",
+            "implementation_plan": {
+              "phase_1": "룰 기반 필터링(금칙어, 글자수 등)",
+              "phase_2": "간단한 ML 모델 적용",
+              "phase_3": "고도화된 AI 기반 실시간 점수 산출"
+            }
+          }
+        },
+        "comment": {
+          "exp": 5,
+          "min_length": 10,
+          "cooldown_sec": 60,
+          "content_validation_score": {
+            "enabled": true,
+            "min_score": 0.5,
+            "weight": 1.0,
+            "note": "초기에는 룰 기반 필터링, AI/ML 기반 품질 평가 점진 도입 권장",
+            "implementation_plan": {
+              "phase_1": "룰 기반 필터링(금칙어, 글자수 등)",
+              "phase_2": "간단한 ML 모델 적용",
+              "phase_3": "고도화된 AI 기반 실시간 점수 산출"
+            }
+          }
+        },
+        "like": {
+          "exp": 2,
+          "cooldown_sec": 5,
+          "decay_formula": {
+            "enabled": true,
+            "type": "adaptive",
+            "decay_rate": 0.2,
+            "threshold_count": 5,
+            "note": "사용자 행동 패턴 기반 적응형 감쇠 모델 도입",
+            "parameters": {
+              "min_decay_rate": 0.05,
+              "max_decay_rate": 0.5,
+              "pattern_analysis_period_sec": 3600
+            }
+          }
+        },
+        "mission": {
+          "exp": 30,
+          "cooldown_sec": 86400,
+          "types": ["daily", "weekly", "achievement"],
+          "bonus_multiplier": {
+            "daily": 1.0,
+            "weekly": 1.5,
+            "achievement": 2.0
+          }
+        },
+        "workout_log": {
+          "exp": 15,
+          "cooldown_sec": 3600,
+          "min_duration_minutes": 10,
+          "quality_bonus": {
+            "enabled": true,
+            "intensity_bonus": 0.2,
+            "consistency_bonus": 0.1
+          }
+        },
+        "gym_visit": {
+          "exp": 25,
+          "cooldown_sec": 86400,
+          "checkin_required": true,
+          "location_validation": true
+        }
+      },
+      "server_side_validation": true,
+      "note": "모든 경험치 부여 로직은 서버에서 엄격하게 검증"
+    },
+    "level_curve": {
+      "formula": "required_exp = floor(100 * pow(level, 1.5))",
+      "max_level": 100,
+      "tuning_required": true,
+      "hybrid_model": {
+        "enabled": true,
+        "stages": [
+          {
+            "level_range": [1, 10],
+            "formula": "linear",
+            "base_exp": 100,
+            "increment": 50,
+            "description": "신규 유저 친화적 선형 증가"
+          },
+          {
+            "level_range": [11, 50],
+            "formula": "exponential",
+            "base_exp": 600,
+            "multiplier": 1.3,
+            "description": "중간 레벨 지수적 증가"
+          },
+          {
+            "level_range": [51, 100],
+            "formula": "logarithmic",
+            "base_exp": 5000,
+            "log_base": 1.1,
+            "description": "고레벨 완만한 증가"
+          }
+        ],
+        "note": "레벨업 난이도 밸런싱을 위한 하이브리드 모델 적용, 최대레벨 확장"
+      },
+      "simulation_tool": {
+        "enabled": true,
+        "url": "https://example.com/level-curve-simulator",
+        "note": "레벨 곡선 튜닝과 시뮬레이션 지원 툴"
+      },
+      "level_progression_example": {
+        "level_1_to_10": "100, 150, 200, 250, 300, 350, 400, 450, 500, 550",
+        "level_11_to_20": "600, 780, 1014, 1318, 1713, 2227, 2895, 3764, 4893, 6361",
+        "note": "각 구간별 예상 경험치 요구량"
+      }
+    },
+    "rewards": {
+      "prevent_duplicates": true,
+      "grant_check_before_insert": true,
+      "types": ["points", "badge", "item", "feature_unlock"],
+      "unlock_features_safeguard": {
+        "enabled": true,
+        "logic_description": "기능 제한 해제 시 사용자 권한 및 조건 검증 로직 강화",
+        "note": "부적절 접근 차단을 위한 세부 정책 수립 필요"
+      },
+      "schedule_source": {
+        "type": "dynamic",
+        "location": "database",
+        "note": "보상 스케줄을 DB에서 동적으로 관리하여 운영 유연성 확보"
+      },
+      "default_schedule": [
+        {
+          "level": 5,
+          "reward_type": "badge",
+          "reward_id": "beginner_badge",
+          "description": "초보자 뱃지",
+          "icon": "🥉"
+        },
+        {
+          "level": 10,
+          "reward_type": "feature_unlock",
+          "reward_id": "premium_board_access",
+          "description": "프리미엄 게시판 접근",
+          "feature_name": "premium_community"
+        },
+        {
+          "level": 20,
+          "reward_type": "badge",
+          "reward_id": "intermediate_badge",
+          "description": "중급자 뱃지",
+          "icon": "🥈"
+        },
+        {
+          "level": 30,
+          "reward_type": "points",
+          "reward_id": "level_30_bonus",
+          "description": "레벨 30 달성 보너스 포인트",
+          "amount": 1000
+        },
+        {
+          "level": 50,
+          "reward_type": "badge",
+          "reward_id": "expert_badge",
+          "description": "전문가 뱃지",
+          "icon": "🥇"
+        },
+        {
+          "level": 100,
+          "reward_type": "badge",
+          "reward_id": "master_badge",
+          "description": "마스터 뱃지",
+          "icon": "👑"
+        }
+      ],
+      "note": "보상 관리 동적화 및 중복 지급 방지"
+    },
+    "milestones": {
+      "types": ["level", "streak", "total_exp", "special_event", "achievement"],
+      "check_frequency": "on_action",
+      "duplicate_block": true,
+      "allow_duplicate_count": {
+        "enabled": true,
+        "default_count": 1,
+        "special_cases": {
+          "special_event": 3
+        },
+        "note": "마일스톤 보상 중복 횟수 제한 기능 도입"
+      },
+      "definitions": {
+        "streak": {
+          "login_streak": {
+            "thresholds": [7, 30, 100, 365],
+            "rewards": [
+              "streak_badge_7",
+              "streak_badge_30",
+              "streak_badge_100",
+              "streak_badge_365"
+            ]
+          },
+          "workout_streak": {
+            "thresholds": [7, 30, 100],
+            "rewards": [
+              "workout_streak_badge_7",
+              "workout_streak_badge_30",
+              "workout_streak_badge_100"
+            ]
+          }
+        },
+        "total_exp": {
+          "thresholds": [1000, 5000, 10000, 50000, 100000],
+          "rewards": [
+            "exp_milestone_1k",
+            "exp_milestone_5k",
+            "exp_milestone_10k",
+            "exp_milestone_50k",
+            "exp_milestone_100k"
+          ]
+        },
+        "achievement": {
+          "first_post": {
+            "condition": "post_count >= 1",
+            "reward": "first_post_badge"
+          },
+          "helpful_user": {
+            "condition": "likes_received >= 100",
+            "reward": "helpful_user_badge"
+          },
+          "gym_explorer": {
+            "condition": "gyms_visited >= 5",
+            "reward": "gym_explorer_badge"
+          }
+        }
+      },
+      "note": "중복 지급 및 예외 케이스 세밀 제어"
+    },
+    "data_management": {
+      "exp_history_partition": "monthly",
+      "archive_old_records_after_months": 12,
+      "queue_updates": true,
+      "use_cache_for_realtime": true,
+      "concurrency_control": {
+        "enabled": true,
+        "strategy": "optimistic_locking",
+        "retry_policy": {
+          "max_retries": 3,
+          "retry_delay_ms": 200,
+          "note": "락 실패 시 재시도 로직 포함"
+        },
+        "note": "동시성 문제 방지 및 안정성 확보"
+      },
+      "sharding_strategy": {
+        "enabled": true,
+        "type": "hash_by_user_id",
+        "shard_count": "dynamic",
+        "auto_scaling": true,
+        "scaling_policy": {
+          "max_shards": 50,
+          "scale_up_threshold": 0.8,
+          "scale_down_threshold": 0.2
+        },
+        "note": "트래픽 증가에 따른 샤딩 동적 확장 지원"
+      },
+      "note": "DB 성능 및 데이터 일관성 관리 강화"
+    },
+    "security": {
+      "rate_limit_per_ip": {
+        "window_sec": 60,
+        "max_requests": 30
+      },
+      "token_validation_required": true,
+      "server_only_exp_calculation": true,
+      "unusual_behavior_detection": {
+        "enabled": true,
+        "anomaly_threshold_per_min": 20,
+        "detection_methods": [
+          "rate_limiting",
+          "pattern_analysis",
+          "device_fingerprinting"
+        ],
+        "action_on_detection": [
+          "temporary_suspension",
+          "warning",
+          "captcha_challenge"
+        ],
+        "note": "비정상 활동 탐지 및 다단계 대응 체계"
+      },
+      "input_validation": {
+        "enabled": true,
+        "content_filtering": {
+          "enabled": true,
+          "blocked_words": ["spam", "advertisement", "illegal"],
+          "max_length": {
+            "post": 5000,
+            "comment": 1000
+          }
+        },
+        "sql_injection_prevention": true,
+        "xss_prevention": true
+      },
+      "audit_logging": {
+        "enabled": true,
+        "log_levels": ["security", "exp_grant", "reward_claim"],
+        "retention_days": 90
+      },
+      "note": "API 호출에 대한 엄격한 인증 및 보안 정책 적용"
+    },
+    "balancing": {
+      "season_system": true,
+      "season_config": {
+        "duration_days": 90,
+        "start_date": "2024-01-01",
+        "end_date": "2024-03-31",
+        "season_name": "Spring 2024"
+      },
+      "partial_reset_on_season_end": {
+        "enabled": true,
+        "reset_target": [
+          "season_exp",
+          "ranking",
+          "season_rewards",
+          "season_badges"
+        ],
+        "preserve_target": [
+          "level",
+          "total_exp",
+          "permanent_rewards",
+          "permanent_badges"
+        ],
+        "season_rewards": {
+          "top_10": "season_champion_badge",
+          "top_50": "season_elite_badge",
+          "top_100": "season_achiever_badge"
+        },
+        "note": "시즌별 리셋 대상 세분화 및 보상 관리"
+      },
+      "new_user_boost": {
+        "enabled": true,
+        "multiplier": 1.5,
+        "duration_days": 7,
+        "adaptive_duration": true,
+        "note": "신규 유저 부스터 기간 상황에 따라 조정 가능"
+      },
+      "power_user_penalty": {
+        "enabled": true,
+        "threshold": 1000,
+        "penalty_rate": 0.1,
+        "description": "과도한 활동 사용자에 대한 페널티"
+      },
+      "note": "신규 진입 장벽 완화 및 시즌 경쟁 유지"
+    },
+    "extensibility": {
+      "multi_track_levels": true,
+      "tracks": [
+        {
+          "name": "community",
+          "actions": ["post", "comment", "like"],
+          "rewards": {
+            "level_up": "community_badge",
+            "milestone": "community_title"
+          }
+        },
+        {
+          "name": "workout",
+          "actions": ["workout_log", "cheer_on_log"],
+          "rewards": {
+            "level_up": "workout_item",
+            "milestone": "premium_content_access"
+          }
+        },
+        {
+          "name": "event",
+          "actions": ["participate_event"],
+          "rewards": {
+            "level_up": "event_badge",
+            "milestone": "limited_edition_item"
+          }
+        }
+      ],
+      "inter_track_interaction": {
+        "enabled": true,
+        "rules": [
+          {
+            "source_track": "workout",
+            "target_track": "community",
+            "effect": "bonus_exp",
+            "description": "운동 활동 시 커뮤니티 활동 경험치 일부 보너스 제공"
+          }
+        ],
+        "note": "트랙 간 상호작용 및 보상 연계 지원"
+      },
+      "note": "멀티 트랙 확장성 및 상호작용 강화"
+    },
+    "api_endpoints": {
+      "user_progress": {
+        "get_user_level": "GET /api/level/user/{userId}",
+        "get_user_progress": "GET /api/level/user/{userId}/progress",
+        "get_user_rewards": "GET /api/level/user/{userId}/rewards",
+        "get_user_milestones": "GET /api/level/user/{userId}/milestones",
+        "security": {
+          "authentication": "required",
+          "authorization": "self_or_admin",
+          "rate_limit": "standard"
+        }
+      },
+      "actions": {
+        "grant_exp": "POST /api/level/exp/grant",
+        "check_cooldown": "GET /api/level/cooldown/{actionType}/{userId}",
+        "validate_action": "POST /api/level/action/validate",
+        "security": {
+          "authentication": "required",
+          "authorization": "self_or_admin",
+          "rate_limit": "strict",
+          "validation": "required"
+        }
+      },
+      "rewards": {
+        "claim_reward": "POST /api/level/rewards/claim",
+        "get_available_rewards": "GET /api/level/rewards/available/{userId}",
+        "get_reward_history": "GET /api/level/rewards/history/{userId}",
+        "security": {
+          "authentication": "required",
+          "authorization": "self_or_admin",
+          "rate_limit": "standard"
+        }
+      },
+      "leaderboard": {
+        "get_global_ranking": "GET /api/level/leaderboard/global",
+        "get_season_ranking": "GET /api/level/leaderboard/season/{seasonId}",
+        "get_track_ranking": "GET /api/level/leaderboard/track/{trackName}",
+        "security": {
+          "authentication": "optional",
+          "rate_limit": "standard"
+        }
+      },
+      "admin": {
+        "update_level_config": "PUT /api/admin/level/config",
+        "reset_user_progress": "POST /api/admin/level/reset/{userId}",
+        "get_system_stats": "GET /api/admin/level/stats",
+        "security": {
+          "authentication": "required",
+          "authorization": "admin_only",
+          "rate_limit": "admin",
+          "audit_logging": "required"
+        }
+      }
+    },
+    "database_schema": {
+      "tables": {
+        "user_levels": {
+          "columns": [
+            "id",
+            "user_id",
+            "level",
+            "current_exp",
+            "total_exp",
+            "season_exp",
+            "created_at",
+            "updated_at"
+          ],
+          "indexes": ["user_id", "level", "total_exp"],
+          "foreign_keys": ["user_id REFERENCES users(id)"],
+          "note": "TypeORM 엔티티 구조에 맞춤"
+        },
+        "exp_history": {
+          "columns": [
+            "id",
+            "user_id",
+            "action_type",
+            "exp_gained",
+            "source",
+            "metadata",
+            "created_at"
+          ],
+          "indexes": ["user_id", "action_type", "created_at"],
+          "foreign_keys": ["user_id REFERENCES users(id)"],
+          "note": "경험치 획득 이력 추적"
+        },
+        "user_rewards": {
+          "columns": [
+            "id",
+            "user_id",
+            "reward_type",
+            "reward_id",
+            "claimed_at",
+            "expires_at",
+            "metadata"
+          ],
+          "indexes": ["user_id", "reward_type", "claimed_at"],
+          "foreign_keys": ["user_id REFERENCES users(id)"],
+          "note": "사용자 보상 관리"
+        },
+        "milestones": {
+          "columns": [
+            "id",
+            "user_id",
+            "milestone_type",
+            "milestone_id",
+            "achieved_at",
+            "metadata"
+          ],
+          "indexes": ["user_id", "milestone_type", "achieved_at"],
+          "foreign_keys": ["user_id REFERENCES users(id)"],
+          "note": "마일스톤 달성 기록"
+        },
+        "user_streaks": {
+          "columns": [
+            "id",
+            "user_id",
+            "streak_type",
+            "current_count",
+            "last_activity",
+            "created_at",
+            "updated_at"
+          ],
+          "indexes": ["user_id", "streak_type"],
+          "foreign_keys": ["user_id REFERENCES users(id)"],
+          "note": "연속 활동 추적 (로그인, 운동 등)"
+        }
+      }
+    },
+    "integration_guide": {
+      "existing_system_compatibility": {
+        "authentication": {
+          "jwt_integration": "기존 JWT 토큰 시스템 활용",
+          "user_context": "req.user 객체를 통한 사용자 정보 접근",
+          "middleware_reuse": "기존 authenticateToken 미들웨어 활용"
+        },
+        "database": {
+          "typeorm_entities": "기존 엔티티 구조와 일관성 유지",
+          "migration_strategy": "기존 마이그레이션 시스템 활용",
+          "connection_pool": "기존 데이터베이스 연결 풀 공유"
+        },
+        "security": {
+          "rate_limiting": "기존 rateLimiter 미들웨어 확장",
+          "validation": "기존 validation 미들웨어 패턴 활용",
+          "logging": "기존 Winston 로거 시스템 활용"
+        }
+      },
+      "implementation_phases": {
+        "phase_1": {
+          "name": "기본 레벨 시스템",
+          "duration": "2-3주",
+          "tasks": [
+            "데이터베이스 스키마 생성",
+            "기본 레벨 계산 로직",
+            "경험치 부여 시스템",
+            "기본 보상 시스템"
+          ]
+        },
+        "phase_2": {
+          "name": "고급 기능",
+          "duration": "3-4주",
+          "tasks": ["마일스톤 시스템", "스트릭 추적", "시즌 시스템", "리더보드"]
+        },
+        "phase_3": {
+          "name": "최적화 및 보안",
+          "duration": "2-3주",
+          "tasks": ["성능 최적화", "보안 강화", "모니터링 시스템", "A/B 테스트"]
+        }
+      },
+      "migration_notes": {
+        "backward_compatibility": "기존 사용자 데이터 보존",
+        "gradual_rollout": "단계적 기능 활성화",
+        "fallback_mechanism": "오류 시 기존 시스템으로 복귀"
+      }
+    }
+  }
+}

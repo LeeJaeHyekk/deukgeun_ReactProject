@@ -5,6 +5,7 @@ import { LoadingOverlay } from "@shared/ui/LoadingOverlay/LoadingOverlay";
 import { useUserStore } from "@shared/store/userStore";
 import { useAuthContext } from "@shared/contexts/AuthContext";
 import { useLevel } from "@shared/hooks/useLevel";
+import { useStats } from "@shared/hooks/useStats";
 import { useNavigate } from "react-router-dom";
 import {
   MapPin,
@@ -34,7 +35,19 @@ export default function HomePage() {
     progressPercentage,
     isLoading: levelLoading,
   } = useLevel();
+  const { stats, isLoading: statsLoading } = useStats();
   const navigate = useNavigate();
+
+  // 통계 데이터 포맷팅 함수
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M+`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K+`;
+    } else {
+      return `${num}+`;
+    }
+  };
 
   return (
     <div className={styles.homePage}>
@@ -173,7 +186,13 @@ export default function HomePage() {
               <Users size={32} />
             </div>
             <div className={styles.statContent}>
-              <h3>10,000+</h3>
+              <h3>
+                {statsLoading
+                  ? "..."
+                  : stats
+                  ? formatNumber(stats.activeUsers)
+                  : "0"}
+              </h3>
               <p>활성 사용자</p>
             </div>
           </div>
@@ -182,7 +201,13 @@ export default function HomePage() {
               <MapPin size={32} />
             </div>
             <div className={styles.statContent}>
-              <h3>500+</h3>
+              <h3>
+                {statsLoading
+                  ? "..."
+                  : stats
+                  ? formatNumber(stats.totalGyms)
+                  : "0"}
+              </h3>
               <p>등록된 헬스장</p>
             </div>
           </div>
@@ -191,7 +216,13 @@ export default function HomePage() {
               <MessageCircle size={32} />
             </div>
             <div className={styles.statContent}>
-              <h3>50,000+</h3>
+              <h3>
+                {statsLoading
+                  ? "..."
+                  : stats
+                  ? formatNumber(stats.totalPosts)
+                  : "0"}
+              </h3>
               <p>커뮤니티 게시글</p>
             </div>
           </div>
@@ -200,7 +231,13 @@ export default function HomePage() {
               <Trophy size={32} />
             </div>
             <div className={styles.statContent}>
-              <h3>100+</h3>
+              <h3>
+                {statsLoading
+                  ? "..."
+                  : stats
+                  ? formatNumber(stats.achievements)
+                  : "0"}
+              </h3>
               <p>달성된 업적</p>
             </div>
           </div>

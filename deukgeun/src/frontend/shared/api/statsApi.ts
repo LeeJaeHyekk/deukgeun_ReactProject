@@ -22,6 +22,14 @@ export interface DetailedStats {
   }>
 }
 
+export interface UserStats {
+  level: number
+  currentExp: number
+  totalExp: number
+  totalPosts: number
+  recentPosts: number
+}
+
 export const statsApi = {
   // 플랫폼 기본 통계 조회
   getPlatformStats: async (): Promise<PlatformStats> => {
@@ -32,6 +40,12 @@ export const statsApi = {
   // 상세 통계 조회 (관리자용)
   getDetailedStats: async (): Promise<DetailedStats> => {
     const response = await apiClient.get("/api/stats/detailed")
+    return response.data.data
+  },
+
+  // 사용자 개인 통계 조회
+  getUserStats: async (): Promise<UserStats> => {
+    const response = await apiClient.get("/api/stats/user")
     return response.data.data
   },
 }

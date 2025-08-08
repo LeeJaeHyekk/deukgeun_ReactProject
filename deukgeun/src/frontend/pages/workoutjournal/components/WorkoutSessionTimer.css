@@ -1,0 +1,64 @@
+.workout-session-timer {
+  text-align: center;
+}
+
+.timer-display {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.timer-time {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  font-family: "Courier New", monospace;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.timer-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.timer-button.start {
+  background: #4caf50;
+  color: white;
+}
+
+.timer-button.start:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+}
+
+.timer-button.pause {
+  background: #ff9800;
+  color: white;
+}
+
+.timer-button.pause:hover {
+  background: #f57c00;
+  transform: translateY(-1px);
+}
+
+.timer-button.stop {
+  background: #f44336;
+  color: white;
+}
+
+.timer-button.stop:hover {
+  background: #d32f2f;
+  transform: translateY(-1px);
+}

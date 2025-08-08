@@ -11,6 +11,14 @@ import { ExpHistory } from "../entities/ExpHistory"
 import { UserReward } from "../entities/UserReward"
 import { Milestone } from "../entities/Milestone"
 import { UserStreak } from "../entities/UserStreak"
+import { WorkoutSession } from "../entities/WorkoutSession"
+import { ExerciseSet } from "../entities/ExerciseSet"
+import { WorkoutGoal } from "../entities/WorkoutGoal"
+import { WorkoutPlan } from "../entities/WorkoutPlan"
+import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
+import { WorkoutStats } from "../entities/WorkoutStats"
+import { WorkoutProgress } from "../entities/WorkoutProgress"
+import { WorkoutReminder } from "../entities/WorkoutReminder"
 
 // TypeORM database connection configuration
 export const connectDatabase = async () => {
@@ -65,6 +73,14 @@ export const connectDatabase = async () => {
       UserReward,
       Milestone,
       UserStreak,
+      WorkoutSession,
+      ExerciseSet,
+      WorkoutGoal,
+      WorkoutPlan,
+      WorkoutPlanExercise,
+      WorkoutStats,
+      WorkoutProgress,
+      WorkoutReminder,
     ],
 
     // Subscriber list (currently not used)

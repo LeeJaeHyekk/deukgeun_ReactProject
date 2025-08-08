@@ -8,6 +8,8 @@ import likeRoutes from "./like"
 import levelRoutes from "./level"
 import statsRoutes from "./stats"
 import schedulerRoutes from "./scheduler"
+import workoutRoutes from "./workout"
+import workoutJournalRoutes from "./workoutJournal"
 
 const router = Router()
 
@@ -26,6 +28,8 @@ router.use("/likes", likeRoutes)
 router.use("/level", levelRoutes)
 router.use("/stats", statsRoutes)
 router.use("/scheduler", schedulerRoutes)
+router.use("/workouts", workoutRoutes)
+router.use("/workout-journal", workoutJournalRoutes)
 
 router.use("*", (req, res) => {
   res.status(404).json({ message: "API endpoint not found" })

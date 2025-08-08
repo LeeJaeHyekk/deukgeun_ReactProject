@@ -4,8 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
   Index,
 } from "typeorm"
+import { User } from "./User"
 
 /**
  * 포스트 엔티티 클래스
@@ -88,4 +91,8 @@ export class Post {
    */
   @UpdateDateColumn()
   updatedAt!: Date
+
+  @ManyToOne(() => User, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "userId" })
+  user: User
 }

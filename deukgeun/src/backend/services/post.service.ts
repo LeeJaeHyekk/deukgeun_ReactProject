@@ -10,11 +10,42 @@ export class PostService {
    * 모든 포스트를 생성일 기준 내림차순으로 조회합니다.
    * @returns {Promise<Post[]>} 포스트 목록 배열
    */
-  async getAllPosts(): Promise<Post[]> {
+  async getAllPosts(params?: {
+    category?: string;
+    q?: string;
+    sort?: "latest" | "popular";
+    page?: number;
+    limit?: number;
+  }): Promise<{ data: Post[]; total: number; page: number; limit: number }> {
     const postRepository = getRepository(Post);
-    return await postRepository.find({
-      order: { createdAt: "DESC" },
-    });
+    const page = Math.max(1, params?.page || 1);
+    const limit = Math.max(1, Math.min(50, params?.limit || 12));
+    const qb = postRepository.createQueryBuilder("post");
+
+    if (params?.category) {
+      qb.andWhere("post.category = :category", { category: params.category });
+    }
+
+    if (params?.q) {
+      qb.andWhere("(post.title LIKE :q OR post.content LIKE :q)", {
+        q: `%${params.q}%`,
+      });
+    }
+
+    if (params?.sort === "popular") {
+      qb.orderBy("post.like_count", "DESC").addOrderBy(
+        "post.createdAt",
+        "DESC"
+      );
+    } else {
+      qb.orderBy("post.createdAt", "DESC");
+    }
+
+    const [data, total] = await qb
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+    return { data, total, page, limit };
   }
 
   /**
@@ -49,6 +80,16 @@ export class PostService {
     const postRepository = getRepository(Post);
     const post = postRepository.create(postData);
     return await postRepository.save(post);
+  }
+
+  async adjustLikeCount(postId: number, delta: 1 | -1): Promise<void> {
+    const postRepository = getRepository(Post);
+    await postRepository.increment({ id: postId }, "like_count", delta);
+  }
+
+  async adjustCommentCount(postId: number, delta: 1 | -1): Promise<void> {
+    const postRepository = getRepository(Post);
+    await postRepository.increment({ id: postId }, "comment_count", delta);
   }
 
   /**

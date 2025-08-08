@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { PostService } from "../services/post.service";
+import { getRepository } from "typeorm";
+import { User } from "../entities/User";
 
 /**
  * 포스트 관련 HTTP 요청을 처리하는 컨트롤러 클래스
@@ -21,8 +23,15 @@ export class PostController {
    */
   getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const posts = await this.postService.getAllPosts();
-      res.json(posts);
+      const { category, q, sort, page, limit } = req.query as any;
+      const result = await this.postService.getAllPosts({
+        category,
+        q,
+        sort,
+        page: page ? parseInt(page) : undefined,
+        limit: limit ? parseInt(limit) : undefined,
+      });
+      res.json(result);
     } catch (error) {
       next(error);
     }
@@ -83,10 +92,29 @@ export class PostController {
         return res.status(401).json({ message: "인증이 필요합니다." });
       }
 
+      // 최소 필드 검증
+      const { title, content } = req.body || {};
+      if (!title || !content) {
+        return res.status(400).json({ message: "제목과 내용을 입력해주세요." });
+      }
+
+      // 작성자 이름은 서버에서 보장 (클라이언트 입력 무시)
+      const userRepo = getRepository(User);
+      const authorUser = await userRepo.findOne({
+        where: { id: req.user.userId },
+      });
+      const safeAuthor = authorUser?.nickname || authorUser?.email || "user";
+
       const postData = {
         ...req.body,
+        author: safeAuthor,
         userId: req.user.userId, // JWT에서 추출한 사용자 ID
       };
+
+      // category가 없으면 엔티티의 기본값(기타) 사용
+      if (!postData.category) {
+        delete (postData as any).category;
+      }
 
       const newPost = await this.postService.createPost(postData);
       res.status(201).json(newPost);
@@ -160,6 +188,61 @@ export class PostController {
 
       const deleted = await this.postService.deletePost(parseInt(id));
       res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * 허용 카테고리 목록 반환
+   * GET /api/posts/categories
+   */
+  getCategories = async (_req: Request, res: Response) => {
+    const categories = [
+      "운동루틴",
+      "팁",
+      "다이어트",
+      "기구가이드",
+      "기타",
+    ] as const;
+    return res.status(200).json(categories);
+  };
+
+  /**
+   * 실제 DB enum에서 카테고리 목록을 조회
+   * GET /api/posts/categories/live
+   */
+  getCategoriesLive = async (
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      // TypeORM Repository를 통해 raw query 실행
+      const { getRepository } = await import("typeorm");
+      const { Post } = await import("../entities/Post");
+      const repo = getRepository(Post);
+
+      // MySQL에서 enum 값 추출
+      const result = await repo.query(
+        "SHOW COLUMNS FROM posts LIKE 'category'"
+      );
+      const type = result?.[0]?.Type as string | undefined; // e.g., "enum('A','B')"
+
+      if (!type || !type.startsWith("enum")) {
+        return res.status(200).json(["기타"]);
+      }
+
+      const inner = type.substring(
+        type.indexOf("(") + 1,
+        type.lastIndexOf(")")
+      );
+      const values = inner
+        .split(",")
+        .map((s: string) => s.trim())
+        .map((s: string) => s.replace(/^'/, "").replace(/'$/, ""));
+
+      return res.status(200).json(values);
     } catch (error) {
       next(error);
     }

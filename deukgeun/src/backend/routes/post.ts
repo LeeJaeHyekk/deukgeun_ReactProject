@@ -25,6 +25,8 @@ const postController = new PostController();
  * DELETE /api/posts/:id - 포스트 삭제 (인증 필요)
  */
 router.get("/", postController.getAllPosts);
+router.get("/categories", postController.getCategories);
+router.get("/categories/live", postController.getCategoriesLive);
 router.get("/my", authenticateToken, postController.getMyPosts);
 router.get("/:id", postController.getPostById);
 router.post("/", authenticateToken, postController.createPost);

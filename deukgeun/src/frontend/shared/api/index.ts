@@ -104,4 +104,34 @@ export const api = {
     apiClient.patch<T>(url, data, config).then((response) => response.data),
 };
 
+// Community specific helpers
+export const postsApi = {
+  list: (params?: {
+    category?: string;
+    q?: string;
+    sort?: "latest" | "popular";
+    page?: number;
+    limit?: number;
+  }) => api.get(`/api/posts`, { params }),
+  categories: () => api.get(`/api/posts/categories`),
+  categoriesLive: () => api.get(`/api/posts/categories/live`),
+  detail: (id: number) => api.get(`/api/posts/${id}`),
+  create: (data: any) => api.post(`/api/posts`, data),
+  update: (id: number, data: any) => api.put(`/api/posts/${id}`, data),
+  remove: (id: number) => api.delete(`/api/posts/${id}`),
+};
+
+export const likesApi = {
+  like: (postId: number) => api.post(`/api/likes/${postId}`),
+  unlike: (postId: number) => api.delete(`/api/likes/${postId}`),
+};
+
+export const commentsApi = {
+  list: (postId: number, params?: { page?: number; limit?: number }) =>
+    api.get(`/api/comments/${postId}`, { params }),
+  create: (postId: number, data: { content: string }) =>
+    api.post(`/api/comments/${postId}`, data),
+  remove: (commentId: number) => api.delete(`/api/comments/${commentId}`),
+};
+
 export default apiClient;

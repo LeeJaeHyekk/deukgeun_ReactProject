@@ -1,5 +1,7 @@
 import { Router } from "express";
 import postRoutes from "./post";
+import likeRoutes from "./like";
+import commentRoutes from "./comment";
 import schedulerRoutes from "./scheduler";
 import authRoutes from "./auth";
 import gymRoutes from "./gym";
@@ -25,6 +27,8 @@ if (!machineRoutes) {
 
 // API routes
 router.use("/posts", postRoutes);
+router.use("/likes", likeRoutes);
+router.use("/comments", commentRoutes);
 router.use("/scheduler", schedulerRoutes);
 router.use("/auth", authRoutes);
 router.use("/gyms", gymRoutes);

@@ -5,21 +5,21 @@ const BASE_URL = "http://localhost:5000/api";
 // 등록된 정적 자산 목록과 파일명 매핑 (public/img/machine 기준)
 // 키는 정규화된 이름(영문)이고 값은 실제 파일명입니다.
 const fileNameMap: Record<string, string> = {
-  // 일반 명칭
-  "bicep curl": "Bicep Curl.png",
-  "chest press": "Chest Press.png",
+  // kebab-case 표준 파일명
+  "bicep curl": "bicep-curl.png",
+  "chest press": "chest-press.png",
   "chin up and dip station": "chin-up-and-dip-station.png",
-  chinup: "ChinUp.png",
-  "kneeling leg curl": "Kneeling Leg Curl.png",
-  "leg extension": "leg_extension.png",
-  "leg press": "legPress.png",
-  "lat pulldown": "let_pull_down.png", // 파일명이 let_로 되어있음 (오타 대응)
-  "plate loaded leg press": "plate_loaded_leg_press.png",
-  "plate loaded squat": "plate_loaded_squat.png",
-  "shoulder press": "Shoulder Press.png",
-  "squat rack": "Squat Rack.png",
+  chinup: "chin-up.png",
+  "kneeling leg curl": "kneeling-leg-curl.png",
+  "leg extension": "leg-extension.png",
+  "leg press": "leg-press.png",
+  "lat pulldown": "lat-pulldown.png",
+  "plate loaded leg press": "plate-loaded-leg-press.png",
+  "plate loaded squat": "plate-loaded-squat.png",
+  "shoulder press": "shoulder-press.png",
+  "squat rack": "squat-rack.png",
   treadmill: "treadmill-running.gif",
-  "wide full down": "wide_fullDown.png",
+  "wide full down": "plate-loaded-wide-pulldown.png",
 };
 
 // 추가 별칭(동의어) → 메인 키로 매핑

@@ -1,35 +1,34 @@
-import React from "react";
-import { useLevel } from "../hooks/useLevel";
-import styles from "./LevelDisplay.module.css";
+import React from "react"
+import { useLevel } from "../hooks/useLevel"
+import styles from "./LevelDisplay.module.css"
 
 interface LevelDisplayProps {
-  showProgress?: boolean;
-  showRewards?: boolean;
-  className?: string;
+  showProgress?: boolean
+  showRewards?: boolean
+  className?: string
 }
 
-export function LevelDisplay({ 
-  showProgress = true, 
-  showRewards = false, 
-  className = "" 
+export function LevelDisplay({
+  showProgress = true,
+  showRewards = false,
+  className = "",
 }: LevelDisplayProps) {
-  const { 
-    currentLevel, 
-    currentExp, 
-    totalExp, 
-    progressPercentage, 
+  const {
+    currentLevel,
+    currentExp,
+    progressPercentage,
     expToNextLevel,
     rewards,
     isLoading,
-    error 
-  } = useLevel();
+    error,
+  } = useLevel()
 
   if (isLoading) {
     return (
       <div className={`${styles.levelDisplay} ${className}`}>
         <div className={styles.loading}>레벨 정보 로딩 중...</div>
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -37,7 +36,7 @@ export function LevelDisplay({
       <div className={`${styles.levelDisplay} ${className}`}>
         <div className={styles.error}>{error}</div>
       </div>
-    );
+    )
   }
 
   return (
@@ -46,23 +45,25 @@ export function LevelDisplay({
         <div className={styles.levelBadge}>
           <span className={styles.levelNumber}>Lv.{currentLevel}</span>
         </div>
-        
+
         {showProgress && (
           <div className={styles.progressInfo}>
             <div className={styles.expInfo}>
               <span className={styles.currentExp}>{currentExp}</span>
               <span className={styles.expSeparator}>/</span>
-              <span className={styles.requiredExp}>{currentExp + expToNextLevel}</span>
+              <span className={styles.requiredExp}>
+                {currentExp + expToNextLevel}
+              </span>
               <span className={styles.expLabel}>EXP</span>
             </div>
-            
+
             <div className={styles.progressBar}>
-              <div 
-                className={styles.progressFill} 
+              <div
+                className={styles.progressFill}
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
-            
+
             <div className={styles.progressText}>
               {progressPercentage.toFixed(1)}% 완료
             </div>
@@ -74,7 +75,7 @@ export function LevelDisplay({
         <div className={styles.rewardsSection}>
           <h4 className={styles.rewardsTitle}>획득한 보상</h4>
           <div className={styles.rewardsList}>
-            {rewards.slice(0, 3).map((reward) => (
+            {rewards.slice(0, 3).map(reward => (
               <div key={reward.id} className={styles.rewardItem}>
                 <span className={styles.rewardIcon}>
                   {reward.metadata?.icon || "🏆"}
@@ -93,5 +94,5 @@ export function LevelDisplay({
         </div>
       )}
     </div>
-  );
+  )
 }

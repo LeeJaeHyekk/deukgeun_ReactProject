@@ -1,62 +1,84 @@
-import { machineApi } from "./shared/api/machineApi";
+import { machineApi } from "@shared/api/machineApi"
+import { config } from "@shared/config"
 
-async function testFrontendBackendConnection() {
-  console.log("🔗 프론트엔드-백엔드 연결 테스트 시작\n");
+async function testConnection() {
+  console.log("🔧 API 연결 테스트를 시작합니다...")
+  console.log("📍 API Base URL:", config.API_BASE_URL)
 
   try {
-    // 1. 기구 목록 조회 테스트
-    console.log("1️⃣ 기구 목록 조회 테스트");
-    const machinesResponse = await machineApi.getAllMachines();
-    console.log("✅ 기구 목록 조회 성공");
-    console.log("총 기구 수:", machinesResponse.count);
+    // 1. 모든 머신 조회 테스트
+    console.log("\n📋 1. 모든 머신 조회 테스트")
+    const machinesResponse = await machineApi.getMachines()
+    console.log("✅ 모든 머신 조회 성공")
+    console.log(`   - 총 머신 수: ${machinesResponse.count}`)
     console.log(
-      "첫 번째 기구:",
-      machinesResponse.data[0]?.name_ko || "기구 없음"
-    );
+      `   - 첫 번째 머신: ${machinesResponse.machines[0]?.name_ko || "없음"}`
+    )
 
-    // 2. 필터링 테스트
-    console.log("\n2️⃣ 기구 필터링 테스트");
-    const filterResponse = await machineApi.filterMachines({
-      category: "상체",
-    });
-    console.log("✅ 상체 기구 필터링 성공");
-    console.log("상체 기구 수:", filterResponse.count);
-
-    // 3. 카테고리별 조회 테스트
-    console.log("\n3️⃣ 카테고리별 조회 테스트");
-    const categoryResponse = await machineApi.getMachinesByCategory("하체");
-    console.log("✅ 하체 기구 조회 성공");
-    console.log("하체 기구 수:", categoryResponse.count);
-
-    // 4. 난이도별 조회 테스트
-    console.log("\n4️⃣ 난이도별 조회 테스트");
-    const difficultyResponse = await machineApi.getMachinesByDifficulty("초급");
-    console.log("✅ 초급 기구 조회 성공");
-    console.log("초급 기구 수:", difficultyResponse.count);
-
-    console.log("\n🎯 모든 연결 테스트 성공!");
-    console.log("✅ 프론트엔드와 백엔드가 정상적으로 연결되었습니다.");
-  } catch (error: any) {
-    console.log("❌ 연결 테스트 실패:", error.message);
-
-    if (error.response) {
-      console.log("응답 상태:", error.response.status);
-      console.log("응답 데이터:", error.response.data);
+    // 2. 특정 머신 조회 테스트
+    if (machinesResponse.machines.length > 0) {
+      console.log("\n📋 2. 특정 머신 조회 테스트")
+      const firstMachineId = machinesResponse.machines[0].id
+      const machineResponse = await machineApi.getMachine(firstMachineId)
+      console.log("✅ 특정 머신 조회 성공")
+      console.log(`   - 머신 이름: ${machineResponse.machine.name_ko}`)
+      console.log(`   - 카테고리: ${machineResponse.machine.category}`)
     }
 
-    console.log("\n🔧 문제 해결 방법:");
-    console.log("1. 백엔드 서버가 실행 중인지 확인 (http://localhost:5000)");
-    console.log("2. CORS 설정이 올바른지 확인");
-    console.log("3. API 엔드포인트 경로가 올바른지 확인");
+    // 3. 머신 필터링 테스트
+    console.log("\n📋 3. 머신 필터링 테스트")
+    const filterResponse = await machineApi.filterMachines({
+      category: "하체",
+      difficulty: "초급",
+    })
+    console.log("✅ 머신 필터링 성공")
+    console.log(`   - 필터링된 머신 수: ${filterResponse.count}`)
+
+    // 4. 카테고리별 필터링 테스트
+    console.log("\n📋 4. 카테고리별 필터링 테스트")
+    const categoryResponse = await machineApi.filterMachines({
+      category: "하체",
+    })
+    console.log("✅ 카테고리별 필터링 성공")
+    console.log(`   - 하체 머신 수: ${categoryResponse.count}`)
+
+    // 5. 난이도별 필터링 테스트
+    console.log("\n📋 5. 난이도별 필터링 테스트")
+    const difficultyResponse = await machineApi.filterMachines({
+      difficulty: "초급",
+    })
+    console.log("✅ 난이도별 필터링 성공")
+    console.log(`   - 초급 머신 수: ${difficultyResponse.count}`)
+
+    console.log("\n🎉 모든 API 연결 테스트가 성공했습니다!")
+    console.log("📊 테스트 결과 요약:")
+    console.log(`   - 총 머신 수: ${machinesResponse.count}`)
+    console.log(`   - 하체 머신 수: ${categoryResponse.count}`)
+    console.log(`   - 초급 머신 수: ${difficultyResponse.count}`)
+  } catch (error: unknown) {
+    console.error("❌ API 연결 테스트 실패:", error)
+
+    if (error instanceof Error) {
+      console.error("   - 에러 메시지:", error.message)
+      console.error("   - 에러 스택:", error.stack)
+    }
+
+    // 네트워크 에러인지 확인
+    if (error && typeof error === "object" && "response" in error) {
+      const axiosError = error as {
+        response?: { status: number; statusText: string }
+      }
+      console.error("   - HTTP 상태:", axiosError.response?.status)
+      console.error("   - 상태 텍스트:", axiosError.response?.statusText)
+    }
+
+    process.exit(1)
   }
 }
 
-// 브라우저 환경에서 실행
-if (typeof window !== "undefined") {
-  // 브라우저 콘솔에서 실행할 수 있도록 전역 함수로 등록
-  (window as any).testConnection = testFrontendBackendConnection;
-  console.log("🔗 연결 테스트 함수가 등록되었습니다.");
-  console.log("브라우저 콘솔에서 'testConnection()'을 실행하세요.");
+// 스크립트 실행
+if (require.main === module) {
+  testConnection()
 }
 
-export { testFrontendBackendConnection };
+export { testConnection }

@@ -3,25 +3,41 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-} from "typeorm";
+  UpdateDateColumn,
+} from "typeorm"
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: number
 
   @Column({ type: "varchar", unique: true })
-  email: string;
+  email: string
 
   @Column({ type: "varchar" })
-  password: string;
+  password: string
+
+  @Column({ type: "varchar", unique: true })
+  nickname: string
 
   @Column({ type: "varchar", nullable: true })
-  nickname: string;
+  phone: string
+
+  @Column({ type: "enum", enum: ["male", "female", "other"], nullable: true })
+  gender: "male" | "female" | "other"
+
+  @Column({ type: "date", nullable: true })
+  birthday: Date
+
+  @Column({ type: "varchar", nullable: true })
+  profileImage: string
 
   @Column({ default: "user" })
-  role: "user" | "admin";
+  role: "user" | "admin"
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: Date
+
+  @UpdateDateColumn()
+  updatedAt: Date
 }

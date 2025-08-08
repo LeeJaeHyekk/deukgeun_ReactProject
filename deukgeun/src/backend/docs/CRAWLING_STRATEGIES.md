@@ -102,9 +102,9 @@ const searchPromises = [
   searchSeoulOpenData(query),
   crawlKakaoMapWeb(query),
   crawlNaverMapWeb(query),
-];
+]
 
-const results = await Promise.allSettled(searchPromises);
+const results = await Promise.allSettled(searchPromises)
 ```
 
 ### 2. 신뢰도 기반 결과 선택
@@ -117,10 +117,10 @@ const results = [
   { source: "kakao", confidence: 0.8 },
   { source: "naver", confidence: 0.7 },
   { source: "blog", confidence: 0.4 },
-];
+]
 
 // 가장 높은 신뢰도 결과 선택
-const bestResult = results.sort((a, b) => b.confidence - a.confidence)[0];
+const bestResult = results.sort((a, b) => b.confidence - a.confidence)[0]
 ```
 
 ### 3. 검색어 최적화
@@ -132,14 +132,14 @@ function generateSearchQueries(gymName: string): string[] {
     .replace(/[()（）]/g, "") // 괄호 제거
     .replace(/(주식회사|㈜|\(주\)|\(유\))/g, "") // 회사명 제거
     .replace(/\s+/g, " ") // 공백 정리
-    .trim();
+    .trim()
 
   return [
     `${cleanName} 헬스`,
     cleanName,
     `${cleanName.split(" ")[0]} 헬스`, // 첫 번째 단어만
     cleanName.replace("헬스", "피트니스"), // 동의어 변환
-  ];
+  ]
 }
 ```
 
@@ -154,12 +154,12 @@ async function reverseGeocodeAddress(address: string) {
       params: { query: address },
       headers: { Authorization: `KakaoAK ${API_KEY}` },
     }
-  );
+  )
 
   return {
     latitude: parseFloat(response.data.documents[0].y),
     longitude: parseFloat(response.data.documents[0].x),
-  };
+  }
 }
 ```
 
@@ -208,14 +208,14 @@ npm install axios cheerio puppeteer
 ### 3. 사용 예시
 
 ```typescript
-import { searchWithMultipleSources } from "./services/multiSourceCrawlerService";
-import { searchWithAdvancedSources } from "./services/advancedCrawlerService";
+import { searchWithMultipleSources } from "./services/multiSourceCrawlerService"
+import { searchWithAdvancedSources } from "./services/advancedCrawlerService"
 
 // 기본 멀티소스 검색
-const result1 = await searchWithMultipleSources("스포애니 강남점");
+const result1 = await searchWithMultipleSources("스포애니 강남점")
 
 // 고급 멀티소스 검색
-const result2 = await searchWithAdvancedSources("스포애니 강남점");
+const result2 = await searchWithAdvancedSources("스포애니 강남점")
 ```
 
 ## 📈 성과 측정

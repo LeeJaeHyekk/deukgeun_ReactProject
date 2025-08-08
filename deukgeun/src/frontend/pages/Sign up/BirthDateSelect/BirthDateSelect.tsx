@@ -1,21 +1,21 @@
 // BirthdaySelect.tsx
-import { useState } from "react";
-import styles from "./BirthDateSelect.module.css";
-import { ChevronDown } from "lucide-react";
+import { useState } from "react"
+import styles from "./BirthDateSelect.module.css"
+import { ChevronDown } from "lucide-react"
 
 interface BirthdaySelectProps {
-  value: { year: string; month: string; day: string };
-  onChange: (value: { year: string; month: string; day: string }) => void;
-  error?: string;
+  value: { year: string; month: string; day: string }
+  onChange: (value: { year: string; month: string; day: string }) => void
+  error?: string
 }
 
 const generateOptions = (start: number, end: number) => {
-  const options = [];
+  const options = []
   for (let i = start; i <= end; i++) {
-    options.push(i);
+    options.push(i)
   }
-  return options;
-};
+  return options
+}
 
 export function BirthdaySelect({
   value,
@@ -24,16 +24,16 @@ export function BirthdaySelect({
 }: BirthdaySelectProps) {
   const [openDropdown, setOpenDropdown] = useState<
     "year" | "month" | "day" | null
-  >(null);
+  >(null)
 
   const handleSelect = (
     type: "year" | "month" | "day",
     selectedValue: string
   ) => {
-    const newValue = { ...value, [type]: selectedValue };
-    onChange(newValue);
-    setOpenDropdown(null);
-  };
+    const newValue = { ...value, [type]: selectedValue }
+    onChange(newValue)
+    setOpenDropdown(null)
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -50,7 +50,7 @@ export function BirthdaySelect({
         </div>
         {openDropdown === "year" && (
           <div className={styles.optionsOverlay}>
-            {generateOptions(1980, 2025).map((y) => (
+            {generateOptions(1980, 2025).map(y => (
               <div
                 key={y}
                 className={styles.option}
@@ -76,7 +76,7 @@ export function BirthdaySelect({
         </div>
         {openDropdown === "month" && (
           <div className={styles.optionsOverlay}>
-            {generateOptions(1, 12).map((m) => (
+            {generateOptions(1, 12).map(m => (
               <div
                 key={m}
                 className={styles.option}
@@ -100,7 +100,7 @@ export function BirthdaySelect({
         </div>
         {openDropdown === "day" && (
           <div className={styles.optionsOverlay}>
-            {generateOptions(1, 31).map((d) => (
+            {generateOptions(1, 31).map(d => (
               <div
                 key={d}
                 className={styles.option}
@@ -113,5 +113,5 @@ export function BirthdaySelect({
         )}
       </div>
     </div>
-  );
+  )
 }

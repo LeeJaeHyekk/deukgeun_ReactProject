@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router } from "express"
 import {
   createMachine,
   getAllMachines,
@@ -6,16 +6,16 @@ import {
   updateMachine,
   deleteMachine,
   filterMachines,
-} from "../controllers/machineController";
+} from "../controllers/machineController"
 import {
   validateCreateMachine,
   validateUpdateMachine,
   validateFilterQuery,
   validateId,
-} from "../middlewares/validation";
-import { machineRateLimiter } from "../middlewares/rateLimiter";
+} from "../middlewares/validation"
+import { machineRateLimiter } from "../middlewares/rateLimiter"
 
-const router = Router();
+const router = Router()
 
 /**
  * Machine API Routes
@@ -29,12 +29,12 @@ const router = Router();
  */
 
 // 조회 라우트 (GET)
-router.get("/", machineRateLimiter, getAllMachines);
-router.get("/filter", machineRateLimiter, validateFilterQuery, filterMachines);
-router.get("/:id", machineRateLimiter, validateId, getMachineById);
+router.get("/", machineRateLimiter, getAllMachines)
+router.get("/filter", machineRateLimiter, validateFilterQuery, filterMachines)
+router.get("/:id", machineRateLimiter, validateId, getMachineById)
 
 // 생성 라우트 (POST)
-router.post("/", machineRateLimiter, validateCreateMachine, createMachine);
+router.post("/", machineRateLimiter, validateCreateMachine, createMachine)
 
 // 수정 라우트 (PUT)
 router.put(
@@ -43,9 +43,9 @@ router.put(
   validateId,
   validateUpdateMachine,
   updateMachine
-);
+)
 
 // 삭제 라우트 (DELETE)
-router.delete("/:id", machineRateLimiter, validateId, deleteMachine);
+router.delete("/:id", machineRateLimiter, validateId, deleteMachine)
 
-export default router;
+export default router

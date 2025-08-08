@@ -31,8 +31,8 @@
 
 ```typescript
 // 분리된 시크릿 키 사용
-JWT_ACCESS_SECRET = your - access - secret - key;
-JWT_REFRESH_SECRET = your - refresh - secret - key;
+JWT_ACCESS_SECRET = your - access - secret - key
+JWT_REFRESH_SECRET = your - refresh - secret - key
 ```
 
 ### 🛡️ reCAPTCHA 보안

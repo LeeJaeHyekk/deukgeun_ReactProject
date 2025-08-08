@@ -35,7 +35,9 @@
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .backButton:hover {
@@ -73,7 +75,9 @@
   border: 1px solid #e5e5e5;
   font-size: 16px;
   box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .input:focus {
@@ -108,7 +112,9 @@
   font-size: 16px;
   margin-top: 8px;
   box-shadow: 0 4px 10px rgba(107, 142, 191, 0.3);
-  transition: background-color 0.2s ease, transform 0.2s ease,
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
     box-shadow 0.2s ease;
 }
 

@@ -1,23 +1,23 @@
-import React from "react";
-import styles from "./FeedCard.module.css";
+import React from "react"
+import styles from "./FeedCard.module.css"
 
 export interface FeedPost {
-  id: number;
-  title: string;
-  content: string;
-  author: string;
-  authorAvatar: string;
-  createdAt: string;
-  likes: number;
-  comments: number;
-  category: string;
-  tags: string[];
+  id: number
+  title: string
+  content: string
+  author: string
+  authorAvatar: string
+  createdAt: string
+  likes: number
+  comments: number
+  category: string
+  tags: string[]
 }
 
 interface FeedCardProps {
-  post: FeedPost;
-  onClick?: (post: FeedPost) => void;
-  onLike?: (postId: number) => void;
+  post: FeedPost
+  onClick?: (post: FeedPost) => void
+  onLike?: (postId: number) => void
 }
 
 export function FeedCard({ post, onClick, onLike }: FeedCardProps) {
@@ -49,7 +49,7 @@ export function FeedCard({ post, onClick, onLike }: FeedCardProps) {
 
       {post.tags?.length ? (
         <div className={styles.postTags}>
-          {post.tags.map((tag) => (
+          {post.tags.map(tag => (
             <span key={tag} className={styles.tag}>
               #{tag}
             </span>
@@ -57,7 +57,7 @@ export function FeedCard({ post, onClick, onLike }: FeedCardProps) {
         </div>
       ) : null}
 
-      <div className={styles.postActions} onClick={(e) => e.stopPropagation()}>
+      <div className={styles.postActions} onClick={e => e.stopPropagation()}>
         <button className={styles.actionBtn} onClick={() => onLike?.(post.id)}>
           ❤️ {post.likes}
         </button>
@@ -65,5 +65,5 @@ export function FeedCard({ post, onClick, onLike }: FeedCardProps) {
         <button className={styles.actionBtn}>📤 공유</button>
       </div>
     </article>
-  );
+  )
 }

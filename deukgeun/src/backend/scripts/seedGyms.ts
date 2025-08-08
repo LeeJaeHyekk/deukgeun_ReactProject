@@ -1,17 +1,17 @@
-import fs from "fs";
-import path from "path";
-import { createConnection } from "typeorm";
-import { Gym } from "../entities/Gym";
-import { filterGyms } from "./gymUtils";
-import { convertTMToWGS84 } from "../utils/coordinateUtils";
-import { config } from "../config/env";
+import fs from "fs"
+import path from "path"
+import { createConnection } from "typeorm"
+import { Gym } from "../entities/Gym"
+import { filterGyms } from "./gymUtils"
+import { convertTMToWGS84 } from "../utils/coordinateUtils"
+import { config } from "../config/env"
 
 // API related constants
-const API_KEY = process.env.VITE_GYM_API_KEY;
-const SERVICE_NAME = "LOCALDATA_104201";
-const DATA_TYPE = "json";
-const START_INDEX = 1;
-const END_INDEX = 999;
+const API_KEY = process.env.VITE_GYM_API_KEY
+const SERVICE_NAME = "LOCALDATA_104201"
+const DATA_TYPE = "json"
+const START_INDEX = 1
+const END_INDEX = 999
 
 // Create dummy gym data for testing
 const createDummyGyms = (): Partial<Gym>[] => {
@@ -46,34 +46,34 @@ const createDummyGyms = (): Partial<Gym>[] => {
       hasParking: true,
       hasShower: true,
     },
-  ];
-};
+  ]
+}
 
 // Fetch gym data from Seoul Open Data API and parse
 const fetchGymsFromAPI = async (): Promise<Partial<Gym>[]> => {
   // Use dummy data if API key is not set
   if (!API_KEY || API_KEY === "your_seoul_openapi_key_here") {
-    console.log("⚠️ API 키가 설정되지 않아 더미 데이터를 사용합니다.");
-    return createDummyGyms();
+    console.log("⚠️ API 키가 설정되지 않아 더미 데이터를 사용합니다.")
+    return createDummyGyms()
   }
 
-  const url = `http://openapi.seoul.go.kr:8088/${API_KEY}/${DATA_TYPE}/${SERVICE_NAME}/${START_INDEX}/${END_INDEX}`;
-  const response = await fetch(url);
+  const url = `http://openapi.seoul.go.kr:8088/${API_KEY}/${DATA_TYPE}/${SERVICE_NAME}/${START_INDEX}/${END_INDEX}`
+  const response = await fetch(url)
 
   if (!response.ok) {
-    throw new Error("Failed to fetch gym list from Seoul OpenAPI");
+    throw new Error("Failed to fetch gym list from Seoul OpenAPI")
   }
 
-  const jsonData = await response.json();
-  const gymsRaw = (jsonData as any)?.LOCALDATA_104201?.row;
+  const jsonData = await response.json()
+  const gymsRaw = (jsonData as any)?.LOCALDATA_104201?.row
 
   if (!gymsRaw || !Array.isArray(gymsRaw)) {
-    throw new Error("Invalid data format from Seoul OpenAPI");
+    throw new Error("Invalid data format from Seoul OpenAPI")
   }
 
   // Extract only required fields
   return gymsRaw.map((item: any) => {
-    const { lat, lon } = convertTMToWGS84(Number(item.X), Number(item.Y));
+    const { lat, lon } = convertTMToWGS84(Number(item.X), Number(item.Y))
     return {
       id: item.MGTNO,
       name: item.BPLCNM,
@@ -89,15 +89,15 @@ const fetchGymsFromAPI = async (): Promise<Partial<Gym>[]> => {
       hasShower: false,
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
-  });
-};
+    }
+  })
+}
 
 /**
  * 헬스장 데이터를 API로부터 가져와 필터링 후 DB에 저장
  */
 async function seedGyms() {
-  let connection;
+  let connection
   try {
     connection = await createConnection({
       type: "mysql",
@@ -111,28 +111,28 @@ async function seedGyms() {
       entities: [Gym],
       subscribers: [],
       migrations: [],
-    });
-    console.log("📦 DB 연결 성공");
+    })
+    console.log("📦 DB 연결 성공")
 
-    const rawGyms = await fetchGymsFromAPI();
-    const filteredGyms = filterGyms(rawGyms);
+    const rawGyms = await fetchGymsFromAPI()
+    const filteredGyms = filterGyms(rawGyms)
 
     // 백업: raw 데이터 JSON 저장
-    const rawPath = path.join(__dirname, "../../data/gyms_raw.json");
-    fs.writeFileSync(rawPath, JSON.stringify(rawGyms, null, 2));
-    console.log(`📝 Raw 데이터 저장됨 → ${rawPath}`);
+    const rawPath = path.join(__dirname, "../../data/gyms_raw.json")
+    fs.writeFileSync(rawPath, JSON.stringify(rawGyms, null, 2))
+    console.log(`📝 Raw 데이터 저장됨 → ${rawPath}`)
 
     // DB에 필터링된 데이터 저장
     for (const gym of filteredGyms) {
-      await connection.getRepository(Gym).save(gym);
+      await connection.getRepository(Gym).save(gym)
     }
 
-    console.log("✅ 필터링된 헬스장 DB 저장 완료");
+    console.log("✅ 필터링된 헬스장 DB 저장 완료")
   } catch (err) {
-    console.error("❌ 헬스장 시드 실패", err);
+    console.error("❌ 헬스장 시드 실패", err)
   } finally {
-    if (connection) await connection.close();
+    if (connection) await connection.close()
   }
 }
 
-seedGyms();
+seedGyms()

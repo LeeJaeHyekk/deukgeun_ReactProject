@@ -1,15 +1,15 @@
-import { Gym } from "../../types/index";
-import { GymCard } from "./GymCard";
-import { SortSelect } from "../SortSelect/SortSelect";
-import { SortOption, SortDirection } from "../../types";
-import styles from "./GymList.module.css";
+import { Gym } from "../../types/index"
+import { GymCard } from "./GymCard"
+import { SortSelect } from "../SortSelect/SortSelect"
+import { SortOption, SortDirection } from "../../types"
+import styles from "./GymList.module.css"
 
 interface GymListProps {
-  gyms: Gym[];
-  sortBy: SortOption;
-  sortDirection: SortDirection;
-  onSortChange: (sortBy: SortOption, direction: SortDirection) => void;
-  onGymClick?: (gym: Gym) => void;
+  gyms: Gym[]
+  sortBy: SortOption
+  sortDirection: SortDirection
+  onSortChange: (sortBy: SortOption, direction: SortDirection) => void
+  onGymClick?: (gym: Gym) => void
 }
 
 export function GymList({
@@ -25,7 +25,7 @@ export function GymList({
         <p>검색 결과가 없습니다.</p>
         <p>다른 키워드로 검색해보세요.</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -40,10 +40,10 @@ export function GymList({
       </div>
 
       <div className={styles.list}>
-        {gyms.map((gym) => (
+        {gyms.map(gym => (
           <GymCard key={gym.id} gym={gym} onClick={onGymClick} />
         ))}
       </div>
     </div>
-  );
+  )
 }

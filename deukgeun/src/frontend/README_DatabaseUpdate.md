@@ -61,16 +61,16 @@ VITE_BACKEND_URL=http://localhost:5000
 import {
   updateGymDatabase,
   checkDatabaseStatus,
-} from "./script/updateGymDatabase";
+} from "./script/updateGymDatabase"
 
 // 데이터베이스 상태 확인
-const status = await checkDatabaseStatus();
-console.log("현재 헬스장 수:", status.data.totalGyms);
+const status = await checkDatabaseStatus()
+console.log("현재 헬스장 수:", status.data.totalGyms)
 
 // 데이터베이스 업데이트
-const result = await updateGymDatabase();
+const result = await updateGymDatabase()
 if (result.success) {
-  console.log("업데이트 완료:", result.validCount, "개");
+  console.log("업데이트 완료:", result.validCount, "개")
 }
 ```
 

@@ -1,46 +1,46 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";
-import { validation, showToast } from "@shared/lib";
-import styles from "./FindIdPage.module.css";
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { FaArrowLeft } from "react-icons/fa"
+import { validation, showToast } from "@shared/lib"
+import styles from "./FindIdPage.module.css"
 
 export default function FindIdPage() {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string }>({});
-  const navigate = useNavigate();
+  const [email, setEmail] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState<{ email?: string }>({})
+  const navigate = useNavigate()
 
   const validateForm = (): boolean => {
-    const newErrors: { email?: string } = {};
+    const newErrors: { email?: string } = {}
 
     if (!validation.required(email)) {
-      newErrors.email = "이메일을 입력해주세요.";
+      newErrors.email = "이메일을 입력해주세요."
     } else if (!validation.email(email)) {
-      newErrors.email = "유효한 이메일 주소를 입력해주세요.";
+      newErrors.email = "유효한 이메일 주소를 입력해주세요."
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleFindId = async () => {
     if (!validateForm()) {
-      return;
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
     try {
       // TODO: 실제 아이디 찾기 API 구현
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // 임시 딜레이
+      await new Promise(resolve => setTimeout(resolve, 1000)) // 임시 딜레이
 
-      showToast("입력하신 이메일로 아이디 정보를 발송했습니다.", "success");
-      navigate("/login");
+      showToast("입력하신 이메일로 아이디 정보를 발송했습니다.", "success")
+      navigate("/login")
     } catch (error: any) {
-      showToast("아이디 찾기에 실패했습니다.", "error");
+      showToast("아이디 찾기에 실패했습니다.", "error")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className={styles.pageWrapper}>
@@ -64,10 +64,10 @@ export default function FindIdPage() {
           <input
             type="email"
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
+            onChange={e => {
+              setEmail(e.target.value)
               if (errors.email) {
-                setErrors((prev) => ({ ...prev, email: undefined }));
+                setErrors(prev => ({ ...prev, email: undefined }))
               }
             }}
             placeholder="이메일 주소"
@@ -101,5 +101,5 @@ export default function FindIdPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

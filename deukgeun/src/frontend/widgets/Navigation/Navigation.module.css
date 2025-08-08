@@ -79,7 +79,9 @@
   font-weight: 500;
   padding: 8px 10px;
   border-radius: 6px;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .buttonLink {
@@ -111,8 +113,6 @@
 .buttonLink:hover::after {
   width: 100%;
 }
-
-
 
 /* 모바일 메뉴 버튼 */
 .mobileMenuButton {

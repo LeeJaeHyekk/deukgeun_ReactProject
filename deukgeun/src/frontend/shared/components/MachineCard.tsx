@@ -1,13 +1,13 @@
-import React from "react";
-import { Machine } from "../types/machine";
-import "./MachineCard.css";
+import React from "react"
+import { Machine } from "../types/machine"
+import "./MachineCard.css"
 
 interface MachineCardProps {
-  machine: Machine;
-  onClick?: (machine: Machine) => void;
-  showActions?: boolean;
-  onEdit?: (machine: Machine) => void;
-  onDelete?: (machine: Machine) => void;
+  machine: Machine
+  onClick?: (machine: Machine) => void
+  showActions?: boolean
+  onEdit?: (machine: Machine) => void
+  onDelete?: (machine: Machine) => void
 }
 
 export const MachineCard: React.FC<MachineCardProps> = ({
@@ -19,51 +19,51 @@ export const MachineCard: React.FC<MachineCardProps> = ({
 }) => {
   const handleClick = () => {
     if (onClick) {
-      onClick(machine);
+      onClick(machine)
     }
-  };
+  }
 
   const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation()
     if (onEdit) {
-      onEdit(machine);
+      onEdit(machine)
     }
-  };
+  }
 
   const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation()
     if (onDelete) {
-      onDelete(machine);
+      onDelete(machine)
     }
-  };
+  }
 
   const getDifficultyColor = (difficulty?: string) => {
     switch (difficulty) {
       case "초급":
-        return "#4CAF50";
+        return "#4CAF50"
       case "중급":
-        return "#FF9800";
+        return "#FF9800"
       case "고급":
-        return "#F44336";
+        return "#F44336"
       default:
-        return "#9E9E9E";
+        return "#9E9E9E"
     }
-  };
+  }
 
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "상체":
-        return "#2196F3";
+        return "#2196F3"
       case "하체":
-        return "#4CAF50";
+        return "#4CAF50"
       case "전신":
-        return "#9C27B0";
+        return "#9C27B0"
       case "기타":
-        return "#FF9800";
+        return "#FF9800"
       default:
-        return "#9E9E9E";
+        return "#9E9E9E"
     }
-  };
+  }
 
   return (
     <div className="machine-card" onClick={handleClick}>
@@ -127,5 +127,5 @@ export const MachineCard: React.FC<MachineCardProps> = ({
         </div>
       )}
     </div>
-  );
-};
+  )
+}

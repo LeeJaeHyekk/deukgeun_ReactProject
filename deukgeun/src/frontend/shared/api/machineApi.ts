@@ -1,112 +1,87 @@
-import { api } from "./index";
-import { API_ENDPOINTS } from "../config";
-import {
-  Machine,
-  CreateMachineRequest,
-  UpdateMachineRequest,
-  MachineFilterQuery,
-  MachineResponse,
-  MachineListResponse,
-  MachineFilterResponse,
-} from "../types/machine";
+import { api } from "./index"
+import { API_ENDPOINTS } from "@shared/config"
+import type { Machine } from "@shared/types/machine"
 
-/**
- * Machine API 서비스
- * 백엔드 Machine API와 통신하는 함수들을 제공합니다.
- */
+// 타입 정의
+export interface MachineListResponse {
+  machines: Machine[]
+  count: number
+}
+
+export interface MachineResponse {
+  machine: Machine
+}
+
+export interface CreateMachineRequest {
+  name: string
+  category: string
+  difficulty: string
+  description: string
+  instructions: string
+  imageUrl?: string
+  videoUrl?: string
+}
+
+export interface UpdateMachineRequest extends Partial<CreateMachineRequest> {
+  id: number
+}
+
+// Machine API functions
 export const machineApi = {
-  /**
-   * 모든 기구 목록을 조회합니다.
-   */
-  getAllMachines: async (): Promise<MachineListResponse> => {
-    return api.get<MachineListResponse>(API_ENDPOINTS.MACHINES.LIST);
+  // Get all machines
+  getMachines: async (): Promise<MachineListResponse> => {
+    const response = await api.get<MachineListResponse>(
+      API_ENDPOINTS.MACHINES.LIST
+    )
+    return response.data.data as MachineListResponse
   },
 
-  /**
-   * 특정 기구를 ID로 조회합니다.
-   */
-  getMachineById: async (id: number): Promise<MachineResponse> => {
-    return api.get<MachineResponse>(API_ENDPOINTS.MACHINES.DETAIL(id));
+  // Get machine by ID
+  getMachine: async (id: number): Promise<MachineResponse> => {
+    const response = await api.get<MachineResponse>(
+      API_ENDPOINTS.MACHINES.DETAIL(id)
+    )
+    return response.data.data as MachineResponse
   },
 
-  /**
-   * 새로운 기구를 생성합니다. (Admin 권한 필요)
-   */
+  // Create new machine
   createMachine: async (
-    machineData: CreateMachineRequest
+    data: CreateMachineRequest
   ): Promise<MachineResponse> => {
-    return api.post<MachineResponse>(
+    const response = await api.post<MachineResponse>(
       API_ENDPOINTS.MACHINES.CREATE,
-      machineData
-    );
+      data
+    )
+    return response.data.data as MachineResponse
   },
 
-  /**
-   * 기존 기구를 수정합니다. (Admin 권한 필요)
-   */
+  // Update machine
   updateMachine: async (
     id: number,
-    updateData: UpdateMachineRequest
+    data: UpdateMachineRequest
   ): Promise<MachineResponse> => {
-    return api.put<MachineResponse>(
+    const response = await api.put<MachineResponse>(
       API_ENDPOINTS.MACHINES.UPDATE(id),
-      updateData
-    );
+      data
+    )
+    return response.data.data as MachineResponse
   },
 
-  /**
-   * 기구를 삭제합니다. (Admin 권한 필요)
-   */
-  deleteMachine: async (id: number): Promise<{ message: string }> => {
-    return api.delete<{ message: string }>(API_ENDPOINTS.MACHINES.DELETE(id));
+  // Delete machine
+  deleteMachine: async (id: number): Promise<void> => {
+    await api.delete(API_ENDPOINTS.MACHINES.DELETE(id))
   },
 
-  /**
-   * 조건에 따라 기구를 필터링하여 조회합니다.
-   */
-  filterMachines: async (
-    filters: MachineFilterQuery
-  ): Promise<MachineFilterResponse> => {
-    const queryParams = new URLSearchParams();
-
-    if (filters.category) {
-      queryParams.append("category", filters.category);
-    }
-    if (filters.difficulty) {
-      queryParams.append("difficulty", filters.difficulty);
-    }
-    if (filters.target) {
-      queryParams.append("target", filters.target);
-    }
-
-    const url = `${API_ENDPOINTS.MACHINES.FILTER}?${queryParams.toString()}`;
-    return api.get<MachineFilterResponse>(url);
+  // Filter machines
+  filterMachines: async (filters: {
+    category?: string
+    difficulty?: string
+    search?: string
+  }): Promise<MachineListResponse> => {
+    const response = await api.post<MachineListResponse>(
+      API_ENDPOINTS.MACHINES.FILTER,
+      filters
+    )
+    return response.data.data as MachineListResponse
   },
-
-  /**
-   * 카테고리별로 기구를 조회합니다.
-   */
-  getMachinesByCategory: async (
-    category: string
-  ): Promise<MachineFilterResponse> => {
-    return machineApi.filterMachines({ category: category as any });
-  },
-
-  /**
-   * 난이도별로 기구를 조회합니다.
-   */
-  getMachinesByDifficulty: async (
-    difficulty: string
-  ): Promise<MachineFilterResponse> => {
-    return machineApi.filterMachines({ difficulty: difficulty as any });
-  },
-
-  /**
-   * 타겟 근육별로 기구를 조회합니다.
-   */
-  getMachinesByTarget: async (
-    target: string
-  ): Promise<MachineFilterResponse> => {
-    return machineApi.filterMachines({ target });
-  },
-};
+}

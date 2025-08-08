@@ -1,11 +1,11 @@
-import axios from "axios";
-import { createTokens } from "../utils/jwt";
+import axios from "axios"
+import { createTokens } from "../utils/jwt"
 
-const BASE_URL = "http://localhost:5000/api";
+const BASE_URL = "http://localhost:5000/api"
 
 // 테스트용 토큰 생성
 function createTestTokens(role: "user" | "admin") {
-  return createTokens(1, role);
+  return createTokens(1, role)
 }
 
 // 샘플 기구 데이터
@@ -115,12 +115,12 @@ const sampleMachines = [
     positive_effect: "심폐 지구력 향상, 체지방 감소, 스트레스 해소",
     video_url: "https://example.com/videos/treadmill.mp4",
   },
-];
+]
 
 async function addSampleMachines() {
-  console.log("🏋️ 샘플 기구 데이터 추가 시작\n");
+  console.log("🏋️ 샘플 기구 데이터 추가 시작\n")
 
-  const adminTokens = createTestTokens("admin");
+  const adminTokens = createTestTokens("admin")
 
   for (const machine of sampleMachines) {
     try {
@@ -128,29 +128,29 @@ async function addSampleMachines() {
         headers: {
           Authorization: `Bearer ${adminTokens.accessToken}`,
         },
-      });
-      console.log(`✅ ${machine.name_ko} 추가 성공`);
+      })
+      console.log(`✅ ${machine.name_ko} 추가 성공`)
     } catch (error: any) {
       if (
         error.response?.status === 500 &&
         error.response?.data?.error?.includes("이미 존재합니다")
       ) {
-        console.log(`ℹ️ ${machine.name_ko}는 이미 존재함`);
+        console.log(`ℹ️ ${machine.name_ko}는 이미 존재함`)
       } else {
         console.log(
           `❌ ${machine.name_ko} 추가 실패:`,
           error.response?.data?.message || error.message
-        );
+        )
       }
     }
   }
 
-  console.log("\n🎯 샘플 기구 데이터 추가 완료!");
+  console.log("\n🎯 샘플 기구 데이터 추가 완료!")
 }
 
 // 스크립트 실행
 if (require.main === module) {
-  addSampleMachines().catch(console.error);
+  addSampleMachines().catch(console.error)
 }
 
-export { addSampleMachines };
+export { addSampleMachines }

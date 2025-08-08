@@ -1,8 +1,8 @@
-import { Gym } from "../types";
-import { KAKAO_CONFIG } from "@shared/lib/env";
+import { Gym } from "../types"
+import { KAKAO_CONFIG } from "@shared/lib/env"
 
-const KAKAO_API_KEY = KAKAO_CONFIG.REST_API_KEY;
-console.log("🧪 Kakao REST API Key:", KAKAO_API_KEY);
+const KAKAO_API_KEY = KAKAO_CONFIG.REST_API_KEY
+console.log("🧪 Kakao REST API Key:", KAKAO_API_KEY)
 
 // 테스트용 더미 데이터 생성
 function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {
@@ -92,64 +92,64 @@ function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {
       hasShower: true,
       price: "13만원",
     },
-  ];
+  ]
 
-  return dummyGyms;
+  return dummyGyms
 }
 
 export async function fetchGymsByKeyword(
   query: string,
   pos: { lat: number; lng: number }
 ): Promise<Gym[]> {
-  console.log("🧪 카카오 API 호출 시작:", { query, pos });
+  console.log("🧪 카카오 API 호출 시작:", { query, pos })
 
   if (!KAKAO_API_KEY) {
     console.warn(
       "🧪 Kakao API Key가 설정되지 않았습니다. 테스트용 더미 데이터를 반환합니다."
-    );
+    )
     // API 키가 없으면 테스트용 더미 데이터 반환
-    const dummyGyms = generateDummyGyms(pos);
-    console.log("🧪 더미 데이터 생성:", dummyGyms.length, "개");
-    return dummyGyms;
+    const dummyGyms = generateDummyGyms(pos)
+    console.log("🧪 더미 데이터 생성:", dummyGyms.length, "개")
+    return dummyGyms
   }
 
   try {
     const url = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(
       query
-    )}&x=${pos.lng}&y=${pos.lat}&radius=5000`;
+    )}&x=${pos.lng}&y=${pos.lat}&radius=5000`
 
-    console.log("🧪 API URL:", url);
+    console.log("🧪 API URL:", url)
 
     const res = await fetch(url, {
       headers: {
         Authorization: `KakaoAK ${KAKAO_API_KEY}`,
       },
-    });
+    })
 
-    console.log("🧪 API 응답 상태:", res.status);
+    console.log("🧪 API 응답 상태:", res.status)
 
     if (!res.ok) {
-      const errorText = await res.text();
-      console.error("🧪 API 오류:", res.status, errorText);
-      throw new Error(`API 오류: ${res.status} - ${errorText}`);
+      const errorText = await res.text()
+      console.error("🧪 API 오류:", res.status, errorText)
+      throw new Error(`API 오류: ${res.status} - ${errorText}`)
     }
 
-    const data = await res.json();
-    console.log("🧪 API 응답 데이터:", data);
+    const data = await res.json()
+    console.log("🧪 API 응답 데이터:", data)
 
     if (!data.documents) {
-      console.warn("🧪 documents 필드가 없습니다:", data);
-      return [];
+      console.warn("🧪 documents 필드가 없습니다:", data)
+      return []
     }
 
-    console.log("🧪 검색 결과:", data.documents.length, "개");
-    return data.documents;
+    console.log("🧪 검색 결과:", data.documents.length, "개")
+    return data.documents
   } catch (error) {
-    console.error("🧪 카카오 API 호출 실패:", error);
-    console.warn("🧪 API 호출 실패로 인해 테스트용 더미 데이터를 반환합니다.");
+    console.error("🧪 카카오 API 호출 실패:", error)
+    console.warn("🧪 API 호출 실패로 인해 테스트용 더미 데이터를 반환합니다.")
     // API 호출 실패 시에도 더미 데이터 반환
-    const dummyGyms = generateDummyGyms(pos);
-    console.log("🧪 더미 데이터 생성:", dummyGyms.length, "개");
-    return dummyGyms;
+    const dummyGyms = generateDummyGyms(pos)
+    console.log("🧪 더미 데이터 생성:", dummyGyms.length, "개")
+    return dummyGyms
   }
 }

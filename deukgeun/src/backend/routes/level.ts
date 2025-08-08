@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router } from "express"
 import {
   getUserLevel,
   getUserProgress,
@@ -10,11 +10,11 @@ import {
   updateLevelConfig,
   resetUserProgress,
   getSystemStats,
-} from "../controllers/levelController";
-import { authenticateToken, isAdmin } from "../middlewares/auth";
-import { rateLimiter } from "../middlewares/rateLimiter";
+} from "../controllers/levelController"
+import { authenticateToken, isAdmin } from "../middlewares/auth"
+import { rateLimiter } from "../middlewares/rateLimiter"
 
-const router = Router();
+const router = Router()
 
 /**
  * 레벨 시스템 API Routes
@@ -44,36 +44,36 @@ router.get(
   authenticateToken,
   rateLimiter(60000, 30),
   getUserLevel
-);
+)
 router.get(
   "/user/:userId/progress",
   authenticateToken,
   rateLimiter(60000, 30),
   getUserProgress
-);
+)
 router.get(
   "/user/:userId/rewards",
   authenticateToken,
   rateLimiter(60000, 30),
   getUserRewards
-);
+)
 
 // 경험치 관련 라우트
-router.post("/exp/grant", authenticateToken, rateLimiter(60000, 10), grantExp);
+router.post("/exp/grant", authenticateToken, rateLimiter(60000, 10), grantExp)
 router.get(
   "/cooldown/:actionType/:userId",
   authenticateToken,
   rateLimiter(60000, 30),
   checkCooldown
-);
+)
 
 // 리더보드 관련 라우트
-router.get("/leaderboard/global", rateLimiter(60000, 30), getGlobalLeaderboard);
+router.get("/leaderboard/global", rateLimiter(60000, 30), getGlobalLeaderboard)
 router.get(
   "/leaderboard/season/:seasonId",
   rateLimiter(60000, 30),
   getSeasonLeaderboard
-);
+)
 
 // 관리자 기능 라우트
 router.put(
@@ -82,20 +82,20 @@ router.put(
   isAdmin,
   rateLimiter(60000, 5),
   updateLevelConfig
-);
+)
 router.post(
   "/admin/reset/:userId",
   authenticateToken,
   isAdmin,
   rateLimiter(60000, 5),
   resetUserProgress
-);
+)
 router.get(
   "/admin/stats",
   authenticateToken,
   isAdmin,
   rateLimiter(60000, 10),
   getSystemStats
-);
+)
 
-export default router;
+export default router

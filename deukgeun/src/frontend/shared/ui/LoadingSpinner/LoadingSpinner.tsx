@@ -1,9 +1,9 @@
-import React from "react";
-import styles from "./LoadingSpinner.module.css";
+import React from "react"
+import styles from "./LoadingSpinner.module.css"
 
 interface LoadingSpinnerProps {
-  size?: "small" | "medium" | "large";
-  text?: string;
+  size?: "small" | "medium" | "large"
+  text?: string
 }
 
 export function LoadingSpinner({
@@ -15,5 +15,5 @@ export function LoadingSpinner({
       <div className={`${styles.spinner} ${styles[size]}`}></div>
       {text && <p className={styles.text}>{text}</p>}
     </div>
-  );
+  )
 }

@@ -1,33 +1,33 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import ReCAPTCHA from "react-google-recaptcha";
-import { authApi, LoginRequest } from "@features/auth/api/authApi";
-import { validation, showToast } from "@shared/lib";
-import { useAuthContext } from "@shared/contexts/AuthContext";
-import { config } from "@shared/config";
-import { useUserStore } from "@shared/store/userStore";
-import styles from "./LoginPage.module.css";
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { FaEye, FaEyeSlash } from "react-icons/fa"
+import ReCAPTCHA from "react-google-recaptcha"
+import { authApi, LoginRequest } from "@features/auth/api/authApi"
+import { validation, showToast } from "@shared/lib"
+import { useAuthContext } from "@shared/contexts/AuthContext"
+import { config } from "@shared/config"
+
+import styles from "./LoginPage.module.css"
 
 export default function LoginPage() {
-  console.log("🧪 LoginPage 렌더링 시작");
+  console.log("🧪 LoginPage 렌더링 시작")
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null)
   const [errors, setErrors] = useState<{
-    email?: string;
-    password?: string;
-    recaptcha?: string;
-  }>({});
-  const [error, setError] = useState<string>("");
-  const navigate = useNavigate();
-  const { login } = useAuthContext();
+    email?: string
+    password?: string
+    recaptcha?: string
+  }>({})
+  const [error, setError] = useState<string>("")
+  const navigate = useNavigate()
+  const { login } = useAuthContext()
 
   // 🧪 디버깅용 로그 (기존 코드에 영향 없음)
-  console.log("🧪 LoginPage 렌더링");
+  console.log("🧪 LoginPage 렌더링")
   console.log("🧪 현재 상태:", {
     email,
     password: password ? "***" : "",
@@ -35,117 +35,118 @@ export default function LoginPage() {
     recaptchaToken: recaptchaToken ? "있음" : "없음",
     errors,
     error,
-  });
+  })
 
   // 폼 검증
   const validateForm = (): boolean => {
-    console.log("🧪 LoginPage - 폼 검증 시작");
+    console.log("🧪 LoginPage - 폼 검증 시작")
 
     const newErrors: {
-      email?: string;
-      password?: string;
-      recaptcha?: string;
-    } = {};
+      email?: string
+      password?: string
+      recaptcha?: string
+    } = {}
 
     if (!validation.required(email)) {
-      newErrors.email = "이메일을 입력해주세요.";
+      newErrors.email = "이메일을 입력해주세요."
     } else if (!validation.email(email)) {
-      newErrors.email = "유효한 이메일 주소를 입력해주세요.";
+      newErrors.email = "유효한 이메일 주소를 입력해주세요."
     }
 
     if (!validation.required(password)) {
-      newErrors.password = "비밀번호를 입력해주세요.";
+      newErrors.password = "비밀번호를 입력해주세요."
     } else if (!validation.password(password)) {
-      newErrors.password = "비밀번호는 최소 8자 이상이어야 합니다.";
+      newErrors.password = "비밀번호는 최소 8자 이상이어야 합니다."
     }
 
     if (!recaptchaToken) {
-      newErrors.recaptcha = "보안 인증을 완료해주세요.";
+      newErrors.recaptcha = "보안 인증을 완료해주세요."
     }
 
-    setErrors(newErrors);
-    const isValid = Object.keys(newErrors).length === 0;
-    console.log("🧪 LoginPage - 폼 검증 결과:", { isValid, errors: newErrors });
-    return isValid;
-  };
+    setErrors(newErrors)
+    const isValid = Object.keys(newErrors).length === 0
+    console.log("🧪 LoginPage - 폼 검증 결과:", { isValid, errors: newErrors })
+    return isValid
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("🧪 LoginPage - 로그인 폼 제출");
+    e.preventDefault()
+    console.log("🧪 LoginPage - 로그인 폼 제출")
 
     if (!validateForm()) {
-      console.log("🧪 폼 검증 실패");
-      return;
+      console.log("🧪 폼 검증 실패")
+      return
     }
 
-    console.log("🧪 로그인 시도 시작");
-    setLoading(true);
-    setError("");
+    console.log("🧪 로그인 시도 시작")
+    setLoading(true)
+    setError("")
 
     try {
       const loginData: LoginRequest = {
         email: email.trim().toLowerCase(),
         password,
         recaptchaToken: recaptchaToken!,
-      };
+      }
 
-      console.log("🧪 로그인 데이터:", { ...loginData, password: "***" });
+      console.log("🧪 로그인 데이터:", { ...loginData, password: "***" })
 
-      const response = await authApi.login(loginData);
+      const response = await authApi.login(loginData)
 
-      console.log("🧪 로그인 응답:", response);
+      console.log("🧪 로그인 응답:", response)
 
       if (!response || !response.user) {
-        console.log("🧪 로그인 실패: 사용자 정보 없음");
-        showToast("로그인에 실패했습니다.", "error");
-        setLoading(false);
-        return;
+        console.log("🧪 로그인 실패: 사용자 정보 없음")
+        showToast("로그인에 실패했습니다.", "error")
+        setLoading(false)
+        return
       }
 
       // AuthContext의 login 함수 사용 (Zustand + storage 모두 업데이트)
-      console.log("🧪 AuthContext login 호출");
+      console.log("🧪 AuthContext login 호출")
       const userWithToken = {
         ...response.user,
         accessToken: response.accessToken,
-      };
-      login(userWithToken, response.accessToken);
+      }
+      login(userWithToken, response.accessToken)
 
-      console.log("🧪 로그인 성공!");
-      showToast("로그인 성공!", "success");
+      console.log("🧪 로그인 성공!")
+      showToast("로그인 성공!", "success")
 
       // 자동 리다이렉트는 App.tsx의 RedirectIfLoggedIn에서 처리
-    } catch (error: any) {
-      console.log("🧪 로그인 에러:", error);
+    } catch (error: unknown) {
+      console.log("🧪 로그인 에러:", error)
       const errorMessage =
-        error.response?.data?.message || "로그인에 실패했습니다.";
-      setError(errorMessage);
-      showToast(errorMessage, "error");
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "로그인에 실패했습니다."
+      setError(errorMessage)
+      showToast(errorMessage, "error")
     } finally {
-      setLoading(false);
-      console.log("🧪 로그인 처리 완료");
+      setLoading(false)
+      console.log("🧪 로그인 처리 완료")
     }
-  };
+  }
 
   const handleRecaptchaChange = (token: string | null) => {
     // 개발 환경에서는 더미 토큰 사용
     const finalToken =
       process.env.NODE_ENV === "development"
         ? "dummy-token-for-development"
-        : token;
+        : token
 
     console.log("🧪 reCAPTCHA 토큰 변경:", {
       originalToken: token,
       finalToken,
-    });
-    setRecaptchaToken(finalToken);
+    })
+    setRecaptchaToken(finalToken)
     // reCAPTCHA 완료 시 해당 에러 초기화
     if (finalToken && errors.recaptcha) {
-      setErrors((prev) => ({ ...prev, recaptcha: undefined }));
+      setErrors(prev => ({ ...prev, recaptcha: undefined }))
     }
-    setError(""); // 전체 에러 메시지도 초기화
-  };
+    setError("") // 전체 에러 메시지도 초기화
+  }
 
-  console.log("🧪 LoginPage - 렌더링 완료");
+  console.log("🧪 LoginPage - 렌더링 완료")
 
   return (
     <div className={styles.pageWrapper}>
@@ -153,25 +154,25 @@ export default function LoginPage() {
         <h1 className={styles.logo}>득근 득근</h1>
 
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleLogin(e);
+          onSubmit={e => {
+            e.preventDefault()
+            handleLogin(e)
           }}
         >
           <div className={styles.inputGroup}>
             <input
               type="email"
               value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
+              onChange={e => {
+                setEmail(e.target.value)
                 if (errors.email) {
-                  setErrors((prev) => ({ ...prev, email: undefined }));
+                  setErrors(prev => ({ ...prev, email: undefined }))
                 }
               }}
-              onKeyDown={(e) => {
+              onKeyDown={e => {
                 if (e.key === "Enter" && !loading) {
-                  e.preventDefault();
-                  handleLogin(e);
+                  e.preventDefault()
+                  handleLogin(e)
                 }
               }}
               placeholder="이메일"
@@ -193,16 +194,16 @@ export default function LoginPage() {
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
+                onChange={e => {
+                  setPassword(e.target.value)
                   if (errors.password) {
-                    setErrors((prev) => ({ ...prev, password: undefined }));
+                    setErrors(prev => ({ ...prev, password: undefined }))
                   }
                 }}
-                onKeyDown={(e) => {
+                onKeyDown={e => {
                   if (e.key === "Enter" && !loading) {
-                    e.preventDefault();
-                    handleLogin(e);
+                    e.preventDefault()
+                    handleLogin(e)
                   }
                 }}
                 placeholder="비밀번호"
@@ -318,5 +319,5 @@ export default function LoginPage() {
         {error && <p className={styles.errorMessage}>{error}</p>}
       </div>
     </div>
-  );
+  )
 }

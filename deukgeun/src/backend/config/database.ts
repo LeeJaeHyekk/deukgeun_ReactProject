@@ -1,26 +1,26 @@
-import { createConnection, getConnection } from "typeorm";
-import { config } from "./env";
-import { Post } from "../entities/Post";
-import { Gym } from "../entities/Gym";
-import { User } from "../entities/User";
-import { Machine } from "../entities/Machine";
-import { Comment } from "../entities/Comment";
-import { PostLike } from "../entities/Like";
-import { UserLevel } from "../entities/UserLevel";
-import { ExpHistory } from "../entities/ExpHistory";
-import { UserReward } from "../entities/UserReward";
-import { Milestone } from "../entities/Milestone";
-import { UserStreak } from "../entities/UserStreak";
+import { createConnection, getConnection } from "typeorm"
+import { config } from "./env"
+import { Post } from "../entities/Post"
+import { Gym } from "../entities/Gym"
+import { User } from "../entities/User"
+import { Machine } from "../entities/Machine"
+import { Comment } from "../entities/Comment"
+import { PostLike } from "../entities/Like"
+import { UserLevel } from "../entities/UserLevel"
+import { ExpHistory } from "../entities/ExpHistory"
+import { UserReward } from "../entities/UserReward"
+import { Milestone } from "../entities/Milestone"
+import { UserStreak } from "../entities/UserStreak"
 
 // TypeORM database connection configuration
 export const connectDatabase = async () => {
   try {
     // 기존 연결이 있는지 확인
-    const existingConnection = getConnection();
+    const existingConnection = getConnection()
     if (existingConnection.isConnected) {
-      return existingConnection;
+      return existingConnection
     }
-  } catch (error) {
+  } catch {
     // 연결이 없으면 새로 생성
   }
 
@@ -72,10 +72,10 @@ export const connectDatabase = async () => {
 
     // Migration list (currently not used)
     migrations: [],
-  });
+  })
 
-  return connection; // Return the established connection object
-};
+  return connection // Return the established connection object
+}
 
 // Re-export for convenience
-export { createConnection };
+export { createConnection }

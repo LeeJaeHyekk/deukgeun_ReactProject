@@ -1,75 +1,75 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   updateGymDatabase,
   checkDatabaseStatus,
-} from "../../script/updateGymDatabase";
-import styles from "./DatabaseUpdatePage.module.css";
+} from "../../script/updateGymDatabase"
+import styles from "./DatabaseUpdatePage.module.css"
 
 interface DatabaseStatus {
-  totalGyms: number;
-  lastUpdated: string | null;
-  databaseStatus: string;
+  totalGyms: number
+  lastUpdated: string | null
+  databaseStatus: string
 }
 
 interface UpdateResult {
-  success: boolean;
-  totalFetched?: number;
-  validCount?: number;
-  error?: string;
-  message: string;
+  success: boolean
+  totalFetched?: number
+  validCount?: number
+  error?: string
+  message: string
 }
 
 export default function DatabaseUpdatePage() {
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [status, setStatus] = useState<DatabaseStatus | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [status, setStatus] = useState<DatabaseStatus | null>(null)
   const [lastUpdateResult, setLastUpdateResult] = useState<UpdateResult | null>(
     null
-  );
-  const [isLoadingStatus, setIsLoadingStatus] = useState(false);
+  )
+  const [isLoadingStatus, setIsLoadingStatus] = useState(false)
 
   const handleUpdateDatabase = async () => {
-    if (isUpdating) return;
+    if (isUpdating) return
 
-    setIsUpdating(true);
-    setLastUpdateResult(null);
+    setIsUpdating(true)
+    setLastUpdateResult(null)
 
     try {
-      const result = await updateGymDatabase();
-      setLastUpdateResult(result);
+      const result = await updateGymDatabase()
+      setLastUpdateResult(result)
 
       // 업데이트 후 상태 새로고침
       if (result.success) {
-        await refreshStatus();
+        await refreshStatus()
       }
     } catch (error) {
       setLastUpdateResult({
         success: false,
         error: error instanceof Error ? error.message : "알 수 없는 오류",
         message: "업데이트 중 오류가 발생했습니다.",
-      });
+      })
     } finally {
-      setIsUpdating(false);
+      setIsUpdating(false)
     }
-  };
+  }
 
   const refreshStatus = async () => {
-    setIsLoadingStatus(true);
+    setIsLoadingStatus(true)
     try {
-      const statusData = await checkDatabaseStatus();
+      const statusData = await checkDatabaseStatus()
       if (statusData?.success) {
-        setStatus(statusData.data);
+        setStatus(statusData.data)
       }
     } catch (error) {
-      console.error("상태 확인 실패:", error);
+      console.error("상태 확인 실패:", error)
     } finally {
-      setIsLoadingStatus(false);
+      setIsLoadingStatus(false)
     }
-  };
+  }
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return "없음";
-    return new Date(dateString).toLocaleString("ko-KR");
-  };
+    if (!dateString) return "없음"
+    return new Date(dateString).toLocaleString("ko-KR")
+  }
 
   return (
     <div className={styles.container}>
@@ -194,5 +194,5 @@ export default function DatabaseUpdatePage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -7,36 +7,36 @@ import {
   Index,
   ManyToOne,
   JoinColumn,
-} from "typeorm";
-import { User } from "./User";
+} from "typeorm"
+import { User } from "./User"
 
 @Entity("user_streaks")
 export class UserStreak {
   @PrimaryGeneratedColumn()
-  id!: number;
+  id!: number
 
   @Column({ type: "int" })
   @Index()
-  userId!: number;
+  userId!: number
 
   @Column({ type: "varchar", length: 50 })
   @Index()
-  streakType!: string;
+  streakType!: string
 
   @Column({ type: "int", default: 0 })
-  currentCount!: number;
+  currentCount!: number
 
   @Column({ type: "timestamp" })
-  lastActivity!: Date;
+  lastActivity!: Date
 
   @CreateDateColumn()
-  createdAt!: Date;
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updatedAt!: Date;
+  updatedAt!: Date
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })
-  user!: User;
+  user!: User
 }

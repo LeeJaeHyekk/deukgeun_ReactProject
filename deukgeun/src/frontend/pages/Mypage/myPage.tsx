@@ -1,27 +1,27 @@
-import React, { useCallback, memo, useMemo } from "react";
-import { useUserStore } from "@shared/store/userStore";
-import { useAuthContext } from "@shared/contexts/AuthContext";
-import { LevelDisplay } from "@shared/components/LevelDisplay";
-import { User } from "@shared/types/user";
-import styles from "./myPage.module.css";
+import React, { useCallback, memo, useMemo } from "react"
+import { useUserStore } from "@shared/store/userStore"
+import { useAuthContext } from "@shared/contexts/AuthContext"
+import { LevelDisplay } from "@shared/components/LevelDisplay"
+import { User } from "@shared/types/user"
+import styles from "./myPage.module.css"
 
 // 타입 정의
 interface UserInfo {
-  nickname: string;
-  email: string;
+  nickname: string
+  email: string
 }
 
 interface MyPageProps {
-  className?: string;
+  className?: string
 }
 
 // Zustand selector 최적화
-const selectUser = (state: { user: User | null }) => state.user;
+const selectUser = (state: { user: User | null }) => state.user
 
 // 메모이제이션된 컴포넌트들
 const UserAvatar = memo(({ src, alt }: { src: string; alt: string }) => (
   <img src={src} alt={alt} className={styles.avatar} />
-));
+))
 
 const InfoItem = memo(
   ({ label, value, icon }: { label: string; value: string; icon?: string }) => (
@@ -33,7 +33,7 @@ const InfoItem = memo(
       <p className={styles.value}>{value}</p>
     </div>
   )
-);
+)
 
 const ActionButton = memo(
   ({
@@ -42,10 +42,10 @@ const ActionButton = memo(
     variant = "primary",
     icon,
   }: {
-    children: React.ReactNode;
-    onClick?: () => void;
-    variant?: "primary" | "secondary" | "danger";
-    icon?: string;
+    children: React.ReactNode
+    onClick?: () => void
+    variant?: "primary" | "secondary" | "danger"
+    icon?: string
   }) => (
     <button
       className={`${styles.actionBtn} ${styles[variant]}`}
@@ -55,7 +55,7 @@ const ActionButton = memo(
       {children}
     </button>
   )
-);
+)
 
 const StatsCard = memo(
   ({
@@ -64,10 +64,10 @@ const StatsCard = memo(
     subtitle,
     icon,
   }: {
-    title: string;
-    value: string;
-    subtitle?: string;
-    icon?: string;
+    title: string
+    value: string
+    subtitle?: string
+    icon?: string
   }) => (
     <div className={styles.statsCard}>
       <div className={styles.statsHeader}>
@@ -78,48 +78,48 @@ const StatsCard = memo(
       {subtitle && <p className={styles.statsSubtitle}>{subtitle}</p>}
     </div>
   )
-);
+)
 
 function MyPage({ className }: MyPageProps) {
   // Zustand store에서 사용자 정보 가져오기 (최적화된 selector 사용)
-  const user = useUserStore(selectUser);
-  const { logout } = useAuthContext();
+  const user = useUserStore(selectUser)
+  const { logout } = useAuthContext()
 
   // 사용자 정보 메모이제이션 (성능 최적화)
   const userInfo = useMemo((): UserInfo => {
     return {
       nickname: user?.nickname || "사용자",
       email: user?.email || "이메일 없음",
-    };
-  }, [user?.nickname, user?.email]);
+    }
+  }, [user?.nickname, user?.email])
 
   // 로그아웃 핸들러 메모이제이션
   const handleLogout = useCallback(async () => {
     try {
-      await logout();
-      console.log("로그아웃 성공");
+      await logout()
+      console.log("로그아웃 성공")
     } catch (error) {
-      console.error("로그아웃 실패:", error);
+      console.error("로그아웃 실패:", error)
     }
-  }, [logout]);
+  }, [logout])
 
   // 회원정보 수정 핸들러
   const handleEditProfile = useCallback(() => {
-    console.log("회원정보 수정 페이지로 이동");
+    console.log("회원정보 수정 페이지로 이동")
     // TODO: 회원정보 수정 페이지로 라우팅
-  }, []);
+  }, [])
 
   // 운동 기록 보기 핸들러
   const handleViewWorkoutHistory = useCallback(() => {
-    console.log("운동 기록 페이지로 이동");
+    console.log("운동 기록 페이지로 이동")
     // TODO: 운동 기록 페이지로 라우팅
-  }, []);
+  }, [])
 
   // 설정 아이콘 클릭 핸들러
   const handleSettingsClick = useCallback(() => {
-    console.log("설정 페이지로 이동");
+    console.log("설정 페이지로 이동")
     // TODO: 설정 페이지로 라우팅
-  }, []);
+  }, [])
 
   return (
     <div className={styles.pageWrapper}>
@@ -136,7 +136,7 @@ function MyPage({ className }: MyPageProps) {
                 onClick={handleSettingsClick}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => e.key === "Enter" && handleSettingsClick()}
+                onKeyDown={e => e.key === "Enter" && handleSettingsClick()}
               >
                 ⚙️
               </div>
@@ -219,8 +219,8 @@ function MyPage({ className }: MyPageProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 // 컴포넌트 메모이제이션
-export default memo(MyPage);
+export default memo(MyPage)

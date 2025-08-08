@@ -1,10 +1,10 @@
-import { SortOption, SortDirection } from "../../types";
-import styles from "./SortSelect.module.css";
+import { SortOption, SortDirection } from "../../types"
+import styles from "./SortSelect.module.css"
 
 interface SortSelectProps {
-  sortBy: SortOption;
-  sortDirection: SortDirection;
-  onSortChange: (sortBy: SortOption, direction: SortDirection) => void;
+  sortBy: SortOption
+  sortDirection: SortDirection
+  onSortChange: (sortBy: SortOption, direction: SortDirection) => void
 }
 
 const sortOptions = [
@@ -13,7 +13,7 @@ const sortOptions = [
   { value: "rating", label: "평점순" },
   { value: "reviewCount", label: "리뷰순" },
   { value: "price", label: "가격순" },
-] as const;
+] as const
 
 export function SortSelect({
   sortBy,
@@ -23,16 +23,15 @@ export function SortSelect({
   const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const [newSortBy, newDirection] = event.target.value.split("-") as [
       SortOption,
-      SortDirection
-    ];
-    onSortChange(newSortBy, newDirection);
-  };
+      SortDirection,
+    ]
+    onSortChange(newSortBy, newDirection)
+  }
 
   const handleDirectionToggle = () => {
-    const newDirection: SortDirection =
-      sortDirection === "asc" ? "desc" : "asc";
-    onSortChange(sortBy, newDirection);
-  };
+    const newDirection: SortDirection = sortDirection === "asc" ? "desc" : "asc"
+    onSortChange(sortBy, newDirection)
+  }
 
   return (
     <div className={styles.sortContainer}>
@@ -45,12 +44,12 @@ export function SortSelect({
         onChange={handleSortChange}
         className={styles.select}
       >
-        {sortOptions.map((option) => (
+        {sortOptions.map(option => (
           <option key={`${option.value}-asc`} value={`${option.value}-asc`}>
             {option.label} (오름차순)
           </option>
         ))}
-        {sortOptions.map((option) => (
+        {sortOptions.map(option => (
           <option key={`${option.value}-desc`} value={`${option.value}-desc`}>
             {option.label} (내림차순)
           </option>
@@ -64,5 +63,5 @@ export function SortSelect({
         {sortDirection === "asc" ? "↑" : "↓"}
       </button>
     </div>
-  );
+  )
 }

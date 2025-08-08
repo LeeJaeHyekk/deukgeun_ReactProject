@@ -7,38 +7,38 @@ import {
   Index,
   ManyToOne,
   JoinColumn,
-} from "typeorm";
-import { User } from "./User";
+} from "typeorm"
+import { User } from "./User"
 
 @Entity("user_levels")
 export class UserLevel {
   @PrimaryGeneratedColumn()
-  id!: number;
+  id!: number
 
   @Column({ type: "int" })
   @Index()
-  userId!: number;
+  userId!: number
 
   @Column({ type: "int", default: 1 })
-  level!: number;
+  level!: number
 
   @Column({ type: "int", default: 0 })
-  currentExp!: number;
+  currentExp!: number
 
   @Column({ type: "int", default: 0 })
-  totalExp!: number;
+  totalExp!: number
 
   @Column({ type: "int", default: 0 })
-  seasonExp!: number;
+  seasonExp!: number
 
   @CreateDateColumn()
-  createdAt!: Date;
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updatedAt!: Date;
+  updatedAt!: Date
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })
-  user!: User;
+  user!: User
 }

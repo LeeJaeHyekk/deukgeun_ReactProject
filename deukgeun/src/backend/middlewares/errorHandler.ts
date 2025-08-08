@@ -1,13 +1,13 @@
-import { Request, Response, NextFunction } from "express";
-import { logger } from "../utils/logger";
+import { Request, Response, NextFunction } from "express"
+import { logger } from "../utils/logger"
 
 /**
  * 애플리케이션 에러 인터페이스
  * 기본 Error 클래스를 확장하여 HTTP 상태 코드와 운영 에러 여부를 추가합니다.
  */
 export interface AppError extends Error {
-  statusCode?: number;
-  isOperational?: boolean;
+  statusCode?: number
+  isOperational?: boolean
 }
 
 /**
@@ -24,19 +24,19 @@ export const errorHandler = (
   error: AppError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   /**
    * 에러 상태 코드 결정
    * 에러 객체에 statusCode가 있으면 사용하고, 없으면 500(Internal Server Error)를 사용합니다.
    */
-  const statusCode = error.statusCode || 500;
+  const statusCode = error.statusCode || 500
 
   /**
    * 에러 메시지 결정
    * 에러 객체에 message가 있으면 사용하고, 없으면 기본 메시지를 사용합니다.
    */
-  const message = error.message || "Internal Server Error";
+  const message = error.message || "Internal Server Error"
 
   /**
    * 에러 로깅
@@ -48,7 +48,7 @@ export const errorHandler = (
     url: req.url,
     method: req.method,
     ip: req.ip,
-  });
+  })
 
   /**
    * 클라이언트 응답 생성
@@ -61,5 +61,5 @@ export const errorHandler = (
       message,
       ...(process.env.NODE_ENV === "development" && { stack: error.stack }),
     },
-  });
-};
+  })
+}

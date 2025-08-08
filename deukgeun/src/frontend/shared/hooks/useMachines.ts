@@ -1,192 +1,187 @@
-import { useState, useEffect, useCallback } from "react";
-import { machineApi } from "../api/machineApi";
-import {
-  Machine,
+import { useState, useEffect, useCallback } from "react"
+import { machineApi } from "@shared/api/machineApi"
+import { showToast } from "@shared/lib"
+import type { Machine } from "@shared/types/machine"
+import type {
   CreateMachineRequest,
   UpdateMachineRequest,
-  MachineFilterQuery,
-} from "../types/machine";
-import { showToast } from "../lib";
+} from "@shared/api/machineApi"
 
-/**
- * Machine 관련 커스텀 훅
- * 기구 데이터 관리와 API 호출을 담당합니다.
- */
 export const useMachines = () => {
-  const [machines, setMachines] = useState<Machine[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [machines, setMachines] = useState<Machine[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  // 모든 기구 조회
+  // 모든 머신 조회
   const fetchMachines = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
+    setLoading(true)
+    setError(null)
     try {
-      const response = await machineApi.getAllMachines();
-      setMachines(response.data);
-    } catch (err: any) {
+      const response = await machineApi.getMachines()
+      setMachines(response.machines)
+      return response.machines
+    } catch (err: unknown) {
       const errorMessage =
-        err.response?.data?.message || "기구 목록을 불러오는데 실패했습니다.";
-      setError(errorMessage);
-      showToast(errorMessage, "error");
+        err instanceof Error
+          ? err.message
+          : "머신 목록을 불러오는데 실패했습니다."
+      setError(errorMessage)
+      showToast(errorMessage, "error")
+      throw err
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
-  // 특정 기구 조회
-  const fetchMachineById = useCallback(
-    async (id: number): Promise<Machine | null> => {
-      try {
-        const response = await machineApi.getMachineById(id);
-        return response.data;
-      } catch (err: any) {
-        const errorMessage =
-          err.response?.data?.message || "기구 정보를 불러오는데 실패했습니다.";
-        showToast(errorMessage, "error");
-        return null;
-      }
-    },
-    []
-  );
+  // 특정 머신 조회
+  const fetchMachine = useCallback(async (id: number) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await machineApi.getMachine(id)
+      return response.machine
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "머신 정보를 불러오는데 실패했습니다."
+      setError(errorMessage)
+      showToast(errorMessage, "error")
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
-  // 기구 생성 (Admin 권한 필요)
+  // 머신 생성
   const createMachine = useCallback(
-    async (machineData: CreateMachineRequest): Promise<boolean> => {
-      setLoading(true);
-      setError(null);
-
+    async (machineData: CreateMachineRequest) => {
+      setLoading(true)
+      setError(null)
       try {
-        const response = await machineApi.createMachine(machineData);
-        showToast(response.message, "success");
-
-        // 목록 새로고침
-        await fetchMachines();
-        return true;
-      } catch (err: any) {
+        const response = await machineApi.createMachine(machineData)
+        showToast("머신이 성공적으로 생성되었습니다.", "success")
+        await fetchMachines() // 목록 새로고침
+        return response.machine
+      } catch (err: unknown) {
         const errorMessage =
-          err.response?.data?.message || "기구 생성에 실패했습니다.";
-        setError(errorMessage);
-        showToast(errorMessage, "error");
-        return false;
+          err instanceof Error ? err.message : "머신 생성에 실패했습니다."
+        setError(errorMessage)
+        showToast(errorMessage, "error")
+        throw err
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     },
     [fetchMachines]
-  );
+  )
 
-  // 기구 수정 (Admin 권한 필요)
+  // 머신 수정
   const updateMachine = useCallback(
-    async (id: number, updateData: UpdateMachineRequest): Promise<boolean> => {
-      setLoading(true);
-      setError(null);
-
+    async (id: number, updateData: UpdateMachineRequest) => {
+      setLoading(true)
+      setError(null)
       try {
-        const response = await machineApi.updateMachine(id, updateData);
-        showToast(response.message, "success");
-
-        // 목록 새로고침
-        await fetchMachines();
-        return true;
-      } catch (err: any) {
+        const response = await machineApi.updateMachine(id, updateData)
+        showToast("머신이 성공적으로 수정되었습니다.", "success")
+        await fetchMachines() // 목록 새로고침
+        return response.machine
+      } catch (err: unknown) {
         const errorMessage =
-          err.response?.data?.message || "기구 수정에 실패했습니다.";
-        setError(errorMessage);
-        showToast(errorMessage, "error");
-        return false;
+          err instanceof Error ? err.message : "머신 수정에 실패했습니다."
+        setError(errorMessage)
+        showToast(errorMessage, "error")
+        throw err
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     },
     [fetchMachines]
-  );
+  )
 
-  // 기구 삭제 (Admin 권한 필요)
+  // 머신 삭제
   const deleteMachine = useCallback(
-    async (id: number): Promise<boolean> => {
-      setLoading(true);
-      setError(null);
-
+    async (id: number) => {
+      setLoading(true)
+      setError(null)
       try {
-        const response = await machineApi.deleteMachine(id);
-        showToast(response.message, "success");
-
-        // 목록 새로고침
-        await fetchMachines();
-        return true;
-      } catch (err: any) {
+        await machineApi.deleteMachine(id)
+        showToast("머신이 성공적으로 삭제되었습니다.", "success")
+        await fetchMachines() // 목록 새로고침
+      } catch (err: unknown) {
         const errorMessage =
-          err.response?.data?.message || "기구 삭제에 실패했습니다.";
-        setError(errorMessage);
-        showToast(errorMessage, "error");
-        return false;
+          err instanceof Error ? err.message : "머신 삭제에 실패했습니다."
+        setError(errorMessage)
+        showToast(errorMessage, "error")
+        throw err
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     },
     [fetchMachines]
-  );
+  )
 
-  // 기구 필터링
+  // 머신 필터링
   const filterMachines = useCallback(
-    async (filters: MachineFilterQuery): Promise<Machine[]> => {
-      setLoading(true);
-      setError(null);
-
+    async (filters: {
+      category?: string
+      difficulty?: string
+      search?: string
+    }) => {
+      setLoading(true)
+      setError(null)
       try {
-        const response = await machineApi.filterMachines(filters);
-        setMachines(response.data);
-        return response.data;
-      } catch (err: any) {
+        const response = await machineApi.filterMachines(filters)
+        setMachines(response.machines)
+        return response.machines
+      } catch (err: unknown) {
         const errorMessage =
-          err.response?.data?.message || "기구 필터링에 실패했습니다.";
-        setError(errorMessage);
-        showToast(errorMessage, "error");
-        return [];
+          err instanceof Error ? err.message : "머신 필터링에 실패했습니다."
+        setError(errorMessage)
+        showToast(errorMessage, "error")
+        throw err
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     },
     []
-  );
+  )
 
-  // 카테고리별 기구 조회
+  // 카테고리별 머신 조회
   const getMachinesByCategory = useCallback(
-    async (category: string): Promise<Machine[]> => {
-      return filterMachines({ category: category as any });
+    async (category: string) => {
+      return filterMachines({ category })
     },
     [filterMachines]
-  );
+  )
 
-  // 난이도별 기구 조회
+  // 난이도별 머신 조회
   const getMachinesByDifficulty = useCallback(
-    async (difficulty: string): Promise<Machine[]> => {
-      return filterMachines({ difficulty: difficulty as any });
+    async (difficulty: string) => {
+      return filterMachines({ difficulty })
     },
     [filterMachines]
-  );
+  )
 
-  // 타겟 근육별 기구 조회
+  // 타겟별 머신 조회
   const getMachinesByTarget = useCallback(
-    async (target: string): Promise<Machine[]> => {
-      return filterMachines({ target });
+    async (target: string) => {
+      return filterMachines({ search: target })
     },
     [filterMachines]
-  );
+  )
 
-  // 컴포넌트 마운트 시 기구 목록 로드
+  // 컴포넌트 마운트 시 머신 목록 로드
   useEffect(() => {
-    fetchMachines();
-  }, [fetchMachines]);
+    fetchMachines()
+  }, [fetchMachines])
 
   return {
     machines,
     loading,
     error,
     fetchMachines,
-    fetchMachineById,
+    fetchMachine,
     createMachine,
     updateMachine,
     deleteMachine,
@@ -194,5 +189,5 @@ export const useMachines = () => {
     getMachinesByCategory,
     getMachinesByDifficulty,
     getMachinesByTarget,
-  };
-};
+  }
+}

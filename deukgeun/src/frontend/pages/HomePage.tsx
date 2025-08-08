@@ -53,52 +53,89 @@ export default function HomePage() {
 
       {/* My Info Section - 로그인된 경우에만 표시 */}
       {isLoggedIn && user && (
-        <section className={styles.myInfoSummary}>
-          <div className={styles.myInfoCard}>
-            <div className={styles.userInfoSection}>
-              <img
-                src="/img/user-avatar.jpg"
-                alt="아바타"
-                className={styles.avatarSmall}
-              />
-              <div className={styles.userDetails}>
-                <h3 className={styles.userName}>{user.nickname}</h3>
-                <p className={styles.userEmail}>{user.email}</p>
-                <p className={styles.workoutStatus}>
-                  🔥 오늘의 운동: 가슴 + 삼두
-                </p>
-              </div>
-            </div>
+        <section className={styles.myInfoSection}>
+          <div className={styles.myInfoHeader}>
+            <h2>내 정보</h2>
+            <p>오늘의 운동 현황과 레벨을 확인해보세요</p>
+          </div>
 
-            <div className={styles.levelSection}>
-              <div className={styles.levelBadge}>
-                <span className={styles.levelNumber}>
-                  {levelLoading ? "..." : `Lv.${currentLevel}`}
-                </span>
-              </div>
-              <div className={styles.levelProgress}>
-                <div className={styles.progressBar}>
-                  <div
-                    className={styles.progressFill}
-                    style={{
-                      width: `${levelLoading ? 0 : progressPercentage}%`,
-                    }}
-                  ></div>
+          <div className={styles.myInfoGrid}>
+            {/* 프로필 카드 */}
+            <div className={styles.infoCard}>
+              <div className={styles.cardHeader}>
+                <img
+                  src="/img/user-avatar.jpg"
+                  alt="아바타"
+                  className={styles.profileAvatar}
+                />
+                <div className={styles.profileInfo}>
+                  <h3>{user.nickname}</h3>
+                  <p>{user.email}</p>
                 </div>
-                <span className={styles.progressText}>
-                  {levelLoading
-                    ? "로딩 중..."
-                    : `${progressPercentage.toFixed(0)}% 완료`}
-                </span>
+              </div>
+              <div className={styles.cardContent}>
+                <div className={styles.workoutStatus}>
+                  <span className={styles.statusIcon}>🔥</span>
+                  <span>오늘의 운동: 가슴 + 삼두</span>
+                </div>
               </div>
             </div>
 
-            <button
-              onClick={() => navigate("/mypage")}
-              className={styles.detailBtn}
-            >
-              마이페이지
-            </button>
+            {/* 레벨 카드 */}
+            <div className={styles.infoCard}>
+              <div className={styles.cardHeader}>
+                <div className={styles.levelIcon}>⭐</div>
+                <h3>현재 레벨</h3>
+              </div>
+              <div className={styles.cardContent}>
+                <div className={styles.levelDisplay}>
+                  <div className={styles.levelBadge}>
+                    {levelLoading ? "..." : `Lv.${currentLevel}`}
+                  </div>
+                  <div className={styles.progressContainer}>
+                    <div className={styles.progressBar}>
+                      <div
+                        className={styles.progressFill}
+                        style={{
+                          width: `${levelLoading ? 0 : progressPercentage}%`,
+                        }}
+                      ></div>
+                    </div>
+                    <span className={styles.progressText}>
+                      {levelLoading
+                        ? "로딩 중..."
+                        : `${progressPercentage.toFixed(0)}% 완료`}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 액션 카드 */}
+            <div className={styles.infoCard}>
+              <div className={styles.cardHeader}>
+                <div className={styles.actionIcon}>⚙️</div>
+                <h3>계정 관리</h3>
+              </div>
+              <div className={styles.cardContent}>
+                <button
+                  onClick={() => navigate("/mypage")}
+                  className={styles.mypageBtn}
+                >
+                  마이페이지로 이동
+                </button>
+                <div className={styles.quickStats}>
+                  <div className={styles.statItem}>
+                    <span className={styles.statNumber}>24</span>
+                    <span className={styles.statLabel}>운동일수</span>
+                  </div>
+                  <div className={styles.statItem}>
+                    <span className={styles.statNumber}>7</span>
+                    <span className={styles.statLabel}>연속일수</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       )}

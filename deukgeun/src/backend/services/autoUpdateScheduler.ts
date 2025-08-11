@@ -5,6 +5,7 @@ import { updateGymDetailsWithEnhancedSources } from "./enhancedCrawlerService"
 import { updateGymDetails } from "./gymCrawlerService"
 import { updateGymDetailsWithMultipleSources } from "./multiSourceCrawlerService"
 import { updateGymDetailsWithAdvancedSources } from "./advancedCrawlerService"
+import { DataReferenceService } from "./dataReferenceService"
 import { logger } from "../utils/logger"
 
 type UpdateType = "enhanced" | "basic" | "multisource" | "advanced"
@@ -14,6 +15,7 @@ interface SchedulerConfig {
   minute: number // Execution minute
   updateType: UpdateType // Update method to use
   enabled: boolean // Scheduler activation status
+  intervalDays: number // Interval between executions in days
 }
 
 // Default configuration
@@ -22,6 +24,7 @@ const DEFAULT_CONFIG: SchedulerConfig = {
   minute: 0, // 0 minutes
   updateType: "enhanced", // Use enhanced crawling
   enabled: true,
+  intervalDays: 3, // Run every 3 days
 }
 
 class AutoUpdateScheduler {
@@ -39,9 +42,9 @@ class AutoUpdateScheduler {
     const nextRun = new Date()
     nextRun.setHours(this.config.hour, this.config.minute, 0, 0)
 
-    // If today's execution time has passed, set to tomorrow
+    // If today's execution time has passed, set to next execution
     if (nextRun <= now) {
-      nextRun.setDate(nextRun.getDate() + 1)
+      nextRun.setDate(nextRun.getDate() + this.config.intervalDays)
     }
 
     return nextRun
@@ -60,9 +63,9 @@ class AutoUpdateScheduler {
     }
 
     logger.info(
-      `Starting auto-update scheduler for ${this.config.updateType} at ${
+      `🚀 Starting auto-update scheduler for ${this.config.updateType} at ${
         this.config.hour
-      }:${this.config.minute.toString().padStart(2, "0")}`
+      }:${this.config.minute.toString().padStart(2, "0")} every ${this.config.intervalDays} days`
     )
 
     // Schedule next execution
@@ -75,6 +78,7 @@ class AutoUpdateScheduler {
       nextRun.getDate() === now.getDate() &&
       nextRun.getTime() <= now.getTime()
     ) {
+      logger.info("⏰ Execution time has passed, running immediately")
       this.executeUpdate()
     }
   }
@@ -82,17 +86,32 @@ class AutoUpdateScheduler {
   // Execute update
   private async executeUpdate(): Promise<void> {
     if (this.isRunning) {
-      logger.warn("Update is already running, skipping")
+      logger.warn("⚠️ Update is already running, skipping")
       return
     }
 
     this.isRunning = true
-    logger.info(`Starting ${this.config.updateType} update`)
+    const startTime = Date.now()
+    logger.info(`🔄 Starting ${this.config.updateType} update`)
 
     try {
       // Database connection
       const connection = await connectDatabase()
       const gymRepo = connection.getRepository(Gym)
+
+      // Pre-scheduler check: 업데이트가 필요한지 확인
+      logger.info("📊 스케줄러 실행 전 상태 확인 중...")
+      const preCheck = await DataReferenceService.preSchedulerCheck(gymRepo)
+
+      if (!preCheck.shouldRunUpdate) {
+        logger.info(`⏭️ 업데이트 건너뜀: ${preCheck.reason}`)
+        await DataReferenceService.logDataReferenceStatistics(gymRepo)
+        await connection.close()
+        return
+      }
+
+      logger.info(`🔄 업데이트 실행: ${preCheck.reason}`)
+      await DataReferenceService.logDataReferenceStatistics(gymRepo)
 
       // Execute selected update method
       switch (this.config.updateType) {
@@ -112,11 +131,22 @@ class AutoUpdateScheduler {
           await updateGymDetailsWithEnhancedSources(gymRepo)
       }
 
+      // Post-update statistics
+      logger.info("📊 업데이트 후 상태 확인...")
+      await DataReferenceService.logDataReferenceStatistics(gymRepo)
+
       // Close database connection
       await connection.close()
-      logger.info(`${this.config.updateType} update completed successfully`)
+      const duration = Date.now() - startTime
+      logger.info(
+        `✅ ${this.config.updateType} update completed successfully in ${duration}ms`
+      )
     } catch (error) {
-      logger.error(`Error during ${this.config.updateType} update:`, error)
+      const duration = Date.now() - startTime
+      logger.error(
+        `❌ Error during ${this.config.updateType} update after ${duration}ms:`,
+        error
+      )
     } finally {
       this.isRunning = false
       // Calculate next execution time and schedule
@@ -133,7 +163,13 @@ class AutoUpdateScheduler {
       this.executeUpdate()
     }, delay)
 
-    logger.info(`Next update scheduled for ${nextRun.toLocaleString()}`)
+    const daysUntilNext = Math.round(delay / 1000 / 60 / 60 / 24)
+    const hoursUntilNext = Math.round((delay / 1000 / 60 / 60) % 24)
+    const minutesUntilNext = Math.round((delay / 1000 / 60) % 60)
+
+    logger.info(
+      `📅 Next update scheduled for ${nextRun.toLocaleString()} (in ${daysUntilNext} days, ${hoursUntilNext} hours, ${minutesUntilNext} minutes)`
+    )
   }
 
   // Stop scheduler
@@ -171,6 +207,7 @@ class AutoUpdateScheduler {
       schedule: `${this.config.hour}:${this.config.minute
         .toString()
         .padStart(2, "0")}`,
+      intervalDays: this.config.intervalDays,
     }
   }
 
@@ -257,6 +294,10 @@ function loadConfigFromEnv(): Partial<SchedulerConfig> {
   if (process.env.AUTO_UPDATE_ENABLED !== undefined) {
     config.enabled = process.env.AUTO_UPDATE_ENABLED === "true"
   }
+
+  // Interval settings
+  const intervalDays = parseInt(process.env.AUTO_UPDATE_INTERVAL_DAYS || "3")
+  if (intervalDays >= 1) config.intervalDays = intervalDays
 
   return config
 }

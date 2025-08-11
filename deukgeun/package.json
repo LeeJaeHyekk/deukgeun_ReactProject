@@ -16,7 +16,15 @@
     "backend:start": "cd src/backend && npm start",
     "setup:test-user": "cd src/backend && npx ts-node scripts/setupTestUser.ts",
     "setup:level-tables": "cd src/backend && npx ts-node scripts/createLevelTables.ts",
-    "dev:full": "concurrently \"npm run backend:dev\" \"wait-on http://localhost:5000 && npm run dev\""
+    "dev:full": "concurrently \"npm run backend:dev\" \"wait-on http://localhost:5000 && npm run dev\"",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop ecosystem.config.js",
+    "pm2:restart": "pm2 restart ecosystem.config.js",
+    "pm2:delete": "pm2 delete ecosystem.config.js",
+    "pm2:logs": "pm2 logs",
+    "pm2:status": "pm2 status",
+    "test:scheduler": "cd src/backend && npm run test:scheduler",
+    "test:crawling": "cd src/backend && npm run test:crawling"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.17.9",

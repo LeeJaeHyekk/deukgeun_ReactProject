@@ -41,7 +41,9 @@ export default function CommunityPage() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<string>("")
+  const [selectedCategory, setSelectedCategory] = useState<string>("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [sortBy, setSortBy] = useState<"latest" | "popular">("latest")
   const [availableCategories, setAvailableCategories] = useState<
     PostCategory[]
   >([])
@@ -67,16 +69,32 @@ export default function CommunityPage() {
 
   // 게시글 목록 가져오기
   const fetchPosts = useCallback(
-    async (page: number = 1, category?: string) => {
+    async (page: number = 1) => {
       setLoading(true)
       try {
-        const selectedCategoryParam = category || selectedCategory
-
-        const res = await postsApi.list({
-          category: selectedCategoryParam,
+        const params: {
+          category?: string
+          q?: string
+          sort?: "latest" | "popular"
+          page?: number
+          limit?: number
+        } = {
           page,
           limit,
-        })
+          sort: sortBy,
+        }
+
+        // 카테고리 필터
+        if (selectedCategory && selectedCategory !== "all") {
+          params.category = selectedCategory
+        }
+
+        // 검색어 필터
+        if (searchTerm.trim()) {
+          params.q = searchTerm.trim()
+        }
+
+        const res = await postsApi.list(params)
 
         const postListResponse = res.data.data as PostListResponse
 
@@ -90,13 +108,13 @@ export default function CommunityPage() {
         setLoading(false)
       }
     },
-    [selectedCategory, limit]
+    [selectedCategory, searchTerm, sortBy, limit]
   )
 
-  // 카테고리 변경 시 게시글 다시 로드
+  // 필터 변경 시 게시글 다시 로드
   useEffect(() => {
-    fetchPosts(1, selectedCategory)
-  }, [selectedCategory])
+    fetchPosts(1)
+  }, [selectedCategory, searchTerm, sortBy])
 
   // 페이지 변경 시 게시글 다시 로드
   useEffect(() => {
@@ -167,6 +185,20 @@ export default function CommunityPage() {
     }
   }
 
+  // 카테고리 데이터 준비
+  const categories = [
+    {
+      id: "all",
+      label: "전체",
+      count: availableCategories.reduce((sum, cat) => sum + cat.count, 0),
+    },
+    ...availableCategories.map(cat => ({
+      id: cat.name,
+      label: cat.name,
+      count: cat.count,
+    })),
+  ]
+
   return (
     <div className={styles.communityPage}>
       <Navigation />
@@ -175,41 +207,93 @@ export default function CommunityPage() {
           <h1 className={styles.title}>커뮤니티</h1>
           <p className={styles.subtitle}>함께 운동하고 경험을 나누어보세요</p>
 
-          <div className={styles.controls}>
-            {/* 카테고리 필터 */}
-            <select
-              value={selectedCategory}
-              onChange={e => setSelectedCategory(e.target.value)}
-              className={styles.categorySelect}
-            >
-              <option value="">전체 카테고리</option>
-              {(availableCategories || []).map(category => (
-                <option key={category.id} value={category.name}>
-                  {category.name} ({category.count})
-                </option>
-              ))}
-            </select>
+          {/* 컨트롤 섹션 */}
+          <section className={styles.controls}>
+            {/* 검색 및 정렬 */}
+            <div className={styles.searchSort}>
+              <div className={styles.searchBox}>
+                <input
+                  type="text"
+                  placeholder="게시글 검색..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className={styles.searchInput}
+                />
+              </div>
 
-            {/* 새 게시글 작성 버튼 */}
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className={styles.createButton}
-            >
-              새 게시글 작성
-            </button>
-          </div>
+              <div className={styles.sortSelect}>
+                <select
+                  value={sortBy}
+                  onChange={e =>
+                    setSortBy(e.target.value as "latest" | "popular")
+                  }
+                  className={styles.select}
+                >
+                  <option value="latest">최신순</option>
+                  <option value="popular">인기순</option>
+                </select>
+              </div>
+            </div>
+
+            {/* 카테고리 + 글쓰기 동일 구역 배치 */}
+            <div className={styles.categoriesRow}>
+              <div className={styles.categories}>
+                {categories.map(category => (
+                  <button
+                    key={category.id}
+                    className={`${styles.categoryBtn} ${
+                      selectedCategory === category.id ? styles.active : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedCategory(category.id)
+                      setCurrentPage(1)
+                    }}
+                  >
+                    {category.label} ({category.count})
+                  </button>
+                ))}
+              </div>
+
+              <button
+                className={styles.createPostBtn}
+                onClick={() => setIsModalOpen(true)}
+              >
+                ✏️ 글쓰기
+              </button>
+            </div>
+          </section>
         </div>
 
         {/* 게시글 그리드 */}
-        <PostGrid
-          posts={posts}
-          onPostClick={handleOpenPost}
-          onLikeClick={handleLikePost}
-          loading={loading}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+        <section className={styles.postsSection}>
+          {loading ? (
+            <div className={styles.loadingState}>
+              <div className={styles.spinner}></div>
+              <p>게시글을 불러오는 중...</p>
+            </div>
+          ) : posts.length === 0 ? (
+            <div className={styles.emptyState}>
+              <h3>게시글이 없습니다</h3>
+              <p>첫 번째 게시글을 작성해보세요!</p>
+              <button
+                className={styles.createFirstPostBtn}
+                onClick={() => setIsModalOpen(true)}
+              >
+                ✏️ 첫 게시글 작성하기
+              </button>
+            </div>
+          ) : (
+            <PostGrid
+              posts={posts}
+              onPostClick={handleOpenPost}
+              onLikeClick={handleLikePost}
+              loading={loading}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
+        </section>
 
         {/* 새 게시글 작성 모달 */}
         {isModalOpen && (

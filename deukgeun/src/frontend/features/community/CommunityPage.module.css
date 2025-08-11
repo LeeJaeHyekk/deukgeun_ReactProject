@@ -46,23 +46,21 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 16px; /* 하위 섹션 간격 일원화 */
+  gap: 16px;
 }
 
 .searchSort {
-  display: grid; /* 두 열: 인풋(가변) | 셀렉트(고정) */
+  display: grid;
   grid-template-columns: 1fr auto;
   column-gap: 12px;
-  margin-bottom: 0; /* 컨트롤 섹션 gap으로 관리 */
   align-items: center;
-  width: 100%; /* 컨테이너 좌우 끝까지 사용 */
+  width: 100%;
 }
 
 .searchBox {
-  min-width: 0; /* 한 줄 유지 위해 축소 허용 */
+  min-width: 0;
 }
 
-/* SearchBar 스타일과 일체감 유지 */
 .searchInput {
   width: 100%;
   max-width: 950px;
@@ -73,7 +71,20 @@
   color: #374151;
   backdrop-filter: blur(6px);
   font-size: 0.95rem;
-  min-width: 0; /* 그리드 컨텍스트에서 축소 허용 */
+  min-width: 0;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.sortSelect {
+  flex: 0 0 auto;
+  min-width: 140px;
+  max-width: 140px;
+  justify-self: end;
 }
 
 .select {
@@ -85,14 +96,13 @@
   font-size: 0.95rem;
   cursor: pointer;
   min-width: 140px;
+  width: 100%;
 }
 
-/* 정렬 셀렉트 래퍼: 고정 폭/줄바꿈 방지 */
-.sortSelect {
-  flex: 0 0 auto;
-  min-width: 140px;
-  max-width: 140px;
-  justify-self: end; /* 항상 오른쪽 끝 정렬 */
+.select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .categoriesRow {
@@ -107,7 +117,6 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
   flex: 1 1 auto;
 }
 
@@ -121,6 +130,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(8px);
+  white-space: nowrap;
 }
 
 .categoryBtn:hover {
@@ -147,52 +157,10 @@
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
   flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .createPostBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(248, 113, 113, 0.4);
-}
-
-/* 컨트롤 섹션 */
-.controls {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 24px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.categorySelect {
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.92);
-  color: #374151;
-  font-size: 0.95rem;
-  cursor: pointer;
-  min-width: 140px;
-}
-
-.createButton {
-  padding: 10px 18px;
-  background: linear-gradient(135deg, #f87171, #ef4444);
-  border: none;
-  border-radius: 12px;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
-  flex: 0 0 auto;
-}
-
-.createButton:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(248, 113, 113, 0.4);
 }
@@ -204,8 +172,88 @@
 
 .postsGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 가로 3개 고정 */
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+}
+
+/* 로딩 상태 */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid #f87171;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingState p {
+  color: #e5e7eb;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* 빈 상태 */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.emptyState h3 {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+}
+
+.emptyState p {
+  color: #e5e7eb;
+  font-size: 1rem;
+  margin: 0 0 24px 0;
+}
+
+.createFirstPostBtn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
+}
+
+.createFirstPostBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(248, 113, 113, 0.4);
 }
 
 /* 글쓰기 모달 */
@@ -366,6 +414,40 @@
   }
 }
 
+@media (max-width: 768px) {
+  .searchSort {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .sortSelect {
+    justify-self: start;
+    min-width: 140px;
+  }
+
+  .categoriesRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .categories {
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .createPostBtn {
+    align-self: center;
+  }
+
+  .emptyState {
+    padding: 60px 16px;
+  }
+
+  .emptyState h3 {
+    font-size: 1.25rem;
+  }
+}
+
 @media (max-width: 640px) {
   .container {
     padding: 12px;
@@ -381,11 +463,16 @@
     padding: 12px;
     margin-bottom: 16px;
   }
-  .categorySelect {
-    min-width: 120px;
+  .searchInput,
+  .select {
     font-size: 0.9rem;
+    padding: 0.75rem 0.875rem;
   }
-  .createButton {
+  .categoryBtn {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+  .createPostBtn {
     width: 100%;
     padding: 10px 14px;
   }
@@ -402,5 +489,18 @@
   }
   .modalActions {
     gap: 8px;
+  }
+  .emptyState {
+    padding: 40px 12px;
+  }
+  .emptyState h3 {
+    font-size: 1.125rem;
+  }
+  .emptyState p {
+    font-size: 0.9rem;
+  }
+  .createFirstPostBtn {
+    padding: 10px 20px;
+    font-size: 14px;
   }
 }

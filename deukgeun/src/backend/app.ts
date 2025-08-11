@@ -6,6 +6,7 @@ import "reflect-metadata"
 import { errorHandler } from "./middlewares/errorHandler"
 import routes from "./routes"
 import cookieParser from "cookie-parser"
+import path from "path"
 
 const app = express()
 
@@ -23,6 +24,10 @@ app.use(cookieParser())
 // Request body parsing middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+// Static files serving
+app.use("/img", express.static(path.join(__dirname, "../../public/img")))
+app.use("/public", express.static(path.join(__dirname, "../../public")))
 
 // Root endpoint
 app.get("/", (req, res) => {

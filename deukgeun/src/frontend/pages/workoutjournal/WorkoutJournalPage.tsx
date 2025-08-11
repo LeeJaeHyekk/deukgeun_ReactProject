@@ -10,6 +10,10 @@ import { GoalProgressBar } from "./components/GoalProgressBar"
 import { useWorkoutPlans } from "./hooks/useWorkoutPlans"
 import { useWorkoutSessions } from "./hooks/useWorkoutSessions"
 import { useWorkoutGoals } from "./hooks/useWorkoutGoals"
+import {
+  WorkoutJournalApi,
+  DashboardData,
+} from "../../shared/api/workoutJournalApi"
 import "./WorkoutJournalPage.css"
 
 export default function WorkoutJournalPage() {
@@ -18,6 +22,7 @@ export default function WorkoutJournalPage() {
     "overview" | "plans" | "sessions" | "goals" | "progress"
   >("overview")
   const [isLoading, setIsLoading] = useState(true)
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
 
   const {
     plans,
@@ -45,7 +50,13 @@ export default function WorkoutJournalPage() {
       const loadData = async () => {
         setIsLoading(true)
         try {
-          await Promise.all([getUserPlans(), getUserSessions(), getUserGoals()])
+          const [dashboard] = await Promise.all([
+            WorkoutJournalApi.getDashboardData(),
+            getUserPlans(),
+            getUserSessions(),
+            getUserGoals(),
+          ])
+          setDashboardData(dashboard)
         } catch (error) {
           console.error("데이터 로딩 실패:", error)
         } finally {
@@ -126,32 +137,55 @@ export default function WorkoutJournalPage() {
               <div className="overview-stats">
                 <div className="stat-card">
                   <h3>총 운동 계획</h3>
-                  <p className="stat-number">{plans?.length || 0}</p>
+                  <p className="stat-number">
+                    {dashboardData?.summary.totalPlans || 0}
+                  </p>
                 </div>
                 <div className="stat-card">
                   <h3>완료된 세션</h3>
                   <p className="stat-number">
-                    {sessions?.filter(s => s.status === "completed").length ||
-                      0}
+                    {dashboardData?.summary.completedSessions || 0}
                   </p>
                 </div>
                 <div className="stat-card">
                   <h3>활성 목표</h3>
                   <p className="stat-number">
-                    {goals?.filter(g => g.status === "active").length || 0}
+                    {dashboardData?.summary.activeGoals || 0}
+                  </p>
+                </div>
+                <div className="stat-card">
+                  <h3>주간 운동</h3>
+                  <p className="stat-number">
+                    {dashboardData?.weeklyStats.totalSessions || 0}
                   </p>
                 </div>
               </div>
 
               <div className="overview-widgets">
                 <div className="widget">
-                  <h3>최근 운동 세션</h3>
-                  <WorkoutSessionTimer />
+                  <h3>주간 통계</h3>
+                  <div className="weekly-stats">
+                    <p>
+                      총 운동 시간:{" "}
+                      {dashboardData?.weeklyStats.totalDuration || 0}분
+                    </p>
+                    <p>
+                      평균 기분:{" "}
+                      {dashboardData?.weeklyStats.averageMood?.toFixed(1) || 0}
+                      /5
+                    </p>
+                    <p>
+                      평균 에너지:{" "}
+                      {dashboardData?.weeklyStats.averageEnergy?.toFixed(1) ||
+                        0}
+                      /5
+                    </p>
+                  </div>
                 </div>
 
                 <div className="widget">
                   <h3>목표 진행률</h3>
-                  {goals?.slice(0, 3).map(goal => (
+                  {dashboardData?.activeGoals.slice(0, 3).map(goal => (
                     <GoalProgressBar key={goal.goal_id} goal={goal} />
                   ))}
                 </div>

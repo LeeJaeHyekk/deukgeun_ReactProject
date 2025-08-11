@@ -33,7 +33,12 @@ export const machineApi = {
     const response = await api.get<MachineListResponse>(
       API_ENDPOINTS.MACHINES.LIST
     )
-    return response.data.data as MachineListResponse
+    console.log("머신 API 응답:", response)
+    // 백엔드 응답 구조에 맞게 수정
+    return {
+      machines: Array.isArray(response.data.data) ? response.data.data : [],
+      count: (response.data as any).count || 0,
+    }
   },
 
   // Get machine by ID
@@ -41,7 +46,9 @@ export const machineApi = {
     const response = await api.get<MachineResponse>(
       API_ENDPOINTS.MACHINES.DETAIL(id)
     )
-    return response.data.data as MachineResponse
+    return {
+      machine: (response.data.data || response.data) as any,
+    }
   },
 
   // Create new machine
@@ -52,7 +59,9 @@ export const machineApi = {
       API_ENDPOINTS.MACHINES.CREATE,
       data
     )
-    return response.data.data as MachineResponse
+    return {
+      machine: (response.data.data || response.data) as any,
+    }
   },
 
   // Update machine
@@ -64,7 +73,9 @@ export const machineApi = {
       API_ENDPOINTS.MACHINES.UPDATE(id),
       data
     )
-    return response.data.data as MachineResponse
+    return {
+      machine: (response.data.data || response.data) as any,
+    }
   },
 
   // Delete machine
@@ -78,10 +89,17 @@ export const machineApi = {
     difficulty?: string
     search?: string
   }): Promise<MachineListResponse> => {
-    const response = await api.post<MachineListResponse>(
-      API_ENDPOINTS.MACHINES.FILTER,
-      filters
+    const params = new URLSearchParams()
+    if (filters.category) params.append("category", filters.category)
+    if (filters.difficulty) params.append("difficulty", filters.difficulty)
+    if (filters.search) params.append("target", filters.search)
+
+    const response = await api.get<MachineListResponse>(
+      `${API_ENDPOINTS.MACHINES.FILTER}?${params.toString()}`
     )
-    return response.data.data as MachineListResponse
+    return {
+      machines: Array.isArray(response.data.data) ? response.data.data : [],
+      count: (response.data as any).count || 0,
+    }
   },
 }

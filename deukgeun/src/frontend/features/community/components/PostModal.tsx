@@ -23,7 +23,7 @@ export function PostModal({ onClose, onSubmit, categories }: PostModalProps) {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    category: categories.length > 0 ? categories[0].name : "",
+    category: categories && categories.length > 0 ? categories[0].name : "",
   })
   const [loading, setLoading] = useState(false)
 
@@ -48,9 +48,11 @@ export function PostModal({ onClose, onSubmit, categories }: PostModalProps) {
     setLoading(true)
     try {
       await onSubmit(formData)
+      // 성공 시에만 모달 닫기
       onClose()
     } catch (error: unknown) {
       console.error("게시글 작성 실패:", error)
+      // 에러 발생 시 모달은 열린 상태로 유지
     } finally {
       setLoading(false)
     }
@@ -79,7 +81,7 @@ export function PostModal({ onClose, onSubmit, categories }: PostModalProps) {
               required
             >
               <option value="">카테고리를 선택하세요</option>
-              {categories.map(category => (
+              {(categories || []).map(category => (
                 <option key={category.id} value={category.name}>
                   {category.name}
                 </option>

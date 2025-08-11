@@ -1,5 +1,10 @@
 import { Repository } from "typeorm"
 import { Machine } from "../entities/Machine"
+import type {
+  Machine as SharedMachine,
+  MachineCategory,
+  DifficultyLevel,
+} from "../../types/machine"
 
 // Machine Repository 타입 정의
 export type MachineRepository = Repository<Machine>
@@ -13,9 +18,9 @@ export interface CreateMachineRequest {
   short_desc: string
   detail_desc: string
   positive_effect?: string
-  category: "상체" | "하체" | "전신" | "기타"
+  category: MachineCategory
   target_muscle?: string[]
-  difficulty_level?: "초급" | "중급" | "고급"
+  difficulty_level?: DifficultyLevel
   video_url?: string
 }
 
@@ -28,9 +33,9 @@ export interface UpdateMachineRequest {
   short_desc?: string
   detail_desc?: string
   positive_effect?: string
-  category?: "상체" | "하체" | "전신" | "기타"
+  category?: MachineCategory
   target_muscle?: string[]
-  difficulty_level?: "초급" | "중급" | "고급"
+  difficulty_level?: DifficultyLevel
   video_url?: string
 }
 
@@ -61,3 +66,10 @@ export interface MachineFilterResponse {
   count: number
   filters: MachineFilterQuery
 }
+
+// 공유 타입 재내보내기
+export type {
+  Machine as SharedMachine,
+  MachineCategory,
+  DifficultyLevel,
+} from "../../types/machine"

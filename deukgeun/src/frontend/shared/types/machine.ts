@@ -1,20 +1,14 @@
-// Machine 관련 타입 정의
-export interface Machine {
-  id: number
-  machine_key: string
-  name_ko: string
-  name_en?: string
-  image_url: string
-  short_desc: string
-  detail_desc: string
-  category: "상체" | "하체" | "전신" | "기타"
-  difficulty_level?: "초급" | "중급" | "고급"
-  target_muscle?: string[]
-  positive_effect?: string
-  video_url?: string
-  created_at: string
-  updated_at: string
-}
+// 이 파일은 더 이상 사용되지 않습니다.
+// 새로운 중앙화된 타입 시스템을 사용하세요: @types/machine
+export type {
+  Machine,
+  MachineCategory,
+  DifficultyLevel,
+  MachineListResponse,
+} from "../../../types/machine"
+
+// Machine 타입을 로컬에서도 사용할 수 있도록 import
+import type { Machine } from "../../../types/machine"
 
 // Machine 생성 요청 타입
 export interface CreateMachineRequest {
@@ -57,12 +51,6 @@ export interface MachineFilterQuery {
 export interface MachineResponse {
   message: string
   data: Machine
-}
-
-export interface MachineListResponse {
-  message: string
-  data: Machine[]
-  count: number
 }
 
 export interface MachineFilterResponse {

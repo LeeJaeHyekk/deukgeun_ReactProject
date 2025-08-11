@@ -5,6 +5,7 @@ import { PostGrid } from "../../features/community/components/PostGrid"
 import { PostModal } from "../../features/community/components/PostModal"
 import { PostDetailModal } from "../../features/community/components/PostDetailModal"
 import styles from "./CommunityPage.module.css"
+import { Navigation } from "../../widgets/Navigation/Navigation"
 
 // 타입 정의
 interface PostCategory {
@@ -116,6 +117,7 @@ export default function CommunityPage() {
     } catch (error: unknown) {
       console.error("게시글 작성 실패:", error)
       showToast("게시글 작성에 실패했습니다.", "error")
+      // 에러가 발생해도 모달은 닫지 않음 (사용자가 다시 시도할 수 있도록)
     }
   }
 
@@ -167,65 +169,76 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>커뮤니티</h1>
-        <p className={styles.subtitle}>함께 운동하고 경험을 나누어보세요</p>
+    <div className={styles.communityPage}>
+      <Navigation />
+      <div className={styles.communityContainer}>
+        <div className={styles.communityHeader}>
+          <h1 className={styles.headerTitle}>커뮤니티</h1>
+          <p className={styles.headerSubtitle}>
+            함께 운동하고 경험을 나누어보세요
+          </p>
 
-        <div className={styles.controls}>
-          {/* 카테고리 필터 */}
-          <select
-            value={selectedCategory}
-            onChange={e => setSelectedCategory(e.target.value)}
-            className={styles.categorySelect}
-          >
-            <option value="">전체 카테고리</option>
-            {availableCategories.map(category => (
-              <option key={category.id} value={category.name}>
-                {category.name} ({category.count})
-              </option>
-            ))}
-          </select>
+          <div className={styles.communityControls}>
+            {/* 카테고리 필터 */}
+            <select
+              value={selectedCategory}
+              onChange={e => setSelectedCategory(e.target.value)}
+              className={styles.select}
+            >
+              <option value="">전체 카테고리</option>
+              {availableCategories.map(category => (
+                <option key={category.id} value={category.name}>
+                  {category.name} ({category.count})
+                </option>
+              ))}
+            </select>
 
-          {/* 새 게시글 작성 버튼 */}
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className={styles.createButton}
-          >
-            새 게시글 작성
-          </button>
+            {/* 새 게시글 작성 버튼 */}
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className={styles.createPostBtn}
+            >
+              새 게시글 작성
+            </button>
+          </div>
         </div>
+
+        {/* 게시글 그리드 */}
+        <PostGrid
+          posts={posts}
+          onPostClick={handleOpenPost}
+          onLikeClick={handleLikePost}
+          loading={loading}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+
+        {/* 새 게시글 작성 모달 */}
+        {isModalOpen && (
+          <PostModal
+            onClose={() => {
+              setIsModalOpen(false)
+              setSelectedPost(null)
+            }}
+            onSubmit={handleCreatePost}
+            categories={availableCategories}
+          />
+        )}
+
+        {/* 게시글 상세 모달 */}
+        {isDetailModalOpen && selectedPost && (
+          <PostDetailModal
+            post={selectedPost}
+            onClose={() => {
+              setIsDetailModalOpen(false)
+              setSelectedPost(null)
+            }}
+            onUpdate={handleUpdatePost}
+            onDelete={handleDeletePost}
+          />
+        )}
       </div>
-
-      {/* 게시글 그리드 */}
-      <PostGrid
-        posts={posts}
-        onPostClick={handleOpenPost}
-        onLikeClick={handleLikePost}
-        loading={loading}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
-
-      {/* 새 게시글 작성 모달 */}
-      {isModalOpen && (
-        <PostModal
-          onClose={() => setIsModalOpen(false)}
-          onSubmit={handleCreatePost}
-          categories={availableCategories}
-        />
-      )}
-
-      {/* 게시글 상세 모달 */}
-      {isDetailModalOpen && selectedPost && (
-        <PostDetailModal
-          post={selectedPost}
-          onClose={() => setIsDetailModalOpen(false)}
-          onUpdate={handleUpdatePost}
-          onDelete={handleDeletePost}
-        />
-      )}
     </div>
   )
 }

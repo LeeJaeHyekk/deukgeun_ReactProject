@@ -23,14 +23,14 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.header h1 {
+.title {
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 10px 0;
   color: #fff;
 }
 
-.header p {
+.subtitle {
   font-size: 1rem;
   color: #e5e7eb;
   margin: 0;
@@ -150,6 +150,49 @@
 }
 
 .createPostBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(248, 113, 113, 0.4);
+}
+
+/* 컨트롤 섹션 */
+.controls {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.categorySelect {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.92);
+  color: #374151;
+  font-size: 0.95rem;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.createButton {
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
+  flex: 0 0 auto;
+}
+
+.createButton:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(248, 113, 113, 0.4);
 }
@@ -307,7 +350,7 @@
     padding: 24px 16px;
     margin-bottom: 20px;
   }
-  .header h1 {
+  .title {
     font-size: 1.75rem;
   }
   .controls {
@@ -324,29 +367,25 @@
 }
 
 @media (max-width: 640px) {
-  /* 모바일에서도 한 줄 유지, 간격/우측 폭만 축소 */
-  .searchSort {
-    grid-template-columns: 1fr auto;
-    column-gap: 8px;
+  .container {
+    padding: 12px;
   }
-  .sortSelect {
+  .header {
+    padding: 20px 12px;
+    margin-bottom: 16px;
+  }
+  .title {
+    font-size: 1.5rem;
+  }
+  .controls {
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  .categorySelect {
     min-width: 120px;
-    max-width: 120px;
-    justify-self: end;
+    font-size: 0.9rem;
   }
-  .categoriesRow {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  .categories {
-    gap: 8px;
-  }
-  .categoryBtn {
-    font-size: 13px;
-    padding: 6px 12px;
-  }
-  .createPostBtn {
+  .createButton {
     width: 100%;
     padding: 10px 14px;
   }

@@ -1,5 +1,5 @@
 import React from "react"
-import { WorkoutGoal } from "../hooks/useWorkoutGoals"
+import { WorkoutGoal } from "../../../../types/workout"
 import "./GoalProgressBar.css"
 
 interface GoalProgressBarProps {

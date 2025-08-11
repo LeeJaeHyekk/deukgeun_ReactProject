@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express"
 import { PostService } from "../services/post.service"
-import { getRepository } from "typeorm"
 import { User } from "../entities/User"
 import { LevelService } from "../services/levelService"
+import { AppDataSource } from "../config/database"
+import { ApiResponse, ErrorResponse } from "../types/common"
 
 /**
  * 포스트 관련 HTTP 요청을 처리하는 컨트롤러 클래스
@@ -102,7 +103,7 @@ export class PostController {
       }
 
       // 작성자 이름은 서버에서 보장 (클라이언트 입력 무시)
-      const userRepo = getRepository(User)
+      const userRepo = AppDataSource.getRepository(User)
       const authorUser = await userRepo.findOne({
         where: { id: req.user.userId },
       })
@@ -119,7 +120,10 @@ export class PostController {
         delete (postData as any).category
       }
 
-      const newPost = await this.postService.createPost(postData)
+      const newPost = await this.postService.createPost(
+        postData,
+        req.user.userId
+      )
 
       // 게시글 작성 경험치 부여
       try {
@@ -169,7 +173,8 @@ export class PostController {
 
       const updatedPost = await this.postService.updatePost(
         parseInt(id),
-        updateData
+        updateData,
+        req.user.userId
       )
       res.json(updatedPost)
     } catch (error) {
@@ -203,7 +208,10 @@ export class PostController {
         return res.status(403).json({ message: "권한이 없습니다." })
       }
 
-      const deleted = await this.postService.deletePost(parseInt(id))
+      const deleted = await this.postService.deletePost(
+        parseInt(id),
+        req.user.userId
+      )
       res.status(204).send()
     } catch (error) {
       next(error)
@@ -215,14 +223,38 @@ export class PostController {
    * GET /api/posts/categories
    */
   getCategories = async (_req: Request, res: Response) => {
-    const categories = [
-      "운동루틴",
-      "팁",
-      "다이어트",
-      "기구가이드",
-      "기타",
-    ] as const
-    return res.status(200).json(categories)
+    try {
+      const categories = [
+        "운동루틴",
+        "팁",
+        "다이어트",
+        "기구가이드",
+        "기타",
+      ] as const
+
+      // 각 카테고리별 포스트 수를 조회
+      const { Post } = await import("../entities/Post")
+      const repo = AppDataSource.getRepository(Post)
+
+      const categoryCounts = await Promise.all(
+        categories.map(async category => {
+          const count = await repo.count({ where: { category } })
+          return {
+            id: categories.indexOf(category) + 1,
+            name: category,
+            count,
+          }
+        })
+      )
+
+      return res.status(200).json({
+        message: "Categories retrieved successfully",
+        data: categoryCounts,
+      })
+    } catch (error) {
+      console.error("카테고리 조회 실패:", error)
+      return res.status(500).json({ message: "카테고리 조회에 실패했습니다." })
+    }
   }
 
   /**
@@ -236,9 +268,8 @@ export class PostController {
   ) => {
     try {
       // TypeORM Repository를 통해 raw query 실행
-      const { getRepository } = await import("typeorm")
       const { Post } = await import("../entities/Post")
-      const repo = getRepository(Post)
+      const repo = AppDataSource.getRepository(Post)
 
       // MySQL에서 enum 값 추출
       const result = await repo.query("SHOW COLUMNS FROM posts LIKE 'category'")

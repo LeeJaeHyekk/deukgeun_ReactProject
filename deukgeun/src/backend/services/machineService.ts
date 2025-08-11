@@ -1,4 +1,4 @@
-import { getRepository } from "typeorm"
+import { AppDataSource } from "../config/database"
 import { Machine } from "../entities/Machine"
 import {
   MachineRepository,
@@ -6,17 +6,14 @@ import {
   UpdateMachineRequest,
   MachineFilterQuery,
 } from "../types/machine"
+import type { MachineCategory, DifficultyLevel } from "../../types/machine"
 
 /**
  * Machine 관련 비즈니스 로직을 처리하는 서비스 클래스
  * TypeORM을 사용하여 데이터베이스와 상호작용하며 CRUD 작업을 수행합니다.
  */
 export class MachineService {
-  private machineRepository: MachineRepository
-
-  constructor() {
-    this.machineRepository = getRepository(Machine)
-  }
+  private machineRepository = AppDataSource.getRepository(Machine)
 
   /**
    * 새로운 Machine을 생성합니다.
@@ -24,22 +21,12 @@ export class MachineService {
    * @returns {Promise<Machine>} 생성된 Machine 객체
    */
   async createMachine(machineData: CreateMachineRequest): Promise<Machine> {
-    // machine_key 중복 검사
-    const existingMachine = await this.machineRepository.findOne({
-      where: { machine_key: machineData.machine_key },
-    })
-
-    if (existingMachine) {
-      throw new Error(
-        `machine_key '${machineData.machine_key}'는 이미 존재합니다.`
-      )
-    }
-
     // 데이터 정제 (XSS 방지)
     const sanitizedData = this.sanitizeMachineData(machineData)
 
-    const machine = this.machineRepository.create(sanitizedData)
-    return await this.machineRepository.save(machine)
+    const machine = this.machineRepository.create(sanitizedData as any)
+    const savedMachine = await this.machineRepository.save(machine)
+    return Array.isArray(savedMachine) ? savedMachine[0] : savedMachine
   }
 
   /**
@@ -47,9 +34,14 @@ export class MachineService {
    * @returns {Promise<Machine[]>} Machine 목록 배열
    */
   async getAllMachines(): Promise<Machine[]> {
-    return await this.machineRepository.find({
-      order: { created_at: "DESC" },
-    })
+    try {
+      return await this.machineRepository.find({
+        order: { name_ko: "ASC" },
+      })
+    } catch (error) {
+      console.error("기구 조회 오류:", error)
+      return []
+    }
   }
 
   /**
@@ -58,9 +50,12 @@ export class MachineService {
    * @returns {Promise<Machine | null>} 조회된 Machine 또는 null (존재하지 않는 경우)
    */
   async getMachineById(id: number): Promise<Machine | null> {
-    return await this.machineRepository.findOne({
-      where: { id },
-    })
+    try {
+      return await this.machineRepository.findOne({ where: { id } })
+    } catch (error) {
+      console.error("기구 조회 오류:", error)
+      return null
+    }
   }
 
   /**
@@ -84,16 +79,16 @@ export class MachineService {
     id: number,
     updateData: UpdateMachineRequest
   ): Promise<Machine | null> {
-    const machine = await this.machineRepository.findOne({
-      where: { id },
-    })
+    try {
+      const machine = await this.machineRepository.findOne({ where: { id } })
+      if (!machine) return null
 
-    if (!machine) {
+      Object.assign(machine, updateData)
+      return await this.machineRepository.save(machine)
+    } catch (error) {
+      console.error("기구 수정 오류:", error)
       return null
     }
-
-    this.machineRepository.merge(machine, updateData)
-    return await this.machineRepository.save(machine)
   }
 
   /**
@@ -102,8 +97,16 @@ export class MachineService {
    * @returns {Promise<boolean>} 삭제 성공 여부
    */
   async deleteMachine(id: number): Promise<boolean> {
-    const result = await this.machineRepository.delete(id)
-    return result.affected ? result.affected > 0 : false
+    try {
+      const machine = await this.machineRepository.findOne({ where: { id } })
+      if (!machine) return false
+
+      await this.machineRepository.remove(machine)
+      return true
+    } catch (error) {
+      console.error("기구 삭제 오류:", error)
+      return false
+    }
   }
 
   /**

@@ -1,17 +1,19 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src/frontend",
+    "baseUrl": "./src",
     "paths": {
       "@/*": ["./*"],
-      "@app/*": ["app/*"],
-      "@pages/*": ["pages/*"],
-      "@widgets/*": ["widgets/*"],
-      "@features/*": ["features/*"],
-      "@entities/*": ["entities/*"],
-      "@shared/*": ["shared/*"],
-      "@assets/*": ["assets/*"]
+      "@frontend/*": ["frontend/*"],
+      "@backend/*": ["backend/*"],
+      "@types/*": ["types/*"],
+      "@shared/*": ["frontend/shared/*"],
+      "@features/*": ["frontend/features/*"],
+      "@pages/*": ["frontend/pages/*"],
+      "@widgets/*": ["frontend/widgets/*"],
+      "@entities/*": ["frontend/entities/*"],
+      "@assets/*": ["frontend/assets/*"]
     },
-    "typeRoots": ["./node_modules/@types", "./src/shared/types"],
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "target": "ESNext",
     "module": "ESNext",
     "jsx": "react-jsx",
@@ -25,15 +27,9 @@
     "noEmit": true,
     "allowJs": false,
     "checkJs": false,
-    "lib": ["ESNext", "DOM", "DOM.Iterable"]
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["node"]
   },
-  "include": ["src/frontend/**/*"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-    "**/*.js",
-    "**/*.jsx",
-    "src/backend/**/*"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "build", "**/*.js", "**/*.jsx"]
 }

@@ -10,37 +10,37 @@ import {
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id: number
+  id!: number
 
   @Column({ type: "varchar", unique: true })
-  email: string
+  email!: string
 
   @Column({ type: "varchar" })
-  password: string
+  password!: string
 
   @Column({ type: "varchar", unique: true })
-  nickname: string
+  nickname!: string
 
   @Column({ type: "varchar", nullable: true })
-  phone: string
+  phone?: string
 
   @Column({ type: "enum", enum: ["male", "female", "other"], nullable: true })
-  gender: "male" | "female" | "other"
+  gender?: "male" | "female" | "other"
 
   @Column({ type: "date", nullable: true })
-  birthday: Date
+  birthday?: Date
 
   @Column({ type: "varchar", nullable: true })
-  profileImage: string
+  profileImage?: string
 
   @Column({ default: "user" })
-  role: "user" | "admin"
+  role!: "user" | "admin"
 
   @CreateDateColumn()
   @Index()
-  createdAt: Date
+  createdAt!: Date
 
   @UpdateDateColumn()
   @Index()
-  updatedAt: Date
+  updatedAt!: Date
 }

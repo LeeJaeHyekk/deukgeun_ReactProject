@@ -16,8 +16,11 @@ async function testStatsAPI() {
     try {
       const detailedStats = await axios.get(`${BASE_URL}/stats/detailed`)
       console.log("✅ 상세 통계 조회 성공:", detailedStats.data)
-    } catch (error) {
-      console.log("❌ 상세 통계 조회 실패 (예상됨 - 관리자 권한 필요):", error.response?.data)
+    } catch (error: any) {
+      console.log(
+        "❌ 상세 통계 조회 실패 (예상됨 - 관리자 권한 필요):",
+        error.response?.data
+      )
     }
 
     // 3. 사용자 통계 테스트 (인증 필요)
@@ -25,13 +28,19 @@ async function testStatsAPI() {
     try {
       const userStats = await axios.get(`${BASE_URL}/stats/user`)
       console.log("✅ 사용자 통계 조회 성공:", userStats.data)
-    } catch (error) {
-      console.log("❌ 사용자 통계 조회 실패 (예상됨 - 인증 필요):", error.response?.data)
+    } catch (error: any) {
+      console.log(
+        "❌ 사용자 통계 조회 실패 (예상됨 - 인증 필요):",
+        error.response?.data
+      )
     }
 
     console.log("\n=== 통계 API 테스트 완료 ===")
-  } catch (error) {
-    console.error("❌ 통계 API 테스트 실패:", error.response?.data || error.message)
+  } catch (error: any) {
+    console.error(
+      "❌ 통계 API 테스트 실패:",
+      error.response?.data || error.message
+    )
   }
 }
 

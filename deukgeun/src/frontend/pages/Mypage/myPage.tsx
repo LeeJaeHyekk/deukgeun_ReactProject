@@ -1,8 +1,10 @@
-import React, { useCallback, memo, useMemo } from "react"
-import { useUserStore } from "@shared/store/userStore"
+import React, { useState, useEffect, memo, useMemo, useCallback } from "react"
+import { useNavigate } from "react-router-dom"
 import { useAuthContext } from "@shared/contexts/AuthContext"
+import { useUserStore } from "@shared/store/userStore"
 import { LevelDisplay } from "@shared/components/LevelDisplay"
-import { User } from "@shared/types/user"
+import { Navigation } from "@widgets/Navigation/Navigation"
+import type { User } from "@shared/types/common"
 import styles from "./myPage.module.css"
 
 // 타입 정의
@@ -123,6 +125,7 @@ function MyPage({ className }: MyPageProps) {
 
   return (
     <div className={styles.pageWrapper}>
+      <Navigation />
       <div className={`${styles.wrapper} ${className || ""}`}>
         {/* Header Section */}
         <div className={styles.headerSection}>

@@ -1,15 +1,19 @@
 // features/auth/api/authApi.ts
 import { api } from "@shared/api"
 import { API_ENDPOINTS } from "@shared/config"
+import axios from "axios"
+import { config } from "@shared/config"
+import type {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+  RefreshResponse,
+  LogoutResponse,
+} from "@shared/types/auth"
 
-// Types
-export interface LoginRequest {
-  email: string
-  password: string
-  recaptchaToken: string
-}
-
-export interface LoginResponse {
+// 백엔드 API 응답과 프론트엔드 타입 간의 호환성을 위한 타입 정의
+export interface ApiLoginResponse {
   message: string
   accessToken: string
   user: {
@@ -19,17 +23,9 @@ export interface LoginResponse {
   }
 }
 
-export interface RegisterRequest {
-  email: string
-  password: string
-  nickname: string
-  phone?: string
-  gender?: string
-  birthday?: Date
-  recaptchaToken: string
-}
-
-export interface RegisterResponse {
+// 백엔드 실제 응답 타입
+export interface BackendLoginResponse {
+  success: boolean
   message: string
   accessToken: string
   user: {
@@ -39,35 +35,49 @@ export interface RegisterResponse {
   }
 }
 
-export interface RefreshResponse {
+// API 응답 래퍼 타입
+export interface ApiResponseWrapper<T> {
+  success: boolean
   message: string
-  accessToken: string
+  data?: T
+  error?: string
 }
 
-export interface LogoutResponse {
+export interface ApiRegisterResponse {
   message: string
+  accessToken: string
+  user: {
+    id: number
+    email: string
+    nickname: string
+  }
 }
 
 // Auth API functions
 export const authApi = {
   // Login
-  login: async (data: LoginRequest): Promise<LoginResponse> => {
+  login: async (data: LoginRequest): Promise<ApiLoginResponse> => {
     console.log("✅ 로그인 요청:", data)
-    const response = await api.post<LoginResponse>(
-      API_ENDPOINTS.AUTH.LOGIN,
+    const response = await axios.post<BackendLoginResponse>(
+      `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.LOGIN}`,
       data
     )
     console.log("✅ 로그인 응답:", response)
-    return response.data.data as LoginResponse
+    // 백엔드 응답 구조에 맞게 수정 - data 필드 없이 직접 반환
+    return {
+      message: response.data.message,
+      accessToken: response.data.accessToken,
+      user: response.data.user,
+    }
   },
 
   // Register
-  register: async (data: RegisterRequest): Promise<RegisterResponse> => {
-    const response = await api.post<RegisterResponse>(
+  register: async (data: RegisterRequest): Promise<ApiRegisterResponse> => {
+    const response = await api.post<ApiRegisterResponse>(
       API_ENDPOINTS.AUTH.REGISTER,
       data
     )
-    return response.data.data as RegisterResponse
+    return response.data.data as ApiRegisterResponse
   },
 
   // Refresh token

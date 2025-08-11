@@ -6,15 +6,14 @@ import bcrypt from "bcrypt"
 import { verifyRecaptcha } from "../utils/recaptcha"
 import { createTokens, verifyRefreshToken } from "../utils/jwt"
 import { logger } from "../utils/logger"
-import { connectDatabase } from "../config/database"
+import { AppDataSource } from "../config/database"
+import { ApiResponse, ErrorResponse } from "../types/common"
 import {
   LoginRequest,
   RegisterRequest,
   LoginResponse,
   RegisterResponse,
-  ApiResponse,
-  ErrorResponse,
-} from "../types/common"
+} from "../types/auth"
 
 export async function login(
   req: Request<Record<string, never>, Record<string, never>, LoginRequest>,
@@ -54,8 +53,7 @@ export async function login(
       })
     }
 
-    const connection = await connectDatabase()
-    const userRepo = connection.getRepository(User)
+    const userRepo = AppDataSource.getRepository(User)
     const user = await userRepo.findOne({ where: { email } })
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -86,6 +84,13 @@ export async function login(
           id: user.id,
           email: user.email,
           nickname: user.nickname,
+          phone: user.phone,
+          gender: user.gender,
+          birthday: user.birthday,
+          profileImage: user.profileImage,
+          role: user.role,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
         },
       })
   } catch (error) {
@@ -123,8 +128,7 @@ export async function refreshToken(
       })
     }
 
-    const connection = await connectDatabase()
-    const userRepo = connection.getRepository(User)
+    const userRepo = AppDataSource.getRepository(User)
     const user = await userRepo.findOne({ where: { id: payload.userId } })
 
     if (!user) {
@@ -289,10 +293,9 @@ export const register = async (
       })
     }
 
-    const connection = await connectDatabase()
-    const userRepo = connection.getRepository(User)
-    const userLevelRepo = connection.getRepository(UserLevel)
-    const userStreakRepo = connection.getRepository(UserStreak)
+    const userRepo = AppDataSource.getRepository(User)
+    const userLevelRepo = AppDataSource.getRepository(UserLevel)
+    const userStreakRepo = AppDataSource.getRepository(UserStreak)
 
     // 이메일 중복 확인
     const existingUser = await userRepo.findOne({ where: { email } })
@@ -372,6 +375,13 @@ export const register = async (
           id: newUser.id,
           email: newUser.email,
           nickname: newUser.nickname,
+          phone: newUser.phone,
+          gender: newUser.gender,
+          birthday: newUser.birthday,
+          profileImage: newUser.profileImage,
+          role: newUser.role,
+          createdAt: newUser.createdAt,
+          updatedAt: newUser.updatedAt,
         },
       })
   } catch (error) {

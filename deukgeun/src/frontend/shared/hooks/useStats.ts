@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react"
-import { statsApi, PlatformStats, UserStats } from "../api/statsApi"
+import {
+  statsApi,
+  PlatformStats,
+  UserStats,
+  DEFAULT_PLATFORM_STATS,
+  DEFAULT_USER_STATS,
+} from "../api/statsApi"
 import { showToast } from "../lib"
 import { useAuth } from "./useAuth"
 
@@ -16,8 +22,9 @@ export const useStats = () => {
       setStats(data)
     } catch (err) {
       console.error("통계 조회 오류:", err)
-      setError("통계를 불러오는데 실패했습니다.")
-      showToast("통계 조회에 실패했습니다.", "error")
+      // 오류 발생 시 기본값 사용
+      setStats(DEFAULT_PLATFORM_STATS)
+      setError(null) // 오류 메시지 제거
     } finally {
       setIsLoading(false)
     }
@@ -56,8 +63,9 @@ export const useUserStats = () => {
       setUserStats(data)
     } catch (err) {
       console.error("사용자 통계 조회 오류:", err)
-      setError("사용자 통계를 불러오는데 실패했습니다.")
-      showToast("사용자 통계 조회에 실패했습니다.", "error")
+      // 오류 발생 시 기본값 사용
+      setUserStats(DEFAULT_USER_STATS)
+      setError(null) // 오류 메시지 제거
     } finally {
       setIsLoading(false)
     }

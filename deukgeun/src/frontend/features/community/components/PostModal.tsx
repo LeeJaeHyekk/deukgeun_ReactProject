@@ -1,5 +1,5 @@
 // components/PostModal.tsx
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { showToast } from "@shared/lib"
 import styles from "./PostModal.module.css"
 
@@ -26,6 +26,16 @@ export function PostModal({ onClose, onSubmit, categories }: PostModalProps) {
     category: categories && categories.length > 0 ? categories[0].name : "",
   })
   const [loading, setLoading] = useState(false)
+
+  // categories가 변경될 때 초기 카테고리 업데이트
+  useEffect(() => {
+    if (categories && categories.length > 0 && !formData.category) {
+      setFormData(prev => ({
+        ...prev,
+        category: categories[0].name,
+      }))
+    }
+  }, [categories, formData.category])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

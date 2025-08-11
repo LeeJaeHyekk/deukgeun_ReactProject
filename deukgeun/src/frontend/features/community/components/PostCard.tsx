@@ -67,9 +67,9 @@ export function PostCard({ post, onClick, onLikeClick }: PostCardProps) {
               onLikeClick()
             }}
           >
-            ❤️ {post.likes}
+            ❤️ {post.likes || 0}
           </button>
-          <span className={styles.commentCount}>💬 {post.comments}</span>
+          <span className={styles.commentCount}>💬 {post.comments || 0}</span>
         </div>
       </div>
     </div>

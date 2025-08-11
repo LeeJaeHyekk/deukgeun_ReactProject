@@ -30,7 +30,24 @@ interface Post {
 }
 
 interface PostListResponse {
-  posts: Post[]
+  posts: Array<{
+    id: number
+    title: string
+    content: string
+    author: {
+      id: number
+      nickname: string
+    }
+    category: string
+    likes?: number
+    comments?: number
+    like_count?: number
+    comment_count?: number
+    createdAt?: string
+    created_at?: string
+    updatedAt?: string
+    updated_at?: string
+  }>
   total: number
   page: number
   limit: number
@@ -96,14 +113,38 @@ export default function CommunityPage() {
 
         const res = await postsApi.list(params)
 
+        console.log("API Response:", res.data) // 디버깅용 로그
+
         const postListResponse = res.data.data as PostListResponse
 
-        setPosts(postListResponse.posts)
+        // API 응답 데이터를 안전하게 매핑
+        const mappedPosts = (postListResponse.posts || []).map(post => {
+          console.log("Individual post:", post) // 디버깅용 로그
+          return {
+            id: post.id,
+            title: post.title || "",
+            content: post.content || "",
+            author: {
+              id: post.author?.id || 0,
+              nickname: post.author?.nickname || "익명",
+            },
+            category: post.category || "",
+            likes: post.likes || post.like_count || 0,
+            comments: post.comments || post.comment_count || 0,
+            createdAt:
+              post.createdAt || post.created_at || new Date().toISOString(),
+            updatedAt:
+              post.updatedAt || post.updated_at || new Date().toISOString(),
+          }
+        })
+
+        setPosts(mappedPosts)
         setTotalPages(Math.ceil(postListResponse.total / limit))
         setCurrentPage(page)
       } catch (error: unknown) {
         console.error("게시글 로드 실패:", error)
         showToast("게시글을 불러오는데 실패했습니다.", "error")
+        setPosts([])
       } finally {
         setLoading(false)
       }
@@ -185,6 +226,18 @@ export default function CommunityPage() {
     }
   }
 
+  // 글쓰기 모달 열기
+  const handleOpenCreateModal = () => {
+    if (availableCategories.length === 0) {
+      showToast(
+        "카테고리를 불러오는 중입니다. 잠시 후 다시 시도해주세요.",
+        "error"
+      )
+      return
+    }
+    setIsModalOpen(true)
+  }
+
   // 카테고리 데이터 준비
   const categories = [
     {
@@ -256,7 +309,7 @@ export default function CommunityPage() {
 
               <button
                 className={styles.createPostBtn}
-                onClick={() => setIsModalOpen(true)}
+                onClick={handleOpenCreateModal}
               >
                 ✏️ 글쓰기
               </button>
@@ -277,7 +330,7 @@ export default function CommunityPage() {
               <p>첫 번째 게시글을 작성해보세요!</p>
               <button
                 className={styles.createFirstPostBtn}
-                onClick={() => setIsModalOpen(true)}
+                onClick={handleOpenCreateModal}
               >
                 ✏️ 첫 게시글 작성하기
               </button>
@@ -296,7 +349,7 @@ export default function CommunityPage() {
         </section>
 
         {/* 새 게시글 작성 모달 */}
-        {isModalOpen && (
+        {isModalOpen && availableCategories.length > 0 && (
           <PostModal
             onClose={() => setIsModalOpen(false)}
             onSubmit={handleCreatePost}

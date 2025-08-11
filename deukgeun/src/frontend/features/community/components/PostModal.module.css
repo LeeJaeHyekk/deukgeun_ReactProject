@@ -9,16 +9,19 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 20px;
 }
 
 .modal {
-  background: white;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
   width: 90%;
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .header {
@@ -26,14 +29,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid #e1e5e9;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header h2 {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #333;
+  color: #fff;
 }
 
 .closeButton {
@@ -41,14 +44,14 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
+  color: #fff;
   padding: 0.25rem;
   border-radius: 4px;
   transition: background-color 0.2s;
 }
 
 .closeButton:hover {
-  background-color: #f5f5f5;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .form {
@@ -63,7 +66,7 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #333;
+  color: #fff;
 }
 
 .select,
@@ -71,9 +74,11 @@
 .textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
+  border: 1px solid rgba(209, 213, 219, 0.9);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #374151;
+  font-size: 0.95rem;
   transition: border-color 0.2s;
 }
 
@@ -81,13 +86,14 @@
 .input:focus,
 .textarea:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .textarea {
   resize: vertical;
   min-height: 120px;
+  font-family: inherit;
 }
 
 .actions {
@@ -96,14 +102,14 @@
   justify-content: flex-end;
   margin-top: 2rem;
   padding-top: 1rem;
-  border-top: 1px solid #e1e5e9;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .cancelButton,
 .submitButton {
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -111,27 +117,30 @@
 }
 
 .cancelButton {
-  background: #f8f9fa;
-  color: #666;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .cancelButton:hover:not(:disabled) {
-  background: #e9ecef;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .submitButton {
-  background: #3498db;
+  background: linear-gradient(135deg, #34d399, #10b981);
   color: white;
 }
 
 .submitButton:hover:not(:disabled) {
-  background: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .cancelButton:disabled,
 .submitButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
 @media (max-width: 768px) {

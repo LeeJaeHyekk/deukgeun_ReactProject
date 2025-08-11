@@ -1,92 +1,125 @@
 import { Request, Response } from "express"
-import { getRepository } from "typeorm"
 import { Comment } from "../entities/Comment"
-import { PostService } from "../services/post.service"
-import { LevelService } from "../services/levelService"
+import { User } from "../entities/User"
+import { AppDataSource } from "../config/database"
 
-const postService = new PostService()
-const levelService = new LevelService()
-
-export const getComments = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params
-    const page = Math.max(1, parseInt((req.query.page as string) || "1"))
-    const limit = Math.max(
-      1,
-      Math.min(50, parseInt((req.query.limit as string) || "10"))
-    )
-    const repo = getRepository(Comment)
-    const [data, total] = await repo.findAndCount({
-      where: { postId: parseInt(id) },
-      order: { createdAt: "DESC" },
-      skip: (page - 1) * limit,
-      take: limit,
-    })
-    return res.status(200).json({ data, total, page, limit })
-  } catch {
-    return res.status(500).json({ message: "Failed to get comments" })
-  }
-}
-
-export const createComment = async (req: Request, res: Response) => {
-  try {
-    if (!req.user?.userId)
-      return res.status(401).json({ message: "인증이 필요합니다." })
-    const { id } = req.params
-    const { content } = req.body
-    if (!content || typeof content !== "string") {
-      return res.status(400).json({ message: "content is required" })
-    }
-    const repo = getRepository(Comment)
-    // 사용자 정보를 가져와서 nickname 사용
-    const userRepo = getRepository("User")
-    const user = (await userRepo.findOne({
-      where: { id: req.user.userId },
-    })) as { nickname?: string } | null
-
-    const comment = repo.create({
-      postId: parseInt(id),
-      userId: req.user.userId,
-      author: user?.nickname || "익명",
-      content,
-    })
-    const saved = await repo.save(comment)
-    await postService.adjustCommentCount(parseInt(id), 1)
-
-    // 댓글 작성 경험치 부여
+export class CommentController {
+  // 댓글 생성
+  createComment = async (req: Request, res: Response) => {
     try {
-      await levelService.grantExp(
-        req.user.userId,
-        "comment",
-        "comment_creation",
-        { commentId: saved.id, postId: parseInt(id) }
-      )
-    } catch (levelError) {
-      // 경험치 부여 실패는 댓글 생성에 영향을 주지 않음
-      console.error("경험치 부여 실패:", levelError)
-    }
+      const { postId, content } = req.body
+      const userId = (req.user as any)?.userId
 
-    return res.status(201).json(saved)
-  } catch {
-    return res.status(500).json({ message: "Failed to create comment" })
+      if (!userId) {
+        return res.status(401).json({ message: "인증이 필요합니다." })
+      }
+
+      const repo = AppDataSource.getRepository(Comment)
+      const userRepo = AppDataSource.getRepository(User)
+
+      // 사용자 정보 조회
+      const user = await userRepo.findOne({ where: { id: userId } })
+      if (!user) {
+        return res.status(404).json({ message: "사용자를 찾을 수 없습니다." })
+      }
+
+      const comment = repo.create({
+        postId,
+        userId,
+        content,
+        author: user.nickname,
+      })
+
+      const savedComment = await repo.save(comment)
+
+      res.status(201).json({
+        message: "댓글이 성공적으로 작성되었습니다.",
+        comment: savedComment,
+      })
+    } catch (error) {
+      console.error("댓글 생성 오류:", error)
+      res.status(500).json({ message: "댓글 작성 중 오류가 발생했습니다." })
+    }
   }
-}
 
-export const deleteComment = async (req: Request, res: Response) => {
-  try {
-    if (!req.user?.userId)
-      return res.status(401).json({ message: "인증이 필요합니다." })
-    const { commentId } = req.params as { commentId: string }
-    const repo = getRepository(Comment)
-    const comment = await repo.findOne({ where: { id: parseInt(commentId) } })
-    if (!comment) return res.status(404).json({ message: "Comment not found" })
-    if (comment.userId !== req.user.userId) {
-      return res.status(403).json({ message: "권한이 없습니다." })
+  // 특정 포스트의 댓글 조회
+  getCommentsByPostId = async (req: Request, res: Response) => {
+    try {
+      const { postId } = req.params
+      const repo = AppDataSource.getRepository(Comment)
+
+      const comments = await repo.find({
+        where: { postId: parseInt(postId) },
+        order: { createdAt: "ASC" },
+      })
+
+      res.json(comments)
+    } catch (error) {
+      console.error("댓글 조회 오류:", error)
+      res.status(500).json({ message: "댓글 조회 중 오류가 발생했습니다." })
     }
-    await repo.delete(comment.id)
-    await postService.adjustCommentCount(comment.postId, -1)
-    return res.status(204).send()
-  } catch {
-    return res.status(500).json({ message: "Failed to delete comment" })
+  }
+
+  // 댓글 수정
+  updateComment = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+      const { content } = req.body
+      const userId = (req.user as any)?.userId
+
+      if (!userId) {
+        return res.status(401).json({ message: "인증이 필요합니다." })
+      }
+
+      const repo = AppDataSource.getRepository(Comment)
+
+      const comment = await repo.findOne({
+        where: { id: parseInt(id), userId },
+      })
+
+      if (!comment) {
+        return res.status(404).json({ message: "댓글을 찾을 수 없습니다." })
+      }
+
+      comment.content = content
+      const updatedComment = await repo.save(comment)
+
+      res.json({
+        message: "댓글이 성공적으로 수정되었습니다.",
+        comment: updatedComment,
+      })
+    } catch (error) {
+      console.error("댓글 수정 오류:", error)
+      res.status(500).json({ message: "댓글 수정 중 오류가 발생했습니다." })
+    }
+  }
+
+  // 댓글 삭제
+  deleteComment = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+      const userId = (req.user as any)?.userId
+
+      if (!userId) {
+        return res.status(401).json({ message: "인증이 필요합니다." })
+      }
+
+      const repo = AppDataSource.getRepository(Comment)
+
+      const comment = await repo.findOne({
+        where: { id: parseInt(id), userId },
+      })
+
+      if (!comment) {
+        return res.status(404).json({ message: "댓글을 찾을 수 없습니다." })
+      }
+
+      await repo.remove(comment)
+
+      res.json({ message: "댓글이 성공적으로 삭제되었습니다." })
+    } catch (error) {
+      console.error("댓글 삭제 오류:", error)
+      res.status(500).json({ message: "댓글 삭제 중 오류가 발생했습니다." })
+    }
   }
 }

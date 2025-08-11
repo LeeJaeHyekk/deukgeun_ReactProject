@@ -29,6 +29,7 @@ const createApiClient = (): AxiosInstance => {
   const instance = axios.create({
     baseURL: config.API_BASE_URL,
     timeout: 10000,
+    withCredentials: true, // 쿠키 전송을 위해 필요
     headers: {
       "Content-Type": "application/json",
     },
@@ -61,7 +62,8 @@ const createApiClient = (): AxiosInstance => {
 
       if (
         originalRequest.response?.status === 401 &&
-        !originalRequest.config?._retry
+        !originalRequest.config?._retry &&
+        originalRequest.config?.url !== "/api/auth/refresh" // refresh 엔드포인트 자체는 제외
       ) {
         originalRequest.config = originalRequest.config || {}
         originalRequest.config._retry = true
@@ -79,6 +81,7 @@ const createApiClient = (): AxiosInstance => {
           return instance(originalRequest.config)
         } catch (refreshError: unknown) {
           // 토큰 갱신 실패 시 로그아웃
+          console.log("토큰 갱신 실패, 로그아웃 처리")
           storage.remove("accessToken")
           storage.remove("user")
           window.location.href = "/login"

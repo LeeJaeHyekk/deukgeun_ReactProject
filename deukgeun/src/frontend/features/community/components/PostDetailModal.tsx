@@ -57,10 +57,11 @@ export function PostDetailModal({
       try {
         const response = await commentsApi.list(post.id)
         const commentData = response.data.data as Comment[]
-        setComments(commentData)
+        setComments(commentData || [])
       } catch (error: unknown) {
         console.error("댓글 로드 실패:", error)
-        showToast("댓글을 불러오는데 실패했습니다.", "error")
+        // 댓글 로드 실패 시에도 모달은 계속 표시
+        setComments([])
       }
     }
 
@@ -82,7 +83,7 @@ export function PostDetailModal({
       // 댓글 목록 새로고침
       const response = await commentsApi.list(post.id)
       const commentData = response.data.data as Comment[]
-      setComments(commentData)
+      setComments(commentData || [])
     } catch (error: unknown) {
       console.error("댓글 작성 실패:", error)
       showToast("댓글 작성에 실패했습니다.", "error")
@@ -109,6 +110,7 @@ export function PostDetailModal({
       setIsEditing(false)
     } catch (error: unknown) {
       console.error("게시글 수정 실패:", error)
+      // 에러 발생 시 수정 모드는 유지
     } finally {
       setLoading(false)
     }
@@ -125,15 +127,17 @@ export function PostDetailModal({
     setLoading(true)
     try {
       await onDelete(post.id)
+      // 성공 시 모달은 부모 컴포넌트에서 닫힘
     } catch (error: unknown) {
       console.error("게시글 삭제 실패:", error)
+      // 에러 발생 시 모달은 열린 상태로 유지
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <div className={styles.header}>
           <h2 className={styles.title}>
@@ -144,7 +148,7 @@ export function PostDetailModal({
           </button>
         </div>
 
-        <div className={styles.content}>
+        <div className={styles.body}>
           {isEditing ? (
             <div className={styles.editForm}>
               <input

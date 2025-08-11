@@ -5,6 +5,7 @@ import {
   UpdateMachineRequest,
   MachineFilterQuery,
 } from "../types/machine"
+import type { MachineListResponse } from "../../types/machine"
 import { logger } from "../utils/logger"
 
 // Machine 서비스 인스턴스 생성 (지연 초기화)

@@ -1,12 +1,13 @@
+import "reflect-metadata"
+import { AppDataSource } from "./config/database"
 import app from "./app"
-import { config } from "./config/env"
 import { logger } from "./utils/logger"
-import { connectDatabase } from "./config/database"
 import { getAvailablePort } from "./utils/getAvailablePort"
+import { config } from "./config/env"
 
 async function startServer() {
   try {
-    await connectDatabase()
+    await AppDataSource.initialize()
     console.log("Database connected successfully")
 
     const availablePort = await getAvailablePort(config.PORT)

@@ -75,7 +75,7 @@ export default function MachineGuidePage() {
     }
   }
 
-  const filteredMachines = machines.filter(machine => {
+  const filteredMachines = (machines || []).filter(machine => {
     if (!searchTerm) return true
 
     return (

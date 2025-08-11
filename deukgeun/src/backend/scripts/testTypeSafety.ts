@@ -4,6 +4,7 @@ import {
   UpdateMachineRequest,
   MachineFilterQuery,
 } from "../types/machine"
+import type { MachineCategory, DifficultyLevel } from "../../types/machine"
 
 /**
  * 타입 안전성 테스트 스크립트

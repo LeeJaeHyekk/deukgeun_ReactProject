@@ -2,7 +2,8 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { FaEye, FaEyeSlash } from "react-icons/fa"
 import ReCAPTCHA from "react-google-recaptcha"
-import { authApi, LoginRequest } from "@features/auth/api/authApi"
+import { authApi } from "@features/auth/api/authApi"
+import type { LoginRequest } from "../../../types"
 import { validation, showToast } from "@shared/lib"
 import { useAuthContext } from "@shared/contexts/AuthContext"
 import { config } from "@shared/config"
@@ -104,9 +105,17 @@ export default function LoginPage() {
 
       // AuthContext의 login 함수 사용 (Zustand + storage 모두 업데이트)
       console.log("🧪 AuthContext login 호출")
+
+      // 백엔드 응답을 새로운 타입 시스템과 호환되도록 변환
       const userWithToken = {
-        ...response.user,
+        id: response.user.id,
+        email: response.user.email,
+        nickname: response.user.nickname,
         accessToken: response.accessToken,
+        // 새로운 타입 시스템에서 요구하는 필드들에 기본값 설정
+        role: "user" as const,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
       login(userWithToken, response.accessToken)
 
@@ -129,10 +138,9 @@ export default function LoginPage() {
 
   const handleRecaptchaChange = (token: string | null) => {
     // 개발 환경에서는 더미 토큰 사용
-    const finalToken =
-      process.env.NODE_ENV === "development"
-        ? "dummy-token-for-development"
-        : token
+    const finalToken = import.meta.env.DEV
+      ? "dummy-token-for-development"
+      : token
 
     console.log("🧪 reCAPTCHA 토큰 변경:", {
       originalToken: token,

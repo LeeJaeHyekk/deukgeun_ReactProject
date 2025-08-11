@@ -1,352 +1,305 @@
-import { getRepository } from "typeorm"
+import { AppDataSource } from "../config/database"
 import { UserLevel } from "../entities/UserLevel"
 import { ExpHistory } from "../entities/ExpHistory"
 import { UserReward } from "../entities/UserReward"
 import { Milestone } from "../entities/Milestone"
-import { UserStreak } from "../entities/UserStreak"
-import { logger } from "../utils/logger"
 
-export interface LevelConfig {
-  dailyExpCap: number
-  actionLimits: {
-    [key: string]: {
-      exp: number
-      cooldownSec: number
-      minLength?: number
-    }
-  }
-}
-
-export interface LevelProgress {
-  level: number
-  currentExp: number
-  totalExp: number
-  seasonExp: number
-  expToNextLevel: number
-  progressPercentage: number
+interface ExpGrantData {
+  [key: string]: any
 }
 
 export class LevelService {
-  private config: LevelConfig = {
-    dailyExpCap: 500,
-    actionLimits: {
-      checkin: { exp: 10, cooldownSec: 86400 },
-      post: { exp: 20, cooldownSec: 300, minLength: 50 },
-      comment: { exp: 5, cooldownSec: 60, minLength: 10 },
-      like: { exp: 2, cooldownSec: 5 },
-      mission: { exp: 30, cooldownSec: 86400 },
-      workout_log: { exp: 15, cooldownSec: 3600 },
-      gym_visit: { exp: 25, cooldownSec: 86400 },
-    },
+  // 레벨별 필요 경험치 계산
+  private calculateRequiredExp(level: number): number {
+    return Math.floor(100 * Math.pow(1.5, level - 1))
   }
 
-  /**
-   * 사용자의 레벨 정보를 가져오거나 생성
-   */
-  async getUserLevel(userId: number): Promise<UserLevel> {
-    const userLevelRepo = getRepository(UserLevel)
-    let userLevel = await userLevelRepo.findOne({ where: { userId } })
+  // 사용자 레벨 정보 조회
+  async getUserLevel(userId: number): Promise<UserLevel | null> {
+    try {
+      const userLevelRepo = AppDataSource.getRepository(UserLevel)
+      return await userLevelRepo.findOne({ where: { userId } })
+    } catch (error) {
+      console.error("사용자 레벨 조회 오류:", error)
+      return null
+    }
+  }
 
-    if (!userLevel) {
-      userLevel = userLevelRepo.create({
+  // 사용자 레벨 정보 생성 (신규 사용자용)
+  async createUserLevel(userId: number): Promise<UserLevel> {
+    try {
+      const userLevelRepo = AppDataSource.getRepository(UserLevel)
+
+      const userLevel = userLevelRepo.create({
         userId,
         level: 1,
         currentExp: 0,
         totalExp: 0,
         seasonExp: 0,
       })
-      await userLevelRepo.save(userLevel)
-      logger.info(`새 사용자 레벨 생성: User ID ${userId}`)
-    }
 
-    return userLevel
-  }
-
-  /**
-   * 레벨에 필요한 경험치 계산
-   */
-  calculateRequiredExp(level: number): number {
-    if (level <= 10) {
-      // 선형 증가: 100 + (level - 1) * 50
-      return 100 + (level - 1) * 50
-    } else if (level <= 50) {
-      // 지수적 증가: 600 * 1.3^(level - 11)
-      return Math.floor(600 * Math.pow(1.3, level - 11))
-    } else {
-      // 로그함수적 증가: 5000 * log(1.1, level - 50 + 1)
-      return Math.floor((5000 * Math.log(level - 50 + 1)) / Math.log(1.1))
+      return await userLevelRepo.save(userLevel)
+    } catch (error) {
+      console.error("사용자 레벨 생성 오류:", error)
+      throw error
     }
   }
 
-  /**
-   * 경험치 부여 및 레벨업 처리
-   */
-  async grantExp(
-    userId: number,
-    actionType: string,
-    source: string,
-    metadata?: any
-  ): Promise<{ success: boolean; expGained: number; levelUp?: boolean }> {
-    const actionConfig = this.config.actionLimits[actionType]
-    if (!actionConfig) {
-      logger.warn(`알 수 없는 액션 타입: ${actionType}`)
-      return { success: false, expGained: 0 }
-    }
-
-    // 쿨다운 체크
-    const canGrant = await this.checkCooldown(userId, actionType)
-    if (!canGrant) {
-      return { success: false, expGained: 0 }
-    }
-
-    // 일일 경험치 한도 체크
-    const dailyExp = await this.getDailyExp(userId)
-    if (dailyExp + actionConfig.exp > this.config.dailyExpCap) {
-      logger.info(`일일 경험치 한도 초과: User ID ${userId}`)
-      return { success: false, expGained: 0 }
-    }
-
-    // 트랜잭션으로 경험치 부여 및 레벨업 처리
-    const userLevelRepo = getRepository(UserLevel)
-    const expHistoryRepo = getRepository(ExpHistory)
-
+  // 사용자 레벨 진행률 조회
+  async getLevelProgress(userId: number): Promise<{
+    level: number
+    currentExp: number
+    totalExp: number
+    requiredExp: number
+    progressPercentage: number
+  } | null> {
     try {
       const userLevel = await this.getUserLevel(userId)
-      const oldLevel = userLevel.level
+      if (!userLevel) {
+        return null
+      }
 
-      // 경험치 추가
-      userLevel.currentExp += actionConfig.exp
-      userLevel.totalExp += actionConfig.exp
-      userLevel.seasonExp += actionConfig.exp
+      const requiredExp = this.calculateRequiredExp(userLevel.level)
+      const progressPercentage = (userLevel.currentExp / requiredExp) * 100
+
+      return {
+        level: userLevel.level,
+        currentExp: userLevel.currentExp,
+        totalExp: userLevel.totalExp,
+        requiredExp,
+        progressPercentage,
+      }
+    } catch (error) {
+      console.error("레벨 진행률 조회 오류:", error)
+      return null
+    }
+  }
+
+  // 경험치 부여
+  async grantExp(
+    userId: number,
+    action: string,
+    reason: string,
+    data?: ExpGrantData
+  ): Promise<{
+    success: boolean
+    level: number
+    currentExp: number
+    totalExp: number
+    leveledUp: boolean
+    expGained: number
+    levelUp?: number
+  }> {
+    try {
+      const userLevelRepo = AppDataSource.getRepository(UserLevel)
+      const expHistoryRepo = AppDataSource.getRepository(ExpHistory)
+
+      // 사용자 레벨 정보 조회 또는 생성
+      let userLevel = await userLevelRepo.findOne({ where: { userId } })
+      if (!userLevel) {
+        userLevel = await this.createUserLevel(userId)
+      }
+
+      // 경험치 계산
+      const expAmount = this.calculateExpAmount(action, reason)
+
+      // 경험치 히스토리 기록
+      const expHistory = expHistoryRepo.create({
+        userId,
+        actionType: action,
+        source: reason,
+        expGained: expAmount,
+        metadata: data,
+      })
+      await expHistoryRepo.save(expHistory)
+
+      // 레벨 업데이트
+      const oldLevel = userLevel.level
+      userLevel.currentExp += expAmount
+      userLevel.totalExp += expAmount
+      userLevel.seasonExp += expAmount
 
       // 레벨업 체크
-      let levelUp = false
+      let leveledUp = false
       while (
         userLevel.currentExp >= this.calculateRequiredExp(userLevel.level)
       ) {
         userLevel.currentExp -= this.calculateRequiredExp(userLevel.level)
         userLevel.level += 1
-        levelUp = true
+        leveledUp = true
       }
 
       await userLevelRepo.save(userLevel)
 
-      // 경험치 이력 저장
-      const expHistory = expHistoryRepo.create({
-        userId,
-        actionType,
-        expGained: actionConfig.exp,
-        source,
-        metadata,
-      })
-      await expHistoryRepo.save(expHistory)
-
-      // 레벨업 시 보상 처리
-      if (levelUp) {
-        await this.processLevelUpRewards(userId, userLevel.level)
-        logger.info(
-          `레벨업: User ID ${userId}, Level ${oldLevel} → ${userLevel.level}`
-        )
-      }
-
       return {
         success: true,
-        expGained: actionConfig.exp,
-        levelUp,
+        level: userLevel.level,
+        currentExp: userLevel.currentExp,
+        totalExp: userLevel.totalExp,
+        leveledUp,
+        expGained: expAmount,
+        levelUp: leveledUp ? userLevel.level : undefined,
       }
     } catch (error) {
-      logger.error(`경험치 부여 실패: User ID ${userId}, Error: ${error}`)
-      return { success: false, expGained: 0 }
+      console.error("경험치 부여 오류:", error)
+      throw error
     }
   }
 
-  /**
-   * 쿨다운 체크
-   */
-  private async checkCooldown(
-    userId: number,
-    actionType: string
-  ): Promise<boolean> {
-    const actionConfig = this.config.actionLimits[actionType]
-    if (!actionConfig) return false
+  // 경험치 양 계산
+  private calculateExpAmount(action: string, reason: string): number {
+    const expTable: { [key: string]: { [key: string]: number } } = {
+      post: {
+        post_creation: 50,
+        post_like: 5,
+        post_comment: 10,
+      },
+      comment: {
+        comment_creation: 20,
+        comment_like: 2,
+      },
+      like: {
+        post_like: 3,
+        comment_like: 1,
+      },
+      workout: {
+        workout_completion: 100,
+        workout_goal_achieved: 200,
+        streak_maintained: 50,
+      },
+      social: {
+        profile_completion: 30,
+        first_post: 100,
+        first_comment: 50,
+      },
+    }
 
-    const expHistoryRepo = getRepository(ExpHistory)
-    const lastAction = await expHistoryRepo.findOne({
-      where: { userId, actionType },
-      order: { createdAt: "DESC" },
-    })
-
-    if (!lastAction) return true
-
-    const now = new Date()
-    const timeDiff = (now.getTime() - lastAction.createdAt.getTime()) / 1000
-    return timeDiff >= actionConfig.cooldownSec
+    return expTable[action]?.[reason] || 10
   }
 
-  /**
-   * 일일 경험치 계산
-   */
-  private async getDailyExp(userId: number): Promise<number> {
-    const expHistoryRepo = getRepository(ExpHistory)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
-    const dailyExp = await expHistoryRepo
-      .createQueryBuilder("exp")
-      .select("SUM(exp.expGained)", "total")
-      .where("exp.userId = :userId", { userId })
-      .andWhere("exp.createdAt >= :today", { today })
-      .getRawOne()
-
-    return parseInt(dailyExp?.total || "0")
+  // 경험치 히스토리 조회
+  async getExpHistory(
+    userId: number,
+    limit: number = 20
+  ): Promise<ExpHistory[]> {
+    try {
+      const expHistoryRepo = AppDataSource.getRepository(ExpHistory)
+      return await expHistoryRepo.find({
+        where: { userId },
+        order: { createdAt: "DESC" },
+        take: limit,
+      })
+    } catch (error) {
+      console.error("경험치 히스토리 조회 오류:", error)
+      return []
+    }
   }
 
-  /**
-   * 레벨업 보상 처리
-   */
-  private async processLevelUpRewards(
+  // 리워드 부여
+  async grantReward(
     userId: number,
-    level: number
-  ): Promise<void> {
-    const rewardRepo = getRepository(UserReward)
-    const rewards = this.getLevelRewards(level)
+    rewardType: string,
+    rewardData: any
+  ): Promise<UserReward | null> {
+    try {
+      const rewardRepo = AppDataSource.getRepository(UserReward)
 
-    for (const reward of rewards) {
-      // 중복 보상 방지
-      const existingReward = await rewardRepo.findOne({
-        where: { userId, rewardId: reward.rewardId },
+      const reward = rewardRepo.create({
+        userId,
+        rewardType: rewardType,
+        rewardId: `reward_${Date.now()}`,
+        metadata: rewardData,
       })
 
-      if (!existingReward) {
-        const userReward = rewardRepo.create({
-          userId,
-          rewardType: reward.rewardType,
-          rewardId: reward.rewardId,
-          metadata: reward,
-        })
-        await rewardRepo.save(userReward)
-        logger.info(
-          `레벨업 보상 지급: User ID ${userId}, Reward ${reward.rewardId}`
-        )
-      }
+      return await rewardRepo.save(reward)
+    } catch (error) {
+      console.error("리워드 부여 오류:", error)
+      return null
     }
   }
 
-  /**
-   * 레벨별 보상 정의
-   */
-  private getLevelRewards(level: number): any[] {
-    const rewards = [
-      {
-        level: 5,
-        rewardType: "badge",
-        rewardId: "beginner_badge",
-        description: "초보자 뱃지",
-        icon: "🥉",
-      },
-      {
-        level: 10,
-        rewardType: "feature_unlock",
-        rewardId: "premium_board_access",
-        description: "프리미엄 게시판 접근",
-        featureName: "premium_community",
-      },
-      {
-        level: 20,
-        rewardType: "badge",
-        rewardId: "intermediate_badge",
-        description: "중급자 뱃지",
-        icon: "🥈",
-      },
-      {
-        level: 30,
-        rewardType: "points",
-        rewardId: "level_30_bonus",
-        description: "레벨 30 달성 보너스 포인트",
-        amount: 1000,
-      },
-      {
-        level: 50,
-        rewardType: "badge",
-        rewardId: "expert_badge",
-        description: "전문가 뱃지",
-        icon: "🥇",
-      },
-      {
-        level: 100,
-        rewardType: "badge",
-        rewardId: "master_badge",
-        description: "마스터 뱃지",
-        icon: "👑",
-      },
-    ]
-
-    return rewards.filter(reward => reward.level === level)
-  }
-
-  /**
-   * 사용자 레벨 진행률 조회
-   */
-  async getLevelProgress(userId: number): Promise<LevelProgress> {
-    const userLevel = await this.getUserLevel(userId)
-    const requiredExp = this.calculateRequiredExp(userLevel.level)
-    const progressPercentage = Math.min(
-      100,
-      (userLevel.currentExp / requiredExp) * 100
-    )
-
-    return {
-      level: userLevel.level,
-      currentExp: userLevel.currentExp,
-      totalExp: userLevel.totalExp,
-      seasonExp: userLevel.seasonExp,
-      expToNextLevel: requiredExp - userLevel.currentExp,
-      progressPercentage,
-    }
-  }
-
-  /**
-   * 사용자 보상 목록 조회
-   */
+  // 사용자 리워드 조회
   async getUserRewards(userId: number): Promise<UserReward[]> {
-    const rewardRepo = getRepository(UserReward)
-    return await rewardRepo.find({
-      where: { userId },
-      order: { claimedAt: "DESC" },
-    })
-  }
-
-  /**
-   * 마일스톤 체크 및 처리
-   */
-  async checkMilestones(userId: number): Promise<void> {
-    // 첫 게시글 마일스톤
-    await this.checkFirstPostMilestone(userId)
-
-    // 도움되는 사용자 마일스톤
-    await this.checkHelpfulUserMilestone(userId)
-
-    // 헬스장 탐험가 마일스톤
-    await this.checkGymExplorerMilestone(userId)
-  }
-
-  private async checkFirstPostMilestone(userId: number): Promise<void> {
-    const milestoneRepo = getRepository(Milestone)
-    const existingMilestone = await milestoneRepo.findOne({
-      where: { userId, milestoneId: "first_post" },
-    })
-
-    if (!existingMilestone) {
-      // 게시글 수 확인 로직 필요
-      // 임시로 건너뛰기
+    try {
+      const rewardRepo = AppDataSource.getRepository(UserReward)
+      return await rewardRepo.find({
+        where: { userId },
+        order: { createdAt: "DESC" },
+      })
+    } catch (error) {
+      console.error("사용자 리워드 조회 오류:", error)
+      return []
     }
   }
 
-  private async checkHelpfulUserMilestone(userId: number): Promise<void> {
-    // 좋아요 받은 수 확인 로직 필요
+  // 리워드 수령
+  async claimReward(rewardId: number, userId: number): Promise<boolean> {
+    try {
+      const rewardRepo = AppDataSource.getRepository(UserReward)
+
+      const reward = await rewardRepo.findOne({
+        where: { id: rewardId, userId },
+      })
+
+      if (!reward || reward.claimedAt) {
+        return false
+      }
+
+      reward.claimedAt = new Date()
+      await rewardRepo.save(reward)
+
+      return true
+    } catch (error) {
+      console.error("리워드 수령 오류:", error)
+      return false
+    }
   }
 
-  private async checkGymExplorerMilestone(userId: number): Promise<void> {
-    // 방문한 헬스장 수 확인 로직 필요
+  // 마일스톤 달성 체크
+  async checkMilestones(userId: number): Promise<Milestone[]> {
+    try {
+      const userLevelRepo = AppDataSource.getRepository(UserLevel)
+      const milestoneRepo = AppDataSource.getRepository(Milestone)
+
+      const userLevel = await userLevelRepo.findOne({ where: { userId } })
+      if (!userLevel) return []
+
+      // 달성 가능한 마일스톤 조회
+      const achievableMilestones = await milestoneRepo.find({
+        where: {
+          userId,
+          achieved: false,
+        },
+      })
+
+      const achievedMilestones: Milestone[] = []
+
+      for (const milestone of achievableMilestones) {
+        milestone.achieved = true
+        milestone.achievedAt = new Date()
+        milestone.userId = userId
+        await milestoneRepo.save(milestone)
+        achievedMilestones.push(milestone)
+      }
+
+      return achievedMilestones
+    } catch (error) {
+      console.error("마일스톤 체크 오류:", error)
+      return []
+    }
+  }
+
+  // 사용자 마일스톤 조회
+  async getUserMilestones(userId: number): Promise<Milestone[]> {
+    try {
+      const milestoneRepo = AppDataSource.getRepository(Milestone)
+      return await milestoneRepo.find({
+        where: { userId },
+        order: { achievedAt: "DESC" },
+      })
+    } catch (error) {
+      console.error("사용자 마일스톤 조회 오류:", error)
+      return []
+    }
   }
 }

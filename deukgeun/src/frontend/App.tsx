@@ -9,6 +9,7 @@ import SignUpPage from "@pages/Sign up/SignUpPage"
 import MachineGuidePage from "@pages/MachineGuide/MachineGuidePage"
 import CommunityPage from "@features/community/CommunityPage"
 import GymFinderPage from "@pages/location/GymFinderPage"
+import WorkoutJournalPage from "@pages/workoutjournal/WorkoutJournalPage"
 import MyPage from "@pages/Mypage/myPage"
 
 // 보호된 라우트 컴포넌트 (로그인 필요)
@@ -99,6 +100,14 @@ function AppRoutes() {
       <Route path="/location" element={<GymFinderPage />} />
 
       {/* 보호된 페이지 - 로그인 필요 */}
+      <Route
+        path="/workout-journal"
+        element={
+          <ProtectedRoute>
+            <WorkoutJournalPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/mypage"
         element={

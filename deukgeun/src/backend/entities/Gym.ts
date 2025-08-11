@@ -1,56 +1,58 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from "typeorm"
 
 @Entity()
 export class Gym {
   @PrimaryGeneratedColumn()
-  id: number
+  id!: number
 
   @Column({ type: "varchar", length: 255 })
-  name: string
+  name!: string
 
   @Column({ type: "varchar", length: 255 })
-  address: string
+  address!: string
 
   @Column({ type: "varchar", nullable: true })
-  phone: string
+  phone!: string
 
   @Column({ type: "decimal", precision: 10, scale: 7, nullable: true })
-  latitude: number
+  latitude!: number
 
   @Column({ type: "decimal", precision: 10, scale: 7, nullable: true })
-  longitude: number
+  longitude!: number
 
   @Column({ type: "text", nullable: true })
-  facilities: string
+  facilities!: string
 
   @Column({ type: "varchar", nullable: true })
-  openHour: string
+  openHour!: string
 
   @Column({ type: "tinyint", default: 0 })
-  is24Hours: boolean
+  is24Hours!: boolean
 
   @Column({ type: "tinyint", default: 0 })
-  hasGX: boolean
+  hasGX!: boolean
 
   @Column({ type: "tinyint", default: 0 })
-  hasPT: boolean
+  hasPT!: boolean
 
   @Column({ type: "tinyint", default: 0 })
-  hasGroupPT: boolean
+  hasGroupPT!: boolean
 
   @Column({ type: "tinyint", default: 0 })
-  hasParking: boolean
+  hasParking!: boolean
 
   @Column({ type: "tinyint", default: 0 })
-  hasShower: boolean
+  hasShower!: boolean
 
-  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-  createdAt: Date
+  @CreateDateColumn()
+  createdAt!: Date
 
-  @Column({
-    type: "timestamp",
-    default: () => "CURRENT_TIMESTAMP",
-    onUpdate: "CURRENT_TIMESTAMP",
-  })
-  updatedAt: Date
+  @UpdateDateColumn()
+  updatedAt!: Date
 }

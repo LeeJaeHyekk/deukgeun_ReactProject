@@ -1,6 +1,6 @@
 import React, { createContext, useContext, ReactNode } from "react"
 import { useAuth } from "../hooks/useAuth"
-import { User } from "@shared/types/user"
+import { User } from "../../../types"
 
 interface AuthContextType {
   isLoggedIn: boolean

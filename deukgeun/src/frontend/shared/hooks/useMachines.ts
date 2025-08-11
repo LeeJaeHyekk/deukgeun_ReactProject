@@ -18,8 +18,11 @@ export const useMachines = () => {
     setError(null)
     try {
       const response = await machineApi.getMachines()
-      setMachines(response.machines)
-      return response.machines
+      console.log("머신 응답:", response)
+      const machines = response?.machines || []
+      console.log("머신 목록:", machines)
+      setMachines(machines)
+      return machines
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error
@@ -27,6 +30,7 @@ export const useMachines = () => {
           : "머신 목록을 불러오는데 실패했습니다."
       setError(errorMessage)
       showToast(errorMessage, "error")
+      setMachines([]) // 오류 시 빈 배열로 설정
       throw err
     } finally {
       setLoading(false)
@@ -132,13 +136,15 @@ export const useMachines = () => {
       setError(null)
       try {
         const response = await machineApi.filterMachines(filters)
-        setMachines(response.machines)
-        return response.machines
+        const machines = response.machines || []
+        setMachines(machines)
+        return machines
       } catch (err: unknown) {
         const errorMessage =
           err instanceof Error ? err.message : "머신 필터링에 실패했습니다."
         setError(errorMessage)
         showToast(errorMessage, "error")
+        setMachines([]) // 오류 시 빈 배열로 설정
         throw err
       } finally {
         setLoading(false)

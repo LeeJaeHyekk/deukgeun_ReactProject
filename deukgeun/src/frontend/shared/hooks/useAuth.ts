@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { storage } from "../lib"
 import { authApi } from "../../features/auth/api/authApi"
 import { useUserStore } from "../store/userStore"
-import { User } from "@shared/types/user"
+import type { User } from "@shared/types/common"
 
 // JWT 토큰 유효성 검사
 function isTokenValid(token: string): boolean {
@@ -77,11 +77,13 @@ export function useAuth() {
         return true
       }
 
-      // 2. refresh token으로 갱신 시도
+      // 2. refresh token으로 갱신 시도 (최대 1회만)
       if (storedUser) {
         try {
+          console.log("🔄 토큰 갱신 시도...")
           const response = await authApi.refreshToken()
           if (response?.accessToken) {
+            console.log("✅ 토큰 갱신 성공")
             storage.set("accessToken", response.accessToken)
             setUser({ ...storedUser, accessToken: response.accessToken })
             setupTokenRefresh(response.accessToken)
@@ -89,17 +91,25 @@ export function useAuth() {
             return true
           }
         } catch (err) {
+          console.log("❌ 토큰 갱신 실패, 로그아웃 처리")
           clearUser()
           storage.remove("accessToken")
+          storage.remove("user")
         }
       }
 
       // 3. 자동 로그인 실패
+      console.log("❌ 자동 로그인 실패")
       clearUser()
+      storage.remove("accessToken")
+      storage.remove("user")
       setIsLoading(false)
       return false
     } catch (error) {
+      console.error("❌ checkAutoLogin 오류:", error)
       clearUser()
+      storage.remove("accessToken")
+      storage.remove("user")
       setIsLoading(false)
       return false
     }

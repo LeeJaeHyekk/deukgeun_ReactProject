@@ -8,7 +8,7 @@ const menuItems = [
   { label: "Search for Gym", path: "/location" },
   { label: "Machine Guide", path: "/machine-guide" },
   { label: "Community", path: "/community" },
-  { label: "Challenge", path: "/missions" },
+  { label: "Challenge", path: "/workout-journal" },
 ]
 
 export const Navigation = () => {

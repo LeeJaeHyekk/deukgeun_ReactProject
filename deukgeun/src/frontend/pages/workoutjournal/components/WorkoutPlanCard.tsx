@@ -1,5 +1,5 @@
 import React from "react"
-import { WorkoutPlan } from "../hooks/useWorkoutPlans"
+import type { WorkoutPlan } from "../../../shared/api/workoutApi"
 import "./WorkoutPlanCard.css"
 
 interface WorkoutPlanCardProps {

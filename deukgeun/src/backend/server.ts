@@ -1,10 +1,10 @@
 import app from "./app"
-import { createConnection } from "typeorm"
+import { connectDatabase } from "./config/database"
 import { autoInitializeScheduler } from "./services/autoUpdateScheduler"
 
 const PORT = process.env.PORT || 5000
 
-createConnection()
+connectDatabase()
   .then(() => {
     console.log("✅ Database connected")
     autoInitializeScheduler() // Initialize auto-update scheduler

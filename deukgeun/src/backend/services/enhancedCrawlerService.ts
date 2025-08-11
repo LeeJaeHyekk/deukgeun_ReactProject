@@ -448,13 +448,13 @@ export const updateGymDetailsWithEnhancedSources = async (
         gym.longitude = result.longitude
 
         // Update facility information
-        gym.hasPT = result.hasPT
-        gym.hasGX = result.hasGX
-        gym.hasGroupPT = result.hasGroupPT
-        gym.hasParking = result.hasParking
-        gym.hasShower = result.hasShower
-        gym.is24Hours = result.is24Hours
-        gym.openHour = result.openHour
+        gym.hasPT = result.hasPT ?? false
+        gym.hasGX = result.hasGX ?? false
+        gym.hasGroupPT = result.hasGroupPT ?? false
+        gym.hasParking = result.hasParking ?? false
+        gym.hasShower = result.hasShower ?? false
+        gym.is24Hours = result.is24Hours ?? false
+        gym.openHour = result.openHour ?? ""
 
         await gymRepo.save(gym)
         successCount++

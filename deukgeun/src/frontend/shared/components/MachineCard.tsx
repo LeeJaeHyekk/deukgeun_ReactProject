@@ -68,7 +68,14 @@ export const MachineCard: React.FC<MachineCardProps> = ({
   return (
     <div className="machine-card" onClick={handleClick}>
       <div className="machine-card-image">
-        <img src={machine.image_url} alt={machine.name_ko} />
+        <img
+          src={
+            machine.image_url.startsWith("http")
+              ? machine.image_url
+              : `http://localhost:5000${machine.image_url}`
+          }
+          alt={machine.name_ko}
+        />
         <div className="machine-card-overlay">
           <div
             className="machine-card-category"

@@ -1,318 +1,334 @@
 import { getRepository } from "typeorm"
-import { WorkoutSession } from "../entities/WorkoutSession"
-import { ExerciseSet } from "../entities/ExerciseSet"
-import { WorkoutGoal } from "../entities/WorkoutGoal"
 import { WorkoutPlan } from "../entities/WorkoutPlan"
+import { WorkoutSession } from "../entities/WorkoutSession"
+import { WorkoutGoal } from "../entities/WorkoutGoal"
 import { WorkoutStats } from "../entities/WorkoutStats"
 import { WorkoutProgress } from "../entities/WorkoutProgress"
-import { WorkoutReminder } from "../entities/WorkoutReminder"
-import { User } from "../entities/User"
+import { ExerciseSet } from "../entities/ExerciseSet"
 
 export class WorkoutJournalService {
-  // 운동 세션 생성
-  static async createWorkoutSession(sessionData: {
-    user_id: number
-    plan_id?: number
-    gym_id?: number
-    session_name: string
-    start_time: Date
-    mood_rating?: number
-    energy_level?: number
-    notes?: string
-  }) {
-    const sessionRepository = getRepository(WorkoutSession)
+  // 운동 계획 관련
+  async getUserPlans(userId: number) {
+    const planRepository = getRepository(WorkoutPlan)
+    return await planRepository.find({
+      where: { user_id: userId },
+      order: { created_at: "DESC" },
+    })
+  }
 
+  async createWorkoutPlan(userId: number, planData: any) {
+    const planRepository = getRepository(WorkoutPlan)
+    const plan = planRepository.create({
+      user_id: userId,
+      name: planData.name,
+      description: planData.description,
+      difficulty_level: planData.difficulty_level || "beginner",
+      estimated_duration_minutes: planData.estimated_duration_minutes,
+      target_muscle_groups: planData.target_muscle_groups || [],
+      is_template: planData.is_template || false,
+      is_public: planData.is_public || false,
+    })
+    return await planRepository.save(plan)
+  }
+
+  // 운동 세션 관련
+  async getUserSessions(userId: number) {
+    const sessionRepository = getRepository(WorkoutSession)
+    return await sessionRepository.find({
+      where: { user_id: userId },
+      order: { start_time: "DESC" },
+      relations: ["exercise_sets"],
+    })
+  }
+
+  async createWorkoutSession(userId: number, sessionData: any) {
+    const sessionRepository = getRepository(WorkoutSession)
     const session = sessionRepository.create({
-      ...sessionData,
+      user_id: userId,
+      plan_id: sessionData.plan_id,
+      gym_id: sessionData.gym_id,
+      session_name: sessionData.session_name,
+      start_time: new Date(sessionData.start_time || new Date()),
+      mood_rating: sessionData.mood_rating,
+      energy_level: sessionData.energy_level,
+      notes: sessionData.notes,
       status: "in_progress",
     })
-
     return await sessionRepository.save(session)
   }
 
-  // 운동 세션 완료
-  static async completeWorkoutSession(sessionId: number, endTime: Date) {
-    const sessionRepository = getRepository(WorkoutSession)
-
-    const session = await sessionRepository.findOne({
-      where: { session_id: sessionId },
-    })
-    if (!session) {
-      throw new Error("운동 세션을 찾을 수 없습니다.")
-    }
-
-    const duration = Math.round(
-      (endTime.getTime() - session.start_time.getTime()) / (1000 * 60)
-    )
-
-    session.end_time = endTime
-    session.total_duration_minutes = duration
-    session.status = "completed"
-
-    return await sessionRepository.save(session)
-  }
-
-  // 운동 세션 목록 조회
-  static async getWorkoutSessions(
+  async updateWorkoutSession(
+    sessionId: number,
     userId: number,
-    page: number = 1,
-    limit: number = 10
+    updateData: any
   ) {
     const sessionRepository = getRepository(WorkoutSession)
-
-    const [sessions, total] = await sessionRepository.findAndCount({
-      where: { user_id: userId },
-      relations: [
-        "workout_plan",
-        "gym",
-        "exercise_sets",
-        "exercise_sets.machine",
-      ],
-      order: { start_time: "DESC" },
-      skip: (page - 1) * limit,
-      take: limit,
-    })
-
-    return { sessions, total, page, limit }
-  }
-
-  // 운동 세션 상세 조회
-  static async getWorkoutSession(sessionId: number, userId: number) {
-    const sessionRepository = getRepository(WorkoutSession)
-
     const session = await sessionRepository.findOne({
       where: { session_id: sessionId, user_id: userId },
-      relations: [
-        "workout_plan",
-        "gym",
-        "exercise_sets",
-        "exercise_sets.machine",
-      ],
     })
 
     if (!session) {
       throw new Error("운동 세션을 찾을 수 없습니다.")
     }
 
-    return session
+    Object.assign(session, updateData)
+    return await sessionRepository.save(session)
   }
 
-  // 운동 세트 추가
-  static async addExerciseSet(setData: {
-    session_id: number
-    machine_id: number
-    set_number: number
-    reps_completed: number
-    weight_kg?: number
-    duration_seconds?: number
-    distance_meters?: number
-    rpe_rating?: number
-    notes?: string
-  }) {
-    const setRepository = getRepository(ExerciseSet)
-
-    const exerciseSet = setRepository.create(setData)
-    return await setRepository.save(exerciseSet)
-  }
-
-  // 운동 목표 생성
-  static async createWorkoutGoal(goalData: {
-    user_id: number
-    goal_type:
-      | "weight_lift"
-      | "endurance"
-      | "weight_loss"
-      | "muscle_gain"
-      | "strength"
-      | "flexibility"
-    target_value: number
-    unit: string
-    target_date: Date
-    start_date: Date
-  }) {
+  // 운동 목표 관련
+  async getUserGoals(userId: number) {
     const goalRepository = getRepository(WorkoutGoal)
-
-    const goal = goalRepository.create({
-      ...goalData,
-      current_value: 0,
-      progress_percentage: 0,
-      status: "active",
-    })
-
-    return await goalRepository.save(goal)
-  }
-
-  // 운동 목표 목록 조회
-  static async getWorkoutGoals(userId: number) {
-    const goalRepository = getRepository(WorkoutGoal)
-
     return await goalRepository.find({
       where: { user_id: userId },
       order: { created_at: "DESC" },
     })
   }
 
-  // 운동 목표 업데이트
-  static async updateWorkoutGoal(
-    goalId: number,
-    userId: number,
-    currentValue: number
-  ) {
+  async createWorkoutGoal(userId: number, goalData: any) {
     const goalRepository = getRepository(WorkoutGoal)
+    const goal = goalRepository.create({
+      user_id: userId,
+      goal_type: goalData.goal_type,
+      target_value: goalData.target_value,
+      current_value: goalData.current_value || 0,
+      unit: goalData.unit,
+      target_date: new Date(goalData.target_date),
+      start_date: new Date(goalData.start_date || new Date()),
+      status: "active",
+      progress_percentage: 0,
+    })
+    return await goalRepository.save(goal)
+  }
 
+  async updateWorkoutGoal(goalId: number, userId: number, updateData: any) {
+    const goalRepository = getRepository(WorkoutGoal)
     const goal = await goalRepository.findOne({
       where: { goal_id: goalId, user_id: userId },
     })
+
     if (!goal) {
       throw new Error("운동 목표를 찾을 수 없습니다.")
     }
 
-    goal.current_value = currentValue
-    goal.progress_percentage = Math.min(
-      (currentValue / goal.target_value) * 100,
-      100
-    )
+    // 진행률 계산
+    if (updateData.current_value !== undefined) {
+      const progress = (updateData.current_value / goal.target_value) * 100
+      updateData.progress_percentage = Math.min(progress, 100)
 
-    if (goal.progress_percentage >= 100) {
-      goal.status = "completed"
+      // 목표 달성 시 상태 변경
+      if (updateData.progress_percentage >= 100) {
+        updateData.status = "completed"
+      }
     }
 
+    Object.assign(goal, updateData)
     return await goalRepository.save(goal)
   }
 
-  // 운동 통계 조회
-  static async getWorkoutStats(
-    userId: number,
-    startDate?: Date,
-    endDate?: Date
-  ) {
+  // 운동 통계 관련
+  async getUserStats(userId: number) {
     const statsRepository = getRepository(WorkoutStats)
-
-    const query = statsRepository
-      .createQueryBuilder("stats")
-      .where("stats.user_id = :userId", { userId })
-
-    if (startDate) {
-      query.andWhere("stats.workout_date >= :startDate", { startDate })
-    }
-
-    if (endDate) {
-      query.andWhere("stats.workout_date <= :endDate", { endDate })
-    }
-
-    return await query.getMany()
+    return await statsRepository.find({
+      where: { user_id: userId },
+      order: { workout_date: "DESC" },
+      take: 30, // 최근 30일
+    })
   }
 
-  // 운동 진행 상황 조회
-  static async getWorkoutProgress(
-    userId: number,
-    machineId?: number,
-    limit: number = 10
-  ) {
+  // 운동 진행 상황 관련
+  async getUserProgress(userId: number) {
     const progressRepository = getRepository(WorkoutProgress)
-
-    const query = progressRepository
-      .createQueryBuilder("progress")
-      .where("progress.user_id = :userId", { userId })
-
-    if (machineId) {
-      query.andWhere("progress.machine_id = :machineId", { machineId })
-    }
-
-    return await query
-      .orderBy("progress.progress_date", "DESC")
-      .limit(limit)
-      .getMany()
-  }
-
-  // 운동 알림 생성
-  static async createWorkoutReminder(reminderData: {
-    user_id: number
-    title: string
-    description?: string
-    reminder_time: string
-    repeat_days: number[]
-    notification_type: "push" | "email" | "sms"
-  }) {
-    const reminderRepository = getRepository(WorkoutReminder)
-
-    const reminder = reminderRepository.create({
-      ...reminderData,
-      is_active: true,
-      is_sent: false,
-    })
-
-    return await reminderRepository.save(reminder)
-  }
-
-  // 운동 알림 목록 조회
-  static async getWorkoutReminders(userId: number) {
-    const reminderRepository = getRepository(WorkoutReminder)
-
-    return await reminderRepository.find({
+    return await progressRepository.find({
       where: { user_id: userId },
-      order: { created_at: "DESC" },
+      order: { progress_date: "DESC" },
+      relations: ["machine"],
+      take: 50, // 최근 50개 기록
     })
   }
 
-  // 운동 알림 업데이트
-  static async updateWorkoutReminder(
-    reminderId: number,
-    userId: number,
-    updateData: Partial<WorkoutReminder>
-  ) {
-    const reminderRepository = getRepository(WorkoutReminder)
-
-    const reminder = await reminderRepository.findOne({
-      where: { reminder_id: reminderId, user_id: userId },
-    })
-    if (!reminder) {
-      throw new Error("운동 알림을 찾을 수 없습니다.")
-    }
-
-    Object.assign(reminder, updateData)
-    return await reminderRepository.save(reminder)
-  }
-
-  // 운동 알림 삭제
-  static async deleteWorkoutReminder(reminderId: number, userId: number) {
-    const reminderRepository = getRepository(WorkoutReminder)
-
-    const reminder = await reminderRepository.findOne({
-      where: { reminder_id: reminderId, user_id: userId },
-    })
-    if (!reminder) {
-      throw new Error("운동 알림을 찾을 수 없습니다.")
-    }
-
-    await reminderRepository.remove(reminder)
-    return { message: "운동 알림이 삭제되었습니다." }
-  }
-
-  // 사용자 운동 요약 통계
-  static async getUserWorkoutSummary(userId: number) {
-    const sessionRepository = getRepository(WorkoutSession)
-    const goalRepository = getRepository(WorkoutGoal)
-
-    const [totalSessions, completedSessions, activeGoals] = await Promise.all([
-      sessionRepository.count({ where: { user_id: userId } }),
-      sessionRepository.count({
-        where: { user_id: userId, status: "completed" },
-      }),
-      goalRepository.count({ where: { user_id: userId, status: "active" } }),
-    ])
-
-    const recentSessions = await sessionRepository.find({
-      where: { user_id: userId },
-      order: { start_time: "DESC" },
-      take: 5,
-    })
-
-    return {
+  // 대시보드 데이터
+  async getDashboardData(userId: number) {
+    const [
+      totalPlans,
       totalSessions,
-      completedSessions,
       activeGoals,
       recentSessions,
+      recentProgress,
+    ] = await Promise.all([
+      this.getUserPlans(userId),
+      this.getUserSessions(userId),
+      this.getUserGoals(userId),
+      this.getUserSessions(userId).then(sessions => sessions.slice(0, 5)),
+      this.getUserProgress(userId).then(progress => progress.slice(0, 10)),
+    ])
+
+    const completedSessions = totalSessions.filter(
+      s => s.status === "completed"
+    )
+    const activeGoalsCount = activeGoals.filter(
+      g => g.status === "active"
+    ).length
+
+    // 주간 운동 통계
+    const oneWeekAgo = new Date()
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+
+    const weeklySessions = completedSessions.filter(
+      session => new Date(session.start_time) >= oneWeekAgo
+    )
+
+    const weeklyStats = {
+      totalSessions: weeklySessions.length,
+      totalDuration: weeklySessions.reduce(
+        (sum, session) => sum + (session.total_duration_minutes || 0),
+        0
+      ),
+      averageMood:
+        weeklySessions.length > 0
+          ? weeklySessions.reduce(
+              (sum, session) => sum + (session.mood_rating || 0),
+              0
+            ) / weeklySessions.length
+          : 0,
+      averageEnergy:
+        weeklySessions.length > 0
+          ? weeklySessions.reduce(
+              (sum, session) => sum + (session.energy_level || 0),
+              0
+            ) / weeklySessions.length
+          : 0,
     }
+
+    return {
+      summary: {
+        totalPlans: totalPlans.length,
+        totalSessions: totalSessions.length,
+        completedSessions: completedSessions.length,
+        activeGoals: activeGoalsCount,
+      },
+      weeklyStats,
+      recentSessions,
+      recentProgress,
+      activeGoals: activeGoals.filter(g => g.status === "active"),
+    }
+  }
+
+  // 운동 세트 추가
+  async addExerciseSet(setData: any) {
+    const setRepository = getRepository(ExerciseSet)
+    const exerciseSet = setRepository.create({
+      session_id: setData.session_id,
+      machine_id: setData.machine_id,
+      set_number: setData.set_number,
+      reps_completed: setData.reps_completed,
+      weight_kg: setData.weight_kg,
+      duration_seconds: setData.duration_seconds,
+      distance_meters: setData.distance_meters,
+      rpe_rating: setData.rpe_rating,
+      notes: setData.notes,
+    })
+    return await setRepository.save(exerciseSet)
+  }
+
+  // 운동 세션 완료
+  async completeWorkoutSession(sessionId: number, endTime: Date) {
+    const sessionRepository = getRepository(WorkoutSession)
+    const session = await sessionRepository.findOne({
+      where: { session_id: sessionId },
+    })
+
+    if (!session) {
+      throw new Error("운동 세션을 찾을 수 없습니다.")
+    }
+
+    session.end_time = endTime
+    session.status = "completed"
+    session.total_duration_minutes = Math.round(
+      (endTime.getTime() - session.start_time.getTime()) / (1000 * 60)
+    )
+
+    return await sessionRepository.save(session)
+  }
+
+  // 운동 통계 업데이트
+  async updateWorkoutStats(userId: number, sessionId: number) {
+    const sessionRepository = getRepository(WorkoutSession)
+    const setRepository = getRepository(ExerciseSet)
+    const statsRepository = getRepository(WorkoutStats)
+
+    const session = await sessionRepository.findOne({
+      where: { session_id: sessionId },
+      relations: ["exercise_sets"],
+    })
+
+    if (!session) {
+      throw new Error("운동 세션을 찾을 수 없습니다.")
+    }
+
+    const workoutDate = new Date(session.start_time).toISOString().split("T")[0]
+
+    // 기존 통계 확인
+    let stats = await statsRepository.findOne({
+      where: { user_id: userId, workout_date: new Date(workoutDate) },
+    })
+
+    if (!stats) {
+      stats = statsRepository.create({
+        user_id: userId,
+        workout_date: workoutDate,
+        total_sessions: 0,
+        total_duration_minutes: 0,
+        total_sets: 0,
+        total_reps: 0,
+        total_weight_kg: 0,
+        total_distance_meters: 0,
+        average_mood: 0,
+        average_energy: 0,
+        average_rpe: 0,
+        calories_burned: 0,
+      })
+    }
+
+    // 통계 업데이트
+    stats.total_sessions += 1
+    stats.total_duration_minutes += session.total_duration_minutes || 0
+
+    if (session.exercise_sets) {
+      stats.total_sets += session.exercise_sets.length
+      stats.total_reps += session.exercise_sets.reduce(
+        (sum, set) => sum + set.reps_completed,
+        0
+      )
+      stats.total_weight_kg += session.exercise_sets.reduce(
+        (sum, set) => sum + (set.weight_kg || 0),
+        0
+      )
+      stats.total_distance_meters += session.exercise_sets.reduce(
+        (sum, set) => sum + (set.distance_meters || 0),
+        0
+      )
+
+      const validRpe = session.exercise_sets
+        .filter(set => set.rpe_rating)
+        .map(set => set.rpe_rating!)
+      if (validRpe.length > 0) {
+        stats.average_rpe =
+          validRpe.reduce((sum, rpe) => sum + rpe, 0) / validRpe.length
+      }
+    }
+
+    if (session.mood_rating) {
+      stats.average_mood = session.mood_rating
+    }
+    if (session.energy_level) {
+      stats.average_energy = session.energy_level
+    }
+
+    // 간단한 칼로리 계산 (예시)
+    stats.calories_burned = Math.round(
+      (session.total_duration_minutes || 0) * 8
+    )
+
+    return await statsRepository.save(stats)
   }
 }

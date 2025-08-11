@@ -1,215 +1,205 @@
 import { Request, Response } from "express"
-import { getRepository } from "typeorm"
 import { Gym } from "../entities/Gym"
+import { AppDataSource } from "../config/database"
+import { ApiResponse, ErrorResponse } from "../types/common"
 
-/**
- * 모든 헬스장 조회
- */
-export const getAllGyms = async (req: Request, res: Response) => {
+export async function getAllGyms(
+  req: Request,
+  res: Response<ApiResponse<Gym[]> | ErrorResponse>
+) {
   try {
-    const gymRepository = getRepository(Gym)
-    const gyms = await gymRepository.find()
+    const gymRepository = AppDataSource.getRepository(Gym)
+    const gyms = await gymRepository.find({
+      order: {
+        name: "ASC",
+      },
+    })
 
     res.json({
       success: true,
+      message: "헬스장 목록을 성공적으로 가져왔습니다.",
       data: gyms,
-      count: gyms.length,
     })
   } catch (error) {
-    console.error("헬스장 조회 실패:", error)
+    console.error("헬스장 목록 조회 오류:", error)
     res.status(500).json({
       success: false,
-      message: "헬스장 조회 중 오류가 발생했습니다.",
+      message: "헬스장 목록을 가져오는데 실패했습니다.",
+      error: "서버 오류",
     })
   }
 }
 
-/**
- * ID로 헬스장 조회
- */
-export const getGymById = async (req: Request, res: Response) => {
+export async function getGymById(
+  req: Request<{ id: string }>,
+  res: Response<ApiResponse<Gym> | ErrorResponse>
+) {
   try {
     const { id } = req.params
-    const gymRepository = getRepository(Gym)
-    const gym = await gymRepository.findOne({ where: { id } })
+    const gymRepository = AppDataSource.getRepository(Gym)
+    const gym = await gymRepository.findOne({ where: { id: parseInt(id) } })
 
     if (!gym) {
       return res.status(404).json({
         success: false,
         message: "헬스장을 찾을 수 없습니다.",
+        error: "헬스장 없음",
       })
     }
 
     res.json({
       success: true,
+      message: "헬스장 정보를 성공적으로 가져왔습니다.",
       data: gym,
     })
   } catch (error) {
-    console.error("헬스장 조회 실패:", error)
+    console.error("헬스장 조회 오류:", error)
     res.status(500).json({
       success: false,
-      message: "헬스장 조회 중 오류가 발생했습니다.",
+      message: "헬스장 정보를 가져오는데 실패했습니다.",
+      error: "서버 오류",
     })
   }
 }
 
-/**
- * 위치 기반 헬스장 검색
- */
-export const searchGymsByLocation = async (req: Request, res: Response) => {
+export async function searchGyms(
+  req: Request,
+  res: Response<ApiResponse<Gym[]> | ErrorResponse>
+) {
   try {
-    const { latitude, longitude, radius = 5 } = req.query
+    const { query, latitude, longitude, radius = 10 } = req.query
+    const gymRepository = AppDataSource.getRepository(Gym)
+
+    let gyms: Gym[]
+
+    if (latitude && longitude) {
+      // 위치 기반 검색
+      const lat = parseFloat(latitude as string)
+      const lng = parseFloat(longitude as string)
+      const rad = parseFloat(radius as string)
+
+      gyms = await gymRepository
+        .createQueryBuilder("gym")
+        .where(
+          `(6371 * acos(cos(radians(:lat)) * cos(radians(gym.latitude)) * cos(radians(gym.longitude) - radians(:lng)) + sin(radians(:lat)) * sin(radians(gym.latitude)))) <= :radius`,
+          { lat, lng, radius: rad }
+        )
+        .andWhere(query ? "gym.name LIKE :query" : "1=1", {
+          query: `%${query}%`,
+        })
+        .orderBy("gym.name", "ASC")
+        .getMany()
+    } else {
+      // 일반 검색
+      gyms = await gymRepository.find({
+        where: query ? { name: `%${query}%` } : {},
+        order: {
+          name: "ASC",
+        },
+      })
+    }
+
+    res.json({
+      success: true,
+      message: "헬스장 검색을 완료했습니다.",
+      data: gyms,
+    })
+  } catch (error) {
+    console.error("헬스장 검색 오류:", error)
+    res.status(500).json({
+      success: false,
+      message: "헬스장 검색에 실패했습니다.",
+      error: "서버 오류",
+    })
+  }
+}
+
+export async function getGymsByLocation(
+  req: Request,
+  res: Response<ApiResponse<Gym[]> | ErrorResponse>
+) {
+  try {
+    const { latitude, longitude, radius = 10 } = req.query
+    const gymRepository = AppDataSource.getRepository(Gym)
 
     if (!latitude || !longitude) {
       return res.status(400).json({
         success: false,
         message: "위도와 경도가 필요합니다.",
+        error: "위치 정보 누락",
       })
     }
 
     const lat = parseFloat(latitude as string)
     const lng = parseFloat(longitude as string)
-    const searchRadius = parseFloat(radius as string)
+    const rad = parseFloat(radius as string)
 
-    const gymRepository = getRepository(Gym)
-
-    // Haversine 공식을 사용한 거리 계산
     const gyms = await gymRepository
       .createQueryBuilder("gym")
-      .select([
-        "gym.*",
-        `(
-          6371 * acos(
-            cos(radians(${lat})) * cos(radians(gym.latitude)) * 
-            cos(radians(gym.longitude) - radians(${lng})) + 
-            sin(radians(${lat})) * sin(radians(gym.latitude))
-          )
-        ) AS distance`,
-      ])
-      .having("distance <= :radius", { radius: searchRadius })
-      .orderBy("distance", "ASC")
-      .getRawMany()
+      .where(
+        `(6371 * acos(cos(radians(:lat)) * cos(radians(gym.latitude)) * cos(radians(gym.longitude) - radians(:lng)) + sin(radians(:lat)) * sin(radians(gym.latitude)))) <= :radius`,
+        { lat, lng, radius: rad }
+      )
+      .orderBy("gym.name", "ASC")
+      .getMany()
 
     res.json({
       success: true,
+      message: "주변 헬스장을 성공적으로 가져왔습니다.",
       data: gyms,
-      count: gyms.length,
-      searchParams: { latitude: lat, longitude: lng, radius: searchRadius },
     })
   } catch (error) {
-    console.error("위치 기반 헬스장 검색 실패:", error)
+    console.error("주변 헬스장 조회 오류:", error)
     res.status(500).json({
       success: false,
-      message: "헬스장 검색 중 오류가 발생했습니다.",
+      message: "주변 헬스장을 가져오는데 실패했습니다.",
+      error: "서버 오류",
     })
   }
 }
 
-/**
- * 대량 헬스장 데이터 업데이트
- */
-export const bulkUpdateGyms = async (req: Request, res: Response) => {
+export async function updateGymData(
+  req: Request,
+  res: Response<ApiResponse<{ updated: number }> | ErrorResponse>
+) {
   try {
+    const gymRepository = AppDataSource.getRepository(Gym)
     const { gyms } = req.body
 
-    if (!gyms || !Array.isArray(gyms)) {
+    if (!Array.isArray(gyms)) {
       return res.status(400).json({
         success: false,
-        message: "헬스장 데이터 배열이 필요합니다.",
+        message: "헬스장 데이터가 올바르지 않습니다.",
+        error: "잘못된 데이터 형식",
       })
     }
 
-    const gymRepository = getRepository(Gym)
-    let savedCount = 0
     let updatedCount = 0
-    let errorCount = 0
-
     for (const gymData of gyms) {
-      try {
-        // 기존 헬스장이 있는지 확인
-        const existingGym = await gymRepository.findOne({
-          where: { id: gymData.id },
-        })
+      const existingGym = await gymRepository.findOne({
+        where: { name: gymData.name },
+      })
 
-        if (existingGym) {
-          // 기존 데이터 업데이트
-          await gymRepository.update(gymData.id, {
-            name: gymData.name,
-            phone: gymData.phone,
-            address: gymData.address,
-            latitude: gymData.latitude,
-            longitude: gymData.longitude,
-            updatedAt: new Date(),
-          })
-          updatedCount++
-        } else {
-          // 새 데이터 저장
-          const newGym = gymRepository.create({
-            id: gymData.id,
-            name: gymData.name,
-            phone: gymData.phone,
-            address: gymData.address,
-            latitude: gymData.latitude,
-            longitude: gymData.longitude,
-            hasParking: false,
-            hasShower: false,
-            is24Hours: false,
-            hasGX: false,
-            hasPT: false,
-            hasGroupPT: false,
-          })
-          await gymRepository.save(newGym)
-          savedCount++
-        }
-      } catch (error) {
-        console.error(`헬스장 ${gymData.id} 처리 실패:`, error)
-        errorCount++
+      if (existingGym) {
+        await gymRepository.update(existingGym.id, gymData)
+        updatedCount++
+      } else {
+        await gymRepository.save(gymData)
+        updatedCount++
       }
     }
 
     res.json({
       success: true,
-      message: "헬스장 데이터 대량 업데이트 완료",
-      stats: {
-        totalProcessed: gyms.length,
-        saved: savedCount,
-        updated: updatedCount,
-        errors: errorCount,
-      },
+      message: `${updatedCount}개의 헬스장 데이터를 업데이트했습니다.`,
+      data: { updated: updatedCount },
     })
   } catch (error) {
-    console.error("대량 헬스장 업데이트 실패:", error)
+    console.error("헬스장 데이터 업데이트 오류:", error)
     res.status(500).json({
       success: false,
-      message: "헬스장 데이터 업데이트 중 오류가 발생했습니다.",
-    })
-  }
-}
-
-/**
- * 데이터베이스 상태 확인
- */
-export const getDatabaseStatus = async (req: Request, res: Response) => {
-  try {
-    const gymRepository = getRepository(Gym)
-    const totalCount = await gymRepository.count()
-    const latestGym = await gymRepository.findOne({
-      order: { updatedAt: "DESC" },
-    })
-
-    res.json({
-      success: true,
-      data: {
-        totalGyms: totalCount,
-        lastUpdated: latestGym?.updatedAt || null,
-        databaseStatus: "healthy",
-      },
-    })
-  } catch (error) {
-    console.error("데이터베이스 상태 확인 실패:", error)
-    res.status(500).json({
-      success: false,
-      message: "데이터베이스 상태 확인 중 오류가 발생했습니다.",
+      message: "헬스장 데이터 업데이트에 실패했습니다.",
+      error: "서버 오류",
     })
   }
 }

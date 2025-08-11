@@ -11,10 +11,15 @@ export class WorkoutController {
   }
 
   // 운동 계획 관련
-  async getUserPlans(req: Request, res: Response, next: NextFunction) {
+  async getUserPlans(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: "인증이 필요합니다." })
+        return
       }
 
       const plans = await this.workoutService.getUserWorkoutPlans(
@@ -27,10 +32,15 @@ export class WorkoutController {
     }
   }
 
-  async createPlan(req: Request, res: Response, next: NextFunction) {
+  async createPlan(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: "인증이 필요합니다." })
+        return
       }
 
       const planData = {
@@ -46,10 +56,15 @@ export class WorkoutController {
     }
   }
 
-  async updatePlan(req: Request, res: Response, next: NextFunction) {
+  async updatePlan(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: "인증이 필요합니다." })
+        return
       }
 
       const { id } = req.params
@@ -64,10 +79,15 @@ export class WorkoutController {
     }
   }
 
-  async deletePlan(req: Request, res: Response, next: NextFunction) {
+  async deletePlan(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: "인증이 필요합니다." })
+        return
       }
 
       const { id } = req.params
@@ -80,10 +100,15 @@ export class WorkoutController {
   }
 
   // 운동 세션 관련
-  async getUserSessions(req: Request, res: Response, next: NextFunction) {
+  async getUserSessions(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: "인증이 필요합니다." })
+        return
       }
 
       const sessions = await this.workoutService.getUserWorkoutSessions(
@@ -96,10 +121,15 @@ export class WorkoutController {
     }
   }
 
-  async startSession(req: Request, res: Response, next: NextFunction) {
+  async startSession(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: "인증이 필요합니다." })
+        return
       }
 
       const sessionData = {
@@ -116,10 +146,15 @@ export class WorkoutController {
     }
   }
 
-  async completeSession(req: Request, res: Response, next: NextFunction) {
+  async completeSession(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: "인증이 필요합니다." })
+        return
       }
 
       const { id } = req.params
@@ -135,10 +170,15 @@ export class WorkoutController {
   }
 
   // 운동 목표 관련
-  async getUserGoals(req: Request, res: Response, next: NextFunction) {
+  async getUserGoals(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: "인증이 필요합니다." })
+        return
       }
 
       const goals = await this.workoutService.getUserWorkoutGoals(
@@ -151,10 +191,15 @@ export class WorkoutController {
     }
   }
 
-  async createGoal(req: Request, res: Response, next: NextFunction) {
+  async createGoal(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: "인증이 필요합니다." })
+        return
       }
 
       const goalData = {
@@ -170,10 +215,15 @@ export class WorkoutController {
     }
   }
 
-  async updateGoal(req: Request, res: Response, next: NextFunction) {
+  async updateGoal(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: "인증이 필요합니다." })
+        return
       }
 
       const { id } = req.params
@@ -188,10 +238,15 @@ export class WorkoutController {
     }
   }
 
-  async deleteGoal(req: Request, res: Response, next: NextFunction) {
+  async deleteGoal(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: "인증이 필요합니다." })
+        return
       }
 
       const { id } = req.params
@@ -204,10 +259,15 @@ export class WorkoutController {
   }
 
   // 운동 진행 상황
-  async getProgress(req: Request, res: Response, next: NextFunction) {
+  async getProgress(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: "인증이 필요합니다." })
+        return
       }
 
       const { machineId } = req.query

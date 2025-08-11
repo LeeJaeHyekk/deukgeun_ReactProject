@@ -45,6 +45,17 @@ export default function HomePage() {
     }
   }
 
+  // 기본 통계값
+  const defaultStats = {
+    activeUsers: 150,
+    totalGyms: 45,
+    totalPosts: 320,
+    achievements: 25,
+  }
+
+  // 통계 데이터 사용 (없으면 기본값)
+  const displayStats = stats || defaultStats
+
   return (
     <div className={styles.homePage}>
       <LoadingOverlay show={isLoading} />
@@ -123,7 +134,7 @@ export default function HomePage() {
           </div>
           <div
             className={styles.serviceCard}
-            onClick={() => navigate("/missions")}
+            onClick={() => navigate("/workout-journal")}
           >
             <div className={styles.serviceIcon}>
               <BarChart3 size={48} />
@@ -183,11 +194,7 @@ export default function HomePage() {
             </div>
             <div className={styles.statContent}>
               <h3>
-                {statsLoading
-                  ? "..."
-                  : stats
-                    ? formatNumber(stats.activeUsers)
-                    : "0"}
+                {statsLoading ? "..." : formatNumber(displayStats.activeUsers)}
               </h3>
               <p>활성 사용자</p>
             </div>
@@ -198,11 +205,7 @@ export default function HomePage() {
             </div>
             <div className={styles.statContent}>
               <h3>
-                {statsLoading
-                  ? "..."
-                  : stats
-                    ? formatNumber(stats.totalGyms)
-                    : "0"}
+                {statsLoading ? "..." : formatNumber(displayStats.totalGyms)}
               </h3>
               <p>등록된 헬스장</p>
             </div>
@@ -213,11 +216,7 @@ export default function HomePage() {
             </div>
             <div className={styles.statContent}>
               <h3>
-                {statsLoading
-                  ? "..."
-                  : stats
-                    ? formatNumber(stats.totalPosts)
-                    : "0"}
+                {statsLoading ? "..." : formatNumber(displayStats.totalPosts)}
               </h3>
               <p>커뮤니티 게시글</p>
             </div>
@@ -228,11 +227,7 @@ export default function HomePage() {
             </div>
             <div className={styles.statContent}>
               <h3>
-                {statsLoading
-                  ? "..."
-                  : stats
-                    ? formatNumber(stats.achievements)
-                    : "0"}
+                {statsLoading ? "..." : formatNumber(displayStats.achievements)}
               </h3>
               <p>달성된 업적</p>
             </div>
@@ -432,7 +427,7 @@ export default function HomePage() {
                   <a href="/community">커뮤니티</a>
                 </li>
                 <li>
-                  <a href="/missions">운동 기록일지</a>
+                  <a href="/workout-journal">운동 기록일지</a>
                 </li>
               </ul>
             </div>

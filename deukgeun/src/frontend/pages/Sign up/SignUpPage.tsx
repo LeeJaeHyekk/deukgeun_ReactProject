@@ -8,7 +8,8 @@ import {
   FaCheck,
   FaExclamationTriangle,
 } from "react-icons/fa"
-import { authApi, RegisterRequest } from "@features/auth/api/authApi"
+import { authApi } from "@features/auth/api/authApi"
+import type { RegisterRequest } from "../../../types"
 import { validation, showToast, storage } from "@shared/lib"
 import { executeRecaptcha, getDummyRecaptchaToken } from "@shared/lib/recaptcha"
 import styles from "./SignUpPage.module.css"
@@ -280,7 +281,7 @@ export default function SignUpPage() {
         password: formData.password,
         nickname: formData.nickname.trim(),
         phone: formData.phone.trim() || undefined,
-        gender: gender || undefined,
+        gender: (gender as "male" | "female" | "other") || undefined,
         birthday: birthdayDate || undefined,
         recaptchaToken,
       }

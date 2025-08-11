@@ -1,29 +1,38 @@
+/* Community Page Styles - Scoped to prevent global conflicts */
 /* 전체 페이지 */
 .communityPage {
   min-height: 100vh;
   background: linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%);
   color: #fff;
   padding-top: 64px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 64px 0 0 0;
+  position: relative;
+  z-index: 1;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+.communityContainer {
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
 }
 
 /* 헤더 */
-.header {
-  text-align: center;
-  margin-bottom: 40px;
-  padding: 40px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.communityHeader {
+  text-align: center !important;
+  margin-bottom: 40px !important;
+  padding: 40px 20px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 16px !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-sizing: border-box !important;
 }
 
-.header h1 {
+.headerTitle {
   font-size: 2.5rem;
   font-weight: 700;
   margin: 0 0 12px 0;
@@ -31,20 +40,21 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.header p {
+.headerSubtitle {
   font-size: 1.1rem;
   color: #ccc;
   margin: 0;
 }
 
 /* 컨트롤 섹션 */
-.controls {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 32px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.communityControls {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  margin-bottom: 32px !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-sizing: border-box !important;
 }
 
 .searchSort {
@@ -435,22 +445,22 @@
 }
 
 @media (max-width: 768px) {
-  .container {
-    padding: 16px;
+  .communityContainer {
+    padding: 16px !important;
   }
 
-  .header {
-    padding: 30px 16px;
-    margin-bottom: 30px;
+  .communityHeader {
+    padding: 30px 16px !important;
+    margin-bottom: 30px !important;
   }
 
-  .header h1 {
+  .headerTitle {
     font-size: 2rem;
   }
 
-  .controls {
-    padding: 20px;
-    margin-bottom: 24px;
+  .communityControls {
+    padding: 20px !important;
+    margin-bottom: 24px !important;
   }
 
   .searchSort {
@@ -489,24 +499,24 @@
 }
 
 @media (max-width: 480px) {
-  .container {
-    padding: 12px;
+  .communityContainer {
+    padding: 12px !important;
   }
 
-  .header {
-    padding: 24px 12px;
+  .communityHeader {
+    padding: 24px 12px !important;
   }
 
-  .header h1 {
+  .headerTitle {
     font-size: 1.8rem;
   }
 
-  .header p {
+  .headerSubtitle {
     font-size: 1rem;
   }
 
-  .controls {
-    padding: 16px;
+  .communityControls {
+    padding: 16px !important;
   }
 
   .postCard {

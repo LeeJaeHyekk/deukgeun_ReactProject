@@ -31,6 +31,7 @@ export const config = {
 
 // API Endpoints
 export const API_ENDPOINTS = {
+  BASE_URL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
   AUTH: {
     LOGIN: "/api/auth/login",
     REGISTER: "/api/auth/register",

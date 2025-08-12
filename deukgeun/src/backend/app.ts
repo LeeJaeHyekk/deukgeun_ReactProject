@@ -11,7 +11,11 @@ import path from "path"
 const app = express()
 
 // Security middleware
-app.use(helmet())
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+)
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:5173",
@@ -25,9 +29,28 @@ app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Static files serving
-app.use("/img", express.static(path.join(__dirname, "../../public/img")))
-app.use("/public", express.static(path.join(__dirname, "../../public")))
+// Static files serving with CORS headers
+app.use(
+  "/img",
+  (req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*")
+    res.header("Access-Control-Allow-Methods", "GET")
+    res.header("Access-Control-Allow-Headers", "Content-Type")
+    next()
+  },
+  express.static(path.join(__dirname, "../../public/img"))
+)
+
+app.use(
+  "/public",
+  (req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*")
+    res.header("Access-Control-Allow-Methods", "GET")
+    res.header("Access-Control-Allow-Headers", "Content-Type")
+    next()
+  },
+  express.static(path.join(__dirname, "../../public"))
+)
 
 // Root endpoint
 app.get("/", (req, res) => {

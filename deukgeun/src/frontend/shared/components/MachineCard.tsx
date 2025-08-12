@@ -1,5 +1,10 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { Machine } from "../types/machine"
+import {
+  findMatchingImage,
+  getFullImageUrl,
+  handleImageError,
+} from "../utils/machineImageUtils"
 import "./MachineCard.css"
 
 interface MachineCardProps {
@@ -65,16 +70,20 @@ export const MachineCard: React.FC<MachineCardProps> = ({
     }
   }
 
+  // 이미지 URL을 메모이제이션하여 불필요한 재계산 방지
+  const imageUrl = useMemo(() => {
+    const matchedImage = findMatchingImage(machine)
+    return getFullImageUrl(matchedImage)
+  }, [machine.id, machine.name_ko, machine.name_en, machine.image_url])
+
   return (
     <div className="machine-card" onClick={handleClick}>
       <div className="machine-card-image">
         <img
-          src={
-            machine.image_url.startsWith("http")
-              ? machine.image_url
-              : `http://localhost:5000${machine.image_url}`
-          }
+          src={imageUrl}
           alt={machine.name_ko}
+          onError={handleImageError}
+          loading="lazy" // 지연 로딩으로 성능 최적화
         />
         <div className="machine-card-overlay">
           <div

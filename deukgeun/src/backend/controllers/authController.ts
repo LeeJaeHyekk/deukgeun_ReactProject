@@ -393,3 +393,147 @@ export const register = async (
     })
   }
 }
+
+export async function findId(
+  req: Request<Record<string, never>, Record<string, never>, { email: string; recaptchaToken: string }>,
+  res: Response<ApiResponse | ErrorResponse>
+) {
+  try {
+    const { email, recaptchaToken } = req.body
+    console.log("아이디 찾기 요청:", { email })
+
+    // 입력 검증
+    if (!email || !recaptchaToken) {
+      return res.status(400).json({
+        success: false,
+        message: "모든 필드를 입력하세요.",
+        error: "필수 필드 누락",
+      })
+    }
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "유효한 이메일 주소를 입력하세요.",
+        error: "이메일 형식 오류",
+      })
+    }
+
+    // reCAPTCHA 검증
+    const isHuman = await verifyRecaptcha(recaptchaToken)
+    if (!isHuman) {
+      logger.warn(`reCAPTCHA 실패 (아이디 찾기) - IP: ${req.ip}, Email: ${email}`)
+      return res.status(403).json({
+        success: false,
+        message: "reCAPTCHA 검증에 실패했습니다.",
+        error: "reCAPTCHA 실패",
+      })
+    }
+
+    const userRepo = AppDataSource.getRepository(User)
+    const user = await userRepo.findOne({ where: { email: email.toLowerCase().trim() } })
+
+    if (!user) {
+      logger.warn(`아이디 찾기 실패 - 존재하지 않는 이메일: ${email}`)
+      return res.status(404).json({
+        success: false,
+        message: "해당 이메일로 가입된 계정을 찾을 수 없습니다.",
+        error: "사용자 없음",
+      })
+    }
+
+    // TODO: 실제 이메일 발송 로직 구현
+    // 현재는 성공 응답만 반환
+    logger.info(`아이디 찾기 성공 - Email: ${email}`)
+
+    return res.json({
+      success: true,
+      message: "입력하신 이메일로 아이디 정보를 발송했습니다.",
+      data: {
+        email: user.email,
+        nickname: user.nickname,
+      },
+    })
+  } catch (error) {
+    logger.error("아이디 찾기 처리 중 오류:", error)
+    return res.status(500).json({
+      success: false,
+      message: "서버 오류가 발생했습니다.",
+      error: "서버 오류",
+    })
+  }
+}
+
+export async function findPassword(
+  req: Request<Record<string, never>, Record<string, never>, { email: string; recaptchaToken: string }>,
+  res: Response<ApiResponse | ErrorResponse>
+) {
+  try {
+    const { email, recaptchaToken } = req.body
+    console.log("비밀번호 찾기 요청:", { email })
+
+    // 입력 검증
+    if (!email || !recaptchaToken) {
+      return res.status(400).json({
+        success: false,
+        message: "모든 필드를 입력하세요.",
+        error: "필수 필드 누락",
+      })
+    }
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "유효한 이메일 주소를 입력하세요.",
+        error: "이메일 형식 오류",
+      })
+    }
+
+    // reCAPTCHA 검증
+    const isHuman = await verifyRecaptcha(recaptchaToken)
+    if (!isHuman) {
+      logger.warn(`reCAPTCHA 실패 (비밀번호 찾기) - IP: ${req.ip}, Email: ${email}`)
+      return res.status(403).json({
+        success: false,
+        message: "reCAPTCHA 검증에 실패했습니다.",
+        error: "reCAPTCHA 실패",
+      })
+    }
+
+    const userRepo = AppDataSource.getRepository(User)
+    const user = await userRepo.findOne({ where: { email: email.toLowerCase().trim() } })
+
+    if (!user) {
+      logger.warn(`비밀번호 찾기 실패 - 존재하지 않는 이메일: ${email}`)
+      return res.status(404).json({
+        success: false,
+        message: "해당 이메일로 가입된 계정을 찾을 수 없습니다.",
+        error: "사용자 없음",
+      })
+    }
+
+    // TODO: 실제 이메일 발송 로직 구현
+    // 현재는 성공 응답만 반환
+    logger.info(`비밀번호 찾기 성공 - Email: ${email}`)
+
+    return res.json({
+      success: true,
+      message: "입력하신 이메일로 비밀번호 재설정 링크를 발송했습니다.",
+      data: {
+        email: user.email,
+        nickname: user.nickname,
+      },
+    })
+  } catch (error) {
+    logger.error("비밀번호 찾기 처리 중 오류:", error)
+    return res.status(500).json({
+      success: false,
+      message: "서버 오류가 발생했습니다.",
+      error: "서버 오류",
+    })
+  }
+}

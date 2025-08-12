@@ -1,4 +1,8 @@
 import { Machine } from "../types/machine"
+import {
+  IMAGE_MATCHING_CONFIG,
+  ImageMatchingManager,
+} from "../config/imageMatchingConfig"
 
 // 이미지 매칭 결과 캐시
 const imageCache = new Map<string, string>()
@@ -30,7 +34,7 @@ export function findMatchingImage(machine: Machine): string {
   // 1. DB에 이미지 URL이 있고 기본값이 아닌 경우 우선 사용
   if (
     machine.image_url &&
-    machine.image_url !== "/img/machine/chest-press.png"
+    machine.image_url !== IMAGE_MATCHING_CONFIG.defaultImage
   ) {
     console.log("📸 DB 이미지 URL 사용:", machine.image_url)
     result = machine.image_url
@@ -48,7 +52,7 @@ export function findMatchingImage(machine: Machine): string {
     } else {
       console.log("❌ 매칭 실패, 기본 이미지 사용")
       // 3. 기본 이미지 반환
-      result = "/img/machine/chest-press.png"
+      result = IMAGE_MATCHING_CONFIG.defaultImage
     }
   }
 
@@ -68,163 +72,27 @@ export function findMatchingImage(machine: Machine): string {
   return result
 }
 
-// 기구 이름으로 이미지 파일 찾기 (개선된 버전)
+// 기구 이름으로 이미지 파일 찾기 (확장 가능한 버전)
 function findImageByMachineName(
   machineName: string,
   machineNameEn: string
 ): string | null {
-  // 실제 데이터베이스에 있는 이미지 파일들 (테스트 결과 기반)
-  const availableImages = [
-    "bicep-curl.png",
-    "chest-press.png",
-    "chin-up-and-dip-station.png",
-    "chin-up.png",
-    "kneeling-leg-curl.png",
-    "leg-extension.png",
-    "leg-press.png",
-    "lat-pulldown.png",
-    "plate-loaded-leg-press.png",
-    "plate-loaded-squat.png",
-    "shoulder-press.png",
-    "squat-rack.png",
-    "treadmill-running.gif",
-    "plate-loaded-wide-pulldown.png",
-    "Selectorized Lat Pulldown.png",
-    "Selectorized leg curl.png",
-    "Ground-Base-Combo-Incline.png",
-  ]
-
-  // 정확한 매칭을 위한 키워드 매핑 (우선순위 순서)
-  const exactMatches: Record<string, string> = {
-    // 그라운드 베이스 콤보 인클라인 (실제 데이터에 있는 머신)
-    "그라운드 베이스 콤보 인클라인": "Ground-Base-Combo-Incline.png",
-    "ground base combo incline": "Ground-Base-Combo-Incline.png",
-    "ground-base combo incline": "Ground-Base-Combo-Incline.png",
-
-    // 랫 풀다운
-    "랫 풀다운": "lat-pulldown.png",
-    "lat pulldown": "lat-pulldown.png",
-
-    // 러닝머신
-    러닝머신: "treadmill-running.gif",
-    treadmill: "treadmill-running.gif",
-
-    // 레그 익스텐션
-    "레그 익스텐션": "leg-extension.png",
-    "leg extension": "leg-extension.png",
-
-    // 레그 프레스
-    "레그 프레스": "leg-press.png",
-    "leg press": "leg-press.png",
-
-    // 바이셉 컬
-    "바이셉 컬": "bicep-curl.png",
-    "bicep curl": "bicep-curl.png",
-
-    // 니링 레그 컬
-    "니링 레그 컬": "kneeling-leg-curl.png",
-    "kneeling leg curl": "kneeling-leg-curl.png",
-
-    // 숄더 프레스
-    "숄더 프레스": "shoulder-press.png",
-    "shoulder press": "shoulder-press.png",
-
-    // 스쿼트 랙
-    "스쿼트 랙": "squat-rack.png",
-    "squat rack": "squat-rack.png",
-
-    // 친업 앤 딥 스테이션
-    "친업 앤 딥 스테이션": "chin-up-and-dip-station.png",
-    "chin up and dip station": "chin-up-and-dip-station.png",
-
-    // 플레이트 와이드 풀다운
-    "플레이트 와이드 풀다운": "plate-loaded-wide-pulldown.png",
-    "plate loaded wide pulldown": "plate-loaded-wide-pulldown.png",
-
-    // 플레이트 로드 스쿼트
-    "플레이트 로드 스쿼트": "plate-loaded-squat.png",
-    "plate loaded squat": "plate-loaded-squat.png",
-
-    // 체스트 프레스
-    "체스트 프레스": "chest-press.png",
-    "chest press": "chest-press.png",
-  }
-
   // 1. 정확한 매칭 시도
-  for (const [key, imageFile] of Object.entries(exactMatches)) {
+  for (const [key, imageFile] of Object.entries(
+    IMAGE_MATCHING_CONFIG.exactMatches
+  )) {
     if (machineName.includes(key) || machineNameEn.includes(key)) {
       return `/img/machine/${imageFile}`
     }
   }
 
-  // 2. 부분 매칭 시도 (더 구체적인 키워드부터)
-  const partialMatches: Record<string, string> = {
-    // 그라운드 베이스 관련
-    그라운드: "Ground-Base-Combo-Incline.png",
-    ground: "Ground-Base-Combo-Incline.png",
-    combo: "Ground-Base-Combo-Incline.png",
-    incline: "Ground-Base-Combo-Incline.png",
-
-    // 랫/풀다운 관련
-    랫: "lat-pulldown.png",
-    lat: "lat-pulldown.png",
-    풀다운: "lat-pulldown.png",
-    pulldown: "lat-pulldown.png",
-
-    // 러닝머신 관련
-    러닝: "treadmill-running.gif",
-    running: "treadmill-running.gif",
-
-    // 레그 관련
-    레그: "leg-press.png",
-    leg: "leg-press.png",
-    익스텐션: "leg-extension.png",
-    extension: "leg-extension.png",
-    니링: "kneeling-leg-curl.png",
-    kneeling: "kneeling-leg-curl.png",
-
-    // 바이셉 관련
-    바이셉: "bicep-curl.png",
-    bicep: "bicep-curl.png",
-    컬: "bicep-curl.png",
-    curl: "bicep-curl.png",
-
-    // 숄더 관련
-    숄더: "shoulder-press.png",
-    shoulder: "shoulder-press.png",
-
-    // 스쿼트 관련
-    스쿼트: "squat-rack.png",
-    squat: "squat-rack.png",
-    랙: "squat-rack.png",
-    rack: "squat-rack.png",
-
-    // 친업/딥 관련
-    친업: "chin-up-and-dip-station.png",
-    chin: "chin-up-and-dip-station.png",
-    딥: "chin-up-and-dip-station.png",
-    dip: "chin-up-and-dip-station.png",
-
-    // 플레이트 관련
-    플레이트: "plate-loaded-leg-press.png",
-    plate: "plate-loaded-leg-press.png",
-    와이드: "plate-loaded-wide-pulldown.png",
-    wide: "plate-loaded-wide-pulldown.png",
-
-    // 체스트 관련
-    체스트: "chest-press.png",
-    chest: "chest-press.png",
-    프레스: "chest-press.png",
-    press: "chest-press.png",
-  }
-
-  // 부분 매칭 시도 (긴 키워드부터)
-  const sortedKeys = Object.keys(partialMatches).sort(
+  // 2. 부분 매칭 시도 (긴 키워드부터)
+  const sortedKeys = Object.keys(IMAGE_MATCHING_CONFIG.partialMatches).sort(
     (a, b) => b.length - a.length
   )
   for (const key of sortedKeys) {
     if (machineName.includes(key) || machineNameEn.includes(key)) {
-      return `/img/machine/${partialMatches[key]}`
+      return `/img/machine/${IMAGE_MATCHING_CONFIG.partialMatches[key]}`
     }
   }
 
@@ -255,7 +123,7 @@ export function handleImageError(
   failedImages.add(currentSrc)
 
   // 기본 이미지 URL
-  const defaultImageUrl = "http://localhost:5000/img/machine/chest-press.png"
+  const defaultImageUrl = `http://localhost:5000${IMAGE_MATCHING_CONFIG.defaultImage}`
 
   // 이미 기본 이미지인 경우 무한 루프 방지
   if (currentSrc === defaultImageUrl) {
@@ -271,4 +139,52 @@ export function handleImageError(
 export function clearImageCache(): void {
   imageCache.clear()
   failedImages.clear()
+}
+
+// 확장성을 위한 유틸리티 함수들 (ImageMatchingManager 래퍼)
+export const ImageUtils = {
+  // 새로운 이미지 파일 추가
+  addAvailableImage: (imageFileName: string) => {
+    ImageMatchingManager.getInstance().addAvailableImage(imageFileName)
+  },
+
+  // 새로운 정확한 매칭 규칙 추가
+  addExactMatch: (keyword: string, imageFileName: string) => {
+    ImageMatchingManager.getInstance().addExactMatch(keyword, imageFileName)
+  },
+
+  // 새로운 부분 매칭 규칙 추가
+  addPartialMatch: (keyword: string, imageFileName: string) => {
+    ImageMatchingManager.getInstance().addPartialMatch(keyword, imageFileName)
+  },
+
+  // 매칭 규칙 제거
+  removeMatch: (keyword: string, isExact: boolean = false) => {
+    ImageMatchingManager.getInstance().removeMatch(keyword, isExact)
+  },
+
+  // 현재 설정 조회
+  getConfig: () => ImageMatchingManager.getInstance().getConfig(),
+
+  // 캐시 통계
+  getCacheStats: () => ({
+    imageCacheSize: imageCache.size,
+    failedImagesSize: failedImages.size,
+  }),
+
+  // 배치로 매칭 규칙 추가
+  addBatchMatches: (
+    matches: Array<{
+      keyword: string
+      imageFileName: string
+      isExact?: boolean
+    }>
+  ) => {
+    ImageMatchingManager.getInstance().addBatchMatches(matches)
+  },
+
+  // 설정 초기화
+  resetConfig: () => {
+    ImageMatchingManager.getInstance().resetConfig()
+  },
 }

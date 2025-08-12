@@ -38,6 +38,8 @@ export const API_ENDPOINTS = {
     REFRESH: "/api/auth/refresh",
     LOGOUT: "/api/auth/logout",
     CHECK: "/api/auth/check",
+    FIND_ID: "/api/auth/find-id",
+    FIND_PASSWORD: "/api/auth/find-password",
   },
   USER: {
     PROFILE: "/api/user/profile",

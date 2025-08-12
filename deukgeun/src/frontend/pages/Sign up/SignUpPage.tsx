@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   FaEye,
@@ -12,6 +12,7 @@ import { authApi } from "@features/auth/api/authApi"
 import type { RegisterRequest } from "../../../types"
 import { validation, showToast, storage } from "@shared/lib"
 import { executeRecaptcha, getDummyRecaptchaToken } from "@shared/lib/recaptcha"
+import { useAuthContext } from "@shared/contexts/AuthContext"
 import styles from "./SignUpPage.module.css"
 import { GenderSelect } from "./GenderSelect/GenderSelect"
 import { BirthdaySelect } from "./BirthDateSelect/BirthDateSelect"
@@ -50,6 +51,15 @@ interface FormErrors {
 
 export default function SignUpPage() {
   const navigate = useNavigate()
+  const { isLoggedIn } = useAuthContext()
+
+  // 로그인된 상태에서 접근 시 메인페이지로 리다이렉트
+  useEffect(() => {
+    if (isLoggedIn) {
+      console.log("🧪 이미 로그인된 상태 - 메인페이지로 리다이렉트")
+      navigate("/", { replace: true })
+    }
+  }, [isLoggedIn, navigate])
 
   // 폼 상태
   const [formData, setFormData] = useState<FormData>({
@@ -79,6 +89,20 @@ export default function SignUpPage() {
 
   // 에러 상태
   const [errors, setErrors] = useState<FormErrors>({})
+
+  // 이미 로그인된 상태라면 로딩 화면 표시
+  if (isLoggedIn) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.container}>
+          <div style={{ textAlign: "center", color: "white" }}>
+            <p>이미 로그인된 상태입니다.</p>
+            <p>메인페이지로 이동 중...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // 실시간 검증 함수
   const validateField = (

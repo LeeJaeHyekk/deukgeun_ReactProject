@@ -6,6 +6,8 @@ import HomePage from "@pages/HomePage"
 import LoginPage from "@pages/login/LoginPage"
 import ErrorPage from "@pages/Error/ErrorPage"
 import SignUpPage from "@pages/Sign up/SignUpPage"
+import FindIdPage from "@pages/auth/FindIdPage"
+import FindPasswordPage from "@pages/auth/FindPasswordPage"
 import MachineGuidePage from "@pages/MachineGuide/MachineGuidePage"
 import CommunityPage from "@features/community/CommunityPage"
 import GymFinderPage from "@pages/location/GymFinderPage"
@@ -90,6 +92,24 @@ function AppRoutes() {
         element={
           <RedirectIfLoggedIn>
             <SignUpPage />
+          </RedirectIfLoggedIn>
+        }
+      />
+
+      {/* 아이디/비밀번호 찾기 - 로그인된 사용자는 홈으로 리다이렉트 */}
+      <Route
+        path="/find-id"
+        element={
+          <RedirectIfLoggedIn>
+            <FindIdPage />
+          </RedirectIfLoggedIn>
+        }
+      />
+      <Route
+        path="/find-password"
+        element={
+          <RedirectIfLoggedIn>
+            <FindPasswordPage />
           </RedirectIfLoggedIn>
         }
       />

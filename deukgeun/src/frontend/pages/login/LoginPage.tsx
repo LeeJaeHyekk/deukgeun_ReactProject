@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { FaEye, FaEyeSlash } from "react-icons/fa"
 import ReCAPTCHA from "react-google-recaptcha"
@@ -25,7 +25,15 @@ export default function LoginPage() {
   }>({})
   const [error, setError] = useState<string>("")
   const navigate = useNavigate()
-  const { login } = useAuthContext()
+  const { login, isLoggedIn } = useAuthContext()
+
+  // 로그인된 상태에서 접근 시 메인페이지로 리다이렉트
+  useEffect(() => {
+    if (isLoggedIn) {
+      console.log("🧪 이미 로그인된 상태 - 메인페이지로 리다이렉트")
+      navigate("/", { replace: true })
+    }
+  }, [isLoggedIn, navigate])
 
   // 🧪 디버깅용 로그 (기존 코드에 영향 없음)
   console.log("🧪 LoginPage 렌더링")
@@ -36,6 +44,7 @@ export default function LoginPage() {
     recaptchaToken: recaptchaToken ? "있음" : "없음",
     errors,
     error,
+    isLoggedIn,
   })
 
   // 폼 검증
@@ -152,6 +161,20 @@ export default function LoginPage() {
       setErrors(prev => ({ ...prev, recaptcha: undefined }))
     }
     setError("") // 전체 에러 메시지도 초기화
+  }
+
+  // 이미 로그인된 상태라면 로딩 화면 표시
+  if (isLoggedIn) {
+    return (
+      <div className={styles.pageWrapper}>
+        <div className={styles.loginBox}>
+          <div style={{ textAlign: "center", color: "#f1f3f5" }}>
+            <p>이미 로그인된 상태입니다.</p>
+            <p>메인페이지로 이동 중...</p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   console.log("🧪 LoginPage - 렌더링 완료")

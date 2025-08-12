@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { FaEye, FaEyeSlash } from "react-icons/fa"
+import { FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa"
 import ReCAPTCHA from "react-google-recaptcha"
 import { authApi } from "@features/auth/api/authApi"
 import type { LoginRequest } from "../../../types"
@@ -182,6 +182,14 @@ export default function LoginPage() {
   return (
     <div className={styles.pageWrapper}>
       <div className={styles.loginBox}>
+        <button
+          onClick={() => navigate("/")}
+          className={styles.backButton}
+          aria-label="뒤로 가기"
+        >
+          <FaArrowLeft />
+        </button>
+
         <h1 className={styles.logo}>득근 득근</h1>
 
         <form

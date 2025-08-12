@@ -19,6 +19,8 @@ import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
 import { WorkoutStats } from "../entities/WorkoutStats"
 import { WorkoutProgress } from "../entities/WorkoutProgress"
 import { WorkoutReminder } from "../entities/WorkoutReminder"
+import { VerificationToken } from "../entities/VerificationToken"
+import { PasswordResetToken } from "../entities/PasswordResetToken"
 
 // TypeORM DataSource configuration
 export const AppDataSource = new DataSource({
@@ -70,6 +72,8 @@ export const AppDataSource = new DataSource({
     WorkoutStats,
     WorkoutProgress,
     WorkoutReminder,
+    VerificationToken,
+    PasswordResetToken,
   ],
 
   // Subscriber list (currently not used)

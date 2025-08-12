@@ -25,7 +25,7 @@
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  color: #f1f3f5;
+  color: #ffffff;
   box-sizing: border-box;
   position: relative;
   backdrop-filter: blur(20px);
@@ -37,7 +37,7 @@
   left: 20px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #adb5bd;
+  color: #ffffff;
   font-size: 18px;
   cursor: pointer;
   padding: 10px;
@@ -49,12 +49,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .backButton:hover {
   background: rgba(255, 255, 255, 0.2);
   color: #f87171;
   transform: scale(1.05);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .title {
@@ -62,16 +64,18 @@
   font-weight: bold;
   text-align: center;
   margin-bottom: 20px;
-  color: #f1f3f5;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  letter-spacing: 1px;
 }
 
 .description {
   text-align: center;
-  color: #adb5bd;
+  color: #ffffff;
   font-size: 15px;
   line-height: 1.6;
   margin-bottom: 32px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .inputGroup {
@@ -84,16 +88,19 @@
   padding: 0 20px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.1);
-  color: #f1f3f5;
+  color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.2);
   font-size: 16px;
   box-sizing: border-box;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .input::placeholder {
-  color: #adb5bd;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  font-weight: 500;
 }
 
 .input:focus {
@@ -116,6 +123,7 @@
   margin-top: 6px;
   margin-left: 4px;
   font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .recaptchaContainer {
@@ -152,12 +160,14 @@
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .findButton:hover:not(:disabled) {
   background: linear-gradient(135deg, #ef4444, #dc2626);
   transform: translateY(-2px);
   box-shadow: 0 12px 32px rgba(248, 113, 113, 0.4);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .findButton:disabled {
@@ -175,44 +185,284 @@
 .linkBtn {
   background: none;
   border: none;
-  color: #adb5bd;
+  color: #ffffff;
   cursor: pointer;
   font-size: 14px;
   padding: 8px 12px;
   border-radius: 8px;
   transition: all 0.2s ease;
   font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .linkBtn:hover {
   color: #f87171;
   background: rgba(248, 113, 113, 0.1);
   transform: translateY(-1px);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* 반응형 */
-@media (max-width: 480px) {
+@media (max-width: 1024px) {
+  .findIdBox {
+    max-width: 480px;
+    padding: 36px 28px;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .description {
+    font-size: 14px;
+  }
+
+  .input,
+  .findButton {
+    height: 50px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageWrapper {
+    padding: 16px;
+  }
+
   .findIdBox {
     padding: 32px 24px;
     border-radius: 16px;
+    max-width: 90%;
   }
 
   .title {
     font-size: 24px;
+    margin-bottom: 16px;
+  }
+
+  .description {
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+
+  .inputGroup {
+    margin-bottom: 18px;
   }
 
   .input,
   .findButton {
     height: 48px;
-    font-size: 16px;
+    font-size: 15px;
     border-radius: 14px;
   }
 
   .linkRow {
     margin-top: 20px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .linkBtn {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
   }
 
   .recaptchaWidget {
     transform: scale(0.85);
   }
+
+  .backButton {
+    top: 16px;
+    left: 16px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageWrapper {
+    padding: 12px;
+  }
+
+  .findIdBox {
+    padding: 24px 20px;
+    border-radius: 12px;
+    max-width: 100%;
+  }
+
+  .title {
+    font-size: 22px;
+    margin-bottom: 14px;
+  }
+
+  .description {
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+
+  .inputGroup {
+    margin-bottom: 16px;
+  }
+
+  .input,
+  .findButton {
+    height: 44px;
+    font-size: 14px;
+    border-radius: 12px;
+    padding: 0 16px;
+  }
+
+  .linkRow {
+    margin-top: 16px;
+    gap: 8px;
+  }
+
+  .linkBtn {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .recaptchaWidget {
+    transform: scale(0.8);
+  }
+
+  .recaptchaContainer {
+    margin: 16px 0;
+    padding: 16px 0;
+  }
+
+  .errorText {
+    font-size: 12px;
+  }
+
+  .errorMessage {
+    font-size: 13px;
+    padding: 0.5rem;
+  }
+
+  .backButton {
+    top: 12px;
+    left: 12px;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .findIdBox {
+    padding: 20px 16px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .input,
+  .findButton {
+    height: 40px;
+    font-size: 13px;
+  }
+
+  .recaptchaWidget {
+    transform: scale(0.75);
+  }
+}
+
+/* 결과 화면 스타일 */
+.resultContainer {
+  text-align: center;
+  padding: 2rem 0;
+  margin: 2rem 0;
+}
+
+.successMessage {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  backdrop-filter: blur(10px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.foundId {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ffffff;
+  background: rgba(34, 197, 94, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  display: inline-block;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 드롭다운 스타일 개선 */
+.input[type="date"],
+.input[type="email"],
+.input[type="tel"],
+.input[type="text"],
+.input[type="password"],
+select.input {
+  width: 100%;
+  height: 52px;
+  padding: 0 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* select 요소 전용 스타일 */
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+  padding-right: 48px;
+}
+
+select.input option {
+  background: rgba(0, 0, 0, 0.8);
+  color: #ffffff;
+  padding: 12px;
+  font-size: 16px;
+}
+
+select.input option:disabled {
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+}
+
+select.input option:hover {
+  background: rgba(248, 113, 113, 0.3);
+}
+
+/* date input 전용 스타일 */
+input[type="date"].input {
+  position: relative;
+}
+
+input[type="date"].input::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.5);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+input[type="date"].input::-webkit-calendar-picker-indicator:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
 }

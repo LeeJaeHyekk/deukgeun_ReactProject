@@ -64,6 +64,38 @@ export interface FindPasswordRequest {
   recaptchaToken: string
 }
 
+// Enhanced Account Recovery Request Types
+export interface FindIdStep1Request {
+  name: string
+  phone: string
+  recaptchaToken: string
+}
+
+export interface FindIdStep2Request {
+  email: string
+  code: string
+  recaptchaToken: string
+}
+
+export interface ResetPasswordStep1Request {
+  name: string
+  phone: string
+  recaptchaToken: string
+}
+
+export interface ResetPasswordStep2Request {
+  email: string
+  code: string
+  recaptchaToken: string
+}
+
+export interface ResetPasswordStep3Request {
+  resetToken: string
+  newPassword: string
+  confirmPassword: string
+  recaptchaToken: string
+}
+
 // Auth API functions
 export const authApi = {
   // Login
@@ -92,24 +124,169 @@ export const authApi = {
   },
 
   // Find ID
-  findId: async (data: FindIdRequest): Promise<ApiResponseWrapper<{ email: string; nickname: string }>> => {
+  findId: async (
+    data: FindIdRequest
+  ): Promise<ApiResponseWrapper<{ email: string; nickname: string }>> => {
     console.log("✅ 아이디 찾기 요청:", data)
-    const response = await axios.post<ApiResponseWrapper<{ email: string; nickname: string }>>(
-      `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID}`,
-      data
-    )
+    const response = await axios.post<
+      ApiResponseWrapper<{ email: string; nickname: string }>
+    >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID}`, data)
     console.log("✅ 아이디 찾기 응답:", response)
     return response.data
   },
 
   // Find Password
-  findPassword: async (data: FindPasswordRequest): Promise<ApiResponseWrapper<{ email: string; nickname: string }>> => {
+  findPassword: async (
+    data: FindPasswordRequest
+  ): Promise<ApiResponseWrapper<{ email: string; nickname: string }>> => {
     console.log("✅ 비밀번호 찾기 요청:", data)
-    const response = await axios.post<ApiResponseWrapper<{ email: string; nickname: string }>>(
-      `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_PASSWORD}`,
+    const response = await axios.post<
+      ApiResponseWrapper<{ email: string; nickname: string }>
+    >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_PASSWORD}`, data)
+    console.log("✅ 비밀번호 찾기 응답:", response)
+    return response.data
+  },
+
+  // Enhanced Account Recovery APIs
+
+  // JSON 구조 기반 단순 아이디 찾기 (새로운 구현)
+  findIdSimple: async (
+    data: FindIdRequest
+  ): Promise<ApiResponseWrapper<{ username: string }>> => {
+    console.log("✅ 단순 아이디 찾기 요청:", data)
+    const response = await axios.post<ApiResponseWrapper<{ username: string }>>(
+      `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID_SIMPLE}`,
       data
     )
-    console.log("✅ 비밀번호 찾기 응답:", response)
+    console.log("✅ 단순 아이디 찾기 응답:", response)
+    return response.data
+  },
+
+  // JSON 구조 기반 단순 비밀번호 재설정 Step 1: 사용자 인증
+  resetPasswordSimpleStep1: async (
+    data: ResetPasswordStep1Request
+  ): Promise<ApiResponseWrapper<{
+    email: string
+    nickname: string
+    maskedEmail: string
+    maskedPhone: string
+    verificationCode: string
+  }>> => {
+    console.log("✅ 단순 비밀번호 재설정 Step 1 요청:", data)
+    const response = await axios.post<
+      ApiResponseWrapper<{
+        email: string
+        nickname: string
+        maskedEmail: string
+        maskedPhone: string
+        verificationCode: string
+      }>
+    >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_SIMPLE_STEP1}`, data)
+    console.log("✅ 단순 비밀번호 재설정 Step 1 응답:", response)
+    return response.data
+  },
+
+  // JSON 구조 기반 단순 비밀번호 재설정 Step 2: 비밀번호 재설정
+  resetPasswordSimpleStep2: async (
+    data: ResetPasswordStep2Request
+  ): Promise<ApiResponseWrapper<{ message: string }>> => {
+    console.log("✅ 단순 비밀번호 재설정 Step 2 요청:", data)
+    const response = await axios.post<ApiResponseWrapper<{ message: string }>>(
+      `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_SIMPLE_STEP2}`,
+      data
+    )
+    console.log("✅ 단순 비밀번호 재설정 Step 2 응답:", response)
+    return response.data
+  },
+
+  // Find ID Step 1: Verify user by name and phone (향상된 버전)
+  findIdStep1: async (
+    data: FindIdStep1Request
+  ): Promise<
+    ApiResponseWrapper<{
+      email: string
+      nickname: string
+      maskedEmail: string
+      maskedPhone: string
+    }>
+  > => {
+    console.log("✅ 아이디 찾기 Step 1 요청:", data)
+    const response = await axios.post<
+      ApiResponseWrapper<{
+        email: string
+        nickname: string
+        maskedEmail: string
+        maskedPhone: string
+      }>
+    >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID_VERIFY_USER}`, data)
+    console.log("✅ 아이디 찾기 Step 1 응답:", response)
+    return response.data
+  },
+
+  // Find ID Step 2: Verify code and return user info
+  findIdStep2: async (
+    data: FindIdStep2Request
+  ): Promise<ApiResponseWrapper<{ email: string; nickname: string }>> => {
+    console.log("✅ 아이디 찾기 Step 2 요청:", data)
+    const response = await axios.post<
+      ApiResponseWrapper<{ email: string; nickname: string }>
+    >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID_VERIFY_CODE}`, data)
+    console.log("✅ 아이디 찾기 Step 2 응답:", response)
+    return response.data
+  },
+
+  // Reset Password Step 1: Verify user by name and phone
+  resetPasswordStep1: async (
+    data: ResetPasswordStep1Request
+  ): Promise<
+    ApiResponseWrapper<{
+      email: string
+      nickname: string
+      maskedEmail: string
+      maskedPhone: string
+    }>
+  > => {
+    console.log("✅ 비밀번호 재설정 Step 1 요청:", data)
+    const response = await axios.post<
+      ApiResponseWrapper<{
+        email: string
+        nickname: string
+        maskedEmail: string
+        maskedPhone: string
+      }>
+    >(
+      `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_VERIFY_USER}`,
+      data
+    )
+    console.log("✅ 비밀번호 재설정 Step 1 응답:", response)
+    return response.data
+  },
+
+  // Reset Password Step 2: Verify code and generate reset token
+  resetPasswordStep2: async (
+    data: ResetPasswordStep2Request
+  ): Promise<ApiResponseWrapper<{ resetToken: string }>> => {
+    console.log("✅ 비밀번호 재설정 Step 2 요청:", data)
+    const response = await axios.post<
+      ApiResponseWrapper<{ resetToken: string }>
+    >(
+      `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_VERIFY_CODE}`,
+      data
+    )
+    console.log("✅ 비밀번호 재설정 Step 2 응답:", response)
+    return response.data
+  },
+
+  // Reset Password Step 3: Complete password reset
+  resetPasswordStep3: async (
+    data: ResetPasswordStep3Request
+  ): Promise<ApiResponseWrapper<void>> => {
+    console.log("✅ 비밀번호 재설정 Step 3 요청:", data)
+    const response = await axios.post<ApiResponseWrapper<void>>(
+      `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_COMPLETE}`,
+      data
+    )
+    console.log("✅ 비밀번호 재설정 Step 3 응답:", response)
     return response.data
   },
 

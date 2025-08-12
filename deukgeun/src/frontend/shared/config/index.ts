@@ -35,11 +35,13 @@ export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: "/api/auth/login",
     REGISTER: "/api/auth/register",
-    REFRESH: "/api/auth/refresh",
     LOGOUT: "/api/auth/logout",
-    CHECK: "/api/auth/check",
+    REFRESH: "/api/auth/refresh",
     FIND_ID: "/api/auth/find-id",
     FIND_PASSWORD: "/api/auth/find-password",
+    FIND_ID_SIMPLE: "/api/auth/find-id-simple",
+    RESET_PASSWORD_SIMPLE_STEP1: "/api/auth/reset-password-simple-step1",
+    RESET_PASSWORD_SIMPLE_STEP2: "/api/auth/reset-password-simple-step2",
   },
   USER: {
     PROFILE: "/api/user/profile",

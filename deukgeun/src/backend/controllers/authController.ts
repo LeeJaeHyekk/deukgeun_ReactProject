@@ -14,6 +14,8 @@ import {
   LoginResponse,
   RegisterResponse,
 } from "../types/auth"
+import { accountRecoveryService } from "../services/accountRecoveryService"
+import { SecurityInfo } from "../types/accountRecovery"
 
 export async function login(
   req: Request<Record<string, never>, Record<string, never>, LoginRequest>,
@@ -395,7 +397,11 @@ export const register = async (
 }
 
 export async function findId(
-  req: Request<Record<string, never>, Record<string, never>, { email: string; recaptchaToken: string }>,
+  req: Request<
+    Record<string, never>,
+    Record<string, never>,
+    { email: string; recaptchaToken: string }
+  >,
   res: Response<ApiResponse | ErrorResponse>
 ) {
   try {
@@ -424,7 +430,9 @@ export async function findId(
     // reCAPTCHA 검증
     const isHuman = await verifyRecaptcha(recaptchaToken)
     if (!isHuman) {
-      logger.warn(`reCAPTCHA 실패 (아이디 찾기) - IP: ${req.ip}, Email: ${email}`)
+      logger.warn(
+        `reCAPTCHA 실패 (아이디 찾기) - IP: ${req.ip}, Email: ${email}`
+      )
       return res.status(403).json({
         success: false,
         message: "reCAPTCHA 검증에 실패했습니다.",
@@ -432,29 +440,33 @@ export async function findId(
       })
     }
 
-    const userRepo = AppDataSource.getRepository(User)
-    const user = await userRepo.findOne({ where: { email: email.toLowerCase().trim() } })
+    // Security info for logging and rate limiting
+    const securityInfo: SecurityInfo = {
+      ipAddress: req.ip || "unknown",
+      userAgent: req.get("User-Agent") || "unknown",
+      timestamp: new Date(),
+    }
 
-    if (!user) {
-      logger.warn(`아이디 찾기 실패 - 존재하지 않는 이메일: ${email}`)
+    // Use account recovery service
+    const result = await accountRecoveryService.findIdByEmail(
+      email,
+      securityInfo
+    )
+
+    if (!result.success) {
       return res.status(404).json({
         success: false,
-        message: "해당 이메일로 가입된 계정을 찾을 수 없습니다.",
-        error: "사용자 없음",
+        message: result.error || "아이디 찾기에 실패했습니다.",
+        error: "아이디 찾기 실패",
       })
     }
 
-    // TODO: 실제 이메일 발송 로직 구현
-    // 현재는 성공 응답만 반환
     logger.info(`아이디 찾기 성공 - Email: ${email}`)
 
     return res.json({
       success: true,
       message: "입력하신 이메일로 아이디 정보를 발송했습니다.",
-      data: {
-        email: user.email,
-        nickname: user.nickname,
-      },
+      data: result.data,
     })
   } catch (error) {
     logger.error("아이디 찾기 처리 중 오류:", error)
@@ -467,7 +479,11 @@ export async function findId(
 }
 
 export async function findPassword(
-  req: Request<Record<string, never>, Record<string, never>, { email: string; recaptchaToken: string }>,
+  req: Request<
+    Record<string, never>,
+    Record<string, never>,
+    { email: string; recaptchaToken: string }
+  >,
   res: Response<ApiResponse | ErrorResponse>
 ) {
   try {
@@ -496,7 +512,9 @@ export async function findPassword(
     // reCAPTCHA 검증
     const isHuman = await verifyRecaptcha(recaptchaToken)
     if (!isHuman) {
-      logger.warn(`reCAPTCHA 실패 (비밀번호 찾기) - IP: ${req.ip}, Email: ${email}`)
+      logger.warn(
+        `reCAPTCHA 실패 (비밀번호 찾기) - IP: ${req.ip}, Email: ${email}`
+      )
       return res.status(403).json({
         success: false,
         message: "reCAPTCHA 검증에 실패했습니다.",
@@ -504,32 +522,623 @@ export async function findPassword(
       })
     }
 
-    const userRepo = AppDataSource.getRepository(User)
-    const user = await userRepo.findOne({ where: { email: email.toLowerCase().trim() } })
+    // Security info for logging and rate limiting
+    const securityInfo: SecurityInfo = {
+      ipAddress: req.ip || "unknown",
+      userAgent: req.get("User-Agent") || "unknown",
+      timestamp: new Date(),
+    }
 
-    if (!user) {
-      logger.warn(`비밀번호 찾기 실패 - 존재하지 않는 이메일: ${email}`)
+    // Use account recovery service
+    const result = await accountRecoveryService.findPasswordByEmail(
+      email,
+      securityInfo
+    )
+
+    if (!result.success) {
       return res.status(404).json({
         success: false,
-        message: "해당 이메일로 가입된 계정을 찾을 수 없습니다.",
-        error: "사용자 없음",
+        message: result.error || "비밀번호 찾기에 실패했습니다.",
+        error: "비밀번호 찾기 실패",
       })
     }
 
-    // TODO: 실제 이메일 발송 로직 구현
-    // 현재는 성공 응답만 반환
     logger.info(`비밀번호 찾기 성공 - Email: ${email}`)
 
     return res.json({
       success: true,
       message: "입력하신 이메일로 비밀번호 재설정 링크를 발송했습니다.",
-      data: {
-        email: user.email,
-        nickname: user.nickname,
-      },
+      data: result.data,
     })
   } catch (error) {
     logger.error("비밀번호 찾기 처리 중 오류:", error)
+    return res.status(500).json({
+      success: false,
+      message: "서버 오류가 발생했습니다.",
+      error: "서버 오류",
+    })
+  }
+}
+
+// Enhanced Account Recovery Controllers
+
+export async function findIdStep1(
+  req: Request<
+    Record<string, never>,
+    Record<string, never>,
+    { name: string; phone: string; recaptchaToken: string }
+  >,
+  res: Response<ApiResponse | ErrorResponse>
+) {
+  try {
+    const { name, phone, recaptchaToken } = req.body
+    console.log("아이디 찾기 Step 1 요청:", { name, phone })
+
+    // 입력 검증
+    if (!name || !phone || !recaptchaToken) {
+      return res.status(400).json({
+        success: false,
+        message: "모든 필드를 입력하세요.",
+        error: "필수 필드 누락",
+      })
+    }
+
+    // reCAPTCHA 검증
+    const isHuman = await verifyRecaptcha(recaptchaToken)
+    if (!isHuman) {
+      logger.warn(`reCAPTCHA 실패 (아이디 찾기 Step 1) - IP: ${req.ip}`)
+      return res.status(403).json({
+        success: false,
+        message: "reCAPTCHA 검증에 실패했습니다.",
+        error: "reCAPTCHA 실패",
+      })
+    }
+
+    // Security info for logging and rate limiting
+    const securityInfo: SecurityInfo = {
+      ipAddress: req.ip || "unknown",
+      userAgent: req.get("User-Agent") || "unknown",
+      timestamp: new Date(),
+    }
+
+    // Use account recovery service
+    const result = await accountRecoveryService.findIdStep1(
+      name,
+      phone,
+      securityInfo
+    )
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.error || "사용자 확인에 실패했습니다.",
+        error: "사용자 확인 실패",
+      })
+    }
+
+    logger.info(`아이디 찾기 Step 1 성공 - Name: ${name}`)
+
+    return res.json({
+      success: true,
+      message: "인증 코드를 이메일로 발송했습니다.",
+      data: result.data,
+    })
+  } catch (error) {
+    logger.error("아이디 찾기 Step 1 처리 중 오류:", error)
+    return res.status(500).json({
+      success: false,
+      message: "서버 오류가 발생했습니다.",
+      error: "서버 오류",
+    })
+  }
+}
+
+export async function findIdStep2(
+  req: Request<
+    Record<string, never>,
+    Record<string, never>,
+    { email: string; code: string; recaptchaToken: string }
+  >,
+  res: Response<ApiResponse | ErrorResponse>
+) {
+  try {
+    const { email, code, recaptchaToken } = req.body
+    console.log("아이디 찾기 Step 2 요청:", { email })
+
+    // 입력 검증
+    if (!email || !code || !recaptchaToken) {
+      return res.status(400).json({
+        success: false,
+        message: "모든 필드를 입력하세요.",
+        error: "필수 필드 누락",
+      })
+    }
+
+    // reCAPTCHA 검증
+    const isHuman = await verifyRecaptcha(recaptchaToken)
+    if (!isHuman) {
+      logger.warn(`reCAPTCHA 실패 (아이디 찾기 Step 2) - IP: ${req.ip}`)
+      return res.status(403).json({
+        success: false,
+        message: "reCAPTCHA 검증에 실패했습니다.",
+        error: "reCAPTCHA 실패",
+      })
+    }
+
+    // Security info for logging and rate limiting
+    const securityInfo: SecurityInfo = {
+      ipAddress: req.ip || "unknown",
+      userAgent: req.get("User-Agent") || "unknown",
+      timestamp: new Date(),
+    }
+
+    // Use account recovery service
+    const result = await accountRecoveryService.findIdStep2(
+      email,
+      code,
+      securityInfo
+    )
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.error || "인증 코드 확인에 실패했습니다.",
+        error: "인증 코드 확인 실패",
+      })
+    }
+
+    logger.info(`아이디 찾기 Step 2 성공 - Email: ${email}`)
+
+    return res.json({
+      success: true,
+      message: "아이디 찾기가 완료되었습니다.",
+      data: result.data,
+    })
+  } catch (error) {
+    logger.error("아이디 찾기 Step 2 처리 중 오류:", error)
+    return res.status(500).json({
+      success: false,
+      message: "서버 오류가 발생했습니다.",
+      error: "서버 오류",
+    })
+  }
+}
+
+export async function resetPasswordStep1(
+  req: Request<
+    Record<string, never>,
+    Record<string, never>,
+    { name: string; phone: string; recaptchaToken: string }
+  >,
+  res: Response<ApiResponse | ErrorResponse>
+) {
+  try {
+    const { name, phone, recaptchaToken } = req.body
+    console.log("비밀번호 재설정 Step 1 요청:", { name, phone })
+
+    // 입력 검증
+    if (!name || !phone || !recaptchaToken) {
+      return res.status(400).json({
+        success: false,
+        message: "모든 필드를 입력하세요.",
+        error: "필수 필드 누락",
+      })
+    }
+
+    // reCAPTCHA 검증
+    const isHuman = await verifyRecaptcha(recaptchaToken)
+    if (!isHuman) {
+      logger.warn(`reCAPTCHA 실패 (비밀번호 재설정 Step 1) - IP: ${req.ip}`)
+      return res.status(403).json({
+        success: false,
+        message: "reCAPTCHA 검증에 실패했습니다.",
+        error: "reCAPTCHA 실패",
+      })
+    }
+
+    // Security info for logging and rate limiting
+    const securityInfo: SecurityInfo = {
+      ipAddress: req.ip || "unknown",
+      userAgent: req.get("User-Agent") || "unknown",
+      timestamp: new Date(),
+    }
+
+    // Use account recovery service
+    const result = await accountRecoveryService.resetPasswordStep1(
+      name,
+      phone,
+      securityInfo
+    )
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.error || "사용자 확인에 실패했습니다.",
+        error: "사용자 확인 실패",
+      })
+    }
+
+    logger.info(`비밀번호 재설정 Step 1 성공 - Name: ${name}`)
+
+    return res.json({
+      success: true,
+      message: "인증 코드를 이메일로 발송했습니다.",
+      data: result.data,
+    })
+  } catch (error) {
+    logger.error("비밀번호 재설정 Step 1 처리 중 오류:", error)
+    return res.status(500).json({
+      success: false,
+      message: "서버 오류가 발생했습니다.",
+      error: "서버 오류",
+    })
+  }
+}
+
+export async function resetPasswordStep2(
+  req: Request<
+    Record<string, never>,
+    Record<string, never>,
+    { email: string; code: string; recaptchaToken: string }
+  >,
+  res: Response<ApiResponse | ErrorResponse>
+) {
+  try {
+    const { email, code, recaptchaToken } = req.body
+    console.log("비밀번호 재설정 Step 2 요청:", { email })
+
+    // 입력 검증
+    if (!email || !code || !recaptchaToken) {
+      return res.status(400).json({
+        success: false,
+        message: "모든 필드를 입력하세요.",
+        error: "필수 필드 누락",
+      })
+    }
+
+    // reCAPTCHA 검증
+    const isHuman = await verifyRecaptcha(recaptchaToken)
+    if (!isHuman) {
+      logger.warn(`reCAPTCHA 실패 (비밀번호 재설정 Step 2) - IP: ${req.ip}`)
+      return res.status(403).json({
+        success: false,
+        message: "reCAPTCHA 검증에 실패했습니다.",
+        error: "reCAPTCHA 실패",
+      })
+    }
+
+    // Security info for logging and rate limiting
+    const securityInfo: SecurityInfo = {
+      ipAddress: req.ip || "unknown",
+      userAgent: req.get("User-Agent") || "unknown",
+      timestamp: new Date(),
+    }
+
+    // Use account recovery service
+    const result = await accountRecoveryService.resetPasswordStep2(
+      email,
+      code,
+      securityInfo
+    )
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.error || "인증 코드 확인에 실패했습니다.",
+        error: "인증 코드 확인 실패",
+      })
+    }
+
+    logger.info(`비밀번호 재설정 Step 2 성공 - Email: ${email}`)
+
+    return res.json({
+      success: true,
+      message: "비밀번호 재설정 토큰이 생성되었습니다.",
+      data: result.data,
+    })
+  } catch (error) {
+    logger.error("비밀번호 재설정 Step 2 처리 중 오류:", error)
+    return res.status(500).json({
+      success: false,
+      message: "서버 오류가 발생했습니다.",
+      error: "서버 오류",
+    })
+  }
+}
+
+export async function resetPasswordStep3(
+  req: Request<
+    Record<string, never>,
+    Record<string, never>,
+    {
+      resetToken: string
+      newPassword: string
+      confirmPassword: string
+      recaptchaToken: string
+    }
+  >,
+  res: Response<ApiResponse | ErrorResponse>
+) {
+  try {
+    const { resetToken, newPassword, confirmPassword, recaptchaToken } =
+      req.body
+    console.log("비밀번호 재설정 Step 3 요청")
+
+    // 입력 검증
+    if (!resetToken || !newPassword || !confirmPassword || !recaptchaToken) {
+      return res.status(400).json({
+        success: false,
+        message: "모든 필드를 입력하세요.",
+        error: "필수 필드 누락",
+      })
+    }
+
+    // reCAPTCHA 검증
+    const isHuman = await verifyRecaptcha(recaptchaToken)
+    if (!isHuman) {
+      logger.warn(`reCAPTCHA 실패 (비밀번호 재설정 Step 3) - IP: ${req.ip}`)
+      return res.status(403).json({
+        success: false,
+        message: "reCAPTCHA 검증에 실패했습니다.",
+        error: "reCAPTCHA 실패",
+      })
+    }
+
+    // Security info for logging and rate limiting
+    const securityInfo: SecurityInfo = {
+      ipAddress: req.ip || "unknown",
+      userAgent: req.get("User-Agent") || "unknown",
+      timestamp: new Date(),
+    }
+
+    // Use account recovery service
+    const result = await accountRecoveryService.resetPasswordStep3(
+      resetToken,
+      newPassword,
+      confirmPassword,
+      securityInfo
+    )
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.error || "비밀번호 재설정에 실패했습니다.",
+        error: "비밀번호 재설정 실패",
+      })
+    }
+
+    logger.info("비밀번호 재설정 Step 3 성공")
+
+    return res.json({
+      success: true,
+      message: "비밀번호가 성공적으로 재설정되었습니다.",
+    })
+  } catch (error) {
+    logger.error("비밀번호 재설정 Step 3 처리 중 오류:", error)
+    return res.status(500).json({
+      success: false,
+      message: "서버 오류가 발생했습니다.",
+      error: "서버 오류",
+    })
+  }
+}
+
+// JSON 구조 기반 단순 계정 복구 컨트롤러
+
+export async function findIdSimple(
+  req: Request<
+    Record<string, never>,
+    Record<string, never>,
+    {
+      name: string
+      phone: string
+      gender?: string
+      birthday?: string
+      recaptchaToken: string
+    }
+  >,
+  res: Response<ApiResponse | ErrorResponse>
+) {
+  try {
+    const { name, phone, gender, birthday, recaptchaToken } = req.body
+    console.log("단순 아이디 찾기 요청:", { name, phone, gender, birthday })
+
+    // 입력 검증
+    if (!name || !phone || !recaptchaToken) {
+      return res.status(400).json({
+        success: false,
+        message: "필수 필드를 모두 입력하세요.",
+        error: "필수 필드 누락",
+      })
+    }
+
+    // reCAPTCHA 검증
+    const isHuman = await verifyRecaptcha(recaptchaToken)
+    if (!isHuman) {
+      logger.warn(`reCAPTCHA 실패 (단순 아이디 찾기) - IP: ${req.ip}`)
+      return res.status(403).json({
+        success: false,
+        message: "reCAPTCHA 검증에 실패했습니다.",
+        error: "reCAPTCHA 실패",
+      })
+    }
+
+    // Security info for logging and rate limiting
+    const securityInfo: SecurityInfo = {
+      ipAddress: req.ip || "unknown",
+      userAgent: req.get("User-Agent") || "unknown",
+      timestamp: new Date(),
+    }
+
+    // Use account recovery service with enhanced verification
+    const result = await accountRecoveryService.findIdSimple(
+      name,
+      phone,
+      securityInfo,
+      gender,
+      birthday
+    )
+
+    if (!result.success) {
+      return res.status(404).json({
+        success: false,
+        message:
+          result.error || "입력하신 정보와 일치하는 계정을 찾을 수 없습니다.",
+        error: "계정 찾기 실패",
+      })
+    }
+
+    logger.info(`단순 아이디 찾기 성공 - Name: ${name}`)
+
+    return res.json({
+      success: true,
+      message: "아이디 조회 성공",
+      data: result.data,
+    })
+  } catch (error) {
+    logger.error("단순 아이디 찾기 처리 중 오류:", error)
+    return res.status(500).json({
+      success: false,
+      message: "서버 오류가 발생했습니다.",
+      error: "서버 오류",
+    })
+  }
+}
+
+export async function resetPasswordSimpleStep1(
+  req: Request<
+    Record<string, never>,
+    Record<string, never>,
+    {
+      username: string
+      name: string
+      phone: string
+      gender?: string
+      birthday?: string
+      recaptchaToken: string
+    }
+  >,
+  res: Response<ApiResponse | ErrorResponse>
+) {
+  try {
+    const { username, name, phone, gender, birthday, recaptchaToken } = req.body
+    console.log("단순 비밀번호 재설정 Step 1 요청:", {
+      username,
+      name,
+      phone,
+      gender,
+      birthday,
+    })
+
+    // reCAPTCHA 검증
+    const recaptchaValid = await verifyRecaptcha(recaptchaToken)
+    if (!recaptchaValid) {
+      return res.status(400).json({
+        success: false,
+        message: "reCAPTCHA 검증에 실패했습니다.",
+        error: "reCAPTCHA 검증 실패",
+      })
+    }
+
+    // 보안 정보 수집
+    const securityInfo = {
+      ipAddress: req.ip || req.connection.remoteAddress || "unknown",
+      userAgent: req.get("User-Agent") || "unknown",
+      timestamp: new Date(),
+    }
+
+    // 계정 복구 서비스 호출
+    const result = await accountRecoveryService.resetPasswordSimpleStep1(
+      username,
+      name,
+      phone,
+      securityInfo,
+      gender,
+      birthday
+    )
+
+    if (result.success) {
+      return res.status(200).json({
+        success: true,
+        message: "사용자 인증이 완료되었습니다. 인증 코드를 확인하세요.",
+        data: result.data,
+      })
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: result.error || "사용자 인증에 실패했습니다.",
+        error: result.error,
+      })
+    }
+  } catch (error) {
+    logger.error("단순 비밀번호 재설정 Step 1 처리 중 오류:", error)
+    return res.status(500).json({
+      success: false,
+      message: "서버 오류가 발생했습니다.",
+      error: "서버 오류",
+    })
+  }
+}
+
+export async function resetPasswordSimpleStep2(
+  req: Request<
+    Record<string, never>,
+    Record<string, never>,
+    {
+      username: string
+      code: string
+      newPassword: string
+      confirmPassword: string
+      recaptchaToken: string
+    }
+  >,
+  res: Response<ApiResponse | ErrorResponse>
+) {
+  try {
+    const { username, code, newPassword, confirmPassword, recaptchaToken } = req.body
+    console.log("단순 비밀번호 재설정 Step 2 요청:", { username, code })
+
+    // reCAPTCHA 검증
+    const recaptchaValid = await verifyRecaptcha(recaptchaToken)
+    if (!recaptchaValid) {
+      return res.status(400).json({
+        success: false,
+        message: "reCAPTCHA 검증에 실패했습니다.",
+        error: "reCAPTCHA 검증 실패",
+      })
+    }
+
+    // 보안 정보 수집
+    const securityInfo = {
+      ipAddress: req.ip || req.connection.remoteAddress || "unknown",
+      userAgent: req.get("User-Agent") || "unknown",
+      timestamp: new Date(),
+    }
+
+    // 계정 복구 서비스 호출
+    const result = await accountRecoveryService.resetPasswordSimpleStep2(
+      username,
+      code,
+      newPassword,
+      confirmPassword,
+      securityInfo
+    )
+
+    if (result.success) {
+      return res.status(200).json({
+        success: true,
+        message: result.data?.message || "비밀번호가 성공적으로 재설정되었습니다.",
+        data: result.data,
+      })
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: result.error || "비밀번호 재설정에 실패했습니다.",
+        error: result.error,
+      })
+    }
+  } catch (error) {
+    logger.error("단순 비밀번호 재설정 Step 2 처리 중 오류:", error)
     return res.status(500).json({
       success: false,
       message: "서버 오류가 발생했습니다.",

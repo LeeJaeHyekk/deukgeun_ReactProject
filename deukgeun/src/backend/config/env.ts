@@ -49,4 +49,15 @@ export const config = {
   AUTO_UPDATE_MINUTE: parseInt(process.env.AUTO_UPDATE_MINUTE || "0"),
   AUTO_UPDATE_TYPE: process.env.AUTO_UPDATE_TYPE || "enhanced",
   AUTO_UPDATE_ENABLED: process.env.AUTO_UPDATE_ENABLED === "true",
+
+  // Email configuration
+  EMAIL_HOST: process.env.EMAIL_HOST || "",
+  EMAIL_PORT: parseInt(process.env.EMAIL_PORT || "587"),
+  EMAIL_USER: process.env.EMAIL_USER || "",
+  EMAIL_PASS: process.env.EMAIL_PASS || "",
+  EMAIL_FROM: process.env.EMAIL_FROM || "noreply@gymapp.com",
+  EMAIL_SECURE: process.env.EMAIL_SECURE === "true",
+
+  // Frontend URL for password reset links
+  FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:5173",
 }

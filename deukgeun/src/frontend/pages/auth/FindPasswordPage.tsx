@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { FaArrowLeft } from "react-icons/fa"
 import ReCAPTCHA from "react-google-recaptcha"
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
 import { useAuthContext } from "@shared/contexts/AuthContext"
 import { useAccountRecovery } from "@features/auth/hooks/useAccountRecovery"
 import { config } from "@shared/config"
@@ -64,6 +66,66 @@ export default function FindPasswordPage() {
     }
   }, [isLoggedIn, isLoading, navigate])
 
+  // DatePicker 네비게이션 아이콘 스타일 직접 적용
+  useEffect(() => {
+    const applyDatePickerStyles = () => {
+      const navigationIcons = document.querySelectorAll(
+        ".react-datepicker__navigation-icon"
+      )
+      const previousIcons = document.querySelectorAll(
+        ".react-datepicker__navigation-icon--previous"
+      )
+      const nextIcons = document.querySelectorAll(
+        ".react-datepicker__navigation-icon--next"
+      )
+
+      navigationIcons.forEach(icon => {
+        ;(icon as HTMLElement).style.position = "absolute"
+        ;(icon as HTMLElement).style.top = "50%"
+        ;(icon as HTMLElement).style.left = "50%"
+        ;(icon as HTMLElement).style.transform = "translate(-50%, -50%)"
+        ;(icon as HTMLElement).style.fontSize = "0"
+        ;(icon as HTMLElement).style.width = "8px"
+        ;(icon as HTMLElement).style.height = "8px"
+        ;(icon as HTMLElement).style.margin = "0"
+        ;(icon as HTMLElement).style.padding = "0"
+        ;(icon as HTMLElement).style.border = "none"
+      })
+
+      previousIcons.forEach(icon => {
+        ;(icon as HTMLElement).style.transform =
+          "translate(-50%, -50%) rotate(180deg)"
+      })
+
+      nextIcons.forEach(icon => {
+        ;(icon as HTMLElement).style.transform =
+          "translate(-50%, -50%) rotate(0deg)"
+      })
+    }
+
+    // 초기 적용
+    applyDatePickerStyles()
+
+    // MutationObserver로 DatePicker가 동적으로 생성될 때마다 스타일 적용
+    const observer = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        if (mutation.type === "childList") {
+          const datepicker = document.querySelector(".react-datepicker")
+          if (datepicker) {
+            applyDatePickerStyles()
+          }
+        }
+      })
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    })
+
+    return () => observer.disconnect()
+  }, [])
+
   // 전화번호 입력 핸들러
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formattedPhone = formatPhoneNumber(e.target.value)
@@ -71,6 +133,34 @@ export default function FindPasswordPage() {
     if (errors.phone) {
       setErrors(prev => ({ ...prev, phone: undefined }))
     }
+  }
+
+  // 생년월일 변경 핸들러
+  const handleBirthdayChange = (date: Date | null) => {
+    if (date) {
+      const formattedDate = date.toISOString().split("T")[0]
+      setStep1Data(prev => ({ ...prev, birthday: formattedDate }))
+    } else {
+      setStep1Data(prev => ({ ...prev, birthday: "" }))
+    }
+  }
+
+  // 생년월일 직접 입력 핸들러
+  const handleBirthdayInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    let value = e.target.value.replace(/[^\d]/g, "") // 숫자만 추출
+
+    // 길이에 따라 포맷팅
+    if (value.length <= 4) {
+      value = value
+    } else if (value.length <= 6) {
+      value = `${value.slice(0, 4)}-${value.slice(4)}`
+    } else {
+      value = `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`
+    }
+
+    setStep1Data(prev => ({ ...prev, birthday: value }))
   }
 
   // reCAPTCHA 변경 핸들러
@@ -421,15 +511,27 @@ export default function FindPasswordPage() {
 
         {/* 생년월일 입력 */}
         <div className={styles.inputGroup}>
-          <input
-            type="date"
-            value={step1Data.birthday}
-            onChange={e => {
-              setStep1Data(prev => ({ ...prev, birthday: e.target.value }))
-            }}
+          <DatePicker
+            selected={step1Data.birthday ? new Date(step1Data.birthday) : null}
+            onChange={handleBirthdayChange}
+            dateFormat="yyyy-MM-dd"
+            placeholderText="생년월일 (선택사항)"
             className={styles.input}
-            placeholder="생년월일 (선택사항)"
-            title="생년월일 (선택사항)"
+            maxDate={new Date()}
+            showYearDropdown
+            showMonthDropdown
+            dropdownMode="select"
+            yearDropdownItemNumber={100}
+            scrollableYearDropdown
+            isClearable
+            customInput={
+              <input
+                className={styles.input}
+                placeholder="생년월일 (선택사항)"
+                value={step1Data.birthday}
+                onChange={handleBirthdayInputChange}
+              />
+            }
           />
         </div>
 

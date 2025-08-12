@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { commentsApi } from "@shared/api"
 import { showToast } from "@shared/lib"
+import { useAuthContext } from "@shared/contexts/AuthContext"
 import styles from "./PostDetailModal.module.css"
 
 interface Comment {
@@ -44,6 +45,7 @@ export function PostDetailModal({
   onUpdate,
   onDelete,
 }: PostDetailModalProps) {
+  const { user } = useAuthContext()
   const [comments, setComments] = useState<Comment[]>([])
   const [newComment, setNewComment] = useState("")
   const [isEditing, setIsEditing] = useState(false)
@@ -54,6 +56,9 @@ export function PostDetailModal({
   })
   const [loading, setLoading] = useState(false)
   const [commentsLoading, setCommentsLoading] = useState(false)
+
+  // 현재 사용자가 게시글 작성자인지 확인
+  const isAuthor = user?.id === post.author.id
 
   // 댓글 목록 가져오기
   useEffect(() => {
@@ -217,8 +222,27 @@ export function PostDetailModal({
     }
   }
 
+  // 모달 외부 클릭 시 닫기
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
+  }
+
+  // ESC 키로 모달 닫기
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose()
+      }
+    }
+
+    document.addEventListener("keydown", handleEscape)
+    return () => document.removeEventListener("keydown", handleEscape)
+  }, [onClose])
+
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
+    <div className={styles.modalOverlay} onClick={handleBackdropClick}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <div className={styles.header}>
           <h2 className={styles.title}>
@@ -290,7 +314,8 @@ export function PostDetailModal({
                 <button className={styles.commentButton}>
                   💬 {post.comments || 0}
                 </button>
-                {onUpdate && (
+                {/* 자신의 게시물에만 수정/삭제 버튼 표시 */}
+                {isAuthor && onUpdate && (
                   <button
                     onClick={() => setIsEditing(true)}
                     className={styles.editButton}
@@ -298,7 +323,7 @@ export function PostDetailModal({
                     수정
                   </button>
                 )}
-                {onDelete && (
+                {isAuthor && onDelete && (
                   <button
                     onClick={handleDeletePost}
                     className={styles.deleteButton}

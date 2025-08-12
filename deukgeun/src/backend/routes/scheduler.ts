@@ -195,19 +195,19 @@ router.get("/error-stats", async (req, res) => {
   try {
     const stats = ErrorHandlingService.getErrorStatistics()
     const patterns = ErrorHandlingService.analyzeErrorPatterns()
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       data: {
         statistics: stats,
-        patterns: patterns
-      }
+        patterns: patterns,
+      },
     })
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: "Failed to get error statistics",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error",
     })
   }
 })
@@ -216,15 +216,15 @@ router.get("/error-stats", async (req, res) => {
 router.delete("/error-history", async (req, res) => {
   try {
     ErrorHandlingService.clearErrorHistory()
-    res.json({ 
-      success: true, 
-      message: "Error history cleared successfully"
+    res.json({
+      success: true,
+      message: "Error history cleared successfully",
     })
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: "Failed to clear error history",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error",
     })
   }
 })
@@ -236,25 +236,28 @@ router.get("/batch-stats", async (req, res) => {
     const gymRepo = connection.getRepository(Gym)
     const allGyms = await gymRepo.find()
     await connection.close()
-    
+
     // 배치 크기 자동 계산
     const availableMemory = process.memoryUsage().heapTotal
-    const optimalBatchSize = BatchProcessingService.calculateOptimalBatchSize(allGyms.length, availableMemory)
-    
-    res.json({ 
-      success: true, 
+    const optimalBatchSize = BatchProcessingService.calculateOptimalBatchSize(
+      allGyms.length,
+      availableMemory
+    )
+
+    res.json({
+      success: true,
       data: {
         totalGyms: allGyms.length,
         optimalBatchSize,
         availableMemory: `${(availableMemory / 1024 / 1024).toFixed(2)} MB`,
-        estimatedBatches: Math.ceil(allGyms.length / optimalBatchSize)
-      }
+        estimatedBatches: Math.ceil(allGyms.length / optimalBatchSize),
+      },
     })
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: "Failed to get batch statistics",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error",
     })
   }
 })

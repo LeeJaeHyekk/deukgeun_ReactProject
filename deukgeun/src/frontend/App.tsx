@@ -94,12 +94,26 @@ function AppRoutes() {
         }
       />
 
-      {/* 공개 페이지들 - 로그인 없이도 접근 가능 */}
-      <Route path="/machine-guide" element={<MachineGuidePage />} />
+      {/* 공개 페이지 - 커뮤니티만 로그인 없이도 접근 가능 */}
       <Route path="/community" element={<CommunityPage />} />
-      <Route path="/location" element={<GymFinderPage />} />
 
-      {/* 보호된 페이지 - 로그인 필요 */}
+      {/* 보호된 페이지들 - 로그인 필요 */}
+      <Route
+        path="/machine-guide"
+        element={
+          <ProtectedRoute>
+            <MachineGuidePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/location"
+        element={
+          <ProtectedRoute>
+            <GymFinderPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/workout-journal"
         element={

@@ -1,5 +1,10 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { Machine } from "../types/machine"
+import {
+  findMatchingImage,
+  getFullImageUrl,
+  handleImageError,
+} from "../utils/machineImageUtils"
 import "./MachineModal.css"
 
 interface MachineModalProps {
@@ -49,6 +54,26 @@ export const MachineModal: React.FC<MachineModalProps> = ({
     }
   }
 
+  // ESC 키로 모달 닫기
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose()
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscape)
+      return () => document.removeEventListener("keydown", handleEscape)
+    }
+  }, [isOpen, onClose])
+
+  // 이미지 URL을 메모이제이션하여 불필요한 재계산 방지
+  const imageUrl = useMemo(() => {
+    const matchedImage = findMatchingImage(machine)
+    return getFullImageUrl(matchedImage)
+  }, [machine.id, machine.name_ko, machine.name_en, machine.image_url])
+
   return (
     <div className="machine-modal-overlay" onClick={handleBackdropClick}>
       <div className="machine-modal">
@@ -59,7 +84,11 @@ export const MachineModal: React.FC<MachineModalProps> = ({
         <div className="machine-modal-content">
           {/* 이미지 섹션 */}
           <div className="machine-modal-image-section">
-            <img src={machine.image_url} alt={machine.name_ko} />
+            <img
+              src={imageUrl}
+              alt={machine.name_ko}
+              onError={handleImageError}
+            />
             <div className="machine-modal-badges">
               <span
                 className="machine-modal-badge category"

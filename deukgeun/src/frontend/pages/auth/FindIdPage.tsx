@@ -2,21 +2,44 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { FaArrowLeft } from "react-icons/fa"
 import ReCAPTCHA from "react-google-recaptcha"
-import { validation, showToast } from "@shared/lib"
+import { useAccountRecovery } from "@features/auth/hooks/useAccountRecovery"
 import { useAuthContext } from "@shared/contexts/AuthContext"
-import { authApi } from "@features/auth/api/authApi"
 import { config } from "@shared/config"
+import { showToast } from "@shared/lib"
 import styles from "./FindIdPage.module.css"
 
+// 전화번호 포맷팅 유틸리티 함수
+function formatPhoneNumber(value: string): string {
+  // 숫자만 추출
+  const numbers = value.replace(/[^\d]/g, "")
+
+  // 길이에 따라 포맷팅
+  if (numbers.length <= 3) {
+    return numbers
+  } else if (numbers.length <= 7) {
+    return `${numbers.slice(0, 3)}-${numbers.slice(3)}`
+  } else {
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`
+  }
+}
+
 export default function FindIdPage() {
-  const [email, setEmail] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null)
-  const [errors, setErrors] = useState<{ email?: string; recaptcha?: string }>(
-    {}
-  )
   const navigate = useNavigate()
-  const { isLoggedIn } = useAuthContext()
+  const { isLoggedIn, isLoading } = useAuthContext()
+  const { state, findIdSimple, reset } = useAccountRecovery()
+
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    gender: "",
+    birthday: "",
+  })
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null)
+  const [errors, setErrors] = useState<{
+    name?: string
+    phone?: string
+    recaptcha?: string
+  }>({})
 
   // 로그인된 상태에서 접근 시 메인페이지로 리다이렉트
   useEffect(() => {
@@ -26,13 +49,28 @@ export default function FindIdPage() {
     }
   }, [isLoggedIn, navigate])
 
-  const validateForm = (): boolean => {
-    const newErrors: { email?: string; recaptcha?: string } = {}
+  // 전화번호 입력 핸들러
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedPhone = formatPhoneNumber(e.target.value)
+    setFormData(prev => ({ ...prev, phone: formattedPhone }))
+    if (errors.phone) {
+      setErrors(prev => ({ ...prev, phone: undefined }))
+    }
+  }
 
-    if (!validation.required(email)) {
-      newErrors.email = "이메일을 입력해주세요."
-    } else if (!validation.email(email)) {
-      newErrors.email = "유효한 이메일 주소를 입력해주세요."
+  const validateForm = (): boolean => {
+    const newErrors: { name?: string; phone?: string; recaptcha?: string } = {}
+
+    if (!formData.name.trim()) {
+      newErrors.name = "이름을 입력해주세요."
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "휴대폰 번호를 입력해주세요."
+    } else if (
+      !/^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/.test(formData.phone.replace(/-/g, ""))
+    ) {
+      newErrors.phone = "유효한 휴대폰 번호를 입력해주세요."
     }
 
     if (!recaptchaToken) {
@@ -48,33 +86,17 @@ export default function FindIdPage() {
       return
     }
 
-    setLoading(true)
-    try {
-      const findIdData = {
-        email: email.trim().toLowerCase(),
-        recaptchaToken: recaptchaToken!,
-      }
-
-      console.log("🧪 아이디 찾기 요청:", findIdData)
-
-      const response = await authApi.findId(findIdData)
-
-      console.log("🧪 아이디 찾기 응답:", response)
-
-      if (response.success) {
-        showToast(response.message, "success")
-        navigate("/login")
-      } else {
-        showToast(response.message || "아이디 찾기에 실패했습니다.", "error")
-      }
-    } catch (error: any) {
-      console.log("🧪 아이디 찾기 에러:", error)
-      const errorMessage =
-        error.response?.data?.message || "아이디 찾기에 실패했습니다."
-      showToast(errorMessage, "error")
-    } finally {
-      setLoading(false)
+    const submitData = {
+      name: formData.name.trim(),
+      phone: formData.phone.trim(),
+      gender: (formData.gender as "male" | "female" | "other") || undefined,
+      birthday: formData.birthday || undefined,
+      recaptchaToken: recaptchaToken!,
     }
+
+    console.log("🧪 아이디 찾기 요청:", submitData)
+
+    await findIdSimple(submitData)
   }
 
   const handleRecaptchaChange = (token: string | null) => {
@@ -94,6 +116,19 @@ export default function FindIdPage() {
     }
   }
 
+  // 로딩 중일 때 스피너 표시
+  if (isLoading) {
+    return (
+      <div className={styles.pageWrapper}>
+        <div className={styles.findIdBox}>
+          <div style={{ textAlign: "center", color: "#f1f3f5" }}>
+            <p>인증 확인 중...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // 이미 로그인된 상태라면 로딩 화면 표시
   if (isLoggedIn) {
     return (
@@ -102,6 +137,56 @@ export default function FindIdPage() {
           <div style={{ textAlign: "center", color: "#f1f3f5" }}>
             <p>이미 로그인된 상태입니다.</p>
             <p>메인페이지로 이동 중...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // 결과 화면
+  if (state.step === "result") {
+    return (
+      <div className={styles.pageWrapper}>
+        <div className={styles.findIdBox}>
+          <button
+            onClick={() => navigate("/login")}
+            className={styles.backButton}
+            aria-label="뒤로 가기"
+          >
+            <FaArrowLeft />
+          </button>
+
+          <h1 className={styles.title}>아이디 찾기 완료</h1>
+          <p className={styles.description}>
+            입력하신 정보로 찾은 아이디입니다.
+          </p>
+
+          <div className={styles.resultContainer}>
+            <div className={styles.successMessage}>
+              <strong>찾은 아이디:</strong>
+              <br />
+              <span className={styles.foundId}>
+                {state.data?.username || "아이디를 찾을 수 없습니다."}
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.linkRow}>
+            <button onClick={() => reset("find-id")} className={styles.linkBtn}>
+              다시 시도
+            </button>
+            <button
+              onClick={() => navigate("/login")}
+              className={styles.linkBtn}
+            >
+              로그인으로 돌아가기
+            </button>
+            <button
+              onClick={() => navigate("/find-password")}
+              className={styles.linkBtn}
+            >
+              비밀번호 찾기
+            </button>
           </div>
         </div>
       </div>
@@ -121,35 +206,84 @@ export default function FindIdPage() {
 
         <h1 className={styles.title}>아이디 찾기</h1>
         <p className={styles.description}>
-          가입 시 등록한 이메일 주소를 입력하시면
-          <br />
-          해당 이메일로 아이디 정보를 발송해드립니다.
+          가입 시 입력한 정보로 아이디를 찾을 수 있습니다.
         </p>
 
         <div className={styles.inputGroup}>
           <input
-            type="email"
-            value={email}
+            type="text"
+            value={formData.name}
             onChange={e => {
-              setEmail(e.target.value)
-              if (errors.email) {
-                setErrors(prev => ({ ...prev, email: undefined }))
+              setFormData(prev => ({ ...prev, name: e.target.value }))
+              if (errors.name) {
+                setErrors(prev => ({ ...prev, name: undefined }))
               }
             }}
             onKeyDown={e => {
-              if (e.key === "Enter" && !loading) {
+              if (e.key === "Enter" && !state.loading) {
                 e.preventDefault()
                 handleFindId()
               }
             }}
-            placeholder="이메일 주소"
+            placeholder="이름"
             className={`${styles.input} ${
-              errors.email ? styles.inputError : ""
+              errors.name ? styles.inputError : ""
             }`}
           />
-          {errors.email && (
-            <span className={styles.errorText}>{errors.email}</span>
+          {errors.name && (
+            <span className={styles.errorText}>{errors.name}</span>
           )}
+        </div>
+
+        <div className={styles.inputGroup}>
+          <input
+            type="tel"
+            value={formData.phone}
+            onChange={handlePhoneChange}
+            onKeyDown={e => {
+              if (e.key === "Enter" && !state.loading) {
+                e.preventDefault()
+                handleFindId()
+              }
+            }}
+            placeholder="휴대폰 번호 (010-0000-0000)"
+            className={`${styles.input} ${
+              errors.phone ? styles.inputError : ""
+            }`}
+            maxLength={13}
+          />
+          {errors.phone && (
+            <span className={styles.errorText}>{errors.phone}</span>
+          )}
+        </div>
+
+        <div className={styles.inputGroup}>
+          <select
+            value={formData.gender}
+            onChange={e =>
+              setFormData(prev => ({ ...prev, gender: e.target.value }))
+            }
+            className={styles.input}
+          >
+            <option value="" disabled>
+              성별 선택 (선택사항)
+            </option>
+            <option value="male">남성</option>
+            <option value="female">여성</option>
+            <option value="other">기타</option>
+          </select>
+        </div>
+
+        <div className={styles.inputGroup}>
+          <input
+            type="date"
+            value={formData.birthday}
+            onChange={e =>
+              setFormData(prev => ({ ...prev, birthday: e.target.value }))
+            }
+            className={styles.input}
+            title="생년월일 (선택사항)"
+          />
         </div>
 
         <div className={styles.recaptchaContainer}>
@@ -166,15 +300,19 @@ export default function FindIdPage() {
           )}
         </div>
 
+        {state.error && (
+          <div className={styles.errorMessage}>{state.error}</div>
+        )}
+
         <button
           onClick={handleFindId}
           className={styles.findButton}
-          disabled={loading}
-          aria-describedby={loading ? "loading-description" : undefined}
+          disabled={state.loading}
+          aria-describedby={state.loading ? "loading-description" : undefined}
         >
-          {loading ? "처리 중..." : "아이디 찾기"}
+          {state.loading ? "처리 중..." : "아이디 찾기"}
         </button>
-        {loading && (
+        {state.loading && (
           <span id="loading-description" className="sr-only">
             아이디 찾기 처리 중입니다.
           </span>

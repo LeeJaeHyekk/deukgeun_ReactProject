@@ -81,7 +81,9 @@
 
 .input::placeholder,
 .passwordInput::placeholder {
-  color: #adb5bd;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  font-weight: 500;
 }
 
 .input:focus,
@@ -362,7 +364,28 @@
 }
 
 /* 반응형 */
-@media (max-width: 480px) {
+@media (max-width: 1024px) {
+  .loginBox {
+    max-width: 480px;
+    padding: 44px 36px;
+  }
+
+  .logo {
+    font-size: 34px;
+    margin-bottom: 36px;
+  }
+
+  .input,
+  .loginButton,
+  .passwordInput,
+  .kakaoBtn,
+  .googleBtn {
+    height: 54px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 768px) {
   .pageWrapper {
     padding: 16px;
   }
@@ -370,6 +393,7 @@
   .loginBox {
     padding: 40px 24px;
     border-radius: 16px;
+    max-width: 90%;
   }
 
   .logo {
@@ -383,7 +407,7 @@
   .kakaoBtn,
   .googleBtn {
     height: 52px;
-    font-size: 16px;
+    font-size: 15px;
     border-radius: 14px;
   }
 
@@ -407,6 +431,14 @@
   .linkRow {
     margin-top: 28px;
     margin-bottom: 28px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .linkBtn {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
   }
 
   .recaptcha {
@@ -420,5 +452,102 @@
 
   .recaptchaWidget {
     transform: scale(0.85);
+  }
+}
+
+@media (max-width: 480px) {
+  .pageWrapper {
+    padding: 12px;
+  }
+
+  .loginBox {
+    padding: 32px 20px;
+    border-radius: 12px;
+    max-width: 100%;
+  }
+
+  .logo {
+    font-size: 28px;
+    margin-bottom: 28px;
+  }
+
+  .input,
+  .loginButton,
+  .passwordInput,
+  .kakaoBtn,
+  .googleBtn {
+    height: 48px;
+    font-size: 14px;
+    border-radius: 12px;
+    padding: 0 16px;
+  }
+
+  .inputGroup {
+    margin-bottom: 18px;
+  }
+
+  .loginButton {
+    margin-top: 24px;
+  }
+
+  .divider {
+    margin: 28px 0;
+  }
+
+  .socialWrapper {
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .linkRow {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    gap: 8px;
+  }
+
+  .linkBtn {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .recaptcha {
+    padding-top: 12px;
+  }
+
+  .recaptchaContainer {
+    margin: 16px 0;
+    padding: 12px 0;
+  }
+
+  .recaptchaWidget {
+    transform: scale(0.8);
+  }
+
+  .recaptchaText {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 360px) {
+  .loginBox {
+    padding: 28px 16px;
+  }
+
+  .logo {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .input,
+  .loginButton,
+  .passwordInput,
+  .kakaoBtn,
+  .googleBtn {
+    height: 44px;
+    font-size: 13px;
+  }
+
+  .recaptchaWidget {
+    transform: scale(0.75);
   }
 }

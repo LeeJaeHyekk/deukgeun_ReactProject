@@ -53,6 +53,17 @@ export interface ApiRegisterResponse {
   }
 }
 
+// 아이디/비밀번호 찾기 요청 타입
+export interface FindIdRequest {
+  email: string
+  recaptchaToken: string
+}
+
+export interface FindPasswordRequest {
+  email: string
+  recaptchaToken: string
+}
+
 // Auth API functions
 export const authApi = {
   // Login
@@ -78,6 +89,28 @@ export const authApi = {
       data
     )
     return response.data.data as ApiRegisterResponse
+  },
+
+  // Find ID
+  findId: async (data: FindIdRequest): Promise<ApiResponseWrapper<{ email: string; nickname: string }>> => {
+    console.log("✅ 아이디 찾기 요청:", data)
+    const response = await axios.post<ApiResponseWrapper<{ email: string; nickname: string }>>(
+      `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID}`,
+      data
+    )
+    console.log("✅ 아이디 찾기 응답:", response)
+    return response.data
+  },
+
+  // Find Password
+  findPassword: async (data: FindPasswordRequest): Promise<ApiResponseWrapper<{ email: string; nickname: string }>> => {
+    console.log("✅ 비밀번호 찾기 요청:", data)
+    const response = await axios.post<ApiResponseWrapper<{ email: string; nickname: string }>>(
+      `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_PASSWORD}`,
+      data
+    )
+    console.log("✅ 비밀번호 찾기 응답:", response)
+    return response.data
   },
 
   // Refresh token

@@ -15,7 +15,7 @@ async function startServer() {
     autoInitializeScheduler()
     logger.info("Auto-update scheduler initialized")
 
-    const availablePort = await getAvailablePort(config.PORT)
+    const availablePort = await getAvailablePort(config.port || 5000)
 
     app.listen(availablePort, () => {
       logger.info(`Server is running on port ${availablePort}`)

@@ -182,16 +182,16 @@ export function WorkoutSessionModal({
   if (!isOpen) return null
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="workout-session-modal-overlay">
+      <div className="workout-session-modal">
         <div className="modal-header">
           <h2>워크아웃 세션</h2>
-          <button onClick={onClose} className="close-button">
+          <button onClick={onClose} className="close-btn">
             <X size={24} />
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className="modal-content">
           {/* 세션 정보 */}
           <div className="session-info">
             <h3>{currentSession.name || "새 세션"}</h3>

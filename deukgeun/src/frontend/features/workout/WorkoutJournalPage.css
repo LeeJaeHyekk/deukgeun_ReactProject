@@ -409,10 +409,30 @@
   position: relative;
 }
 
+.goal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  justify-content: flex-end;
+}
+
+.edit-goal-button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.edit-goal-button:hover {
+  background: #2563eb;
+}
+
 .delete-goal-button {
-  position: absolute;
-  top: 15px;
-  right: 15px;
   background: #f44336;
   color: white;
   border: none;

@@ -263,6 +263,8 @@ export default function SignUpPage() {
     // 성별 검증
     if (!gender) {
       newErrors.gender = "성별을 선택해주세요."
+    } else if (!["male", "female", "other"].includes(gender)) {
+      newErrors.gender = "유효한 성별을 선택해주세요."
     }
 
     // 생년월일 검증

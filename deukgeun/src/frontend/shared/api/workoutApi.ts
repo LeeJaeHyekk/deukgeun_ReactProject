@@ -1,126 +1,68 @@
-import { API_ENDPOINTS } from "../config"
-
-// 타입 정의
-export interface WorkoutPlan {
-  plan_id: number
-  user_id: number
-  name: string
-  description?: string
-  difficulty_level: "beginner" | "intermediate" | "advanced"
-  estimated_duration_minutes: number
-  target_muscle_groups?: string[]
-  is_template: boolean
-  is_public: boolean
-  created_at: string
-  updated_at: string
-  exercises?: WorkoutPlanExercise[]
-}
-
-export interface WorkoutPlanExercise {
-  plan_exercise_id: number
-  plan_id: number
-  machine_id: number
-  exercise_order: number
-  sets: number
-  reps_range: { min: number; max: number }
-  weight_range?: { min: number; max: number }
-  rest_seconds: number
-  notes?: string
-  machine?: {
-    id: number
-    name_ko: string
-    name_en?: string
-    image_url: string
-    category: string
-  }
-}
-
-export interface WorkoutSession {
-  session_id: number
-  user_id: number
-  plan_id?: number
-  gym_id?: number
-  session_name: string
-  start_time: string
-  end_time?: string
-  total_duration_minutes?: number
-  mood_rating?: number
-  energy_level?: number
-  notes?: string
-  status: "in_progress" | "completed" | "paused" | "cancelled"
-  created_at: string
-  updated_at: string
-}
-
-export interface WorkoutGoal {
-  goal_id: number
-  user_id: number
-  goal_type:
-    | "weight_lift"
-    | "endurance"
-    | "weight_loss"
-    | "muscle_gain"
-    | "strength"
-    | "flexibility"
-  target_value: number
-  current_value: number
-  unit: string
-  target_date: string
-  start_date: string
-  status: "active" | "completed" | "paused" | "cancelled"
-  progress_percentage: number
-  created_at: string
-  updated_at: string
-}
+import type {
+  WorkoutPlan,
+  WorkoutSession,
+  WorkoutGoal,
+  ExerciseSet,
+} from "../../../types"
 
 // API 함수들
 export const workoutApi = {
   // 운동 계획 관련
   async getPlans(accessToken: string): Promise<WorkoutPlan[]> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/workouts/plans`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/workout/plans`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    )
 
     if (!response.ok) {
       throw new Error("운동 계획을 불러오는데 실패했습니다.")
     }
 
-    return response.json()
+    const data = await response.json()
+    return data.data || []
   },
 
-  async createPlan(accessToken: string, planData: any): Promise<WorkoutPlan> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/workouts/plans`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(planData),
-    })
+  async createPlan(
+    accessToken: string,
+    planData: Partial<WorkoutPlan>
+  ): Promise<WorkoutPlan> {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/workout/plans`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(planData),
+      }
+    )
 
     if (!response.ok) {
       throw new Error("운동 계획 생성에 실패했습니다.")
     }
 
-    return response.json()
+    const data = await response.json()
+    return data.data
   },
 
   async updatePlan(
     accessToken: string,
     planId: number,
-    planData: any
+    planData: Partial<WorkoutPlan>
   ): Promise<WorkoutPlan> {
     const response = await fetch(
-      `${API_ENDPOINTS.BASE_URL}/workouts/plans/${planId}`,
+      `${process.env.REACT_APP_API_URL}/api/workout/plans/${planId}`,
       {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(planData),
       }
@@ -130,12 +72,13 @@ export const workoutApi = {
       throw new Error("운동 계획 수정에 실패했습니다.")
     }
 
-    return response.json()
+    const data = await response.json()
+    return data.data
   },
 
   async deletePlan(accessToken: string, planId: number): Promise<void> {
     const response = await fetch(
-      `${API_ENDPOINTS.BASE_URL}/workouts/plans/${planId}`,
+      `${process.env.REACT_APP_API_URL}/api/workout/plans/${planId}`,
       {
         method: "DELETE",
         headers: {
@@ -152,12 +95,11 @@ export const workoutApi = {
   // 운동 세션 관련
   async getSessions(accessToken: string): Promise<WorkoutSession[]> {
     const response = await fetch(
-      `${API_ENDPOINTS.BASE_URL}/workouts/sessions`,
+      `${process.env.REACT_APP_API_URL}/api/workout/sessions`,
       {
-        method: "GET",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
         },
       }
     )
@@ -166,100 +108,131 @@ export const workoutApi = {
       throw new Error("운동 세션을 불러오는데 실패했습니다.")
     }
 
-    return response.json()
+    const data = await response.json()
+    return data.data || []
   },
 
-  async startSession(
+  async createSession(
     accessToken: string,
-    sessionData: any
+    sessionData: Partial<WorkoutSession>
   ): Promise<WorkoutSession> {
     const response = await fetch(
-      `${API_ENDPOINTS.BASE_URL}/workouts/sessions`,
+      `${process.env.REACT_APP_API_URL}/api/workout/sessions`,
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(sessionData),
       }
     )
 
     if (!response.ok) {
-      throw new Error("운동 세션 시작에 실패했습니다.")
+      throw new Error("운동 세션 생성에 실패했습니다.")
     }
 
-    return response.json()
+    const data = await response.json()
+    return data.data
   },
 
-  async completeSession(
+  async updateSession(
     accessToken: string,
-    sessionId: number
+    sessionId: number,
+    sessionData: Partial<WorkoutSession>
   ): Promise<WorkoutSession> {
     const response = await fetch(
-      `${API_ENDPOINTS.BASE_URL}/workouts/sessions/${sessionId}/complete`,
+      `${process.env.REACT_APP_API_URL}/api/workout/sessions/${sessionId}`,
       {
-        method: "POST",
+        method: "PUT",
         headers: {
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
+        },
+        body: JSON.stringify(sessionData),
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error("운동 세션 수정에 실패했습니다.")
+    }
+
+    const data = await response.json()
+    return data.data
+  },
+
+  async deleteSession(accessToken: string, sessionId: number): Promise<void> {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/workout/sessions/${sessionId}`,
+      {
+        method: "DELETE",
+        headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       }
     )
 
     if (!response.ok) {
-      throw new Error("운동 세션 완료에 실패했습니다.")
+      throw new Error("운동 세션 삭제에 실패했습니다.")
     }
-
-    return response.json()
   },
 
   // 운동 목표 관련
   async getGoals(accessToken: string): Promise<WorkoutGoal[]> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/workouts/goals`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/workout/goals`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    )
 
     if (!response.ok) {
       throw new Error("운동 목표를 불러오는데 실패했습니다.")
     }
 
-    return response.json()
+    const data = await response.json()
+    return data.data || []
   },
 
-  async createGoal(accessToken: string, goalData: any): Promise<WorkoutGoal> {
-    const response = await fetch(`${API_ENDPOINTS.BASE_URL}/workouts/goals`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(goalData),
-    })
+  async createGoal(
+    accessToken: string,
+    goalData: Partial<WorkoutGoal>
+  ): Promise<WorkoutGoal> {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/workout/goals`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(goalData),
+      }
+    )
 
     if (!response.ok) {
       throw new Error("운동 목표 생성에 실패했습니다.")
     }
 
-    return response.json()
+    const data = await response.json()
+    return data.data
   },
 
   async updateGoal(
     accessToken: string,
     goalId: number,
-    goalData: any
+    goalData: Partial<WorkoutGoal>
   ): Promise<WorkoutGoal> {
     const response = await fetch(
-      `${API_ENDPOINTS.BASE_URL}/workouts/goals/${goalId}`,
+      `${process.env.REACT_APP_API_URL}/api/workout/goals/${goalId}`,
       {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(goalData),
       }
@@ -269,12 +242,13 @@ export const workoutApi = {
       throw new Error("운동 목표 수정에 실패했습니다.")
     }
 
-    return response.json()
+    const data = await response.json()
+    return data.data
   },
 
   async deleteGoal(accessToken: string, goalId: number): Promise<void> {
     const response = await fetch(
-      `${API_ENDPOINTS.BASE_URL}/workouts/goals/${goalId}`,
+      `${process.env.REACT_APP_API_URL}/api/workout/goals/${goalId}`,
       {
         method: "DELETE",
         headers: {
@@ -288,25 +262,54 @@ export const workoutApi = {
     }
   },
 
-  // 운동 진행 상황
-  async getProgress(accessToken: string, machineId?: number): Promise<any> {
-    const url = new URL(`${API_ENDPOINTS.BASE_URL}/workouts/progress`)
-    if (machineId) {
-      url.searchParams.append("machineId", machineId.toString())
-    }
-
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
+  // 운동 세트 관련
+  async addExerciseSet(
+    accessToken: string,
+    setData: Partial<ExerciseSet>
+  ): Promise<ExerciseSet> {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/workout/sets`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(setData),
+      }
+    )
 
     if (!response.ok) {
-      throw new Error("운동 진행 상황을 불러오는데 실패했습니다.")
+      throw new Error("운동 세트 추가에 실패했습니다.")
     }
 
-    return response.json()
+    const data = await response.json()
+    return data.data
+  },
+
+  // 운동 세션 완료
+  async completeSession(
+    accessToken: string,
+    sessionId: number,
+    endTime: Date
+  ): Promise<WorkoutSession> {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/workout/sessions/${sessionId}/complete`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ endTime }),
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error("운동 세션 완료에 실패했습니다.")
+    }
+
+    const data = await response.json()
+    return data.data
   },
 }

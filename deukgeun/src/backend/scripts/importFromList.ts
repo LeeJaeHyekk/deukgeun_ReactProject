@@ -1,7 +1,10 @@
 import { connectDatabase } from "../config/database"
 import { MachineService } from "../services/machineService"
 import { CreateMachineRequest } from "../types/machine"
-import type { MachineCategory, DifficultyLevel } from "../../types/machine"
+import type {
+  MachineCategory,
+  DifficultyLevel,
+} from "../../shared/types/machine"
 
 /**
  * Machine 데이터 임포트 스크립트

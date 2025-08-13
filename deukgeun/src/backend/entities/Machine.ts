@@ -5,56 +5,67 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm"
+import type { MachineCategory, DifficultyLevel } from "../../types"
 
-@Entity()
+@Entity("machines")
 export class Machine {
   @PrimaryGeneratedColumn()
   id!: number
 
   @Column({ type: "varchar", length: 100, unique: true })
-  machine_key!: string
+  machineKey!: string
 
   @Column({ type: "varchar", length: 100 })
-  name_ko!: string
+  name!: string
 
   @Column({ type: "varchar", length: 100, nullable: true })
-  name_en?: string
+  nameEn?: string
 
   @Column({ type: "varchar", length: 255 })
-  image_url!: string
+  imageUrl!: string
 
   @Column({ type: "varchar", length: 255 })
-  short_desc!: string
+  shortDesc!: string
 
   @Column({ type: "text" })
-  detail_desc!: string
+  detailDesc!: string
 
   @Column({ type: "text", nullable: true })
-  positive_effect?: string
+  positiveEffect?: string
 
   @Column({
     type: "enum",
-    enum: ["상체", "하체", "전신", "기타"],
-    default: "기타",
+    enum: [
+      "cardio",
+      "strength",
+      "flexibility",
+      "balance",
+      "functional",
+      "rehabilitation",
+    ],
+    default: "strength",
   })
-  category!: "상체" | "하체" | "전신" | "기타"
+  category!: MachineCategory
 
   @Column({ type: "json", nullable: true })
-  target_muscle?: string[]
+  targetMuscles?: string[]
 
   @Column({
     type: "enum",
-    enum: ["초급", "중급", "고급"],
-    default: "초급",
+    enum: ["beginner", "intermediate", "advanced", "expert"],
+    default: "beginner",
   })
-  difficulty_level!: "초급" | "중급" | "고급"
+  difficulty!: DifficultyLevel
 
   @Column({ type: "varchar", length: 255, nullable: true })
-  video_url?: string
+  videoUrl?: string
+
+  @Column({ type: "boolean", default: true })
+  isActive!: boolean
 
   @CreateDateColumn()
-  created_at!: Date
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updated_at!: Date
+  updatedAt!: Date
 }

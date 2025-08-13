@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express"
 import { CreateMachineRequest, UpdateMachineRequest } from "../types/machine"
-import type { MachineCategory, DifficultyLevel } from "../../types/machine"
+import type {
+  MachineCategory,
+  DifficultyLevel,
+} from "../../shared/types/machine"
 
 /**
  * Machine 생성 요청 데이터 검증

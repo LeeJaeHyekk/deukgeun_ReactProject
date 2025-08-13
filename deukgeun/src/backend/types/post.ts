@@ -1,20 +1,2 @@
-export interface Post {
-  id?: number
-  title: string
-  content: string
-  author: string
-  createdAt?: Date
-  updatedAt?: Date
-}
-
-export interface CreatePostRequest {
-  title: string
-  content: string
-  author: string
-}
-
-export interface UpdatePostRequest {
-  title?: string
-  content?: string
-  author?: string
-}
+// 중앙화된 타입 시스템 사용
+export * from "../../shared/types/post"

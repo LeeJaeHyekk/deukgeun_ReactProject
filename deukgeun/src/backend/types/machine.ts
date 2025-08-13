@@ -4,7 +4,7 @@ import type {
   Machine as SharedMachine,
   MachineCategory,
   DifficultyLevel,
-} from "../../types/machine"
+} from "../../shared/types/machine"
 
 // Machine Repository 타입 정의
 export type MachineRepository = Repository<Machine>
@@ -67,9 +67,5 @@ export interface MachineFilterResponse {
   filters: MachineFilterQuery
 }
 
-// 공유 타입 재내보내기
-export type {
-  Machine as SharedMachine,
-  MachineCategory,
-  DifficultyLevel,
-} from "../../types/machine"
+// 중앙 타입 시스템 재내보내기
+export * from "../../shared/types/machine"

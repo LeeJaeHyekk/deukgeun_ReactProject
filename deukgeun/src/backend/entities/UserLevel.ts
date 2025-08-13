@@ -8,6 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
+import type { ExpActionType } from "../../shared/types"
 import { User } from "./User"
 
 @Entity("user_levels")
@@ -30,6 +31,23 @@ export class UserLevel {
 
   @Column({ type: "int", default: 0 })
   seasonExp!: number
+
+  // 레벨업 관련
+  @Column({ type: "int", default: 0 })
+  totalLevelUps!: number
+
+  @Column({ type: "datetime", nullable: true })
+  lastLevelUpAt?: Date
+
+  // 시즌 관련
+  @Column({ type: "int", default: 1 })
+  currentSeason!: number
+
+  @Column({ type: "datetime", nullable: true })
+  seasonStartDate?: Date
+
+  @Column({ type: "datetime", nullable: true })
+  seasonEndDate?: Date
 
   @CreateDateColumn()
   createdAt!: Date

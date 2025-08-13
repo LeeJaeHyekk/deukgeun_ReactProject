@@ -16,7 +16,7 @@ class EmailService {
     const emailConfig = this.getEmailConfig()
 
     if (emailConfig) {
-      this.transporter = nodemailer.createTransporter(emailConfig)
+      this.transporter = nodemailer.createTransport(emailConfig)
       this.isConfigured = true
       logger.info("Email service initialized successfully")
     } else {

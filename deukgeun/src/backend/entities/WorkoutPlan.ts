@@ -22,7 +22,7 @@ export class WorkoutPlan {
   user_id!: number
 
   @Column({ type: "varchar", length: 100 })
-  name!: string
+  plan_name!: string
 
   @Column({ type: "text", nullable: true })
   description?: string
@@ -32,7 +32,7 @@ export class WorkoutPlan {
     enum: ["beginner", "intermediate", "advanced"],
     default: "beginner",
   })
-  difficulty_level!: "beginner" | "intermediate" | "advanced"
+  difficulty!: "beginner" | "intermediate" | "advanced"
 
   @Column({ type: "int" })
   estimated_duration_minutes!: number

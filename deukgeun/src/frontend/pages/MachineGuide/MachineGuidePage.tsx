@@ -4,12 +4,7 @@ import { MachineCard } from "../../shared/components/MachineCard"
 import { MachineModal } from "../../shared/components/MachineModal"
 import { Navigation } from "../../widgets/Navigation/Navigation"
 import { LoadingSpinner } from "../../shared/ui/LoadingSpinner"
-import {
-  Machine,
-  MACHINE_CATEGORIES,
-  MACHINE_DIFFICULTIES,
-  TARGET_MUSCLES,
-} from "../../shared/types/machine"
+import type { Machine } from "../../../types"
 import "./MachineGuidePage.css"
 
 export default function MachineGuidePage() {
@@ -75,138 +70,143 @@ export default function MachineGuidePage() {
     }
   }
 
-  const filteredMachines = (machines || []).filter(machine => {
-    if (!searchTerm) return true
-
-    return (
-      machine.name_ko.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      machine.name_en?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      machine.short_desc.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  })
-
-  if (loading) {
-    return (
-      <div className="machine-guide-page">
-        <Navigation />
-        <div className="machine-guide-loading">
-          <LoadingSpinner />
-          <p>기구 목록을 불러오는 중...</p>
-        </div>
-      </div>
-    )
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
   }
 
-  if (error) {
-    return (
-      <div className="machine-guide-page">
-        <Navigation />
-        <div className="machine-guide-error">
-          <h2>오류가 발생했습니다</h2>
-          <p>{error}</p>
-          <button onClick={() => window.location.reload()}>다시 시도</button>
-        </div>
-      </div>
-    )
-  }
+  const filteredMachines = machines.filter(
+    machine =>
+      machine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      machine.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      machine.targetMuscles.some(muscle =>
+        muscle.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+  )
+
+  const categories = [
+    { value: "strength", label: "근력" },
+    { value: "cardio", label: "유산소" },
+    { value: "flexibility", label: "유연성" },
+    { value: "balance", label: "균형" },
+    { value: "functional", label: "기능성" },
+    { value: "rehabilitation", label: "재활" },
+  ]
+
+  const difficulties = [
+    { value: "beginner", label: "초급" },
+    { value: "intermediate", label: "중급" },
+    { value: "advanced", label: "고급" },
+    { value: "expert", label: "전문가" },
+  ]
+
+  const targets = ["가슴", "등", "어깨", "팔", "복근", "하체", "전신"]
 
   return (
     <div className="machine-guide-page">
       <Navigation />
 
       <div className="machine-guide-container">
-        {/* 헤더 */}
-        <div className="machine-guide-header">
+        <header className="machine-guide-header">
           <h1>운동 기구 가이드</h1>
-          <p>다양한 운동 기구에 대해 알아보세요</p>
-        </div>
+          <p>각 운동 기구의 사용법과 효과를 알아보세요</p>
+        </header>
 
-        {/* 검색 및 필터 */}
-        <div className="machine-guide-controls">
-          {/* 검색 */}
-          <div className="machine-search">
-            <input
-              type="text"
-              placeholder="기구 이름이나 설명으로 검색..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="machine-search-input"
-            />
-          </div>
-
-          {/* 필터 */}
-          <div className="machine-filters">
+        {/* 필터 섹션 */}
+        <div className="machine-guide-filters">
+          <div className="filter-group">
+            <label>카테고리</label>
             <select
               value={selectedCategory}
               onChange={e => handleCategoryChange(e.target.value)}
-              className="machine-filter-select"
             >
-              <option value="">전체 카테고리</option>
-              {MACHINE_CATEGORIES.map(category => (
+              <option value="">전체</option>
+              {categories.map(category => (
                 <option key={category.value} value={category.value}>
                   {category.label}
                 </option>
               ))}
             </select>
+          </div>
 
+          <div className="filter-group">
+            <label>난이도</label>
             <select
               value={selectedDifficulty}
               onChange={e => handleDifficultyChange(e.target.value)}
-              className="machine-filter-select"
             >
-              <option value="">전체 난이도</option>
-              {MACHINE_DIFFICULTIES.map(difficulty => (
+              <option value="">전체</option>
+              {difficulties.map(difficulty => (
                 <option key={difficulty.value} value={difficulty.value}>
                   {difficulty.label}
                 </option>
               ))}
             </select>
+          </div>
 
+          <div className="filter-group">
+            <label>타겟 근육</label>
             <select
               value={selectedTarget}
               onChange={e => handleTargetChange(e.target.value)}
-              className="machine-filter-select"
             >
-              <option value="">전체 근육</option>
-              {TARGET_MUSCLES.map(muscle => (
-                <option key={muscle} value={muscle}>
-                  {muscle}
+              <option value="">전체</option>
+              {targets.map(target => (
+                <option key={target} value={target}>
+                  {target}
                 </option>
               ))}
             </select>
           </div>
+
+          <div className="filter-group">
+            <label>검색</label>
+            <input
+              type="text"
+              placeholder="기구명 또는 설명 검색..."
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+          </div>
         </div>
 
-        {/* 결과 정보 */}
-        <div className="machine-guide-info">
-          <p>
-            총 <strong>{filteredMachines.length}</strong>개의 기구
-            {selectedCategory && ` • ${selectedCategory}`}
-            {selectedDifficulty && ` • ${selectedDifficulty}`}
-            {selectedTarget && ` • ${selectedTarget}`}
-          </p>
-        </div>
+        {/* 로딩 상태 */}
+        {loading && (
+          <div className="machine-guide-loading">
+            <LoadingSpinner />
+          </div>
+        )}
+
+        {/* 에러 상태 */}
+        {error && (
+          <div className="machine-guide-error">
+            <p>오류가 발생했습니다: {error}</p>
+            <button onClick={() => window.location.reload()}>다시 시도</button>
+          </div>
+        )}
 
         {/* 기구 목록 */}
-        {filteredMachines.length === 0 ? (
-          <div className="machine-guide-empty">
-            <h3>검색 결과가 없습니다</h3>
-            <p>다른 검색어나 필터를 시도해보세요.</p>
-          </div>
-        ) : (
-          <div className="machine-guide-grid">
-            {filteredMachines.map(machine => (
-              <MachineCard
-                key={machine.id}
-                machine={machine}
-                onClick={handleMachineClick}
-              />
-            ))}
+        {!loading && !error && (
+          <div className="machine-guide-content">
+            {filteredMachines.length === 0 ? (
+              <div className="machine-guide-empty">
+                <p>조건에 맞는 운동 기구가 없습니다.</p>
+              </div>
+            ) : (
+              <div className="machine-guide-grid">
+                {filteredMachines.map(machine => (
+                  <MachineCard
+                    key={machine.id}
+                    machine={machine}
+                    onClick={handleMachineClick}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* 모달 */}
+      {/* 기구 상세 모달 */}
       <MachineModal
         machine={selectedMachine}
         isOpen={isModalOpen}

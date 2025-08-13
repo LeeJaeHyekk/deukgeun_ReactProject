@@ -1,11 +1,11 @@
 import { Request, Response } from "express"
 import { MachineService } from "../services/machineService"
-import {
+import type {
   CreateMachineRequest,
   UpdateMachineRequest,
   MachineFilterQuery,
-} from "../types/machine"
-import type { MachineListResponse } from "../../types/machine"
+  MachineListResponse,
+} from "../../types"
 import { logger } from "../utils/logger"
 
 // Machine 서비스 인스턴스 생성 (지연 초기화)
@@ -30,16 +30,16 @@ export const createMachine = async (req: Request, res: Response) => {
     // 성공 로그 출력
     console.log("=== Machine Created Successfully ===")
     console.log("Machine ID:", savedMachine.id)
-    console.log("Machine Name (KO):", savedMachine.name_ko)
-    console.log("Machine Name (EN):", savedMachine.name_en)
+    console.log("Machine Name:", savedMachine.name)
+    console.log("Machine Name (EN):", savedMachine.nameEn)
     console.log("Category:", savedMachine.category)
-    console.log("Difficulty Level:", savedMachine.difficulty_level)
-    console.log("Target Muscle:", savedMachine.target_muscle)
-    console.log("Created At:", savedMachine.created_at)
+    console.log("Difficulty Level:", savedMachine.difficulty)
+    console.log("Target Muscles:", savedMachine.targetMuscles)
+    console.log("Created At:", savedMachine.createdAt)
     console.log("Full Object:", JSON.stringify(savedMachine, null, 2))
 
     logger.info(
-      `Machine created - ID: ${savedMachine.id}, Name: ${savedMachine.name_ko}`
+      `Machine created - ID: ${savedMachine.id}, Name: ${savedMachine.name}`
     )
 
     res.status(201).json({
@@ -130,7 +130,7 @@ export const updateMachine = async (req: Request, res: Response) => {
       })
     }
 
-    logger.info(`Machine updated - ID: ${id}, Name: ${updated.name_ko}`)
+    logger.info(`Machine updated - ID: ${id}, Name: ${updated.name}`)
 
     res.status(200).json({
       message: "Machine updated successfully",

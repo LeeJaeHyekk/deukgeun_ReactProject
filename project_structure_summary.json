@@ -1,0 +1,409 @@
+{
+  "project": {
+    "name": "deukgeun_ReactProject",
+    "description": "헬스장 운동 가이드 플랫폼 - 머신 사용법, 운동 목표 관리, 커뮤니티 기능 제공",
+    "version": "0.0.0",
+    "type": "fullstack",
+    "architecture": "monorepo"
+  },
+  "technology_stack": {
+    "frontend": {
+      "framework": "React 18",
+      "language": "TypeScript",
+      "build_tool": "Vite",
+      "routing": "React Router DOM",
+      "styling": "CSS Modules + Tailwind CSS",
+      "state_management": "Zustand",
+      "ui_libraries": ["Lucide React", "React Icons", "React DatePicker"],
+      "http_client": "Axios",
+      "testing": "Vitest"
+    },
+    "backend": {
+      "runtime": "Node.js",
+      "framework": "Express.js",
+      "language": "TypeScript",
+      "orm": "TypeORM",
+      "database": "MySQL",
+      "authentication": "JWT + bcrypt",
+      "email": "Nodemailer",
+      "crawling": "Playwright + Cheerio",
+      "logging": "Winston"
+    },
+    "devops": {
+      "process_manager": "PM2",
+      "code_quality": ["ESLint", "Prettier"],
+      "containerization": "Docker (준비 중)"
+    }
+  },
+  "project_structure": {
+    "root": {
+      "config_files": [
+        "package.json",
+        "tsconfig.json",
+        "vite.config.ts",
+        "eslint.config.js",
+        "postcss.config.mjs"
+      ],
+      "documentation": [
+        "README.md",
+        "PROJECT_OPTIMIZATION_SUMMARY.md",
+        "PROJECT_STRUCTURE_OPTIMIZATION.md",
+        "PROJECT_IMPROVEMENT_SUMMARY.md"
+      ]
+    },
+    "src": {
+      "types": {
+        "description": "중앙화된 타입 시스템",
+        "files": [
+          "index.ts",
+          "common.ts",
+          "auth.ts",
+          "level.ts",
+          "workout.ts",
+          "post.ts",
+          "gym.ts",
+          "machine.ts",
+          "stats.ts",
+          "accountRecovery.ts"
+        ]
+      },
+      "config": {
+        "description": "중앙 설정 관리",
+        "files": ["index.ts"]
+      },
+      "backend": {
+        "description": "백엔드 서버 애플리케이션",
+        "structure": {
+          "entities": {
+            "description": "TypeORM 데이터베이스 엔티티",
+            "files": [
+              "User.ts",
+              "UserLevel.ts",
+              "ExpHistory.ts",
+              "UserReward.ts",
+              "Milestone.ts",
+              "UserStreak.ts",
+              "Machine.ts",
+              "Gym.ts",
+              "Post.ts",
+              "Comment.ts",
+              "Like.ts",
+              "WorkoutGoal.ts",
+              "WorkoutPlan.ts",
+              "WorkoutSession.ts",
+              "ExerciseSet.ts",
+              "PasswordResetToken.ts",
+              "VerificationToken.ts"
+            ]
+          },
+          "controllers": {
+            "description": "API 엔드포인트 컨트롤러",
+            "files": [
+              "authController.ts",
+              "machineController.ts",
+              "workoutController.ts",
+              "workoutJournalController.ts",
+              "levelController.ts",
+              "statsController.ts",
+              "gymController.ts",
+              "post.controller.ts",
+              "commentController.ts",
+              "likeController.ts"
+            ]
+          },
+          "services": {
+            "description": "비즈니스 로직 서비스",
+            "files": [
+              "accountRecoveryService.ts",
+              "advancedCrawlerService.ts",
+              "autoUpdateScheduler.ts",
+              "levelService.ts",
+              "machineService.ts",
+              "workoutService.ts",
+              "workoutJournalService.ts",
+              "statsService.ts",
+              "gymService.ts",
+              "postService.ts",
+              "commentService.ts",
+              "likeService.ts",
+              "emailService.ts",
+              "crawlerService.ts"
+            ]
+          },
+          "routes": {
+            "description": "API 라우트 정의",
+            "files": [
+              "auth.ts",
+              "machine.ts",
+              "workout.ts",
+              "workoutJournal.ts",
+              "level.ts",
+              "stats.ts",
+              "gym.ts",
+              "post.ts",
+              "comment.ts",
+              "like.ts"
+            ]
+          },
+          "middlewares": {
+            "description": "Express 미들웨어",
+            "files": ["auth.ts", "errorHandler.ts", "rateLimiter.ts"]
+          },
+          "config": {
+            "description": "백엔드 설정",
+            "files": ["database.ts", "env.ts", "levelConfig.ts"]
+          },
+          "scripts": {
+            "description": "데이터베이스 및 유틸리티 스크립트",
+            "count": 37,
+            "categories": [
+              "데이터베이스 마이그레이션",
+              "초기 데이터 생성",
+              "테스트 스크립트",
+              "계정 복구 설정"
+            ]
+          }
+        }
+      },
+      "frontend": {
+        "description": "React 프론트엔드 애플리케이션",
+        "structure": {
+          "pages": {
+            "description": "페이지 컴포넌트",
+            "categories": {
+              "auth": [
+                "LoginPage",
+                "SignUpPage",
+                "FindIdPage",
+                "FindPasswordPage"
+              ],
+              "main": ["HomePage", "ErrorPage"],
+              "features": [
+                "CommunityPage",
+                "GymFinderPage",
+                "MachineGuidePage",
+                "myPage"
+              ],
+              "admin": ["DatabaseUpdatePage"]
+            }
+          },
+          "features": {
+            "description": "기능별 모듈화된 컴포넌트",
+            "modules": {
+              "auth": {
+                "components": [
+                  "AccountRecoveryLayout",
+                  "CodeInput",
+                  "PasswordResetForm"
+                ],
+                "hooks": ["useAccountRecovery"],
+                "types": ["accountRecovery"],
+                "utils": []
+              },
+              "community": {
+                "components": ["FeedCard", "PostCard", "PostGrid", "PostModal"],
+                "hooks": ["usePostModal"],
+                "styles": ["CommunityPage.module.css"]
+              },
+              "workout": {
+                "components": [
+                  "GoalProgressBar",
+                  "ProgressChart",
+                  "WorkoutPlanModal"
+                ],
+                "hooks": [
+                  "useWorkoutGoals",
+                  "useWorkoutPlans",
+                  "useWorkoutSessions"
+                ],
+                "styles": ["WorkoutJournalPage.css"]
+              }
+            }
+          },
+          "shared": {
+            "description": "공통 컴포넌트 및 유틸리티",
+            "structure": {
+              "api": {
+                "description": "API 클라이언트",
+                "files": ["index.ts", "levelApi.ts", "machineApi.ts"]
+              },
+              "components": {
+                "description": "공통 UI 컴포넌트",
+                "files": [
+                  "AuthStatus.tsx",
+                  "LevelDisplay.tsx",
+                  "LoadingOverlay.tsx",
+                  "LoadingSpinner.tsx"
+                ]
+              },
+              "hooks": {
+                "description": "공통 React 훅",
+                "files": ["useAuth.ts", "useLevel.ts", "useMachines.ts"]
+              },
+              "contexts": {
+                "description": "React Context",
+                "files": ["AuthContext.tsx"]
+              },
+              "store": {
+                "description": "상태 관리",
+                "files": ["userStore.ts"]
+              },
+              "utils": {
+                "description": "유틸리티 함수",
+                "files": [
+                  "bundleAnalyzer.ts",
+                  "machineImageUtils.ts",
+                  "performanceMonitor.ts"
+                ]
+              }
+            }
+          },
+          "widgets": {
+            "description": "재사용 가능한 위젯",
+            "components": ["Navigation"]
+          }
+        }
+      },
+      "shared": {
+        "description": "프론트엔드/백엔드 공통 코드",
+        "structure": {
+          "api": ["client.ts"],
+          "constants": ["api.ts", "app.ts", "gym.ts"],
+          "hooks": ["index.ts", "useApi.ts", "useDebounce.ts"],
+          "types": ["accountRecovery.ts", "auth.ts", "common.ts"],
+          "utils": ["array.ts", "date.ts", "env.ts"]
+        }
+      }
+    },
+    "public": {
+      "description": "정적 파일",
+      "structure": {
+        "fonts": ["index.tsx"],
+        "img": {
+          "description": "이미지 파일",
+          "categories": {
+            "general": ["heroSection_IMG.jpg", "logo.png"],
+            "machines": ["bicep-curl.png", "chest-press.png", "squat-rack.png"],
+            "user": ["user-avatar.jpg"]
+          }
+        },
+        "video": ["404Error.mp4", "loading.mp4", "serviceMovie.mp4"]
+      }
+    }
+  },
+  "features": {
+    "machine_guide": {
+      "description": "헬스장 머신 사용법 가이드",
+      "components": ["MachineGuidePage", "MachineCard", "MachineModal"],
+      "data": {
+        "machines_count": 4,
+        "categories": ["strength", "cardio", "flexibility"]
+      }
+    },
+    "workout_management": {
+      "description": "운동 목표 및 세션 관리",
+      "components": ["WorkoutJournalPage", "GoalProgressBar", "ProgressChart"],
+      "data": {
+        "goals_count": 12,
+        "plans_count": 12
+      }
+    },
+    "community": {
+      "description": "운동 커뮤니티 기능",
+      "components": ["CommunityPage", "PostCard", "PostModal"],
+      "features": ["게시글 작성", "댓글", "좋아요"]
+    },
+    "location_service": {
+      "description": "헬스장 위치 기반 서비스",
+      "components": ["GymFinderPage", "MapView", "GymCard"],
+      "integration": "Kakao Maps API"
+    },
+    "level_system": {
+      "description": "사용자 레벨 및 경험치 시스템",
+      "components": ["LevelDisplay", "UserLevel"],
+      "features": ["경험치 획득", "레벨업", "보상 시스템", "스트릭"]
+    },
+    "authentication": {
+      "description": "사용자 인증 및 계정 관리",
+      "components": ["LoginPage", "SignUpPage", "AccountRecoveryLayout"],
+      "features": ["로그인/회원가입", "계정 복구", "비밀번호 재설정"]
+    }
+  },
+  "database": {
+    "type": "MySQL",
+    "entities_count": 17,
+    "main_tables": [
+      "users",
+      "user_levels",
+      "exp_history",
+      "user_rewards",
+      "milestones",
+      "user_streaks",
+      "machines",
+      "gyms",
+      "posts",
+      "comments",
+      "likes",
+      "workout_goals",
+      "workout_plans",
+      "workout_sessions",
+      "exercise_sets"
+    ],
+    "test_data": {
+      "users": 4,
+      "machines": 4,
+      "gyms": 3,
+      "workout_plans": 12
+    }
+  },
+  "development": {
+    "scripts": {
+      "dev": "vite",
+      "build": "tsc && vite build",
+      "backend:dev": "cd src/backend && npm run dev",
+      "dev:full": "concurrently \"npm run backend:dev\" \"wait-on http://localhost:5000 && npm run dev\"",
+      "test": "vitest",
+      "lint": "eslint . --ext ts,tsx",
+      "db:seed": "cd src/backend && npx ts-node scripts/seedInitialData.ts"
+    },
+    "ports": {
+      "frontend": 5173,
+      "backend": 5000
+    },
+    "environment": {
+      "node_version": "18.0.0+",
+      "mysql_version": "8.0+"
+    }
+  },
+  "optimization": {
+    "completed": [
+      "데이터베이스 마이그레이션",
+      "타입 시스템 중앙화",
+      "번들 크기 최적화",
+      "성능 모니터링 설정",
+      "테스트 코드 업데이트",
+      "코드 주석화 및 문서화"
+    ],
+    "performance_targets": {
+      "page_load_time": "< 2초",
+      "first_contentful_paint": "< 1.5초",
+      "largest_contentful_paint": "< 2.5초",
+      "first_input_delay": "< 100ms",
+      "bundle_size": "< 1MB (gzipped)"
+    }
+  },
+  "status": {
+    "current_state": "개발 완료",
+    "database_connection": "정상",
+    "api_response": "정상",
+    "code_commenting": "완료",
+    "documentation": "완료",
+    "next_steps": [
+      "데이터베이스 스키마 정규화",
+      "API 응답 시간 최적화",
+      "이미지 압축 및 최적화",
+      "PWA 기능 추가",
+      "E2E 테스트 추가"
+    ]
+  }
+}

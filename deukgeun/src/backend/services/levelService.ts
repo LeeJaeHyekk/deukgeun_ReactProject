@@ -3,6 +3,8 @@ import { UserLevel } from "../entities/UserLevel"
 import { ExpHistory } from "../entities/ExpHistory"
 import { UserReward } from "../entities/UserReward"
 import { Milestone } from "../entities/Milestone"
+import { Between } from "typeorm"
+import { getLevelConfig } from "../config/levelConfig"
 
 interface ExpGrantData {
   [key: string]: any
@@ -11,7 +13,11 @@ interface ExpGrantData {
 export class LevelService {
   // 레벨별 필요 경험치 계산
   private calculateRequiredExp(level: number): number {
-    return Math.floor(100 * Math.pow(1.5, level - 1))
+    const config = getLevelConfig()
+    return Math.floor(
+      config.levelUpFormula.baseExp *
+        Math.pow(config.levelUpFormula.multiplier, level - 1)
+    )
   }
 
   // 사용자 레벨 정보 조회
@@ -75,7 +81,117 @@ export class LevelService {
     }
   }
 
-  // 경험치 부여
+  // 쿨다운 검증
+  private async checkCooldown(
+    userId: number,
+    action: string
+  ): Promise<{ isOnCooldown: boolean; remainingTime: number }> {
+    try {
+      const expHistoryRepo = AppDataSource.getRepository(ExpHistory)
+
+      const config = getLevelConfig()
+      const cooldownTimes = config.cooldownTimes
+
+      const cooldownTime = cooldownTimes[action] || 0
+      if (cooldownTime === 0) {
+        return { isOnCooldown: false, remainingTime: 0 }
+      }
+
+      // 최근 동일 액션 조회
+      const recentAction = await expHistoryRepo.findOne({
+        where: { userId, actionType: action },
+        order: { createdAt: "DESC" },
+      })
+
+      if (!recentAction) {
+        return { isOnCooldown: false, remainingTime: 0 }
+      }
+
+      const timeSinceLastAction = Date.now() - recentAction.createdAt.getTime()
+      const isOnCooldown = timeSinceLastAction < cooldownTime
+      const remainingTime = Math.max(0, cooldownTime - timeSinceLastAction)
+
+      return { isOnCooldown, remainingTime }
+    } catch (error) {
+      console.error("쿨다운 검증 오류:", error)
+      return { isOnCooldown: false, remainingTime: 0 }
+    }
+  }
+
+  // 레벨업 보상 지급
+  private async grantLevelUpRewards(
+    userId: number,
+    newLevel: number
+  ): Promise<UserReward[]> {
+    try {
+      const rewards: UserReward[] = []
+
+      const config = getLevelConfig()
+      const levelRewards = config.levelRewards
+
+      const reward = levelRewards[newLevel]
+      if (reward) {
+        const userReward = await this.grantReward(userId, reward.type, {
+          name: reward.name,
+          description: reward.description,
+          level: newLevel,
+          ...reward.metadata,
+        })
+
+        if (userReward) {
+          rewards.push(userReward)
+        }
+      }
+
+      return rewards
+    } catch (error) {
+      console.error("레벨업 보상 지급 오류:", error)
+      return []
+    }
+  }
+
+  // 일일 경험치 한도 검증
+  private async checkDailyExpLimit(
+    userId: number,
+    expToAdd: number
+  ): Promise<{ withinLimit: boolean; dailyExp: number; limit: number }> {
+    try {
+      const expHistoryRepo = AppDataSource.getRepository(ExpHistory)
+      const config = getLevelConfig()
+      const DAILY_EXP_LIMIT = config.dailyExpLimit
+
+      // 오늘 날짜의 시작과 끝
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const tomorrow = new Date(today)
+      tomorrow.setDate(tomorrow.getDate() + 1)
+
+      // 오늘 획득한 경험치 총합
+      const todayExpHistory = await expHistoryRepo.find({
+        where: {
+          userId,
+          createdAt: Between(today, tomorrow),
+        },
+      })
+
+      const dailyExp = todayExpHistory.reduce(
+        (sum, history) => sum + history.expGained,
+        0
+      )
+      const withinLimit = dailyExp + expToAdd <= DAILY_EXP_LIMIT
+
+      return {
+        withinLimit,
+        dailyExp,
+        limit: DAILY_EXP_LIMIT,
+      }
+    } catch (error) {
+      console.error("일일 경험치 한도 검증 오류:", error)
+      return { withinLimit: true, dailyExp: 0, limit: 500 }
+    }
+  }
+
+  // 경험치 부여 (쿨다운 검증 포함)
   async grantExp(
     userId: number,
     action: string,
@@ -89,8 +205,42 @@ export class LevelService {
     leveledUp: boolean
     expGained: number
     levelUp?: number
+    cooldownInfo?: { isOnCooldown: boolean; remainingTime: number }
+    rewards?: UserReward[]
+    dailyLimitInfo?: { withinLimit: boolean; dailyExp: number; limit: number }
   }> {
     try {
+      // 쿨다운 검증
+      const cooldownInfo = await this.checkCooldown(userId, action)
+      if (cooldownInfo.isOnCooldown) {
+        return {
+          success: false,
+          level: 0,
+          currentExp: 0,
+          totalExp: 0,
+          leveledUp: false,
+          expGained: 0,
+          cooldownInfo,
+        }
+      }
+
+      // 경험치 계산
+      const expAmount = this.calculateExpAmount(action, reason)
+
+      // 일일 경험치 한도 검증
+      const dailyLimitInfo = await this.checkDailyExpLimit(userId, expAmount)
+      if (!dailyLimitInfo.withinLimit) {
+        return {
+          success: false,
+          level: 0,
+          currentExp: 0,
+          totalExp: 0,
+          leveledUp: false,
+          expGained: 0,
+          dailyLimitInfo,
+        }
+      }
+
       const userLevelRepo = AppDataSource.getRepository(UserLevel)
       const expHistoryRepo = AppDataSource.getRepository(ExpHistory)
 
@@ -99,9 +249,6 @@ export class LevelService {
       if (!userLevel) {
         userLevel = await this.createUserLevel(userId)
       }
-
-      // 경험치 계산
-      const expAmount = this.calculateExpAmount(action, reason)
 
       // 경험치 히스토리 기록
       const expHistory = expHistoryRepo.create({
@@ -119,14 +266,23 @@ export class LevelService {
       userLevel.totalExp += expAmount
       userLevel.seasonExp += expAmount
 
-      // 레벨업 체크
+      // 레벨업 체크 및 보상 지급
       let leveledUp = false
+      let rewards: UserReward[] = []
+
       while (
         userLevel.currentExp >= this.calculateRequiredExp(userLevel.level)
       ) {
         userLevel.currentExp -= this.calculateRequiredExp(userLevel.level)
         userLevel.level += 1
         leveledUp = true
+
+        // 레벨업 보상 지급
+        const levelRewards = await this.grantLevelUpRewards(
+          userId,
+          userLevel.level
+        )
+        rewards.push(...levelRewards)
       }
 
       await userLevelRepo.save(userLevel)
@@ -139,6 +295,9 @@ export class LevelService {
         leveledUp,
         expGained: expAmount,
         levelUp: leveledUp ? userLevel.level : undefined,
+        cooldownInfo,
+        rewards: rewards.length > 0 ? rewards : undefined,
+        dailyLimitInfo,
       }
     } catch (error) {
       console.error("경험치 부여 오류:", error)
@@ -148,33 +307,8 @@ export class LevelService {
 
   // 경험치 양 계산
   private calculateExpAmount(action: string, reason: string): number {
-    const expTable: { [key: string]: { [key: string]: number } } = {
-      post: {
-        post_creation: 50,
-        post_like: 5,
-        post_comment: 10,
-      },
-      comment: {
-        comment_creation: 20,
-        comment_like: 2,
-      },
-      like: {
-        post_like: 3,
-        comment_like: 1,
-      },
-      workout: {
-        workout_completion: 100,
-        workout_goal_achieved: 200,
-        streak_maintained: 50,
-      },
-      social: {
-        profile_completion: 30,
-        first_post: 100,
-        first_comment: 50,
-      },
-    }
-
-    return expTable[action]?.[reason] || 10
+    const config = getLevelConfig()
+    return config.expValues[action]?.[reason] || 10
   }
 
   // 경험치 히스토리 조회

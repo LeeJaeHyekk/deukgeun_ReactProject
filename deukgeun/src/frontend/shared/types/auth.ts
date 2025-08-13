@@ -1,50 +1,18 @@
-// 프론트엔드 인증 관련 타입 정의
-import type { UserProfile, Gender } from "../../../types/common"
+// 프론트엔드 인증 관련 타입 재내보내기
+// 중앙화된 타입 시스템에서 인증 관련 타입들을 재내보냄
 
-export interface LoginRequest {
-  email: string
-  password: string
-  recaptchaToken: string
-}
-
-export interface RegisterRequest {
-  email: string
-  password: string
-  nickname: string
-  phone?: string
-  gender?: Gender
-  birthday?: Date
-  recaptchaToken: string
-}
-
-export interface LoginResponse {
-  success: true
-  message: string
-  accessToken: string
-  user: UserProfile
-}
-
-export interface RegisterResponse {
-  success: true
-  message: string
-  accessToken: string
-  user: UserProfile
-}
-
-export interface RefreshResponse {
-  success: true
-  accessToken: string
-}
-
-export interface LogoutResponse {
-  success: true
-  message: string
-}
-
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    userId: number
-    email: string
-    role: string
-  }
-}
+export type {
+  UserProfile,
+  Gender,
+  LoginRequest,
+  RegisterRequest,
+  LoginResponse,
+  RegisterResponse,
+  RefreshResponse,
+  LogoutResponse,
+  AuthenticatedRequest,
+  PasswordResetRequest,
+  PasswordResetConfirm,
+  EmailVerification,
+  AccountRecoveryRequest,
+} from "../../../types/auth"

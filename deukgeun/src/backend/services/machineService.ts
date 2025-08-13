@@ -1,12 +1,12 @@
 import { AppDataSource } from "../config/database"
 import { Machine } from "../entities/Machine"
-import {
-  MachineRepository,
+import type {
   CreateMachineRequest,
   UpdateMachineRequest,
   MachineFilterQuery,
-} from "../types/machine"
-import type { MachineCategory, DifficultyLevel } from "../../types/machine"
+  MachineCategory,
+  DifficultyLevel,
+} from "../../types"
 
 /**
  * Machine 관련 비즈니스 로직을 처리하는 서비스 클래스
@@ -36,7 +36,7 @@ export class MachineService {
   async getAllMachines(): Promise<Machine[]> {
     try {
       return await this.machineRepository.find({
-        order: { name_ko: "ASC" },
+        order: { name: "ASC" },
       })
     } catch (error) {
       console.error("기구 조회 오류:", error)
@@ -59,13 +59,13 @@ export class MachineService {
   }
 
   /**
-   * machine_key로 특정 Machine을 조회합니다.
-   * @param {string} machineKey - 조회할 Machine의 machine_key
+   * machineKey로 특정 Machine을 조회합니다.
+   * @param {string} machineKey - 조회할 Machine의 machineKey
    * @returns {Promise<Machine | null>} 조회된 Machine 또는 null (존재하지 않는 경우)
    */
   async getMachineByKey(machineKey: string): Promise<Machine | null> {
     return await this.machineRepository.findOne({
-      where: { machine_key: machineKey },
+      where: { machineKey: machineKey },
     })
   }
 

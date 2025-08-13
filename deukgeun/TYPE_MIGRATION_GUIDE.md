@@ -2,169 +2,198 @@
 
 ## 개요
 
-프로젝트의 타입 관리 구조를 중앙화하여 일관성과 유지보수성을 향상시켰습니다.
-
-## 새로운 타입 시스템 구조
-
-```
-src/
-├── types/                    # 중앙화된 타입 정의
-│   ├── index.ts             # 모든 타입 내보내기
-│   ├── common.ts            # 공통 유틸리티 타입
-│   ├── auth.ts              # 인증 관련 타입
-│   ├── gym.ts               # 헬스장 관련 타입
-│   ├── machine.ts           # 머신 관련 타입
-│   ├── post.ts              # 게시글 관련 타입
-│   ├── workout.ts           # 운동 관련 타입
-│   └── stats.ts             # 통계 관련 타입
-├── frontend/
-│   └── shared/types/        # 기존 타입 (마이그레이션 중)
-└── backend/
-    └── types/               # 기존 타입 (마이그레이션 중)
-```
+이 문서는 기존 프로젝트의 타입 시스템을 중앙화된 새로운 타입 시스템으로 마이그레이션하는 방법을 설명합니다.
 
 ## 주요 변경사항
 
-### 1. 중앙화된 타입 정의
-- 모든 타입이 `src/types/` 디렉토리에 중앙화됨
-- 도메인별로 파일 분리 (auth, gym, machine, post, workout, stats)
-- 공통 유틸리티 타입은 `common.ts`에 정의
+### 1. 백엔드 엔티티 변경
 
-### 2. 일관된 타입 네이밍
-- 모든 타입이 일관된 네이밍 컨벤션 사용
-- 중복된 타입 정의 제거
-- 타입 간 의존성 명확화
+#### Machine 엔티티
 
-### 3. 개선된 TypeScript 설정
-- 프로젝트 루트의 `tsconfig.json` 업데이트
-- 백엔드 전용 `tsconfig.json` 생성
-- Path mapping 개선
+- `machine_key` → `machineKey`
+- `name_ko` → `name`
+- `name_en` → `nameEn`
+- `image_url` → `imageUrl`
+- `short_desc` → `shortDesc`
+- `detail_desc` → `detailDesc`
+- `positive_effect` → `positiveEffect`
+- `target_muscle` → `targetMuscles`
+- `difficulty_level` → `difficulty`
+- `video_url` → `videoUrl`
+- `created_at` → `createdAt`
+- `updated_at` → `updatedAt`
+- 카테고리: `["상체", "하체", "전신", "기타"]` → `["cardio", "strength", "flexibility", "balance", "functional", "rehabilitation"]`
+- 난이도: `["초급", "중급", "고급"]` → `["beginner", "intermediate", "advanced", "expert"]`
+
+#### WorkoutGoal 엔티티
+
+- `goal_id` → `id`
+- `user_id` → `userId`
+- `goal_type` → `type`
+- `target_value` → `targetValue`
+- `current_value` → `currentValue`
+- `target_date` → `deadline`
+- `start_date` → 제거
+- `status` → `isCompleted`
+- `progress_percentage` → 제거
+- `created_at` → `createdAt`
+- `updated_at` → `updatedAt`
+- 목표 타입: `["weight_lift", "endurance", "weight_loss", "muscle_gain", "strength", "flexibility"]` → `["weight", "reps", "duration", "frequency", "streak"]`
+
+### 2. 프론트엔드 컴포넌트 변경
+
+#### WorkoutPlanModal
+
+- Machine props 타입 변경
+- WorkoutPlan 인터페이스에 exercises 속성 추가
+- 필드명 camelCase로 통일
+
+#### WorkoutSessionModal
+
+- Machine props 타입 변경
+- WorkoutSession 인터페이스 업데이트
+- ExerciseSet 타입 사용
+
+#### GoalProgressBar
+
+- WorkoutGoal 타입 변경
+- 진행률 계산 로직 수정
+- 상태 표시 방식 변경
 
 ## 마이그레이션 단계
 
-### 1단계: 기존 타입 파일 업데이트
+### 1단계: 데이터베이스 백업
 
-기존 타입 파일들은 새로운 중앙화된 타입을 재내보내도록 업데이트되었습니다:
-
-```typescript
-// 기존: src/frontend/shared/types/user.ts
-export interface User {
-  id: number
-  email: string
-  nickname: string
-  accessToken: string
-}
-
-// 새로운: src/frontend/shared/types/user.ts
-export { User, UserProfile } from "@types/common"
+```bash
+# 프로덕션 환경에서는 반드시 백업을 수행하세요
+mysqldump -u username -p database_name > backup_$(date +%Y%m%d_%H%M%S).sql
 ```
 
-### 2단계: import 문 업데이트
+### 2단계: 마이그레이션 스크립트 실행
 
-기존 코드에서 타입 import를 새로운 경로로 변경:
-
-```typescript
-// 기존
-import { User } from "@shared/types/user"
-import { Machine } from "@shared/types/machine"
-
-// 새로운
-import { User, Machine } from "@types"
-// 또는
-import { User } from "@types/common"
-import { Machine } from "@types/machine"
+```bash
+cd deukgeun/src/backend
+npm run migrate:types
 ```
 
-### 3단계: 타입 사용법
+### 3단계: 애플리케이션 재시작
 
-```typescript
-// 공통 유틸리티 타입
-import type { ApiResponse, Nullable, Optional } from "@types/common"
+```bash
+# 백엔드 재시작
+npm run dev
 
-// 도메인별 타입
-import type { User, UserProfile } from "@types/common"
-import type { Machine, MachineCategory } from "@types/machine"
-import type { Post, Comment } from "@types/post"
-import type { Gym, GymType } from "@types/gym"
-import type { WorkoutPlan, WorkoutSession } from "@types/workout"
-import type { PlatformStats } from "@types/stats"
-
-// 인증 관련 타입
-import type { LoginRequest, LoginResponse } from "@types/auth"
+# 프론트엔드 재시작 (다른 터미널에서)
+cd ../frontend
+npm run dev
 ```
 
-## 새로운 타입 정의
+### 4단계: 테스트
 
-### 공통 유틸리티 타입 (`@types/common`)
-
-```typescript
-// 유틸리티 타입
-type Nullable<T> = T | null
-type Optional<T> = T | undefined
-type DeepPartial<T> = { [P in keyof T]?: DeepPartial<T[P]> }
-
-// API 응답 타입
-type ApiResponse<T = unknown> = {
-  success: boolean
-  message: string
-  data?: T
-  error?: string
-}
-
-// 사용자 타입
-interface User {
-  id: number
-  email: string
-  nickname: string
-  role: UserRole
-  // ... 기타 필드
-}
-```
-
-### 도메인별 타입
-
-각 도메인별로 관련 타입들이 정의되어 있습니다:
-
-- **Auth**: `LoginRequest`, `LoginResponse`, `RegisterRequest` 등
-- **Gym**: `Gym`, `GymType`, `GymCrawlerData` 등
-- **Machine**: `Machine`, `MachineCategory`, `DifficultyLevel` 등
-- **Post**: `Post`, `Comment`, `Like` 등
-- **Workout**: `WorkoutPlan`, `WorkoutSession`, `ExerciseSet` 등
-- **Stats**: `PlatformStats`, `DetailedStats` 등
-
-## 마이그레이션 체크리스트
-
-- [ ] 기존 타입 import 문을 새로운 경로로 변경
-- [ ] 중복된 타입 정의 제거
-- [ ] 타입 네이밍 일관성 확인
-- [ ] TypeScript 컴파일 에러 해결
-- [ ] 테스트 코드 타입 업데이트
-- [ ] 문서 업데이트
+- Machine 관련 기능 테스트
+- WorkoutGoal 관련 기능 테스트
+- 기존 데이터 정상 동작 확인
 
 ## 주의사항
 
-1. **점진적 마이그레이션**: 모든 파일을 한 번에 변경하지 말고 단계적으로 진행
-2. **타입 호환성**: 기존 타입과 새로운 타입 간의 호환성 확인
-3. **테스트**: 마이그레이션 후 모든 기능이 정상 작동하는지 확인
-4. **문서화**: 변경된 타입 구조에 대한 문서 업데이트
+### 데이터 손실 위험
+
+- 마이그레이션 전 반드시 데이터베이스 백업을 수행하세요
+- 프로덕션 환경에서는 신중하게 실행하세요
+
+### 호환성 문제
+
+- 기존 API 호출이 새로운 필드명을 사용하도록 업데이트되었습니다
+- 프론트엔드에서 기존 필드명을 사용하는 코드가 있다면 수정이 필요합니다
+
+### 롤백 방법
+
+마이그레이션 후 문제가 발생하면 백업에서 복원할 수 있습니다:
+
+```bash
+mysql -u username -p database_name < backup_file.sql
+```
 
 ## 문제 해결
 
-### TypeScript 컴파일 에러
-- Path mapping이 제대로 작동하지 않는 경우 `tsconfig.json` 확인
-- 타입 import 경로가 올바른지 확인
+### 일반적인 오류
 
-### 타입 불일치
-- 기존 타입과 새로운 타입 간의 필드 차이 확인
-- 필요한 경우 타입 변환 함수 작성
+#### 1. 컬럼이 존재하지 않음
 
-### 순환 의존성
-- 타입 간 순환 의존성이 발생하는 경우 구조 재검토
-- 공통 타입을 별도 파일로 분리
+```
+Error: Unknown column 'old_column_name' in 'field list'
+```
 
-## 추가 개선사항
+- 마이그레이션 스크립트가 이미 실행되었는지 확인
+- 데이터베이스 스키마 상태 확인
 
-1. **Zod 스키마 통합**: 런타임 타입 검증을 위한 Zod 스키마 추가
-2. **타입 가드**: 타입 안전성을 위한 타입 가드 함수 추가
-3. **API 타입 자동 생성**: OpenAPI 스펙에서 타입 자동 생성
-4. **타입 테스트**: 타입 정의의 정확성을 검증하는 테스트 추가
+#### 2. ENUM 값 오류
+
+```
+Error: Data truncated for column 'category' at row 1
+```
+
+- 기존 데이터의 카테고리/난이도 값이 새로운 ENUM에 맞지 않음
+- 마이그레이션 스크립트의 값 변환 로직 확인
+
+#### 3. 타입 오류
+
+```
+Type 'string' is not assignable to type 'MachineCategory'
+```
+
+- TypeScript 타입 정의가 업데이트되지 않음
+- `npm run build` 실행하여 타입 체크
+
+### 디버깅 방법
+
+1. 로그 확인
+
+```bash
+tail -f logs/app.log
+```
+
+2. 데이터베이스 상태 확인
+
+```sql
+DESCRIBE machines;
+DESCRIBE workout_goals;
+```
+
+3. 샘플 데이터 확인
+
+```sql
+SELECT * FROM machines LIMIT 5;
+SELECT * FROM workout_goals LIMIT 5;
+```
+
+## 추가 작업
+
+### 1. API 문서 업데이트
+
+- Swagger/OpenAPI 문서 업데이트
+- API 엔드포인트 응답 형식 변경 반영
+
+### 2. 테스트 코드 업데이트
+
+- 단위 테스트의 모킹 데이터 업데이트
+- 통합 테스트의 예상 응답 형식 수정
+
+### 3. 프론트엔드 타입 체크
+
+```bash
+cd deukgeun/src/frontend
+npm run type-check
+```
+
+## 지원
+
+마이그레이션 중 문제가 발생하면:
+
+1. 로그 파일 확인
+2. 데이터베이스 상태 점검
+3. 개발팀에 문의
+
+---
+
+**마지막 업데이트**: 2024년 12월
+**버전**: 1.0.0

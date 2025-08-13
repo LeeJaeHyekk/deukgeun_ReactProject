@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { Machine } from "../types/machine"
+import type { Machine } from "../../../types"
 import {
   findMatchingImage,
   getFullImageUrl,
@@ -17,12 +17,14 @@ export const MachineModal: React.FC<MachineModalProps> = React.memo(
   ({ machine, isOpen, onClose }) => {
     const getDifficultyColor = (difficulty?: string) => {
       switch (difficulty) {
-        case "초급":
+        case "beginner":
           return "#4CAF50"
-        case "중급":
+        case "intermediate":
           return "#FF9800"
-        case "고급":
+        case "advanced":
           return "#F44336"
+        case "expert":
+          return "#9C27B0"
         default:
           return "#9E9E9E"
       }
@@ -30,14 +32,18 @@ export const MachineModal: React.FC<MachineModalProps> = React.memo(
 
     const getCategoryColor = (category: string) => {
       switch (category) {
-        case "상체":
+        case "strength":
           return "#2196F3"
-        case "하체":
+        case "cardio":
           return "#4CAF50"
-        case "전신":
+        case "flexibility":
           return "#9C27B0"
-        case "기타":
+        case "balance":
           return "#FF9800"
+        case "functional":
+          return "#607D8B"
+        case "rehabilitation":
+          return "#795548"
         default:
           return "#9E9E9E"
       }
@@ -87,7 +93,7 @@ export const MachineModal: React.FC<MachineModalProps> = React.memo(
             <div className="machine-modal-image-section">
               <img
                 src={imageUrl}
-                alt={machine.name_ko}
+                alt={machine.name}
                 onError={handleImageError}
               />
               <div className="machine-modal-badges">
@@ -99,16 +105,14 @@ export const MachineModal: React.FC<MachineModalProps> = React.memo(
                 >
                   {machine.category}
                 </span>
-                {machine.difficulty_level && (
+                {machine.difficulty && (
                   <span
                     className="machine-modal-badge difficulty"
                     style={{
-                      backgroundColor: getDifficultyColor(
-                        machine.difficulty_level
-                      ),
+                      backgroundColor: getDifficultyColor(machine.difficulty),
                     }}
                   >
-                    {machine.difficulty_level}
+                    {machine.difficulty}
                   </span>
                 )}
               </div>
@@ -116,26 +120,27 @@ export const MachineModal: React.FC<MachineModalProps> = React.memo(
 
             {/* 정보 섹션 */}
             <div className="machine-modal-info-section">
-              <h2 className="machine-modal-title">{machine.name_ko}</h2>
-              {machine.name_en && (
-                <p className="machine-modal-subtitle">{machine.name_en}</p>
+              <h2 className="machine-modal-title">{machine.name}</h2>
+
+              {machine.description && (
+                <div className="machine-modal-section">
+                  <h3>설명</h3>
+                  <p>{machine.description}</p>
+                </div>
               )}
 
-              <div className="machine-modal-description">
-                <h3>설명</h3>
-                <p>{machine.short_desc}</p>
-              </div>
+              {machine.instructions && (
+                <div className="machine-modal-section">
+                  <h3>사용법</h3>
+                  <p>{machine.instructions}</p>
+                </div>
+              )}
 
-              <div className="machine-modal-detail">
-                <h3>상세 정보</h3>
-                <p>{machine.detail_desc}</p>
-              </div>
-
-              {machine.target_muscle && machine.target_muscle.length > 0 && (
-                <div className="machine-modal-targets">
+              {machine.targetMuscles && machine.targetMuscles.length > 0 && (
+                <div className="machine-modal-section">
                   <h3>타겟 근육</h3>
-                  <div className="machine-modal-target-list">
-                    {machine.target_muscle.map((muscle, index) => (
+                  <div className="machine-modal-targets">
+                    {machine.targetMuscles.map((muscle, index) => (
                       <span key={index} className="machine-modal-target-tag">
                         {muscle}
                       </span>
@@ -144,20 +149,15 @@ export const MachineModal: React.FC<MachineModalProps> = React.memo(
                 </div>
               )}
 
-              {machine.positive_effect && (
-                <div className="machine-modal-effects">
-                  <h3>효과</h3>
-                  <p>{machine.positive_effect}</p>
-                </div>
-              )}
-
-              {machine.video_url && (
-                <div className="machine-modal-video">
-                  <h3>사용법 동영상</h3>
-                  <video controls>
-                    <source src={machine.video_url} type="video/mp4" />
-                    브라우저가 비디오를 지원하지 않습니다.
-                  </video>
+              {machine.videoUrl && (
+                <div className="machine-modal-section">
+                  <h3>동영상 가이드</h3>
+                  <div className="machine-modal-video">
+                    <video controls>
+                      <source src={machine.videoUrl} type="video/mp4" />
+                      브라우저가 비디오를 지원하지 않습니다.
+                    </video>
+                  </div>
                 </div>
               )}
             </div>

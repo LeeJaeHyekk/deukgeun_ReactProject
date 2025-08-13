@@ -8,6 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
+import type { MilestoneType } from "../../shared/types"
 import { User } from "./User"
 
 @Entity("milestones")
@@ -19,17 +20,36 @@ export class Milestone {
   @Index()
   userId!: number
 
-  @Column({ type: "varchar", length: 100 })
+  @Column({
+    type: "enum",
+    enum: [
+      "workout_count",
+      "streak_days",
+      "total_exp",
+      "level_reached",
+      "goal_completed",
+      "community_engagement",
+    ],
+  })
   @Index()
-  milestoneType!: string
+  milestoneType!: MilestoneType
 
   @Column({ type: "varchar", length: 200 })
-  description!: string
+  milestoneName!: string
+
+  @Column({ type: "text", nullable: true })
+  milestoneDescription?: string
+
+  @Column({ type: "int", default: 0 })
+  targetValue!: number
+
+  @Column({ type: "int", default: 0 })
+  currentValue!: number
 
   @Column({ type: "boolean", default: false })
   achieved!: boolean
 
-  @Column({ type: "timestamp", nullable: true })
+  @Column({ type: "datetime", nullable: true })
   achievedAt?: Date
 
   @Column({ type: "json", nullable: true })

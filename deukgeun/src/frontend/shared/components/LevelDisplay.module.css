@@ -202,3 +202,70 @@
     height: 6px;
   }
 }
+
+/* 일일 경험치 한도 정보 */
+.dailyLimitInfo {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.dailyLimitBar {
+  width: 100%;
+  height: 6px;
+  background-color: #e9ecef;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.dailyLimitFill {
+  height: 100%;
+  transition:
+    width 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.dailyLimitText {
+  font-size: 12px;
+  color: #6c757d;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* 쿨다운 정보 */
+.cooldownInfo {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cooldownIcon {
+  font-size: 16px;
+  animation: pulse 2s infinite;
+}
+
+.cooldownText {
+  font-size: 12px;
+  color: #856404;
+  font-weight: 500;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}

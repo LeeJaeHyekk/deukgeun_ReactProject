@@ -45,6 +45,48 @@ export class WorkoutJournalController {
     }
   }
 
+  async updateWorkoutPlan(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.id
+      const { planId } = req.params
+      if (!userId) {
+        res.status(401).json({ error: "인증이 필요합니다." })
+        return
+      }
+
+      const updateData = req.body
+      const plan = await this.workoutJournalService.updateWorkoutPlan(
+        parseInt(planId),
+        userId,
+        updateData
+      )
+      res.json({ success: true, data: plan })
+    } catch (error) {
+      console.error("운동 계획 업데이트 실패:", error)
+      res.status(500).json({ error: "운동 계획 업데이트에 실패했습니다." })
+    }
+  }
+
+  async deleteWorkoutPlan(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.id
+      const { planId } = req.params
+      if (!userId) {
+        res.status(401).json({ error: "인증이 필요합니다." })
+        return
+      }
+
+      await this.workoutJournalService.deleteWorkoutPlan(
+        parseInt(planId),
+        userId
+      )
+      res.json({ success: true, message: "운동 계획이 삭제되었습니다." })
+    } catch (error) {
+      console.error("운동 계획 삭제 실패:", error)
+      res.status(500).json({ error: "운동 계획 삭제에 실패했습니다." })
+    }
+  }
+
   // 운동 세션 관련
   async getWorkoutSessions(req: Request, res: Response): Promise<void> {
     try {
@@ -104,6 +146,26 @@ export class WorkoutJournalController {
     }
   }
 
+  async deleteWorkoutSession(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.id
+      const { sessionId } = req.params
+      if (!userId) {
+        res.status(401).json({ error: "인증이 필요합니다." })
+        return
+      }
+
+      await this.workoutJournalService.deleteWorkoutSession(
+        parseInt(sessionId),
+        userId
+      )
+      res.json({ success: true, message: "운동 세션이 삭제되었습니다." })
+    } catch (error) {
+      console.error("운동 세션 삭제 실패:", error)
+      res.status(500).json({ error: "운동 세션 삭제에 실패했습니다." })
+    }
+  }
+
   // 운동 목표 관련
   async getWorkoutGoals(req: Request, res: Response): Promise<void> {
     try {
@@ -160,6 +222,26 @@ export class WorkoutJournalController {
     } catch (error) {
       console.error("운동 목표 업데이트 실패:", error)
       res.status(500).json({ error: "운동 목표 업데이트에 실패했습니다." })
+    }
+  }
+
+  async deleteWorkoutGoal(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.id
+      const { goalId } = req.params
+      if (!userId) {
+        res.status(401).json({ error: "인증이 필요합니다." })
+        return
+      }
+
+      await this.workoutJournalService.deleteWorkoutGoal(
+        parseInt(goalId),
+        userId
+      )
+      res.json({ success: true, message: "운동 목표가 삭제되었습니다." })
+    } catch (error) {
+      console.error("운동 목표 삭제 실패:", error)
+      res.status(500).json({ error: "운동 목표 삭제에 실패했습니다." })
     }
   }
 

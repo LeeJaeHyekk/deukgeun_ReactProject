@@ -118,12 +118,31 @@ export const grantExp = async (req: Request, res: Response) => {
         data: {
           expGained: result.expGained,
           levelUp: result.levelUp,
+          level: result.level,
+          currentExp: result.currentExp,
+          totalExp: result.totalExp,
+          leveledUp: result.leveledUp,
+          rewards: result.rewards,
+          cooldownInfo: result.cooldownInfo,
+          dailyLimitInfo: result.dailyLimitInfo,
         },
       })
     } else {
+      // 실패 이유에 따른 메시지 설정
+      let message = "경험치를 부여할 수 없습니다."
+      if (result.cooldownInfo?.isOnCooldown) {
+        message = `쿨다운 중입니다. ${Math.ceil(result.cooldownInfo.remainingTime / 1000)}초 후 다시 시도해주세요.`
+      } else if (result.dailyLimitInfo && !result.dailyLimitInfo.withinLimit) {
+        message = `일일 경험치 한도(${result.dailyLimitInfo.limit} EXP)를 초과했습니다.`
+      }
+
       res.status(400).json({
         success: false,
-        message: "경험치를 부여할 수 없습니다. (쿨다운 또는 한도 초과)",
+        message,
+        data: {
+          cooldownInfo: result.cooldownInfo,
+          dailyLimitInfo: result.dailyLimitInfo,
+        },
       })
     }
   } catch (error) {

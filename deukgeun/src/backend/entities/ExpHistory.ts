@@ -7,6 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
+import type { ExpActionType } from "../../shared/types"
 import { User } from "./User"
 
 @Entity("exp_history")
@@ -18,9 +19,22 @@ export class ExpHistory {
   @Index()
   userId!: number
 
-  @Column({ type: "varchar", length: 50 })
+  @Column({
+    type: "enum",
+    enum: [
+      "workout_complete",
+      "workout_streak",
+      "goal_achieved",
+      "post_created",
+      "comment_created",
+      "like_received",
+      "daily_login",
+      "weekly_challenge",
+      "monthly_milestone",
+    ],
+  })
   @Index()
-  actionType!: string
+  actionType!: ExpActionType
 
   @Column({ type: "int" })
   expGained!: number
@@ -30,6 +44,16 @@ export class ExpHistory {
 
   @Column({ type: "json", nullable: true })
   metadata?: Record<string, unknown>
+
+  // 추가 정보
+  @Column({ type: "int", nullable: true })
+  levelBefore?: number
+
+  @Column({ type: "int", nullable: true })
+  levelAfter?: number
+
+  @Column({ type: "boolean", default: false })
+  isLevelUp!: boolean
 
   @CreateDateColumn()
   @Index()

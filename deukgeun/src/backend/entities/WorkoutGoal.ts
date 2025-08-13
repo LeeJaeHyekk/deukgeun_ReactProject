@@ -13,61 +13,47 @@ import { User } from "./User"
 @Entity("workout_goals")
 export class WorkoutGoal {
   @PrimaryGeneratedColumn()
-  goal_id!: number
+  id!: number
 
   @Column({ type: "int" })
   @Index()
-  user_id!: number
+  userId!: number
+
+  @Column({ type: "varchar", length: 255 })
+  title!: string
+
+  @Column({ type: "text", nullable: true })
+  description?: string
 
   @Column({
     type: "enum",
-    enum: [
-      "weight_lift",
-      "endurance",
-      "weight_loss",
-      "muscle_gain",
-      "strength",
-      "flexibility",
-    ],
+    enum: ["weight", "reps", "duration", "frequency", "streak"],
   })
-  goal_type!:
-    | "weight_lift"
-    | "endurance"
-    | "weight_loss"
-    | "muscle_gain"
-    | "strength"
-    | "flexibility"
+  type!: "weight" | "reps" | "duration" | "frequency" | "streak"
 
   @Column({ type: "decimal", precision: 10, scale: 2 })
-  target_value!: number
+  targetValue!: number
 
   @Column({ type: "decimal", precision: 10, scale: 2, default: 0 })
-  current_value!: number
+  currentValue!: number
 
   @Column({ type: "varchar", length: 50 })
   unit!: string
 
-  @Column({ type: "date" })
-  target_date!: Date
+  @Column({ type: "date", nullable: true })
+  deadline?: Date
 
-  @Column({ type: "date" })
-  start_date!: Date
+  @Column({ type: "boolean", default: false })
+  isCompleted!: boolean
 
-  @Column({
-    type: "enum",
-    enum: ["active", "completed", "paused", "cancelled"],
-    default: "active",
-  })
-  status!: "active" | "completed" | "paused" | "cancelled"
-
-  @Column({ type: "decimal", precision: 5, scale: 2, default: 0 })
-  progress_percentage!: number
+  @Column({ type: "datetime", nullable: true })
+  completedAt?: Date
 
   @CreateDateColumn()
-  created_at!: Date
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updated_at!: Date
+  updatedAt!: Date
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })

@@ -1,4 +1,4 @@
-import { Machine } from "../types/machine"
+import type { Machine } from "../../../types"
 import {
   IMAGE_MATCHING_CONFIG,
   ImageMatchingManager,
@@ -15,13 +15,12 @@ export function findMatchingImage(machine: Machine): string {
   // 디버깅을 위한 로그 추가
   console.log("🔍 findMatchingImage 호출:", {
     id: machine.id,
-    name_ko: machine.name_ko,
-    name_en: machine.name_en,
-    image_url: machine.image_url,
+    name: machine.name,
+    imageUrl: machine.imageUrl,
   })
 
   // 캐시 키 생성
-  const cacheKey = `${machine.id}-${machine.name_ko}-${machine.name_en || ""}-${machine.image_url || ""}`
+  const cacheKey = `${machine.id}-${machine.name}-${machine.imageUrl || ""}`
 
   // 캐시된 결과가 있으면 반환
   if (imageCache.has(cacheKey)) {
@@ -33,19 +32,18 @@ export function findMatchingImage(machine: Machine): string {
 
   // 1. DB에 이미지 URL이 있고 기본값이 아닌 경우 우선 사용
   if (
-    machine.image_url &&
-    machine.image_url !== IMAGE_MATCHING_CONFIG.defaultImage
+    machine.imageUrl &&
+    machine.imageUrl !== IMAGE_MATCHING_CONFIG.defaultImage
   ) {
-    console.log("📸 DB 이미지 URL 사용:", machine.image_url)
-    result = machine.image_url
+    console.log("📸 DB 이미지 URL 사용:", machine.imageUrl)
+    result = machine.imageUrl
   } else {
-    const machineName = machine.name_ko.toLowerCase().trim()
-    const machineNameEn = machine.name_en?.toLowerCase().trim() || ""
+    const machineName = machine.name.toLowerCase().trim()
 
-    console.log("🔍 로컬 이미지 매칭 시도:", { machineName, machineNameEn })
+    console.log("🔍 로컬 이미지 매칭 시도:", { machineName })
 
     // 2. img/machine 폴더에서 기구 이름이 포함된 이미지 찾기
-    const matchedImage = findImageByMachineName(machineName, machineNameEn)
+    const matchedImage = findImageByMachineName(machineName, "")
     if (matchedImage) {
       console.log("✅ 로컬 이미지 매칭 성공:", matchedImage)
       result = matchedImage
@@ -56,19 +54,9 @@ export function findMatchingImage(machine: Machine): string {
     }
   }
 
-  console.log("🎯 최종 이미지 경로:", result)
-
   // 결과를 캐시에 저장
   imageCache.set(cacheKey, result)
-
-  // 캐시 크기 제한 (메모리 누수 방지)
-  if (imageCache.size > 1000) {
-    const firstKey = imageCache.keys().next().value
-    if (firstKey) {
-      imageCache.delete(firstKey)
-    }
-  }
-
+  console.log("🎯 최종 이미지 경로:", result)
   return result
 }
 

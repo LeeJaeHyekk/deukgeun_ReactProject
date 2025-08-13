@@ -31,6 +31,13 @@ export interface ExpGrantResponse {
   success: boolean
   expGained: number
   levelUp?: boolean
+  level?: number
+  currentExp?: number
+  totalExp?: number
+  leveledUp?: boolean
+  cooldownInfo?: { isOnCooldown: boolean; remainingTime: number }
+  dailyLimitInfo?: { withinLimit: boolean; dailyExp: number; limit: number }
+  rewards?: UserReward[]
 }
 
 export const levelApi = {

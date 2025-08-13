@@ -1,0 +1,680 @@
+.workout-journal-page {
+  min-height: 100vh;
+  font-family: "Pretendard", sans-serif;
+  background: linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%);
+  padding-top: 84px; /* 네비게이션 높이 + 여백 */
+  color: #fff;
+}
+
+.workout-journal-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.workout-journal-header {
+  text-align: center;
+  color: white;
+  margin-bottom: 40px;
+  animation: fadeInUp 1s ease-out;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.workout-journal-header h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.workout-journal-header p {
+  font-size: 1.3rem;
+  opacity: 0.9;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.workout-journal-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tab-button {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 15px;
+  background: transparent;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Pretendard", sans-serif;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.tab-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.tab-button.active {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  transform: translateY(-2px);
+}
+
+.workout-journal-content {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 25px;
+  padding: 40px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 전역 에러 메시지 */
+.global-error-message {
+  background: rgba(244, 67, 54, 0.9);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.global-error-message p {
+  margin: 0;
+  font-weight: 500;
+}
+
+.global-error-message button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.global-error-message button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 에러 메시지 */
+.error-message {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message button {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.error-message button:hover {
+  background: #d32f2f;
+}
+
+/* 개요 섹션 */
+.overview-section {
+  display: grid;
+  gap: 40px;
+}
+
+.overview-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.stat-card:hover::before {
+  transform: translateX(100%);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(245, 158, 11, 0.4);
+}
+
+.stat-card h3 {
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  opacity: 0.9;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  color: #fff;
+}
+
+.overview-widgets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+}
+
+.widget {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.widget:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+.widget h3 {
+  margin-bottom: 25px;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 600;
+  border-bottom: 2px solid #f59e0b;
+  padding-bottom: 10px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.widget p {
+  color: rgba(255, 255, 255, 0.7);
+  margin: 8px 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* 섹션 공통 스타일 */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-header h2 {
+  color: #fff;
+  font-size: 2rem;
+  margin: 0;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.create-plan-button,
+.start-session-button,
+.create-goal-button {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 15px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Pretendard", sans-serif;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.create-plan-button:hover,
+.start-session-button:hover,
+.create-goal-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+
+/* 운동 계획 섹션 */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+}
+
+/* 운동 세션 섹션 */
+.sessions-list {
+  display: grid;
+  gap: 20px;
+}
+
+.session-item {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  border-left: 5px solid #f59e0b;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.delete-session-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.delete-session-button:hover {
+  background: #d32f2f;
+}
+
+.session-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.session-item h3 {
+  margin-bottom: 15px;
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.session-item p {
+  margin: 8px 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 25px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.status-badge.completed {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
+}
+
+.status-badge.in_progress {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+}
+
+.status-badge.paused {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
+}
+
+.status-badge.cancelled {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
+}
+
+/* 목표 섹션 */
+.goals-list {
+  display: grid;
+  gap: 25px;
+}
+
+.goal-item {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.delete-goal-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.delete-goal-button:hover {
+  background: #d32f2f;
+}
+
+.goal-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.goal-item h3 {
+  margin-bottom: 20px;
+  color: #fff;
+  text-transform: capitalize;
+  font-size: 1.4rem;
+  font-weight: 600;
+  border-bottom: 2px solid #f59e0b;
+  padding-bottom: 10px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.goal-item p {
+  margin: 10px 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* 진행 상황 섹션 */
+.progress-section h2 {
+  margin-bottom: 35px;
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  border-bottom: 2px solid #f59e0b;
+  padding-bottom: 15px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.progress-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 35px;
+  margin-bottom: 40px;
+}
+
+.chart-container {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.chart-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+.chart-container h3 {
+  margin-bottom: 25px;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 600;
+  border-bottom: 2px solid #f59e0b;
+  padding-bottom: 10px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 인증 필요 메시지 */
+.workout-journal-auth-required {
+  text-align: center;
+  color: white;
+  padding: 80px 20px;
+  animation: fadeInUp 1s ease-out;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 40px 20px;
+}
+
+.workout-journal-auth-required h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.workout-journal-auth-required p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* 에러 메시지 */
+.error-message {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  color: #dc2626;
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  margin: 25px 0;
+  border: 1px solid #fecaca;
+  box-shadow: 0 5px 15px rgba(220, 38, 38, 0.1);
+  font-weight: 500;
+}
+
+/* 애니메이션 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .workout-journal-container {
+    padding: 30px 15px;
+  }
+
+  .workout-journal-header h1 {
+    font-size: 3rem;
+  }
+
+  .overview-stats {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .overview-widgets {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .plans-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  .progress-charts {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .workout-journal-container {
+    padding: 20px 15px;
+  }
+
+  .workout-journal-header h1 {
+    font-size: 2.5rem;
+  }
+
+  .workout-journal-header p {
+    font-size: 1.1rem;
+  }
+
+  .workout-journal-tabs {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .tab-button {
+    padding: 12px 20px;
+    font-size: 1rem;
+  }
+
+  .workout-journal-content {
+    padding: 25px;
+  }
+
+  .overview-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-widgets {
+    grid-template-columns: 1fr;
+  }
+
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .progress-charts {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
+  }
+
+  .section-header h2 {
+    font-size: 1.8rem;
+  }
+
+  .create-plan-button,
+  .start-session-button,
+  .create-goal-button {
+    padding: 12px 24px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .workout-journal-header h1 {
+    font-size: 2rem;
+  }
+
+  .workout-journal-header p {
+    font-size: 1rem;
+  }
+
+  .workout-journal-tabs {
+    padding: 10px;
+  }
+
+  .tab-button {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+
+  .workout-journal-content {
+    padding: 20px;
+  }
+
+  .stat-card {
+    padding: 20px;
+  }
+
+  .stat-number {
+    font-size: 2.5rem;
+  }
+
+  .widget {
+    padding: 20px;
+  }
+
+  .session-item,
+  .goal-item {
+    padding: 20px;
+  }
+
+  .chart-container {
+    padding: 20px;
+  }
+}

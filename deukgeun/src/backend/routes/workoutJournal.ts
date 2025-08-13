@@ -17,6 +17,14 @@ router.post(
   "/plans",
   workoutJournalController.createWorkoutPlan.bind(workoutJournalController)
 )
+router.put(
+  "/plans/:planId",
+  workoutJournalController.updateWorkoutPlan.bind(workoutJournalController)
+)
+router.delete(
+  "/plans/:planId",
+  workoutJournalController.deleteWorkoutPlan.bind(workoutJournalController)
+)
 
 // 운동 세션 관련 라우트
 router.get(
@@ -31,6 +39,10 @@ router.put(
   "/sessions/:sessionId",
   workoutJournalController.updateWorkoutSession.bind(workoutJournalController)
 )
+router.delete(
+  "/sessions/:sessionId",
+  workoutJournalController.deleteWorkoutSession.bind(workoutJournalController)
+)
 
 // 운동 목표 관련 라우트
 router.get(
@@ -44,6 +56,10 @@ router.post(
 router.put(
   "/goals/:goalId",
   workoutJournalController.updateWorkoutGoal.bind(workoutJournalController)
+)
+router.delete(
+  "/goals/:goalId",
+  workoutJournalController.deleteWorkoutGoal.bind(workoutJournalController)
 )
 
 // 운동 통계 관련 라우트

@@ -7,6 +7,15 @@ export function useLevel() {
   const { user, isLoggedIn } = useAuth()
   const [levelProgress, setLevelProgress] = useState<LevelProgress | null>(null)
   const [rewards, setRewards] = useState<UserReward[]>([])
+  const [cooldownInfo, setCooldownInfo] = useState<{
+    isOnCooldown: boolean
+    remainingTime: number
+  } | null>(null)
+  const [dailyLimitInfo, setDailyLimitInfo] = useState<{
+    withinLimit: boolean
+    dailyExp: number
+    limit: number
+  } | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -63,9 +72,29 @@ export function useLevel() {
         })
 
         if (result.success) {
+          // 쿨다운 정보 업데이트
+          if (result.cooldownInfo) {
+            setCooldownInfo(result.cooldownInfo)
+          }
+
+          // 일일 한도 정보 업데이트
+          if (result.dailyLimitInfo) {
+            setDailyLimitInfo(result.dailyLimitInfo)
+          }
+
           // 레벨업 시 알림
           if (result.levelUp) {
             showToast("🎉 레벨업! 축하합니다!", "success")
+          }
+
+          // 보상 획득 시 알림
+          if (result.rewards && result.rewards.length > 0) {
+            result.rewards.forEach(reward => {
+              showToast(
+                `🎁 ${reward.metadata?.name || "보상"} 획득!`,
+                "success"
+              )
+            })
           }
 
           // 진행률 새로고침
@@ -74,11 +103,36 @@ export function useLevel() {
 
           return result
         } else {
-          showToast(
-            "경험치를 획득할 수 없습니다. (쿨다운 또는 한도 초과)",
-            "warning"
-          )
-          return null
+          // 실패 이유에 따른 메시지
+          if (result.cooldownInfo?.isOnCooldown) {
+            const remainingSeconds = Math.ceil(
+              result.cooldownInfo.remainingTime / 1000
+            )
+            showToast(
+              `쿨다운 중입니다. ${remainingSeconds}초 후 다시 시도해주세요.`,
+              "warning"
+            )
+          } else if (
+            result.dailyLimitInfo &&
+            !result.dailyLimitInfo.withinLimit
+          ) {
+            showToast(
+              `일일 경험치 한도(${result.dailyLimitInfo.limit} EXP)를 초과했습니다.`,
+              "warning"
+            )
+          } else {
+            showToast("경험치를 획득할 수 없습니다.", "warning")
+          }
+
+          // 쿨다운 및 한도 정보 업데이트
+          if (result.cooldownInfo) {
+            setCooldownInfo(result.cooldownInfo)
+          }
+          if (result.dailyLimitInfo) {
+            setDailyLimitInfo(result.dailyLimitInfo)
+          }
+
+          return result
         }
       } catch (err) {
         console.error("경험치 부여 실패:", err)
@@ -154,6 +208,8 @@ export function useLevel() {
     // 상태
     levelProgress,
     rewards,
+    cooldownInfo,
+    dailyLimitInfo,
     isLoading,
     error,
 

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { Machine } from "../types/machine"
+import type { Machine } from "../../../types"
 import {
   findMatchingImage,
   getFullImageUrl,
@@ -39,12 +39,14 @@ export const MachineCard: React.FC<MachineCardProps> = React.memo(
 
     const getDifficultyColor = (difficulty?: string) => {
       switch (difficulty) {
-        case "초급":
+        case "beginner":
           return "#4CAF50"
-        case "중급":
+        case "intermediate":
           return "#FF9800"
-        case "고급":
+        case "advanced":
           return "#F44336"
+        case "expert":
+          return "#9C27B0"
         default:
           return "#9E9E9E"
       }
@@ -52,14 +54,18 @@ export const MachineCard: React.FC<MachineCardProps> = React.memo(
 
     const getCategoryColor = (category: string) => {
       switch (category) {
-        case "상체":
+        case "strength":
           return "#2196F3"
-        case "하체":
+        case "cardio":
           return "#4CAF50"
-        case "전신":
+        case "flexibility":
           return "#9C27B0"
-        case "기타":
+        case "balance":
           return "#FF9800"
+        case "functional":
+          return "#607D8B"
+        case "rehabilitation":
+          return "#795548"
         default:
           return "#9E9E9E"
       }
@@ -76,7 +82,7 @@ export const MachineCard: React.FC<MachineCardProps> = React.memo(
         <div className="machine-card-image">
           <img
             src={imageUrl}
-            alt={machine.name_ko}
+            alt={machine.name}
             onError={handleImageError}
             loading="lazy" // 지연 로딩으로 성능 최적화
           />
@@ -87,31 +93,30 @@ export const MachineCard: React.FC<MachineCardProps> = React.memo(
             >
               {machine.category}
             </div>
-            {machine.difficulty_level && (
+            {machine.difficulty && (
               <div
                 className="machine-card-difficulty"
                 style={{
-                  backgroundColor: getDifficultyColor(machine.difficulty_level),
+                  backgroundColor: getDifficultyColor(machine.difficulty),
                 }}
               >
-                {machine.difficulty_level}
+                {machine.difficulty}
               </div>
             )}
           </div>
         </div>
 
         <div className="machine-card-content">
-          <h3 className="machine-card-title">{machine.name_ko}</h3>
-          {machine.name_en && (
-            <p className="machine-card-subtitle">{machine.name_en}</p>
-          )}
-          <p className="machine-card-description">{machine.short_desc}</p>
+          <h3 className="machine-card-title">{machine.name}</h3>
+          <p className="machine-card-description">
+            {machine.description || ""}
+          </p>
 
-          {machine.target_muscle && machine.target_muscle.length > 0 && (
+          {machine.targetMuscles && machine.targetMuscles.length > 0 && (
             <div className="machine-card-targets">
               <span className="machine-card-target-label">타겟 근육:</span>
               <div className="machine-card-target-list">
-                {machine.target_muscle.map((muscle, index) => (
+                {machine.targetMuscles.map((muscle, index) => (
                   <span key={index} className="machine-card-target-tag">
                     {muscle}
                   </span>
@@ -124,16 +129,18 @@ export const MachineCard: React.FC<MachineCardProps> = React.memo(
         {showActions && (
           <div className="machine-card-actions">
             <button
-              className="machine-card-action-btn machine-card-edit-btn"
+              className="machine-card-action-btn edit"
               onClick={handleEdit}
+              title="편집"
             >
-              수정
+              ✏️
             </button>
             <button
-              className="machine-card-action-btn machine-card-delete-btn"
+              className="machine-card-action-btn delete"
               onClick={handleDelete}
+              title="삭제"
             >
-              삭제
+              🗑️
             </button>
           </div>
         )}

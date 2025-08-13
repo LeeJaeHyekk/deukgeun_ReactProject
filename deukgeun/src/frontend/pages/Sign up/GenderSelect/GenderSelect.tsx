@@ -18,22 +18,39 @@ export const GenderSelect = ({ value, onChange, error }: GenderSelectProps) => {
     setIsOpen(false)
   }
 
+  // 한글 표시를 위한 매핑
+  const getDisplayText = (genderValue: string) => {
+    switch (genderValue) {
+      case "male":
+        return "남자"
+      case "female":
+        return "여자"
+      case "other":
+        return "기타"
+      default:
+        return "성별 선택"
+    }
+  }
+
   return (
     <div className={styles.wrapper}>
       <div
         className={`${styles.selector} ${error ? styles.selectorError : ""}`}
         onClick={toggleOptions}
       >
-        <span>{value || "성별 선택"}</span>
+        <span>{getDisplayText(value)}</span>
         <FaChevronDown className={styles.icon} />
       </div>
       {isOpen && (
         <div className={styles.optionsOverlay}>
-          <div className={styles.option} onClick={() => handleSelect("남자")}>
+          <div className={styles.option} onClick={() => handleSelect("male")}>
             남자
           </div>
-          <div className={styles.option} onClick={() => handleSelect("여자")}>
+          <div className={styles.option} onClick={() => handleSelect("female")}>
             여자
+          </div>
+          <div className={styles.option} onClick={() => handleSelect("other")}>
+            기타
           </div>
         </div>
       )}

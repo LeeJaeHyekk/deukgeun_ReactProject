@@ -20,15 +20,42 @@ export class WorkoutJournalService {
     const planRepository = getRepository(WorkoutPlan)
     const plan = planRepository.create({
       user_id: userId,
-      name: planData.name,
+      plan_name: planData.plan_name,
       description: planData.description,
-      difficulty_level: planData.difficulty_level || "beginner",
+      difficulty: planData.difficulty || "beginner",
       estimated_duration_minutes: planData.estimated_duration_minutes,
       target_muscle_groups: planData.target_muscle_groups || [],
       is_template: planData.is_template || false,
       is_public: planData.is_public || false,
     })
     return await planRepository.save(plan)
+  }
+
+  async updateWorkoutPlan(planId: number, userId: number, updateData: any) {
+    const planRepository = getRepository(WorkoutPlan)
+    const plan = await planRepository.findOne({
+      where: { plan_id: planId, user_id: userId },
+    })
+
+    if (!plan) {
+      throw new Error("운동 계획을 찾을 수 없습니다.")
+    }
+
+    Object.assign(plan, updateData)
+    return await planRepository.save(plan)
+  }
+
+  async deleteWorkoutPlan(planId: number, userId: number) {
+    const planRepository = getRepository(WorkoutPlan)
+    const plan = await planRepository.findOne({
+      where: { plan_id: planId, user_id: userId },
+    })
+
+    if (!plan) {
+      throw new Error("운동 계획을 찾을 수 없습니다.")
+    }
+
+    await planRepository.remove(plan)
   }
 
   // 운동 세션 관련
@@ -75,27 +102,40 @@ export class WorkoutJournalService {
     return await sessionRepository.save(session)
   }
 
+  async deleteWorkoutSession(sessionId: number, userId: number) {
+    const sessionRepository = getRepository(WorkoutSession)
+    const session = await sessionRepository.findOne({
+      where: { session_id: sessionId, user_id: userId },
+    })
+
+    if (!session) {
+      throw new Error("운동 세션을 찾을 수 없습니다.")
+    }
+
+    await sessionRepository.remove(session)
+  }
+
   // 운동 목표 관련
   async getUserGoals(userId: number) {
     const goalRepository = getRepository(WorkoutGoal)
     return await goalRepository.find({
-      where: { user_id: userId },
-      order: { created_at: "DESC" },
+      where: { userId: userId },
+      order: { createdAt: "DESC" },
     })
   }
 
   async createWorkoutGoal(userId: number, goalData: any) {
     const goalRepository = getRepository(WorkoutGoal)
     const goal = goalRepository.create({
-      user_id: userId,
-      goal_type: goalData.goal_type,
-      target_value: goalData.target_value,
-      current_value: goalData.current_value || 0,
+      userId: userId,
+      title: goalData.title,
+      description: goalData.description,
+      type: goalData.type,
+      targetValue: goalData.targetValue,
+      currentValue: goalData.currentValue || 0,
       unit: goalData.unit,
-      target_date: new Date(goalData.target_date),
-      start_date: new Date(goalData.start_date || new Date()),
-      status: "active",
-      progress_percentage: 0,
+      deadline: goalData.deadline ? new Date(goalData.deadline) : undefined,
+      isCompleted: false,
     })
     return await goalRepository.save(goal)
   }
@@ -103,26 +143,33 @@ export class WorkoutJournalService {
   async updateWorkoutGoal(goalId: number, userId: number, updateData: any) {
     const goalRepository = getRepository(WorkoutGoal)
     const goal = await goalRepository.findOne({
-      where: { goal_id: goalId, user_id: userId },
+      where: { id: goalId, userId: userId },
     })
 
     if (!goal) {
       throw new Error("운동 목표를 찾을 수 없습니다.")
     }
 
-    // 진행률 계산
-    if (updateData.current_value !== undefined) {
-      const progress = (updateData.current_value / goal.target_value) * 100
-      updateData.progress_percentage = Math.min(progress, 100)
-
-      // 목표 달성 시 상태 변경
-      if (updateData.progress_percentage >= 100) {
-        updateData.status = "completed"
-      }
+    // 목표 달성 시 완료 시간 설정
+    if (updateData.isCompleted && !goal.isCompleted) {
+      updateData.completedAt = new Date()
     }
 
     Object.assign(goal, updateData)
     return await goalRepository.save(goal)
+  }
+
+  async deleteWorkoutGoal(goalId: number, userId: number) {
+    const goalRepository = getRepository(WorkoutGoal)
+    const goal = await goalRepository.findOne({
+      where: { id: goalId, userId: userId },
+    })
+
+    if (!goal) {
+      throw new Error("운동 목표를 찾을 수 없습니다.")
+    }
+
+    await goalRepository.remove(goal)
   }
 
   // 운동 통계 관련
@@ -165,9 +212,7 @@ export class WorkoutJournalService {
     const completedSessions = totalSessions.filter(
       s => s.status === "completed"
     )
-    const activeGoalsCount = activeGoals.filter(
-      g => g.status === "active"
-    ).length
+    const activeGoalsCount = activeGoals.filter(g => !g.isCompleted).length
 
     // 주간 운동 통계
     const oneWeekAgo = new Date()
@@ -209,7 +254,7 @@ export class WorkoutJournalService {
       weeklyStats,
       recentSessions,
       recentProgress,
-      activeGoals: activeGoals.filter(g => g.status === "active"),
+      activeGoals: activeGoals.filter(g => !g.isCompleted),
     }
   }
 

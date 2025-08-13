@@ -9,6 +9,8 @@ import { ProgressChart } from "./components/ProgressChart"
 import { GoalProgressBar } from "./components/GoalProgressBar"
 import { WorkoutPlanModal } from "./components/WorkoutPlanModal"
 import { WorkoutSessionModal } from "./components/WorkoutSessionModal"
+import { WorkoutGoalModal } from "./components/WorkoutGoalModal"
+import { WorkoutSectionModal } from "./components/WorkoutSectionModal"
 import { useWorkoutPlans } from "./hooks/useWorkoutPlans"
 import { useWorkoutSessions } from "./hooks/useWorkoutSessions"
 import { useWorkoutGoals } from "./hooks/useWorkoutGoals"
@@ -19,6 +21,7 @@ import {
   WorkoutPlan,
   WorkoutSession,
 } from "../../shared/api/workoutJournalApi"
+import type { WorkoutGoal, WorkoutPlanExercise } from "../../../types"
 import "./WorkoutJournalPage.css"
 
 type TabType = "overview" | "plans" | "sessions" | "goals" | "progress"
@@ -33,10 +36,15 @@ export default function WorkoutJournalPage() {
   // 모달 상태
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false)
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false)
+  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false)
+  const [isSectionModalOpen, setIsSectionModalOpen] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<WorkoutPlan | null>(null)
   const [selectedSession, setSelectedSession] = useState<WorkoutSession | null>(
     null
   )
+  const [selectedGoal, setSelectedGoal] = useState<WorkoutGoal | null>(null)
+  const [selectedExercise, setSelectedExercise] =
+    useState<WorkoutPlanExercise | null>(null)
 
   const {
     plans,
@@ -208,6 +216,73 @@ export default function WorkoutJournalPage() {
       }
     },
     [deleteSession, clearSessionsError]
+  )
+
+  // 목표 저장 핸들러
+  const handleGoalSave = useCallback(
+    async (goalData: Partial<WorkoutGoal>) => {
+      try {
+        if (selectedGoal) {
+          await updateGoal(selectedGoal.goal_id, goalData)
+        } else {
+          await createGoal(goalData)
+        }
+        setIsGoalModalOpen(false)
+        setSelectedGoal(null)
+        clearGoalsError()
+      } catch (error) {
+        console.error("목표 저장 실패:", error)
+        // 에러는 hook에서 처리됨
+      }
+    },
+    [selectedGoal, updateGoal, createGoal, clearGoalsError]
+  )
+
+  // 목표 편집 핸들러
+  const handleGoalEdit = useCallback((goal: WorkoutGoal) => {
+    setSelectedGoal(goal)
+    setIsGoalModalOpen(true)
+  }, [])
+
+  // 목표 삭제 핸들러
+  const handleGoalDelete = useCallback(
+    async (goalId: number) => {
+      if (window.confirm("정말로 이 운동 목표를 삭제하시겠습니까?")) {
+        try {
+          await deleteGoal(goalId)
+          clearGoalsError()
+        } catch (error) {
+          console.error("목표 삭제 실패:", error)
+          // 에러는 hook에서 처리됨
+        }
+      }
+    },
+    [deleteGoal, clearGoalsError]
+  )
+
+  // 운동 섹션 저장 핸들러
+  const handleSectionSave = useCallback(
+    async (exerciseData: Partial<WorkoutPlanExercise>) => {
+      try {
+        // 여기서는 운동 계획에 운동을 추가하는 로직이 필요
+        // 현재는 간단히 콘솔에 출력
+        console.log("운동 섹션 저장:", exerciseData)
+        setIsSectionModalOpen(false)
+        setSelectedExercise(null)
+      } catch (error) {
+        console.error("운동 섹션 저장 실패:", error)
+      }
+    },
+    []
+  )
+
+  // 운동 계획에서 섹션 추가 핸들러
+  const handleAddSectionToPlan = useCallback(
+    (exerciseData: Partial<WorkoutPlanExercise>) => {
+      setSelectedExercise(exerciseData as WorkoutPlanExercise)
+      setIsSectionModalOpen(true)
+    },
+    []
   )
 
   // 목표 생성 핸들러
@@ -498,8 +573,8 @@ export default function WorkoutJournalPage() {
                 <button
                   className="create-goal-button"
                   onClick={() => {
-                    // 목표 생성 모달 구현 필요
-                    console.log("목표 생성 기능 구현 필요")
+                    setSelectedGoal(null)
+                    setIsGoalModalOpen(true)
                   }}
                 >
                   새 목표 설정
@@ -525,18 +600,20 @@ export default function WorkoutJournalPage() {
                         현재: {goal.currentValue} {goal.unit}
                       </p>
                       <GoalProgressBar goal={goal} />
-                      <button
-                        className="delete-goal-button"
-                        onClick={() => {
-                          if (
-                            window.confirm("정말로 이 목표를 삭제하시겠습니까?")
-                          ) {
-                            deleteGoal(goal.id)
-                          }
-                        }}
-                      >
-                        삭제
-                      </button>
+                      <div className="goal-actions">
+                        <button
+                          className="edit-goal-button"
+                          onClick={() => handleGoalEdit(goal)}
+                        >
+                          수정
+                        </button>
+                        <button
+                          className="delete-goal-button"
+                          onClick={() => handleGoalDelete(goal.id)}
+                        >
+                          삭제
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -583,6 +660,7 @@ export default function WorkoutJournalPage() {
         onSave={handlePlanSave}
         plan={selectedPlan}
         machines={machines || []}
+        onAddSection={handleAddSectionToPlan}
       />
 
       <WorkoutSessionModal
@@ -595,6 +673,28 @@ export default function WorkoutJournalPage() {
         session={selectedSession}
         plan={selectedPlan}
         machines={machines || []}
+      />
+
+      <WorkoutGoalModal
+        isOpen={isGoalModalOpen}
+        onClose={() => {
+          setIsGoalModalOpen(false)
+          setSelectedGoal(null)
+        }}
+        onSave={handleGoalSave}
+        goal={selectedGoal}
+      />
+
+      <WorkoutSectionModal
+        isOpen={isSectionModalOpen}
+        onClose={() => {
+          setIsSectionModalOpen(false)
+          setSelectedExercise(null)
+        }}
+        onSave={handleSectionSave}
+        exercise={selectedExercise}
+        machines={machines || []}
+        planId={selectedPlan?.plan_id || 0}
       />
     </div>
   )

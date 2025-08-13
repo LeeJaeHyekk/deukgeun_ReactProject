@@ -13,6 +13,7 @@ interface WorkoutPlanModalProps {
   onSave: (plan: WorkoutPlan) => void
   plan?: WorkoutPlan | null
   machines: Machine[]
+  onAddSection?: (exercise: Partial<WorkoutPlanExercise>) => void
 }
 
 const DIFFICULTY_OPTIONS = [
@@ -30,6 +31,7 @@ export function WorkoutPlanModal({
   onSave,
   plan,
   machines,
+  onAddSection,
 }: WorkoutPlanModalProps) {
   const [formData, setFormData] = useState<WorkoutPlan>({
     id: 0,
@@ -72,23 +74,39 @@ export function WorkoutPlanModal({
 
   // 운동 추가
   const addExercise = () => {
-    const newExercise: WorkoutPlanExercise = {
-      id: 0,
-      planId: formData.id,
-      machineId: 0,
-      exerciseName: "",
-      order: formData.exercises?.length || 0,
-      sets: 3,
-      reps: 10,
-      weight: 0,
-      restTime: 60,
-      notes: "",
-    }
+    if (onAddSection) {
+      // 외부 섹션 모달을 사용하는 경우
+      onAddSection({
+        planId: formData.id,
+        machineId: 0,
+        exerciseName: "",
+        order: formData.exercises?.length || 0,
+        sets: 3,
+        reps: 10,
+        weight: 0,
+        restTime: 60,
+        notes: "",
+      })
+    } else {
+      // 내부에서 직접 추가하는 경우
+      const newExercise: WorkoutPlanExercise = {
+        id: 0,
+        planId: formData.id,
+        machineId: 0,
+        exerciseName: "",
+        order: formData.exercises?.length || 0,
+        sets: 3,
+        reps: 10,
+        weight: 0,
+        restTime: 60,
+        notes: "",
+      }
 
-    setFormData(prev => ({
-      ...prev,
-      exercises: [...(prev.exercises || []), newExercise],
-    }))
+      setFormData(prev => ({
+        ...prev,
+        exercises: [...(prev.exercises || []), newExercise],
+      }))
+    }
   }
 
   // 운동 제거
@@ -156,16 +174,16 @@ export function WorkoutPlanModal({
   if (!isOpen) return null
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="workout-plan-modal-overlay">
+      <div className="workout-plan-modal">
         <div className="modal-header">
           <h2>{plan ? "운동 계획 수정" : "새 운동 계획 만들기"}</h2>
-          <button onClick={onClose} className="close-button">
+          <button onClick={onClose} className="close-btn">
             <X size={24} />
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className="modal-content">
           {/* 기본 정보 */}
           <div className="form-section">
             <h3>기본 정보</h3>
@@ -371,10 +389,10 @@ export function WorkoutPlanModal({
         </div>
 
         <div className="modal-footer">
-          <button onClick={onClose} className="cancel-button">
+          <button onClick={onClose} className="cancel-btn">
             취소
           </button>
-          <button onClick={handleSave} className="save-button">
+          <button onClick={handleSave} className="save-btn">
             <Save size={16} />
             저장
           </button>

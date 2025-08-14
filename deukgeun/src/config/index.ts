@@ -37,12 +37,20 @@ export const appConfig: AppConfig = {
   database: databaseConfig,
   apiKeys: {
     kakao: process.env.KAKAO_API_KEY || "",
+    kakaoJavascript: process.env.KAKAO_JAVASCRIPT_KEY || "",
+    kakaoLocation: process.env.KAKAO_LOCATION_KEY || "",
+    kakaoRest: process.env.KAKAO_REST_API_KEY || "",
+    kakaoLocationAdmin: process.env.KAKAO_LOCATION_ADMIN_KEY || "",
     googlePlaces: process.env.GOOGLE_PLACES_API_KEY || "",
+    googleSecureSecret: process.env.GOOGLE_SECURE_SECRET || "",
     seoulOpenApi: process.env.SEOUL_OPENAPI_KEY || "",
+    gymApi: process.env.GYM_API_KEY || "",
   },
   security: {
     recaptchaSecret: process.env.RECAPTCHA_SECRET || "",
     recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || "",
+    accessTokenSecret: process.env.JWT_ACCESS_SECRET || "your-access-secret",
+    refreshTokenSecret: process.env.JWT_REFRESH_SECRET || "your-refresh-secret",
     rateLimitWindow: parseInt(process.env.RATE_LIMIT_WINDOW || "900000"),
     rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX || "100"),
   },
@@ -60,6 +68,15 @@ export const appConfig: AppConfig = {
   upload: {
     path: process.env.UPLOAD_PATH || "./uploads",
     maxFileSize: parseInt(process.env.MAX_FILE_SIZE || "5242880"),
+  },
+  scheduler: {
+    autoUpdateHour: parseInt(process.env.AUTO_UPDATE_HOUR || "2"),
+    autoUpdateMinute: parseInt(process.env.AUTO_UPDATE_MINUTE || "0"),
+    autoUpdateEnabled: process.env.AUTO_UPDATE_ENABLED === "true",
+    autoUpdateType: process.env.AUTO_UPDATE_TYPE || "daily",
+    autoUpdateIntervalDays: parseInt(
+      process.env.AUTO_UPDATE_INTERVAL_DAYS || "1"
+    ),
   },
 }
 

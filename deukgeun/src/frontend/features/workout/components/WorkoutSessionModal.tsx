@@ -20,18 +20,7 @@ interface WorkoutSessionModalProps {
   onClose: () => void
   onSave: (session: WorkoutSession) => void
   session?: WorkoutSession | null
-  plan?: {
-    id: number
-    name: string
-    exercises: Array<{
-      machineId: number
-      machineName: string
-      sets: number
-      reps: number
-      weight?: number
-      restSeconds: number
-    }>
-  } | null
+  plan?: any | null
   machines: Machine[]
 }
 
@@ -221,7 +210,7 @@ export function WorkoutSessionModal({
           {/* 운동 목록 */}
           <div className="exercises-section">
             <h3>운동 목록</h3>
-            {plan?.exercises?.map((exercise, index) => {
+            {plan?.exercises?.map((exercise: any, index: number) => {
               const machine = machines.find(m => m.id === exercise.machineId)
               return (
                 <div

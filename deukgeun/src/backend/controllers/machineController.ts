@@ -181,8 +181,13 @@ export const deleteMachine = async (req: Request, res: Response) => {
 export const filterMachines = async (req: Request, res: Response) => {
   try {
     const filters: MachineFilterQuery = {
-      category: req.query.category as string,
-      difficulty: req.query.difficulty as string,
+      category: req.query.category as
+        | "상체"
+        | "하체"
+        | "전신"
+        | "기타"
+        | undefined,
+      difficulty: req.query.difficulty as "초급" | "중급" | "고급" | undefined,
       target: req.query.target as string,
     }
 

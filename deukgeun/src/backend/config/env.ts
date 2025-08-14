@@ -44,14 +44,22 @@ const jwtConfig: JWTConfig = {
 // API 키 설정
 const apiKeyConfig: ApiKeyConfig = {
   kakao: process.env.KAKAO_API_KEY || "",
+  kakaoJavascript: process.env.KAKAO_JAVASCRIPT_MAP_API_KEY || "",
+  kakaoLocation: process.env.KAKAO_Location_MobileMapApiKey || "",
+  kakaoRest: process.env.KAKAO_REST_MAP_API_KEY || "",
+  kakaoLocationAdmin: process.env.KAKAO_Location_AdminMapKey || "",
   googlePlaces: process.env.GOOGLE_PLACES_API_KEY || "",
+  googleSecureSecret: process.env.GOOGLE_secure_secret_generator || "",
   seoulOpenApi: process.env.SEOUL_OPENAPI_KEY || "",
+  gymApi: process.env.VITE_GYM_API_KEY || "",
 }
 
 // 보안 설정
 const securityConfig: SecurityConfig = {
   recaptchaSecret: process.env.RECAPTCHA_SECRET || "",
   recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || "",
+  accessTokenSecret: process.env.ACCESS_TOKEN_SECRET || "yourAccessSecret",
+  refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET || "yourRefreshSecret",
   rateLimitWindow: parseInt(process.env.RATE_LIMIT_WINDOW || "900000"), // 15분
   rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX || "100"),
 }
@@ -77,6 +85,17 @@ const uploadConfig: UploadConfig = {
   maxFileSize: parseInt(process.env.MAX_FILE_SIZE || "5242880"), // 5MB
 }
 
+// 스케줄러 설정
+const schedulerConfig = {
+  autoUpdateHour: parseInt(process.env.AUTO_UPDATE_HOUR || "6"),
+  autoUpdateMinute: parseInt(process.env.AUTO_UPDATE_MINUTE || "0"),
+  autoUpdateEnabled: process.env.AUTO_UPDATE_ENABLED === "true",
+  autoUpdateType: process.env.AUTO_UPDATE_TYPE || "enhanced",
+  autoUpdateIntervalDays: parseInt(
+    process.env.AUTO_UPDATE_INTERVAL_DAYS || "3"
+  ),
+}
+
 // 애플리케이션 설정
 export const appConfig: AppConfig = {
   environment,
@@ -89,6 +108,7 @@ export const appConfig: AppConfig = {
   email: emailConfig,
   sms: smsConfig,
   upload: uploadConfig,
+  scheduler: schedulerConfig,
 }
 
 // 레거시 호환성을 위한 개별 설정 내보내기
@@ -106,10 +126,18 @@ export const {
   JWT_REFRESH_SECRET,
   CORS_ORIGIN,
   KAKAO_API_KEY,
+  KAKAO_JAVASCRIPT_MAP_API_KEY,
+  KAKAO_Location_MobileMapApiKey,
+  KAKAO_REST_MAP_API_KEY,
+  KAKAO_Location_AdminMapKey,
   GOOGLE_PLACES_API_KEY,
+  GOOGLE_secure_secret_generator,
   SEOUL_OPENAPI_KEY,
+  VITE_GYM_API_KEY,
   RECAPTCHA_SECRET,
   RECAPTCHA_SITE_KEY,
+  ACCESS_TOKEN_SECRET,
+  REFRESH_TOKEN_SECRET,
   EMAIL_HOST,
   EMAIL_PORT,
   EMAIL_USER,
@@ -121,6 +149,11 @@ export const {
   MAX_FILE_SIZE,
   RATE_LIMIT_WINDOW,
   RATE_LIMIT_MAX,
+  AUTO_UPDATE_HOUR,
+  AUTO_UPDATE_MINUTE,
+  AUTO_UPDATE_ENABLED,
+  AUTO_UPDATE_TYPE,
+  AUTO_UPDATE_INTERVAL_DAYS,
 } = {
   PORT: process.env.PORT || "5000",
   NODE_ENV: process.env.NODE_ENV || "development",
@@ -135,10 +168,20 @@ export const {
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "your-refresh-secret",
   CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:5173",
   KAKAO_API_KEY: process.env.KAKAO_API_KEY || "",
+  KAKAO_JAVASCRIPT_MAP_API_KEY: process.env.KAKAO_JAVASCRIPT_MAP_API_KEY || "",
+  KAKAO_Location_MobileMapApiKey:
+    process.env.KAKAO_Location_MobileMapApiKey || "",
+  KAKAO_REST_MAP_API_KEY: process.env.KAKAO_REST_MAP_API_KEY || "",
+  KAKAO_Location_AdminMapKey: process.env.KAKAO_Location_AdminMapKey || "",
   GOOGLE_PLACES_API_KEY: process.env.GOOGLE_PLACES_API_KEY || "",
+  GOOGLE_secure_secret_generator:
+    process.env.GOOGLE_secure_secret_generator || "",
   SEOUL_OPENAPI_KEY: process.env.SEOUL_OPENAPI_KEY || "",
+  VITE_GYM_API_KEY: process.env.VITE_GYM_API_KEY || "",
   RECAPTCHA_SECRET: process.env.RECAPTCHA_SECRET || "",
   RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY || "",
+  ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET || "yourAccessSecret",
+  REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET || "yourRefreshSecret",
   EMAIL_HOST: process.env.EMAIL_HOST || "smtp.gmail.com",
   EMAIL_PORT: parseInt(process.env.EMAIL_PORT || "587"),
   EMAIL_USER: process.env.EMAIL_USER || "",
@@ -150,6 +193,13 @@ export const {
   MAX_FILE_SIZE: parseInt(process.env.MAX_FILE_SIZE || "5242880"),
   RATE_LIMIT_WINDOW: parseInt(process.env.RATE_LIMIT_WINDOW || "900000"),
   RATE_LIMIT_MAX: parseInt(process.env.RATE_LIMIT_MAX || "100"),
+  AUTO_UPDATE_HOUR: parseInt(process.env.AUTO_UPDATE_HOUR || "6"),
+  AUTO_UPDATE_MINUTE: parseInt(process.env.AUTO_UPDATE_MINUTE || "0"),
+  AUTO_UPDATE_ENABLED: process.env.AUTO_UPDATE_ENABLED === "true",
+  AUTO_UPDATE_TYPE: process.env.AUTO_UPDATE_TYPE || "enhanced",
+  AUTO_UPDATE_INTERVAL_DAYS: parseInt(
+    process.env.AUTO_UPDATE_INTERVAL_DAYS || "3"
+  ),
 }
 
 // 기존 코드와의 호환성을 위해 config 별칭 제공

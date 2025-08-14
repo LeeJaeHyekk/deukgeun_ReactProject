@@ -56,7 +56,7 @@ async function loginAndGetToken() {
     console.log("✅ 로그인 성공, 토큰 획득")
     return authToken
   } catch (error) {
-    console.error("❌ 로그인 실패:", error.response?.data || error.message)
+    console.error("❌ 로그인 실패:", (error as any).response?.data || (error as Error).message)
     throw error
   }
 }
@@ -79,7 +79,7 @@ async function testGetUserLevel() {
   } catch (error) {
     console.error(
       "❌ 레벨 정보 조회 실패:",
-      error.response?.data || error.message
+      (error as any).response?.data || (error as Error).message
     )
     throw error
   }
@@ -112,7 +112,7 @@ async function testGrantExp(action: string, reason: string, data?: any) {
   } catch (error) {
     console.error(
       `❌ 경험치 부여 실패 (${action}/${reason}):`,
-      error.response?.data || error.message
+      (error as any).response?.data || (error as Error).message
     )
     throw error
   }
@@ -139,7 +139,7 @@ async function testCooldown(action: string) {
   } catch (error) {
     console.error(
       `❌ 쿨다운 확인 실패 (${action}):`,
-      error.response?.data || error.message
+      (error as any).response?.data || (error as Error).message
     )
     throw error
   }
@@ -171,7 +171,7 @@ async function testLeaderboard() {
   } catch (error) {
     console.error(
       "❌ 리더보드 조회 실패:",
-      error.response?.data || error.message
+      (error as any).response?.data || (error as Error).message
     )
     throw error
   }
@@ -197,7 +197,7 @@ async function testRewards() {
   } catch (error) {
     console.error(
       "❌ 보상 목록 조회 실패:",
-      error.response?.data || error.message
+      (error as any).response?.data || (error as Error).message
     )
     throw error
   }

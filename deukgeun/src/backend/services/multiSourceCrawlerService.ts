@@ -26,7 +26,7 @@ async function searchKakaoMap(query: string): Promise<SearchResult[]> {
           page: 1,
         },
         headers: {
-          Authorization: `KakaoAK ${config.KAKAO_API_KEY}`,
+          Authorization: `KakaoAK ${config.apiKeys.kakao}`,
         },
       }
     )
@@ -107,7 +107,7 @@ async function searchGooglePlaces(query: string): Promise<SearchResult[]> {
       {
         params: {
           query: query + " 헬스장",
-          key: config.GOOGLE_PLACES_API_KEY,
+          key: config.apiKeys.googlePlaces,
           language: "ko",
           region: "kr",
         },

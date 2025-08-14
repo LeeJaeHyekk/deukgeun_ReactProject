@@ -9,13 +9,13 @@ async function testCrawling() {
   // API 키 확인
   console.log("🔑 API Keys Check:")
   console.log(
-    `- Kakao API Key: ${config.KAKAO_API_KEY ? "✅ Set" : "❌ Not set"}`
+    `- Kakao API Key: ${config.apiKeys.kakao ? "✅ Set" : "❌ Not set"}`
   )
   console.log(
-    `- Google Places API Key: ${config.GOOGLE_PLACES_API_KEY ? "✅ Set" : "❌ Not set"}`
+    `- Google Places API Key: ${config.apiKeys.googlePlaces ? "✅ Set" : "❌ Not set"}`
   )
   console.log(
-    `- Seoul OpenAPI Key: ${config.SEOUL_OPENAPI_KEY ? "✅ Set" : "❌ Not set"}`
+    `- Seoul OpenAPI Key: ${config.apiKeys.seoulOpenApi ? "✅ Set" : "❌ Not set"}`
   )
   console.log()
 

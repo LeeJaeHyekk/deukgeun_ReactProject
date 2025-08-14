@@ -49,7 +49,7 @@ async function setupTestUser() {
     // 초기 경험치 히스토리 생성
     const expHistory = expHistoryRepo.create({
       userId: savedUser.id,
-      actionType: "registration",
+      actionType: "daily_login",
       source: "회원가입",
       expGained: 50,
       metadata: { source: "welcome_bonus" },
@@ -61,7 +61,7 @@ async function setupTestUser() {
     // 초기 리워드 생성
     const userReward = userRewardRepo.create({
       userId: savedUser.id,
-      rewardType: "welcome_badge",
+      rewardType: "badge",
       rewardId: "welcome_badge_001",
       metadata: {
         name: "환영 뱃지",

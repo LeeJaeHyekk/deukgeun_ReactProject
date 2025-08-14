@@ -17,7 +17,6 @@ export class Milestone {
   id!: number
 
   @Column({ type: "int" })
-  @Index()
   userId!: number
 
   @Column({
@@ -31,7 +30,6 @@ export class Milestone {
       "community_engagement",
     ],
   })
-  @Index()
   milestoneType!: MilestoneType
 
   @Column({ type: "varchar", length: 200 })

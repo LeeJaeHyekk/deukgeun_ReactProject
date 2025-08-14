@@ -14,6 +14,11 @@ export interface WorkoutSession {
   caloriesBurned?: number
   notes?: string
   isCompleted: boolean
+  session_id?: number // 프론트엔드 호환성
+  session_name?: string // 프론트엔드 호환성
+  start_time?: Date // 프론트엔드 호환성
+  end_time?: Date // 프론트엔드 호환성
+  status?: string // 프론트엔드 호환성
   createdAt: Date
   updatedAt: Date
 }
@@ -45,6 +50,8 @@ export interface WorkoutGoal {
   deadline?: Date
   isCompleted: boolean
   completedAt?: Date
+  goal_id?: number // 프론트엔드 호환성
+  created_at?: Date // 프론트엔드 호환성
   createdAt: Date
   updatedAt: Date
 }
@@ -54,8 +61,15 @@ export interface WorkoutPlan {
   id: number
   userId: number
   name: string
+  plan_name?: string // 프론트엔드 호환성
+  plan_id?: number // 프론트엔드 호환성
   description?: string
+  difficulty?: string // 프론트엔드 호환성
+  estimated_duration_minutes?: number // 프론트엔드 호환성
+  target_muscle_groups?: string[] // 프론트엔드 호환성
   isActive: boolean
+  is_template?: boolean // 프론트엔드 호환성
+  created_at?: Date // 프론트엔드 호환성
   exercises?: WorkoutPlanExercise[]
   createdAt: Date
   updatedAt: Date
@@ -223,6 +237,22 @@ export interface CreatePlanRequest {
   name: string
   description?: string
   exercises: Array<{
+    machineId: number
+    exerciseName: string
+    order: number
+    sets: number
+    reps: number
+    weight?: number
+    restTime?: number
+    notes?: string
+  }>
+}
+
+// 운동 계획 업데이트 요청
+export interface UpdatePlanRequest {
+  name?: string
+  description?: string
+  exercises?: Array<{
     machineId: number
     exerciseName: string
     order: number

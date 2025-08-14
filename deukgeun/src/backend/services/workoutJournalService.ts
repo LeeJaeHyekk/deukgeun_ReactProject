@@ -6,35 +6,117 @@ import { WorkoutStats } from "../entities/WorkoutStats"
 import { WorkoutProgress } from "../entities/WorkoutProgress"
 import { ExerciseSet } from "../entities/ExerciseSet"
 
+// 타입 정의
+interface CreatePlanData {
+  plan_name: string
+  description?: string
+  difficulty?: "beginner" | "intermediate" | "advanced"
+  estimated_duration_minutes?: number
+  target_muscle_groups?: string[]
+  is_template?: boolean
+  is_public?: boolean
+}
+
+interface UpdatePlanData {
+  name?: string
+  description?: string
+  difficulty?: string
+  estimated_duration_minutes?: number
+  target_muscle_groups?: string[]
+  is_template?: boolean
+  is_public?: boolean
+}
+
+interface CreateSessionData {
+  plan_id?: number
+  gym_id?: number
+  session_name: string
+  start_time?: string | Date
+  mood_rating?: number
+  energy_level?: number
+  notes?: string
+}
+
+interface UpdateSessionData {
+  plan_id?: number
+  gym_id?: number
+  name?: string
+  start_time?: Date
+  end_time?: Date
+  mood_rating?: number
+  energy_level?: number
+  notes?: string
+  status?: string
+  total_duration_minutes?: number
+}
+
+interface CreateGoalData {
+  title: string
+  description?: string
+  type: "weight" | "reps" | "duration" | "frequency" | "streak"
+  targetValue: number
+  currentValue?: number
+  unit: string
+  deadline?: string | Date
+}
+
+interface UpdateGoalData {
+  title?: string
+  description?: string
+  type?: "weight" | "reps" | "duration" | "frequency" | "streak"
+  targetValue?: number
+  currentValue?: number
+  unit?: string
+  deadline?: string | Date
+  isCompleted?: boolean
+  completedAt?: Date
+}
+
+interface CreateSetData {
+  session_id: number
+  machine_id: number
+  set_number: number
+  reps_completed: number
+  weight_kg?: number
+  duration_seconds?: number
+  distance_meters?: number
+  rpe_rating?: number
+  notes?: string
+}
+
 export class WorkoutJournalService {
   // 운동 계획 관련
   async getUserPlans(userId: number) {
     const planRepository = getRepository(WorkoutPlan)
     return await planRepository.find({
-      where: { user_id: userId },
-      order: { created_at: "DESC" },
+      where: { userId: userId },
+      order: { createdAt: "DESC" },
     })
   }
 
-  async createWorkoutPlan(userId: number, planData: any) {
+  async createWorkoutPlan(userId: number, planData: CreatePlanData) {
     const planRepository = getRepository(WorkoutPlan)
     const plan = planRepository.create({
-      user_id: userId,
-      plan_name: planData.plan_name,
+      userId: userId,
+      name: planData.plan_name,
       description: planData.description,
       difficulty: planData.difficulty || "beginner",
-      estimated_duration_minutes: planData.estimated_duration_minutes,
-      target_muscle_groups: planData.target_muscle_groups || [],
-      is_template: planData.is_template || false,
-      is_public: planData.is_public || false,
+      estimatedDurationMinutes: planData.estimated_duration_minutes,
+      targetMuscleGroups: planData.target_muscle_groups || [],
+      isTemplate: planData.is_template || false,
+      isPublic: planData.is_public || false,
     })
     return await planRepository.save(plan)
   }
 
-  async updateWorkoutPlan(planId: number, userId: number, updateData: any) {
+  async updateWorkoutPlan(
+    planId: number,
+    userId: number,
+    updateData: UpdatePlanData
+  ) {
     const planRepository = getRepository(WorkoutPlan)
     const plan = await planRepository.findOne({
-      where: { plan_id: planId, user_id: userId },
+      where: { id: planId, userId: userId },
     })
 
     if (!plan) {
@@ -48,7 +130,7 @@ export class WorkoutJournalService {
   async deleteWorkoutPlan(planId: number, userId: number) {
     const planRepository = getRepository(WorkoutPlan)
     const plan = await planRepository.findOne({
-      where: { plan_id: planId, user_id: userId },
+      where: { id: planId, userId: userId },
     })
 
     if (!plan) {
@@ -62,22 +144,22 @@ export class WorkoutJournalService {
   async getUserSessions(userId: number) {
     const sessionRepository = getRepository(WorkoutSession)
     return await sessionRepository.find({
-      where: { user_id: userId },
-      order: { start_time: "DESC" },
-      relations: ["exercise_sets"],
+      where: { userId: userId },
+      order: { startTime: "DESC" },
+      relations: ["exerciseSets"],
     })
   }
 
-  async createWorkoutSession(userId: number, sessionData: any) {
+  async createWorkoutSession(userId: number, sessionData: CreateSessionData) {
     const sessionRepository = getRepository(WorkoutSession)
     const session = sessionRepository.create({
-      user_id: userId,
-      plan_id: sessionData.plan_id,
-      gym_id: sessionData.gym_id,
-      session_name: sessionData.session_name,
-      start_time: new Date(sessionData.start_time || new Date()),
-      mood_rating: sessionData.mood_rating,
-      energy_level: sessionData.energy_level,
+      userId: userId,
+      planId: sessionData.plan_id,
+      gymId: sessionData.gym_id,
+      name: sessionData.session_name,
+      startTime: new Date(sessionData.start_time || new Date()),
+      moodRating: sessionData.mood_rating,
+      energyLevel: sessionData.energy_level,
       notes: sessionData.notes,
       status: "in_progress",
     })
@@ -87,11 +169,11 @@ export class WorkoutJournalService {
   async updateWorkoutSession(
     sessionId: number,
     userId: number,
-    updateData: any
+    updateData: UpdateSessionData
   ) {
     const sessionRepository = getRepository(WorkoutSession)
     const session = await sessionRepository.findOne({
-      where: { session_id: sessionId, user_id: userId },
+      where: { id: sessionId, userId: userId },
     })
 
     if (!session) {
@@ -105,7 +187,7 @@ export class WorkoutJournalService {
   async deleteWorkoutSession(sessionId: number, userId: number) {
     const sessionRepository = getRepository(WorkoutSession)
     const session = await sessionRepository.findOne({
-      where: { session_id: sessionId, user_id: userId },
+      where: { id: sessionId, userId: userId },
     })
 
     if (!session) {
@@ -124,7 +206,7 @@ export class WorkoutJournalService {
     })
   }
 
-  async createWorkoutGoal(userId: number, goalData: any) {
+  async createWorkoutGoal(userId: number, goalData: CreateGoalData) {
     const goalRepository = getRepository(WorkoutGoal)
     const goal = goalRepository.create({
       userId: userId,
@@ -140,7 +222,11 @@ export class WorkoutJournalService {
     return await goalRepository.save(goal)
   }
 
-  async updateWorkoutGoal(goalId: number, userId: number, updateData: any) {
+  async updateWorkoutGoal(
+    goalId: number,
+    userId: number,
+    updateData: UpdateGoalData
+  ) {
     const goalRepository = getRepository(WorkoutGoal)
     const goal = await goalRepository.findOne({
       where: { id: goalId, userId: userId },
@@ -176,8 +262,8 @@ export class WorkoutJournalService {
   async getUserStats(userId: number) {
     const statsRepository = getRepository(WorkoutStats)
     return await statsRepository.find({
-      where: { user_id: userId },
-      order: { workout_date: "DESC" },
+      where: { userId: userId },
+      order: { workoutDate: "DESC" },
       take: 30, // 최근 30일
     })
   }
@@ -186,8 +272,8 @@ export class WorkoutJournalService {
   async getUserProgress(userId: number) {
     const progressRepository = getRepository(WorkoutProgress)
     return await progressRepository.find({
-      where: { user_id: userId },
-      order: { progress_date: "DESC" },
+      where: { userId: userId },
+      order: { progressDate: "DESC" },
       relations: ["machine"],
       take: 50, // 최근 50개 기록
     })
@@ -219,26 +305,26 @@ export class WorkoutJournalService {
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 
     const weeklySessions = completedSessions.filter(
-      session => new Date(session.start_time) >= oneWeekAgo
+      session => new Date(session.startTime) >= oneWeekAgo
     )
 
     const weeklyStats = {
       totalSessions: weeklySessions.length,
       totalDuration: weeklySessions.reduce(
-        (sum, session) => sum + (session.total_duration_minutes || 0),
+        (sum, session) => sum + (session.totalDurationMinutes || 0),
         0
       ),
       averageMood:
         weeklySessions.length > 0
           ? weeklySessions.reduce(
-              (sum, session) => sum + (session.mood_rating || 0),
+              (sum, session) => sum + (session.moodRating || 0),
               0
             ) / weeklySessions.length
           : 0,
       averageEnergy:
         weeklySessions.length > 0
           ? weeklySessions.reduce(
-              (sum, session) => sum + (session.energy_level || 0),
+              (sum, session) => sum + (session.energyLevel || 0),
               0
             ) / weeklySessions.length
           : 0,
@@ -259,17 +345,17 @@ export class WorkoutJournalService {
   }
 
   // 운동 세트 추가
-  async addExerciseSet(setData: any) {
+  async addExerciseSet(setData: CreateSetData) {
     const setRepository = getRepository(ExerciseSet)
     const exerciseSet = setRepository.create({
-      session_id: setData.session_id,
-      machine_id: setData.machine_id,
-      set_number: setData.set_number,
-      reps_completed: setData.reps_completed,
-      weight_kg: setData.weight_kg,
-      duration_seconds: setData.duration_seconds,
-      distance_meters: setData.distance_meters,
-      rpe_rating: setData.rpe_rating,
+      sessionId: setData.session_id,
+      machineId: setData.machine_id,
+      setNumber: setData.set_number,
+      repsCompleted: setData.reps_completed,
+      weightKg: setData.weight_kg,
+      durationSeconds: setData.duration_seconds,
+      distanceMeters: setData.distance_meters,
+      rpeRating: setData.rpe_rating,
       notes: setData.notes,
     })
     return await setRepository.save(exerciseSet)
@@ -279,17 +365,17 @@ export class WorkoutJournalService {
   async completeWorkoutSession(sessionId: number, endTime: Date) {
     const sessionRepository = getRepository(WorkoutSession)
     const session = await sessionRepository.findOne({
-      where: { session_id: sessionId },
+      where: { id: sessionId },
     })
 
     if (!session) {
       throw new Error("운동 세션을 찾을 수 없습니다.")
     }
 
-    session.end_time = endTime
+    session.endTime = endTime
     session.status = "completed"
-    session.total_duration_minutes = Math.round(
-      (endTime.getTime() - session.start_time.getTime()) / (1000 * 60)
+    session.totalDurationMinutes = Math.round(
+      (endTime.getTime() - session.startTime.getTime()) / (1000 * 60)
     )
 
     return await sessionRepository.save(session)
@@ -302,77 +388,75 @@ export class WorkoutJournalService {
     const statsRepository = getRepository(WorkoutStats)
 
     const session = await sessionRepository.findOne({
-      where: { session_id: sessionId },
-      relations: ["exercise_sets"],
+      where: { id: sessionId },
+      relations: ["exerciseSets"],
     })
 
     if (!session) {
       throw new Error("운동 세션을 찾을 수 없습니다.")
     }
 
-    const workoutDate = new Date(session.start_time).toISOString().split("T")[0]
+    const workoutDate = new Date(session.startTime).toISOString().split("T")[0]
 
     // 기존 통계 확인
     let stats = await statsRepository.findOne({
-      where: { user_id: userId, workout_date: new Date(workoutDate) },
+      where: { userId: userId, workoutDate: new Date(workoutDate) },
     })
 
     if (!stats) {
       stats = statsRepository.create({
-        user_id: userId,
-        workout_date: workoutDate,
-        total_sessions: 0,
-        total_duration_minutes: 0,
-        total_sets: 0,
-        total_reps: 0,
-        total_weight_kg: 0,
-        total_distance_meters: 0,
-        average_mood: 0,
-        average_energy: 0,
-        average_rpe: 0,
-        calories_burned: 0,
+        userId: userId,
+        workoutDate: workoutDate,
+        totalSessions: 0,
+        totalDurationMinutes: 0,
+        totalSets: 0,
+        totalReps: 0,
+        totalWeightKg: 0,
+        totalDistanceMeters: 0,
+        averageMood: 0,
+        averageEnergy: 0,
+        averageRpe: 0,
+        caloriesBurned: 0,
       })
     }
 
     // 통계 업데이트
-    stats.total_sessions += 1
-    stats.total_duration_minutes += session.total_duration_minutes || 0
+    stats.totalSessions += 1
+    stats.totalDurationMinutes += session.totalDurationMinutes || 0
 
-    if (session.exercise_sets) {
-      stats.total_sets += session.exercise_sets.length
-      stats.total_reps += session.exercise_sets.reduce(
-        (sum, set) => sum + set.reps_completed,
+    if (session.exerciseSets) {
+      stats.totalSets += session.exerciseSets.length
+      stats.totalReps += session.exerciseSets.reduce(
+        (sum, set) => sum + set.repsCompleted,
         0
       )
-      stats.total_weight_kg += session.exercise_sets.reduce(
-        (sum, set) => sum + (set.weight_kg || 0),
+      stats.totalWeightKg += session.exerciseSets.reduce(
+        (sum, set) => sum + (set.weightKg || 0),
         0
       )
-      stats.total_distance_meters += session.exercise_sets.reduce(
-        (sum, set) => sum + (set.distance_meters || 0),
+      stats.totalDistanceMeters += session.exerciseSets.reduce(
+        (sum, set) => sum + (set.distanceMeters || 0),
         0
       )
 
-      const validRpe = session.exercise_sets
-        .filter(set => set.rpe_rating)
-        .map(set => set.rpe_rating!)
+      const validRpe = session.exerciseSets
+        .filter(set => set.rpeRating)
+        .map(set => set.rpeRating!)
       if (validRpe.length > 0) {
-        stats.average_rpe =
+        stats.averageRpe =
           validRpe.reduce((sum, rpe) => sum + rpe, 0) / validRpe.length
       }
     }
 
-    if (session.mood_rating) {
-      stats.average_mood = session.mood_rating
+    if (session.moodRating) {
+      stats.averageMood = session.moodRating
     }
-    if (session.energy_level) {
-      stats.average_energy = session.energy_level
+    if (session.energyLevel) {
+      stats.averageEnergy = session.energyLevel
     }
 
     // 간단한 칼로리 계산 (예시)
-    stats.calories_burned = Math.round(
-      (session.total_duration_minutes || 0) * 8
-    )
+    stats.caloriesBurned = Math.round((session.totalDurationMinutes || 0) * 8)
 
     return await statsRepository.save(stats)
   }

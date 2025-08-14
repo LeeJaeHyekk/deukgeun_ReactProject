@@ -307,22 +307,22 @@ async function createTestWorkoutPlans(users: any[], machines: any[]) {
     for (const planData of workoutPlans) {
       const plan = planRepository.create({
         ...planData,
-        user_id: user.id,
+        userId: user.id,
       })
       const savedPlan = await planRepository.save(plan)
       
       // 운동 계획에 운동 추가
       const exercises = [
-        { machine_id: machines[0].id, sets: 3, reps_range: { min: 8, max: 12 }, rest_seconds: 60 },
-        { machine_id: machines[1].id, sets: 3, reps_range: { min: 10, max: 15 }, rest_seconds: 90 },
-        { machine_id: machines[2].id, sets: 3, reps_range: { min: 8, max: 12 }, rest_seconds: 60 },
+        { machineId: machines[0].id, sets: 3, repsRange: { min: 8, max: 12 }, restSeconds: 60 },
+        { machineId: machines[1].id, sets: 3, repsRange: { min: 10, max: 15 }, restSeconds: 90 },
+        { machineId: machines[2].id, sets: 3, repsRange: { min: 8, max: 12 }, restSeconds: 60 },
       ]
       
       for (const exerciseData of exercises) {
         const exercise = exerciseRepository.create({
           ...exerciseData,
-          plan_id: savedPlan.plan_id,
-          exercise_order: exercises.indexOf(exerciseData) + 1,
+          planId: savedPlan.id,
+          exerciseOrder: exercises.indexOf(exerciseData) + 1,
         })
         await exerciseRepository.save(exercise)
       }

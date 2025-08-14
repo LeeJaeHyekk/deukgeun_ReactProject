@@ -28,7 +28,12 @@ export function useWorkoutPlans() {
     try {
       setLoading(true)
       setError(null)
-      const newPlan = await WorkoutJournalApi.createWorkoutPlan(planData)
+      // userId가 필수이므로 기본값 설정
+      const createData = {
+        ...planData,
+        userId: planData.userId || 1, // 임시로 기본값 설정
+      } as any
+      const newPlan = await WorkoutJournalApi.createWorkoutPlan(createData)
       setPlans(prev => [newPlan, ...prev])
       return newPlan
     } catch (err) {

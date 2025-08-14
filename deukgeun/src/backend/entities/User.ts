@@ -69,11 +69,9 @@ export class User {
   lockedUntil?: Date
 
   @CreateDateColumn()
-  @Index()
   createdAt!: Date
 
   @UpdateDateColumn()
-  @Index()
   updatedAt!: Date
 
   // 관계 설정

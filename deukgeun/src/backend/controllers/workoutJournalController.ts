@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import { WorkoutJournalService } from "../services/workoutJournalService"
+import { AuthenticatedRequest } from "../../shared/types/auth"
 
 export class WorkoutJournalController {
   private workoutJournalService: WorkoutJournalService
@@ -9,9 +10,12 @@ export class WorkoutJournalController {
   }
 
   // 운동 계획 관련
-  async getWorkoutPlans(req: Request, res: Response): Promise<void> {
+  async getWorkoutPlans(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
         return
@@ -25,15 +29,18 @@ export class WorkoutJournalController {
     }
   }
 
-  async createWorkoutPlan(req: Request, res: Response): Promise<void> {
+  async createWorkoutPlan(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
         return
       }
 
-      const planData = req.body
+      const planData = req.body as any
       const plan = await this.workoutJournalService.createWorkoutPlan(
         userId,
         planData
@@ -45,16 +52,19 @@ export class WorkoutJournalController {
     }
   }
 
-  async updateWorkoutPlan(req: Request, res: Response): Promise<void> {
+  async updateWorkoutPlan(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       const { planId } = req.params
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
         return
       }
 
-      const updateData = req.body
+      const updateData = req.body as any
       const plan = await this.workoutJournalService.updateWorkoutPlan(
         parseInt(planId),
         userId,
@@ -67,9 +77,12 @@ export class WorkoutJournalController {
     }
   }
 
-  async deleteWorkoutPlan(req: Request, res: Response): Promise<void> {
+  async deleteWorkoutPlan(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       const { planId } = req.params
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
@@ -88,9 +101,12 @@ export class WorkoutJournalController {
   }
 
   // 운동 세션 관련
-  async getWorkoutSessions(req: Request, res: Response): Promise<void> {
+  async getWorkoutSessions(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
         return
@@ -104,15 +120,18 @@ export class WorkoutJournalController {
     }
   }
 
-  async createWorkoutSession(req: Request, res: Response): Promise<void> {
+  async createWorkoutSession(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
         return
       }
 
-      const sessionData = req.body
+      const sessionData = req.body as any
       const session = await this.workoutJournalService.createWorkoutSession(
         userId,
         sessionData
@@ -124,16 +143,19 @@ export class WorkoutJournalController {
     }
   }
 
-  async updateWorkoutSession(req: Request, res: Response): Promise<void> {
+  async updateWorkoutSession(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       const { sessionId } = req.params
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
         return
       }
 
-      const updateData = req.body
+      const updateData = req.body as any
       const session = await this.workoutJournalService.updateWorkoutSession(
         parseInt(sessionId),
         userId,
@@ -146,9 +168,12 @@ export class WorkoutJournalController {
     }
   }
 
-  async deleteWorkoutSession(req: Request, res: Response): Promise<void> {
+  async deleteWorkoutSession(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       const { sessionId } = req.params
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
@@ -167,9 +192,12 @@ export class WorkoutJournalController {
   }
 
   // 운동 목표 관련
-  async getWorkoutGoals(req: Request, res: Response): Promise<void> {
+  async getWorkoutGoals(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
         return
@@ -183,15 +211,18 @@ export class WorkoutJournalController {
     }
   }
 
-  async createWorkoutGoal(req: Request, res: Response): Promise<void> {
+  async createWorkoutGoal(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
         return
       }
 
-      const goalData = req.body
+      const goalData = req.body as any
       const goal = await this.workoutJournalService.createWorkoutGoal(
         userId,
         goalData
@@ -203,16 +234,19 @@ export class WorkoutJournalController {
     }
   }
 
-  async updateWorkoutGoal(req: Request, res: Response): Promise<void> {
+  async updateWorkoutGoal(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       const { goalId } = req.params
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
         return
       }
 
-      const updateData = req.body
+      const updateData = req.body as any
       const goal = await this.workoutJournalService.updateWorkoutGoal(
         parseInt(goalId),
         userId,
@@ -225,9 +259,12 @@ export class WorkoutJournalController {
     }
   }
 
-  async deleteWorkoutGoal(req: Request, res: Response): Promise<void> {
+  async deleteWorkoutGoal(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       const { goalId } = req.params
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
@@ -246,9 +283,12 @@ export class WorkoutJournalController {
   }
 
   // 운동 통계 관련
-  async getWorkoutStats(req: Request, res: Response): Promise<void> {
+  async getWorkoutStats(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
         return
@@ -263,9 +303,12 @@ export class WorkoutJournalController {
   }
 
   // 운동 진행 상황 관련
-  async getWorkoutProgress(req: Request, res: Response): Promise<void> {
+  async getWorkoutProgress(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
         return
@@ -280,9 +323,12 @@ export class WorkoutJournalController {
   }
 
   // 대시보드 데이터
-  async getDashboardData(req: Request, res: Response): Promise<void> {
+  async getDashboardData(
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> {
     try {
-      const userId = (req as any).user?.id
+      const userId = req.user?.userId
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
         return

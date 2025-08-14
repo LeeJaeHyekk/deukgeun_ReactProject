@@ -105,9 +105,9 @@ async function testWorkoutSessionData() {
   console.log(`   📊 총 세션 수: ${await sessionRepository.count()}`)
   if (sessions.length > 0) {
     const sampleSession = sessions[0]
-    console.log(`   🏃 샘플 세션: ${sampleSession.session_name || "이름 없음"}`)
-    console.log(`   ⏰ 시작 시간: ${sampleSession.start_time}`)
-    console.log(`   ⏱️ 총 시간: ${sampleSession.total_duration_minutes || 0}분`)
+    console.log(`   🏃 샘플 세션: ${sampleSession.name || "이름 없음"}`)
+    console.log(`   ⏰ 시작 시간: ${sampleSession.startTime}`)
+    console.log(`   ⏱️ 총 시간: ${sampleSession.totalDurationMinutes || 0}분`)
     console.log(`   📊 상태: ${sampleSession.status}`)
   }
 }
@@ -165,7 +165,7 @@ async function testAPIEndpoints() {
     const levelResponse = await axios.get(`${BASE_URL}/levels`)
     console.log(`   📊 레벨 API: ${levelResponse.status}`)
   } catch (error) {
-    console.log(`   ⚠️ API 테스트 실패: ${error.message}`)
+    console.log(`   ⚠️ API 테스트 실패: ${(error as Error).message}`)
   }
 }
 

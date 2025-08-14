@@ -1,8 +1,10 @@
 import jwt from "jsonwebtoken"
 import { logger } from "./logger"
 
-const ACCESS_TOKEN_SECRET = process.env.JWT_ACCESS_SECRET
-const REFRESH_TOKEN_SECRET = process.env.JWT_REFRESH_SECRET
+const ACCESS_TOKEN_SECRET =
+  process.env.JWT_ACCESS_SECRET || "your-access-secret"
+const REFRESH_TOKEN_SECRET =
+  process.env.JWT_REFRESH_SECRET || "your-refresh-secret"
 
 interface JwtPayload {
   userId: number

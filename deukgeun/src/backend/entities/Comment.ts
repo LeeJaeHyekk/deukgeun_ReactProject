@@ -4,7 +4,6 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  Index,
 } from "typeorm"
 
 @Entity("comments")
@@ -13,11 +12,9 @@ export class Comment {
   id!: number
 
   @Column({ type: "int" })
-  @Index()
   postId!: number
 
   @Column({ type: "int" })
-  @Index()
   userId!: number
 
   @Column({ type: "varchar", length: 100 })
@@ -27,7 +24,6 @@ export class Comment {
   content!: string
 
   @CreateDateColumn()
-  @Index()
   createdAt!: Date
 
   @UpdateDateColumn()

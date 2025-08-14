@@ -13,44 +13,42 @@ import { Machine } from "./Machine"
 @Entity("exercise_sets")
 export class ExerciseSet {
   @PrimaryGeneratedColumn()
-  set_id!: number
+  id!: number
 
   @Column({ type: "int" })
-  @Index()
-  session_id!: number
+  sessionId!: number
 
   @Column({ type: "int" })
-  @Index()
-  machine_id!: number
+  machineId!: number
 
   @Column({ type: "int" })
-  set_number!: number
+  setNumber!: number
 
   @Column({ type: "int" })
-  reps_completed!: number
+  repsCompleted!: number
 
   @Column({ type: "decimal", precision: 5, scale: 2, nullable: true })
-  weight_kg?: number
+  weightKg?: number
 
   @Column({ type: "int", nullable: true })
-  duration_seconds?: number
+  durationSeconds?: number
 
   @Column({ type: "decimal", precision: 8, scale: 2, nullable: true })
-  distance_meters?: number
+  distanceMeters?: number
 
   @Column({ type: "int", nullable: true })
-  rpe_rating?: number // Rate of Perceived Exertion 1-10
+  rpeRating?: number // Rate of Perceived Exertion 1-10
 
   @Column({ type: "text", nullable: true })
   notes?: string
 
   @CreateDateColumn()
-  created_at!: Date
+  createdAt!: Date
 
   // 관계 설정
   @ManyToOne(() => WorkoutSession, { onDelete: "CASCADE" })
   @JoinColumn({ name: "session_id" })
-  workout_session!: WorkoutSession
+  workoutSession!: WorkoutSession
 
   @ManyToOne(() => Machine, { onDelete: "CASCADE" })
   @JoinColumn({ name: "machine_id" })

@@ -48,7 +48,7 @@ async function testAccountRecovery() {
     // 비밀번호 재설정 테스트
     console.log("\n🧪 Testing Reset Password Simple...")
     const resetPasswordResult =
-      await accountRecoveryService.resetPasswordSimple(
+      await accountRecoveryService.resetPasswordSimpleStep1(
         "test@example.com",
         "테스트사용자",
         "010-1234-5678",

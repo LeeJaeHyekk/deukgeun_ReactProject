@@ -26,6 +26,10 @@ export type MachineCategory =
   | "balance"
   | "functional"
   | "rehabilitation"
+  | "상체"
+  | "하체"
+  | "전신"
+  | "기타"
 
 // 난이도 레벨
 export type DifficultyLevel =
@@ -33,6 +37,9 @@ export type DifficultyLevel =
   | "intermediate"
   | "advanced"
   | "expert"
+  | "초급"
+  | "중급"
+  | "고급"
 
 // 기계 검색 필터
 export interface MachineSearchFilter {

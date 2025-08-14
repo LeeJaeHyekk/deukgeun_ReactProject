@@ -21,15 +21,15 @@ async function testMachineData() {
     sampleMachines.forEach((machine, index) => {
       console.log(`\n📋 머신 ${index + 1}:`)
       console.log(`   ID: ${machine.id}`)
-      console.log(`   이름 (한글): ${machine.name_ko}`)
-      console.log(`   이름 (영문): ${machine.name_en || "없음"}`)
-      console.log(`   이미지 URL: ${machine.image_url}`)
+      console.log(`   이름 (한글): ${machine.nameKo}`)
+      console.log(`   이름 (영문): ${machine.nameEn || "없음"}`)
+      console.log(`   이미지 URL: ${machine.imageUrl}`)
       console.log(`   카테고리: ${machine.category}`)
-      console.log(`   난이도: ${machine.difficulty_level || "없음"}`)
+      console.log(`   난이도: ${machine.difficulty || "없음"}`)
     })
 
     // 이미지 URL 분석
-    const imageUrls = machines.map(m => m.image_url)
+    const imageUrls = machines.map(m => m.imageUrl)
     const uniqueUrls = [...new Set(imageUrls)]
     console.log(`\n🖼️ 고유 이미지 URL 수: ${uniqueUrls.length}`)
     console.log("📸 이미지 URL 목록:")
@@ -40,14 +40,14 @@ async function testMachineData() {
 
     // chest-press.png가 기본값인 머신들 확인
     const defaultImageMachines = machines.filter(
-      m => m.image_url === "/img/machine/chest-press.png"
+      m => m.imageUrl === "/img/machine/chest-press.png"
     )
     console.log(`\n⚠️ 기본 이미지 사용 머신 수: ${defaultImageMachines.length}`)
     if (defaultImageMachines.length > 0) {
       console.log("기본 이미지 사용 머신들:")
       defaultImageMachines.slice(0, 10).forEach(machine => {
         console.log(
-          `   - ${machine.name_ko} (${machine.name_en || "영문명 없음"})`
+          `   - ${machine.nameKo} (${machine.nameEn || "영문명 없음"})`
         )
       })
     }

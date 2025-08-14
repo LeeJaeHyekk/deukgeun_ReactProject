@@ -72,7 +72,7 @@ async function searchKakaoMap(query: string): Promise<any> {
           page: 1,
         },
         headers: {
-          Authorization: `KakaoAK ${config.KAKAO_API_KEY}`,
+          Authorization: `KakaoAK ${config.apiKeys.kakao}`,
         },
       }
     )
@@ -123,7 +123,7 @@ async function getPlaceDetails(placeId: string): Promise<any> {
           size: 1,
         },
         headers: {
-          Authorization: `KakaoAK ${config.KAKAO_API_KEY}`,
+          Authorization: `KakaoAK ${config.apiKeys.kakao}`,
         },
       }
     )

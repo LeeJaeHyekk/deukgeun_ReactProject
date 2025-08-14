@@ -1,6 +1,6 @@
 import { api } from "./index"
 import { API_ENDPOINTS } from "@shared/config"
-import type { Machine } from "@shared/types/machine"
+import type { Machine } from "../../../types"
 
 // 타입 정의
 export interface MachineListResponse {
@@ -96,6 +96,43 @@ export const machineApi = {
 
     const response = await api.get<MachineListResponse>(
       `${API_ENDPOINTS.MACHINES.FILTER}?${params.toString()}`
+    )
+    return {
+      machines: Array.isArray(response.data.data) ? response.data.data : [],
+      count: (response.data as any).count || 0,
+    }
+  },
+
+  // Get machines by category
+  getMachinesByCategory: async (
+    category: string
+  ): Promise<MachineListResponse> => {
+    const response = await api.get<MachineListResponse>(
+      API_ENDPOINTS.MACHINES.GET_BY_CATEGORY(category)
+    )
+    return {
+      machines: Array.isArray(response.data.data) ? response.data.data : [],
+      count: (response.data as any).count || 0,
+    }
+  },
+
+  // Get machines by difficulty
+  getMachinesByDifficulty: async (
+    difficulty: string
+  ): Promise<MachineListResponse> => {
+    const response = await api.get<MachineListResponse>(
+      API_ENDPOINTS.MACHINES.GET_BY_DIFFICULTY(difficulty)
+    )
+    return {
+      machines: Array.isArray(response.data.data) ? response.data.data : [],
+      count: (response.data as any).count || 0,
+    }
+  },
+
+  // Get machines by target
+  getMachinesByTarget: async (target: string): Promise<MachineListResponse> => {
+    const response = await api.get<MachineListResponse>(
+      API_ENDPOINTS.MACHINES.GET_BY_TARGET(target)
     )
     return {
       machines: Array.isArray(response.data.data) ? response.data.data : [],

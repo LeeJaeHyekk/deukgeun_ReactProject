@@ -13,11 +13,11 @@ import { User } from "./User"
 @Entity("workout_reminders")
 export class WorkoutReminder {
   @PrimaryGeneratedColumn()
-  reminder_id!: number
+  id!: number
 
   @Column({ type: "int" })
   @Index()
-  user_id!: number
+  userId!: number
 
   @Column({ type: "varchar", length: 100 })
   title!: string
@@ -26,35 +26,35 @@ export class WorkoutReminder {
   description?: string
 
   @Column({ type: "time" })
-  reminder_time!: string
+  reminderTime!: string
 
   @Column({ type: "json" })
-  repeat_days!: number[] // 0=일요일, 1=월요일, ..., 6=토요일
+  repeatDays!: number[] // 0=일요일, 1=월요일, ..., 6=토요일
 
   @Column({ type: "boolean", default: true })
-  is_active!: boolean
+  isActive!: boolean
 
   @Column({ type: "boolean", default: false })
-  is_sent!: boolean
+  isSent!: boolean
 
   @Column({ type: "datetime", nullable: true })
-  last_sent_at?: Date
+  lastSentAt?: Date
 
   @Column({ type: "datetime", nullable: true })
-  next_send_at?: Date
+  nextSendAt?: Date
 
   @Column({
     type: "enum",
     enum: ["push", "email", "sms"],
     default: "push",
   })
-  notification_type!: "push" | "email" | "sms"
+  notificationType!: "push" | "email" | "sms"
 
   @CreateDateColumn()
-  created_at!: Date
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updated_at!: Date
+  updatedAt!: Date
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })

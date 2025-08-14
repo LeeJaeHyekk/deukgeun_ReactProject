@@ -1,10 +1,6 @@
 import { connectDatabase } from "../config/database"
 import { MachineService } from "../services/machineService"
-import { CreateMachineRequest } from "../types/machine"
-import type {
-  MachineCategory,
-  DifficultyLevel,
-} from "../../shared/types/machine"
+import type { CreateMachineRequest } from "../../types/machine"
 
 /**
  * Machine 데이터 임포트 스크립트
@@ -207,21 +203,21 @@ async function importFromList() {
           console.log(`머신 키 '${machineData.machine_key}'가 이미 존재합니다.`)
           console.log("기존 머신 정보:", {
             id: existingMachine.id,
-            name: existingMachine.name_ko,
+            name: existingMachine.nameKo,
             category: existingMachine.category,
-            difficulty: existingMachine.difficulty_level,
+            difficulty: existingMachine.difficulty,
           })
 
           if (shouldUpdate) {
             console.log("업데이트를 진행합니다...")
             const updatedMachine = await machineService.updateMachine(
               existingMachine.id,
-              machineData
+              machineData as any
             )
             if (updatedMachine) {
               console.log(
                 "✅ 머신이 성공적으로 업데이트되었습니다:",
-                updatedMachine.name_ko
+                updatedMachine.nameKo
               )
             } else {
               console.log("❌ 머신 업데이트에 실패했습니다.")
@@ -235,7 +231,7 @@ async function importFromList() {
           const newMachine = await machineService.createMachine(machineData)
           console.log(
             "✅ 새 머신이 성공적으로 생성되었습니다:",
-            newMachine.name_ko
+            newMachine.nameKo
           )
           console.log("   생성된 머신 ID:", newMachine.id)
         }

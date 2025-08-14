@@ -26,8 +26,8 @@ export class WorkoutService {
     try {
       const workoutPlanRepo = AppDataSource.getRepository(WorkoutPlan)
       return await workoutPlanRepo.find({
-        where: { user_id: userId },
-        order: { created_at: "DESC" },
+        where: { userId: userId },
+        order: { createdAt: "DESC" },
       })
     } catch (error) {
       console.error("워크아웃 플랜 조회 오류:", error)
@@ -42,7 +42,7 @@ export class WorkoutService {
     try {
       const workoutPlanRepo = AppDataSource.getRepository(WorkoutPlan)
       return await workoutPlanRepo.findOne({
-        where: { plan_id: planId },
+        where: { id: planId },
         relations: ["exercises"],
       })
     } catch (error) {
@@ -58,7 +58,7 @@ export class WorkoutService {
   ): Promise<WorkoutPlan | null> {
     try {
       const workoutPlanRepo = AppDataSource.getRepository(WorkoutPlan)
-      const plan = await workoutPlanRepo.findOne({ where: { plan_id: planId } })
+      const plan = await workoutPlanRepo.findOne({ where: { id: planId } })
       if (!plan) return null
 
       Object.assign(plan, updateData)
@@ -73,7 +73,7 @@ export class WorkoutService {
   async deleteWorkoutPlan(planId: number): Promise<boolean> {
     try {
       const workoutPlanRepo = AppDataSource.getRepository(WorkoutPlan)
-      const plan = await workoutPlanRepo.findOne({ where: { plan_id: planId } })
+      const plan = await workoutPlanRepo.findOne({ where: { id: planId } })
       if (!plan) return false
 
       await workoutPlanRepo.remove(plan)
@@ -92,7 +92,7 @@ export class WorkoutService {
       const workoutSessionRepo = AppDataSource.getRepository(WorkoutSession)
       const session = workoutSessionRepo.create({
         ...sessionData,
-        start_time: new Date(),
+        startTime: new Date(),
         status: "in_progress",
       })
       return await workoutSessionRepo.save(session)
@@ -107,15 +107,14 @@ export class WorkoutService {
     try {
       const workoutSessionRepo = AppDataSource.getRepository(WorkoutSession)
       const session = await workoutSessionRepo.findOne({
-        where: { session_id: sessionId },
+        where: { id: sessionId },
       })
       if (!session) return null
 
-      session.end_time = new Date()
+      session.endTime = new Date()
       session.status = "completed"
-      session.total_duration_minutes = Math.round(
-        (session.end_time.getTime() - session.start_time.getTime()) /
-          (1000 * 60)
+      session.totalDurationMinutes = Math.round(
+        (session.endTime.getTime() - session.startTime.getTime()) / (1000 * 60)
       )
 
       return await workoutSessionRepo.save(session)
@@ -133,15 +132,14 @@ export class WorkoutService {
     try {
       const workoutSessionRepo = AppDataSource.getRepository(WorkoutSession)
       const session = await workoutSessionRepo.findOne({
-        where: { session_id: sessionId, user_id: userId },
+        where: { id: sessionId, userId: userId },
       })
       if (!session) return null
 
-      session.end_time = new Date()
+      session.endTime = new Date()
       session.status = "completed"
-      session.total_duration_minutes = Math.round(
-        (session.end_time.getTime() - session.start_time.getTime()) /
-          (1000 * 60)
+      session.totalDurationMinutes = Math.round(
+        (session.endTime.getTime() - session.startTime.getTime()) / (1000 * 60)
       )
 
       return await workoutSessionRepo.save(session)
@@ -159,8 +157,8 @@ export class WorkoutService {
     try {
       const workoutSessionRepo = AppDataSource.getRepository(WorkoutSession)
       return await workoutSessionRepo.find({
-        where: { user_id: userId },
-        order: { start_time: "DESC" },
+        where: { userId: userId },
+        order: { startTime: "DESC" },
         take: limit,
       })
     } catch (error) {
@@ -188,8 +186,8 @@ export class WorkoutService {
     try {
       const exerciseSetRepo = AppDataSource.getRepository(ExerciseSet)
       return await exerciseSetRepo.find({
-        where: { session_id: sessionId },
-        order: { created_at: "ASC" },
+        where: { sessionId: sessionId },
+        order: { createdAt: "ASC" },
       })
     } catch (error) {
       console.error("운동 세트 조회 오류:", error)
@@ -216,8 +214,8 @@ export class WorkoutService {
     try {
       const workoutGoalRepo = AppDataSource.getRepository(WorkoutGoal)
       return await workoutGoalRepo.find({
-        where: { user_id: userId },
-        order: { created_at: "DESC" },
+        where: { userId: userId },
+        order: { createdAt: "DESC" },
       })
     } catch (error) {
       console.error("워크아웃 목표 조회 오류:", error)
@@ -232,7 +230,7 @@ export class WorkoutService {
   ): Promise<WorkoutGoal | null> {
     try {
       const workoutGoalRepo = AppDataSource.getRepository(WorkoutGoal)
-      const goal = await workoutGoalRepo.findOne({ where: { goal_id: goalId } })
+      const goal = await workoutGoalRepo.findOne({ where: { id: goalId } })
       if (!goal) return null
 
       Object.assign(goal, updateData)
@@ -247,7 +245,7 @@ export class WorkoutService {
   async deleteWorkoutGoal(goalId: number): Promise<boolean> {
     try {
       const workoutGoalRepo = AppDataSource.getRepository(WorkoutGoal)
-      const goal = await workoutGoalRepo.findOne({ where: { goal_id: goalId } })
+      const goal = await workoutGoalRepo.findOne({ where: { id: goalId } })
       if (!goal) return false
 
       await workoutGoalRepo.remove(goal)
@@ -265,29 +263,29 @@ export class WorkoutService {
       const exerciseSetRepo = AppDataSource.getRepository(ExerciseSet)
 
       // 기본 쿼리 조건
-      const sessionWhere: any = { user_id: userId, status: "completed" }
+      const sessionWhere: any = { userId: userId, status: "completed" }
       const setWhere: any = {}
 
       if (machineId) {
-        setWhere.machine_id = machineId
+        setWhere.machineId = machineId
       }
 
       // 완료된 세션 조회
       const sessions = await workoutSessionRepo.find({
         where: sessionWhere,
-        order: { end_time: "DESC" },
+        order: { endTime: "DESC" },
         take: 10,
       })
 
       // 운동 세트 조회
-      const sessionIds = sessions.map(s => s.session_id)
+      const sessionIds = sessions.map(s => s.id)
       const sets =
         sessionIds.length > 0
           ? await exerciseSetRepo.find({
               where: machineId
-                ? { session_id: In(sessionIds), machine_id: machineId }
-                : { session_id: In(sessionIds) },
-              order: { created_at: "DESC" },
+                ? { sessionId: In(sessionIds), machineId: machineId }
+                : { sessionId: In(sessionIds) },
+              order: { createdAt: "DESC" },
             })
           : []
 
@@ -312,7 +310,7 @@ export class WorkoutService {
   async deleteExerciseSet(setId: number): Promise<boolean> {
     try {
       const exerciseSetRepo = AppDataSource.getRepository(ExerciseSet)
-      const set = await exerciseSetRepo.findOne({ where: { set_id: setId } })
+      const set = await exerciseSetRepo.findOne({ where: { id: setId } })
       if (!set) return false
 
       await exerciseSetRepo.remove(set)

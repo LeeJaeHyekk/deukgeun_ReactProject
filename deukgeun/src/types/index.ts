@@ -139,14 +139,22 @@ export interface JWTConfig {
 // API 키 설정 타입
 export interface ApiKeyConfig {
   kakao: string
+  kakaoJavascript: string
+  kakaoLocation: string
+  kakaoRest: string
+  kakaoLocationAdmin: string
   googlePlaces: string
+  googleSecureSecret: string
   seoulOpenApi: string
+  gymApi: string
 }
 
 // 보안 설정 타입
 export interface SecurityConfig {
   recaptchaSecret: string
   recaptchaSiteKey: string
+  accessTokenSecret: string
+  refreshTokenSecret: string
   rateLimitWindow: number
   rateLimitMax: number
 }
@@ -172,6 +180,15 @@ export interface UploadConfig {
   maxFileSize: number
 }
 
+// 스케줄러 설정 타입
+export interface SchedulerConfig {
+  autoUpdateHour: number
+  autoUpdateMinute: number
+  autoUpdateEnabled: boolean
+  autoUpdateType: string
+  autoUpdateIntervalDays: number
+}
+
 // 애플리케이션 설정 타입
 export interface AppConfig {
   environment: Environment
@@ -184,6 +201,7 @@ export interface AppConfig {
   email: EmailConfig
   sms: SMSConfig
   upload: UploadConfig
+  scheduler: SchedulerConfig
 }
 
 // 공통 상태 타입

@@ -19,7 +19,7 @@ interface SearchResult {
 async function searchSeoulOpenData(query: string): Promise<SearchResult[]> {
   try {
     const response = await axios.get(
-      `http://openapi.seoul.go.kr:8088/${config.SEOUL_OPENAPI_KEY}/json/LOCALDATA_104201/1/1000/`
+      `http://openapi.seoul.go.kr:8088/${config.apiKeys.seoulOpenApi}/json/LOCALDATA_104201/1/1000/`
     )
 
     if (
@@ -275,7 +275,7 @@ async function reverseGeocodeAddress(
           query: address,
         },
         headers: {
-          Authorization: `KakaoAK ${config.KAKAO_API_KEY}`,
+          Authorization: `KakaoAK ${config.apiKeys.kakao}`,
         },
       }
     )

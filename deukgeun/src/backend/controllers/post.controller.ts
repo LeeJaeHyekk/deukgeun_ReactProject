@@ -125,6 +125,10 @@ export class PostController {
         req.user.userId
       )
 
+      if (!newPost) {
+        return res.status(500).json({ message: "게시글 생성에 실패했습니다." })
+      }
+
       // 게시글 작성 경험치 부여
       try {
         await this.levelService.grantExp(

@@ -10,7 +10,7 @@ interface AuthContextType {
   logout: () => Promise<void>
   checkAuthStatus: () => Promise<boolean>
 }
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 interface AuthProviderProps {
   children: ReactNode
@@ -68,57 +68,3 @@ export function useAuthContext() {
 
   return context
 }
-
-// interface User {
-//   id: number;
-//   email: string;
-//   nickname: string;
-//   accessToken: string;
-// }
-
-// interface UserStore {
-//   user: User | null;
-//   isLoggedIn: boolean;
-//   setUser: (user: User) => void;
-//   clearUser: () => void;
-// }
-
-// interface AuthContextType {
-//   isLoggedIn: boolean;
-//   user: User | null;
-//   isLoading: boolean;
-//   login: (user: User, token: string) => void;
-//   logout: () => Promise<void>;
-//   checkAuthStatus: () => Promise<void>;
-// }
-
-// const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// interface AuthProviderProps {
-//   children: ReactNode;
-// }
-
-// export function AuthProvider({ children }: AuthProviderProps) {
-//   const auth = useAuth();
-
-//   return (
-//     <AuthContext.Provider value={auth}>
-//       {!auth.isLoading && children}
-//     </AuthContext.Provider>
-//   );
-// }
-
-// export function useAuthContext() {
-//   const context = useContext(AuthContext);
-//   if (context === undefined) {
-//     throw new Error("useAuthContext must be used within an AuthProvider");
-//   }
-//   return context;
-// }
-
-// export const useUserStore = create<UserStore>((set) => ({
-//   user: null,
-//   isLoggedIn: false,
-//   setUser: (user: User) => set({ user, isLoggedIn: true }),
-//   clearUser: () => set({ user: null, isLoggedIn: false }),
-// }));

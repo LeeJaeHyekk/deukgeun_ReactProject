@@ -72,20 +72,24 @@ export interface FindIdStep1Request {
 }
 
 export interface FindIdStep2Request {
-  email: string
-  code: string
-  recaptchaToken: string
+  verificationId: string
+  verificationCode: string
 }
 
 export interface ResetPasswordStep1Request {
+  username: string
   name: string
   phone: string
+  gender?: "male" | "female" | "other"
+  birthday?: string
   recaptchaToken: string
 }
 
 export interface ResetPasswordStep2Request {
-  email: string
+  username: string
   code: string
+  newPassword: string
+  confirmPassword: string
   recaptchaToken: string
 }
 
@@ -93,7 +97,6 @@ export interface ResetPasswordStep3Request {
   resetToken: string
   newPassword: string
   confirmPassword: string
-  recaptchaToken: string
 }
 
 // Auth API functions
@@ -165,13 +168,15 @@ export const authApi = {
   // JSON 구조 기반 단순 비밀번호 재설정 Step 1: 사용자 인증
   resetPasswordSimpleStep1: async (
     data: ResetPasswordStep1Request
-  ): Promise<ApiResponseWrapper<{
-    email: string
-    nickname: string
-    maskedEmail: string
-    maskedPhone: string
-    verificationCode: string
-  }>> => {
+  ): Promise<
+    ApiResponseWrapper<{
+      email: string
+      nickname: string
+      maskedEmail: string
+      maskedPhone: string
+      verificationCode: string
+    }>
+  > => {
     console.log("✅ 단순 비밀번호 재설정 Step 1 요청:", data)
     const response = await axios.post<
       ApiResponseWrapper<{
@@ -181,7 +186,10 @@ export const authApi = {
         maskedPhone: string
         verificationCode: string
       }>
-    >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_SIMPLE_STEP1}`, data)
+    >(
+      `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_SIMPLE_STEP1}`,
+      data
+    )
     console.log("✅ 단순 비밀번호 재설정 Step 1 응답:", response)
     return response.data
   },
@@ -218,7 +226,7 @@ export const authApi = {
         maskedEmail: string
         maskedPhone: string
       }>
-    >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID_VERIFY_USER}`, data)
+    >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID_SIMPLE}`, data)
     console.log("✅ 아이디 찾기 Step 1 응답:", response)
     return response.data
   },
@@ -230,7 +238,7 @@ export const authApi = {
     console.log("✅ 아이디 찾기 Step 2 요청:", data)
     const response = await axios.post<
       ApiResponseWrapper<{ email: string; nickname: string }>
-    >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID_VERIFY_CODE}`, data)
+    >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID_SIMPLE}`, data)
     console.log("✅ 아이디 찾기 Step 2 응답:", response)
     return response.data
   },
@@ -255,7 +263,7 @@ export const authApi = {
         maskedPhone: string
       }>
     >(
-      `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_VERIFY_USER}`,
+      `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_SIMPLE_STEP1}`,
       data
     )
     console.log("✅ 비밀번호 재설정 Step 1 응답:", response)

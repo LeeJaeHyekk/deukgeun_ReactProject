@@ -90,7 +90,6 @@ export async function login(
           gender: user.gender,
           birthday: user.birthday,
           profileImage: user.profileImage,
-          role: user.role,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
         },
@@ -351,7 +350,7 @@ export const register = async (
       userId: newUser.id,
       currentCount: 0,
       lastActivity: new Date(),
-      streakType: "daily_login",
+              streakType: "login",
     })
 
     await userStreakRepo.save(userStreak)
@@ -381,7 +380,6 @@ export const register = async (
           gender: newUser.gender,
           birthday: newUser.birthday,
           profileImage: newUser.profileImage,
-          role: newUser.role,
           createdAt: newUser.createdAt,
           updatedAt: newUser.updatedAt,
         },
@@ -1095,7 +1093,8 @@ export async function resetPasswordSimpleStep2(
   res: Response<ApiResponse | ErrorResponse>
 ) {
   try {
-    const { username, code, newPassword, confirmPassword, recaptchaToken } = req.body
+    const { username, code, newPassword, confirmPassword, recaptchaToken } =
+      req.body
     console.log("단순 비밀번호 재설정 Step 2 요청:", { username, code })
 
     // reCAPTCHA 검증
@@ -1127,7 +1126,8 @@ export async function resetPasswordSimpleStep2(
     if (result.success) {
       return res.status(200).json({
         success: true,
-        message: result.data?.message || "비밀번호가 성공적으로 재설정되었습니다.",
+        message:
+          result.data?.message || "비밀번호가 성공적으로 재설정되었습니다.",
         data: result.data,
       })
     } else {

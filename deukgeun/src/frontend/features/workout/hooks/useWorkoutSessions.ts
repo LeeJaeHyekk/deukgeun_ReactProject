@@ -28,7 +28,12 @@ export function useWorkoutSessions() {
     try {
       setLoading(true)
       setError(null)
-      const newSession = await WorkoutJournalApi.createWorkoutSession(sessionData)
+      // userId가 필수이므로 기본값 설정
+      const createData = {
+        ...sessionData,
+        userId: sessionData.userId || 1, // 임시로 기본값 설정
+      } as any
+      const newSession = await WorkoutJournalApi.createWorkoutSession(createData)
       setSessions(prev => [newSession, ...prev])
       return newSession
     } catch (err) {
@@ -48,9 +53,14 @@ export function useWorkoutSessions() {
     try {
       setLoading(true)
       setError(null)
+      // sessionId가 필수이므로 추가
+      const updateDataWithId = {
+        ...updateData,
+        sessionId,
+      } as any
       const updatedSession = await WorkoutJournalApi.updateWorkoutSession(
         sessionId,
-        updateData
+        updateDataWithId
       )
       setSessions(prev =>
         prev.map(session =>

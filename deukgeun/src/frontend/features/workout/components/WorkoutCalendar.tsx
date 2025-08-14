@@ -1,7 +1,11 @@
 import React from "react"
 import "./WorkoutCalendar.css"
 
-export function WorkoutCalendar() {
+interface WorkoutCalendarProps {
+  sessions?: any[]
+}
+
+export function WorkoutCalendar({ sessions }: WorkoutCalendarProps) {
   // 실제 구현에서는 실제 캘린더 기능을 구현할 수 있습니다.
   // 여기서는 간단한 플레이스홀더를 만듭니다.
 

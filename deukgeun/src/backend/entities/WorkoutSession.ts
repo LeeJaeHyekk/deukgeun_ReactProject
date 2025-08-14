@@ -17,37 +17,34 @@ import { ExerciseSet } from "./ExerciseSet"
 @Entity("workout_sessions")
 export class WorkoutSession {
   @PrimaryGeneratedColumn()
-  session_id!: number
+  id!: number
 
   @Column({ type: "int" })
-  @Index()
-  user_id!: number
+  userId!: number
 
   @Column({ type: "int", nullable: true })
-  @Index()
-  plan_id?: number
+  planId?: number
 
   @Column({ type: "int", nullable: true })
-  @Index()
-  gym_id?: number
+  gymId?: number
 
   @Column({ type: "varchar", length: 100 })
-  session_name!: string
+  name!: string
 
   @Column({ type: "datetime" })
-  start_time!: Date
+  startTime!: Date
 
   @Column({ type: "datetime", nullable: true })
-  end_time?: Date
+  endTime?: Date
 
   @Column({ type: "int", nullable: true })
-  total_duration_minutes?: number
+  totalDurationMinutes?: number
 
   @Column({ type: "int", nullable: true })
-  mood_rating?: number // 1-5 scale
+  moodRating?: number // 1-5 scale
 
   @Column({ type: "int", nullable: true })
-  energy_level?: number // 1-5 scale
+  energyLevel?: number // 1-5 scale
 
   @Column({ type: "text", nullable: true })
   notes?: string
@@ -60,10 +57,10 @@ export class WorkoutSession {
   status!: "in_progress" | "completed" | "paused" | "cancelled"
 
   @CreateDateColumn()
-  created_at!: Date
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updated_at!: Date
+  updatedAt!: Date
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })
@@ -72,12 +69,12 @@ export class WorkoutSession {
 
   @ManyToOne(() => WorkoutPlan, { onDelete: "SET NULL" })
   @JoinColumn({ name: "plan_id" })
-  workout_plan?: WorkoutPlan
+  workoutPlan?: WorkoutPlan
 
   @ManyToOne(() => Gym, { onDelete: "SET NULL" })
   @JoinColumn({ name: "gym_id" })
   gym?: Gym
 
-  @OneToMany(() => ExerciseSet, set => set.workout_session)
-  exercise_sets!: ExerciseSet[]
+  @OneToMany(() => ExerciseSet, set => set.workoutSession)
+  exerciseSets!: ExerciseSet[]
 }

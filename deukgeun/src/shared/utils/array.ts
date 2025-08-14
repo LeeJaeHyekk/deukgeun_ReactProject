@@ -47,14 +47,17 @@ export function groupBy<T>(
   arr: T[],
   key: keyof T | ((item: T) => string)
 ): Record<string, T[]> {
-  return arr.reduce((groups, item) => {
-    const groupKey = typeof key === "function" ? key(item) : String(item[key])
-    if (!groups[groupKey]) {
-      groups[groupKey] = []
-    }
-    groups[groupKey].push(item)
-    return groups
-  }, {} as Record<string, T[]>)
+  return arr.reduce(
+    (groups, item) => {
+      const groupKey = typeof key === "function" ? key(item) : String(item[key])
+      if (!groups[groupKey]) {
+        groups[groupKey] = []
+      }
+      groups[groupKey].push(item)
+      return groups
+    },
+    {} as Record<string, T[]>
+  )
 }
 
 // 배열을 정렬 (다중 키 지원)
@@ -66,10 +69,10 @@ export function sortBy<T>(
     for (const keyConfig of keys) {
       const key = typeof keyConfig === "object" ? keyConfig.key : keyConfig
       const order = typeof keyConfig === "object" ? keyConfig.order : "asc"
-      
+
       const aVal = a[key]
       const bVal = b[key]
-      
+
       if (aVal < bVal) return order === "asc" ? -1 : 1
       if (aVal > bVal) return order === "asc" ? 1 : -1
     }
@@ -96,21 +99,39 @@ export function shuffle<T>(arr: T[]): T[] {
 }
 
 // 배열에서 최대값 찾기
-export function max<T>(arr: T[], selector?: (item: T) => number): T | undefined {
+export function max<T>(
+  arr: T[],
+  selector?: (item: T) => number
+): T | undefined {
   if (isEmpty(arr)) return undefined
   if (selector) {
-    return arr.reduce((max, item) => selector(item) > selector(max) ? item : max)
+    return arr.reduce((max, item) =>
+      selector(item) > selector(max) ? item : max
+    )
   }
-  return Math.max(...(arr as number[]))
+  // 숫자 배열인 경우에만 Math.max 사용
+  if (arr.every(item => typeof item === "number")) {
+    return Math.max(...(arr as number[])) as T
+  }
+  return undefined
 }
 
 // 배열에서 최소값 찾기
-export function min<T>(arr: T[], selector?: (item: T) => number): T | undefined {
+export function min<T>(
+  arr: T[],
+  selector?: (item: T) => number
+): T | undefined {
   if (isEmpty(arr)) return undefined
   if (selector) {
-    return arr.reduce((min, item) => selector(item) < selector(min) ? item : min)
+    return arr.reduce((min, item) =>
+      selector(item) < selector(min) ? item : min
+    )
   }
-  return Math.min(...(arr as number[]))
+  // 숫자 배열인 경우에만 Math.min 사용
+  if (arr.every(item => typeof item === "number")) {
+    return Math.min(...(arr as number[])) as T
+  }
+  return undefined
 }
 
 // 배열의 평균값 계산
@@ -125,22 +146,34 @@ export function sum(arr: number[]): number {
 }
 
 // 배열에서 조건에 맞는 첫 번째 요소 찾기
-export function find<T>(arr: T[], predicate: (item: T, index: number) => boolean): T | undefined {
+export function find<T>(
+  arr: T[],
+  predicate: (item: T, index: number) => boolean
+): T | undefined {
   return arr.find(predicate)
 }
 
 // 배열에서 조건에 맞는 모든 요소 찾기
-export function findAll<T>(arr: T[], predicate: (item: T, index: number) => boolean): T[] {
+export function findAll<T>(
+  arr: T[],
+  predicate: (item: T, index: number) => boolean
+): T[] {
   return arr.filter(predicate)
 }
 
 // 배열에서 조건에 맞는 요소의 인덱스 찾기
-export function findIndex<T>(arr: T[], predicate: (item: T, index: number) => boolean): number {
+export function findIndex<T>(
+  arr: T[],
+  predicate: (item: T, index: number) => boolean
+): number {
   return arr.findIndex(predicate)
 }
 
 // 배열에서 조건에 맞는 요소의 개수 세기
-export function count<T>(arr: T[], predicate: (item: T, index: number) => boolean): number {
+export function count<T>(
+  arr: T[],
+  predicate: (item: T, index: number) => boolean
+): number {
   return arr.filter(predicate).length
 }
 
@@ -150,7 +183,10 @@ export function countOccurrences<T>(arr: T[], item: T): number {
 }
 
 // 배열에서 조건에 맞는 요소가 있는지 확인
-export function has<T>(arr: T[], predicate: (item: T, index: number) => boolean): boolean {
+export function has<T>(
+  arr: T[],
+  predicate: (item: T, index: number) => boolean
+): boolean {
   return arr.some(predicate)
 }
 
@@ -199,7 +235,10 @@ export function removeAt<T>(arr: T[], index: number): T[] {
 }
 
 // 배열에서 조건에 맞는 요소들 제거
-export function removeWhere<T>(arr: T[], predicate: (item: T, index: number) => boolean): T[] {
+export function removeWhere<T>(
+  arr: T[],
+  predicate: (item: T, index: number) => boolean
+): T[] {
   return arr.filter((item, index) => !predicate(item, index))
 }
 
@@ -227,29 +266,36 @@ export function flatten<T>(arr: T[][]): T[] {
 
 // 배열을 깊게 플랫하게 만들기
 export function flattenDeep<T>(arr: unknown[]): T[] {
-  return arr.reduce((flat, item) => {
-    return flat.concat(Array.isArray(item) ? flattenDeep(item) : item)
+  return arr.reduce((flat: T[], item) => {
+    return flat.concat(Array.isArray(item) ? flattenDeep<T>(item) : (item as T))
   }, [] as T[])
 }
 
 // 배열에서 중복 요소들의 개수 세기
 export function countDuplicates<T>(arr: T[]): Record<string, number> {
-  return arr.reduce((counts, item) => {
-    const key = String(item)
-    counts[key] = (counts[key] || 0) + 1
-    return counts
-  }, {} as Record<string, number>)
+  return arr.reduce(
+    (counts, item) => {
+      const key = String(item)
+      counts[key] = (counts[key] || 0) + 1
+      return counts
+    },
+    {} as Record<string, number>
+  )
 }
 
 // 배열에서 가장 많이 나타나는 요소 찾기
 export function mostFrequent<T>(arr: T[]): T | undefined {
   if (isEmpty(arr)) return undefined
-  
+
   const counts = countDuplicates(arr)
   const maxCount = Math.max(...Object.values(counts))
-  const mostFrequentKey = Object.keys(counts).find(key => counts[key] === maxCount)
-  
-  return mostFrequentKey ? (arr.find(item => String(item) === mostFrequentKey) as T) : undefined
+  const mostFrequentKey = Object.keys(counts).find(
+    key => counts[key] === maxCount
+  )
+
+  return mostFrequentKey
+    ? (arr.find(item => String(item) === mostFrequentKey) as T)
+    : undefined
 }
 
 // 배열에서 고유한 요소들만 가져오기
@@ -258,7 +304,10 @@ export function unique<T>(arr: T[]): T[] {
 }
 
 // 배열에서 고유한 객체들만 가져오기 (키 기준)
-export function uniqueBy<T extends Record<string, unknown>>(arr: T[], key: keyof T): T[] {
+export function uniqueBy<T extends Record<string, unknown>>(
+  arr: T[],
+  key: keyof T
+): T[] {
   return removeDuplicateObjects(arr, key)
 }
 
@@ -273,12 +322,15 @@ export function toObject<T>(
   keySelector: (item: T) => string,
   valueSelector?: (item: T) => unknown
 ): Record<string, unknown> {
-  return arr.reduce((obj, item) => {
-    const key = keySelector(item)
-    const value = valueSelector ? valueSelector(item) : item
-    obj[key] = value
-    return obj
-  }, {} as Record<string, unknown>)
+  return arr.reduce(
+    (obj, item) => {
+      const key = keySelector(item)
+      const value = valueSelector ? valueSelector(item) : item
+      obj[key] = value
+      return obj
+    },
+    {} as Record<string, unknown>
+  )
 }
 
 // 배열을 Map으로 변환
@@ -296,17 +348,26 @@ export function toSet<T>(arr: T[]): Set<T> {
 }
 
 // 배열의 모든 요소가 조건을 만족하는지 확인
-export function every<T>(arr: T[], predicate: (item: T, index: number) => boolean): boolean {
+export function every<T>(
+  arr: T[],
+  predicate: (item: T, index: number) => boolean
+): boolean {
   return arr.every(predicate)
 }
 
 // 배열의 일부 요소가 조건을 만족하는지 확인
-export function some<T>(arr: T[], predicate: (item: T, index: number) => boolean): boolean {
+export function some<T>(
+  arr: T[],
+  predicate: (item: T, index: number) => boolean
+): boolean {
   return arr.some(predicate)
 }
 
 // 배열을 순회하면서 각 요소에 함수 적용
-export function forEach<T>(arr: T[], fn: (item: T, index: number) => void): void {
+export function forEach<T>(
+  arr: T[],
+  fn: (item: T, index: number) => void
+): void {
   arr.forEach(fn)
 }
 
@@ -316,7 +377,10 @@ export function map<T, U>(arr: T[], fn: (item: T, index: number) => U): U[] {
 }
 
 // 배열에서 조건에 맞는 요소들만 필터링
-export function filter<T>(arr: T[], predicate: (item: T, index: number) => boolean): T[] {
+export function filter<T>(
+  arr: T[],
+  predicate: (item: T, index: number) => boolean
+): T[] {
   return arr.filter(predicate)
 }
 

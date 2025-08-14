@@ -10,7 +10,12 @@ interface WorkoutPlanCardProps {
   onStart?: () => void
 }
 
-export function WorkoutPlanCard({ plan, onEdit, onDelete, onStart }: WorkoutPlanCardProps) {
+export function WorkoutPlanCard({
+  plan,
+  onEdit,
+  onDelete,
+  onStart,
+}: WorkoutPlanCardProps) {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "beginner":
@@ -39,7 +44,7 @@ export function WorkoutPlanCard({ plan, onEdit, onDelete, onStart }: WorkoutPlan
 
   const handleCardClick = (e: React.MouseEvent) => {
     // 버튼 클릭 시 카드 클릭 이벤트 방지
-    if ((e.target as HTMLElement).closest('.action-button')) {
+    if ((e.target as HTMLElement).closest(".action-button")) {
       return
     }
     onEdit?.()
@@ -49,12 +54,14 @@ export function WorkoutPlanCard({ plan, onEdit, onDelete, onStart }: WorkoutPlan
     <div className="workout-plan-card" onClick={handleCardClick}>
       <div className="plan-header">
         <h3 className="plan-name">{plan.plan_name}</h3>
-        <span
+        <div
           className="difficulty-badge"
-          style={{ backgroundColor: getDifficultyColor(plan.difficulty) }}
+          style={{
+            backgroundColor: getDifficultyColor(plan.difficulty || "beginner"),
+          }}
         >
-          {getDifficultyText(plan.difficulty)}
-        </span>
+          {getDifficultyText(plan.difficulty || "beginner")}
+        </div>
       </div>
 
       {plan.description && (
@@ -84,17 +91,19 @@ export function WorkoutPlanCard({ plan, onEdit, onDelete, onStart }: WorkoutPlan
       </div>
 
       <div className="plan-footer">
-        <span className="plan-date">
-          {new Date(plan.created_at).toLocaleDateString()}
-        </span>
+        {plan.created_at && (
+          <div className="created-date">
+            {new Date(plan.created_at).toLocaleDateString()}
+          </div>
+        )}
         {plan.is_template && <span className="template-badge">템플릿</span>}
       </div>
 
       <div className="plan-actions">
         {onStart && (
-          <button 
+          <button
             className="action-button start-button"
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation()
               onStart()
             }}
@@ -104,11 +113,11 @@ export function WorkoutPlanCard({ plan, onEdit, onDelete, onStart }: WorkoutPlan
             시작
           </button>
         )}
-        
+
         {onEdit && (
-          <button 
+          <button
             className="action-button edit-button"
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation()
               onEdit()
             }}
@@ -118,11 +127,11 @@ export function WorkoutPlanCard({ plan, onEdit, onDelete, onStart }: WorkoutPlan
             편집
           </button>
         )}
-        
+
         {onDelete && (
-          <button 
+          <button
             className="action-button delete-button"
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation()
               onDelete()
             }}

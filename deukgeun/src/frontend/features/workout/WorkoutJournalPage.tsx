@@ -140,10 +140,9 @@ export default function WorkoutJournalPage() {
   const handlePlanSave = useCallback(
     async (planData: Partial<WorkoutPlan>) => {
       try {
-        if (selectedPlan) {
+        // 운동 계획 업데이트
+        if (selectedPlan && selectedPlan.plan_id) {
           await updatePlan(selectedPlan.plan_id, planData)
-        } else {
-          await createPlan(planData)
         }
         setIsPlanModalOpen(false)
         setSelectedPlan(null)
@@ -222,10 +221,9 @@ export default function WorkoutJournalPage() {
   const handleGoalSave = useCallback(
     async (goalData: Partial<WorkoutGoal>) => {
       try {
-        if (selectedGoal) {
+        // 운동 목표 업데이트
+        if (selectedGoal && selectedGoal.goal_id) {
           await updateGoal(selectedGoal.goal_id, goalData)
-        } else {
-          await createGoal(goalData)
         }
         setIsGoalModalOpen(false)
         setSelectedGoal(null)
@@ -311,12 +309,15 @@ export default function WorkoutJournalPage() {
       // 해당 날짜의 운동 세션 수 계산
       const sessionsOnDate =
         sessions?.filter(session => {
-          const sessionDate = new Date(session.start_time)
-          return (
-            sessionDate.getDate() === date.getDate() &&
-            sessionDate.getMonth() === date.getMonth() &&
-            sessionDate.getFullYear() === date.getFullYear()
-          )
+          if (session.start_time) {
+            const sessionDate = new Date(session.start_time)
+            return (
+              sessionDate.getDate() === date.getDate() &&
+              sessionDate.getMonth() === date.getMonth() &&
+              sessionDate.getFullYear() === date.getFullYear()
+            )
+          }
+          return false
         }) || []
 
       data.push({
@@ -503,7 +504,11 @@ export default function WorkoutJournalPage() {
                       key={plan.plan_id}
                       plan={plan}
                       onEdit={() => handlePlanEdit(plan)}
-                      onDelete={() => handlePlanDelete(plan.plan_id)}
+                      onDelete={() => {
+                        if (plan.plan_id) {
+                          handlePlanDelete(plan.plan_id)
+                        }
+                      }}
                       onStart={() => handleSessionStart(plan)}
                     />
                   ))}
@@ -536,9 +541,11 @@ export default function WorkoutJournalPage() {
                   {sessions?.map(session => (
                     <div key={session.session_id} className="session-item">
                       <h3>{session.session_name}</h3>
-                      <p>
-                        시작: {new Date(session.start_time).toLocaleString()}
-                      </p>
+                      {session.start_time && (
+                        <p>
+                          시작: {new Date(session.start_time).toLocaleString()}
+                        </p>
+                      )}
                       {session.end_time && (
                         <p>
                           완료: {new Date(session.end_time).toLocaleString()}
@@ -555,7 +562,11 @@ export default function WorkoutJournalPage() {
                       </span>
                       <button
                         className="delete-session-button"
-                        onClick={() => handleSessionDelete(session.session_id)}
+                        onClick={() => {
+                          if (session.session_id) {
+                            handleSessionDelete(session.session_id)
+                          }
+                        }}
                       >
                         삭제
                       </button>

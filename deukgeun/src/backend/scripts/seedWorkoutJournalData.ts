@@ -125,7 +125,7 @@ async function seedWorkoutJournalData() {
       const savedGoal = await goalRepository.save(goal)
       createdGoals.push(savedGoal)
       console.log(
-        `✅ 운동 목표 생성: ${savedGoal.goal_type} - ${savedGoal.target_value}${savedGoal.unit}`
+        `✅ 운동 목표 생성: ${savedGoal.type} - ${savedGoal.targetValue}${savedGoal.unit}`
       )
     }
 
@@ -148,34 +148,34 @@ async function seedWorkoutJournalData() {
       const plan = createdPlans[i % createdPlans.length]
 
       const sessionData = {
-        user_id: user.id,
-        plan_id: plan.plan_id,
-        session_name: `${plan.name} 세션`,
-        start_time: new Date(sessionDate.getTime() + 9 * 60 * 60 * 1000), // 오전 9시
-        end_time: new Date(sessionDate.getTime() + 10 * 60 * 60 * 1000), // 오전 10시
-        total_duration_minutes: 60,
-        mood_rating: Math.floor(Math.random() * 3) + 3, // 3-5
-        energy_level: Math.floor(Math.random() * 3) + 3, // 3-5
+        userId: user.id,
+        planId: plan.id,
+        name: `${plan.name} 세션`,
+        startTime: new Date(sessionDate.getTime() + 9 * 60 * 60 * 1000), // 오전 9시
+        endTime: new Date(sessionDate.getTime() + 10 * 60 * 60 * 1000), // 오전 10시
+        totalDurationMinutes: 60,
+        moodRating: Math.floor(Math.random() * 3) + 3, // 3-5
+        energyLevel: Math.floor(Math.random() * 3) + 3, // 3-5
         notes: "좋은 운동이었다!",
         status: "completed" as const,
       }
 
       const session = sessionRepository.create(sessionData)
       const savedSession = await sessionRepository.save(session)
-      console.log(`✅ 운동 세션 생성: ${savedSession.session_name}`)
+      console.log(`✅ 운동 세션 생성: ${savedSession.name}`)
 
       // 운동 세트 생성
       const machine = machines[i % machines.length]
       for (let setNum = 1; setNum <= 3; setNum++) {
         const setData = {
-          session_id: savedSession.session_id,
-          machine_id: machine.id,
-          set_number: setNum,
-          reps_completed: Math.floor(Math.random() * 5) + 8, // 8-12
-          weight_kg: Math.floor(Math.random() * 20) + 30, // 30-50kg
-          duration_seconds: undefined,
-          distance_meters: undefined,
-          rpe_rating: Math.floor(Math.random() * 3) + 7, // 7-9
+          sessionId: savedSession.id,
+          machineId: machine.id,
+          setNumber: setNum,
+          repsCompleted: Math.floor(Math.random() * 5) + 8, // 8-12
+          weightKg: Math.floor(Math.random() * 20) + 30, // 30-50kg
+          durationSeconds: undefined,
+          distanceMeters: undefined,
+          rpeRating: Math.floor(Math.random() * 3) + 7, // 7-9
           notes: `${setNum}세트 완료`,
         }
 
@@ -191,18 +191,18 @@ async function seedWorkoutJournalData() {
       date.setDate(date.getDate() - i)
 
       const statsData = {
-        user_id: user.id,
-        workout_date: date,
-        total_sessions: i % 3 === 0 ? 1 : 0,
-        total_duration_minutes: i % 3 === 0 ? 60 : 0,
-        total_sets: i % 3 === 0 ? 9 : 0,
-        total_reps: i % 3 === 0 ? 90 : 0,
-        total_weight_kg: i % 3 === 0 ? 360 : 0,
-        total_distance_meters: 0,
-        average_mood: i % 3 === 0 ? 4.2 : 0,
-        average_energy: i % 3 === 0 ? 4.0 : 0,
-        average_rpe: i % 3 === 0 ? 8.0 : 0,
-        calories_burned: i % 3 === 0 ? 480 : 0,
+        userId: user.id,
+        workoutDate: date,
+        totalSessions: i % 3 === 0 ? 1 : 0,
+        totalDurationMinutes: i % 3 === 0 ? 60 : 0,
+        totalSets: i % 3 === 0 ? 9 : 0,
+        totalReps: i % 3 === 0 ? 90 : 0,
+        totalWeightKg: i % 3 === 0 ? 360 : 0,
+        totalDistanceMeters: 0,
+        averageMood: i % 3 === 0 ? 4.2 : 0,
+        averageEnergy: i % 3 === 0 ? 4.0 : 0,
+        averageRpe: i % 3 === 0 ? 8.0 : 0,
+        caloriesBurned: i % 3 === 0 ? 480 : 0,
       }
 
       const stats = statsRepository.create(statsData)

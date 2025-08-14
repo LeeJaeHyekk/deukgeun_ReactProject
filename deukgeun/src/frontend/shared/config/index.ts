@@ -42,6 +42,12 @@ export const API_ENDPOINTS = {
     FIND_ID_SIMPLE: "/api/auth/find-id-simple",
     RESET_PASSWORD_SIMPLE_STEP1: "/api/auth/reset-password-simple-step1",
     RESET_PASSWORD_SIMPLE_STEP2: "/api/auth/reset-password-simple-step2",
+    FIND_ID_VERIFY_USER: "/api/auth/find-id-verify-user",
+    FIND_ID_VERIFY_CODE: "/api/auth/find-id-verify-code",
+    RESET_PASSWORD_VERIFY_USER: "/api/auth/reset-password-verify-user",
+    RESET_PASSWORD_VERIFY_CODE: "/api/auth/reset-password-verify-code",
+    RESET_PASSWORD_COMPLETE: "/api/auth/reset-password-complete",
+    CHECK: "/api/auth/check",
   },
   USER: {
     PROFILE: "/api/user/profile",
@@ -51,11 +57,14 @@ export const API_ENDPOINTS = {
     LIST: "/api/posts",
     CREATE: "/api/posts",
     DETAIL: (id: number) => `/api/posts/${id}`,
+    GET_ALL: "/api/posts",
+    GET_BY_ID: (id: number) => `/api/posts/${id}`,
   },
   GYMS: {
     LIST: "/api/gyms",
     SEARCH: "/api/gyms/search",
     DETAIL: (id: number) => `/api/gyms/${id}`,
+    GET_ALL: "/api/gyms",
   },
   MACHINES: {
     LIST: "/api/machines",
@@ -64,6 +73,22 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/api/machines/${id}`,
     DELETE: (id: number) => `/api/machines/${id}`,
     FILTER: "/api/machines/filter",
+    GET_ALL: "/api/machines",
+    GET_BY_ID: (id: number) => `/api/machines/${id}`,
+    GET_BY_CATEGORY: (category: string) => `/api/machines/category/${category}`,
+    GET_BY_DIFFICULTY: (difficulty: string) =>
+      `/api/machines/difficulty/${difficulty}`,
+    GET_BY_TARGET: (target: string) => `/api/machines/target/${target}`,
+  },
+  LEVELS: {
+    GET_USER_LEVEL: (userId: number) => `/api/levels/user/${userId}`,
+    GRANT_EXP: "/api/levels/grant-exp",
+  },
+  WORKOUT_GOALS: {
+    GET_ALL: "/api/workout-goals",
+    CREATE: "/api/workout-goals",
+    UPDATE: (id: number) => `/api/workout-goals/${id}`,
+    DELETE: (id: number) => `/api/workout-goals/${id}`,
   },
   WORKOUTS: {
     PLANS: "/api/workouts/plans",

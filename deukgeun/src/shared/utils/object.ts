@@ -57,7 +57,7 @@ export function omit<T extends Record<string, unknown>, K extends keyof T>(
 ): Omit<T, K> {
   const result = { ...obj } as Omit<T, K>
   for (const key of keys) {
-    delete result[key as keyof Omit<T, K>]
+    delete (result as any)[key]
   }
   return result
 }
@@ -68,17 +68,23 @@ export function keys<T extends Record<string, unknown>>(obj: T): (keyof T)[] {
 }
 
 // 객체의 값들을 가져오기
-export function values<T extends Record<string, unknown>>(obj: T): T[keyof T][] {
-  return Object.values(obj)
+export function values<T extends Record<string, unknown>>(
+  obj: T
+): T[keyof T][] {
+  return Object.values(obj) as T[keyof T][]
 }
 
 // 객체의 키-값 쌍들을 가져오기
-export function entries<T extends Record<string, unknown>>(obj: T): [keyof T, T[keyof T]][] {
+export function entries<T extends Record<string, unknown>>(
+  obj: T
+): [keyof T, T[keyof T]][] {
   return Object.entries(obj) as [keyof T, T[keyof T]][]
 }
 
 // 객체를 Map으로 변환
-export function toMap<T extends Record<string, unknown>>(obj: T): Map<keyof T, T[keyof T]> {
+export function toMap<T extends Record<string, unknown>>(
+  obj: T
+): Map<keyof T, T[keyof T]> {
   return new Map(entries(obj))
 }
 
@@ -97,21 +103,24 @@ export function deepMerge<T extends Record<string, unknown>>(
   ...sources: Partial<T>[]
 ): T {
   if (!sources.length) return target
-  
+
   const source = sources.shift()
   if (source === undefined) return target
-  
+
   if (isValidObject(target) && isValidObject(source)) {
     for (const key in source) {
       if (isValidObject(source[key])) {
         if (!target[key]) Object.assign(target, { [key]: {} })
-        deepMerge(target[key] as Record<string, unknown>, source[key] as Record<string, unknown>)
+        deepMerge(
+          target[key] as Record<string, unknown>,
+          source[key] as Record<string, unknown>
+        )
       } else {
         Object.assign(target, { [key]: source[key] })
       }
     }
   }
-  
+
   return deepMerge(target, ...sources)
 }
 
@@ -131,14 +140,14 @@ export function get<T>(
 ): T | undefined {
   const keys = Array.isArray(path) ? path : path.split(".")
   let result: unknown = obj
-  
+
   for (const key of keys) {
     if (result === null || result === undefined || typeof result !== "object") {
       return defaultValue
     }
     result = (result as Record<string, unknown>)[key]
   }
-  
+
   return result as T
 }
 
@@ -151,7 +160,7 @@ export function set<T extends Record<string, unknown>>(
   const keys = Array.isArray(path) ? path : path.split(".")
   const result = deepClone(obj)
   let current: Record<string, unknown> = result
-  
+
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i]
     if (!(key in current) || !isValidObject(current[key])) {
@@ -159,7 +168,7 @@ export function set<T extends Record<string, unknown>>(
     }
     current = current[key] as Record<string, unknown>
   }
-  
+
   current[keys[keys.length - 1]] = value
   return result
 }
@@ -172,7 +181,7 @@ export function unset<T extends Record<string, unknown>>(
   const keys = Array.isArray(path) ? path : path.split(".")
   const result = deepClone(obj)
   let current: Record<string, unknown> = result
-  
+
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i]
     if (!(key in current) || !isValidObject(current[key])) {
@@ -180,18 +189,25 @@ export function unset<T extends Record<string, unknown>>(
     }
     current = current[key] as Record<string, unknown>
   }
-  
+
   delete current[keys[keys.length - 1]]
   return result
 }
 
 // 객체에 특정 경로가 존재하는지 확인
-export function has(obj: Record<string, unknown>, path: string | string[]): boolean {
+export function has(
+  obj: Record<string, unknown>,
+  path: string | string[]
+): boolean {
   const keys = Array.isArray(path) ? path : path.split(".")
   let current: unknown = obj
-  
+
   for (const key of keys) {
-    if (current === null || current === undefined || typeof current !== "object") {
+    if (
+      current === null ||
+      current === undefined ||
+      typeof current !== "object"
+    ) {
       return false
     }
     if (!(key in current)) {
@@ -199,7 +215,7 @@ export function has(obj: Record<string, unknown>, path: string | string[]): bool
     }
     current = (current as Record<string, unknown>)[key]
   }
-  
+
   return true
 }
 
@@ -210,17 +226,20 @@ export function flatten(
   separator = "."
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {}
-  
+
   for (const [key, value] of entries(obj)) {
     const newKey = prefix ? `${prefix}${separator}${String(key)}` : String(key)
-    
+
     if (isValidObject(value) && !Array.isArray(value)) {
-      Object.assign(result, flatten(value as Record<string, unknown>, newKey, separator))
+      Object.assign(
+        result,
+        flatten(value as Record<string, unknown>, newKey, separator)
+      )
     } else {
       result[newKey] = value
     }
   }
-  
+
   return result
 }
 
@@ -230,11 +249,11 @@ export function unflatten(
   separator = "."
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {}
-  
+
   for (const [key, value] of entries(obj)) {
     const keys = key.split(separator)
     let current = result
-    
+
     for (let i = 0; i < keys.length - 1; i++) {
       const k = keys[i]
       if (!(k in current) || !isValidObject(current[k])) {
@@ -242,10 +261,10 @@ export function unflatten(
       }
       current = current[k] as Record<string, unknown>
     }
-    
+
     current[keys[keys.length - 1]] = value
   }
-  
+
   return result
 }
 
@@ -268,13 +287,13 @@ export function filter<T extends Record<string, unknown>>(
   predicate: (value: T[keyof T], key: keyof T) => boolean
 ): Partial<T> {
   const result: Partial<T> = {}
-  
+
   for (const [key, value] of entries(obj)) {
     if (predicate(value, key)) {
       result[key] = value
     }
   }
-  
+
   return result
 }
 
@@ -284,11 +303,11 @@ export function mapValues<T extends Record<string, unknown>, U>(
   fn: (value: T[keyof T], key: keyof T) => U
 ): Record<keyof T, U> {
   const result = {} as Record<keyof T, U>
-  
+
   for (const [key, value] of entries(obj)) {
     result[key] = fn(value, key)
   }
-  
+
   return result
 }
 
@@ -298,11 +317,11 @@ export function mapKeys<T extends Record<string, unknown>>(
   fn: (key: keyof T, value: T[keyof T]) => string
 ): Record<string, T[keyof T]> {
   const result: Record<string, T[keyof T]> = {}
-  
+
   for (const [key, value] of entries(obj)) {
     result[fn(key, value)] = value
   }
-  
+
   return result
 }
 
@@ -323,11 +342,11 @@ export function reduce<T extends Record<string, unknown>, U>(
   initialValue: U
 ): U {
   let result = initialValue
-  
+
   for (const [key, value] of entries(obj)) {
     result = fn(result, value, key)
   }
-  
+
   return result
 }
 
@@ -344,13 +363,13 @@ export function fromJson<T extends Record<string, unknown>>(json: string): T {
 // 객체를 URL 쿼리 문자열로 변환
 export function toQueryString(obj: Record<string, unknown>): string {
   const params = new URLSearchParams()
-  
+
   for (const [key, value] of entries(obj)) {
     if (value !== null && value !== undefined) {
       params.append(String(key), String(value))
     }
   }
-  
+
   return params.toString()
 }
 
@@ -358,24 +377,24 @@ export function toQueryString(obj: Record<string, unknown>): string {
 export function fromQueryString(queryString: string): Record<string, string> {
   const params = new URLSearchParams(queryString)
   const result: Record<string, string> = {}
-  
+
   for (const [key, value] of params) {
     result[key] = value
   }
-  
+
   return result
 }
 
 // 객체를 FormData로 변환
 export function toFormData(obj: Record<string, unknown>): FormData {
   const formData = new FormData()
-  
+
   for (const [key, value] of entries(obj)) {
     if (value !== null && value !== undefined) {
       formData.append(String(key), String(value))
     }
   }
-  
+
   return formData
 }
 
@@ -424,12 +443,12 @@ export function findAll<T extends Record<string, unknown>>(
   predicate: (value: T[keyof T], key: keyof T) => boolean
 ): Array<[keyof T, T[keyof T]]> {
   const result: Array<[keyof T, T[keyof T]]> = []
-  
+
   for (const [key, value] of entries(obj)) {
     if (predicate(value, key)) {
       result.push([key, value])
     }
   }
-  
+
   return result
 }

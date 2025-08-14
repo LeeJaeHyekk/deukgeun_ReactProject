@@ -92,14 +92,14 @@ export class LevelService {
       const config = getLevelConfig()
       const cooldownTimes = config.cooldownTimes
 
-      const cooldownTime = cooldownTimes[action] || 0
+      const cooldownTime = (cooldownTimes as any)[action] || 0
       if (cooldownTime === 0) {
         return { isOnCooldown: false, remainingTime: 0 }
       }
 
       // 최근 동일 액션 조회
       const recentAction = await expHistoryRepo.findOne({
-        where: { userId, actionType: action },
+        where: { userId, actionType: action as any },
         order: { createdAt: "DESC" },
       })
 
@@ -129,9 +129,9 @@ export class LevelService {
       const config = getLevelConfig()
       const levelRewards = config.levelRewards
 
-      const reward = levelRewards[newLevel]
+      const reward = (levelRewards as any)[newLevel]
       if (reward) {
-        const userReward = await this.grantReward(userId, reward.type, {
+        const userReward = await this.grantReward(userId, reward.type as any, {
           name: reward.name,
           description: reward.description,
           level: newLevel,
@@ -253,7 +253,7 @@ export class LevelService {
       // 경험치 히스토리 기록
       const expHistory = expHistoryRepo.create({
         userId,
-        actionType: action,
+        actionType: action as any,
         source: reason,
         expGained: expAmount,
         metadata: data,
@@ -308,7 +308,7 @@ export class LevelService {
   // 경험치 양 계산
   private calculateExpAmount(action: string, reason: string): number {
     const config = getLevelConfig()
-    return config.expValues[action]?.[reason] || 10
+    return (config.expValues as any)[action]?.[reason] || 10
   }
 
   // 경험치 히스토리 조회
@@ -340,7 +340,7 @@ export class LevelService {
 
       const reward = rewardRepo.create({
         userId,
-        rewardType: rewardType,
+        rewardType: rewardType as any,
         rewardId: `reward_${Date.now()}`,
         metadata: rewardData,
       })

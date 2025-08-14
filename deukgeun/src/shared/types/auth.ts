@@ -2,6 +2,9 @@
 // 인증 관련 타입
 // ============================================================================
 
+// Express 타입은 런타임에서만 필요하므로 타입 체크 시에는 제외
+// import { Request } from 'express'
+
 // 사용자 프로필 타입
 export interface UserProfile {
   id: number
@@ -67,13 +70,16 @@ export interface LogoutResponse {
   message: string
 }
 
-// 인증된 요청 타입
-export interface AuthenticatedRequest extends Request {
+// 인증된 요청 타입 - Express Request 확장
+export interface AuthenticatedRequest {
   user?: {
     userId: number
     email: string
     role: string
   }
+  params: any
+  body: any
+  [key: string]: any
 }
 
 // 비밀번호 재설정 요청 타입

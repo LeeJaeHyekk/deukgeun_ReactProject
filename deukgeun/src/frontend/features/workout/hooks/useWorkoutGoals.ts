@@ -28,7 +28,12 @@ export function useWorkoutGoals() {
     try {
       setLoading(true)
       setError(null)
-      const newGoal = await WorkoutJournalApi.createWorkoutGoal(goalData)
+      // userId가 필수이므로 기본값 설정
+      const createData = {
+        ...goalData,
+        userId: goalData.userId || 1, // 임시로 기본값 설정
+      } as any
+      const newGoal = await WorkoutJournalApi.createWorkoutGoal(createData)
       setGoals(prev => [newGoal, ...prev])
       return newGoal
     } catch (err) {
@@ -45,7 +50,12 @@ export function useWorkoutGoals() {
     try {
       setLoading(true)
       setError(null)
-      const updatedGoal = await WorkoutJournalApi.updateWorkoutGoal(goalId, goalData)
+      // goalId가 필수이므로 추가
+      const updateData = {
+        ...goalData,
+        goalId,
+      } as any
+      const updatedGoal = await WorkoutJournalApi.updateWorkoutGoal(goalId, updateData)
       setGoals(prev =>
         prev.map(goal =>
           goal.goal_id === goalId ? updatedGoal : goal

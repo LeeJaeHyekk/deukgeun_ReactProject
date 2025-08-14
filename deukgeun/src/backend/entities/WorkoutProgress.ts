@@ -14,52 +14,49 @@ import { Machine } from "./Machine"
 @Entity("workout_progress")
 export class WorkoutProgress {
   @PrimaryGeneratedColumn()
-  progress_id!: number
+  id!: number
 
   @Column({ type: "int" })
-  @Index()
-  user_id!: number
+  userId!: number
 
   @Column({ type: "int" })
-  @Index()
-  machine_id!: number
+  machineId!: number
 
   @Column({ type: "date" })
-  @Index()
-  progress_date!: Date
+  progressDate!: Date
 
   @Column({ type: "int" })
-  set_number!: number
+  setNumber!: number
 
   @Column({ type: "int" })
-  reps_completed!: number
+  repsCompleted!: number
 
   @Column({ type: "decimal", precision: 5, scale: 2, nullable: true })
-  weight_kg?: number
+  weightKg?: number
 
   @Column({ type: "int", nullable: true })
-  duration_seconds?: number
+  durationSeconds?: number
 
   @Column({ type: "decimal", precision: 8, scale: 2, nullable: true })
-  distance_meters?: number
+  distanceMeters?: number
 
   @Column({ type: "int", nullable: true })
-  rpe_rating?: number
+  rpeRating?: number
 
   @Column({ type: "text", nullable: true })
   notes?: string
 
   @Column({ type: "boolean", default: false })
-  is_personal_best!: boolean
+  isPersonalBest!: boolean
 
   @Column({ type: "decimal", precision: 5, scale: 2, nullable: true })
-  improvement_percentage?: number
+  improvementPercentage?: number
 
   @CreateDateColumn()
-  created_at!: Date
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updated_at!: Date
+  updatedAt!: Date
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })

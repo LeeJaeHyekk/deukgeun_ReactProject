@@ -1,8 +1,10 @@
 import React from "react"
 import { useLevel } from "../hooks/useLevel"
 import styles from "./LevelDisplay.module.css"
+import type { UserLevel } from "../../../types"
 
 interface LevelDisplayProps {
+  userLevel?: UserLevel // 테스트용 prop
   showProgress?: boolean
   showRewards?: boolean
   showCooldown?: boolean
@@ -11,6 +13,7 @@ interface LevelDisplayProps {
 }
 
 export function LevelDisplay({
+  userLevel,
   showProgress = true,
   showRewards = false,
   showCooldown = false,
@@ -29,7 +32,11 @@ export function LevelDisplay({
     error,
   } = useLevel()
 
-  if (isLoading) {
+  // 테스트용 userLevel이 제공되면 해당 데이터 사용
+  const displayLevel = userLevel ? userLevel.level : currentLevel
+  const displayExp = userLevel ? userLevel.currentExp : currentExp
+
+  if (isLoading && !userLevel) {
     return (
       <div className={`${styles.levelDisplay} ${className}`}>
         <div className={styles.loading}>레벨 정보 로딩 중...</div>
@@ -37,7 +44,7 @@ export function LevelDisplay({
     )
   }
 
-  if (error) {
+  if (error && !userLevel) {
     return (
       <div className={`${styles.levelDisplay} ${className}`}>
         <div className={styles.error}>{error}</div>
@@ -49,16 +56,16 @@ export function LevelDisplay({
     <div className={`${styles.levelDisplay} ${className}`}>
       <div className={styles.levelInfo}>
         <div className={styles.levelBadge}>
-          <span className={styles.levelNumber}>Lv.{currentLevel}</span>
+          <span className={styles.levelNumber}>Lv.{displayLevel}</span>
         </div>
 
         {showProgress && (
           <div className={styles.progressInfo}>
             <div className={styles.expInfo}>
-              <span className={styles.currentExp}>{currentExp}</span>
+              <span className={styles.currentExp}>{displayExp}</span>
               <span className={styles.expSeparator}>/</span>
               <span className={styles.requiredExp}>
-                {currentExp + expToNextLevel}
+                {displayExp + expToNextLevel}
               </span>
               <span className={styles.expLabel}>EXP</span>
             </div>

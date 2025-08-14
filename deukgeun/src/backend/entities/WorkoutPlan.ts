@@ -15,14 +15,14 @@ import { WorkoutPlanExercise } from "./WorkoutPlanExercise"
 @Entity("workout_plans")
 export class WorkoutPlan {
   @PrimaryGeneratedColumn()
-  plan_id!: number
+  id!: number
 
   @Column({ type: "int" })
   @Index()
-  user_id!: number
+  userId!: number
 
   @Column({ type: "varchar", length: 100 })
-  plan_name!: string
+  name!: string
 
   @Column({ type: "text", nullable: true })
   description?: string
@@ -35,28 +35,28 @@ export class WorkoutPlan {
   difficulty!: "beginner" | "intermediate" | "advanced"
 
   @Column({ type: "int" })
-  estimated_duration_minutes!: number
+  estimatedDurationMinutes!: number
 
   @Column({ type: "json", nullable: true })
-  target_muscle_groups?: string[]
+  targetMuscleGroups?: string[]
 
   @Column({ type: "boolean", default: false })
-  is_template!: boolean
+  isTemplate!: boolean
 
   @Column({ type: "boolean", default: false })
-  is_public!: boolean
+  isPublic!: boolean
 
   @CreateDateColumn()
-  created_at!: Date
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updated_at!: Date
+  updatedAt!: Date
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user!: User
 
-  @OneToMany(() => WorkoutPlanExercise, exercise => exercise.workout_plan)
+  @OneToMany(() => WorkoutPlanExercise, exercise => exercise.workoutPlan)
   exercises!: WorkoutPlanExercise[]
 }

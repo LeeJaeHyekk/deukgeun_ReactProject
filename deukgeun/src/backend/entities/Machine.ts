@@ -19,6 +19,9 @@ export class Machine {
   name!: string
 
   @Column({ type: "varchar", length: 100, nullable: true })
+  nameKo?: string
+
+  @Column({ type: "varchar", length: 100, nullable: true })
   nameEn?: string
 
   @Column({ type: "varchar", length: 255 })

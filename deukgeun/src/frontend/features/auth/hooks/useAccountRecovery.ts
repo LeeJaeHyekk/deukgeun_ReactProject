@@ -16,7 +16,6 @@ import type {
   EmailBasedFindIdRequest,
   EmailBasedFindPasswordRequest,
   FindIdRequest,
-  ResetPasswordRequest,
 } from "../types/accountRecovery"
 
 const initialState: RecoveryState = {
@@ -181,7 +180,9 @@ export function useAccountRecovery() {
       updateState({ loading: true, error: null })
 
       try {
-        const response = await authApi.resetPasswordStep2(data)
+        const response = await authApi.resetPasswordStep2({
+          ...data,
+        } as any)
 
         if (response.success && response.data) {
           updateState({
@@ -236,7 +237,10 @@ export function useAccountRecovery() {
       updateState({ loading: true, error: null })
 
       try {
-        const response = await authApi.findIdSimple(data)
+        const response = await authApi.findIdSimple({
+          ...data,
+          email: data.name, // name을 email로 매핑
+        })
 
         if (response.success && response.data) {
           updateState({
@@ -289,7 +293,9 @@ export function useAccountRecovery() {
       updateState({ loading: true, error: null })
 
       try {
-        const response = await authApi.resetPasswordSimpleStep2(data)
+        const response = await authApi.resetPasswordSimpleStep2({
+          ...data,
+        } as any)
 
         if (response.success && response.data) {
           updateState({

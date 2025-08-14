@@ -14,55 +14,52 @@ import { Machine } from "./Machine"
 @Entity("workout_stats")
 export class WorkoutStats {
   @PrimaryGeneratedColumn()
-  stat_id!: number
+  id!: number
 
   @Column({ type: "int" })
-  @Index()
-  user_id!: number
+  userId!: number
 
   @Column({ type: "int", nullable: true })
-  @Index()
-  machine_id?: number
+  machineId?: number
 
   @Column({ type: "date" })
-  @Index()
-  workout_date!: Date
+  workoutDate!: Date
 
   @Column({ type: "int", default: 0 })
-  total_sessions!: number
+  totalSessions!: number
 
   @Column({ type: "int", default: 0 })
-  total_duration_minutes!: number
+  totalDurationMinutes!: number
 
   @Column({ type: "int", default: 0 })
-  total_sets!: number
+  totalSets!: number
 
   @Column({ type: "int", default: 0 })
-  total_reps!: number
+  totalReps!: number
 
   @Column({ type: "decimal", precision: 10, scale: 2, default: 0 })
-  total_weight_kg!: number
+  totalWeightKg!: number
 
   @Column({ type: "decimal", precision: 8, scale: 2, default: 0 })
-  total_distance_meters!: number
+  totalDistanceMeters!: number
 
   @Column({ type: "decimal", precision: 5, scale: 2, default: 0 })
-  average_mood!: number
+  averageMood!: number
 
   @Column({ type: "decimal", precision: 5, scale: 2, default: 0 })
-  average_energy!: number
+  averageEnergy!: number
 
   @Column({ type: "decimal", precision: 5, scale: 2, default: 0 })
-  average_rpe!: number
+  averageRpe!: number
 
   @Column({ type: "int", default: 0 })
-  calories_burned!: number
+  caloriesBurned!: number
 
   @CreateDateColumn()
-  created_at!: Date
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updated_at!: Date
+  updatedAt!: Date
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })

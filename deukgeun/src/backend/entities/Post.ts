@@ -94,5 +94,5 @@ export class Post {
 
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })
-  user: User
+  user!: User
 }

@@ -18,11 +18,11 @@ async function createWorkoutJournalTables() {
 
     const connection = await createConnection({
       type: "mysql",
-      host: config.DB_HOST,
-      port: config.DB_PORT,
-      username: config.DB_USERNAME,
-      password: config.DB_PASSWORD,
-      database: config.DB_NAME,
+      host: config.database.host,
+      port: config.database.port,
+      username: config.database.username,
+      password: config.database.password,
+      database: config.database.database,
       synchronize: false, // 수동으로 테이블 생성
       logging: true,
       entities: [

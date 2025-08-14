@@ -207,6 +207,7 @@ export const useMachines = () => {
     createMachine,
     updateMachine,
     deleteMachine,
+    getMachines: fetchMachines, // 별칭 추가
     getMachinesByCategory,
     getMachinesByDifficulty,
     getMachinesByTarget,

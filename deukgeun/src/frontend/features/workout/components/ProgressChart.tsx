@@ -3,6 +3,9 @@ import "./ProgressChart.css"
 
 interface ProgressChartProps {
   data: any[]
+  title?: string
+  unit?: string
+  color?: string
 }
 
 export function ProgressChart({ data }: ProgressChartProps) {

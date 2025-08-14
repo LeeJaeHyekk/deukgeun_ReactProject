@@ -87,3 +87,8 @@ app.use("/api", routes)
 app.use(errorHandler)
 
 export default app
+
+// 테스트용 createApp 함수
+export const createApp = () => {
+  return app
+}

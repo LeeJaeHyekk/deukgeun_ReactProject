@@ -16,7 +16,6 @@ export class ExpHistory {
   id!: number
 
   @Column({ type: "int" })
-  @Index()
   userId!: number
 
   @Column({
@@ -33,7 +32,6 @@ export class ExpHistory {
       "monthly_milestone",
     ],
   })
-  @Index()
   actionType!: ExpActionType
 
   @Column({ type: "int" })
@@ -56,7 +54,6 @@ export class ExpHistory {
   isLevelUp!: boolean
 
   @CreateDateColumn()
-  @Index()
   createdAt!: Date
 
   // 관계 설정

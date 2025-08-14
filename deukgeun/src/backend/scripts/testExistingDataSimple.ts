@@ -72,7 +72,7 @@ async function testUserData() {
       console.log(`   📅 가입일: ${sampleUser.createdAt}`)
     }
   } catch (error) {
-    console.log(`   ⚠️ 사용자 데이터 확인 실패: ${error.message}`)
+    console.log(`   ⚠️ 사용자 데이터 확인 실패: ${(error as Error).message}`)
   }
 }
 
@@ -89,7 +89,7 @@ async function testMachineData() {
       console.log(`   📝 설명: ${sampleMachine.shortDesc}`)
     }
   } catch (error) {
-    console.log(`   ⚠️ 머신 데이터 확인 실패: ${error.message}`)
+    console.log(`   ⚠️ 머신 데이터 확인 실패: ${(error as Error).message}`)
   }
 }
 
@@ -108,7 +108,7 @@ async function testWorkoutGoalData() {
       )
     }
   } catch (error) {
-    console.log(`   ⚠️ 운동 목표 데이터 확인 실패: ${error.message}`)
+    console.log(`   ⚠️ 운동 목표 데이터 확인 실패: ${(error as Error).message}`)
   }
 }
 
@@ -121,16 +121,16 @@ async function testWorkoutSessionData() {
     if (sessions.length > 0) {
       const sampleSession = sessions[0]
       console.log(
-        `   🏃 샘플 세션: ${sampleSession.session_name || "이름 없음"}`
+        `   🏃 샘플 세션: ${sampleSession.name || "이름 없음"}`
       )
-      console.log(`   ⏰ 시작 시간: ${sampleSession.start_time}`)
+      console.log(`   ⏰ 시작 시간: ${sampleSession.startTime}`)
       console.log(
-        `   ⏱️ 총 시간: ${sampleSession.total_duration_minutes || 0}분`
+        `   ⏱️ 총 시간: ${sampleSession.totalDurationMinutes || 0}분`
       )
       console.log(`   📊 상태: ${sampleSession.status}`)
     }
   } catch (error) {
-    console.log(`   ⚠️ 운동 세션 데이터 확인 실패: ${error.message}`)
+    console.log(`   ⚠️ 운동 세션 데이터 확인 실패: ${(error as Error).message}`)
   }
 }
 
@@ -149,7 +149,7 @@ async function testCommunityData() {
       console.log(`   💬 댓글: ${samplePost.comment_count}`)
     }
   } catch (error) {
-    console.log(`   ⚠️ 커뮤니티 데이터 확인 실패: ${error.message}`)
+    console.log(`   ⚠️ 커뮤니티 데이터 확인 실패: ${(error as Error).message}`)
   }
 }
 
@@ -167,7 +167,7 @@ async function testLevelSystemData() {
       console.log(`   🎯 총 경험치: ${sampleLevel.totalExp}`)
     }
   } catch (error) {
-    console.log(`   ⚠️ 레벨 시스템 데이터 확인 실패: ${error.message}`)
+    console.log(`   ⚠️ 레벨 시스템 데이터 확인 실패: ${(error as Error).message}`)
   }
 }
 
@@ -195,7 +195,7 @@ async function testAPIEndpoints() {
     const levelResponse = await axios.get(`${BASE_URL}/levels`)
     console.log(`   📊 레벨 API: ${levelResponse.status}`)
   } catch (error) {
-    console.log(`   ⚠️ API 테스트 실패: ${error.message}`)
+    console.log(`   ⚠️ API 테스트 실패: ${(error as Error).message}`)
   }
 }
 

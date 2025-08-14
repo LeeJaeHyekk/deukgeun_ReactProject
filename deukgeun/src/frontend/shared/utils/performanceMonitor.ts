@@ -1,3 +1,32 @@
+// Performance API 타입 확장
+interface PerformanceNavigationTiming extends PerformanceEntry {
+  loadEventEnd: number
+  loadEventStart: number
+  domContentLoadedEventEnd: number
+  domContentLoadedEventStart: number
+}
+
+interface PerformancePaintTiming extends PerformanceEntry {
+  name: string
+  startTime: number
+}
+
+interface PerformanceInputTiming extends PerformanceEntry {
+  processingStart: number
+  startTime: number
+}
+
+interface PerformanceLayoutShift extends PerformanceEntry {
+  value: number
+  hadRecentInput: boolean
+}
+
+interface PerformanceMemory {
+  usedJSHeapSize: number
+  totalJSHeapSize: number
+  jsHeapSizeLimit: number
+}
+
 interface PerformanceMetrics {
   pageLoadTime: number
   domContentLoaded: number
@@ -78,7 +107,7 @@ class PerformanceMonitor {
       if ("PerformanceObserver" in window) {
         const fidObserver = new PerformanceObserver(list => {
           const entries = list.getEntries()
-          const firstEntry = entries[0]
+          const firstEntry = entries[0] as PerformanceInputTiming
           metrics.firstInputDelay =
             firstEntry.processingStart - firstEntry.startTime
         })
@@ -90,8 +119,9 @@ class PerformanceMonitor {
         const clsObserver = new PerformanceObserver(list => {
           let clsValue = 0
           for (const entry of list.getEntries()) {
-            if (!entry.hadRecentInput) {
-              clsValue += (entry as any).value
+            const layoutShiftEntry = entry as PerformanceLayoutShift
+            if (!layoutShiftEntry.hadRecentInput) {
+              clsValue += layoutShiftEntry.value
             }
           }
           metrics.cumulativeLayoutShift = clsValue
@@ -141,7 +171,9 @@ class PerformanceMonitor {
     // 메모리 사용량 모니터링 (Chrome에서만 사용 가능)
     if ("memory" in performance) {
       setInterval(() => {
-        const memory = (performance as any).memory
+        const memory = (
+          performance as Performance & { memory: PerformanceMemory }
+        ).memory
         this.recordMetrics({
           pageLoadTime: 0,
           domContentLoaded: 0,

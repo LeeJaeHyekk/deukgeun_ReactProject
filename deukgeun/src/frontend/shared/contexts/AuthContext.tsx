@@ -1,4 +1,10 @@
-import React, { createContext, useContext, ReactNode } from "react"
+import React, {
+  createContext,
+  useContext,
+  ReactNode,
+  useMemo,
+  useRef,
+} from "react"
 import { useAuth } from "../hooks/useAuth"
 import { User } from "../../../types"
 
@@ -17,54 +23,53 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  console.log("🧪 AuthProvider 렌더링 시작")
-
   const auth = useAuth()
+  const prevContextRef = useRef<AuthContextType | null>(null)
 
-  // 🧪 디버깅용 로그 (기존 코드에 영향 없음)
-  console.log("🧪 AuthProvider 렌더링")
-  console.log("🧪 로그인 여부:", auth.isLoggedIn)
-  console.log(
-    "🧪 현재 유저:",
-    auth.user
-      ? {
-          id: auth.user.id,
-          email: auth.user.email,
-          nickname: auth.user.nickname,
-        }
-      : null
+  // useMemo로 context 값 최적화 - 실제 변경사항이 있을 때만 업데이트
+  const contextValue = useMemo(() => {
+    const newContext = {
+      isLoggedIn: auth.isLoggedIn,
+      user: auth.user,
+      isLoading: auth.isLoading,
+      login: auth.login,
+      logout: auth.logout,
+      checkAuthStatus: auth.checkAuthStatus,
+    }
+
+    // 이전 값과 비교하여 실제 변경사항이 있는지 확인
+    const prevContext = prevContextRef.current
+    if (
+      prevContext &&
+      prevContext.isLoggedIn === newContext.isLoggedIn &&
+      prevContext.isLoading === newContext.isLoading &&
+      prevContext.user?.id === newContext.user?.id &&
+      prevContext.user?.email === newContext.user?.email
+    ) {
+      return prevContext
+    }
+
+    prevContextRef.current = newContext
+    return newContext
+  }, [
+    auth.isLoggedIn,
+    auth.user?.id,
+    auth.user?.email,
+    auth.isLoading,
+    auth.login,
+    auth.logout,
+    auth.checkAuthStatus,
+  ])
+
+  return (
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   )
-  console.log("🧪 로딩 상태:", auth.isLoading)
-  console.log("🧪 AuthProvider Context 값:", {
-    isLoggedIn: auth.isLoggedIn,
-    user: auth.user ? { id: auth.user.id, email: auth.user.email } : null,
-    isLoading: auth.isLoading,
-    hasLogin: !!auth.login,
-    hasLogout: !!auth.logout,
-    hasCheckAuthStatus: !!auth.checkAuthStatus,
-  })
-
-  console.log("🧪 AuthProvider 렌더링 완료")
-
-  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>
 }
 
 export function useAuthContext() {
-  console.log("🧪 useAuthContext 호출")
-
   const context = useContext(AuthContext)
   if (!context) {
-    console.error("❌ useAuthContext must be used within an AuthProvider")
     throw new Error("useAuthContext must be used within an AuthProvider")
   }
-
-  console.log("🧪 useAuthContext 반환:", {
-    isLoggedIn: context.isLoggedIn,
-    user: context.user
-      ? { id: context.user.id, email: context.user.email }
-      : null,
-    isLoading: context.isLoading,
-  })
-
   return context
 }

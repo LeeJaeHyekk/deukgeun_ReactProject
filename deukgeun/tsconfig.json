@@ -33,5 +33,12 @@
     "types": ["node"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "build", "**/*.js", "**/*.jsx"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "**/*.js",
+    "**/*.jsx",
+    "src/test/**/*"
+  ]
 }

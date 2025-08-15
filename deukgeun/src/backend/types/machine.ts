@@ -4,39 +4,25 @@ import type {
   Machine as SharedMachine,
   MachineCategory,
   DifficultyLevel,
+  CreateMachineRequest as SharedCreateMachineRequest,
+  UpdateMachineRequest as SharedUpdateMachineRequest,
 } from "../../shared/types/machine"
 
 // Machine Repository 타입 정의
 export type MachineRepository = Repository<Machine>
 
-// Machine 생성 요청 타입
-export interface CreateMachineRequest {
-  machine_key: string
-  name_ko: string
-  name_en?: string
-  image_url: string
-  short_desc: string
-  detail_desc: string
-  positive_effect?: string
-  category: MachineCategory
-  target_muscle?: string[]
-  difficulty_level?: DifficultyLevel
-  video_url?: string
+// Machine 생성 요청 타입 (shared/types와 일치)
+export interface CreateMachineRequest extends SharedCreateMachineRequest {
+  positiveEffect?: string
+  targetMuscles?: string[]
+  videoUrl?: string
 }
 
-// Machine 수정 요청 타입
-export interface UpdateMachineRequest {
-  machine_key?: string
-  name_ko?: string
-  name_en?: string
-  image_url?: string
-  short_desc?: string
-  detail_desc?: string
-  positive_effect?: string
-  category?: MachineCategory
-  target_muscle?: string[]
-  difficulty_level?: DifficultyLevel
-  video_url?: string
+// Machine 수정 요청 타입 (shared/types와 일치)
+export interface UpdateMachineRequest extends SharedUpdateMachineRequest {
+  positiveEffect?: string
+  targetMuscles?: string[]
+  videoUrl?: string
 }
 
 // Machine 필터링 쿼리 타입

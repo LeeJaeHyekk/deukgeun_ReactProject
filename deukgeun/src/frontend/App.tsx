@@ -24,27 +24,20 @@ import MyPage from "@pages/Mypage/myPage"
  * @returns 인증된 사용자에게는 자식 컴포넌트를, 그렇지 않으면 로그인 페이지로 리다이렉트
  */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  console.log("🧪 ProtectedRoute 렌더링")
-
   // 인증 상태와 로딩 상태 가져오기
   const { isLoggedIn, isLoading } = useAuthContext()
 
-  console.log("🧪 ProtectedRoute 상태:", { isLoggedIn, isLoading })
-
   // 로딩 중일 때는 스피너 표시
   if (isLoading) {
-    console.log("🧪 ProtectedRoute - 로딩 중, 스피너 표시")
     return <LoadingSpinner text="인증 확인 중..." />
   }
 
   // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
   if (!isLoggedIn) {
-    console.log("🧪 ProtectedRoute - 로그인 필요, 로그인 페이지로 리다이렉트")
     return <Navigate to="/login" replace />
   }
 
   // 인증된 사용자에게는 자식 컴포넌트 렌더링
-  console.log("🧪 ProtectedRoute - 인증됨, 자식 컴포넌트 렌더링")
   return <>{children}</>
 }
 
@@ -54,27 +47,20 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
  * @returns 로그인되지 않은 사용자에게는 자식 컴포넌트를, 로그인된 사용자는 홈으로 리다이렉트
  */
 function RedirectIfLoggedIn({ children }: { children: React.ReactNode }) {
-  console.log("🧪 RedirectIfLoggedIn 렌더링")
-
   // 인증 상태와 로딩 상태 가져오기
   const { isLoggedIn, isLoading } = useAuthContext()
 
-  console.log("🧪 RedirectIfLoggedIn 상태:", { isLoggedIn, isLoading })
-
   // 로딩 중일 때는 스피너 표시
   if (isLoading) {
-    console.log("🧪 RedirectIfLoggedIn - 로딩 중, 스피너 표시")
     return <LoadingSpinner text="인증 확인 중..." />
   }
 
   // 이미 로그인된 경우 홈으로 리다이렉트
   if (isLoggedIn) {
-    console.log("🧪 RedirectIfLoggedIn - 이미 로그인됨, 홈으로 리다이렉트")
     return <Navigate to="/" replace />
   }
 
   // 로그인되지 않은 사용자에게는 자식 컴포넌트 렌더링
-  console.log("🧪 RedirectIfLoggedIn - 로그인되지 않음, 자식 컴포넌트 렌더링")
   return <>{children}</>
 }
 
@@ -83,20 +69,14 @@ function RedirectIfLoggedIn({ children }: { children: React.ReactNode }) {
  * @returns 전체 앱의 라우팅 구조를 정의
  */
 function AppRoutes() {
-  console.log("🧪 AppRoutes 렌더링")
-
   // 전체 앱의 로딩 상태 가져오기
   const { isLoading } = useAuthContext()
 
-  console.log("🧪 AppRoutes - 전체 앱 로딩 상태:", isLoading)
-
   // 전체 앱 로딩 중일 때만 로딩 스피너 표시
   if (isLoading) {
-    console.log("🧪 AppRoutes - 전체 앱 로딩 중, 스피너 표시")
     return <LoadingSpinner text="앱 초기화 중..." />
   }
 
-  console.log("🧪 AppRoutes - 라우트 렌더링")
   return (
     <Routes>
       {/* 홈페이지 - 로그인 없이도 접근 가능한 공개 페이지 */}
@@ -186,13 +166,16 @@ function AppRoutes() {
  * @returns 인증 컨텍스트와 라우터를 포함한 전체 앱 구조
  */
 function App() {
-  console.log("🧪 App 컴포넌트 렌더링")
-
   return (
     // 인증 상태를 관리하는 컨텍스트 프로바이더
     <AuthProvider>
-      {/* 브라우저 라우터 설정 */}
-      <BrowserRouter>
+      {/* 브라우저 라우터 설정 - React Router v7 호환성을 위한 future flags */}
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
         {/* 메인 라우트 컴포넌트 */}
         <AppRoutes />
       </BrowserRouter>

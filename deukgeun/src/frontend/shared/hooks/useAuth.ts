@@ -120,6 +120,12 @@ export function useAuth() {
   // 로그인 처리 (localStorage + Zustand 저장)
   const login = useCallback(
     (user: User, token: string) => {
+      // 중복 로그인 방지 - 현재 사용자와 동일한 경우 스킵
+      if (isLoggedIn && user.id === user?.id) {
+        console.log("이미 로그인된 사용자입니다.")
+        return
+      }
+
       if (tokenRefreshTimer.current) {
         clearTimeout(tokenRefreshTimer.current)
       }
@@ -128,7 +134,7 @@ export function useAuth() {
       setUser({ ...user, accessToken: token })
       setupTokenRefresh(token)
     },
-    [setUser, setupTokenRefresh]
+    [setUser, setupTokenRefresh, isLoggedIn, user?.id]
   )
 
   // 로그아웃 처리 (서버 + 클라이언트 정리)

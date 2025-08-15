@@ -54,7 +54,7 @@ export class WorkoutPlan {
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "user_id" })
+  @JoinColumn({ name: "userId" })
   user!: User
 
   @OneToMany(() => WorkoutPlanExercise, exercise => exercise.workoutPlan)

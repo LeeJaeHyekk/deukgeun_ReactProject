@@ -63,10 +63,10 @@ export class WorkoutStats {
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "user_id" })
+  @JoinColumn({ name: "userId" })
   user!: User
 
   @ManyToOne(() => Machine, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "machine_id" })
+  @JoinColumn({ name: "machineId" })
   machine?: Machine
 }

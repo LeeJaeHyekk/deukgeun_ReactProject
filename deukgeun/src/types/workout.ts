@@ -171,21 +171,35 @@ export interface DashboardData {
 
 // 운동 세션 생성 요청
 export interface CreateSessionRequest {
-  userId: number
   name: string
+  session_name?: string // 백엔드 호환성
   description?: string
-  startTime: Date
+  planId?: number
+  plan_id?: number // 백엔드 호환성
+  gymId?: number
+  gym_id?: number // 백엔드 호환성
+  startTime?: Date
+  start_time?: Date // 백엔드 호환성
+  moodRating?: number
+  mood_rating?: number // 백엔드 호환성
+  energyLevel?: number
+  energy_level?: number // 백엔드 호환성
+  notes?: string
 }
 
 // 운동 세션 업데이트 요청
 export interface UpdateSessionRequest {
   sessionId: number
   name?: string
+  session_name?: string // 백엔드 호환성
   description?: string
   endTime?: Date
+  end_time?: Date // 백엔드 호환성
   caloriesBurned?: number
+  calories_burned?: number // 백엔드 호환성
   notes?: string
   isCompleted?: boolean
+  is_completed?: boolean // 백엔드 호환성
 }
 
 // 운동 세트 생성 요청
@@ -233,17 +247,28 @@ export interface UpdateGoalRequest {
 
 // 운동 계획 생성 요청
 export interface CreatePlanRequest {
-  userId: number
   name: string
+  plan_name?: string // 백엔드 호환성
   description?: string
+  difficulty?: string
+  estimated_duration_minutes?: number
+  target_muscle_groups?: string[]
+  is_template?: boolean
+  is_public?: boolean
   exercises: Array<{
     machineId: number
+    machine_id?: number // 백엔드 호환성
     exerciseName: string
     order: number
     sets: number
     reps: number
+    reps_min?: number
+    reps_max?: number
     weight?: number
+    weight_min?: number
+    weight_max?: number
     restTime?: number
+    rest_time?: number // 백엔드 호환성
     notes?: string
   }>
 }
@@ -251,15 +276,27 @@ export interface CreatePlanRequest {
 // 운동 계획 업데이트 요청
 export interface UpdatePlanRequest {
   name?: string
+  plan_name?: string // 백엔드 호환성
   description?: string
+  difficulty?: string
+  estimated_duration_minutes?: number
+  target_muscle_groups?: string[]
+  is_template?: boolean
+  is_public?: boolean
   exercises?: Array<{
     machineId: number
+    machine_id?: number // 백엔드 호환성
     exerciseName: string
     order: number
     sets: number
     reps: number
+    reps_min?: number
+    reps_max?: number
     weight?: number
+    weight_min?: number
+    weight_max?: number
     restTime?: number
+    rest_time?: number // 백엔드 호환성
     notes?: string
   }>
 }

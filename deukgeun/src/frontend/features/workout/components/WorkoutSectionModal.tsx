@@ -117,7 +117,7 @@ export function WorkoutSectionModal({
       newErrors.machineId = "운동 기계를 선택해주세요."
     }
 
-    if (!formData.exerciseName?.trim()) {
+    if (!formData.exerciseName || !formData.exerciseName.trim()) {
       newErrors.exerciseName = "운동 이름을 입력해주세요."
     }
 
@@ -137,15 +137,35 @@ export function WorkoutSectionModal({
       newErrors.restTime = "휴식 시간은 0 이상이어야 합니다."
     }
 
+    console.log("WorkoutSectionModal 검증 결과:", {
+      isValid: Object.keys(newErrors).length === 0,
+      errors: newErrors,
+    })
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   // 저장 핸들러
-  const handleSave = () => {
-    if (!validateForm()) return
+  const handleSave = async () => {
+    console.log("WorkoutSectionModal 저장 시도:", formData)
 
-    onSave(formData)
+    if (!validateForm()) {
+      console.log("폼 검증 실패")
+      return
+    }
+
+    try {
+      // 새 운동 추가 시 id 필드 제거 (편집 모드가 아닌 경우)
+      const dataToSave = exercise?.id
+        ? formData
+        : { ...formData, id: undefined }
+      console.log("WorkoutSectionModal 최종 저장 데이터:", dataToSave)
+
+      await onSave(dataToSave)
+      console.log("운동 섹션 저장 성공")
+    } catch (error) {
+      console.error("운동 섹션 저장 실패:", error)
+    }
   }
 
   // ESC 키로 모달 닫기

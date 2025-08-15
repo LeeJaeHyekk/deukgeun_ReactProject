@@ -16,33 +16,33 @@ export const validateCreateMachine = (
   const data: CreateMachineRequest = req.body
 
   // 필수 필드 검증
-  if (!data.machine_key || typeof data.machine_key !== "string") {
+  if (!data.machineKey || typeof data.machineKey !== "string") {
     return res.status(400).json({
-      message: "machine_key는 필수 필드이며 문자열이어야 합니다.",
+      message: "machineKey는 필수 필드이며 문자열이어야 합니다.",
     })
   }
 
-  if (!data.name_ko || typeof data.name_ko !== "string") {
+  if (!data.name || typeof data.name !== "string") {
     return res.status(400).json({
-      message: "name_ko는 필수 필드이며 문자열이어야 합니다.",
+      message: "name은 필수 필드이며 문자열이어야 합니다.",
     })
   }
 
-  if (!data.image_url || typeof data.image_url !== "string") {
+  if (!data.imageUrl || typeof data.imageUrl !== "string") {
     return res.status(400).json({
-      message: "image_url은 필수 필드이며 문자열이어야 합니다.",
+      message: "imageUrl은 필수 필드이며 문자열이어야 합니다.",
     })
   }
 
-  if (!data.short_desc || typeof data.short_desc !== "string") {
+  if (!data.shortDesc || typeof data.shortDesc !== "string") {
     return res.status(400).json({
-      message: "short_desc는 필수 필드이며 문자열이어야 합니다.",
+      message: "shortDesc는 필수 필드이며 문자열이어야 합니다.",
     })
   }
 
-  if (!data.detail_desc || typeof data.detail_desc !== "string") {
+  if (!data.detailDesc || typeof data.detailDesc !== "string") {
     return res.status(400).json({
-      message: "detail_desc는 필수 필드이며 문자열이어야 합니다.",
+      message: "detailDesc는 필수 필드이며 문자열이어야 합니다.",
     })
   }
 
@@ -56,50 +56,47 @@ export const validateCreateMachine = (
 
   // 난이도 검증
   const validDifficulties = ["초급", "중급", "고급"]
-  if (
-    data.difficulty_level &&
-    !validDifficulties.includes(data.difficulty_level)
-  ) {
+  if (data.difficulty && !validDifficulties.includes(data.difficulty)) {
     return res.status(400).json({
-      message: `difficulty_level은 다음 중 하나여야 합니다: ${validDifficulties.join(", ")}`,
+      message: `difficulty는 다음 중 하나여야 합니다: ${validDifficulties.join(", ")}`,
     })
   }
 
-  // target_muscle 검증
-  if (data.target_muscle && !Array.isArray(data.target_muscle)) {
+  // targetMuscles 검증
+  if (data.targetMuscles && !Array.isArray(data.targetMuscles)) {
     return res.status(400).json({
-      message: "target_muscle은 배열이어야 합니다.",
+      message: "targetMuscles는 배열이어야 합니다.",
     })
   }
 
   // 문자열 길이 제한
-  if (data.machine_key.length > 100) {
+  if (data.machineKey.length > 100) {
     return res.status(400).json({
-      message: "machine_key는 100자를 초과할 수 없습니다.",
+      message: "machineKey는 100자를 초과할 수 없습니다.",
     })
   }
 
-  if (data.name_ko.length > 100) {
+  if (data.name.length > 100) {
     return res.status(400).json({
-      message: "name_ko는 100자를 초과할 수 없습니다.",
+      message: "name은 100자를 초과할 수 없습니다.",
     })
   }
 
-  if (data.name_en && data.name_en.length > 100) {
+  if (data.nameEn && data.nameEn.length > 100) {
     return res.status(400).json({
-      message: "name_en은 100자를 초과할 수 없습니다.",
+      message: "nameEn은 100자를 초과할 수 없습니다.",
     })
   }
 
-  if (data.image_url.length > 255) {
+  if (data.imageUrl.length > 255) {
     return res.status(400).json({
-      message: "image_url은 255자를 초과할 수 없습니다.",
+      message: "imageUrl은 255자를 초과할 수 없습니다.",
     })
   }
 
-  if (data.short_desc.length > 255) {
+  if (data.shortDesc.length > 255) {
     return res.status(400).json({
-      message: "short_desc는 255자를 초과할 수 없습니다.",
+      message: "shortDesc는 255자를 초과할 수 없습니다.",
     })
   }
 
@@ -127,50 +124,50 @@ export const validateUpdateMachine = (
   }
 
   // 난이도 검증
-  if (data.difficulty_level) {
+  if (data.difficulty) {
     const validDifficulties = ["초급", "중급", "고급"]
-    if (!validDifficulties.includes(data.difficulty_level)) {
+    if (!validDifficulties.includes(data.difficulty)) {
       return res.status(400).json({
-        message: `difficulty_level은 다음 중 하나여야 합니다: ${validDifficulties.join(", ")}`,
+        message: `difficulty는 다음 중 하나여야 합니다: ${validDifficulties.join(", ")}`,
       })
     }
   }
 
-  // target_muscle 검증
-  if (data.target_muscle && !Array.isArray(data.target_muscle)) {
+  // targetMuscles 검증
+  if (data.targetMuscles && !Array.isArray(data.targetMuscles)) {
     return res.status(400).json({
-      message: "target_muscle은 배열이어야 합니다.",
+      message: "targetMuscles는 배열이어야 합니다.",
     })
   }
 
   // 문자열 길이 제한
-  if (data.machine_key && data.machine_key.length > 100) {
+  if (data.machineKey && data.machineKey.length > 100) {
     return res.status(400).json({
-      message: "machine_key는 100자를 초과할 수 없습니다.",
+      message: "machineKey는 100자를 초과할 수 없습니다.",
     })
   }
 
-  if (data.name_ko && data.name_ko.length > 100) {
+  if (data.name && data.name.length > 100) {
     return res.status(400).json({
-      message: "name_ko는 100자를 초과할 수 없습니다.",
+      message: "name은 100자를 초과할 수 없습니다.",
     })
   }
 
-  if (data.name_en && data.name_en.length > 100) {
+  if (data.nameEn && data.nameEn.length > 100) {
     return res.status(400).json({
-      message: "name_en은 100자를 초과할 수 없습니다.",
+      message: "nameEn은 100자를 초과할 수 없습니다.",
     })
   }
 
-  if (data.image_url && data.image_url.length > 255) {
+  if (data.imageUrl && data.imageUrl.length > 255) {
     return res.status(400).json({
-      message: "image_url은 255자를 초과할 수 없습니다.",
+      message: "imageUrl은 255자를 초과할 수 없습니다.",
     })
   }
 
-  if (data.short_desc && data.short_desc.length > 255) {
+  if (data.shortDesc && data.shortDesc.length > 255) {
     return res.status(400).json({
-      message: "short_desc는 255자를 초과할 수 없습니다.",
+      message: "shortDesc는 255자를 초과할 수 없습니다.",
     })
   }
 

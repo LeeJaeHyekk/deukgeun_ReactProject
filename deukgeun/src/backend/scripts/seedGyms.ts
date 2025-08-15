@@ -115,15 +115,14 @@ async function seedGyms() {
     console.log("📦 DB 연결 성공")
 
     const rawGyms = await fetchGymsFromAPI()
-    const filteredGyms = filterGyms(rawGyms)
 
     // 백업: raw 데이터 JSON 저장
     const rawPath = path.join(__dirname, "../../data/gyms_raw.json")
     fs.writeFileSync(rawPath, JSON.stringify(rawGyms, null, 2))
     console.log(`📝 Raw 데이터 저장됨 → ${rawPath}`)
 
-    // DB에 필터링된 데이터 저장
-    for (const gym of filteredGyms) {
+    // DB에 데이터 저장
+    for (const gym of rawGyms) {
       await connection.getRepository(Gym).save(gym)
     }
 

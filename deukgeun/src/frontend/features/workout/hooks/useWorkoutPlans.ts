@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import {
   WorkoutJournalApi,
   WorkoutPlan,
@@ -16,7 +16,10 @@ export function useWorkoutPlans() {
       const data = await WorkoutJournalApi.getWorkoutPlans()
       setPlans(data)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "운동 계획을 불러오는데 실패했습니다."
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "운동 계획을 불러오는데 실패했습니다."
       console.error("운동 계획 조회 실패:", err)
       setError(errorMessage)
     } finally {
@@ -28,16 +31,16 @@ export function useWorkoutPlans() {
     try {
       setLoading(true)
       setError(null)
-      // userId가 필수이므로 기본값 설정
-      const createData = {
-        ...planData,
-        userId: planData.userId || 1, // 임시로 기본값 설정
-      } as any
-      const newPlan = await WorkoutJournalApi.createWorkoutPlan(createData)
+      // userId는 백엔드에서 인증된 사용자 정보로 설정하므로 제거
+      const { userId, ...createData } = planData
+      const newPlan = await WorkoutJournalApi.createWorkoutPlan(
+        createData as any
+      )
       setPlans(prev => [newPlan, ...prev])
       return newPlan
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "운동 계획 생성에 실패했습니다."
+      const errorMessage =
+        err instanceof Error ? err.message : "운동 계획 생성에 실패했습니다."
       console.error("운동 계획 생성 실패:", err)
       setError(errorMessage)
       throw err
@@ -46,35 +49,63 @@ export function useWorkoutPlans() {
     }
   }, [])
 
-  const updatePlan = useCallback(async (planId: number, planData: Partial<WorkoutPlan>) => {
-    try {
-      setLoading(true)
-      setError(null)
-      const updatedPlan = await WorkoutJournalApi.updateWorkoutPlan(planId, planData)
-      setPlans(prev =>
-        prev.map(plan =>
-          plan.plan_id === planId ? updatedPlan : plan
+  const updatePlan = useCallback(
+    async (planId: number, planData: Partial<WorkoutPlan>) => {
+      console.log("🔄 [useWorkoutPlans] updatePlan called with:", {
+        planId,
+        planData,
+      })
+      try {
+        setLoading(true)
+        setError(null)
+        const updatedPlan = await WorkoutJournalApi.updateWorkoutPlan(
+          planId,
+          planData
         )
-      )
-      return updatedPlan
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "운동 계획 업데이트에 실패했습니다."
-      console.error("운동 계획 업데이트 실패:", err)
-      setError(errorMessage)
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+        console.log(
+          "📥 [useWorkoutPlans] API returned updatedPlan:",
+          updatedPlan
+        )
+
+        setPlans(prev => {
+          const updatedPlans = prev.map(plan => {
+            if (plan.id === planId) {
+              console.log("🔄 [useWorkoutPlans] Updating plan in array:", {
+                oldPlan: plan,
+                newPlan: updatedPlan,
+              })
+              return updatedPlan
+            }
+            return plan
+          })
+          console.log("📝 [useWorkoutPlans] Updated plans array:", updatedPlans)
+          return updatedPlans
+        })
+        return updatedPlan
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "운동 계획 업데이트에 실패했습니다."
+        console.error("❌ [useWorkoutPlans] 운동 계획 업데이트 실패:", err)
+        setError(errorMessage)
+        throw err
+      } finally {
+        setLoading(false)
+      }
+    },
+    []
+  )
 
   const deletePlan = useCallback(async (planId: number) => {
     try {
       setLoading(true)
       setError(null)
       await WorkoutJournalApi.deleteWorkoutPlan(planId)
-      setPlans(prev => prev.filter(plan => plan.plan_id !== planId))
+      setPlans(prev => prev.filter(plan => plan.id !== planId))
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "운동 계획 삭제에 실패했습니다."
+      const errorMessage =
+        err instanceof Error ? err.message : "운동 계획 삭제에 실패했습니다."
       console.error("운동 계획 삭제 실패:", err)
       setError(errorMessage)
       throw err
@@ -91,14 +122,29 @@ export function useWorkoutPlans() {
     getUserPlans()
   }, [getUserPlans])
 
-  return {
-    plans,
-    loading,
-    error,
-    getUserPlans,
-    createPlan,
-    updatePlan,
-    deletePlan,
-    clearError,
-  }
+  // useMemo로 반환값 최적화
+  const returnValue = useMemo(
+    () => ({
+      plans,
+      loading,
+      error,
+      getUserPlans,
+      createPlan,
+      updatePlan,
+      deletePlan,
+      clearError,
+    }),
+    [
+      plans,
+      loading,
+      error,
+      getUserPlans,
+      createPlan,
+      updatePlan,
+      deletePlan,
+      clearError,
+    ]
+  )
+
+  return returnValue
 }

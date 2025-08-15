@@ -10,6 +10,7 @@ import type {
   RegisterResponse,
   RefreshResponse,
   LogoutResponse,
+  AccountRecoveryRequest,
 } from "@shared/types/auth"
 
 // 백엔드 API 응답과 프론트엔드 타입 간의 호환성을 위한 타입 정의
@@ -53,7 +54,7 @@ export interface ApiRegisterResponse {
   }
 }
 
-// 아이디/비밀번호 찾기 요청 타입
+// 아이디/비밀번호 찾기 요청 타입 (프론트엔드 전용)
 export interface FindIdRequest {
   email: string
   recaptchaToken: string

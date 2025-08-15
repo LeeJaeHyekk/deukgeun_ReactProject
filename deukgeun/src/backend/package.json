@@ -21,7 +21,15 @@
     "test:scheduler": "ts-node scripts/testScheduler.ts",
     "test:crawling": "ts-node scripts/testCrawling.ts",
     "migrate:types": "ts-node scripts/migrateToNewTypeSystem.ts",
-    "migrate:machine": "ts-node scripts/migrateMachineOnly.ts"
+    "migrate:machine": "ts-node scripts/migrateMachineOnly.ts",
+    "migrate:user": "ts-node scripts/migrateUserTable.ts",
+    "migrate:optimized": "ts-node scripts/migrateToOptimizedSchema.ts",
+    "fix:duplicates": "ts-node scripts/fixDuplicateColumns.ts",
+    "check:schema": "ts-node scripts/checkDatabaseSchema.ts",
+    "seed:optimized": "ts-node scripts/seedOptimizedData.ts",
+    "seed:clear": "ts-node scripts/clearAndSeedData.ts",
+    "db:reset": "ts-node scripts/safeDatabaseReset.ts",
+    "db:sync": "ts-node scripts/syncDatabase.ts"
   },
   "keywords": [],
   "author": "",

@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 // 인증 관련 컨텍스트 및 훅 import
 import { AuthProvider } from "@shared/contexts/AuthContext"
 import { useAuthContext } from "@shared/contexts/AuthContext"
+// 워크아웃 타이머 컨텍스트 import
+import { WorkoutTimerProvider } from "@shared/contexts/WorkoutTimerContext"
 // 공통 UI 컴포넌트 import
 import { LoadingSpinner } from "@shared/ui/LoadingSpinner/LoadingSpinner"
 // 페이지 컴포넌트들 import
@@ -47,20 +49,16 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
  * @returns 로그인되지 않은 사용자에게는 자식 컴포넌트를, 로그인된 사용자는 홈으로 리다이렉트
  */
 function RedirectIfLoggedIn({ children }: { children: React.ReactNode }) {
-  // 인증 상태와 로딩 상태 가져오기
   const { isLoggedIn, isLoading } = useAuthContext()
 
-  // 로딩 중일 때는 스피너 표시
   if (isLoading) {
     return <LoadingSpinner text="인증 확인 중..." />
   }
 
-  // 이미 로그인된 경우 홈으로 리다이렉트
   if (isLoggedIn) {
     return <Navigate to="/" replace />
   }
 
-  // 로그인되지 않은 사용자에게는 자식 컴포넌트 렌더링
   return <>{children}</>
 }
 
@@ -155,7 +153,7 @@ function AppRoutes() {
         }
       />
 
-      {/* 404 에러 페이지 - 정의되지 않은 모든 경로 */}
+      {/* 404 페이지 */}
       <Route path="*" element={<ErrorPage />} />
     </Routes>
   )
@@ -169,16 +167,19 @@ function App() {
   return (
     // 인증 상태를 관리하는 컨텍스트 프로바이더
     <AuthProvider>
-      {/* 브라우저 라우터 설정 - React Router v7 호환성을 위한 future flags */}
-      <BrowserRouter
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
-        {/* 메인 라우트 컴포넌트 */}
-        <AppRoutes />
-      </BrowserRouter>
+      {/* 워크아웃 타이머 상태를 관리하는 컨텍스트 프로바이더 */}
+      <WorkoutTimerProvider>
+        {/* 브라우저 라우터 설정 - React Router v7 호환성을 위한 future flags */}
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
+          {/* 메인 라우트 컴포넌트 */}
+          <AppRoutes />
+        </BrowserRouter>
+      </WorkoutTimerProvider>
     </AuthProvider>
   )
 }

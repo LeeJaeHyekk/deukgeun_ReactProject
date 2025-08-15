@@ -56,7 +56,12 @@
     "test:machine": "cd src/backend && npx ts-node scripts/testMachineFeatures.ts",
     "test:workout-goal": "cd src/backend && npx ts-node scripts/testWorkoutGoalFeatures.ts",
     "test:existing-data": "cd src/backend && npx ts-node scripts/testExistingData.ts",
-    "test:existing-data-simple": "cd src/backend && npx ts-node scripts/testExistingDataSimple.ts"
+    "test:existing-data-simple": "cd src/backend && npx ts-node scripts/testExistingDataSimple.ts",
+    "test:workout:api": "jest --testPathPattern=src/test/frontend/shared/api/workoutJournalApi.test.ts",
+    "test:workout:hooks": "jest --testPathPattern=src/test/frontend/features/workout/hooks",
+    "test:workout:components": "jest --testPathPattern=src/test/frontend/features/workout/WorkoutJournalPage.test.tsx",
+    "test:workout:backend": "jest --testPathPattern=src/test/backend/controllers/workoutJournalController.test.ts",
+    "test:workout:integration": "jest --testPathPattern=src/test/backend/integration/workoutJournal.integration.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",

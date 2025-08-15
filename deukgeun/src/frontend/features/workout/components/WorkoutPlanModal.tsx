@@ -487,11 +487,7 @@ export function WorkoutPlanModal({
 
   if (!isOpen) return null
 
-  console.log("🎨 [WorkoutPlanModal] Rendering with:", {
-    formData,
-    exercisesCount: formData.exercises?.length || 0,
-    saveSuccess,
-  })
+  // 렌더링 로그 제거 (성능 최적화)
 
   return (
     <div className="workout-plan-modal-overlay" onClick={handleOverlayClick}>
@@ -554,88 +550,82 @@ export function WorkoutPlanModal({
               <span className="error-message">{errors.exercises}</span>
             )}
 
-            {formData.exercises?.map((exercise, index) => {
-              console.log(
-                `🎯 [WorkoutPlanModal] Rendering exercise ${index}:`,
-                exercise
-              )
-              return (
-                <div key={index} className="exercise-item">
-                  <div className="exercise-header">
-                    <div className="exercise-info">
-                      <span className="exercise-number">{index + 1}</span>
-                      <div className="exercise-details">
-                        <h4>{exercise.exerciseName || "운동 이름 없음"}</h4>
-                      </div>
-                    </div>
-                    <div className="exercise-actions">
-                      {onSectionEdit && (
-                        <button
-                          onClick={() => onSectionEdit(exercise)}
-                          className="edit-button"
-                          title="운동 편집"
-                        >
-                          편집
-                        </button>
-                      )}
-                      {onSectionDelete ? (
-                        <button
-                          onClick={() => onSectionDelete(index)}
-                          className="remove-button"
-                          title="운동 삭제"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => removeExercise(index)}
-                          className="remove-button"
-                          title="운동 삭제"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      )}
+            {formData.exercises?.map((exercise, index) => (
+              <div key={index} className="exercise-item">
+                <div className="exercise-header">
+                  <div className="exercise-info">
+                    <span className="exercise-number">{index + 1}</span>
+                    <div className="exercise-details">
+                      <h4>{exercise.exerciseName || "운동 이름 없음"}</h4>
                     </div>
                   </div>
-
-                  {/* 운동 상세 정보 */}
-                  <div className="exercise-details-section">
-                    <div className="exercise-summary-grid">
-                      <div className="exercise-param">
-                        <span className="param-label">세트</span>
-                        <span className="param-value">
-                          {exercise.sets || 0}세트
-                        </span>
-                      </div>
-                      <div className="exercise-param">
-                        <span className="param-label">횟수</span>
-                        <span className="param-value">
-                          {exercise.reps || 0}회
-                        </span>
-                      </div>
-                      <div className="exercise-param">
-                        <span className="param-label">무게</span>
-                        <span className="param-value">
-                          {exercise.weight || 0}kg
-                        </span>
-                      </div>
-                      <div className="exercise-param">
-                        <span className="param-label">휴식</span>
-                        <span className="param-value">
-                          {exercise.restTime || 0}초
-                        </span>
-                      </div>
-                    </div>
-                    {exercise.notes && (
-                      <div className="exercise-notes">
-                        <span className="notes-label">메모:</span>
-                        <span className="notes-content">{exercise.notes}</span>
-                      </div>
+                  <div className="exercise-actions">
+                    {onSectionEdit && (
+                      <button
+                        onClick={() => onSectionEdit(exercise)}
+                        className="edit-button"
+                        title="운동 편집"
+                      >
+                        편집
+                      </button>
+                    )}
+                    {onSectionDelete ? (
+                      <button
+                        onClick={() => onSectionDelete(index)}
+                        className="remove-button"
+                        title="운동 삭제"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => removeExercise(index)}
+                        className="remove-button"
+                        title="운동 삭제"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     )}
                   </div>
                 </div>
-              )
-            })}
+
+                {/* 운동 상세 정보 */}
+                <div className="exercise-details-section">
+                  <div className="exercise-summary-grid">
+                    <div className="exercise-param">
+                      <span className="param-label">세트</span>
+                      <span className="param-value">
+                        {exercise.sets || 0}세트
+                      </span>
+                    </div>
+                    <div className="exercise-param">
+                      <span className="param-label">횟수</span>
+                      <span className="param-value">
+                        {exercise.reps || 0}회
+                      </span>
+                    </div>
+                    <div className="exercise-param">
+                      <span className="param-label">무게</span>
+                      <span className="param-value">
+                        {exercise.weight || 0}kg
+                      </span>
+                    </div>
+                    <div className="exercise-param">
+                      <span className="param-label">휴식</span>
+                      <span className="param-value">
+                        {exercise.restTime || 0}초
+                      </span>
+                    </div>
+                  </div>
+                  {exercise.notes && (
+                    <div className="exercise-notes">
+                      <span className="notes-label">메모:</span>
+                      <span className="notes-content">{exercise.notes}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

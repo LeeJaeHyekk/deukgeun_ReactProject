@@ -203,6 +203,7 @@
 .overview-section {
   display: grid;
   gap: 40px;
+  margin-bottom: 40px; /* 섹션 간격 추가 */
 }
 
 .overview-stats {
@@ -346,6 +347,10 @@
 }
 
 /* 운동 계획 섹션 */
+.plans-section {
+  margin-bottom: 40px; /* 섹션 간격 추가 */
+}
+
 .plans-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -353,98 +358,170 @@
 }
 
 /* 운동 세션 섹션 */
+.sessions-section {
+  margin-bottom: 40px; /* 섹션 간격 추가 */
+}
+
 .sessions-list {
   display: grid;
-  gap: 20px;
+  gap: 25px;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
 }
 
 .session-item {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 25px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 30px;
   border-radius: 20px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-  border-left: 5px solid #f59e0b;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  backdrop-filter: blur(12px);
+  overflow: hidden;
 }
 
-.delete-session-button {
+.session-item::before {
+  content: "";
   position: absolute;
-  top: 15px;
-  right: 15px;
-  background: #f44336;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 500;
-  transition: background 0.2s ease;
-}
-
-.delete-session-button:hover {
-  background: #d32f2f;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-radius: 20px 20px 0 0;
 }
 
 .session-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
-.session-item h3 {
-  margin-bottom: 15px;
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.session-header h3 {
+  margin: 0;
   color: #fff;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  flex: 1;
+  line-height: 1.3;
+}
+
+.session-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.delete-session-button {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  font-family: "Pretendard", sans-serif;
+}
+
+.delete-session-button:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+}
+
+.session-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.session-time,
+.session-duration {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.time-label,
+.duration-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.time-value,
+.duration-value {
+  color: #fff;
+  font-size: 0.95rem;
   font-weight: 600;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.session-item p {
-  margin: 8px 0;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.95rem;
-  line-height: 1.5;
+.session-status {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 15px;
 }
 
 .status-badge {
-  display: inline-block;
-  padding: 6px 16px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 20px;
   border-radius: 25px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-top: 15px;
+  font-size: 0.9rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
 .status-badge.completed {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
-  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
 
 .status-badge.in_progress {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   color: white;
-  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
 }
 
 .status-badge.paused {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   color: white;
-  box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
 }
 
 .status-badge.cancelled {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
-  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
 /* 목표 섹션 */
+.goals-section {
+  margin-bottom: 40px; /* 섹션 간격 추가 */
+}
+
 .goals-list {
   display: grid;
   gap: 25px;
@@ -523,6 +600,10 @@
 }
 
 /* 진행 상황 섹션 */
+.progress-section {
+  margin-bottom: 40px; /* 섹션 간격 추가 */
+}
+
 .progress-section h2 {
   margin-bottom: 35px;
   color: #fff;
@@ -704,6 +785,108 @@
     padding: 12px 24px;
     font-size: 0.95rem;
   }
+
+  .sessions-list {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .session-item {
+    padding: 25px;
+  }
+
+  .session-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .session-header h3 {
+    font-size: 1.3rem;
+  }
+
+  .session-time,
+  .session-duration {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .time-label,
+  .duration-label {
+    min-width: auto;
+  }
+}
+
+/* 빈 상태 스타일 */
+.empty-sessions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  min-height: 300px;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  animation: bounce 2s infinite;
+}
+
+.empty-sessions h3 {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.empty-sessions p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.start-first-session-button {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 15px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  font-family: "Pretendard", sans-serif;
+}
+
+.start-first-session-button:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.6);
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
 }
 
 @media (max-width: 480px) {
@@ -747,5 +930,131 @@
 
   .chart-container {
     padding: 20px;
+  }
+}
+
+/* 운동 세션 카드 세부사항 */
+.session-exercises {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.exercises-label {
+  display: block;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.exercises-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.exercises-list .exercise-item {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.exercises-list .exercise-item:last-child {
+  border-bottom: none;
+}
+
+.more-exercises {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+.session-notes {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.notes-label {
+  display: block;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.notes-value {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* 세션 섹션 스타일 */
+.sessions-section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.sessions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.empty-sessions {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.empty-sessions p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+.start-first-session-button {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+  font-family: "Pretendard", sans-serif;
+}
+
+.start-first-session-button:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+}
+
+/* 세션 그리드 레이아웃 */
+.sessions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .sessions-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }

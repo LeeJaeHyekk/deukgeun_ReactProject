@@ -5,7 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm"
-import type { MachineCategory, DifficultyLevel } from "../../types"
+import type {
+  MachineCategory,
+  DifficultyLevel,
+} from "../../shared/types/machine"
 
 @Entity("machines")
 export class Machine {

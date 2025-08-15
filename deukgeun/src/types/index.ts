@@ -44,7 +44,7 @@ export interface ErrorResponse {
 }
 
 // 사용자 관련 타입
-export type UserRole = "user" | "admin"
+export type UserRole = "user" | "admin" | "moderator"
 export type Gender = "male" | "female" | "other"
 
 export interface User {

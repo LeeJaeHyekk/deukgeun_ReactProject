@@ -8,7 +8,7 @@ import {
   OneToOne,
   OneToMany,
 } from "typeorm"
-import type { UserRole, Gender } from "../../types"
+import type { UserRole, Gender } from "../../shared/types/auth"
 import { UserLevel } from "./UserLevel"
 import { ExpHistory } from "./ExpHistory"
 import { UserReward } from "./UserReward"
@@ -41,7 +41,7 @@ export class User {
   @Column({ type: "varchar", nullable: true })
   profileImage?: string
 
-  @Column({ type: "enum", enum: ["user", "admin"], default: "user" })
+  @Column({ type: "enum", enum: ["user", "admin", "moderator"], default: "user" })
   role!: UserRole
 
   // 계정 상태
@@ -53,6 +53,13 @@ export class User {
 
   @Column({ type: "boolean", default: false })
   isPhoneVerified!: boolean
+
+  // 계정 복구 관련 필드
+  @Column({ type: "varchar", nullable: true })
+  name?: string
+
+  @Column({ type: "varchar", nullable: true })
+  username?: string
 
   // 마지막 활동 시간
   @Column({ type: "datetime", nullable: true })

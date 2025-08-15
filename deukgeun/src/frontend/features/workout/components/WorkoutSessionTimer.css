@@ -1,64 +1,372 @@
 .workout-session-timer {
-  text-align: center;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.9) 100%
+  );
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 2px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.workout-session-timer:hover {
+  border-color: #667eea;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 .timer-display {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 15px;
+  text-align: center;
+  margin-bottom: 20px;
   padding: 20px;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.timer-display::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 .timer-time {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  color: white;
   font-family: "Courier New", monospace;
+  letter-spacing: 2px;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .timer-controls {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
 .timer-button {
-  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 100px;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.timer-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.timer-button:hover::before {
+  left: 100%;
+}
+
+.timer-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.timer-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.timer-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.timer-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.timer-button:disabled:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .timer-button.start {
-  background: #4caf50;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
   color: white;
 }
 
 .timer-button.start:hover {
-  background: #45a049;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #45a049 0%, #388e3c 100%);
 }
 
 .timer-button.pause {
-  background: #ff9800;
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
   color: white;
 }
 
 .timer-button.pause:hover {
-  background: #f57c00;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #f57c00 0%, #ef6c00 100%);
+}
+
+.timer-button.resume {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+}
+
+.timer-button.resume:hover {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
 }
 
 .timer-button.stop {
-  background: #f44336;
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
   color: white;
 }
 
 .timer-button.stop:hover {
-  background: #d32f2f;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+}
+
+.timer-button.reset {
+  background: linear-gradient(135deg, #9e9e9e 0%, #757575 100%);
+  color: white;
+}
+
+.timer-button.reset:hover {
+  background: linear-gradient(135deg, #757575 0%, #616161 100%);
+}
+
+.timer-laps {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.timer-laps h4 {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.laps-list {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lap-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 8px;
+  border-left: 3px solid #667eea;
+  transition: all 0.2s ease;
+}
+
+.lap-item:hover {
+  background: rgba(102, 126, 234, 0.15);
+  transform: translateX(2px);
+}
+
+.lap-number {
+  font-weight: 600;
+  color: #667eea;
+  font-size: 0.9rem;
+}
+
+.lap-time {
+  font-family: "Courier New", monospace;
+  font-weight: 700;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.timer-shortcuts {
+  margin-top: 16px;
+  text-align: center;
+  padding: 12px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 8px;
+  border: 1px dashed rgba(102, 126, 234, 0.3);
+}
+
+.timer-shortcuts small {
+  color: #666;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .workout-session-timer {
+    background: linear-gradient(
+      135deg,
+      rgba(30, 30, 30, 0.95) 0%,
+      rgba(40, 40, 40, 0.9) 100%
+    );
+    color: #e0e0e0;
+  }
+
+  .timer-laps h4 {
+    color: #e0e0e0;
+  }
+
+  .lap-item {
+    background: rgba(102, 126, 234, 0.2);
+  }
+
+  .lap-item:hover {
+    background: rgba(102, 126, 234, 0.3);
+  }
+
+  .lap-time {
+    color: #e0e0e0;
+  }
+
+  .timer-shortcuts {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.4);
+  }
+
+  .timer-shortcuts small {
+    color: #b0b0b0;
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .workout-session-timer {
+    padding: 20px;
+    margin: 0 16px;
+  }
+
+  .timer-time {
+    font-size: 2rem;
+  }
+
+  .timer-controls {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .timer-button {
+    width: 100%;
+    padding: 14px;
+    font-size: 1rem;
+  }
+
+  .laps-list {
+    max-height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .workout-session-timer {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .timer-time {
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+  }
+
+  .timer-button {
+    padding: 12px;
+    font-size: 0.9rem;
+    min-width: 80px;
+  }
+
+  .lap-item {
+    padding: 6px 10px;
+  }
+
+  .lap-number,
+  .lap-time {
+    font-size: 0.85rem;
+  }
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  .workout-session-timer {
+    border: 2px solid #000;
+  }
+
+  .timer-button {
+    border: 1px solid currentColor;
+  }
+
+  .lap-item {
+    border: 1px solid #667eea;
+  }
+}
+
+/* 모션 감소 설정 지원 */
+@media (prefers-reduced-motion: reduce) {
+  .workout-session-timer,
+  .timer-button,
+  .lap-item {
+    transition: none;
+  }
+
+  .timer-button::before {
+    display: none;
+  }
+
+  .timer-display::before {
+    animation: none;
+  }
 }

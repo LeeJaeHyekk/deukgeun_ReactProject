@@ -57,6 +57,6 @@ export class WorkoutGoal {
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "user_id" })
+  @JoinColumn({ name: "userId" })
   user!: User
 }

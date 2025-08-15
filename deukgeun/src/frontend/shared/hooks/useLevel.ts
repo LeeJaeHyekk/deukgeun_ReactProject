@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useAuth } from "./useAuth"
 import { levelApi, LevelProgress, UserReward } from "../api/levelApi"
 import { showToast } from "../lib"
@@ -19,15 +19,27 @@ export function useLevel() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // API 호출 제한을 위한 ref
+  const lastFetchTime = useRef<number>(0)
+  const FETCH_COOLDOWN = 5000 // 5초 쿨다운
+
   /**
    * 사용자 레벨 진행률 조회
    */
   const fetchLevelProgress = useCallback(async () => {
     if (!isLoggedIn || !user) return
 
+    // API 호출 제한 확인
+    const now = Date.now()
+    if (now - lastFetchTime.current < FETCH_COOLDOWN) {
+      console.log("API 호출 제한: 레벨 진행률 조회 스킵")
+      return
+    }
+
     try {
       setIsLoading(true)
       setError(null)
+      lastFetchTime.current = now
       const progress = await levelApi.getUserProgress(user.id)
       setLevelProgress(progress)
     } catch (err) {
@@ -44,9 +56,17 @@ export function useLevel() {
   const fetchRewards = useCallback(async () => {
     if (!isLoggedIn || !user) return
 
+    // API 호출 제한 확인
+    const now = Date.now()
+    if (now - lastFetchTime.current < FETCH_COOLDOWN) {
+      console.log("API 호출 제한: 보상 목록 조회 스킵")
+      return
+    }
+
     try {
       setIsLoading(true)
       setError(null)
+      lastFetchTime.current = now
       const userRewards = await levelApi.getUserRewards(user.id)
       setRewards(userRewards)
     } catch (err) {

@@ -64,15 +64,15 @@ export class WorkoutSession {
 
   // 관계 설정
   @ManyToOne(() => User, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "user_id" })
+  @JoinColumn({ name: "userId" })
   user!: User
 
   @ManyToOne(() => WorkoutPlan, { onDelete: "SET NULL" })
-  @JoinColumn({ name: "plan_id" })
+  @JoinColumn({ name: "planId" })
   workoutPlan?: WorkoutPlan
 
   @ManyToOne(() => Gym, { onDelete: "SET NULL" })
-  @JoinColumn({ name: "gym_id" })
+  @JoinColumn({ name: "gymId" })
   gym?: Gym
 
   @OneToMany(() => ExerciseSet, set => set.workoutSession)

@@ -16,7 +16,10 @@ export function useWorkoutSessions() {
       const data = await WorkoutJournalApi.getWorkoutSessions()
       setSessions(data)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "운동 세션을 불러오는데 실패했습니다."
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "운동 세션을 불러오는데 실패했습니다."
       console.error("운동 세션 조회 실패:", err)
       setError(errorMessage)
     } finally {
@@ -24,68 +27,77 @@ export function useWorkoutSessions() {
     }
   }, [])
 
-  const createSession = useCallback(async (sessionData: Partial<WorkoutSession>) => {
-    try {
-      setLoading(true)
-      setError(null)
-      // userId가 필수이므로 기본값 설정
-      const createData = {
-        ...sessionData,
-        userId: sessionData.userId || 1, // 임시로 기본값 설정
-      } as any
-      const newSession = await WorkoutJournalApi.createWorkoutSession(createData)
-      setSessions(prev => [newSession, ...prev])
-      return newSession
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "운동 세션 생성에 실패했습니다."
-      console.error("운동 세션 생성 실패:", err)
-      setError(errorMessage)
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  const updateSession = useCallback(async (
-    sessionId: number,
-    updateData: Partial<WorkoutSession>
-  ) => {
-    try {
-      setLoading(true)
-      setError(null)
-      // sessionId가 필수이므로 추가
-      const updateDataWithId = {
-        ...updateData,
-        sessionId,
-      } as any
-      const updatedSession = await WorkoutJournalApi.updateWorkoutSession(
-        sessionId,
-        updateDataWithId
-      )
-      setSessions(prev =>
-        prev.map(session =>
-          session.session_id === sessionId ? updatedSession : session
+  const createSession = useCallback(
+    async (sessionData: Partial<WorkoutSession>) => {
+      try {
+        setLoading(true)
+        setError(null)
+        // userId는 백엔드에서 인증된 사용자 정보로 설정하므로 제거
+        const { userId, ...createData } = sessionData
+        const newSession = await WorkoutJournalApi.createWorkoutSession(
+          createData as any
         )
-      )
-      return updatedSession
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "운동 세션 업데이트에 실패했습니다."
-      console.error("운동 세션 업데이트 실패:", err)
-      setError(errorMessage)
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+        setSessions(prev => [newSession, ...prev])
+        return newSession
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "운동 세션 생성에 실패했습니다."
+        console.error("운동 세션 생성 실패:", err)
+        setError(errorMessage)
+        throw err
+      } finally {
+        setLoading(false)
+      }
+    },
+    []
+  )
+
+  const updateSession = useCallback(
+    async (sessionId: number, updateData: Partial<WorkoutSession>) => {
+      try {
+        setLoading(true)
+        setError(null)
+        // sessionId가 필수이므로 추가
+        const updateDataWithId = {
+          ...updateData,
+          sessionId,
+        } as any
+        const updatedSession = await WorkoutJournalApi.updateWorkoutSession(
+          sessionId,
+          updateDataWithId
+        )
+        setSessions(prev =>
+          prev.map(session =>
+            session.session_id === sessionId ? updatedSession : session
+          )
+        )
+        return updatedSession
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "운동 세션 업데이트에 실패했습니다."
+        console.error("운동 세션 업데이트 실패:", err)
+        setError(errorMessage)
+        throw err
+      } finally {
+        setLoading(false)
+      }
+    },
+    []
+  )
 
   const deleteSession = useCallback(async (sessionId: number) => {
     try {
       setLoading(true)
       setError(null)
       await WorkoutJournalApi.deleteWorkoutSession(sessionId)
-      setSessions(prev => prev.filter(session => session.session_id !== sessionId))
+      setSessions(prev =>
+        prev.filter(session => session.session_id !== sessionId)
+      )
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "운동 세션 삭제에 실패했습니다."
+      const errorMessage =
+        err instanceof Error ? err.message : "운동 세션 삭제에 실패했습니다."
       console.error("운동 세션 삭제 실패:", err)
       setError(errorMessage)
       throw err

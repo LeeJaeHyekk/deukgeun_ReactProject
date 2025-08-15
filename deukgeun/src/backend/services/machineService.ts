@@ -6,7 +6,7 @@ import type {
   MachineFilterQuery,
   MachineCategory,
   DifficultyLevel,
-} from "../../types"
+} from "../types/machine"
 
 /**
  * Machine 관련 비즈니스 로직을 처리하는 서비스 클래스
@@ -148,20 +148,18 @@ export class MachineService {
   ): CreateMachineRequest {
     return {
       ...data,
-      machine_key: this.sanitizeString(data.machine_key),
-      name_ko: this.sanitizeString(data.name_ko),
-      name_en: data.name_en ? this.sanitizeString(data.name_en) : undefined,
-      image_url: this.sanitizeString(data.image_url),
-      short_desc: this.sanitizeString(data.short_desc),
-      detail_desc: this.sanitizeString(data.detail_desc),
-      positive_effect: data.positive_effect
-        ? this.sanitizeString(data.positive_effect)
+      machineKey: this.sanitizeString(data.machineKey),
+      name: this.sanitizeString(data.name),
+      nameEn: data.nameEn ? this.sanitizeString(data.nameEn) : undefined,
+      imageUrl: this.sanitizeString(data.imageUrl),
+      shortDesc: this.sanitizeString(data.shortDesc),
+      detailDesc: this.sanitizeString(data.detailDesc),
+      positiveEffect: data.positiveEffect
+        ? this.sanitizeString(data.positiveEffect)
         : undefined,
-      video_url: data.video_url
-        ? this.sanitizeString(data.video_url)
-        : undefined,
-      target_muscle: data.target_muscle
-        ? data.target_muscle.map(muscle => this.sanitizeString(muscle))
+      videoUrl: data.videoUrl ? this.sanitizeString(data.videoUrl) : undefined,
+      targetMuscles: data.targetMuscles
+        ? data.targetMuscles.map(muscle => this.sanitizeString(muscle))
         : undefined,
     }
   }

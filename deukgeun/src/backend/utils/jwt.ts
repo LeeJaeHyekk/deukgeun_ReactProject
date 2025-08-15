@@ -8,10 +8,13 @@ const REFRESH_TOKEN_SECRET =
 
 interface JwtPayload {
   userId: number
-  role: "user" | "admin"
+  role: "user" | "admin" | "moderator"
 }
 
-export function createTokens(userId: number, role: "user" | "admin") {
+export function createTokens(
+  userId: number,
+  role: "user" | "admin" | "moderator"
+) {
   try {
     const accessToken = jwt.sign({ userId, role }, ACCESS_TOKEN_SECRET, {
       expiresIn: "15m",

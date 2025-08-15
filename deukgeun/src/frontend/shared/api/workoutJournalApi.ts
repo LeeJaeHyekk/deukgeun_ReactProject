@@ -12,6 +12,7 @@ import type {
   CreateGoalRequest,
   UpdateGoalRequest,
 } from "../../../types"
+import { storage } from "../lib"
 
 // 타입들을 다시 export
 export type {
@@ -37,14 +38,21 @@ interface ApiResponse<T> {
   message?: string
 }
 
+// 공통 헤더 생성 함수
+function getAuthHeaders(): HeadersInit {
+  const token = storage.get("accessToken")
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  }
+}
+
 // API 함수들
 export const WorkoutJournalApi = {
   // 대시보드 데이터
   async getDashboardData(): Promise<DashboardData> {
-    const response = await fetch("/api/workout/dashboard", {
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await fetch("/api/workout-journal/dashboard", {
+      headers: getAuthHeaders(),
     })
 
     if (!response.ok) {
@@ -66,10 +74,8 @@ export const WorkoutJournalApi = {
 
   // 운동 계획 관련
   async getWorkoutPlans(): Promise<WorkoutPlan[]> {
-    const response = await fetch("/api/workout/plans", {
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await fetch("/api/workout-journal/plans", {
+      headers: getAuthHeaders(),
     })
 
     if (!response.ok) {
@@ -82,11 +88,9 @@ export const WorkoutJournalApi = {
   },
 
   async createWorkoutPlan(planData: CreatePlanRequest): Promise<WorkoutPlan> {
-    const response = await fetch("/api/workout/plans", {
+    const response = await fetch("/api/workout-journal/plans", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(planData),
     })
 
@@ -107,11 +111,9 @@ export const WorkoutJournalApi = {
     planId: number,
     planData: UpdatePlanRequest
   ): Promise<WorkoutPlan> {
-    const response = await fetch(`/api/workout/plans/${planId}`, {
+    const response = await fetch(`/api/workout-journal/plans/${planId}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(planData),
     })
 
@@ -129,11 +131,9 @@ export const WorkoutJournalApi = {
   },
 
   async deleteWorkoutPlan(planId: number): Promise<void> {
-    const response = await fetch(`/api/workout/plans/${planId}`, {
+    const response = await fetch(`/api/workout-journal/plans/${planId}`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
     })
 
     if (!response.ok) {
@@ -144,10 +144,8 @@ export const WorkoutJournalApi = {
 
   // 운동 세션 관련
   async getWorkoutSessions(): Promise<WorkoutSession[]> {
-    const response = await fetch("/api/workout/sessions", {
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await fetch("/api/workout-journal/sessions", {
+      headers: getAuthHeaders(),
     })
 
     if (!response.ok) {
@@ -162,11 +160,9 @@ export const WorkoutJournalApi = {
   async createWorkoutSession(
     sessionData: CreateSessionRequest
   ): Promise<WorkoutSession> {
-    const response = await fetch("/api/workout/sessions", {
+    const response = await fetch("/api/workout-journal/sessions", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(sessionData),
     })
 
@@ -187,11 +183,9 @@ export const WorkoutJournalApi = {
     sessionId: number,
     sessionData: UpdateSessionRequest
   ): Promise<WorkoutSession> {
-    const response = await fetch(`/api/workout/sessions/${sessionId}`, {
+    const response = await fetch(`/api/workout-journal/sessions/${sessionId}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(sessionData),
     })
 
@@ -209,11 +203,9 @@ export const WorkoutJournalApi = {
   },
 
   async deleteWorkoutSession(sessionId: number): Promise<void> {
-    const response = await fetch(`/api/workout/sessions/${sessionId}`, {
+    const response = await fetch(`/api/workout-journal/sessions/${sessionId}`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
     })
 
     if (!response.ok) {
@@ -224,10 +216,8 @@ export const WorkoutJournalApi = {
 
   // 운동 목표 관련
   async getWorkoutGoals(): Promise<WorkoutGoal[]> {
-    const response = await fetch("/api/workout/goals", {
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await fetch("/api/workout-journal/goals", {
+      headers: getAuthHeaders(),
     })
 
     if (!response.ok) {
@@ -240,11 +230,9 @@ export const WorkoutJournalApi = {
   },
 
   async createWorkoutGoal(goalData: CreateGoalRequest): Promise<WorkoutGoal> {
-    const response = await fetch("/api/workout/goals", {
+    const response = await fetch("/api/workout-journal/goals", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(goalData),
     })
 
@@ -265,11 +253,9 @@ export const WorkoutJournalApi = {
     goalId: number,
     goalData: UpdateGoalRequest
   ): Promise<WorkoutGoal> {
-    const response = await fetch(`/api/workout/goals/${goalId}`, {
+    const response = await fetch(`/api/workout-journal/goals/${goalId}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(goalData),
     })
 
@@ -287,11 +273,9 @@ export const WorkoutJournalApi = {
   },
 
   async deleteWorkoutGoal(goalId: number): Promise<void> {
-    const response = await fetch(`/api/workout/goals/${goalId}`, {
+    const response = await fetch(`/api/workout-journal/goals/${goalId}`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
     })
 
     if (!response.ok) {
@@ -302,10 +286,8 @@ export const WorkoutJournalApi = {
 
   // 운동 통계 관련
   async getWorkoutStats(): Promise<WorkoutStats[]> {
-    const response = await fetch("/api/workout/stats", {
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await fetch("/api/workout-journal/stats", {
+      headers: getAuthHeaders(),
     })
 
     if (!response.ok) {
@@ -319,10 +301,8 @@ export const WorkoutJournalApi = {
 
   // 운동 진행 상황 관련
   async getWorkoutProgress(): Promise<WorkoutProgress[]> {
-    const response = await fetch("/api/workout/progress", {
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await fetch("/api/workout-journal/progress", {
+      headers: getAuthHeaders(),
     })
 
     if (!response.ok) {

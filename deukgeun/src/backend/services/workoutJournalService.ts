@@ -1,36 +1,72 @@
-import { getRepository } from "typeorm"
+import { AppDataSource } from "../config/database"
 import { WorkoutPlan } from "../entities/WorkoutPlan"
 import { WorkoutSession } from "../entities/WorkoutSession"
 import { WorkoutGoal } from "../entities/WorkoutGoal"
 import { WorkoutStats } from "../entities/WorkoutStats"
 import { WorkoutProgress } from "../entities/WorkoutProgress"
 import { ExerciseSet } from "../entities/ExerciseSet"
+import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
 
 // 타입 정의
 interface CreatePlanData {
-  plan_name: string
+  plan_name?: string
+  name?: string // 프론트엔드 호환성을 위해 추가
   description?: string
   difficulty?: "beginner" | "intermediate" | "advanced"
   estimated_duration_minutes?: number
   target_muscle_groups?: string[]
   is_template?: boolean
   is_public?: boolean
+  exercises?: {
+    machine_id?: number
+    machineId?: number
+    order?: number
+    sets: number
+    reps?: number
+    reps_min?: number
+    reps_max?: number
+    weight?: number
+    weight_min?: number
+    weight_max?: number
+    rest_time?: number
+    restTime?: number
+    notes?: string
+    exerciseName?: string // 프론트엔드 호환성을 위해 추가
+  }[]
 }
 
 interface UpdatePlanData {
   name?: string
+  plan_name?: string // 프론트엔드 호환성을 위해 추가
   description?: string
   difficulty?: string
   estimated_duration_minutes?: number
   target_muscle_groups?: string[]
   is_template?: boolean
   is_public?: boolean
+  exercises?: {
+    machine_id?: number
+    machineId?: number
+    order?: number
+    sets: number
+    reps?: number
+    reps_min?: number
+    reps_max?: number
+    weight?: number
+    weight_min?: number
+    weight_max?: number
+    rest_time?: number
+    restTime?: number
+    notes?: string
+    exerciseName?: string // 프론트엔드 호환성을 위해 추가
+  }[]
 }
 
 interface CreateSessionData {
   plan_id?: number
   gym_id?: number
-  session_name: string
+  session_name?: string
+  name?: string // 프론트엔드 호환성을 위해 추가
   start_time?: string | Date
   mood_rating?: number
   energy_level?: number
@@ -87,26 +123,133 @@ interface CreateSetData {
 export class WorkoutJournalService {
   // 운동 계획 관련
   async getUserPlans(userId: number) {
-    const planRepository = getRepository(WorkoutPlan)
-    return await planRepository.find({
+    const planRepository = AppDataSource.getRepository(WorkoutPlan)
+    const plans = await planRepository.find({
       where: { userId: userId },
       order: { createdAt: "DESC" },
+      relations: ["exercises", "exercises.machine"],
     })
+
+    // 프론트엔드 호환성을 위해 필드명 변환
+    return plans.map(plan => ({
+      ...plan,
+      exercises:
+        plan.exercises?.map(exercise => ({
+          id: exercise.id,
+          planId: exercise.planId,
+          machineId: exercise.machineId, // machineId로 통일
+          exerciseName: exercise.exerciseName || "", // exerciseName 필드 사용
+          order: exercise.exerciseOrder,
+          sets: exercise.sets,
+          reps: exercise.repsRange?.min || 10,
+          weight: exercise.weightRange?.min || 0,
+          restTime: exercise.restSeconds,
+          notes: exercise.notes || "",
+        })) || [],
+    }))
   }
 
   async createWorkoutPlan(userId: number, planData: CreatePlanData) {
-    const planRepository = getRepository(WorkoutPlan)
-    const plan = planRepository.create({
-      userId: userId,
-      name: planData.plan_name,
-      description: planData.description,
-      difficulty: planData.difficulty || "beginner",
-      estimatedDurationMinutes: planData.estimated_duration_minutes,
-      targetMuscleGroups: planData.target_muscle_groups || [],
-      isTemplate: planData.is_template || false,
-      isPublic: planData.is_public || false,
-    })
-    return await planRepository.save(plan)
+    const planRepository = AppDataSource.getRepository(WorkoutPlan)
+    const exerciseRepository = AppDataSource.getRepository(WorkoutPlanExercise)
+
+    console.log("운동 계획 생성 시작:", { userId, planData })
+
+    // 트랜잭션 시작
+    const queryRunner = AppDataSource.createQueryRunner()
+    await queryRunner.connect()
+    await queryRunner.startTransaction()
+
+    try {
+      // 운동 계획 생성 - name과 plan_name 모두 처리
+      const plan = planRepository.create({
+        userId: userId,
+        name: planData.plan_name || planData.name || "", // plan_name 또는 name 사용
+        description: planData.description,
+        difficulty: planData.difficulty || "beginner",
+        estimatedDurationMinutes: planData.estimated_duration_minutes || 60,
+        targetMuscleGroups: planData.target_muscle_groups || [],
+        isTemplate: planData.is_template || false,
+        isPublic: planData.is_public || false,
+      })
+
+      console.log("생성할 계획:", plan)
+      const savedPlan = await queryRunner.manager.save(plan)
+      console.log("저장된 계획:", savedPlan)
+
+      // exercises 배열이 있으면 WorkoutPlanExercise 엔티티들 생성
+      if (planData.exercises && planData.exercises.length > 0) {
+        console.log("운동 추가 시작:", planData.exercises)
+        console.log("운동 개수:", planData.exercises.length)
+
+        const exercises = planData.exercises.map((exercise, index) => {
+          console.log(`운동 ${index + 1} 데이터:`, exercise)
+
+          const exerciseEntity = exerciseRepository.create({
+            planId: savedPlan.id,
+            machineId: exercise.machine_id || exercise.machineId || 1,
+            exerciseName: exercise.exerciseName || exercise.notes || "",
+            exerciseOrder: exercise.order || index,
+            sets: exercise.sets || 3,
+            repsRange: {
+              min: exercise.reps || 10,
+              max: exercise.reps || 10,
+            },
+            weightRange: exercise.weight
+              ? {
+                  min: exercise.weight,
+                  max: exercise.weight,
+                }
+              : undefined,
+            restSeconds: exercise.rest_time || exercise.restTime || 60,
+            notes: exercise.notes || "",
+          })
+          console.log(`생성할 운동 ${index + 1}:`, exerciseEntity)
+          return exerciseEntity
+        })
+
+        console.log("저장할 운동들:", exercises)
+        const savedExercises = await queryRunner.manager.save(exercises)
+        console.log("저장된 운동들:", savedExercises)
+      } else {
+        console.log("exercises 배열이 없거나 비어있음")
+      }
+
+      await queryRunner.commitTransaction()
+      console.log("운동 계획 생성 완료")
+
+      // 저장된 계획을 다시 조회하여 exercises 포함
+      const planWithExercises = await planRepository.findOne({
+        where: { id: savedPlan.id },
+        relations: ["exercises", "exercises.machine"],
+      })
+
+      // 프론트엔드 호환성을 위해 필드명 변환
+      const planForFrontend = {
+        ...planWithExercises,
+        exercises:
+          planWithExercises?.exercises?.map(exercise => ({
+            id: exercise.id,
+            planId: exercise.planId,
+            machineId: exercise.machineId, // machineId로 통일
+            exerciseName: exercise.exerciseName || "", // exerciseName 필드 사용
+            order: exercise.exerciseOrder,
+            sets: exercise.sets,
+            reps: exercise.repsRange?.min || 10,
+            weight: exercise.weightRange?.min || 0,
+            restTime: exercise.restSeconds,
+            notes: exercise.notes || "",
+          })) || [],
+      }
+
+      return planForFrontend
+    } catch (error) {
+      await queryRunner.rollbackTransaction()
+      console.error("운동 계획 생성 중 오류:", error)
+      throw new Error(`운동 계획 생성에 실패했습니다: ${error.message}`)
+    } finally {
+      await queryRunner.release()
+    }
   }
 
   async updateWorkoutPlan(
@@ -114,21 +257,137 @@ export class WorkoutJournalService {
     userId: number,
     updateData: UpdatePlanData
   ) {
-    const planRepository = getRepository(WorkoutPlan)
-    const plan = await planRepository.findOne({
-      where: { id: planId, userId: userId },
-    })
+    const planRepository = AppDataSource.getRepository(WorkoutPlan)
+    const exerciseRepository = AppDataSource.getRepository(WorkoutPlanExercise)
 
-    if (!plan) {
-      throw new Error("운동 계획을 찾을 수 없습니다.")
+    console.log("운동 계획 업데이트 시작:", { planId, userId, updateData })
+
+    // 트랜잭션 시작
+    const queryRunner = AppDataSource.createQueryRunner()
+    await queryRunner.connect()
+    await queryRunner.startTransaction()
+
+    try {
+      const plan = await planRepository.findOne({
+        where: { id: planId, userId: userId },
+        relations: ["exercises", "exercises.machine"],
+      })
+
+      if (!plan) {
+        throw new Error("운동 계획을 찾을 수 없습니다.")
+      }
+
+      console.log("기존 계획:", plan)
+      console.log("기존 exercises:", plan.exercises)
+
+      // 기본 계획 정보 업데이트
+      Object.assign(plan, updateData)
+
+      // name 필드가 있으면 plan_name으로도 설정 (호환성)
+      if (updateData.name && !updateData.plan_name) {
+        plan.name = updateData.name
+      } else if (updateData.plan_name && !updateData.name) {
+        plan.name = updateData.plan_name
+      }
+
+      await queryRunner.manager.save(plan)
+
+      // exercises 배열이 있으면 기존 exercises 삭제 후 새로 생성
+      if (updateData.exercises) {
+        console.log("업데이트할 exercises:", updateData.exercises)
+        console.log("exercises 배열 길이:", updateData.exercises.length)
+
+        // 기존 exercises 삭제 - 안전한 방법으로 삭제
+        console.log("기존 exercises 삭제 시작")
+        await queryRunner.manager.delete(WorkoutPlanExercise, {
+          planId: planId,
+        })
+        console.log("기존 exercises 삭제 완료")
+
+        // 새로운 exercises 생성
+        if (updateData.exercises.length > 0) {
+          console.log("새로운 exercises 생성 시작")
+          const exercises = updateData.exercises.map((exercise, index) => {
+            console.log(`운동 ${index + 1} 데이터:`, exercise)
+
+            // machineId 처리 개선
+            const machineId = exercise.machine_id || exercise.machineId
+            if (!machineId) {
+              console.error(`운동 ${index + 1}에 machineId가 없음:`, exercise)
+              throw new Error(`운동 ${index + 1}에 machineId가 필요합니다.`)
+            }
+
+            const exerciseEntity = exerciseRepository.create({
+              planId: planId,
+              machineId: machineId,
+              exerciseName: exercise.exerciseName || exercise.notes || "",
+              exerciseOrder: exercise.order || index,
+              sets: exercise.sets || 3,
+              repsRange: {
+                min: exercise.reps || 10,
+                max: exercise.reps || 10,
+              },
+              weightRange: exercise.weight
+                ? {
+                    min: exercise.weight,
+                    max: exercise.weight,
+                  }
+                : undefined,
+              restSeconds: exercise.rest_time || exercise.restTime || 60,
+              notes: exercise.notes || "",
+            })
+
+            console.log(`생성할 운동 ${index + 1}:`, exerciseEntity)
+            return exerciseEntity
+          })
+
+          console.log("저장할 exercises:", exercises)
+          const savedExercises = await queryRunner.manager.save(exercises)
+          console.log("저장된 exercises:", savedExercises)
+
+          // plan.exercises 배열 업데이트
+          plan.exercises = savedExercises
+        } else {
+          console.log("exercises 배열이 비어있음")
+          plan.exercises = []
+        }
+      } else {
+        console.log("updateData.exercises가 없음")
+      }
+
+      await queryRunner.commitTransaction()
+      console.log("운동 계획 업데이트 완료")
+
+      // 프론트엔드 호환성을 위해 필드명 변환
+      const planForFrontend = {
+        ...plan,
+        exercises:
+          plan.exercises?.map(exercise => ({
+            id: exercise.id,
+            planId: exercise.planId,
+            machineId: exercise.machineId, // machineId로 통일
+            exerciseName: exercise.exerciseName || "", // exerciseName 필드 사용
+            order: exercise.exerciseOrder,
+            sets: exercise.sets,
+            reps: exercise.repsRange?.min || 10,
+            weight: exercise.weightRange?.min || 0,
+            restTime: exercise.restSeconds,
+            notes: exercise.notes || "",
+          })) || [],
+      }
+
+      return planForFrontend
+    } catch (error) {
+      await queryRunner.rollbackTransaction()
+      console.error("운동 계획 업데이트 중 오류:", error)
+      throw new Error("운동 계획 업데이트에 실패했습니다.")
+    } finally {
+      await queryRunner.release()
     }
-
-    Object.assign(plan, updateData)
-    return await planRepository.save(plan)
   }
 
   async deleteWorkoutPlan(planId: number, userId: number) {
-    const planRepository = getRepository(WorkoutPlan)
+    const planRepository = AppDataSource.getRepository(WorkoutPlan)
     const plan = await planRepository.findOne({
       where: { id: planId, userId: userId },
     })
@@ -142,7 +401,7 @@ export class WorkoutJournalService {
 
   // 운동 세션 관련
   async getUserSessions(userId: number) {
-    const sessionRepository = getRepository(WorkoutSession)
+    const sessionRepository = AppDataSource.getRepository(WorkoutSession)
     return await sessionRepository.find({
       where: { userId: userId },
       order: { startTime: "DESC" },
@@ -151,19 +410,31 @@ export class WorkoutJournalService {
   }
 
   async createWorkoutSession(userId: number, sessionData: CreateSessionData) {
-    const sessionRepository = getRepository(WorkoutSession)
+    const sessionRepository = AppDataSource.getRepository(WorkoutSession)
+
+    // 필수 필드 검증 - name 또는 session_name 중 하나는 있어야 함
+    if (!sessionData.name && !sessionData.session_name) {
+      throw new Error("세션 이름은 필수입니다.")
+    }
+
     const session = sessionRepository.create({
       userId: userId,
       planId: sessionData.plan_id,
       gymId: sessionData.gym_id,
-      name: sessionData.session_name,
+      name: sessionData.name || sessionData.session_name, // name 또는 session_name 사용
       startTime: new Date(sessionData.start_time || new Date()),
       moodRating: sessionData.mood_rating,
       energyLevel: sessionData.energy_level,
       notes: sessionData.notes,
       status: "in_progress",
     })
-    return await sessionRepository.save(session)
+
+    try {
+      return await sessionRepository.save(session)
+    } catch (error) {
+      console.error("운동 세션 생성 중 오류:", error)
+      throw new Error("운동 세션 생성에 실패했습니다.")
+    }
   }
 
   async updateWorkoutSession(
@@ -171,7 +442,7 @@ export class WorkoutJournalService {
     userId: number,
     updateData: UpdateSessionData
   ) {
-    const sessionRepository = getRepository(WorkoutSession)
+    const sessionRepository = AppDataSource.getRepository(WorkoutSession)
     const session = await sessionRepository.findOne({
       where: { id: sessionId, userId: userId },
     })
@@ -185,7 +456,7 @@ export class WorkoutJournalService {
   }
 
   async deleteWorkoutSession(sessionId: number, userId: number) {
-    const sessionRepository = getRepository(WorkoutSession)
+    const sessionRepository = AppDataSource.getRepository(WorkoutSession)
     const session = await sessionRepository.findOne({
       where: { id: sessionId, userId: userId },
     })
@@ -199,7 +470,7 @@ export class WorkoutJournalService {
 
   // 운동 목표 관련
   async getUserGoals(userId: number) {
-    const goalRepository = getRepository(WorkoutGoal)
+    const goalRepository = AppDataSource.getRepository(WorkoutGoal)
     return await goalRepository.find({
       where: { userId: userId },
       order: { createdAt: "DESC" },
@@ -207,7 +478,7 @@ export class WorkoutJournalService {
   }
 
   async createWorkoutGoal(userId: number, goalData: CreateGoalData) {
-    const goalRepository = getRepository(WorkoutGoal)
+    const goalRepository = AppDataSource.getRepository(WorkoutGoal)
     const goal = goalRepository.create({
       userId: userId,
       title: goalData.title,
@@ -227,7 +498,7 @@ export class WorkoutJournalService {
     userId: number,
     updateData: UpdateGoalData
   ) {
-    const goalRepository = getRepository(WorkoutGoal)
+    const goalRepository = AppDataSource.getRepository(WorkoutGoal)
     const goal = await goalRepository.findOne({
       where: { id: goalId, userId: userId },
     })
@@ -246,21 +517,30 @@ export class WorkoutJournalService {
   }
 
   async deleteWorkoutGoal(goalId: number, userId: number) {
-    const goalRepository = getRepository(WorkoutGoal)
-    const goal = await goalRepository.findOne({
-      where: { id: goalId, userId: userId },
-    })
+    const goalRepository = AppDataSource.getRepository(WorkoutGoal)
 
-    if (!goal) {
-      throw new Error("운동 목표를 찾을 수 없습니다.")
+    try {
+      const goal = await goalRepository.findOne({
+        where: { id: goalId, userId: userId },
+      })
+
+      if (!goal) {
+        throw new Error("운동 목표를 찾을 수 없습니다.")
+      }
+
+      await goalRepository.remove(goal)
+    } catch (error) {
+      console.error("운동 목표 삭제 중 오류:", error)
+      if (error instanceof Error) {
+        throw error
+      }
+      throw new Error("운동 목표 삭제에 실패했습니다.")
     }
-
-    await goalRepository.remove(goal)
   }
 
   // 운동 통계 관련
   async getUserStats(userId: number) {
-    const statsRepository = getRepository(WorkoutStats)
+    const statsRepository = AppDataSource.getRepository(WorkoutStats)
     return await statsRepository.find({
       where: { userId: userId },
       order: { workoutDate: "DESC" },
@@ -270,7 +550,7 @@ export class WorkoutJournalService {
 
   // 운동 진행 상황 관련
   async getUserProgress(userId: number) {
-    const progressRepository = getRepository(WorkoutProgress)
+    const progressRepository = AppDataSource.getRepository(WorkoutProgress)
     return await progressRepository.find({
       where: { userId: userId },
       order: { progressDate: "DESC" },
@@ -346,7 +626,7 @@ export class WorkoutJournalService {
 
   // 운동 세트 추가
   async addExerciseSet(setData: CreateSetData) {
-    const setRepository = getRepository(ExerciseSet)
+    const setRepository = AppDataSource.getRepository(ExerciseSet)
     const exerciseSet = setRepository.create({
       sessionId: setData.session_id,
       machineId: setData.machine_id,
@@ -363,7 +643,7 @@ export class WorkoutJournalService {
 
   // 운동 세션 완료
   async completeWorkoutSession(sessionId: number, endTime: Date) {
-    const sessionRepository = getRepository(WorkoutSession)
+    const sessionRepository = AppDataSource.getRepository(WorkoutSession)
     const session = await sessionRepository.findOne({
       where: { id: sessionId },
     })
@@ -383,9 +663,9 @@ export class WorkoutJournalService {
 
   // 운동 통계 업데이트
   async updateWorkoutStats(userId: number, sessionId: number) {
-    const sessionRepository = getRepository(WorkoutSession)
-    const setRepository = getRepository(ExerciseSet)
-    const statsRepository = getRepository(WorkoutStats)
+    const sessionRepository = AppDataSource.getRepository(WorkoutSession)
+    const setRepository = AppDataSource.getRepository(ExerciseSet)
+    const statsRepository = AppDataSource.getRepository(WorkoutStats)
 
     const session = await sessionRepository.findOne({
       where: { id: sessionId },

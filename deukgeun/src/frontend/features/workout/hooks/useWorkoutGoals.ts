@@ -16,7 +16,10 @@ export function useWorkoutGoals() {
       const data = await WorkoutJournalApi.getWorkoutGoals()
       setGoals(data)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "운동 목표를 불러오는데 실패했습니다."
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "운동 목표를 불러오는데 실패했습니다."
       console.error("운동 목표 조회 실패:", err)
       setError(errorMessage)
     } finally {
@@ -28,16 +31,16 @@ export function useWorkoutGoals() {
     try {
       setLoading(true)
       setError(null)
-      // userId가 필수이므로 기본값 설정
-      const createData = {
-        ...goalData,
-        userId: goalData.userId || 1, // 임시로 기본값 설정
-      } as any
-      const newGoal = await WorkoutJournalApi.createWorkoutGoal(createData)
+      // userId는 백엔드에서 인증된 사용자 정보로 설정하므로 제거
+      const { userId, ...createData } = goalData
+      const newGoal = await WorkoutJournalApi.createWorkoutGoal(
+        createData as any
+      )
       setGoals(prev => [newGoal, ...prev])
       return newGoal
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "운동 목표 생성에 실패했습니다."
+      const errorMessage =
+        err instanceof Error ? err.message : "운동 목표 생성에 실패했습니다."
       console.error("운동 목표 생성 실패:", err)
       setError(errorMessage)
       throw err
@@ -46,31 +49,38 @@ export function useWorkoutGoals() {
     }
   }, [])
 
-  const updateGoal = useCallback(async (goalId: number, goalData: Partial<WorkoutGoal>) => {
-    try {
-      setLoading(true)
-      setError(null)
-      // goalId가 필수이므로 추가
-      const updateData = {
-        ...goalData,
-        goalId,
-      } as any
-      const updatedGoal = await WorkoutJournalApi.updateWorkoutGoal(goalId, updateData)
-      setGoals(prev =>
-        prev.map(goal =>
-          goal.goal_id === goalId ? updatedGoal : goal
+  const updateGoal = useCallback(
+    async (goalId: number, goalData: Partial<WorkoutGoal>) => {
+      try {
+        setLoading(true)
+        setError(null)
+        // goalId가 필수이므로 추가
+        const updateData = {
+          ...goalData,
+          goalId,
+        } as any
+        const updatedGoal = await WorkoutJournalApi.updateWorkoutGoal(
+          goalId,
+          updateData
         )
-      )
-      return updatedGoal
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "운동 목표 업데이트에 실패했습니다."
-      console.error("운동 목표 업데이트 실패:", err)
-      setError(errorMessage)
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+        setGoals(prev =>
+          prev.map(goal => (goal.goal_id === goalId ? updatedGoal : goal))
+        )
+        return updatedGoal
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "운동 목표 업데이트에 실패했습니다."
+        console.error("운동 목표 업데이트 실패:", err)
+        setError(errorMessage)
+        throw err
+      } finally {
+        setLoading(false)
+      }
+    },
+    []
+  )
 
   const deleteGoal = useCallback(async (goalId: number) => {
     try {
@@ -79,7 +89,8 @@ export function useWorkoutGoals() {
       await WorkoutJournalApi.deleteWorkoutGoal(goalId)
       setGoals(prev => prev.filter(goal => goal.goal_id !== goalId))
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "운동 목표 삭제에 실패했습니다."
+      const errorMessage =
+        err instanceof Error ? err.message : "운동 목표 삭제에 실패했습니다."
       console.error("운동 목표 삭제 실패:", err)
       setError(errorMessage)
       throw err

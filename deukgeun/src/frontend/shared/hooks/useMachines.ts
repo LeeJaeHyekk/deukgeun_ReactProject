@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { machineApi } from "@shared/api/machineApi"
 import { showToast } from "@shared/lib"
 import type { Machine } from "../../../types"
@@ -12,17 +12,29 @@ export const useMachines = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // API 호출 제한을 위한 ref
+  const lastFetchTime = useRef<number>(0)
+  const FETCH_COOLDOWN = 3000 // 3초 쿨다운
+
   // 모든 머신 조회
   const fetchMachines = useCallback(async () => {
+    // API 호출 제한 확인
+    const now = Date.now()
+    if (now - lastFetchTime.current < FETCH_COOLDOWN) {
+      console.log("API 호출 제한: 머신 목록 조회 스킵")
+      return machines
+    }
+
     setLoading(true)
     setError(null)
     try {
+      lastFetchTime.current = now
       const response = await machineApi.getMachines()
       console.log("머신 응답:", response)
-      const machines = response?.machines || []
-      console.log("머신 목록:", machines)
-      setMachines(machines)
-      return machines
+      const newMachines = response?.machines || []
+      console.log("머신 목록:", newMachines)
+      setMachines(newMachines)
+      return newMachines
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error

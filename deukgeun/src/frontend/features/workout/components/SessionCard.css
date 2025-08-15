@@ -1,0 +1,535 @@
+.session-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.session-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* 상태별 스타일 */
+.session-card.completed {
+  border-left: 4px solid #10b981; /* 초록색으로 변경 */
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.05),
+    /* 초록색으로 변경 */ rgba(255, 255, 255, 0.95)
+  );
+}
+
+.session-card.in-progress {
+  border-left: 4px solid #f59e0b; /* 프로젝트 테마 색상으로 변경 */
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.05),
+    /* 프로젝트 테마 색상으로 변경 */ rgba(255, 255, 255, 0.95)
+  );
+}
+
+.session-card.paused {
+  border-left: 4px solid #f59e0b; /* 프로젝트 테마 색상으로 변경 */
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.05),
+    /* 프로젝트 테마 색상으로 변경 */ rgba(255, 255, 255, 0.95)
+  );
+}
+
+.session-card.not-started {
+  border-left: 4px solid #a0aec0;
+  background: linear-gradient(
+    135deg,
+    rgba(160, 174, 192, 0.05),
+    rgba(255, 255, 255, 0.95)
+  );
+}
+
+/* 카드 헤더 */
+.session-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.session-title-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.session-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  line-height: 1.3;
+}
+
+.session-title-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.session-title-input:focus {
+  outline: none;
+  border-color: #f59e0b; /* 프로젝트 테마 색상으로 변경 */
+}
+
+.session-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.session-card.completed .session-status-badge {
+  background: rgba(16, 185, 129, 0.1); /* 초록색으로 변경 */
+  color: #059669; /* 초록색으로 변경 */
+}
+
+.session-card.in-progress .session-status-badge {
+  background: rgba(245, 158, 11, 0.1); /* 프로젝트 테마 색상으로 변경 */
+  color: #d97706; /* 프로젝트 테마 색상으로 변경 */
+}
+
+.session-card.paused .session-status-badge {
+  background: rgba(245, 158, 11, 0.1); /* 프로젝트 테마 색상으로 변경 */
+  color: #d97706; /* 프로젝트 테마 색상으로 변경 */
+}
+
+.session-card.not-started .session-status-badge {
+  background: rgba(160, 174, 192, 0.1);
+  color: #718096;
+}
+
+/* 액션 버튼 */
+.session-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.action-btn:hover {
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.action-btn.edit-btn:hover {
+  background: rgba(245, 158, 11, 0.1); /* 프로젝트 테마 색상으로 변경 */
+  color: #d97706; /* 프로젝트 테마 색상으로 변경 */
+}
+
+.action-btn.delete-btn:hover {
+  background: rgba(245, 101, 101, 0.1);
+  color: #e53e3e;
+}
+
+.action-btn.save-btn {
+  background: rgba(16, 185, 129, 0.1); /* 초록색으로 변경 */
+  color: #059669; /* 초록색으로 변경 */
+}
+
+.action-btn.cancel-btn {
+  background: rgba(160, 174, 192, 0.1);
+  color: #718096;
+}
+
+/* 진행률 표시 */
+.session-progress {
+  margin-bottom: 1rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(226, 232, 240, 0.5);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    #f59e0b,
+    #d97706
+  ); /* 프로젝트 테마 색상으로 변경 */
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.session-card.completed .progress-fill {
+  background: linear-gradient(90deg, #10b981, #059669); /* 초록색으로 변경 */
+}
+
+.progress-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #4a5568;
+}
+
+.progress-percent {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+/* 세션 정보 */
+.session-info {
+  margin-bottom: 1rem;
+}
+
+.info-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #4a5568;
+}
+
+.info-item svg {
+  color: #718096;
+}
+
+/* 운동 목록 */
+.session-exercises {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgba(247, 250, 252, 0.5);
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.3);
+}
+
+.exercises-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.exercise-count {
+  color: #718096;
+  font-weight: 500;
+}
+
+.exercises-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.exercise-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  border: 1px solid rgba(226, 232, 240, 0.3);
+}
+
+.exercise-name {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.exercise-sets {
+  font-size: 0.75rem;
+  color: #718096;
+  min-width: 60px;
+  text-align: center;
+}
+
+.set-progress-dots {
+  display: flex;
+  gap: 2px;
+}
+
+.set-dot {
+  font-size: 0.75rem;
+  color: #cbd5e0;
+  transition: color 0.2s ease;
+}
+
+.set-dot.completed {
+  color: #10b981; /* 초록색으로 변경 */
+}
+
+.more-exercises {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #718096;
+  font-style: italic;
+  padding: 0.5rem;
+}
+
+/* 세션 메모 */
+.session-notes {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  border-left: 3px solid #f59e0b; /* 프로젝트 테마 색상으로 변경 */
+}
+
+.notes-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 0.5rem;
+}
+
+.notes-text {
+  font-size: 0.875rem;
+  color: #4a5568;
+  line-height: 1.4;
+}
+
+/* 하단 고정 액션 버튼 */
+.session-card-footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(226, 232, 240, 0.3);
+}
+
+.session-controls {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.control-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px; /* 터치 친화적 */
+}
+
+.control-btn:hover {
+  transform: translateY(-1px);
+}
+
+.start-btn {
+  background: linear-gradient(
+    135deg,
+    #f59e0b,
+    #d97706
+  ); /* 프로젝트 테마 색상으로 변경 */
+  color: white;
+}
+
+.start-btn:hover {
+  background: linear-gradient(
+    135deg,
+    #d97706,
+    #b45309
+  ); /* 프로젝트 테마 색상으로 변경 */
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); /* 프로젝트 테마 색상으로 변경 */
+}
+
+.pause-btn {
+  background: linear-gradient(135deg, #10b981, #059669); /* 초록색으로 변경 */
+  color: white;
+}
+
+.pause-btn:hover {
+  background: linear-gradient(135deg, #059669, #047857); /* 초록색으로 변경 */
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); /* 초록색으로 변경 */
+}
+
+.complete-btn {
+  background: linear-gradient(135deg, #10b981, #059669); /* 초록색으로 변경 */
+  color: white;
+}
+
+.complete-btn:hover {
+  background: linear-gradient(135deg, #059669, #047857); /* 초록색으로 변경 */
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); /* 초록색으로 변경 */
+}
+
+/* 원형 타이머 */
+.circular-timer {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 60px;
+  height: 60px;
+}
+
+.timer-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.timer-background {
+  fill: none;
+  stroke: rgba(226, 232, 240, 0.5);
+}
+
+.timer-progress {
+  fill: none;
+  stroke: #f59e0b; /* 프로젝트 테마 색상으로 변경 */
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.session-card.completed .timer-progress {
+  stroke: #10b981; /* 초록색으로 변경 */
+}
+
+.timer-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .session-card {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .session-card-header {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .session-actions {
+    align-self: flex-end;
+  }
+
+  .info-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .session-controls {
+    flex-direction: column;
+  }
+
+  .control-btn {
+    min-height: 48px; /* 모바일에서 더 큰 터치 영역 */
+  }
+
+  .circular-timer {
+    width: 50px;
+    height: 50px;
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .timer-text {
+    font-size: 0.625rem;
+  }
+
+  .exercise-preview-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .exercise-sets {
+    min-width: auto;
+    text-align: left;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .session-card {
+    background: rgba(26, 32, 44, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .session-title {
+    color: #f7fafc;
+  }
+
+  .session-title-input {
+    background: rgba(45, 55, 72, 0.8);
+    border-color: #4a5568;
+    color: #f7fafc;
+  }
+
+  .action-btn {
+    background: rgba(45, 55, 72, 0.8);
+    color: #e2e8f0;
+  }
+
+  .session-exercises {
+    background: rgba(45, 55, 72, 0.3);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .exercise-preview-item {
+    background: rgba(45, 55, 72, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .session-notes {
+    background: rgba(45, 55, 72, 0.3);
+  }
+}

@@ -100,7 +100,11 @@ export function WorkoutPlanCard({
               aria-label="타겟 근육 그룹"
             >
               {targetMuscles.map((muscle, index) => (
-                <span key={index} className="muscle-tag" role="listitem">
+                <span
+                  key={`muscle-${muscle}-${index}`}
+                  className="muscle-tag"
+                  role="listitem"
+                >
                   {muscle}
                 </span>
               ))}
@@ -119,7 +123,7 @@ export function WorkoutPlanCard({
             >
               {plan.exercises?.slice(0, 3).map((exercise, index) => (
                 <span
-                  key={index}
+                  key={exercise.id || `exercise-${index}`}
                   className="exercise-preview-item"
                   role="listitem"
                 >

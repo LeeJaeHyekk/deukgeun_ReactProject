@@ -87,6 +87,22 @@ export const IMAGE_MATCHING_CONFIG: ImageMatchingConfig = {
     // 체스트 프레스
     "체스트 프레스": "chest-press.png",
     "chest press": "chest-press.png",
+
+    // 추가된 머신들
+    "로잉 머신": "chin-up.png", // 임시로 chin-up.png 사용
+    "rowing machine": "chin-up.png",
+    rowing: "chin-up.png",
+
+    "벤치 프레스": "chest-press.png",
+    "bench press": "chest-press.png",
+    bench: "chest-press.png",
+
+    일렉티컬: "treadmill-running.gif", // 임시로 treadmill 사용
+    elliptical: "treadmill-running.gif",
+
+    "케이블 머신": "lat-pulldown.png", // 임시로 lat-pulldown 사용
+    "cable machine": "lat-pulldown.png",
+    cable: "lat-pulldown.png",
   },
 
   // 부분 매칭 규칙 (우선순위 낮음)
@@ -148,6 +164,18 @@ export const IMAGE_MATCHING_CONFIG: ImageMatchingConfig = {
     chest: "chest-press.png",
     프레스: "chest-press.png",
     press: "chest-press.png",
+
+    // 추가된 부분 매칭
+    로잉: "chin-up.png",
+    rowing: "chin-up.png",
+
+    벤치: "chest-press.png",
+    bench: "chest-press.png",
+
+    일렉티컬: "treadmill-running.gif",
+    elliptical: "treadmill-running.gif",
+
+    케이블: "lat-pulldown.png",
   },
 }
 

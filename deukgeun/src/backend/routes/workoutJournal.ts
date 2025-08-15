@@ -1,7 +1,7 @@
 import { Router } from "express"
 import { WorkoutJournalController } from "../controllers/workoutJournalController"
 import { authenticateToken } from "../middlewares/auth"
-import { AuthenticatedRequest } from "../../shared/types/auth"
+import { AuthenticatedRequest } from "../types/auth"
 
 const router = Router()
 const workoutJournalController = new WorkoutJournalController()
@@ -46,6 +46,40 @@ router.delete("/sessions/:sessionId", (req, res) =>
   )
 )
 
+// 실시간 세션 상태 업데이트 라우트
+router.post("/sessions/:sessionId/start", (req, res) =>
+  workoutJournalController.startWorkoutSession(req as AuthenticatedRequest, res)
+)
+router.post("/sessions/:sessionId/pause", (req, res) =>
+  workoutJournalController.pauseWorkoutSession(req as AuthenticatedRequest, res)
+)
+router.post("/sessions/:sessionId/resume", (req, res) =>
+  workoutJournalController.resumeWorkoutSession(
+    req as AuthenticatedRequest,
+    res
+  )
+)
+router.post("/sessions/:sessionId/complete", (req, res) =>
+  workoutJournalController.completeWorkoutSession(
+    req as AuthenticatedRequest,
+    res
+  )
+)
+
+// 운동 세트 관련 라우트
+router.get("/sets", (req, res) =>
+  workoutJournalController.getExerciseSets(req as AuthenticatedRequest, res)
+)
+router.post("/sets", (req, res) =>
+  workoutJournalController.createExerciseSet(req as AuthenticatedRequest, res)
+)
+router.put("/sets/:setId", (req, res) =>
+  workoutJournalController.updateExerciseSet(req as AuthenticatedRequest, res)
+)
+router.delete("/sets/:setId", (req, res) =>
+  workoutJournalController.deleteExerciseSet(req as AuthenticatedRequest, res)
+)
+
 // 운동 목표 관련 라우트
 router.get("/goals", (req, res) =>
   workoutJournalController.getWorkoutGoals(req as AuthenticatedRequest, res)
@@ -70,7 +104,7 @@ router.get("/progress", (req, res) =>
   workoutJournalController.getWorkoutProgress(req as AuthenticatedRequest, res)
 )
 
-// 대시보드 데이터
+// 대시보드 데이터 라우트
 router.get("/dashboard", (req, res) =>
   workoutJournalController.getDashboardData(req as AuthenticatedRequest, res)
 )

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react"
 import { X, Save, Plus, Trash2, Dumbbell, Clock, Repeat } from "lucide-react"
 import type { WorkoutPlanExercise, Machine } from "../../../../types"
+import { findMatchingImage } from "../../../shared/utils/machineImageUtils"
 import "./WorkoutSectionModal.css"
 
 interface WorkoutSectionModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (exercise: Partial<WorkoutPlanExercise>) => void
+  onSave: (exercise: Partial<WorkoutPlanExercise>) => Promise<void> | void
   exercise?: WorkoutPlanExercise | null
   machines: Machine[]
   planId: number
@@ -29,6 +30,28 @@ const DIFFICULTY_LEVELS = [
   { value: "expert", label: "전문가", color: "#9C27B0" },
 ]
 
+// 로깅 유틸리티
+const logger = {
+  info: (message: string, data?: any) => {
+    console.log(`[WorkoutSectionModal] ${message}`, data || "")
+  },
+  debug: (message: string, data?: any) => {
+    console.debug(`[WorkoutSectionModal] ${message}`, data || "")
+  },
+  warn: (message: string, data?: any) => {
+    console.warn(`[WorkoutSectionModal] ${message}`, data || "")
+  },
+  error: (message: string, data?: any) => {
+    console.error(`[WorkoutSectionModal] ${message}`, data || "")
+  },
+  performance: (operation: string, startTime: number) => {
+    const duration = performance.now() - startTime
+    console.log(
+      `[WorkoutSectionModal] ${operation} took ${duration.toFixed(2)}ms`
+    )
+  },
+}
+
 export function WorkoutSectionModal({
   isOpen,
   onClose,
@@ -37,23 +60,19 @@ export function WorkoutSectionModal({
   machines,
   planId,
 }: WorkoutSectionModalProps) {
-  const [formData, setFormData] = useState<Partial<WorkoutPlanExercise>>({
-    planId,
-    machineId: 0,
-    exerciseName: "",
-    order: 0,
-    sets: 3,
-    reps: 10,
-    weight: 0,
-    restTime: 60,
-    notes: "",
-  })
-
+  const [formData, setFormData] = useState<Partial<WorkoutPlanExercise>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null)
 
-  // 기존 운동이 있으면 폼 데이터 초기화
-  useEffect(() => {
+  // 초기화 함수
+  const initializeForm = (exercise?: WorkoutPlanExercise) => {
+    const startTime = performance.now()
+    logger.info("Form initialization started", {
+      isEditMode: !!exercise,
+      exerciseId: exercise?.id,
+      exerciseName: exercise?.exerciseName,
+      planId,
+    })
+
     if (exercise) {
       setFormData({
         planId: exercise.planId,
@@ -65,11 +84,15 @@ export function WorkoutSectionModal({
         weight: exercise.weight || 0,
         restTime: exercise.restTime || 60,
         notes: exercise.notes || "",
+        id: exercise.id,
       })
-
-      // 선택된 기계 찾기
-      const machine = machines.find(m => m.id === exercise.machineId)
-      setSelectedMachine(machine || null)
+      logger.debug("Form initialized for edit mode", {
+        machineId: exercise.machineId,
+        sets: exercise.sets,
+        reps: exercise.reps,
+        weight: exercise.weight,
+        restTime: exercise.restTime,
+      })
     } else {
       setFormData({
         planId,
@@ -82,89 +105,144 @@ export function WorkoutSectionModal({
         restTime: 60,
         notes: "",
       })
-      setSelectedMachine(null)
+      logger.debug("Form initialized for add mode", {
+        planId,
+        defaultSets: 3,
+        defaultReps: 10,
+        defaultRestTime: 60,
+      })
     }
     setErrors({})
-  }, [exercise, isOpen, planId, machines])
+    logger.performance("Form initialization", startTime)
+  }
+
+  // 모달 열릴 때 초기화
+  useEffect(() => {
+    if (isOpen) {
+      logger.info("Modal opened, initializing form", {
+        isEditMode: !!exercise,
+        exerciseId: exercise?.id,
+        machinesCount: machines.length,
+      })
+      initializeForm(exercise || undefined)
+    } else {
+      logger.debug("Modal closed")
+    }
+  }, [isOpen, exercise])
 
   // 입력 필드 변경 핸들러
   const handleInputChange = (field: keyof WorkoutPlanExercise, value: any) => {
+    logger.debug("Input field changed", {
+      field,
+      value,
+      previousValue: formData[field],
+    })
+
     setFormData(prev => ({ ...prev, [field]: value }))
-    // 에러 제거
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }))
+      logger.debug("Cleared error for field", { field })
     }
   }
 
   // 기계 선택 핸들러
   const handleMachineSelect = (machine: Machine) => {
-    setSelectedMachine(machine)
-    setFormData(prev => ({
-      ...prev,
+    logger.info("Machine selected", {
       machineId: machine.id,
-      exerciseName: machine.name,
-    }))
-    if (errors.machineId) {
-      setErrors(prev => ({ ...prev, machineId: "" }))
-    }
+      machineName: machine.name,
+      category: machine.category,
+      difficulty: machine.difficulty,
+    })
+
+    handleInputChange("machineId", machine.id)
+    handleInputChange("exerciseName", machine.name)
   }
 
   // 폼 검증
   const validateForm = (): boolean => {
+    const startTime = performance.now()
+    logger.info("Form validation started")
+
+    const requiredFields: Array<[keyof WorkoutPlanExercise, string]> = [
+      ["machineId", "운동 기계를 선택해주세요."],
+      ["exerciseName", "운동 이름을 입력해주세요."],
+      ["sets", "세트 수를 입력해주세요."],
+      ["reps", "횟수를 입력해주세요."],
+    ]
+
     const newErrors: Record<string, string> = {}
 
-    if (!formData.machineId || formData.machineId === 0) {
-      newErrors.machineId = "운동 기계를 선택해주세요."
-    }
+    requiredFields.forEach(([field, message]) => {
+      if (!formData[field] || formData[field] === 0) {
+        newErrors[field] = message
+        logger.warn("Validation failed", {
+          field,
+          message,
+          value: formData[field],
+        })
+      }
+    })
 
-    if (!formData.exerciseName || !formData.exerciseName.trim()) {
-      newErrors.exerciseName = "운동 이름을 입력해주세요."
-    }
-
-    if (!formData.sets || formData.sets <= 0) {
-      newErrors.sets = "세트 수를 입력해주세요."
-    }
-
-    if (!formData.reps || formData.reps <= 0) {
-      newErrors.reps = "횟수를 입력해주세요."
-    }
-
+    // 추가 검증
     if (formData.weight && formData.weight < 0) {
       newErrors.weight = "무게는 0 이상이어야 합니다."
+      logger.warn("Weight validation failed", { weight: formData.weight })
     }
 
     if (formData.restTime && formData.restTime < 0) {
       newErrors.restTime = "휴식 시간은 0 이상이어야 합니다."
+      logger.warn("Rest time validation failed", {
+        restTime: formData.restTime,
+      })
     }
 
-    console.log("WorkoutSectionModal 검증 결과:", {
-      isValid: Object.keys(newErrors).length === 0,
+    const isValid = Object.keys(newErrors).length === 0
+    logger.info("Form validation completed", {
+      isValid,
+      errorCount: Object.keys(newErrors).length,
       errors: newErrors,
     })
+
     setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    logger.performance("Form validation", startTime)
+    return isValid
   }
 
   // 저장 핸들러
   const handleSave = async () => {
-    console.log("WorkoutSectionModal 저장 시도:", formData)
+    const startTime = performance.now()
+    logger.info("Save operation started", {
+      isEditMode: !!exercise?.id,
+      exerciseId: exercise?.id,
+      formData: {
+        machineId: formData.machineId,
+        exerciseName: formData.exerciseName,
+        sets: formData.sets,
+        reps: formData.reps,
+        weight: formData.weight,
+        restTime: formData.restTime,
+      },
+    })
 
     if (!validateForm()) {
-      console.log("폼 검증 실패")
+      logger.warn("Save operation cancelled due to validation failure")
       return
     }
 
-    try {
-      // 새 운동 추가 시 id 필드 제거 (편집 모드가 아닌 경우)
-      const dataToSave = exercise?.id
-        ? formData
-        : { ...formData, id: undefined }
-      console.log("WorkoutSectionModal 최종 저장 데이터:", dataToSave)
+    const dataToSave = exercise?.id ? formData : { ...formData, id: undefined }
+    logger.debug("Data prepared for save", dataToSave)
 
+    try {
       await onSave(dataToSave)
-      console.log("운동 섹션 저장 성공")
+      logger.info("Save operation completed successfully")
+      logger.performance("Save operation", startTime)
     } catch (error) {
-      console.error("운동 섹션 저장 실패:", error)
+      logger.error("Save operation failed", {
+        error: error instanceof Error ? error.message : error,
+        exerciseName: formData.exerciseName,
+        machineId: formData.machineId,
+      })
+      logger.performance("Save operation (failed)", startTime)
     }
   }
 
@@ -172,24 +250,37 @@ export function WorkoutSectionModal({
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        logger.debug("Modal closed via ESC key")
         onClose()
       }
     }
 
     if (isOpen) {
+      logger.debug("ESC key listener added")
       document.addEventListener("keydown", handleEscape)
-      return () => document.removeEventListener("keydown", handleEscape)
+      return () => {
+        logger.debug("ESC key listener removed")
+        document.removeEventListener("keydown", handleEscape)
+      }
     }
   }, [isOpen, onClose])
 
   // 오버레이 클릭으로 모달 닫기
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
+      logger.debug("Modal closed via overlay click")
       onClose()
     }
   }
 
   if (!isOpen) return null
+
+  logger.debug("Rendering modal", {
+    isEditMode: !!exercise,
+    exerciseId: exercise?.id,
+    machinesCount: machines.length,
+    hasErrors: Object.keys(errors).length > 0,
+  })
 
   return (
     <div className="workout-section-modal-overlay" onClick={handleOverlayClick}>
@@ -217,17 +308,23 @@ export function WorkoutSectionModal({
                     key={machine.id}
                     type="button"
                     className={`machine-card ${
-                      selectedMachine?.id === machine.id ? "active" : ""
+                      formData.machineId === machine.id ? "active" : ""
                     }`}
                     onClick={() => handleMachineSelect(machine)}
                   >
                     <div className="machine-card-header">
                       <img
-                        src={machine.imageUrl || "/img/machine/default.png"}
+                        src={findMatchingImage(machine)}
                         alt={machine.name}
                         className="machine-image"
                         onError={e => {
                           const target = e.target as HTMLImageElement
+                          logger.warn("Machine image failed to load", {
+                            machineId: machine.id,
+                            machineName: machine.name,
+                            attemptedImageUrl: target.src,
+                          })
+                          // 기본 이미지로 대체
                           target.src = "/img/machine/default.png"
                         }}
                       />

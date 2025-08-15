@@ -29,29 +29,34 @@ Deukgeun은 다음과 같은 문제를 해결합니다:
 ## ✨ 주요 기능
 
 ### 🏋️ 머신 가이드
+
 - **상세한 머신 설명**: 각 운동 머신의 사용법과 효과 설명
 - **이미지 및 동영상**: 시각적 학습 자료 제공
 - **난이도별 분류**: 초급, 중급, 고급 난이도 구분
 - **카테고리별 분류**: 유산소, 근력, 유연성 등 카테고리별 정리
 
 ### 🎯 운동 목표 관리
+
 - **목표 설정**: 체중, 횟수, 시간 등 다양한 목표 유형 지원
 - **진행 상황 추적**: 실시간 목표 달성률 확인
 - **데드라인 설정**: 목표 완료 기한 설정 및 알림
 - **성취 기록**: 목표 달성 시 성취감을 위한 기록 시스템
 
 ### 🌍 커뮤니티
+
 - **운동 팁 공유**: 사용자들의 운동 경험과 팁 공유
 - **질문과 답변**: 운동 관련 질문과 답변 게시판
 - **카테고리별 게시판**: 운동루틴, 팁, 다이어트 등 주제별 분류
 - **좋아요 및 댓글**: 상호작용 기능
 
 ### 📍 위치 기반 서비스
+
 - **헬스장 찾기**: 주변 헬스장 검색 및 정보 제공
 - **카카오맵 연동**: 정확한 위치 정보와 길찾기 기능
 - **헬스장 정보**: 운영시간, 시설 정보 등 상세 정보
 
 ### 🏆 레벨 시스템
+
 - **경험치 시스템**: 운동 활동에 따른 경험치 획득
 - **레벨업**: 경험치에 따른 레벨 상승
 - **업적 시스템**: 다양한 업적 달성 및 보상
@@ -60,6 +65,7 @@ Deukgeun은 다음과 같은 문제를 해결합니다:
 ## 🛠 기술 스택
 
 ### Frontend
+
 - **React 18** - 사용자 인터페이스 구축
 - **TypeScript** - 타입 안정성 확보
 - **Vite** - 빠른 개발 서버 및 빌드 도구
@@ -69,6 +75,7 @@ Deukgeun은 다음과 같은 문제를 해결합니다:
 - **Axios** - HTTP 클라이언트
 
 ### Backend
+
 - **Node.js** - 서버 런타임
 - **Express.js** - 웹 프레임워크
 - **TypeScript** - 타입 안정성 확보
@@ -78,6 +85,7 @@ Deukgeun은 다음과 같은 문제를 해결합니다:
 - **bcrypt** - 비밀번호 해싱
 
 ### DevOps & Tools
+
 - **PM2** - 프로세스 관리
 - **ESLint** - 코드 품질 관리
 - **Prettier** - 코드 포맷팅
@@ -112,17 +120,20 @@ deukgeun/
 ## 🚀 설치 및 실행
 
 ### 필수 요구사항
+
 - Node.js 18.0.0 이상
 - MySQL 8.0 이상
 - Git
 
 ### 1. 저장소 클론
+
 ```bash
 git clone https://github.com/your-username/deukgeun_ReactProject.git
 cd deukgeun_ReactProject/deukgeun
 ```
 
 ### 2. 의존성 설치
+
 ```bash
 # 루트 의존성 설치
 npm install
@@ -134,6 +145,7 @@ cd ../..
 ```
 
 ### 3. 환경 변수 설정
+
 ```bash
 # 루트 .env 파일 생성
 cp env.example .env
@@ -143,6 +155,7 @@ cp src/backend/env.example src/backend/.env
 ```
 
 ### 4. 데이터베이스 설정
+
 ```bash
 # 데이터베이스 동기화
 npm run db:sync
@@ -152,6 +165,7 @@ npm run db:seed
 ```
 
 ### 5. 개발 서버 실행
+
 ```bash
 # 백엔드 서버 실행 (포트 5000)
 npm run backend:dev
@@ -168,6 +182,7 @@ npm run dev:full
 ### 환경 변수 설정
 
 #### 루트 .env
+
 ```env
 # 프론트엔드 포트
 FRONTEND_PORT=5173
@@ -187,6 +202,7 @@ VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
 ```
 
 #### 백엔드 .env
+
 ```env
 # 서버 설정
 PORT=5000
@@ -216,6 +232,7 @@ SMTP_PASS=your_email_password
 ### 개발 도구 설정
 
 #### VS Code 확장 프로그램
+
 - TypeScript Importer
 - ESLint
 - Prettier
@@ -223,6 +240,7 @@ SMTP_PASS=your_email_password
 - Auto Rename Tag
 
 #### Git Hooks
+
 ```bash
 # Husky 설정 (선택사항)
 npm install -g husky
@@ -233,6 +251,7 @@ npx husky add .husky/pre-commit "npm run lint && npm run type-check"
 ## 🗄️ 데이터베이스 설정
 
 ### MySQL 설치 및 설정
+
 ```sql
 -- 데이터베이스 생성
 CREATE DATABASE deukgeun_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -244,6 +263,7 @@ FLUSH PRIVILEGES;
 ```
 
 ### 데이터베이스 마이그레이션
+
 ```bash
 # 스키마 동기화
 npm run db:sync
@@ -258,23 +278,27 @@ npm run setup:test-user
 ## 📚 API 문서
 
 ### 인증 API
+
 - `POST /api/auth/register` - 회원가입
 - `POST /api/auth/login` - 로그인
 - `POST /api/auth/logout` - 로그아웃
 - `POST /api/auth/refresh` - 토큰 갱신
 
 ### 머신 API
+
 - `GET /api/machines` - 머신 목록 조회
 - `GET /api/machines/:id` - 머신 상세 정보
 - `GET /api/machines/category/:category` - 카테고리별 머신 조회
 
 ### 운동 목표 API
+
 - `GET /api/workout-goals` - 목표 목록 조회
 - `POST /api/workout-goals` - 목표 생성
 - `PUT /api/workout-goals/:id` - 목표 수정
 - `DELETE /api/workout-goals/:id` - 목표 삭제
 
 ### 커뮤니티 API
+
 - `GET /api/posts` - 게시글 목록 조회
 - `POST /api/posts` - 게시글 작성
 - `GET /api/posts/:id` - 게시글 상세 조회
@@ -282,6 +306,7 @@ npm run setup:test-user
 - `DELETE /api/posts/:id` - 게시글 삭제
 
 ### 레벨 시스템 API
+
 - `GET /api/levels/user/:userId` - 사용자 레벨 정보
 - `POST /api/levels/exp` - 경험치 획득
 - `GET /api/levels/leaderboard` - 리더보드
@@ -289,6 +314,7 @@ npm run setup:test-user
 ## 🧪 테스트
 
 ### 테스트 실행
+
 ```bash
 # 전체 테스트 실행
 npm test
@@ -306,6 +332,7 @@ npm run test:existing-data-simple
 ```
 
 ### 테스트 구조
+
 ```
 src/
 ├── frontend/
@@ -321,6 +348,7 @@ src/
 ## 🚀 배포
 
 ### 프로덕션 빌드
+
 ```bash
 # 프론트엔드 빌드
 npm run build
@@ -330,6 +358,7 @@ npm run backend:build
 ```
 
 ### PM2를 사용한 배포
+
 ```bash
 # 애플리케이션 시작
 npm run pm2:start
@@ -348,6 +377,7 @@ npm run pm2:stop
 ```
 
 ### Docker 배포 (준비 중)
+
 ```bash
 # Docker 이미지 빌드
 docker build -t deukgeun .
@@ -359,6 +389,7 @@ docker run -p 3000:3000 deukgeun
 ## 🤝 기여하기
 
 ### 기여 방법
+
 1. 이 저장소를 Fork합니다
 2. 새로운 브랜치를 생성합니다 (`git checkout -b feature/amazing-feature`)
 3. 변경사항을 커밋합니다 (`git commit -m 'Add some amazing feature'`)
@@ -366,12 +397,14 @@ docker run -p 3000:3000 deukgeun
 5. Pull Request를 생성합니다
 
 ### 개발 가이드라인
+
 - TypeScript를 사용하여 타입 안정성을 확보합니다
 - ESLint와 Prettier를 사용하여 코드 스타일을 일관되게 유지합니다
 - 새로운 기능 추가 시 테스트 코드를 작성합니다
 - 커밋 메시지는 명확하고 설명적으로 작성합니다
 
 ### 이슈 리포트
+
 버그를 발견하거나 새로운 기능을 제안하고 싶다면 [Issues](https://github.com/your-username/deukgeun_ReactProject/issues) 페이지에서 이슈를 생성해주세요.
 
 ## 📄 라이선스

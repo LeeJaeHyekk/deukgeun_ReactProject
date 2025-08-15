@@ -123,30 +123,37 @@ interface CreateSetData {
 export class WorkoutJournalService {
   // 운동 계획 관련
   async getUserPlans(userId: number) {
-    const planRepository = AppDataSource.getRepository(WorkoutPlan)
-    const plans = await planRepository.find({
-      where: { userId: userId },
-      order: { createdAt: "DESC" },
-      relations: ["exercises", "exercises.machine"],
-    })
+    try {
+      const planRepository = AppDataSource.getRepository(WorkoutPlan)
+      const plans = await planRepository.find({
+        where: { userId: userId },
+        order: { createdAt: "DESC" },
+        relations: ["exercises", "exercises.machine"],
+      })
 
-    // 프론트엔드 호환성을 위해 필드명 변환
-    return plans.map(plan => ({
-      ...plan,
-      exercises:
-        plan.exercises?.map(exercise => ({
-          id: exercise.id,
-          planId: exercise.planId,
-          machineId: exercise.machineId, // machineId로 통일
-          exerciseName: exercise.exerciseName || "", // exerciseName 필드 사용
-          order: exercise.exerciseOrder,
-          sets: exercise.sets,
-          reps: exercise.repsRange?.min || 10,
-          weight: exercise.weightRange?.min || 0,
-          restTime: exercise.restSeconds,
-          notes: exercise.notes || "",
-        })) || [],
-    }))
+      // 프론트엔드 호환성을 위해 필드명 변환
+      return plans.map(plan => ({
+        ...plan,
+        exercises:
+          plan.exercises?.map(exercise => ({
+            id: exercise.id,
+            planId: exercise.planId,
+            machineId: exercise.machineId, // machineId로 통일
+            exerciseName: exercise.exerciseName || "", // exerciseName 필드 사용
+            order: exercise.exerciseOrder,
+            sets: exercise.sets,
+            reps: exercise.repsRange?.min || 10,
+            weight: exercise.weightRange?.min || 0,
+            restTime: exercise.restSeconds,
+            notes: exercise.notes || "",
+          })) || [],
+      }))
+    } catch (error) {
+      console.error("운동 계획 조회 중 오류:", error)
+      throw new Error(
+        `운동 계획 조회에 실패했습니다: ${error instanceof Error ? error.message : "알 수 없는 오류"}`
+      )
+    }
   }
 
   async createWorkoutPlan(userId: number, planData: CreatePlanData) {
@@ -538,6 +545,158 @@ export class WorkoutJournalService {
     }
   }
 
+  // 실시간 세션 상태 관리 메서드들
+  async startWorkoutSession(
+    userId: number,
+    sessionId: number,
+    sessionData?: any
+  ): Promise<WorkoutSession> {
+    const sessionRepository = AppDataSource.getRepository(WorkoutSession)
+    const session = await sessionRepository.findOne({
+      where: { id: sessionId, userId: userId },
+    })
+
+    if (!session) {
+      throw new Error("운동 세션을 찾을 수 없습니다.")
+    }
+
+    session.status = "in_progress"
+    session.startTime = new Date()
+
+    return await sessionRepository.save(session)
+  }
+
+  async pauseWorkoutSession(
+    userId: number,
+    sessionId: number
+  ): Promise<WorkoutSession> {
+    const sessionRepository = AppDataSource.getRepository(WorkoutSession)
+    const session = await sessionRepository.findOne({
+      where: { id: sessionId, userId: userId },
+    })
+
+    if (!session) {
+      throw new Error("운동 세션을 찾을 수 없습니다.")
+    }
+
+    session.status = "paused"
+
+    return await sessionRepository.save(session)
+  }
+
+  async resumeWorkoutSession(
+    userId: number,
+    sessionId: number
+  ): Promise<WorkoutSession> {
+    const sessionRepository = AppDataSource.getRepository(WorkoutSession)
+    const session = await sessionRepository.findOne({
+      where: { id: sessionId, userId: userId },
+    })
+
+    if (!session) {
+      throw new Error("운동 세션을 찾을 수 없습니다.")
+    }
+
+    session.status = "in_progress"
+
+    return await sessionRepository.save(session)
+  }
+
+  async completeWorkoutSession(
+    userId: number,
+    sessionId: number,
+    sessionData?: any
+  ): Promise<WorkoutSession> {
+    const sessionRepository = AppDataSource.getRepository(WorkoutSession)
+    const session = await sessionRepository.findOne({
+      where: { id: sessionId, userId: userId },
+    })
+
+    if (!session) {
+      throw new Error("운동 세션을 찾을 수 없습니다.")
+    }
+
+    session.status = "completed"
+    session.endTime = new Date()
+    session.totalDurationMinutes = Math.round(
+      (session.endTime.getTime() - session.startTime.getTime()) / (1000 * 60)
+    )
+
+    // 추가 데이터가 있으면 업데이트
+    if (sessionData) {
+      Object.assign(session, sessionData)
+    }
+
+    return await sessionRepository.save(session)
+  }
+
+  // ExerciseSet 관련 메서드들 (기존 addExerciseSet 활용)
+  async getExerciseSets(sessionId?: number): Promise<ExerciseSet[]> {
+    const exerciseSetRepository = AppDataSource.getRepository(ExerciseSet)
+    const whereCondition: any = {}
+
+    if (sessionId) {
+      whereCondition.sessionId = sessionId
+    }
+
+    return await exerciseSetRepository.find({
+      where: whereCondition,
+      order: { createdAt: "ASC" },
+      relations: ["workoutSession", "machine"],
+    })
+  }
+
+  async createExerciseSet(setData: any): Promise<ExerciseSet> {
+    // 기존 addExerciseSet 메서드 활용
+    return await this.addExerciseSet(setData)
+  }
+
+  async updateExerciseSet(
+    setId: number,
+    updateData: any
+  ): Promise<ExerciseSet> {
+    const exerciseSetRepository = AppDataSource.getRepository(ExerciseSet)
+    const set = await exerciseSetRepository.findOne({
+      where: { id: setId },
+      relations: ["workoutSession"],
+    })
+
+    if (!set) {
+      throw new Error("운동 세트를 찾을 수 없습니다.")
+    }
+
+    // 세션의 userId를 통해 권한 확인 (컨트롤러에서 이미 확인했지만 추가 보안)
+    if (!set.workoutSession || !set.workoutSession.userId) {
+      throw new Error("운동 세트에 대한 권한이 없습니다.")
+    }
+
+    Object.assign(set, {
+      ...updateData,
+      updatedAt: new Date(),
+    })
+
+    return await exerciseSetRepository.save(set)
+  }
+
+  async deleteExerciseSet(setId: number): Promise<void> {
+    const exerciseSetRepository = AppDataSource.getRepository(ExerciseSet)
+    const set = await exerciseSetRepository.findOne({
+      where: { id: setId },
+      relations: ["workoutSession"],
+    })
+
+    if (!set) {
+      throw new Error("운동 세트를 찾을 수 없습니다.")
+    }
+
+    // 세션의 userId를 통해 권한 확인 (컨트롤러에서 이미 확인했지만 추가 보안)
+    if (!set.workoutSession || !set.workoutSession.userId) {
+      throw new Error("운동 세트에 대한 권한이 없습니다.")
+    }
+
+    await exerciseSetRepository.remove(set)
+  }
+
   // 운동 통계 관련
   async getUserStats(userId: number) {
     const statsRepository = AppDataSource.getRepository(WorkoutStats)
@@ -639,26 +798,6 @@ export class WorkoutJournalService {
       notes: setData.notes,
     })
     return await setRepository.save(exerciseSet)
-  }
-
-  // 운동 세션 완료
-  async completeWorkoutSession(sessionId: number, endTime: Date) {
-    const sessionRepository = AppDataSource.getRepository(WorkoutSession)
-    const session = await sessionRepository.findOne({
-      where: { id: sessionId },
-    })
-
-    if (!session) {
-      throw new Error("운동 세션을 찾을 수 없습니다.")
-    }
-
-    session.endTime = endTime
-    session.status = "completed"
-    session.totalDurationMinutes = Math.round(
-      (endTime.getTime() - session.startTime.getTime()) / (1000 * 60)
-    )
-
-    return await sessionRepository.save(session)
   }
 
   // 운동 통계 업데이트

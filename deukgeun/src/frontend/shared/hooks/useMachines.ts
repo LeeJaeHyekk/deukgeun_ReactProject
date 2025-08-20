@@ -1,3 +1,10 @@
+// ============================================================================
+// Use Machines Hook (Legacy - Use @features/machine-guide instead)
+// ============================================================================
+
+// 이 파일은 하위 호환성을 위해 유지됩니다.
+// 새로운 MachineGuide 기능에서는 @features/machine-guide/hooks/useMachines를 사용하세요.
+
 import { useState, useEffect, useCallback, useRef } from "react"
 import { machineApi } from "@shared/api/machineApi"
 import { showToast } from "@shared/lib"
@@ -14,7 +21,7 @@ export const useMachines = () => {
 
   // API 호출 제한을 위한 ref
   const lastFetchTime = useRef<number>(0)
-  const FETCH_COOLDOWN = 3000 // 3초 쿨다운
+  const FETCH_COOLDOWN = 1000 // 1초 쿨다운
 
   // 모든 머신 조회
   const fetchMachines = useCallback(async () => {
@@ -47,7 +54,7 @@ export const useMachines = () => {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [machines])
 
   // 특정 머신 조회
   const fetchMachine = useCallback(async (id: number) => {
@@ -139,76 +146,103 @@ export const useMachines = () => {
   }, [])
 
   // 카테고리별 머신 조회
-  const getMachinesByCategory = useCallback(async (category: string) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await machineApi.getMachinesByCategory(category)
-      const machines = response?.machines || []
-      setMachines(machines)
-      return machines
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "카테고리별 머신 조회에 실패했습니다."
-      setError(errorMessage)
-      showToast(errorMessage, "error")
-      setMachines([])
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const getMachinesByCategory = useCallback(
+    async (category: string) => {
+      const now = Date.now()
+      if (now - lastFetchTime.current < FETCH_COOLDOWN) {
+        console.log("API 호출 제한: 카테고리별 머신 조회 스킵")
+        return machines
+      }
+
+      setLoading(true)
+      setError(null)
+      try {
+        lastFetchTime.current = now
+        const response = await machineApi.getMachinesByCategory(category)
+        const newMachines = response?.machines || []
+        setMachines(newMachines)
+        return newMachines
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "카테고리별 머신 조회에 실패했습니다."
+        setError(errorMessage)
+        showToast(errorMessage, "error")
+        setMachines([])
+        throw err
+      } finally {
+        setLoading(false)
+      }
+    },
+    [machines]
+  )
 
   // 난이도별 머신 조회
-  const getMachinesByDifficulty = useCallback(async (difficulty: string) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await machineApi.getMachinesByDifficulty(difficulty)
-      const machines = response?.machines || []
-      setMachines(machines)
-      return machines
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "난이도별 머신 조회에 실패했습니다."
-      setError(errorMessage)
-      showToast(errorMessage, "error")
-      setMachines([])
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const getMachinesByDifficulty = useCallback(
+    async (difficulty: string) => {
+      const now = Date.now()
+      if (now - lastFetchTime.current < FETCH_COOLDOWN) {
+        console.log("API 호출 제한: 난이도별 머신 조회 스킵")
+        return machines
+      }
+
+      setLoading(true)
+      setError(null)
+      try {
+        lastFetchTime.current = now
+        const response = await machineApi.getMachinesByDifficulty(difficulty)
+        const newMachines = response?.machines || []
+        setMachines(newMachines)
+        return newMachines
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "난이도별 머신 조회에 실패했습니다."
+        setError(errorMessage)
+        showToast(errorMessage, "error")
+        setMachines([])
+        throw err
+      } finally {
+        setLoading(false)
+      }
+    },
+    [machines]
+  )
 
   // 타겟별 머신 조회
-  const getMachinesByTarget = useCallback(async (target: string) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await machineApi.getMachinesByTarget(target)
-      const machines = response?.machines || []
-      setMachines(machines)
-      return machines
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : "타겟별 머신 조회에 실패했습니다."
-      setError(errorMessage)
-      showToast(errorMessage, "error")
-      setMachines([])
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const getMachinesByTarget = useCallback(
+    async (target: string) => {
+      const now = Date.now()
+      if (now - lastFetchTime.current < FETCH_COOLDOWN) {
+        console.log("API 호출 제한: 타겟별 머신 조회 스킵")
+        return machines
+      }
 
-  // 컴포넌트 마운트 시 머신 목록 로드
-  useEffect(() => {
-    fetchMachines()
-  }, [fetchMachines])
+      setLoading(true)
+      setError(null)
+      try {
+        lastFetchTime.current = now
+        const response = await machineApi.getMachinesByTarget(target)
+        const newMachines = response?.machines || []
+        setMachines(newMachines)
+        return newMachines
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "타겟별 머신 조회에 실패했습니다."
+        setError(errorMessage)
+        showToast(errorMessage, "error")
+        setMachines([])
+        throw err
+      } finally {
+        setLoading(false)
+      }
+    },
+    [machines]
+  )
 
   return {
     machines,
@@ -219,7 +253,6 @@ export const useMachines = () => {
     createMachine,
     updateMachine,
     deleteMachine,
-    getMachines: fetchMachines, // 별칭 추가
     getMachinesByCategory,
     getMachinesByDifficulty,
     getMachinesByTarget,

@@ -1,25 +1,21 @@
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useState } from "react"
 import { useUserStore } from "@shared/store/userStore"
 import { useAuthContext } from "@shared/contexts/AuthContext"
+import { MENU_ITEMS, ROUTES, routeUtils } from "@shared/constants/routes"
+import { shouldShowAdminMenu } from "@shared/utils/adminUtils"
 import styles from "./Navigation.module.css"
-
-const menuItems = [
-  { label: "Search for Gym", path: "/location" },
-  { label: "Machine Guide", path: "/machine-guide" },
-  { label: "Community", path: "/community" },
-  { label: "Challenge", path: "/workout-journal" },
-]
 
 export const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const user = useUserStore(state => state.user)
   const { isLoggedIn, logout } = useAuthContext()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const handleLogout = () => {
     logout()
-    navigate("/login")
+    navigate(ROUTES.LOGIN)
     setIsMobileMenuOpen(false)
   }
 
@@ -31,19 +27,35 @@ export const Navigation = () => {
     setIsMobileMenuOpen(false)
   }
 
+  // 현재 활성 페이지 확인
+  const isActivePage = (path: string) => {
+    return location.pathname === path
+  }
+
+  // 사용자 인증 상태에 따라 접근 가능한 메뉴 아이템 필터링
+  const accessibleMenuItems = routeUtils.getAccessibleMenuItems(isLoggedIn)
+
+  // 관리자 메뉴 표시 여부 확인
+  const showAdminMenu = shouldShowAdminMenu(user)
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
-        <Link to="/" onClick={closeMobileMenu}>
+        <Link to={ROUTES.HOME} onClick={closeMobileMenu}>
           <img src="/img/logo.png" alt="Logo" className={styles.logoImage} />
         </Link>
       </div>
 
       {/* 데스크톱 메뉴 */}
       <ul className={styles.navMenu}>
-        {menuItems.map(({ label, path }) => (
+        {accessibleMenuItems.map(({ label, path, icon }) => (
           <li key={path}>
-            <Link to={path} className={styles.navMenuItem}>
+            <Link
+              to={path}
+              className={`${styles.navMenuItem} ${isActivePage(path) ? styles.active : ""}`}
+              onClick={closeMobileMenu}
+            >
+              <span className={styles.menuIcon}>{icon}</span>
               {label}
             </Link>
           </li>
@@ -51,23 +63,42 @@ export const Navigation = () => {
 
         {!isLoggedIn || !user ? (
           <li>
-            <Link to="/login" className={styles.navMenuItem}>
-              Login
+            <Link
+              to={ROUTES.LOGIN}
+              className={`${styles.navMenuItem} ${isActivePage(ROUTES.LOGIN) ? styles.active : ""}`}
+              onClick={closeMobileMenu}
+            >
+              로그인
             </Link>
           </li>
         ) : (
           <>
             <li>
-              <Link to="/mypage" className={styles.navMenuItem}>
-                My Page
+              <Link
+                to={ROUTES.MYPAGE}
+                className={`${styles.navMenuItem} ${isActivePage(ROUTES.MYPAGE) ? styles.active : ""}`}
+                onClick={closeMobileMenu}
+              >
+                마이페이지
               </Link>
             </li>
+            {showAdminMenu && (
+              <li>
+                <Link
+                  to={ROUTES.ADMIN_DASHBOARD}
+                  className={`${styles.navMenuItem} ${styles.adminMenuItem} ${isActivePage(ROUTES.ADMIN_DASHBOARD) ? styles.active : ""}`}
+                  onClick={closeMobileMenu}
+                >
+                  관리자
+                </Link>
+              </li>
+            )}
             <li>
               <button
                 onClick={handleLogout}
                 className={`${styles.navMenuItem} ${styles.buttonLink}`}
               >
-                Logout
+                로그아웃
               </button>
             </li>
           </>
@@ -105,13 +136,14 @@ export const Navigation = () => {
         </div>
 
         <ul className={styles.mobileMenuList}>
-          {menuItems.map(({ label, path }) => (
+          {accessibleMenuItems.map(({ label, path, icon }) => (
             <li key={path}>
               <Link
                 to={path}
-                className={styles.mobileMenuItem}
+                className={`${styles.mobileMenuItem} ${isActivePage(path) ? styles.active : ""}`}
                 onClick={closeMobileMenu}
               >
+                <span className={styles.menuIcon}>{icon}</span>
                 {label}
               </Link>
             </li>
@@ -120,22 +152,22 @@ export const Navigation = () => {
           {!isLoggedIn || !user ? (
             <li>
               <Link
-                to="/login"
-                className={styles.mobileMenuItem}
+                to={ROUTES.LOGIN}
+                className={`${styles.mobileMenuItem} ${isActivePage(ROUTES.LOGIN) ? styles.active : ""}`}
                 onClick={closeMobileMenu}
               >
-                Login
+                로그인
               </Link>
             </li>
           ) : (
             <>
               <li>
                 <Link
-                  to="/mypage"
-                  className={styles.mobileMenuItem}
+                  to={ROUTES.MYPAGE}
+                  className={`${styles.mobileMenuItem} ${isActivePage(ROUTES.MYPAGE) ? styles.active : ""}`}
                   onClick={closeMobileMenu}
                 >
-                  My Page
+                  마이페이지
                 </Link>
               </li>
               <li>
@@ -143,7 +175,7 @@ export const Navigation = () => {
                   onClick={handleLogout}
                   className={styles.mobileMenuItem}
                 >
-                  Logout
+                  로그아웃
                 </button>
               </li>
             </>

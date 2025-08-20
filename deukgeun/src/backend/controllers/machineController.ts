@@ -212,3 +212,95 @@ export const filterMachines = async (req: Request, res: Response) => {
     })
   }
 }
+
+/**
+ * 카테고리별 Machine 조회 API
+ * GET /api/machines/category/:category
+ */
+export const getMachinesByCategory = async (req: Request, res: Response) => {
+  try {
+    const { category } = req.params
+
+    const machines = await getMachineService().getMachinesByCategory(category)
+
+    logger.info(
+      `Retrieved ${machines.length} machines by category: ${category}`
+    )
+
+    res.status(200).json({
+      message: "Machines retrieved successfully by category",
+      data: machines,
+      count: machines.length,
+      category,
+    })
+  } catch (error) {
+    logger.error(
+      `Machine retrieval by category failed - Category: ${req.params.category}:`,
+      error
+    )
+    res.status(500).json({
+      message: "Failed to retrieve machines by category",
+    })
+  }
+}
+
+/**
+ * 난이도별 Machine 조회 API
+ * GET /api/machines/difficulty/:difficulty
+ */
+export const getMachinesByDifficulty = async (req: Request, res: Response) => {
+  try {
+    const { difficulty } = req.params
+
+    const machines =
+      await getMachineService().getMachinesByDifficulty(difficulty)
+
+    logger.info(
+      `Retrieved ${machines.length} machines by difficulty: ${difficulty}`
+    )
+
+    res.status(200).json({
+      message: "Machines retrieved successfully by difficulty",
+      data: machines,
+      count: machines.length,
+      difficulty,
+    })
+  } catch (error) {
+    logger.error(
+      `Machine retrieval by difficulty failed - Difficulty: ${req.params.difficulty}:`,
+      error
+    )
+    res.status(500).json({
+      message: "Failed to retrieve machines by difficulty",
+    })
+  }
+}
+
+/**
+ * 타겟별 Machine 조회 API
+ * GET /api/machines/target/:target
+ */
+export const getMachinesByTarget = async (req: Request, res: Response) => {
+  try {
+    const { target } = req.params
+
+    const machines = await getMachineService().getMachinesByTarget(target)
+
+    logger.info(`Retrieved ${machines.length} machines by target: ${target}`)
+
+    res.status(200).json({
+      message: "Machines retrieved successfully by target",
+      data: machines,
+      count: machines.length,
+      target,
+    })
+  } catch (error) {
+    logger.error(
+      `Machine retrieval by target failed - Target: ${req.params.target}:`,
+      error
+    )
+    res.status(500).json({
+      message: "Failed to retrieve machines by target",
+    })
+  }
+}

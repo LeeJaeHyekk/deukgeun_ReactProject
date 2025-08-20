@@ -1,7 +1,7 @@
 // Frontend Configuration
 export const config = {
   // API Configuration
-  API_BASE_URL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
+  API_BASE_URL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5001",
 
   // reCAPTCHA Configuration
   RECAPTCHA: {
@@ -37,7 +37,7 @@ export const config = {
 
 // API Endpoints
 export const API_ENDPOINTS = {
-  BASE_URL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
+  BASE_URL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5001",
   AUTH: {
     LOGIN: "/api/auth/login",
     REGISTER: "/api/auth/register",

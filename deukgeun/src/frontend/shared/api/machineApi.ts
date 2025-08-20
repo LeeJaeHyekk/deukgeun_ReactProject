@@ -1,3 +1,10 @@
+// ============================================================================
+// Machine API (Legacy - Use @features/machine-guide instead)
+// ============================================================================
+
+// 이 파일은 하위 호환성을 위해 유지됩니다.
+// 새로운 MachineGuide 기능에서는 @features/machine-guide/services/machineApi를 사용하세요.
+
 import { api } from "./index"
 import { API_ENDPOINTS } from "@shared/config"
 import type { Machine } from "../../../types"
@@ -26,7 +33,7 @@ export interface UpdateMachineRequest extends Partial<CreateMachineRequest> {
   id: number
 }
 
-// Machine API functions
+// Machine API functions (Legacy)
 export const machineApi = {
   // Get all machines
   getMachines: async (): Promise<MachineListResponse> => {
@@ -34,7 +41,6 @@ export const machineApi = {
       API_ENDPOINTS.MACHINES.LIST
     )
     console.log("머신 API 응답:", response)
-    // 백엔드 응답 구조에 맞게 수정
     return {
       machines: Array.isArray(response.data.data) ? response.data.data : [],
       count: (response.data as any).count || 0,

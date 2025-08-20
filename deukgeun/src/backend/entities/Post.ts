@@ -5,10 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
   Index,
 } from "typeorm"
 import { User } from "./User"
+import { PostLike } from "./Like"
 
 /**
  * 포스트 엔티티 클래스
@@ -95,4 +97,8 @@ export class Post {
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })
   user!: User
+
+  // 좋아요 관계
+  @OneToMany(() => PostLike, like => like.post)
+  likes!: PostLike[]
 }

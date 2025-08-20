@@ -7,6 +7,8 @@
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 24px;
   margin-bottom: 32px;
+  /* 그리드 아이템들이 일정한 높이를 가지도록 설정 */
+  align-items: stretch;
 }
 
 .loading {

@@ -1,29 +1,16 @@
 import { PostCard } from "./PostCard"
+import { CommunityPost } from "../../../../types/post"
 import styles from "./PostGrid.module.css"
 
-interface Post {
-  id: number
-  title: string
-  content: string
-  author: {
-    id: number
-    nickname: string
-  }
-  category: string
-  likes: number
-  comments: number
-  createdAt: string
-  updatedAt: string
-}
-
 interface PostGridProps {
-  posts: Post[]
-  onPostClick: (post: Post) => void
+  posts: CommunityPost[]
+  onPostClick: (post: CommunityPost) => void
   onLikeClick: (postId: number) => void
   loading: boolean
   currentPage: number
   totalPages: number
   onPageChange: (page: number) => void
+  likedPosts?: Set<number>
 }
 
 export function PostGrid({
@@ -34,6 +21,7 @@ export function PostGrid({
   currentPage,
   totalPages,
   onPageChange,
+  likedPosts = new Set(),
 }: PostGridProps) {
   if (loading) {
     return (
@@ -62,6 +50,7 @@ export function PostGrid({
             post={post}
             onClick={() => onPostClick(post)}
             onLikeClick={() => onLikeClick(post.id)}
+            isLiked={likedPosts.has(post.id)}
           />
         ))}
       </div>

@@ -46,20 +46,66 @@
   font-weight: 500;
   font-size: 16px;
   cursor: pointer;
-  transition: color 0.3s;
-  padding-bottom: 4px;
+  transition: all 0.3s ease;
+  padding: 8px 12px;
   text-transform: capitalize;
   text-decoration: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .navMenuItem:hover {
   color: #f87171;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.adminMenuItem {
+  background: linear-gradient(45deg, #dc2626, #b91c1c);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+}
+
+.adminMenuItem:hover {
+  background: linear-gradient(45deg, #b91c1c, #991b1b);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.navMenuItem.active {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  font-weight: 600;
+}
+
+.navMenuItem.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background: linear-gradient(90deg, #ef4444, #f87171);
+  border-radius: 2px;
+}
+
+.menuIcon {
+  font-size: 18px;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.navMenuItem:hover .menuIcon {
+  transform: scale(1.1);
 }
 
 .navMenuItem::after {
   content: "";
   position: absolute;
-  bottom: 0; /* 아래에 딱 붙도록 수정 */
+  bottom: 0;
   left: 0;
   width: 0%;
   height: 2px;
@@ -91,12 +137,16 @@
   font-weight: 500;
   font-size: 16px;
   cursor: pointer;
-  padding-bottom: 4px;
+  padding: 8px 12px;
   text-transform: capitalize;
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
 .buttonLink:hover {
   color: #f87171;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
 }
 
 .buttonLink::after {
@@ -178,7 +228,11 @@
   right: -100%;
   width: 320px;
   height: calc(100vh - 64px);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
   backdrop-filter: blur(20px);
   border-left: 1px solid rgba(255, 255, 255, 0.2);
   transition: right 0.3s ease;
@@ -236,7 +290,9 @@
 }
 
 .mobileMenuItem {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 20px 24px;
   color: #f1f3f5;
   text-decoration: none;
@@ -258,6 +314,22 @@
   transform: translateX(4px);
 }
 
+.mobileMenuItem.active {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.mobileMenuItem.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #ef4444, #f87171);
+}
+
 .mobileMenuItem::before {
   content: "";
   position: absolute;
@@ -271,6 +343,19 @@
 
 .mobileMenuItem:hover::before {
   width: 4px;
+}
+
+.mobileMenuItem .menuIcon {
+  font-size: 20px;
+  transition: transform 0.3s ease;
+}
+
+.mobileMenuItem:hover .menuIcon {
+  transform: scale(1.1);
+}
+
+.mobileMenuItem.active .menuIcon {
+  transform: scale(1.1);
 }
 
 /* 모바일 메뉴 오버레이 */

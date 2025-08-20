@@ -36,14 +36,11 @@ export function LoginForm({ onSubmit, loading = false }: LoginFormProps) {
     onSubmit,
   })
 
-  const {
-    recaptchaToken,
-    recaptchaLoading,
-    executeRecaptcha,
-  } = useAuthRecaptcha({
-    action: "login",
-    onSuccess: (token) => updateField("recaptchaToken", token),
-  })
+  const { recaptchaToken, recaptchaLoading, executeRecaptcha } =
+    useAuthRecaptcha({
+      action: "login",
+      onSuccess: token => updateField("recaptchaToken", token),
+    })
 
   const handleFieldChange = (field: keyof LoginFormData, value: string) => {
     updateField(field, value)
@@ -57,7 +54,7 @@ export function LoginForm({ onSubmit, loading = false }: LoginFormProps) {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // reCAPTCHA 토큰이 없으면 생성
     if (!formData.recaptchaToken) {
       const token = await executeRecaptcha()
@@ -65,7 +62,7 @@ export function LoginForm({ onSubmit, loading = false }: LoginFormProps) {
         updateField("recaptchaToken", token)
       }
     }
-    
+
     await handleSubmit(e)
   }
 
@@ -77,12 +74,12 @@ export function LoginForm({ onSubmit, loading = false }: LoginFormProps) {
         id="email"
         type="email"
         value={formData.email}
-        onChange={(value) => handleFieldChange("email", value)}
+        onChange={value => handleFieldChange("email", value)}
         placeholder="이메일"
         error={errors.email}
         required
         autoComplete="email"
-        onKeyDown={(e) => {
+        onKeyDown={e => {
           if (e.key === "Enter" && !isSubmitting) {
             e.preventDefault()
             handleFormSubmit(e)
@@ -94,13 +91,13 @@ export function LoginForm({ onSubmit, loading = false }: LoginFormProps) {
         id="password"
         type="password"
         value={formData.password}
-        onChange={(value) => handleFieldChange("password", value)}
+        onChange={value => handleFieldChange("password", value)}
         placeholder="비밀번호"
         error={errors.password}
         required
         autoComplete="current-password"
         showPasswordToggle
-        onKeyDown={(e) => {
+        onKeyDown={e => {
           if (e.key === "Enter" && !isSubmitting) {
             e.preventDefault()
             handleFormSubmit(e)
@@ -111,7 +108,9 @@ export function LoginForm({ onSubmit, loading = false }: LoginFormProps) {
       <div className="recaptcha-container">
         <RecaptchaWidget
           onChange={handleRecaptchaChange}
-          aria-describedby={errors.recaptchaToken ? "recaptcha-error" : undefined}
+          aria-describedby={
+            errors.recaptchaToken ? "recaptcha-error" : undefined
+          }
         />
         {errors.recaptchaToken && (
           <span id="recaptcha-error" className="error-message" role="alert">
@@ -132,5 +131,4 @@ export function LoginForm({ onSubmit, loading = false }: LoginFormProps) {
       </AuthButton>
     </form>
   )
-}        <ReCAPTCHA
-          sitekey={config.RECAPTCHA_SITE_KEY}
+}

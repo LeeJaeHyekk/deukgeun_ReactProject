@@ -3,12 +3,15 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 // 인증 관련 컨텍스트 및 훅 import
 import { AuthProvider } from "@shared/contexts/AuthContext"
 import { useAuthContext } from "@shared/contexts/AuthContext"
+import { useUserStore } from "@shared/store/userStore"
 // 워크아웃 타이머 컨텍스트 import
 import { WorkoutTimerProvider } from "@shared/contexts/WorkoutTimerContext"
 // 공통 UI 컴포넌트 import
 import { LoadingSpinner } from "@shared/ui/LoadingSpinner/LoadingSpinner"
 // 에러 처리 관련 import
 import { ErrorBoundary, globalErrorHandler } from "@pages/Error"
+// 라우트 상수 import
+import { ROUTES, routeUtils } from "@shared/constants/routes"
 // 페이지 컴포넌트들 import
 import HomePage from "@pages/HomePage"
 import LoginPage from "@pages/login/LoginPage"
@@ -16,11 +19,14 @@ import ErrorPage from "@pages/Error/ErrorPage"
 import SignUpPage from "@pages/Sign up/SignUpPage"
 import FindIdPage from "@pages/auth/FindIdPage"
 import FindPasswordPage from "@pages/auth/FindPasswordPage"
-import MachineGuidePage from "@pages/MachineGuide/MachineGuidePage"
+import { MachineGuidePage } from "@features/machine-guide"
 import CommunityPage from "@features/community/CommunityPage"
 import GymFinderPage from "@pages/location/GymFinderPage"
 import WorkoutJournalPage from "@features/workout/WorkoutJournalPage"
 import MyPage from "@pages/Mypage/myPage"
+import AdminDashboardPage from "@features/admin/AdminDashboardPage"
+import AdminPerformancePage from "@features/admin/AdminPerformancePage"
+import DatabaseUpdatePage from "@features/admin/DatabaseUpdatePage"
 
 /**
  * 보호된 라우트 컴포넌트 - 로그인이 필요한 페이지를 보호
@@ -38,10 +44,39 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
   if (!isLoggedIn) {
-    return <Navigate to="/login" replace />
+    return <Navigate to={ROUTES.LOGIN} replace />
   }
 
   // 인증된 사용자에게는 자식 컴포넌트 렌더링
+  return <>{children}</>
+}
+
+/**
+ * 관리자 전용 라우트 컴포넌트 - 관리자 권한이 필요한 페이지를 보호
+ * @param children - 보호할 자식 컴포넌트
+ * @returns 관리자에게는 자식 컴포넌트를, 그렇지 않으면 홈 페이지로 리다이렉트
+ */
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  // 인증 상태와 로딩 상태 가져오기
+  const { isLoggedIn, isLoading } = useAuthContext()
+  const user = useUserStore(state => state.user)
+
+  // 로딩 중일 때는 스피너 표시
+  if (isLoading) {
+    return <LoadingSpinner text="인증 확인 중..." />
+  }
+
+  // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
+  if (!isLoggedIn) {
+    return <Navigate to={ROUTES.LOGIN} replace />
+  }
+
+  // 관리자가 아닌 경우 홈 페이지로 리다이렉트
+  if (user?.role !== "admin") {
+    return <Navigate to={ROUTES.HOME} replace />
+  }
+
+  // 관리자에게는 자식 컴포넌트 렌더링
   return <>{children}</>
 }
 
@@ -58,7 +93,7 @@ function RedirectIfLoggedIn({ children }: { children: React.ReactNode }) {
   }
 
   if (isLoggedIn) {
-    return <Navigate to="/" replace />
+    return <Navigate to={ROUTES.HOME} replace />
   }
 
   return <>{children}</>
@@ -80,11 +115,11 @@ function AppRoutes() {
   return (
     <Routes>
       {/* 홈페이지 - 로그인 없이도 접근 가능한 공개 페이지 */}
-      <Route path="/" element={<HomePage />} />
+      <Route path={ROUTES.HOME} element={<HomePage />} />
 
       {/* 로그인/회원가입 페이지들 - 로그인된 사용자는 홈으로 리다이렉트 */}
       <Route
-        path="/login"
+        path={ROUTES.LOGIN}
         element={
           <RedirectIfLoggedIn>
             <LoginPage />
@@ -92,7 +127,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/signup"
+        path={ROUTES.SIGNUP}
         element={
           <RedirectIfLoggedIn>
             <SignUpPage />
@@ -102,7 +137,7 @@ function AppRoutes() {
 
       {/* 아이디/비밀번호 찾기 페이지들 - 로그인된 사용자는 홈으로 리다이렉트 */}
       <Route
-        path="/find-id"
+        path={ROUTES.FIND_ID}
         element={
           <RedirectIfLoggedIn>
             <FindIdPage />
@@ -110,7 +145,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/find-password"
+        path={ROUTES.FIND_PASSWORD}
         element={
           <RedirectIfLoggedIn>
             <FindPasswordPage />
@@ -119,11 +154,11 @@ function AppRoutes() {
       />
 
       {/* 공개 페이지 - 커뮤니티는 로그인 없이도 접근 가능 */}
-      <Route path="/community" element={<CommunityPage />} />
+      <Route path={ROUTES.COMMUNITY} element={<CommunityPage />} />
 
       {/* 보호된 페이지들 - 로그인이 필요한 기능들 */}
       <Route
-        path="/machine-guide"
+        path={ROUTES.MACHINE_GUIDE}
         element={
           <ProtectedRoute>
             <MachineGuidePage />
@@ -131,7 +166,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/location"
+        path={ROUTES.LOCATION}
         element={
           <ProtectedRoute>
             <GymFinderPage />
@@ -139,7 +174,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/workout-journal"
+        path={ROUTES.WORKOUT_JOURNAL}
         element={
           <ProtectedRoute>
             <WorkoutJournalPage />
@@ -147,7 +182,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/mypage"
+        path={ROUTES.MYPAGE}
         element={
           <ProtectedRoute>
             <MyPage />
@@ -155,8 +190,34 @@ function AppRoutes() {
         }
       />
 
+      {/* 관리자 전용 페이지들 */}
+      <Route
+        path={ROUTES.ADMIN_DASHBOARD}
+        element={
+          <AdminRoute>
+            <AdminDashboardPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path={ROUTES.ADMIN_PERFORMANCE}
+        element={
+          <AdminRoute>
+            <AdminPerformancePage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path={ROUTES.ADMIN_DATABASE}
+        element={
+          <AdminRoute>
+            <DatabaseUpdatePage />
+          </AdminRoute>
+        }
+      />
+
       {/* 에러 페이지 */}
-      <Route path="/error" element={<ErrorPage />} />
+      <Route path={ROUTES.ERROR} element={<ErrorPage />} />
 
       {/* 404 페이지 */}
       <Route path="*" element={<ErrorPage />} />

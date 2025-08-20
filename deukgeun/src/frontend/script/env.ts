@@ -1,8 +1,5 @@
-import { config } from "dotenv"
-import path from "path"
-
-// 프로젝트 루트의 .env 파일 로드
-config({ path: path.resolve(process.cwd(), "../../.env") })
+// 브라우저 환경에서는 dotenv와 path를 사용하지 않음
+// 환경변수는 Vite가 자동으로 처리함
 
 // 환경변수 타입 정의
 interface ScriptEnv {
@@ -13,15 +10,15 @@ interface ScriptEnv {
   VITE_RECAPTCHA_SITE_KEY: string
 }
 
-// 환경변수 기본값 설정
+// 환경변수 기본값 설정 (브라우저 환경용)
 export const scriptEnv: ScriptEnv = {
-  VITE_BACKEND_URL: process.env.VITE_BACKEND_URL || "http://localhost:5000",
+  VITE_BACKEND_URL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
   VITE_LOCATION_JAVASCRIPT_MAP_API_KEY:
-    process.env.VITE_LOCATION_JAVASCRIPT_MAP_API_KEY || "",
+    import.meta.env.VITE_LOCATION_JAVASCRIPT_MAP_API_KEY || "",
   VITE_LOCATION_REST_MAP_API_KEY:
-    process.env.VITE_LOCATION_REST_MAP_API_KEY || "",
-  VITE_GYM_API_KEY: process.env.VITE_GYM_API_KEY || "",
-  VITE_RECAPTCHA_SITE_KEY: process.env.VITE_RECAPTCHA_SITE_KEY || "",
+    import.meta.env.VITE_LOCATION_REST_MAP_API_KEY || "",
+  VITE_GYM_API_KEY: import.meta.env.VITE_GYM_API_KEY || "",
+  VITE_RECAPTCHA_SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY || "",
 }
 
 // 스크립트용 환경변수 유틸리티
@@ -51,7 +48,7 @@ export const SCRIPT_BACKEND_CONFIG = {
   URL: getScriptEnvVar("VITE_BACKEND_URL", "http://localhost:5000"),
 } as const
 
-// 환경변수 검증
+// 환경변수 검증 (브라우저 환경용)
 export function validateEnv() {
   const requiredVars = [
     "VITE_LOCATION_JAVASCRIPT_MAP_API_KEY",
@@ -59,7 +56,7 @@ export function validateEnv() {
     "VITE_GYM_API_KEY",
   ]
 
-  const missingVars = requiredVars.filter(varName => !process.env[varName])
+  const missingVars = requiredVars.filter(varName => !import.meta.env[varName])
 
   if (missingVars.length > 0) {
     console.warn("⚠️  다음 환경변수가 설정되지 않았습니다:", missingVars)

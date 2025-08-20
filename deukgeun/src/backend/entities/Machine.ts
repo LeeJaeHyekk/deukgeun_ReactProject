@@ -48,6 +48,10 @@ export class Machine {
       "balance",
       "functional",
       "rehabilitation",
+      "상체",
+      "하체",
+      "전신",
+      "기타",
     ],
     default: "strength",
   })
@@ -58,7 +62,15 @@ export class Machine {
 
   @Column({
     type: "enum",
-    enum: ["beginner", "intermediate", "advanced", "expert"],
+    enum: [
+      "beginner",
+      "intermediate",
+      "advanced",
+      "expert",
+      "초급",
+      "중급",
+      "고급",
+    ],
     default: "beginner",
   })
   difficulty!: DifficultyLevel

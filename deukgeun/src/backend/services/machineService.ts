@@ -139,6 +139,60 @@ export class MachineService {
   }
 
   /**
+   * 카테고리별 Machine을 조회합니다.
+   * @param {string} category - 조회할 카테고리
+   * @returns {Promise<Machine[]>} 카테고리별 Machine 목록
+   */
+  async getMachinesByCategory(category: string): Promise<Machine[]> {
+    try {
+      return await this.machineRepository.find({
+        where: { category },
+        order: { name: "ASC" },
+      })
+    } catch (error) {
+      console.error("카테고리별 기구 조회 오류:", error)
+      return []
+    }
+  }
+
+  /**
+   * 난이도별 Machine을 조회합니다.
+   * @param {string} difficulty - 조회할 난이도
+   * @returns {Promise<Machine[]>} 난이도별 Machine 목록
+   */
+  async getMachinesByDifficulty(difficulty: string): Promise<Machine[]> {
+    try {
+      return await this.machineRepository.find({
+        where: { difficulty_level: difficulty },
+        order: { name: "ASC" },
+      })
+    } catch (error) {
+      console.error("난이도별 기구 조회 오류:", error)
+      return []
+    }
+  }
+
+  /**
+   * 타겟별 Machine을 조회합니다.
+   * @param {string} target - 조회할 타겟 근육
+   * @returns {Promise<Machine[]>} 타겟별 Machine 목록
+   */
+  async getMachinesByTarget(target: string): Promise<Machine[]> {
+    try {
+      return await this.machineRepository
+        .createQueryBuilder("machine")
+        .where("JSON_CONTAINS(machine.target_muscle, :target)", {
+          target: `"${target}"`,
+        })
+        .orderBy("machine.name", "ASC")
+        .getMany()
+    } catch (error) {
+      console.error("타겟별 기구 조회 오류:", error)
+      return []
+    }
+  }
+
+  /**
    * 데이터 정제 (XSS 방지)
    * @param {CreateMachineRequest} data - 정제할 데이터
    * @returns {CreateMachineRequest} 정제된 데이터

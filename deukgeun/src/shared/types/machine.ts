@@ -25,12 +25,16 @@ export interface Machine {
   id: number
   machineKey: string
   name: string
+  nameKo?: string
   nameEn?: string
   imageUrl: string
   shortDesc: string
   detailDesc: string
+  positiveEffect?: string
   category: MachineCategory
+  targetMuscles?: string[]
   difficulty: DifficultyLevel
+  videoUrl?: string
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -39,39 +43,42 @@ export interface Machine {
 export interface CreateMachineRequest {
   machineKey: string
   name: string
+  nameKo?: string
   nameEn?: string
   imageUrl: string
   shortDesc: string
   detailDesc: string
+  positiveEffect?: string
   category: MachineCategory
+  targetMuscles?: string[]
   difficulty: DifficultyLevel
+  videoUrl?: string
 }
 
 export interface UpdateMachineRequest {
   machineKey?: string
   name?: string
+  nameKo?: string
   nameEn?: string
   imageUrl?: string
   shortDesc?: string
   detailDesc?: string
+  positiveEffect?: string
   category?: MachineCategory
+  targetMuscles?: string[]
   difficulty?: DifficultyLevel
+  videoUrl?: string
   isActive?: boolean
 }
 
+// 백엔드 API 응답 구조에 맞는 타입
 export interface MachineListResponse {
-  success: boolean
   message: string
-  data: {
-    machines: Machine[]
-    total: number
-  }
+  data: Machine[]
+  count: number
 }
 
 export interface MachineResponse {
-  success: boolean
   message: string
-  data: {
-    machine: Machine
-  }
+  data: Machine
 }

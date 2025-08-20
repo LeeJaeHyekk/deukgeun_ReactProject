@@ -19,7 +19,7 @@ export const MapView = ({ position, gyms }: Props) => {
     script.async = true
     script.onload = () => {
       window.kakao.maps.load(() => {
-        console.log("Kakao Maps SDK loaded")
+        // console.log("Kakao Maps SDK loaded") // 로그 제거
       })
     }
     document.head.appendChild(script)

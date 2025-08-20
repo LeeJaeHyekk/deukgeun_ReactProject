@@ -2,7 +2,7 @@ import { Gym } from "../types"
 import { KAKAO_CONFIG } from "@shared/lib/env"
 
 const KAKAO_API_KEY = KAKAO_CONFIG.REST_API_KEY
-console.log("🧪 Kakao REST API Key:", KAKAO_API_KEY)
+// console.log("🧪 Kakao REST API Key:", KAKAO_API_KEY) // 로그 제거
 
 // 테스트용 더미 데이터 생성
 function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {

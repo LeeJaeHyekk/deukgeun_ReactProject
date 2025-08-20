@@ -9,6 +9,10 @@
   backdrop-filter: blur(12px);
   position: relative;
   overflow: hidden;
+  /* 고정된 높이 설정 */
+  height: 320px;
+  display: flex;
+  flex-direction: column;
 }
 
 .card::before {
@@ -47,6 +51,8 @@
   align-items: flex-start;
   margin-bottom: 20px;
   gap: 16px;
+  /* 헤더는 고정 크기 */
+  flex-shrink: 0;
 }
 
 .authorInfo {
@@ -82,6 +88,11 @@
 }
 
 .content {
+  /* 컨텐츠 영역이 남은 공간을 차지하도록 설정 */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* flex 아이템이 축소될 수 있도록 */
   margin-bottom: 20px;
 }
 
@@ -97,6 +108,8 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-clamp: 2;
+  /* 제목은 고정 크기 */
+  flex-shrink: 0;
 }
 
 .excerpt {
@@ -104,16 +117,22 @@
   font-size: 15px;
   line-height: 1.6;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
   word-wrap: break-word;
-  line-clamp: 3;
+  line-clamp: 4;
+  /* 내용이 길어도 고정된 줄 수만 표시 */
+  flex: 1;
+  min-height: 0;
 }
 
 .footer {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 16px;
+  /* 푸터는 항상 하단에 고정 */
+  flex-shrink: 0;
+  margin-top: auto;
 }
 
 .stats {
@@ -143,6 +162,17 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+.likeButton.liked {
+  background: rgba(248, 113, 113, 0.2);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: #f87171;
+}
+
+.likeButton.liked:hover {
+  background: rgba(248, 113, 113, 0.3);
+  border-color: rgba(248, 113, 113, 0.5);
+}
+
 .commentCount {
   font-size: 14px;
   color: #e5e7eb;
@@ -155,6 +185,7 @@
 @media (max-width: 768px) {
   .card {
     padding: 20px;
+    height: 300px; /* 모바일에서는 약간 작게 */
   }
 
   .header {
@@ -188,6 +219,7 @@
 @media (max-width: 480px) {
   .card {
     padding: 16px;
+    height: 280px; /* 작은 화면에서는 더 작게 */
   }
 
   .header {

@@ -25,6 +25,16 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
   }
 }
 
+// 좋아요 응답 타입
+export interface LikeResponse {
+  success: boolean
+  message: string
+  data: {
+    isLiked: boolean
+    likeCount: number
+  }
+}
+
 // API 클라이언트 설정
 const createApiClient = (): AxiosInstance => {
   const instance = axios.create({
@@ -178,8 +188,9 @@ export const postsApi = {
 }
 
 export const likesApi = {
-  like: (postId: number) => api.post(`/api/likes/${postId}`),
-  unlike: (postId: number) => api.delete(`/api/likes/${postId}`),
+  like: (postId: number) => api.post<LikeResponse>(`/api/likes/${postId}`),
+  unlike: (postId: number) => api.delete<LikeResponse>(`/api/likes/${postId}`),
+  toggle: (postId: number) => api.post<LikeResponse>(`/api/likes/${postId}`), // 토글 방식
 }
 
 export const commentsApi = {

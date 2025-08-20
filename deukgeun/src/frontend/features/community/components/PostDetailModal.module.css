@@ -7,6 +7,7 @@
   justify-content: center;
   z-index: 1000;
   padding: 20px;
+  backdrop-filter: blur(8px);
 }
 
 .modal {
@@ -15,11 +16,13 @@
   max-height: 85vh;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
+  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 0.3s ease-out;
 }
 
 .header {
@@ -186,21 +189,28 @@
 .titleInput,
 .contentInput {
   width: 100%;
-  padding: 16px 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(209, 213, 219, 0.9);
-  background: rgba(255, 255, 255, 0.92);
-  color: #374151;
-  font-size: 16px;
-  transition: border-color 0.2s;
+  padding: 1rem 1.5rem;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
   box-sizing: border-box;
+  backdrop-filter: blur(10px);
+}
+
+.titleInput::placeholder,
+.contentInput::placeholder {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .titleInput:focus,
 .contentInput:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: rgba(102, 126, 234, 0.8);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  transform: translateY(-1px);
 }
 
 .contentInput {
@@ -219,35 +229,39 @@
 
 .cancelButton,
 .saveButton {
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 15px;
+  padding: 1rem 2rem;
+  border-radius: 25px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  min-width: 100px;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  backdrop-filter: blur(10px);
 }
 
 .cancelButton {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .cancelButton:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
 .saveButton {
-  background: linear-gradient(135deg, #34d399, #10b981);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   border: none;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
 }
 
 .saveButton:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
 }
 
 .cancelButton:disabled,
@@ -279,23 +293,30 @@
 
 .commentInput {
   width: 100%;
-  padding: 16px 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(209, 213, 219, 0.9);
-  background: rgba(255, 255, 255, 0.92);
-  color: #374151;
-  font-size: 16px;
+  padding: 1rem 1.5rem;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1rem;
   resize: vertical;
   min-height: 80px;
   font-family: inherit;
   line-height: 1.6;
   box-sizing: border-box;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.commentInput::placeholder {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .commentInput:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: rgba(102, 126, 234, 0.8);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  transform: translateY(-1px);
 }
 
 .commentSubmitWrapper {
@@ -304,22 +325,23 @@
 }
 
 .commentSubmitButton {
-  padding: 14px 24px;
-  background: linear-gradient(135deg, #f87171, #ef4444);
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   border: none;
-  border-radius: 12px;
+  border-radius: 25px;
   color: #fff;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
   min-width: 120px;
+  backdrop-filter: blur(10px);
 }
 
 .commentSubmitButton:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(248, 113, 113, 0.4);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
 }
 
 .commentSubmitButton:disabled {
@@ -521,5 +543,17 @@
   .deleteButton {
     flex: 1;
     text-align: center;
+  }
+}
+
+/* 애니메이션 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

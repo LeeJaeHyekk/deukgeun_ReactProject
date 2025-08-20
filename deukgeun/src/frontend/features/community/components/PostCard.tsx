@@ -1,27 +1,19 @@
+import { CommunityPost } from "../../../../types/post"
 import styles from "./PostCard.module.css"
 
-interface Post {
-  id: number
-  title: string
-  content: string
-  author: {
-    id: number
-    nickname: string
-  }
-  category: string
-  likes: number
-  comments: number
-  createdAt: string
-  updatedAt: string
-}
-
 interface PostCardProps {
-  post: Post
+  post: CommunityPost
   onClick: () => void
   onLikeClick: () => void
+  isLiked?: boolean
 }
 
-export function PostCard({ post, onClick, onLikeClick }: PostCardProps) {
+export function PostCard({
+  post,
+  onClick,
+  onLikeClick,
+  isLiked = false,
+}: PostCardProps) {
   const truncateContent = (content: string, maxLength: number = 100) => {
     if (content.length <= maxLength) return content
     return content.substring(0, maxLength) + "..."
@@ -61,15 +53,17 @@ export function PostCard({ post, onClick, onLikeClick }: PostCardProps) {
       <div className={styles.footer}>
         <div className={styles.stats}>
           <button
-            className={styles.likeButton}
+            className={`${styles.likeButton} ${isLiked ? styles.liked : ""}`}
             onClick={e => {
               e.stopPropagation()
               onLikeClick()
             }}
           >
-            ❤️ {post.likes || 0}
+            {isLiked ? "❤️" : "🤍"} {post.like_count || post.likes || 0}
           </button>
-          <span className={styles.commentCount}>💬 {post.comments || 0}</span>
+          <span className={styles.commentCount}>
+            💬 {post.comment_count || post.comments || 0}
+          </span>
         </div>
       </div>
     </div>

@@ -2,35 +2,11 @@ import { useState, useEffect } from "react"
 import { commentsApi } from "@shared/api"
 import { showToast } from "@shared/lib"
 import { useAuthContext } from "@shared/contexts/AuthContext"
+import { CommunityPost, PostComment } from "../../../../types/post"
 import styles from "./PostDetailModal.module.css"
 
-interface Comment {
-  id: number
-  author: {
-    id: number
-    nickname: string
-  }
-  content: string
-  createdAt: string
-}
-
-interface Post {
-  id: number
-  title: string
-  content: string
-  author: {
-    id: number
-    nickname: string
-  }
-  category: string
-  likes: number
-  comments: number
-  createdAt: string
-  updatedAt: string
-}
-
 interface PostDetailModalProps {
-  post: Post
+  post: CommunityPost
   onClose: () => void
   onUpdate?: (
     postId: number,
@@ -46,7 +22,7 @@ export function PostDetailModal({
   onDelete,
 }: PostDetailModalProps) {
   const { user } = useAuthContext()
-  const [comments, setComments] = useState<Comment[]>([])
+  const [comments, setComments] = useState<PostComment[]>([])
   const [newComment, setNewComment] = useState("")
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState({
@@ -70,14 +46,14 @@ export function PostDetailModal({
         console.log("댓글 API 응답:", response.data) // 디버깅용 로그
 
         // API 응답 구조 확인 및 안전한 매핑
-        let commentData: Comment[] = []
+        let commentData: PostComment[] = []
 
         if (response.data.success && response.data.data) {
           const rawComments = response.data.data
           console.log("원본 댓글 데이터:", rawComments) // 디버깅용 로그
 
           if (Array.isArray(rawComments)) {
-            commentData = rawComments.map(comment => ({
+            commentData = rawComments.map((comment: any) => ({
               id: comment.id || 0,
               author: {
                 id: comment.author?.id || comment.author_id || 0,
@@ -98,7 +74,7 @@ export function PostDetailModal({
       } catch (error: unknown) {
         console.error("댓글 로드 실패:", error)
         // 댓글 API 에러 시 더미 데이터 사용 (테스트용)
-        const dummyComments: Comment[] = [
+        const dummyComments: PostComment[] = [
           {
             id: 1,
             author: { id: 1, nickname: "테스트 사용자" },
@@ -146,7 +122,7 @@ export function PostDetailModal({
       const listResponse = await commentsApi.list(post.id)
       console.log("댓글 작성 후 새로고침 응답:", listResponse.data) // 디버깅용 로그
 
-      let commentData: Comment[] = []
+      let commentData: PostComment[] = []
 
       if (listResponse.data.success && listResponse.data.data) {
         const rawComments = listResponse.data.data
@@ -329,10 +305,10 @@ export function PostDetailModal({
 
               <div className={styles.postActions}>
                 <button className={styles.likeButton}>
-                  ❤️ {post.likes || 0}
+                  ❤️ {post.like_count || post.likes || 0}
                 </button>
                 <button className={styles.commentButton}>
-                  💬 {post.comments || 0}
+                  💬 {post.comment_count || post.comments || 0}
                 </button>
                 {/* 자신의 게시물에만 수정/삭제 버튼 표시 */}
                 {isAuthor && onUpdate && (

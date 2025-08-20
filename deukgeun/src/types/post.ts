@@ -20,14 +20,39 @@ export interface Post {
   updatedAt: Date
 }
 
+// 커뮤니티 컴포넌트용 Post 타입
+export interface CommunityPost {
+  id: number
+  title: string
+  content: string
+  author: {
+    id: number
+    nickname: string
+  }
+  category: string
+  likes?: number
+  comments?: number
+  like_count?: number
+  comment_count?: number
+  createdAt: string
+  updatedAt: string
+}
+
 // 포스트 카테고리
-export type PostCategory = 
+export type PostCategory =
   | "workout_tip"
   | "motivation"
   | "progress_share"
   | "question"
   | "review"
   | "general"
+
+// 커뮤니티 포스트 카테고리
+export interface PostCategoryInfo {
+  id: number
+  name: string
+  count: number
+}
 
 // 댓글
 export interface Comment {
@@ -40,6 +65,17 @@ export interface Comment {
   isEdited: boolean
   createdAt: Date
   updatedAt: Date
+}
+
+// 커뮤니티 댓글 타입
+export interface PostComment {
+  id: number
+  author: {
+    id: number
+    nickname: string
+  }
+  content: string
+  createdAt: string
 }
 
 // 좋아요
@@ -61,6 +97,13 @@ export interface CreatePostRequest {
   tags?: string[]
 }
 
+// 커뮤니티 포스트 생성 요청
+export interface CreateCommunityPostRequest {
+  title: string
+  content: string
+  category: string
+}
+
 // 포스트 업데이트 요청
 export interface UpdatePostRequest {
   postId: number
@@ -70,6 +113,13 @@ export interface UpdatePostRequest {
   category?: PostCategory
   tags?: string[]
   isPublished?: boolean
+}
+
+// 커뮤니티 포스트 업데이트 요청
+export interface UpdateCommunityPostRequest {
+  title: string
+  content: string
+  category: string
 }
 
 // 댓글 생성 요청

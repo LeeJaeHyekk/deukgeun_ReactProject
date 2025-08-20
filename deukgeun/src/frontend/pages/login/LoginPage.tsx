@@ -1,18 +1,16 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa"
-import ReCAPTCHA from "react-google-recaptcha"
 import { authApi } from "@features/auth/api/authApi"
 import type { LoginRequest } from "../../../types"
 import { validation, showToast } from "@shared/lib"
 import { useAuthContext } from "@shared/contexts/AuthContext"
-import { config } from "@shared/config"
+import { RecaptchaWidget } from "@shared/components/RecaptchaWidget"
+import { useAuthErrorHandler } from "@pages/Error"
 
 import styles from "./LoginPage.module.css"
 
 export default function LoginPage() {
-  console.log("🧪 LoginPage 렌더링 시작")
-
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -26,31 +24,17 @@ export default function LoginPage() {
   const [error, setError] = useState<string>("")
   const navigate = useNavigate()
   const { login, isLoggedIn } = useAuthContext()
+  const { handleApiError, hasError, errorInfo, retry } = useAuthErrorHandler()
 
   // 로그인된 상태에서 접근 시 메인페이지로 리다이렉트
   useEffect(() => {
     if (isLoggedIn) {
-      console.log("🧪 이미 로그인된 상태 - 메인페이지로 리다이렉트")
       navigate("/", { replace: true })
     }
   }, [isLoggedIn, navigate])
 
-  // 🧪 디버깅용 로그 (기존 코드에 영향 없음)
-  console.log("🧪 LoginPage 렌더링")
-  console.log("🧪 현재 상태:", {
-    email,
-    password: password ? "***" : "",
-    loading,
-    recaptchaToken: recaptchaToken ? "있음" : "없음",
-    errors,
-    error,
-    isLoggedIn,
-  })
-
   // 폼 검증
   const validateForm = (): boolean => {
-    console.log("🧪 LoginPage - 폼 검증 시작")
-
     const newErrors: {
       email?: string
       password?: string
@@ -75,20 +59,16 @@ export default function LoginPage() {
 
     setErrors(newErrors)
     const isValid = Object.keys(newErrors).length === 0
-    console.log("🧪 LoginPage - 폼 검증 결과:", { isValid, errors: newErrors })
     return isValid
   }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("🧪 LoginPage - 로그인 폼 제출")
 
     if (!validateForm()) {
-      console.log("🧪 폼 검증 실패")
       return
     }
 
-    console.log("🧪 로그인 시도 시작")
     setLoading(true)
     setError("")
 
@@ -134,11 +114,8 @@ export default function LoginPage() {
       // 자동 리다이렉트는 App.tsx의 RedirectIfLoggedIn에서 처리
     } catch (error: unknown) {
       console.log("🧪 로그인 에러:", error)
-      const errorMessage =
-        (error as { response?: { data?: { message?: string } } })?.response
-          ?.data?.message || "로그인에 실패했습니다."
-      setError(errorMessage)
-      showToast(errorMessage, "error")
+      handleApiError(error as any)
+      setError(errorInfo.message || "로그인에 실패했습니다.")
     } finally {
       setLoading(false)
       console.log("🧪 로그인 처리 완료")
@@ -163,6 +140,34 @@ export default function LoginPage() {
     setError("") // 전체 에러 메시지도 초기화
   }
 
+  // 에러 상태 표시
+  if (hasError) {
+    return (
+      <div className={styles.pageWrapper}>
+        <div className={styles.loginBox}>
+          <div style={{ textAlign: "center", color: "#f1f3f5" }}>
+            <h2>로그인 중 오류가 발생했습니다</h2>
+            <p>{errorInfo.message}</p>
+            <button
+              onClick={retry}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "#4f46e5",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                marginTop: "20px",
+              }}
+            >
+              다시 시도
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // 이미 로그인된 상태라면 로딩 화면 표시
   if (isLoggedIn) {
     return (
@@ -176,8 +181,6 @@ export default function LoginPage() {
       </div>
     )
   }
-
-  console.log("🧪 LoginPage - 렌더링 완료")
 
   return (
     <div className={styles.pageWrapper}>
@@ -271,8 +274,7 @@ export default function LoginPage() {
           </div>
 
           <div className={styles.recaptchaContainer}>
-            <ReCAPTCHA
-              sitekey={config.RECAPTCHA_SITE_KEY}
+            <RecaptchaWidget
               onChange={handleRecaptchaChange}
               className={styles.recaptchaWidget}
               aria-describedby={

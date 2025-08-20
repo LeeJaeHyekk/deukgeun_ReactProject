@@ -52,7 +52,7 @@ export const corsSecurity = (
   // 허용된 Origin만 접근 가능
   const allowedOrigins = [
     "http://localhost:5173",
-    "http://localhost:3000",
+    "http://localhost:5000",
     "https://yourdomain.com", // 프로덕션 도메인
   ]
 

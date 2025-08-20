@@ -252,12 +252,16 @@ export class PostController {
       )
 
       return res.status(200).json({
+        success: true,
         message: "Categories retrieved successfully",
         data: categoryCounts,
       })
     } catch (error) {
       console.error("카테고리 조회 실패:", error)
-      return res.status(500).json({ message: "카테고리 조회에 실패했습니다." })
+      return res.status(500).json({
+        success: false,
+        message: "카테고리 조회에 실패했습니다.",
+      })
     }
   }
 

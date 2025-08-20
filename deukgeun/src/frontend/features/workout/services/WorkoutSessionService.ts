@@ -1,398 +1,456 @@
-import {
-  WorkoutPlan,
-  WorkoutSession,
-  WorkoutPlanExercise,
-} from "../../../../types"
+import { handleApiError, getSuccessMessage } from "../utils/workoutUtils"
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "../constants"
+import type { ApiResponse } from "../types"
 
-// 세션 상태 타입
-export interface SessionStatus {
-  isActive: boolean
-  isPaused: boolean
-  currentExerciseIndex: number
-  currentSetIndex: number
-  completedSets: { [exerciseIndex: number]: number }
-  totalExercises: number
-  progress: number
-}
-
-// 세션 데이터 타입
-export interface SessionData {
-  sessionId: string
-  planId: number | null
-  plan: WorkoutPlan | null
-  exercises: WorkoutPlanExercise[]
-  startTime: Date
-  endTime?: Date
-  notes: string
-  status: SessionStatus
-}
-
-// 세션 저장 타입
-export interface SessionSaveData {
-  sessionId: string
+interface SessionData {
+  sessionId: number
   planId?: number
-  name: string
-  startTime: Date
-  endTime: Date
-  duration: number
-  exercises: Array<{
-    exerciseId: number
-    machineId: number
-    exerciseName: string
-    sets: number
-    reps: number
-    weight?: number
-    completedSets: number
-    notes?: string
-  }>
-  notes: string
+  startTime: number
+  plan?: any
+  exercises?: any[]
+}
+
+// 로깅 유틸리티
+const logger = {
+  info: (message: string, data?: any) => {
+    console.log(`[WorkoutSessionService] ${message}`, data || "")
+  },
+  debug: (message: string, data?: any) => {
+    console.debug(`[WorkoutSessionService] ${message}`, data || "")
+  },
+  warn: (message: string, data?: any) => {
+    console.warn(`[WorkoutSessionService] ${message}`, data || "")
+  },
+  error: (message: string, data?: any) => {
+    console.error(`[WorkoutSessionService] ${message}`, data || "")
+  },
 }
 
 class WorkoutSessionService {
   private static instance: WorkoutSessionService
+  private isInitialized = false
   private currentSession: SessionData | null = null
-  private sessionStorageKey = "workout_session_data"
+  private sessionNotes: string = ""
 
-  // 싱글톤 패턴
+  private constructor() {
+    logger.debug("WorkoutSessionService constructor called")
+  }
+
   static getInstance(): WorkoutSessionService {
     if (!WorkoutSessionService.instance) {
+      logger.debug("Creating new WorkoutSessionService instance")
       WorkoutSessionService.instance = new WorkoutSessionService()
+    } else {
+      logger.debug("Returning existing WorkoutSessionService instance")
     }
     return WorkoutSessionService.instance
   }
 
-  // 새 세션 시작 (계획 기반)
-  startSessionWithPlan(plan: WorkoutPlan): SessionData {
-    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-
-    this.currentSession = {
-      sessionId,
-      planId: plan.id,
-      plan,
-      exercises: plan.exercises || [],
-      startTime: new Date(),
-      notes: "",
-      status: {
-        isActive: true,
-        isPaused: false,
-        currentExerciseIndex: 0,
-        currentSetIndex: 0,
-        completedSets: {},
-        totalExercises: plan.exercises?.length || 0,
-        progress: 0,
-      },
+  // 초기화
+  async initialize(): Promise<void> {
+    if (this.isInitialized) {
+      logger.debug("Service already initialized")
+      return
     }
 
-    this.saveSessionToStorage()
-    return this.currentSession
-  }
-
-  // 자유 운동 세션 시작
-  startFreeSession(): SessionData {
-    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-
-    this.currentSession = {
-      sessionId,
-      planId: null,
-      plan: null,
-      exercises: [],
-      startTime: new Date(),
-      notes: "",
-      status: {
-        isActive: true,
-        isPaused: false,
-        currentExerciseIndex: 0,
-        currentSetIndex: 0,
-        completedSets: {},
-        totalExercises: 0,
-        progress: 0,
-      },
-    }
-
-    this.saveSessionToStorage()
-    return this.currentSession
-  }
-
-  // 세션 일시정지
-  pauseSession(): void {
-    if (this.currentSession) {
-      this.currentSession.status.isPaused = true
-      this.currentSession.status.isActive = false
-      this.saveSessionToStorage()
+    try {
+      // 서비스 초기화 로직
+      this.isInitialized = true
+      logger.info("WorkoutSessionService initialized successfully")
+    } catch (error) {
+      logger.error("Failed to initialize WorkoutSessionService", { error })
+      console.error("Failed to initialize WorkoutSessionService:", error)
+      throw new Error(ERROR_MESSAGES.UNKNOWN_ERROR)
     }
   }
 
-  // 세션 재개
-  resumeSession(): void {
-    if (this.currentSession) {
-      this.currentSession.status.isPaused = false
-      this.currentSession.status.isActive = true
-      this.saveSessionToStorage()
-    }
-  }
+  // 세션 생성
+  async createSession(sessionData: any): Promise<ApiResponse<any>> {
+    logger.info("Creating session", { sessionData })
+    try {
+      await this.initialize()
 
-  // 세션 완료
-  completeSession(): SessionSaveData | null {
-    if (!this.currentSession) return null
+      // API 호출 로직
+      const response = await fetch("/api/workout/sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(sessionData),
+      })
 
-    const endTime = new Date()
-    const duration = Math.floor(
-      (endTime.getTime() - this.currentSession.startTime.getTime()) / 60000
-    ) // 분 단위
-
-    const saveData: SessionSaveData = {
-      sessionId: this.currentSession.sessionId,
-      planId: this.currentSession.planId || undefined,
-      name: this.currentSession.plan?.name || "자유 운동",
-      startTime: this.currentSession.startTime,
-      endTime,
-      duration,
-      exercises: this.currentSession.exercises.map((exercise, index) => ({
-        exerciseId: exercise.id,
-        machineId: exercise.machineId,
-        exerciseName: exercise.exerciseName,
-        sets: exercise.sets,
-        reps: exercise.reps,
-        weight: exercise.weight,
-        completedSets: this.currentSession!.status.completedSets[index] || 0,
-        notes: exercise.notes,
-      })),
-      notes: this.currentSession.notes,
-    }
-
-    // 세션 데이터 정리
-    this.clearSession()
-    return saveData
-  }
-
-  // 세션 취소
-  cancelSession(): void {
-    this.clearSession()
-  }
-
-  // 현재 운동 설정
-  setCurrentExercise(exerciseIndex: number): void {
-    if (
-      this.currentSession &&
-      exerciseIndex >= 0 &&
-      exerciseIndex < this.currentSession.exercises.length
-    ) {
-      this.currentSession.status.currentExerciseIndex = exerciseIndex
-      this.currentSession.status.currentSetIndex = 0
-      this.updateProgress()
-      this.saveSessionToStorage()
-    }
-  }
-
-  // 세트 완료
-  completeSet(exerciseIndex: number): void {
-    if (this.currentSession) {
-      const currentCompleted =
-        this.currentSession.status.completedSets[exerciseIndex] || 0
-      this.currentSession.status.completedSets[exerciseIndex] =
-        currentCompleted + 1
-
-      // 현재 운동의 모든 세트가 완료되었는지 확인
-      const exercise = this.currentSession.exercises[exerciseIndex]
-      if (exercise && currentCompleted + 1 >= exercise.sets) {
-        // 다음 운동으로 이동
-        if (exerciseIndex + 1 < this.currentSession.exercises.length) {
-          this.setCurrentExercise(exerciseIndex + 1)
-        } else {
-          // 모든 운동 완료
-          this.currentSession.status.isActive = false
-        }
-      } else {
-        // 같은 운동의 다음 세트
-        this.currentSession.status.currentSetIndex += 1
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      this.updateProgress()
-      this.saveSessionToStorage()
+      const data = await response.json()
+      logger.info("Session created successfully", { data })
+
+      return {
+        success: true,
+        data,
+        message: getSuccessMessage("created", "session"),
+      }
+    } catch (error) {
+      logger.error("Session creation failed", { error, sessionData })
+      const errorMessage = handleApiError(error)
+      return {
+        success: false,
+        data: null,
+        error: errorMessage,
+      }
     }
   }
 
-  // 운동 추가 (자유 운동 모드)
-  addExercise(exercise: WorkoutPlanExercise): void {
-    if (this.currentSession && !this.currentSession.planId) {
-      this.currentSession.exercises.push(exercise)
-      this.currentSession.status.totalExercises =
-        this.currentSession.exercises.length
-      this.updateProgress()
-      this.saveSessionToStorage()
-    }
-  }
+  // 세션 업데이트
+  async updateSession(
+    sessionId: number,
+    sessionData: any
+  ): Promise<ApiResponse<any>> {
+    logger.info("Updating session", { sessionId, sessionData })
+    try {
+      await this.initialize()
 
-  // 운동 제거 (자유 운동 모드)
-  removeExercise(exerciseIndex: number): void {
-    if (
-      this.currentSession &&
-      !this.currentSession.planId &&
-      exerciseIndex >= 0 &&
-      exerciseIndex < this.currentSession.exercises.length
-    ) {
-      this.currentSession.exercises.splice(exerciseIndex, 1)
-      this.currentSession.status.totalExercises =
-        this.currentSession.exercises.length
-
-      // 완료된 세트 정보도 제거
-      const newCompletedSets: { [key: number]: number } = {}
-      Object.keys(this.currentSession.status.completedSets).forEach(key => {
-        const index = parseInt(key)
-        if (index < exerciseIndex) {
-          newCompletedSets[index] =
-            this.currentSession!.status.completedSets[index]
-        } else if (index > exerciseIndex) {
-          newCompletedSets[index - 1] =
-            this.currentSession!.status.completedSets[index]
-        }
+      const response = await fetch(`/api/workout/sessions/${sessionId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(sessionData),
       })
-      this.currentSession.status.completedSets = newCompletedSets
 
-      this.updateProgress()
-      this.saveSessionToStorage()
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      logger.info("Session updated successfully", { sessionId, data })
+
+      return {
+        success: true,
+        data,
+        message: getSuccessMessage("updated", "session"),
+      }
+    } catch (error) {
+      const errorMessage = handleApiError(error)
+      return {
+        success: false,
+        data: null,
+        error: errorMessage,
+      }
     }
   }
 
-  // 세션 메모 업데이트
-  updateNotes(notes: string): void {
-    if (this.currentSession) {
-      this.currentSession.notes = notes
-      this.saveSessionToStorage()
+  // 세션 삭제
+  async deleteSession(sessionId: number): Promise<ApiResponse<boolean>> {
+    logger.info("Deleting session", { sessionId })
+    try {
+      await this.initialize()
+
+      const response = await fetch(`/api/workout/sessions/${sessionId}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      logger.info("Session deleted successfully", { sessionId })
+      return {
+        success: true,
+        data: true,
+        message: getSuccessMessage("deleted", "session"),
+      }
+    } catch (error) {
+      logger.error("Session deletion failed", { sessionId, error })
+      const errorMessage = handleApiError(error)
+      return {
+        success: false,
+        data: false,
+        error: errorMessage,
+      }
     }
   }
 
-  // 진행률 업데이트
-  private updateProgress(): void {
-    if (this.currentSession && this.currentSession.exercises.length > 0) {
-      const totalSets = this.currentSession.exercises.reduce(
-        (sum, exercise) => sum + exercise.sets,
-        0
+  // 세션 조회
+  async getSession(sessionId: number): Promise<ApiResponse<any>> {
+    logger.info("Getting session", { sessionId })
+    try {
+      await this.initialize()
+
+      const response = await fetch(`/api/workout/sessions/${sessionId}`)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      logger.info("Session retrieved successfully", { sessionId, data })
+
+      return {
+        success: true,
+        data,
+      }
+    } catch (error) {
+      logger.error("Session retrieval failed", { sessionId, error })
+      const errorMessage = handleApiError(error)
+      return {
+        success: false,
+        data: null,
+        error: errorMessage,
+      }
+    }
+  }
+
+  // 사용자 세션 목록 조회
+  async getUserSessions(): Promise<ApiResponse<any[]>> {
+    logger.info("Getting user sessions")
+    try {
+      await this.initialize()
+
+      const response = await fetch("/api/workout/sessions")
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      logger.info("User sessions retrieved successfully", {
+        sessionsCount: data.length,
+      })
+
+      return {
+        success: true,
+        data,
+      }
+    } catch (error) {
+      logger.error("User sessions retrieval failed", { error })
+      const errorMessage = handleApiError(error)
+      return {
+        success: false,
+        data: [],
+        error: errorMessage,
+      }
+    }
+  }
+
+  // 세션 상태 업데이트
+  async updateSessionStatus(
+    sessionId: number,
+    status: string
+  ): Promise<ApiResponse<any>> {
+    logger.info("Updating session status", { sessionId, status })
+    try {
+      await this.initialize()
+
+      const response = await fetch(
+        `/api/workout/sessions/${sessionId}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status }),
+        }
       )
-      const completedSets = Object.values(
-        this.currentSession.status.completedSets
-      ).reduce((sum, count) => sum + count, 0)
-      this.currentSession.status.progress =
-        totalSets > 0 ? (completedSets / totalSets) * 100 : 0
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      logger.info("Session status updated successfully", {
+        sessionId,
+        status,
+        data,
+      })
+
+      return {
+        success: true,
+        data,
+        message: "세션 상태가 업데이트되었습니다",
+      }
+    } catch (error) {
+      logger.error("Session status update failed", { sessionId, status, error })
+      const errorMessage = handleApiError(error)
+      return {
+        success: false,
+        data: null,
+        error: errorMessage,
+      }
+    }
+  }
+
+  // 세션 완료 (API 호출)
+  async completeSessionApi(sessionId: number): Promise<ApiResponse<any>> {
+    logger.info("Completing session via API", { sessionId })
+    try {
+      await this.initialize()
+
+      const response = await fetch(
+        `/api/workout/sessions/${sessionId}/complete`,
+        {
+          method: "POST",
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      logger.info("Session completed via API successfully", { sessionId, data })
+
+      return {
+        success: true,
+        data,
+        message: "세션이 완료되었습니다",
+      }
+    } catch (error) {
+      logger.error("Session completion via API failed", { sessionId, error })
+      const errorMessage = handleApiError(error)
+      return {
+        success: false,
+        data: null,
+        error: errorMessage,
+      }
+    }
+  }
+
+  // 오프라인 저장
+  async saveOffline(sessionData: any): Promise<void> {
+    logger.info("Saving session offline", { sessionData })
+    try {
+      const offlineData = JSON.parse(
+        localStorage.getItem("offline_sessions") || "[]"
+      )
+      offlineData.push({
+        ...sessionData,
+        id: Date.now(),
+        isOffline: true,
+        createdAt: new Date().toISOString(),
+      })
+      localStorage.setItem("offline_sessions", JSON.stringify(offlineData))
+      logger.info("Session saved offline successfully")
+    } catch (error) {
+      logger.error("Failed to save offline data", { error })
+      console.error("Failed to save offline data:", error)
+    }
+  }
+
+  // 오프라인 데이터 동기화
+  async syncOfflineData(): Promise<void> {
+    logger.info("Syncing offline data")
+    try {
+      const offlineData = JSON.parse(
+        localStorage.getItem("offline_sessions") || "[]"
+      )
+      logger.info("Found offline data", { count: offlineData.length })
+
+      for (const session of offlineData) {
+        try {
+          await this.createSession(session)
+          // 성공적으로 동기화된 데이터 제거
+          const updatedOfflineData = offlineData.filter(
+            (s: any) => s.id !== session.id
+          )
+          localStorage.setItem(
+            "offline_sessions",
+            JSON.stringify(updatedOfflineData)
+          )
+          logger.info("Offline session synced successfully", {
+            sessionId: session.id,
+          })
+        } catch (error) {
+          logger.error("Failed to sync offline session", {
+            sessionId: session.id,
+            error,
+          })
+          console.error("Failed to sync offline session:", error)
+        }
+      }
+      logger.info("Offline data sync completed")
+    } catch (error) {
+      logger.error("Failed to sync offline data", { error })
+      console.error("Failed to sync offline data:", error)
     }
   }
 
   // 현재 세션 가져오기
   getCurrentSession(): SessionData | null {
+    logger.debug("Getting current session", {
+      currentSession: this.currentSession,
+    })
     return this.currentSession
   }
 
-  // 세션 상태 가져오기
-  getSessionStatus(): SessionStatus | null {
-    return this.currentSession?.status || null
+  // 세션 일시정지
+  pauseSession(): void {
+    logger.info("Session paused")
+    console.log("Session paused")
   }
 
-  // 세션 활성 상태 확인
-  isSessionActive(): boolean {
-    return this.currentSession?.status.isActive || false
+  // 세션 재개
+  resumeSession(): void {
+    logger.info("Session resumed")
+    console.log("Session resumed")
   }
 
-  // 세션 일시정지 상태 확인
-  isSessionPaused(): boolean {
-    return this.currentSession?.status.isPaused || false
-  }
-
-  // 로컬 스토리지에 세션 저장
-  private saveSessionToStorage(): void {
-    if (this.currentSession) {
-      try {
-        localStorage.setItem(
-          this.sessionStorageKey,
-          JSON.stringify(this.currentSession)
-        )
-      } catch (error) {
-        console.error("세션 저장 실패:", error)
-      }
+  // 계획으로 세션 시작
+  startSessionWithPlan(plan: any): SessionData {
+    logger.info("Starting session with plan", {
+      planId: plan.id,
+      planName: plan.name,
+    })
+    const sessionData: SessionData = {
+      sessionId: Date.now(),
+      planId: plan.id,
+      startTime: Date.now(),
+      plan: plan,
+      exercises: plan.exercises || [],
     }
+    this.currentSession = sessionData
+    logger.info("Session started with plan successfully", { sessionData })
+    console.log("Session started with plan:", plan.name)
+    return sessionData
   }
 
-  // 로컬 스토리지에서 세션 복원
-  restoreSessionFromStorage(): SessionData | null {
-    try {
-      const savedSession = localStorage.getItem(this.sessionStorageKey)
-      if (savedSession) {
-        const sessionData = JSON.parse(savedSession)
-
-        // 세션이 24시간 이내인지 확인
-        const sessionAge =
-          Date.now() - new Date(sessionData.startTime).getTime()
-        const maxSessionAge = 24 * 60 * 60 * 1000 // 24시간
-
-        if (sessionAge < maxSessionAge) {
-          this.currentSession = {
-            ...sessionData,
-            startTime: new Date(sessionData.startTime),
-            endTime: sessionData.endTime
-              ? new Date(sessionData.endTime)
-              : undefined,
-          }
-          return this.currentSession
-        } else {
-          // 오래된 세션 제거
-          this.clearSession()
-        }
-      }
-    } catch (error) {
-      console.error("세션 복원 실패:", error)
-      this.clearSession()
+  // 자유 운동 세션 시작
+  startFreeSession(): SessionData {
+    logger.info("Starting free session")
+    const sessionData: SessionData = {
+      sessionId: Date.now(),
+      startTime: Date.now(),
+      exercises: [],
     }
-    return null
+    this.currentSession = sessionData
+    logger.info("Free session started successfully", { sessionData })
+    console.log("Free session started")
+    return sessionData
   }
 
-  // 세션 데이터 정리
-  private clearSession(): void {
+  // 세션 취소
+  cancelSession(): void {
+    logger.info("Cancelling session", { currentSession: this.currentSession })
     this.currentSession = null
-    try {
-      localStorage.removeItem(this.sessionStorageKey)
-    } catch (error) {
-      console.error("세션 데이터 정리 실패:", error)
-    }
+    console.log("Session cancelled")
   }
 
-  // 세션 통계 계산
-  calculateSessionStats(): {
-    totalTime: number
-    totalSets: number
-    completedSets: number
-    progress: number
-    estimatedTimeRemaining: number
-  } {
-    if (!this.currentSession) {
-      return {
-        totalTime: 0,
-        totalSets: 0,
-        completedSets: 0,
-        progress: 0,
-        estimatedTimeRemaining: 0,
-      }
-    }
+  // 메모 업데이트
+  updateNotes(notes: string): void {
+    logger.info("Updating session notes", { notes })
+    this.sessionNotes = notes
+    console.log("Session notes updated")
+  }
 
-    const totalTime = Date.now() - this.currentSession.startTime.getTime()
-    const totalSets = this.currentSession.exercises.reduce(
-      (sum, exercise) => sum + exercise.sets,
-      0
-    )
-    const completedSets = Object.values(
-      this.currentSession.status.completedSets
-    ).reduce((sum, count) => sum + count, 0)
-    const progress = totalSets > 0 ? (completedSets / totalSets) * 100 : 0
-
-    // 예상 남은 시간 계산 (세트당 평균 3분 가정)
-    const remainingSets = totalSets - completedSets
-    const estimatedTimeRemaining = remainingSets * 3 * 60 * 1000 // 분을 밀리초로 변환
-
-    return {
-      totalTime,
-      totalSets,
-      completedSets,
-      progress,
-      estimatedTimeRemaining,
-    }
+  // 세션 완료 (매개변수 없이)
+  completeSession(): any {
+    logger.info("Completing session", { currentSession: this.currentSession })
+    const completedSession = this.currentSession
+    this.currentSession = null
+    logger.info("Session completed successfully", { completedSession })
+    console.log("Session completed")
+    return completedSession
   }
 }
 

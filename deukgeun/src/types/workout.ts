@@ -7,18 +7,19 @@ export interface WorkoutSession {
   id: number
   userId: number
   name: string
+  session_name?: string // 백엔드 호환성
   description?: string
   startTime: Date
+  start_time?: Date // 백엔드 호환성
   endTime?: Date
+  end_time?: Date // 백엔드 호환성
   duration?: number // 분 단위
   caloriesBurned?: number
+  calories_burned?: number // 백엔드 호환성
   notes?: string
   isCompleted: boolean
-  session_id?: number // 프론트엔드 호환성
-  session_name?: string // 프론트엔드 호환성
-  start_time?: Date // 프론트엔드 호환성
-  end_time?: Date // 프론트엔드 호환성
-  status?: string // 프론트엔드 호환성
+  status?: string // 백엔드 호환성
+  exerciseSets?: ExerciseSet[] // 세트 정보
   createdAt: Date
   updatedAt: Date
 }

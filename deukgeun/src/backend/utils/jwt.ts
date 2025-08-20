@@ -1,10 +1,8 @@
 import jwt from "jsonwebtoken"
 import { logger } from "./logger"
 
-const ACCESS_TOKEN_SECRET =
-  process.env.JWT_ACCESS_SECRET || "your-access-secret"
-const REFRESH_TOKEN_SECRET =
-  process.env.JWT_REFRESH_SECRET || "your-refresh-secret"
+const ACCESS_TOKEN_SECRET = process.env.JWT_ACCESS_SECRET || ""
+const REFRESH_TOKEN_SECRET = process.env.JWT_REFRESH_SECRET || ""
 
 interface JwtPayload {
   userId: number
@@ -42,8 +40,15 @@ export function verifyRefreshToken(token: string): JwtPayload | null {
 
 export function verifyAccessToken(token: string): JwtPayload | null {
   try {
-    return jwt.verify(token, ACCESS_TOKEN_SECRET) as JwtPayload
+    console.log("Access token 검증 시작")
+    console.log("토큰:", token.substring(0, 20) + "...")
+    console.log("시크릿 키:", ACCESS_TOKEN_SECRET ? "설정됨" : "설정되지 않음")
+
+    const result = jwt.verify(token, ACCESS_TOKEN_SECRET) as JwtPayload
+    console.log("토큰 검증 성공:", result)
+    return result
   } catch (error) {
+    console.error("Access token 검증 실패:", error)
     logger.warn("Access token 검증 실패:", error)
     return null
   }

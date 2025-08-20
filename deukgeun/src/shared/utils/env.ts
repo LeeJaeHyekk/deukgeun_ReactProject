@@ -90,7 +90,7 @@ export function getAllEnvVars(): EnvironmentVariables {
     DB_USERNAME: getEnvVar("DB_USERNAME", "root")!,
     DB_PASSWORD: getEnvVar("DB_PASSWORD", "")!,
     DB_NAME: getEnvVar("DB_NAME", "deukgeun_db")!,
-    JWT_SECRET: getEnvVar("JWT_SECRET", "your-secret-key")!,
+    JWT_SECRET: getEnvVar("JWT_SECRET", "")!,
     JWT_EXPIRES_IN: getEnvVar("JWT_EXPIRES_IN", "7d")!,
     CORS_ORIGIN: getEnvVar("CORS_ORIGIN", "http://localhost:3000")!,
     KAKAO_API_KEY: getEnvVar("KAKAO_API_KEY", "")!,

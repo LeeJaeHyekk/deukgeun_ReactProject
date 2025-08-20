@@ -7,13 +7,8 @@
 - [프로젝트 개요](#프로젝트-개요)
 - [주요 기능](#주요-기능)
 - [기술 스택](#기술-스택)
-- [프로젝트 구조](#프로젝트-구조)
-- [설치 및 실행](#설치-및-실행)
-- [개발 환경 설정](#개발-환경-설정)
-- [데이터베이스 설정](#데이터베이스-설정)
-- [API 문서](#api-문서)
-- [테스트](#테스트)
-- [배포](#배포)
+- [빠른 시작](#빠른-시작)
+- [상세 문서](#상세-문서)
 - [기여하기](#기여하기)
 - [라이선스](#라이선스)
 
@@ -25,6 +20,7 @@ Deukgeun은 다음과 같은 문제를 해결합니다:
 - **운동 목표 관리**: 개인별 운동 목표 설정 및 진행 상황 추적
 - **커뮤니티 형성**: 운동 애호가들이 정보를 공유하고 소통할 수 있는 공간
 - **위치 기반 서비스**: 주변 헬스장 찾기 및 정보 제공
+- **레벨 시스템**: 운동 활동에 따른 경험치 및 레벨업 시스템
 
 ## ✨ 주요 기능
 
@@ -60,7 +56,22 @@ Deukgeun은 다음과 같은 문제를 해결합니다:
 - **경험치 시스템**: 운동 활동에 따른 경험치 획득
 - **레벨업**: 경험치에 따른 레벨 상승
 - **업적 시스템**: 다양한 업적 달성 및 보상
+- **스트릭 시스템**: 연속 활동 추적
 - **시즌 시스템**: 정기적인 시즌 리셋으로 지속적인 동기부여
+
+### 🔐 계정 복구 시스템
+
+- **다단계 인증**: 이름, 전화번호, 이메일을 통한 단계별 인증
+- **보안 토큰**: 시간 제한이 있는 일회용 토큰
+- **이메일 알림**: 보안 코드 이메일 발송
+- **속도 제한**: 무차별 대입 공격 방지
+
+### 🔄 자동 업데이트 스케줄러
+
+- **자동 실행**: 설정된 시간에 3일마다 헬스장 데이터 업데이트
+- **API + 크롤링**: API 우선 시도, 실패 시 크롤링으로 대체
+- **스마트 스케줄링**: 업데이트가 필요한 경우에만 실행
+- **다양한 업데이트 방식**: enhanced, basic, multisource, advanced
 
 ## 🛠 기술 스택
 
@@ -73,6 +84,8 @@ Deukgeun은 다음과 같은 문제를 해결합니다:
 - **Tailwind CSS** - 유틸리티 기반 CSS 프레임워크
 - **Lucide React** - 아이콘 라이브러리
 - **Axios** - HTTP 클라이언트
+- **Zustand** - 상태 관리
+- **React Hook Form** - 폼 관리
 
 ### Backend
 
@@ -83,41 +96,18 @@ Deukgeun은 다음과 같은 문제를 해결합니다:
 - **MySQL** - 관계형 데이터베이스
 - **JWT** - 인증 토큰 관리
 - **bcrypt** - 비밀번호 해싱
+- **Nodemailer** - 이메일 발송
 
 ### DevOps & Tools
 
 - **PM2** - 프로세스 관리
 - **ESLint** - 코드 품질 관리
 - **Prettier** - 코드 포맷팅
-- **Vitest** - 테스트 프레임워크
+- **Jest** - 테스트 프레임워크
+- **Vitest** - 프론트엔드 테스트
 - **Docker** - 컨테이너화 (준비 중)
 
-## 📁 프로젝트 구조
-
-```
-deukgeun/
-├── src/
-│   ├── frontend/                 # 프론트엔드 소스 코드
-│   │   ├── pages/               # 페이지 컴포넌트
-│   │   ├── features/            # 기능별 모듈
-│   │   ├── shared/              # 공통 컴포넌트 및 유틸리티
-│   │   ├── widgets/             # 재사용 가능한 위젯
-│   │   └── entities/            # 도메인 엔티티
-│   ├── backend/                 # 백엔드 소스 코드
-│   │   ├── controllers/         # API 컨트롤러
-│   │   ├── services/            # 비즈니스 로직
-│   │   ├── entities/            # 데이터베이스 엔티티
-│   │   ├── routes/              # API 라우트
-│   │   ├── middlewares/         # 미들웨어
-│   │   └── utils/               # 유틸리티 함수
-│   ├── types/                   # 공통 타입 정의
-│   └── shared/                  # 프론트엔드/백엔드 공통 코드
-├── public/                      # 정적 파일
-├── scripts/                     # 유틸리티 스크립트
-└── docs/                        # 문서
-```
-
-## 🚀 설치 및 실행
+## 🚀 빠른 시작
 
 ### 필수 요구사항
 
@@ -125,266 +115,53 @@ deukgeun/
 - MySQL 8.0 이상
 - Git
 
-### 1. 저장소 클론
+### 설치 및 실행
 
 ```bash
+# 1. 저장소 클론
 git clone https://github.com/your-username/deukgeun_ReactProject.git
 cd deukgeun_ReactProject/deukgeun
-```
 
-### 2. 의존성 설치
-
-```bash
-# 루트 의존성 설치
+# 2. 의존성 설치
 npm install
+cd src/backend && npm install && cd ../..
 
-# 백엔드 의존성 설치
-cd src/backend
-npm install
-cd ../..
-```
-
-### 3. 환경 변수 설정
-
-```bash
-# 루트 .env 파일 생성
+# 3. 환경 변수 설정
 cp env.example .env
-
-# 백엔드 .env 파일 생성
 cp src/backend/env.example src/backend/.env
-```
 
-### 4. 데이터베이스 설정
-
-```bash
-# 데이터베이스 동기화
+# 4. 데이터베이스 설정
 npm run db:sync
-
-# 초기 데이터 시드
 npm run db:seed
-```
 
-### 5. 개발 서버 실행
-
-```bash
-# 백엔드 서버 실행 (포트 5000)
-npm run backend:dev
-
-# 프론트엔드 서버 실행 (포트 5173)
-npm run dev
-
-# 또는 동시 실행
+# 5. 개발 서버 실행
 npm run dev:full
 ```
 
-## ⚙️ 개발 환경 설정
+### 접속 정보
 
-### 환경 변수 설정
+- **프론트엔드**: http://localhost:5173
+- **백엔드 API**: http://localhost:5000
+- **테스트 계정**:
+  - 이메일: `user1@test.com` / 비밀번호: `user123!`
 
-#### 루트 .env
+## 📖 상세 문서
 
-```env
-# 프론트엔드 포트
-FRONTEND_PORT=5173
+프로젝트의 상세한 설정, API 문서, 배포 가이드 등은 다음 문서를 참조하세요:
 
-# 백엔드 URL
-VITE_BACKEND_URL=http://localhost:5000
+**[📋 PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md)**
 
-# 카카오맵 API 키
-VITE_LOCATION_JAVASCRIPT_MAP_API_KEY=your_kakao_map_js_key
-VITE_LOCATION_REST_MAP_API_KEY=your_kakao_map_rest_key
+이 문서에는 다음 내용이 포함되어 있습니다:
 
-# 헬스장 API 키
-VITE_GYM_API_KEY=your_gym_api_key
-
-# reCAPTCHA 사이트 키
-VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
-```
-
-#### 백엔드 .env
-
-```env
-# 서버 설정
-PORT=5000
-NODE_ENV=development
-
-# 데이터베이스 설정
-DB_HOST=localhost
-DB_PORT=3306
-DB_USERNAME=root
-DB_PASSWORD=your_password
-DB_NAME=deukgeun_db
-
-# JWT 설정
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=7d
-
-# CORS 설정
-CORS_ORIGIN=http://localhost:5173
-
-# 이메일 설정 (선택사항)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_email_password
-```
-
-### 개발 도구 설정
-
-#### VS Code 확장 프로그램
-
-- TypeScript Importer
-- ESLint
-- Prettier
-- Tailwind CSS IntelliSense
-- Auto Rename Tag
-
-#### Git Hooks
-
-```bash
-# Husky 설정 (선택사항)
-npm install -g husky
-npx husky install
-npx husky add .husky/pre-commit "npm run lint && npm run type-check"
-```
-
-## 🗄️ 데이터베이스 설정
-
-### MySQL 설치 및 설정
-
-```sql
--- 데이터베이스 생성
-CREATE DATABASE deukgeun_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- 사용자 생성 및 권한 부여
-CREATE USER 'deukgeun_user'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON deukgeun_db.* TO 'deukgeun_user'@'localhost';
-FLUSH PRIVILEGES;
-```
-
-### 데이터베이스 마이그레이션
-
-```bash
-# 스키마 동기화
-npm run db:sync
-
-# 초기 데이터 삽입
-npm run db:seed
-
-# 테스트 데이터 생성
-npm run setup:test-user
-```
-
-## 📚 API 문서
-
-### 인증 API
-
-- `POST /api/auth/register` - 회원가입
-- `POST /api/auth/login` - 로그인
-- `POST /api/auth/logout` - 로그아웃
-- `POST /api/auth/refresh` - 토큰 갱신
-
-### 머신 API
-
-- `GET /api/machines` - 머신 목록 조회
-- `GET /api/machines/:id` - 머신 상세 정보
-- `GET /api/machines/category/:category` - 카테고리별 머신 조회
-
-### 운동 목표 API
-
-- `GET /api/workout-goals` - 목표 목록 조회
-- `POST /api/workout-goals` - 목표 생성
-- `PUT /api/workout-goals/:id` - 목표 수정
-- `DELETE /api/workout-goals/:id` - 목표 삭제
-
-### 커뮤니티 API
-
-- `GET /api/posts` - 게시글 목록 조회
-- `POST /api/posts` - 게시글 작성
-- `GET /api/posts/:id` - 게시글 상세 조회
-- `PUT /api/posts/:id` - 게시글 수정
-- `DELETE /api/posts/:id` - 게시글 삭제
-
-### 레벨 시스템 API
-
-- `GET /api/levels/user/:userId` - 사용자 레벨 정보
-- `POST /api/levels/exp` - 경험치 획득
-- `GET /api/levels/leaderboard` - 리더보드
-
-## 🧪 테스트
-
-### 테스트 실행
-
-```bash
-# 전체 테스트 실행
-npm test
-
-# 테스트 커버리지 확인
-npm run test:coverage
-
-# UI 테스트 실행
-npm run test:ui
-
-# 특정 기능 테스트
-npm run test:machine
-npm run test:workout-goal
-npm run test:existing-data-simple
-```
-
-### 테스트 구조
-
-```
-src/
-├── frontend/
-│   └── shared/
-│       └── components/
-│           └── __tests__/        # 컴포넌트 테스트
-│       └── hooks/
-│           └── __tests__/        # 훅 테스트
-└── backend/
-    └── scripts/                  # 백엔드 테스트 스크립트
-```
-
-## 🚀 배포
-
-### 프로덕션 빌드
-
-```bash
-# 프론트엔드 빌드
-npm run build
-
-# 백엔드 빌드
-npm run backend:build
-```
-
-### PM2를 사용한 배포
-
-```bash
-# 애플리케이션 시작
-npm run pm2:start
-
-# 상태 확인
-npm run pm2:status
-
-# 로그 확인
-npm run pm2:logs
-
-# 재시작
-npm run pm2:restart
-
-# 중지
-npm run pm2:stop
-```
-
-### Docker 배포 (준비 중)
-
-```bash
-# Docker 이미지 빌드
-docker build -t deukgeun .
-
-# 컨테이너 실행
-docker run -p 3000:3000 deukgeun
-```
+- 상세한 환경 설정 가이드
+- 데이터베이스 설정 및 마이그레이션
+- API 엔드포인트 문서
+- 테스트 실행 방법
+- 배포 가이드
+- 레벨 시스템 상세 설명
+- 보안 설정 가이드
+- 자동 업데이트 스케줄러 사용법
+- 환경 변수 보안 가이드
 
 ## 🤝 기여하기
 

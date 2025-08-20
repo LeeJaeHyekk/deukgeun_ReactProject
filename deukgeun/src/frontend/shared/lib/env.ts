@@ -28,7 +28,7 @@ export const BACKEND_CONFIG = {
 export const RECAPTCHA_CONFIG = {
   SITE_KEY: getEnvVar(
     "VITE_RECAPTCHA_SITE_KEY",
-    "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+    "your_recaptcha_site_key_here"
   ),
 } as const
 

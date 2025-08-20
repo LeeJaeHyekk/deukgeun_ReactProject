@@ -14,6 +14,7 @@ import { ExpHistory } from "./ExpHistory"
 import { UserReward } from "./UserReward"
 import { Milestone } from "./Milestone"
 import { UserStreak } from "./UserStreak"
+import { Comment } from "./Comment"
 
 @Entity("users")
 export class User {
@@ -41,7 +42,11 @@ export class User {
   @Column({ type: "varchar", nullable: true })
   profileImage?: string
 
-  @Column({ type: "enum", enum: ["user", "admin", "moderator"], default: "user" })
+  @Column({
+    type: "enum",
+    enum: ["user", "admin", "moderator"],
+    default: "user",
+  })
   role!: UserRole
 
   // 계정 상태
@@ -96,4 +101,7 @@ export class User {
 
   @OneToMany(() => UserStreak, userStreak => userStreak.user, { cascade: true })
   userStreaks!: UserStreak[]
+
+  @OneToMany(() => Comment, comment => comment.user, { cascade: true })
+  comments!: Comment[]
 }

@@ -7,6 +7,8 @@ import { useAuthContext } from "@shared/contexts/AuthContext"
 import { WorkoutTimerProvider } from "@shared/contexts/WorkoutTimerContext"
 // 공통 UI 컴포넌트 import
 import { LoadingSpinner } from "@shared/ui/LoadingSpinner/LoadingSpinner"
+// 에러 처리 관련 import
+import { ErrorBoundary, globalErrorHandler } from "@pages/Error"
 // 페이지 컴포넌트들 import
 import HomePage from "@pages/HomePage"
 import LoginPage from "@pages/login/LoginPage"
@@ -153,6 +155,9 @@ function AppRoutes() {
         }
       />
 
+      {/* 에러 페이지 */}
+      <Route path="/error" element={<ErrorPage />} />
+
       {/* 404 페이지 */}
       <Route path="*" element={<ErrorPage />} />
     </Routes>
@@ -165,22 +170,32 @@ function AppRoutes() {
  */
 function App() {
   return (
-    // 인증 상태를 관리하는 컨텍스트 프로바이더
-    <AuthProvider>
-      {/* 워크아웃 타이머 상태를 관리하는 컨텍스트 프로바이더 */}
-      <WorkoutTimerProvider>
-        {/* 브라우저 라우터 설정 - React Router v7 호환성을 위한 future flags */}
-        <BrowserRouter
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true,
-          }}
-        >
-          {/* 메인 라우트 컴포넌트 */}
-          <AppRoutes />
-        </BrowserRouter>
-      </WorkoutTimerProvider>
-    </AuthProvider>
+    // 전역 에러 바운더리로 전체 앱을 감싸기
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        // 에러 발생 시 전역 에러 핸들러에 보고
+        globalErrorHandler.manualErrorReport(error, {
+          componentStack: errorInfo.componentStack || "",
+        })
+      }}
+    >
+      {/* 인증 상태를 관리하는 컨텍스트 프로바이더 */}
+      <AuthProvider>
+        {/* 워크아웃 타이머 상태를 관리하는 컨텍스트 프로바이더 */}
+        <WorkoutTimerProvider>
+          {/* 브라우저 라우터 설정 - React Router v7 호환성을 위한 future flags */}
+          <BrowserRouter
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
+            {/* 메인 라우트 컴포넌트 */}
+            <AppRoutes />
+          </BrowserRouter>
+        </WorkoutTimerProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

@@ -3,6 +3,11 @@ import { api } from "@shared/api"
 import { API_ENDPOINTS } from "@shared/config"
 import axios from "axios"
 import { config } from "@shared/config"
+import {
+  SIGNUP_VALIDATION_MESSAGES,
+  HTTP_ERROR_MESSAGES,
+  ERROR_TOAST_TYPES,
+} from "@shared/constants/validation"
 import type {
   LoginRequest,
   LoginResponse,
@@ -33,6 +38,24 @@ export interface BackendLoginResponse {
     id: number
     email: string
     nickname: string
+  }
+}
+
+// 백엔드 회원가입 응답 타입
+export interface BackendRegisterResponse {
+  success: boolean
+  message: string
+  accessToken: string
+  user: {
+    id: number
+    email: string
+    nickname: string
+    phone?: string
+    gender?: string
+    birthday?: string
+    profileImage?: string
+    createdAt: string
+    updatedAt: string
   }
 }
 
@@ -120,11 +143,74 @@ export const authApi = {
 
   // Register
   register: async (data: RegisterRequest): Promise<ApiRegisterResponse> => {
-    const response = await api.post<ApiRegisterResponse>(
-      API_ENDPOINTS.AUTH.REGISTER,
-      data
-    )
-    return response.data.data as ApiRegisterResponse
+    console.log("📡 회원가입 API 호출 시작")
+    console.log("📡 요청 URL:", API_ENDPOINTS.AUTH.REGISTER)
+    console.log("📡 요청 데이터:", {
+      email: data.email,
+      nickname: data.nickname,
+      phone: data.phone,
+      gender: data.gender,
+      birthday: data.birthday,
+      recaptchaToken: data.recaptchaToken
+        ? data.recaptchaToken.substring(0, 20) + "..."
+        : "없음",
+    })
+
+    try {
+      const response = await api.post<BackendRegisterResponse>(
+        API_ENDPOINTS.AUTH.REGISTER,
+        data
+      )
+      console.log("✅ 회원가입 API 응답 성공:", response)
+      console.log("✅ 응답 데이터:", response.data)
+
+      // 백엔드 응답 구조에 맞게 처리
+      const responseData = response.data as BackendRegisterResponse
+      if (responseData.success) {
+        return {
+          message: responseData.message,
+          accessToken: responseData.accessToken,
+          user: responseData.user,
+        } as ApiRegisterResponse
+      } else {
+        throw new Error(responseData.message || "회원가입에 실패했습니다.")
+      }
+    } catch (error) {
+      console.error("❌ 회원가입 API 실패:", error)
+      console.error("❌ API 에러 상세:", {
+        status: (error as { response?: { status: number } })?.response?.status,
+        statusText: (error as { response?: { statusText: string } })?.response
+          ?.statusText,
+        data: (error as { response?: { data: unknown } })?.response?.data,
+        url: (error as { config?: { url: string } })?.config?.url,
+        method: (error as { config?: { method: string } })?.config?.method,
+      })
+
+      // 백엔드 에러 메시지 추출
+      const axiosError = error as any
+      if (axiosError?.response?.data?.message) {
+        throw new Error(axiosError.response.data.message)
+      } else if (axiosError?.response?.data?.error) {
+        throw new Error(axiosError.response.data.error)
+      } else if (axiosError?.response?.status === 409) {
+        // 409 Conflict 에러 처리
+        if (axiosError.response.data.error === "이메일 중복") {
+          throw new Error(SIGNUP_VALIDATION_MESSAGES.EMAIL_ALREADY_EXISTS)
+        } else if (axiosError.response.data.error === "닉네임 중복") {
+          throw new Error(SIGNUP_VALIDATION_MESSAGES.NICKNAME_ALREADY_EXISTS)
+        } else {
+          throw new Error(HTTP_ERROR_MESSAGES[409])
+        }
+      } else if (axiosError?.response?.status === 400) {
+        throw new Error(SIGNUP_VALIDATION_MESSAGES.VALIDATION_ERROR)
+      } else if (axiosError?.response?.status === 403) {
+        throw new Error(SIGNUP_VALIDATION_MESSAGES.SECURITY_ERROR)
+      } else if (axiosError?.response?.status >= 500) {
+        throw new Error(SIGNUP_VALIDATION_MESSAGES.SERVER_ERROR)
+      } else {
+        throw new Error(SIGNUP_VALIDATION_MESSAGES.GENERAL_ERROR)
+      }
+    }
   },
 
   // Find ID

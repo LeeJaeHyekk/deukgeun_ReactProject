@@ -129,19 +129,27 @@ export function PostDetailModal({
       return
     }
 
+    console.log("댓글 작성 시작")
+    console.log("게시글 ID:", post.id)
+    console.log("댓글 내용:", newComment.trim())
+
     try {
-      await commentsApi.create(post.id, { content: newComment.trim() })
+      console.log("댓글 API 호출 시작")
+      const createResponse = await commentsApi.create(post.id, {
+        content: newComment.trim(),
+      })
+      console.log("댓글 API 응답:", createResponse)
       showToast("댓글이 작성되었습니다.", "success")
       setNewComment("")
 
       // 댓글 목록 새로고침
-      const response = await commentsApi.list(post.id)
-      console.log("댓글 작성 후 새로고침 응답:", response.data) // 디버깅용 로그
+      const listResponse = await commentsApi.list(post.id)
+      console.log("댓글 작성 후 새로고침 응답:", listResponse.data) // 디버깅용 로그
 
       let commentData: Comment[] = []
 
-      if (response.data.success && response.data.data) {
-        const rawComments = response.data.data
+      if (listResponse.data.success && listResponse.data.data) {
+        const rawComments = listResponse.data.data
 
         if (Array.isArray(rawComments)) {
           commentData = rawComments.map(comment => ({
@@ -163,16 +171,28 @@ export function PostDetailModal({
       setComments(commentData)
     } catch (error: unknown) {
       console.error("댓글 작성 실패:", error)
-      // 댓글 작성 실패 시 더미 데이터에 추가 (테스트용)
-      const newCommentObj: Comment = {
-        id: Date.now(),
-        author: { id: 999, nickname: "현재 사용자" },
-        content: newComment.trim(),
-        createdAt: new Date().toISOString(),
+
+      // Axios 에러인 경우 더 자세한 정보 표시
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as any
+        if (axiosError.response?.status === 401) {
+          showToast("로그인이 필요합니다.", "error")
+        } else if (axiosError.response?.status === 400) {
+          showToast(
+            axiosError.response?.data?.message || "잘못된 요청입니다.",
+            "error"
+          )
+        } else if (axiosError.response?.status === 500) {
+          showToast(
+            "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+            "error"
+          )
+        } else {
+          showToast("댓글 작성에 실패했습니다.", "error")
+        }
+      } else {
+        showToast("댓글 작성에 실패했습니다.", "error")
       }
-      setComments(prev => [...prev, newCommentObj])
-      setNewComment("")
-      showToast("댓글이 작성되었습니다. (테스트 모드)", "success")
     }
   }
 

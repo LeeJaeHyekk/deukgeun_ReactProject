@@ -28,10 +28,10 @@ export const appConfig: AppConfig = {
   environment,
   port: parseInt(process.env.PORT || "3000"),
   jwt: {
-    secret: process.env.JWT_SECRET || "your-secret-key",
+    secret: process.env.JWT_SECRET || "",
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
-    accessSecret: process.env.JWT_ACCESS_SECRET || "your-access-secret",
-    refreshSecret: process.env.JWT_REFRESH_SECRET || "your-refresh-secret",
+    accessSecret: process.env.JWT_ACCESS_SECRET || "",
+    refreshSecret: process.env.JWT_REFRESH_SECRET || "",
   },
   corsOrigin: process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3000"],
   database: databaseConfig,
@@ -49,8 +49,8 @@ export const appConfig: AppConfig = {
   security: {
     recaptchaSecret: process.env.RECAPTCHA_SECRET || "",
     recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || "",
-    accessTokenSecret: process.env.JWT_ACCESS_SECRET || "your-access-secret",
-    refreshTokenSecret: process.env.JWT_REFRESH_SECRET || "your-refresh-secret",
+    accessTokenSecret: process.env.JWT_ACCESS_SECRET || "",
+    refreshTokenSecret: process.env.JWT_REFRESH_SECRET || "",
     rateLimitWindow: parseInt(process.env.RATE_LIMIT_WINDOW || "900000"),
     rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX || "100"),
   },
@@ -162,8 +162,8 @@ export const communityConfig = {
 export const securityConfig = {
   // JWT 설정
   jwt: {
-    accessSecret: process.env.JWT_ACCESS_SECRET || "your-access-secret",
-    refreshSecret: process.env.JWT_REFRESH_SECRET || "your-refresh-secret",
+    accessSecret: process.env.JWT_ACCESS_SECRET || "",
+    refreshSecret: process.env.JWT_REFRESH_SECRET || "",
     accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
   },

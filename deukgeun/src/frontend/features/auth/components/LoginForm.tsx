@@ -1,191 +1,136 @@
-import { useState } from "react"
-import { FaEye, FaEyeSlash } from "react-icons/fa"
+import React from "react"
+import { FormField } from "./common/FormField"
 import ReCAPTCHA from "react-google-recaptcha"
-import { validation } from "@shared/lib"
+import { AuthButton } from "./common/AuthButton"
 import { config } from "@shared/config"
+import { useAuthForm } from "../hooks/useAuthForm"
+import { useAuthRecaptcha } from "../hooks/useAuthRecaptcha"
+import { AUTH_VALIDATION_RULES } from "../utils/validation"
+
+interface LoginFormData {
+  email: string
+  password: string
+  recaptchaToken: string | null
+}
 
 interface LoginFormProps {
-  onSubmit: (
-    email: string,
-    password: string,
-    recaptchaToken: string
-  ) => Promise<void>
+  onSubmit: (data: LoginFormData) => Promise<void>
   loading?: boolean
 }
 
 export function LoginForm({ onSubmit, loading = false }: LoginFormProps) {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errors, setErrors] = useState<{
-    email?: string
-    password?: string
-    recaptcha?: string
-  }>({})
+  const {
+    formData,
+    errors,
+    loading: formLoading,
+    updateField,
+    validateField,
+    handleSubmit,
+  } = useAuthForm<LoginFormData>({
+    initialData: {
+      email: "",
+      password: "",
+      recaptchaToken: null,
+    },
+    validationFields: ["email", "password", "recaptcha"],
+    onSubmit,
+  })
 
-  // 폼 검증
-  const validateForm = (): boolean => {
-    const newErrors: {
-      email?: string
-      password?: string
-      recaptcha?: string
-    } = {}
+  const {
+    recaptchaToken,
+    recaptchaLoading,
+    executeRecaptcha,
+  } = useAuthRecaptcha({
+    action: "login",
+    onSuccess: (token) => updateField("recaptchaToken", token),
+  })
 
-    if (!validation.required(email)) {
-      newErrors.email = "이메일을 입력해주세요."
-    } else if (!validation.email(email)) {
-      newErrors.email = "유효한 이메일 주소를 입력해주세요."
-    }
-
-    if (!validation.required(password)) {
-      newErrors.password = "비밀번호를 입력해주세요."
-    } else if (!validation.password(password)) {
-      newErrors.password = "비밀번호는 최소 8자 이상이어야 합니다."
-    }
-
-    if (!recaptchaToken) {
-      newErrors.recaptcha = "보안 인증을 완료해주세요."
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!validateForm()) {
-      return
-    }
-
-    setIsSubmitting(true)
-    try {
-      await onSubmit(email.trim().toLowerCase(), password, recaptchaToken!)
-    } catch (error) {
-      console.error("Login form submission error:", error)
-    } finally {
-      setIsSubmitting(false)
-    }
+  const handleFieldChange = (field: keyof LoginFormData, value: string) => {
+    updateField(field, value)
+    validateField(field)
   }
 
   const handleRecaptchaChange = (token: string | null) => {
-    // 개발 환경에서는 더미 토큰 사용
-    const finalToken =
-      process.env.NODE_ENV === "development"
-        ? "dummy-token-for-development"
-        : token
-
-    setRecaptchaToken(finalToken)
-    // reCAPTCHA 완료 시 해당 에러 초기화
-    if (finalToken && errors.recaptcha) {
-      setErrors(prev => ({ ...prev, recaptcha: undefined }))
-    }
+    updateField("recaptchaToken", token)
+    validateField("recaptchaToken")
   }
 
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    // reCAPTCHA 토큰이 없으면 생성
+    if (!formData.recaptchaToken) {
+      const token = await executeRecaptcha()
+      if (token) {
+        updateField("recaptchaToken", token)
+      }
+    }
+    
+    await handleSubmit(e)
+  }
+
+  const isSubmitting = formLoading || loading || recaptchaLoading
+
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="email" className="sr-only">
-          이메일
-        </label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={e => {
-            setEmail(e.target.value)
-            if (errors.email) {
-              setErrors(prev => ({ ...prev, email: undefined }))
-            }
-          }}
-          onKeyDown={e => {
-            if (e.key === "Enter" && !loading) {
-              e.preventDefault()
-              handleSubmit(e)
-            }
-          }}
-          placeholder="이메일"
-          className={errors.email ? "error" : ""}
-          autoComplete="email"
-          aria-describedby={errors.email ? "email-error" : undefined}
-        />
-        {errors.email && (
-          <span id="email-error" role="alert">
-            {errors.email}
-          </span>
-        )}
-      </div>
+    <form onSubmit={handleFormSubmit} className="login-form">
+      <FormField
+        id="email"
+        type="email"
+        value={formData.email}
+        onChange={(value) => handleFieldChange("email", value)}
+        placeholder="이메일"
+        error={errors.email}
+        required
+        autoComplete="email"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !isSubmitting) {
+            e.preventDefault()
+            handleFormSubmit(e)
+          }
+        }}
+      />
 
-      <div>
-        <label htmlFor="password" className="sr-only">
-          비밀번호
-        </label>
-        <div>
-          <input
-            id="password"
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={e => {
-              setPassword(e.target.value)
-              if (errors.password) {
-                setErrors(prev => ({ ...prev, password: undefined }))
-              }
-            }}
-            onKeyDown={e => {
-              if (e.key === "Enter" && !loading) {
-                e.preventDefault()
-                handleSubmit(e)
-              }
-            }}
-            placeholder="비밀번호"
-            className={errors.password ? "error" : ""}
-            autoComplete="current-password"
-            aria-describedby={errors.password ? "password-error" : undefined}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
-          >
-            {showPassword ? <FaEyeSlash /> : <FaEye />}
-          </button>
-        </div>
-        {errors.password && (
-          <span id="password-error" role="alert">
-            {errors.password}
-          </span>
-        )}
-      </div>
+      <FormField
+        id="password"
+        type="password"
+        value={formData.password}
+        onChange={(value) => handleFieldChange("password", value)}
+        placeholder="비밀번호"
+        error={errors.password}
+        required
+        autoComplete="current-password"
+        showPasswordToggle
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !isSubmitting) {
+            e.preventDefault()
+            handleFormSubmit(e)
+          }
+        }}
+      />
 
-      <div>
-        <ReCAPTCHA
-          sitekey={config.RECAPTCHA_SITE_KEY}
+      <div className="recaptcha-container">
+        <RecaptchaWidget
           onChange={handleRecaptchaChange}
-          aria-describedby={errors.recaptcha ? "recaptcha-error" : undefined}
+          aria-describedby={errors.recaptchaToken ? "recaptcha-error" : undefined}
         />
-        {errors.recaptcha && (
-          <span id="recaptcha-error" role="alert">
-            {errors.recaptcha}
+        {errors.recaptchaToken && (
+          <span id="recaptcha-error" className="error-message" role="alert">
+            {errors.recaptchaToken}
           </span>
         )}
       </div>
 
-      <button
+      <AuthButton
         type="submit"
-        disabled={loading || isSubmitting}
-        aria-describedby={
-          loading || isSubmitting ? "loading-description" : undefined
-        }
+        variant="primary"
+        size="large"
+        loading={isSubmitting}
+        fullWidth
+        className="login-button"
       >
-        {loading || isSubmitting ? "로그인 중..." : "로그인"}
-      </button>
-      {(loading || isSubmitting) && (
-        <span id="loading-description" className="sr-only">
-          로그인 처리 중입니다.
-        </span>
-      )}
+        {isSubmitting ? "로그인 중..." : "로그인"}
+      </AuthButton>
     </form>
   )
-}
+}        <ReCAPTCHA
+          sitekey={config.RECAPTCHA_SITE_KEY}

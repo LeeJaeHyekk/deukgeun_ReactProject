@@ -68,7 +68,7 @@ export function useWorkoutSessions() {
         )
         setSessions(prev =>
           prev.map(session =>
-            session.session_id === sessionId ? updatedSession : session
+            session.id === sessionId ? updatedSession : session
           )
         )
         return updatedSession
@@ -92,9 +92,7 @@ export function useWorkoutSessions() {
       setLoading(true)
       setError(null)
       await WorkoutJournalApi.deleteWorkoutSession(sessionId)
-      setSessions(prev =>
-        prev.filter(session => session.session_id !== sessionId)
-      )
+      setSessions(prev => prev.filter(session => session.id !== sessionId))
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "운동 세션 삭제에 실패했습니다."
@@ -110,6 +108,9 @@ export function useWorkoutSessions() {
     setError(null)
   }, [])
 
+  // 현재 활성화된 세션 찾기 (완료되지 않은 세션 중 가장 최근 것)
+  const activeSession = sessions.find(session => !session.isCompleted)
+
   useEffect(() => {
     getUserSessions()
   }, [getUserSessions])
@@ -118,6 +119,7 @@ export function useWorkoutSessions() {
     sessions,
     loading,
     error,
+    activeSession,
     getUserSessions,
     createSession,
     updateSession,

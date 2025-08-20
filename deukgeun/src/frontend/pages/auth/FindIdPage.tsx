@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { FaArrowLeft } from "react-icons/fa"
-import ReCAPTCHA from "react-google-recaptcha"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import { useAccountRecovery } from "@features/auth/hooks/useAccountRecovery"
 import { useAuthContext } from "@shared/contexts/AuthContext"
-import { config } from "@shared/config"
+import { RecaptchaWidget } from "@shared/components/RecaptchaWidget"
 import { showToast } from "@shared/lib"
 import styles from "./FindIdPage.module.css"
 
@@ -390,8 +389,7 @@ export default function FindIdPage() {
         </div>
 
         <div className={styles.recaptchaContainer}>
-          <ReCAPTCHA
-            sitekey={config.RECAPTCHA_SITE_KEY}
+          <RecaptchaWidget
             onChange={handleRecaptchaChange}
             className={styles.recaptchaWidget}
             aria-describedby={errors.recaptcha ? "recaptcha-error" : undefined}

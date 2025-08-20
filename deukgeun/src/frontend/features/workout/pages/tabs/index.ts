@@ -1,0 +1,5 @@
+export { OverviewTab } from "./OverviewTab"
+export { PlansTab } from "./PlansTab"
+export { SessionsTab } from "./SessionsTab"
+export { GoalsTab } from "./GoalsTab"
+export { ProgressTab } from "./ProgressTab"

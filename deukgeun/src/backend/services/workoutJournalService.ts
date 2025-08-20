@@ -253,7 +253,9 @@ export class WorkoutJournalService {
     } catch (error) {
       await queryRunner.rollbackTransaction()
       console.error("운동 계획 생성 중 오류:", error)
-      throw new Error(`운동 계획 생성에 실패했습니다: ${error.message}`)
+      throw new Error(
+        `운동 계획 생성에 실패했습니다: ${(error as Error).message}`
+      )
     } finally {
       await queryRunner.release()
     }

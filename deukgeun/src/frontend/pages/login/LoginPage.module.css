@@ -63,15 +63,16 @@
 .inputGroup {
   margin-bottom: 24px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
+  position: relative;
 }
 
 .input,
 .passwordInput {
   width: 100%;
   max-width: 425px;
-  min-width: 425px;
   height: 56px;
   padding: 0 20px;
   border-radius: 16px;
@@ -110,8 +111,11 @@
   color: #ef4444;
   font-size: 13px;
   margin-top: 6px;
-  margin-left: 4px;
   font-weight: 500;
+  text-align: center;
+  width: 100%;
+  max-width: 425px;
+  box-sizing: border-box;
 }
 
 .errorMessage {
@@ -130,6 +134,8 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+  max-width: 425px;
 }
 
 .eyeIcon {
@@ -446,6 +452,19 @@
     margin-bottom: 20px;
   }
 
+  .input,
+  .passwordInput {
+    max-width: 100%;
+  }
+
+  .passwordWrapper {
+    max-width: 100%;
+  }
+
+  .errorText {
+    max-width: 100%;
+  }
+
   .loginButton {
     margin-top: 28px;
   }
@@ -525,6 +544,20 @@
     margin-bottom: 18px;
   }
 
+  .input,
+  .passwordInput {
+    max-width: 100%;
+  }
+
+  .passwordWrapper {
+    max-width: 100%;
+  }
+
+  .errorText {
+    max-width: 100%;
+    font-size: 12px;
+  }
+
   .loginButton {
     margin-top: 24px;
   }
@@ -592,6 +625,20 @@
   .googleBtn {
     height: 44px;
     font-size: 13px;
+  }
+
+  .input,
+  .passwordInput {
+    max-width: 100%;
+  }
+
+  .passwordWrapper {
+    max-width: 100%;
+  }
+
+  .errorText {
+    max-width: 100%;
+    font-size: 11px;
   }
 
   .recaptchaWidget {

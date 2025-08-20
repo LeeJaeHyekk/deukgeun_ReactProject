@@ -35,10 +35,10 @@ const databaseConfig: DatabaseConfig = {
 
 // JWT 설정
 const jwtConfig: JWTConfig = {
-  secret: process.env.JWT_SECRET || "your-secret-key",
+  secret: process.env.JWT_SECRET || "",
   expiresIn: process.env.JWT_EXPIRES_IN || "7d",
-  accessSecret: process.env.JWT_ACCESS_SECRET || "your-access-secret",
-  refreshSecret: process.env.JWT_REFRESH_SECRET || "your-refresh-secret",
+  accessSecret: process.env.JWT_ACCESS_SECRET || "",
+  refreshSecret: process.env.JWT_REFRESH_SECRET || "",
 }
 
 // API 키 설정
@@ -58,8 +58,8 @@ const apiKeyConfig: ApiKeyConfig = {
 const securityConfig: SecurityConfig = {
   recaptchaSecret: process.env.RECAPTCHA_SECRET || "",
   recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || "",
-  accessTokenSecret: process.env.ACCESS_TOKEN_SECRET || "yourAccessSecret",
-  refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET || "yourRefreshSecret",
+  accessTokenSecret: process.env.ACCESS_TOKEN_SECRET || "",
+  refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET || "",
   rateLimitWindow: parseInt(process.env.RATE_LIMIT_WINDOW || "900000"), // 15분
   rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX || "100"),
 }

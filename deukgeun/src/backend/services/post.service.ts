@@ -42,6 +42,9 @@ export class PostService {
         case "latest":
           queryBuilder = queryBuilder.orderBy("post.createdAt", "DESC")
           break
+        case "popular":
+          queryBuilder = queryBuilder.orderBy("post.like_count", "DESC")
+          break
         case "oldest":
           queryBuilder = queryBuilder.orderBy("post.createdAt", "ASC")
           break

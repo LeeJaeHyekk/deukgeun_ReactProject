@@ -32,6 +32,85 @@
 }
 
 /* 검색 및 필터 */
+.machine-guide-filters {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  margin: 0;
+}
+
+.filter-group select,
+.filter-group input {
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  max-width: 100%;
+  backdrop-filter: blur(10px);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.filter-group input {
+  background-image: none;
+  padding-right: 16px;
+}
+
+.filter-group select:hover,
+.filter-group input:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: #0095f6;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 4px rgba(0, 149, 246, 0.2);
+}
+
+.filter-group select option {
+  background: rgba(30, 30, 30, 0.9);
+  color: #fff;
+  padding: 12px 16px;
+  border: none;
+}
+
 .machine-guide-controls {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -261,6 +340,17 @@
     box-sizing: border-box;
   }
 
+  .machine-guide-filters {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .filter-group {
+    min-width: auto;
+    max-width: 100%;
+  }
+
   .machine-filters {
     flex-direction: column;
     gap: 8px;
@@ -287,6 +377,18 @@
 
   .machine-guide-header h1 {
     font-size: 20px;
+  }
+
+  .machine-guide-filters {
+    padding: 12px;
+    box-sizing: border-box;
+  }
+
+  .filter-group select,
+  .filter-group input {
+    font-size: 13px;
+    box-sizing: border-box;
+    max-width: 100%;
   }
 
   .machine-guide-controls {

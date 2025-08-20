@@ -32,7 +32,7 @@ import bcrypt from "bcrypt"
 const sampleUsers = [
   {
     email: "admin@test.com",
-    password: "admin123!",
+    password: process.env.TEST_ADMIN_PASSWORD || "admin123!",
     nickname: "관리자",
     name: "관리자",
     username: "admin",
@@ -62,7 +62,7 @@ const sampleUsers = [
   },
   {
     email: "user1@test.com",
-    password: "user123!",
+    password: process.env.TEST_USER_PASSWORD || "user123!",
     nickname: "운동맨",
     name: "김운동",
     username: "workout_man",
@@ -77,7 +77,7 @@ const sampleUsers = [
   },
   {
     email: "user2@test.com",
-    password: "user123!",
+    password: process.env.TEST_USER_PASSWORD || "user123!",
     nickname: "피트니스여신",
     name: "이피트",
     username: "fitness_goddess",
@@ -92,7 +92,7 @@ const sampleUsers = [
   },
   {
     email: "user3@test.com",
-    password: "user123!",
+    password: process.env.TEST_USER_PASSWORD || "user123!",
     nickname: "헬스초보",
     name: "박헬스",
     username: "health_beginner",
@@ -107,7 +107,7 @@ const sampleUsers = [
   },
   {
     email: "user4@test.com",
-    password: "user123!",
+    password: process.env.TEST_USER_PASSWORD || "user123!",
     nickname: "근육맨",
     name: "최근육",
     username: "muscle_man",
@@ -122,7 +122,7 @@ const sampleUsers = [
   },
   {
     email: "user5@test.com",
-    password: "user123!",
+    password: process.env.TEST_USER_PASSWORD || "user123!",
     nickname: "요가여신",
     name: "정요가",
     username: "yoga_goddess",

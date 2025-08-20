@@ -4,9 +4,15 @@ export const config = {
   API_BASE_URL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
 
   // reCAPTCHA Configuration
-  RECAPTCHA_SITE_KEY:
-    import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
-    "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI", // Test key
+  RECAPTCHA: {
+    SITE_KEY:
+      import.meta.env.VITE_RECAPTCHA_SITE_KEY || "your_recaptcha_site_key_here", // 환경 변수에서 설정
+    IS_DEVELOPMENT: import.meta.env.DEV || false,
+    IS_TEST_KEY: (import.meta.env.VITE_RECAPTCHA_SITE_KEY || "").includes(
+      "test"
+    ),
+    VERSION: "v3", // v3 사용
+  },
 
   // App Configuration
   APP_NAME: "득근 득근",

@@ -53,6 +53,13 @@ interface PostListResponse {
   limit: number
 }
 
+interface ApiResponse<T> {
+  success: boolean
+  message: string
+  data?: T
+  error?: string
+}
+
 export default function CommunityPage() {
   const [posts, setPosts] = useState<Post[]>([])
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
@@ -75,8 +82,9 @@ export default function CommunityPage() {
     postsApi
       .categories()
       .then(response => {
+        console.log("Categories API Response:", response.data)
         const categories = response.data.data as PostCategory[]
-        setAvailableCategories(categories)
+        setAvailableCategories(categories || [])
       })
       .catch((error: unknown) => {
         console.error("카테고리 로드 실패:", error)
@@ -111,26 +119,44 @@ export default function CommunityPage() {
           params.q = searchTerm.trim()
         }
 
+        console.log("Fetching posts with params:", params)
         const res = await postsApi.list(params)
 
-        console.log("API Response:", res.data) // 디버깅용 로그
+        console.log("Posts API Response:", res.data)
 
-        const postListResponse = res.data.data as PostListResponse
+        // API 응답 구조 확인 및 처리
+        const apiResponse = res.data as ApiResponse<{
+          posts: any[]
+          pagination: {
+            page: number
+            limit: number
+            total: number
+            totalPages: number
+          }
+        }>
+
+        if (!apiResponse.success || !apiResponse.data) {
+          throw new Error(
+            apiResponse.message || "게시글을 불러오는데 실패했습니다."
+          )
+        }
+
+        const { posts: rawPosts, pagination } = apiResponse.data
 
         // API 응답 데이터를 안전하게 매핑
-        const mappedPosts = (postListResponse.posts || []).map(post => {
-          console.log("Individual post:", post) // 디버깅용 로그
+        const mappedPosts = (rawPosts || []).map(post => {
+          console.log("Individual post:", post)
           return {
             id: post.id,
             title: post.title || "",
             content: post.content || "",
             author: {
-              id: post.author?.id || 0,
-              nickname: post.author?.nickname || "익명",
+              id: post.user?.id || post.author?.id || 0,
+              nickname: post.user?.nickname || post.author || "익명",
             },
             category: post.category || "",
-            likes: post.likes || post.like_count || 0,
-            comments: post.comments || post.comment_count || 0,
+            likes: post.like_count || post.likes || 0,
+            comments: post.comment_count || post.comments || 0,
             createdAt:
               post.createdAt || post.created_at || new Date().toISOString(),
             updatedAt:
@@ -139,7 +165,9 @@ export default function CommunityPage() {
         })
 
         setPosts(mappedPosts)
-        setTotalPages(Math.ceil(postListResponse.total / limit))
+        setTotalPages(
+          pagination.totalPages || Math.ceil(pagination.total / limit)
+        )
         setCurrentPage(page)
       } catch (error: unknown) {
         console.error("게시글 로드 실패:", error)
@@ -259,63 +287,63 @@ export default function CommunityPage() {
         <div className={styles.header}>
           <h1 className={styles.title}>커뮤니티</h1>
           <p className={styles.subtitle}>함께 운동하고 경험을 나누어보세요</p>
-
-          {/* 컨트롤 섹션 */}
-          <section className={styles.controls}>
-            {/* 검색 및 정렬 */}
-            <div className={styles.searchSort}>
-              <div className={styles.searchBox}>
-                <input
-                  type="text"
-                  placeholder="게시글 검색..."
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  className={styles.searchInput}
-                />
-              </div>
-
-              <div className={styles.sortSelect}>
-                <select
-                  value={sortBy}
-                  onChange={e =>
-                    setSortBy(e.target.value as "latest" | "popular")
-                  }
-                  className={styles.select}
-                >
-                  <option value="latest">최신순</option>
-                  <option value="popular">인기순</option>
-                </select>
-              </div>
-            </div>
-
-            {/* 카테고리 + 글쓰기 동일 구역 배치 */}
-            <div className={styles.categoriesRow}>
-              <div className={styles.categories}>
-                {categories.map(category => (
-                  <button
-                    key={category.id}
-                    className={`${styles.categoryBtn} ${
-                      selectedCategory === category.id ? styles.active : ""
-                    }`}
-                    onClick={() => {
-                      setSelectedCategory(category.id)
-                      setCurrentPage(1)
-                    }}
-                  >
-                    {category.label} ({category.count})
-                  </button>
-                ))}
-              </div>
-
-              <button
-                className={styles.createPostBtn}
-                onClick={handleOpenCreateModal}
-              >
-                ✏️ 글쓰기
-              </button>
-            </div>
-          </section>
         </div>
+
+        {/* 컨트롤 섹션 */}
+        <section className={styles.controls}>
+          {/* 검색 및 정렬 */}
+          <div className={styles.searchSort}>
+            <div className={styles.searchBox}>
+              <input
+                type="text"
+                placeholder="게시글 검색..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className={styles.searchInput}
+              />
+            </div>
+
+            <div className={styles.sortSelect}>
+              <select
+                value={sortBy}
+                onChange={e =>
+                  setSortBy(e.target.value as "latest" | "popular")
+                }
+                className={styles.select}
+              >
+                <option value="latest">최신순</option>
+                <option value="popular">인기순</option>
+              </select>
+            </div>
+          </div>
+
+          {/* 카테고리 + 글쓰기 동일 구역 배치 */}
+          <div className={styles.categoriesRow}>
+            <div className={styles.categories}>
+              {categories.map(category => (
+                <button
+                  key={category.id}
+                  className={`${styles.categoryBtn} ${
+                    selectedCategory === category.id ? styles.active : ""
+                  }`}
+                  onClick={() => {
+                    setSelectedCategory(category.id)
+                    setCurrentPage(1)
+                  }}
+                >
+                  {category.label} ({category.count})
+                </button>
+              ))}
+            </div>
+
+            <button
+              className={styles.createPostBtn}
+              onClick={handleOpenCreateModal}
+            >
+              ✏️ 글쓰기
+            </button>
+          </div>
+        </section>
 
         {/* 게시글 그리드 */}
         <section className={styles.postsSection}>

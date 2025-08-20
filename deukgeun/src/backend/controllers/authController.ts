@@ -227,6 +227,10 @@ export const register = async (
   res: Response<RegisterResponse | ErrorResponse>
 ) => {
   try {
+    console.log("🚀 회원가입 요청 시작")
+    console.log("📥 요청 IP:", req.ip)
+    console.log("📥 User-Agent:", req.get("User-Agent"))
+
     const {
       email,
       password,
@@ -237,27 +241,65 @@ export const register = async (
       recaptchaToken,
     } = req.body
 
+    console.log("📥 요청 데이터:", {
+      email,
+      nickname,
+      phone,
+      gender,
+      birthday,
+      recaptchaToken: recaptchaToken
+        ? recaptchaToken.substring(0, 20) + "..."
+        : "없음",
+    })
+
     // 필수 입력 검증
     if (!email || !password || !nickname || !recaptchaToken) {
+      const missingFields = []
+      if (!email) missingFields.push("이메일")
+      if (!password) missingFields.push("비밀번호")
+      if (!nickname) missingFields.push("닉네임")
+      if (!recaptchaToken) missingFields.push("보안 인증")
+
+      console.log("❌ 필수 필드 누락:", {
+        email: !!email,
+        password: !!password,
+        nickname: !!nickname,
+        recaptchaToken: !!recaptchaToken,
+      })
       return res.status(400).json({
         success: false,
-        message: "필수 필드를 모두 입력하세요.",
+        message: `다음 필드를 입력해주세요: ${missingFields.join(", ")}`,
         error: "필수 필드 누락",
       })
     }
 
-    // 이메일 형식 검증
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
+    // recaptchaToken이 빈 문자열인 경우 처리
+    if (recaptchaToken === "") {
+      console.log("❌ reCAPTCHA 토큰이 빈 문자열")
       return res.status(400).json({
         success: false,
-        message: "유효한 이메일 주소를 입력하세요.",
-        error: "이메일 형식 오류",
+        message: "보안 인증이 필요합니다. 다시 시도해주세요.",
+        error: "reCAPTCHA 토큰 누락",
       })
     }
 
+    console.log("✅ 필수 필드 검증 통과")
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      console.log("❌ 이메일 형식 오류:", email)
+      return res.status(400).json({
+        success: false,
+        message: "올바른 이메일 형식으로 입력해주세요. (예: user@example.com)",
+        error: "이메일 형식 오류",
+      })
+    }
+    console.log("✅ 이메일 형식 검증 통과")
+
     // 비밀번호 강도 검증
     if (password.length < 8) {
+      console.log("❌ 비밀번호 강도 부족:", password.length, "자")
       return res.status(400).json({
         success: false,
         message: "비밀번호는 최소 8자 이상이어야 합니다.",
@@ -265,27 +307,69 @@ export const register = async (
       })
     }
 
-    // 닉네임 검증
-    if (nickname.length < 2 || nickname.length > 20) {
+    // 비밀번호 복잡성 검증 (선택사항)
+    const hasUpperCase = /[A-Z]/.test(password)
+    const hasLowerCase = /[a-z]/.test(password)
+    const hasNumbers = /\d/.test(password)
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
       return res.status(400).json({
         success: false,
-        message: "닉네임은 2-20자 사이여야 합니다.",
+        message: "비밀번호는 영문 대소문자와 숫자를 포함해야 합니다.",
+        error: "비밀번호 복잡성 부족",
+      })
+    }
+    console.log("✅ 비밀번호 강도 검증 통과")
+
+    // 닉네임 검증
+    if (nickname.length < 2 || nickname.length > 20) {
+      console.log("❌ 닉네임 길이 오류:", nickname.length, "자")
+      return res.status(400).json({
+        success: false,
+        message: "닉네임은 2-20자 사이로 입력해주세요.",
         error: "닉네임 길이 오류",
       })
     }
 
-    // 휴대폰 번호 검증 (선택사항이지만 입력된 경우)
-    if (phone && !/^010-\d{4}-\d{4}$/.test(phone)) {
+    // 닉네임 특수문자 검증
+    const nicknameRegex = /^[a-zA-Z0-9가-힣_-]+$/
+    if (!nicknameRegex.test(nickname)) {
       return res.status(400).json({
         success: false,
-        message: "올바른 휴대폰 번호 형식을 입력하세요. (010-xxxx-xxxx)",
-        error: "휴대폰 번호 형식 오류",
+        message:
+          "닉네임에는 영문, 숫자, 한글, 언더스코어(_), 하이픈(-)만 사용 가능합니다.",
+        error: "닉네임 형식 오류",
       })
     }
+    console.log("✅ 닉네임 검증 통과")
 
+    // 휴대폰 번호 검증 (선택사항이지만 입력된 경우)
+    console.log("🔍 백엔드 휴대폰 번호 검증:", phone)
+    if (phone) {
+      const phoneRegex = /^(010-\d{4}-\d{4}|(011|016|017|018|019)-\d{3}-\d{4})$/
+      const isValid = phoneRegex.test(phone)
+      console.log("🔍 휴대폰 번호 정규식 테스트 결과:", isValid)
+
+      if (!isValid) {
+        console.log("❌ 휴대폰 번호 형식 오류:", phone)
+        return res.status(400).json({
+          success: false,
+          message:
+            "올바른 휴대폰 번호 형식을 입력하세요. (010-xxxx-xxxx 또는 011-xxx-xxxx)",
+          error: "휴대폰 번호 형식 오류",
+        })
+      }
+      console.log("✅ 휴대폰 번호 검증 통과")
+    } else {
+      console.log("✅ 휴대폰 번호 빈 값 (선택사항)")
+    }
+
+    console.log("🔄 reCAPTCHA 검증 시작")
     // reCAPTCHA 검증
     const isHuman = await verifyRecaptcha(recaptchaToken)
     if (!isHuman) {
+      console.log("❌ reCAPTCHA 검증 실패")
       logger.warn(`회원가입 reCAPTCHA 실패 - IP: ${req.ip}, Email: ${email}`)
       return res.status(403).json({
         success: false,
@@ -293,34 +377,111 @@ export const register = async (
         error: "reCAPTCHA 실패",
       })
     }
+    console.log("✅ reCAPTCHA 검증 통과")
 
+    console.log("🔄 데이터베이스 연결 및 중복 확인 시작")
     const userRepo = AppDataSource.getRepository(User)
     const userLevelRepo = AppDataSource.getRepository(UserLevel)
     const userStreakRepo = AppDataSource.getRepository(UserStreak)
 
     // 이메일 중복 확인
+    console.log("🔍 이메일 중복 확인:", email)
     const existingUser = await userRepo.findOne({ where: { email } })
     if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        message: "이미 가입된 이메일입니다.",
-        error: "이메일 중복",
-      })
+      // 개발 환경에서 테스트용 이메일은 기존 사용자 삭제 후 재가입 허용
+      if (process.env.NODE_ENV === "development" && email === "test@test.com") {
+        console.log("🔄 개발 환경에서 테스트 이메일 기존 사용자 삭제:", email)
+        await userRepo.remove(existingUser)
+        console.log("✅ 기존 테스트 사용자 삭제 완료")
+      } else {
+        console.log("❌ 이메일 중복 발견:", email)
+        return res.status(409).json({
+          success: false,
+          message: "이미 가입된 이메일입니다.",
+          error: "이메일 중복",
+        })
+      }
     }
+    console.log("✅ 이메일 중복 없음")
 
     // 닉네임 중복 확인
+    console.log("🔍 닉네임 중복 확인:", nickname)
     const existingNickname = await userRepo.findOne({ where: { nickname } })
     if (existingNickname) {
-      return res.status(409).json({
-        success: false,
-        message: "이미 사용 중인 닉네임입니다.",
-        error: "닉네임 중복",
-      })
+      // 개발 환경에서 테스트용 닉네임은 기존 사용자 삭제 후 재가입 허용
+      if (process.env.NODE_ENV === "development" && nickname === "tset") {
+        console.log(
+          "🔄 개발 환경에서 테스트 닉네임 기존 사용자 삭제:",
+          nickname
+        )
+        await userRepo.remove(existingNickname)
+        console.log("✅ 기존 테스트 사용자 삭제 완료")
+      } else {
+        console.log("❌ 닉네임 중복 발견:", nickname)
+        return res.status(409).json({
+          success: false,
+          message: "이미 사용 중인 닉네임입니다.",
+          error: "닉네임 중복",
+        })
+      }
     }
+    console.log("✅ 닉네임 중복 없음")
 
+    console.log("🔄 비밀번호 해싱 시작")
     // 비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 12)
+    console.log("✅ 비밀번호 해싱 완료")
 
+    // 날짜 형식 변환 (ISO 문자열을 Date 객체로 변환)
+    console.log("🔄 생년월일 변환 시작:", birthday)
+    let birthdayDate: Date | undefined
+    if (birthday) {
+      try {
+        // birthday가 이미 Date 객체인 경우
+        if (birthday instanceof Date) {
+          birthdayDate = birthday
+          console.log("📅 Date 객체로 인식됨")
+        } else if (typeof birthday === "string") {
+          // ISO 문자열인 경우
+          birthdayDate = new Date(birthday)
+          console.log("📅 문자열에서 Date 변환:", birthday)
+        } else if (typeof birthday === "object" && birthday !== null) {
+          // {year, month, day} 형태인 경우
+          const { year, month, day } = birthday as any
+          console.log("📅 객체 형태 생년월일:", { year, month, day })
+          if (year && month && day) {
+            birthdayDate = new Date(
+              parseInt(year),
+              parseInt(month) - 1,
+              parseInt(day)
+            )
+            console.log("📅 객체에서 Date 변환 완료:", birthdayDate)
+          }
+        }
+
+        // 유효한 날짜인지 확인
+        if (!birthdayDate || isNaN(birthdayDate.getTime())) {
+          console.log("❌ 유효하지 않은 날짜:", birthdayDate)
+          return res.status(400).json({
+            success: false,
+            message: "올바른 생년월일을 입력하세요.",
+            error: "날짜 형식 오류",
+          })
+        }
+        console.log("✅ 생년월일 변환 완료:", birthdayDate)
+      } catch (error) {
+        console.log("❌ 생년월일 변환 오류:", error)
+        return res.status(400).json({
+          success: false,
+          message: "올바른 생년월일을 입력하세요.",
+          error: "날짜 형식 오류",
+        })
+      }
+    } else {
+      console.log("📅 생년월일 없음")
+    }
+
+    console.log("🔄 사용자 생성 시작")
     // 사용자 생성
     const newUser = userRepo.create({
       email: email.toLowerCase().trim(),
@@ -328,12 +489,23 @@ export const register = async (
       nickname: nickname.trim(),
       phone: phone?.trim(),
       gender: gender as "male" | "female" | "other" | undefined,
-      birthday: birthday,
+      birthday: birthdayDate,
       role: "user",
     })
 
-    await userRepo.save(newUser)
+    console.log("📝 사용자 객체 생성 완료:", {
+      email: newUser.email,
+      nickname: newUser.nickname,
+      phone: newUser.phone,
+      gender: newUser.gender,
+      birthday: newUser.birthday,
+      role: newUser.role,
+    })
 
+    await userRepo.save(newUser)
+    console.log("✅ 사용자 저장 완료 - ID:", newUser.id)
+
+    console.log("🔄 레벨 시스템 초기화 시작")
     // 레벨 시스템 초기화
     const userLevel = userLevelRepo.create({
       userId: newUser.id,
@@ -344,21 +516,52 @@ export const register = async (
     })
 
     await userLevelRepo.save(userLevel)
+    console.log("✅ 레벨 시스템 초기화 완료")
 
+    console.log("🔄 연속 활동 기록 초기화 시작")
     // 연속 활동 기록 초기화
     const userStreak = userStreakRepo.create({
       userId: newUser.id,
       currentCount: 0,
       lastActivity: new Date(),
-              streakType: "login",
+      streakType: "login",
     })
 
     await userStreakRepo.save(userStreak)
+    console.log("✅ 연속 활동 기록 초기화 완료")
 
+    console.log("🔄 토큰 생성 시작")
     // 토큰 생성
     const { accessToken, refreshToken } = createTokens(newUser.id, newUser.role)
+    console.log("✅ 토큰 생성 완료")
 
     logger.info(`회원가입 성공 - User ID: ${newUser.id}, Email: ${email}`)
+    console.log("🎉 회원가입 성공 - 응답 전송 시작")
+
+    const responseData = {
+      success: true,
+      message: "회원가입 성공",
+      accessToken,
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        nickname: newUser.nickname,
+        phone: newUser.phone,
+        gender: newUser.gender,
+        birthday: newUser.birthday,
+        profileImage: newUser.profileImage,
+        createdAt: newUser.createdAt,
+        updatedAt: newUser.updatedAt,
+      },
+    }
+
+    console.log("📤 응답 데이터:", {
+      success: responseData.success,
+      message: responseData.message,
+      userId: responseData.user.id,
+      userEmail: responseData.user.email,
+      userNickname: responseData.user.nickname,
+    })
 
     res
       .cookie("refreshToken", refreshToken, {
@@ -368,23 +571,17 @@ export const register = async (
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
       })
       .status(201)
-      .json({
-        success: true,
-        message: "회원가입 성공",
-        accessToken,
-        user: {
-          id: newUser.id,
-          email: newUser.email,
-          nickname: newUser.nickname,
-          phone: newUser.phone,
-          gender: newUser.gender,
-          birthday: newUser.birthday,
-          profileImage: newUser.profileImage,
-          createdAt: newUser.createdAt,
-          updatedAt: newUser.updatedAt,
-        },
-      })
+      .json(responseData as RegisterResponse)
+
+    console.log("✅ 회원가입 완료 - 응답 전송 완료")
   } catch (error) {
+    console.error("❌ 회원가입 처리 중 오류:", error)
+    console.error("❌ 에러 상세:", {
+      name: error instanceof Error ? error.name : "Unknown",
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+    })
+
     logger.error("회원가입 처리 중 오류:", error)
     return res.status(500).json({
       success: false,

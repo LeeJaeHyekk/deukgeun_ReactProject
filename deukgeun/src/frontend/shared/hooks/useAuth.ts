@@ -134,7 +134,7 @@ export function useAuth() {
       setUser({ ...user, accessToken: token })
       setupTokenRefresh(token)
     },
-    [setUser, setupTokenRefresh, isLoggedIn, user?.id]
+    [setUser, setupTokenRefresh, isLoggedIn]
   )
 
   // 로그아웃 처리 (서버 + 클라이언트 정리)

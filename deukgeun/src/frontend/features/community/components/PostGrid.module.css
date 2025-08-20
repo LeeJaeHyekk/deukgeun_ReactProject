@@ -127,23 +127,23 @@
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .loading,
   .empty {
     padding: 60px 16px;
   }
-  
+
   .pagination {
     padding: 20px;
     gap: 12px;
   }
-  
+
   .pageButton {
     padding: 10px 16px;
     font-size: 14px;
     min-width: 70px;
   }
-  
+
   .pageInfo {
     font-size: 15px;
     padding: 0 12px;
@@ -154,31 +154,31 @@
   .grid {
     gap: 12px;
   }
-  
+
   .loading,
   .empty {
     padding: 40px 12px;
   }
-  
+
   .empty h3 {
     font-size: 18px;
   }
-  
+
   .empty p {
     font-size: 14px;
   }
-  
+
   .pagination {
     padding: 16px;
     gap: 8px;
   }
-  
+
   .pageButton {
     padding: 8px 12px;
     font-size: 13px;
     min-width: 60px;
   }
-  
+
   .pageInfo {
     font-size: 14px;
     padding: 0 8px;

@@ -302,6 +302,9 @@
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(255, 99, 109, 0.3);
   backdrop-filter: blur(4px);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .video-link:hover {
@@ -310,12 +313,32 @@
   color: white;
 }
 
+.video-link:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(255, 99, 109, 0.3);
+}
+
+.video-link:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
 .video-icon {
   font-size: 1.2rem;
 }
 
 .video-text {
   font-size: 1rem;
+}
+
+.video-status {
+  font-size: 0.7rem;
+  background: rgba(255, 193, 7, 0.8);
+  color: #333;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-left: 0.5rem;
 }
 
 /* 모달 푸터 */

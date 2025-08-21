@@ -49,8 +49,8 @@ export default function ErrorPage({
           message:
             message || "요청하신 정보가 올바르지 않습니다. 다시 확인해주세요.",
           video: "/video/400Error.mp4",
-          icon: "⚠️",
           color: "#f59e0b",
+          gradient: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
         }
       case 401:
         return {
@@ -59,16 +59,16 @@ export default function ErrorPage({
             message ||
             "로그인이 필요한 서비스입니다. 로그인 후 다시 시도해주세요.",
           video: "/video/401Error.mp4",
-          icon: "🔐",
           color: "#3b82f6",
+          gradient: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
         }
       case 403:
         return {
           title: title || "접근이 거부되었습니다",
           message: message || "이 페이지에 접근할 권한이 없습니다.",
           video: "/video/403Error.mp4",
-          icon: "🚫",
           color: "#ef4444",
+          gradient: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
         }
       case 404:
         return {
@@ -77,8 +77,8 @@ export default function ErrorPage({
             message ||
             "요청하신 페이지가 존재하지 않거나, 이동되었을 수 있어요.",
           video: "/video/404Error.mp4",
-          icon: "🔍",
           color: "#f59e0b",
+          gradient: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
         }
       case 500:
         return {
@@ -86,16 +86,26 @@ export default function ErrorPage({
           message:
             message || "일시적인 서버 오류입니다. 잠시 후 다시 시도해주세요.",
           video: "/video/500Error.mp4",
-          icon: "⚡",
           color: "#ef4444",
+          gradient: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
         }
       case 503:
         return {
           title: title || "서비스가 일시적으로 사용할 수 없습니다",
           message: message || "서버 점검 중입니다. 잠시 후 다시 시도해주세요.",
           video: "/video/503Error.mp4",
-          icon: "🔧",
           color: "#f59e0b",
+          gradient: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+        }
+      case 999:
+        return {
+          title: title || "현재 준비중에 있습니다",
+          message:
+            message || "해당 기능은 현재 개발 중입니다. 조금만 기다려주세요!",
+          video: "/video/loading.mp4",
+          color: "#8b5cf6",
+          gradient: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+          isComingSoon: true,
         }
       default:
         return {
@@ -103,8 +113,8 @@ export default function ErrorPage({
           message:
             message || "예상치 못한 오류가 발생했습니다. 다시 시도해주세요.",
           video: "/video/404Error.mp4",
-          icon: "❌",
           color: "#ef4444",
+          gradient: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
         }
     }
   }
@@ -129,12 +139,22 @@ export default function ErrorPage({
 
   return (
     <div style={styles.container}>
+      {/* 배경 애니메이션 요소들 */}
+      <div style={styles.backgroundElements}>
+        <div style={styles.floatingCircle1}></div>
+        <div style={styles.floatingCircle2}></div>
+        <div style={styles.floatingCircle3}></div>
+      </div>
+
       <div style={styles.content}>
         {/* 에러 아이콘 및 비디오 섹션 */}
         <div style={styles.mediaContainer}>
-          <div style={styles.iconContainer}>
-            <span style={styles.errorIcon}>{errorInfo.icon}</span>
-          </div>
+          {errorInfo.isComingSoon && (
+            <div style={styles.comingSoonBadge}>
+              <span style={styles.comingSoonText}>COMING SOON</span>
+            </div>
+          )}
+
           <div style={styles.videoContainer}>
             <video
               src={errorInfo.video}
@@ -155,23 +175,52 @@ export default function ErrorPage({
 
         {/* 에러 정보 */}
         <div style={styles.errorInfo}>
-          <h1 style={styles.title}>
-            {statusCode} - {errorInfo.title}
-          </h1>
+          <div style={styles.titleContainer}>
+            <h1
+              style={{
+                ...styles.title,
+                background: errorInfo.gradient,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              {errorInfo.title}
+            </h1>
+            {errorInfo.isComingSoon && (
+              <div style={styles.statusIndicator}>
+                <div style={styles.statusDot}></div>
+                <span style={styles.statusText}>개발 진행중</span>
+              </div>
+            )}
+          </div>
+
           <p style={styles.description}>{errorInfo.message}</p>
 
           {/* 액션 버튼들 */}
           <div style={styles.buttonContainer}>
             {showRetryButton && (
-              <button onClick={handleRetryClick} style={styles.retryButton}>
+              <button
+                onClick={handleRetryClick}
+                style={styles.retryButton}
+                className="retryButton"
+              >
                 🔄 다시 시도
               </button>
             )}
-            <button onClick={handleBackClick} style={styles.backButton}>
+            <button
+              onClick={handleBackClick}
+              style={styles.backButton}
+              className="backButton"
+            >
               ⬅️ 이전 페이지로
             </button>
             {showHomeButton && (
-              <button onClick={handleHomeClick} style={styles.homeButton}>
+              <button
+                onClick={handleHomeClick}
+                style={styles.homeButton}
+                className="homeButton"
+              >
                 🏠 홈으로 돌아가기
               </button>
             )}
@@ -203,6 +252,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontFamily:
       "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif",
     color: "#ffffff",
+    position: "relative",
+    overflow: "hidden",
   },
   content: {
     display: "flex",
@@ -211,13 +262,14 @@ const styles: { [key: string]: React.CSSProperties } = {
     maxWidth: "900px",
     width: "100%",
     textAlign: "center",
-    background:
-      "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
+    background: "rgba(255, 255, 255, 0.1)",
     border: "1px solid rgba(255, 255, 255, 0.2)",
-    borderRadius: "24px",
-    padding: "40px",
+    borderRadius: "32px",
+    padding: "48px",
     backdropFilter: "blur(20px)",
-    boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+    boxShadow: "0 25px 80px rgba(0, 0, 0, 0.2)",
+    position: "relative",
+    zIndex: 1,
   },
   mediaContainer: {
     display: "flex",
@@ -240,6 +292,87 @@ const styles: { [key: string]: React.CSSProperties } = {
   errorIcon: {
     fontSize: "48px",
     filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+  },
+  comingSoonBadge: {
+    background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+    padding: "8px 16px",
+    borderRadius: "20px",
+    boxShadow: "0 4px 12px rgba(139, 92, 246, 0.3)",
+    marginTop: "16px",
+  },
+  comingSoonText: {
+    fontSize: "12px",
+    fontWeight: "700",
+    color: "#ffffff",
+    letterSpacing: "1px",
+    textTransform: "uppercase",
+  },
+  titleContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "16px",
+    marginBottom: "8px",
+  },
+  statusIndicator: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "8px 16px",
+    background: "rgba(139, 92, 246, 0.1)",
+    borderRadius: "20px",
+    border: "1px solid rgba(139, 92, 246, 0.3)",
+  },
+  statusDot: {
+    width: "8px",
+    height: "8px",
+    borderRadius: "50%",
+    background: "#8b5cf6",
+    animation: "pulse 2s infinite",
+  },
+  statusText: {
+    fontSize: "14px",
+    fontWeight: "600",
+    color: "#8b5cf6",
+  },
+  backgroundElements: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    overflow: "hidden",
+    zIndex: 0,
+  },
+  floatingCircle1: {
+    position: "absolute",
+    top: "10%",
+    left: "10%",
+    width: "200px",
+    height: "200px",
+    background: "rgba(139, 92, 246, 0.1)",
+    borderRadius: "50%",
+    animation: "float 6s ease-in-out infinite",
+  },
+  floatingCircle2: {
+    position: "absolute",
+    top: "60%",
+    right: "15%",
+    width: "150px",
+    height: "150px",
+    background: "rgba(124, 58, 237, 0.1)",
+    borderRadius: "50%",
+    animation: "float 8s ease-in-out infinite reverse",
+  },
+  floatingCircle3: {
+    position: "absolute",
+    bottom: "20%",
+    left: "20%",
+    width: "100px",
+    height: "100px",
+    background: "rgba(139, 92, 246, 0.1)",
+    borderRadius: "50%",
+    animation: "float 10s ease-in-out infinite",
   },
   videoContainer: {
     position: "relative",
@@ -296,53 +429,59 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: "20px",
   },
   retryButton: {
-    padding: "14px 28px",
+    padding: "16px 32px",
     background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
     color: "#ffffff",
     border: "none",
-    borderRadius: "12px",
+    borderRadius: "16px",
     fontSize: "16px",
     fontWeight: "600",
     cursor: "pointer",
     transition: "all 0.3s ease",
     boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
     backdropFilter: "blur(10px)",
+    position: "relative",
+    overflow: "hidden",
   },
   backButton: {
-    padding: "14px 28px",
-    background: "linear-gradient(135deg, #6b7280 0%, #4b5563 100%)",
+    padding: "16px 32px",
+    background: "rgba(255, 255, 255, 0.1)",
     color: "#ffffff",
-    border: "none",
-    borderRadius: "12px",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+    borderRadius: "16px",
     fontSize: "16px",
     fontWeight: "600",
     cursor: "pointer",
     transition: "all 0.3s ease",
-    boxShadow: "0 4px 12px rgba(107, 114, 128, 0.3)",
     backdropFilter: "blur(10px)",
+    position: "relative",
+    overflow: "hidden",
   },
   homeButton: {
-    padding: "14px 28px",
-    background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+    padding: "16px 32px",
+    background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
     color: "#ffffff",
     border: "none",
-    borderRadius: "12px",
+    borderRadius: "16px",
     fontSize: "16px",
     fontWeight: "600",
     cursor: "pointer",
     transition: "all 0.3s ease",
-    boxShadow: "0 4px 12px rgba(245, 158, 11, 0.3)",
+    boxShadow: "0 4px 12px rgba(139, 92, 246, 0.3)",
     backdropFilter: "blur(10px)",
+    position: "relative",
+    overflow: "hidden",
   },
   additionalInfo: {
     marginTop: "40px",
     padding: "24px",
     background: "rgba(255, 255, 255, 0.05)",
-    borderRadius: "16px",
+    borderRadius: "20px",
     border: "1px solid rgba(255, 255, 255, 0.1)",
     textAlign: "left",
     minWidth: "300px",
     backdropFilter: "blur(10px)",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
   },
   errorCode: {
     fontSize: "14px",
@@ -363,15 +502,34 @@ const addHoverEffects = () => {
   style.textContent = `
     .retryButton:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
     }
     .backButton:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+      background: rgba(255, 255, 255, 0.2) !important;
+      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
     }
     .homeButton:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+    }
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+      }
+    }
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+      }
+      50% {
+        transform: translateY(-20px) rotate(180deg);
+      }
     }
   `
   document.head.appendChild(style)

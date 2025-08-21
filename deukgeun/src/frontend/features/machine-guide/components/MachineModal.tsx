@@ -3,8 +3,10 @@
 // ============================================================================
 
 import React, { useEffect, useCallback } from "react"
+import { useNavigate } from "react-router-dom"
 import type { Machine } from "../types"
 import { findMatchingImage } from "../utils/machineImageUtils"
+import { ROUTES } from "@shared/constants/routes"
 import "./MachineModal.css"
 
 interface MachineModalProps {
@@ -18,6 +20,7 @@ export const MachineModal: React.FC<MachineModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const navigate = useNavigate()
   // ESC 키로 모달 닫기
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -55,6 +58,15 @@ export const MachineModal: React.FC<MachineModalProps> = ({
   const handleClose = useCallback(() => {
     onClose()
   }, [onClose])
+
+  // 동영상 보기 핸들러
+  const handleVideoClick = useCallback(() => {
+    // 모달을 먼저 닫고 에러 페이지로 이동
+    onClose()
+    navigate(
+      `${ROUTES.ERROR}?code=999&title=${encodeURIComponent("동영상 서비스 준비중")}&message=${encodeURIComponent("동영상 서비스는 현재 개발 중입니다. 조금만 기다려주세요!")}`
+    )
+  }, [navigate, onClose])
 
   if (!isOpen || !machine) {
     return null
@@ -236,22 +248,21 @@ export const MachineModal: React.FC<MachineModalProps> = ({
             </div>
 
             {/* 비디오 링크 */}
-            {machine.videoUrl && (
-              <div className="info-group">
-                <h3 className="info-title">관련 비디오</h3>
-                <div className="video-section">
-                  <a
-                    href={machine.videoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="video-link"
-                  >
-                    <span className="video-icon">🎥</span>
-                    <span className="video-text">비디오 보기</span>
-                  </a>
-                </div>
+            <div className="info-group">
+              <h3 className="info-title">관련 비디오</h3>
+              <div className="video-section">
+                <button
+                  onClick={handleVideoClick}
+                  className="video-link"
+                  type="button"
+                  aria-label="동영상 서비스 보기 (준비중)"
+                >
+                  <span className="video-icon">🎥</span>
+                  <span className="video-text">동영상 보기</span>
+                  <span className="video-status">준비중</span>
+                </button>
               </div>
-            )}
+            </div>
           </div>
         </div>
 

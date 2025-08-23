@@ -15,4 +15,4 @@ export type {
   PasswordResetConfirm,
   EmailVerification,
   AccountRecoveryRequest,
-} from "../../../types/auth"
+} from "../../../shared/types"

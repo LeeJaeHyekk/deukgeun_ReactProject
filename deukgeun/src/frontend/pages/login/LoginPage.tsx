@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa"
 import { authApi } from "@features/auth/api/authApi"
-import type { LoginRequest } from "../../../types"
+import type { LoginRequest } from "../../../shared/types"
 import { validation, showToast } from "@shared/lib"
 import { useAuthContext } from "@shared/contexts/AuthContext"
 import { RecaptchaWidget } from "@shared/components/RecaptchaWidget"
@@ -103,6 +103,9 @@ export default function LoginPage() {
         accessToken: response.accessToken,
         // 새로운 타입 시스템에서 요구하는 필드들에 기본값 설정
         role: "user" as const,
+        isActive: true,
+        isEmailVerified: false,
+        isPhoneVerified: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       }

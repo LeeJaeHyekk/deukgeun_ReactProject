@@ -8,11 +8,8 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { machineApi } from "@shared/api/machineApi"
 import { showToast } from "@shared/lib"
-import type { Machine } from "../../../types"
-import type {
-  CreateMachineRequest,
-  UpdateMachineRequest,
-} from "@shared/api/machineApi"
+import type { Machine } from "@dto/index"
+import type { CreateMachineRequest, UpdateMachineRequest } from "@dto/index"
 
 export const useMachines = () => {
   const [machines, setMachines] = useState<Machine[]>([])

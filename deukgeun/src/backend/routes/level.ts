@@ -11,7 +11,7 @@ import {
   resetUserProgress,
   getSystemStats,
 } from "../controllers/levelController"
-import { authenticateToken, isAdmin } from "../middlewares/auth"
+import { authMiddleware, isAdmin } from "../middlewares/auth"
 import { rateLimiter } from "../middlewares/rateLimiter"
 
 const router = Router()
@@ -41,28 +41,28 @@ const router = Router()
 // 사용자 진행률 관련 라우트
 router.get(
   "/user/:userId",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 30),
   getUserLevel
 )
 router.get(
   "/user/:userId/progress",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 30),
   getUserProgress
 )
 router.get(
   "/user/:userId/rewards",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 30),
   getUserRewards
 )
 
 // 경험치 관련 라우트
-router.post("/exp/grant", authenticateToken, rateLimiter(60000, 10), grantExp)
+router.post("/exp/grant", authMiddleware, rateLimiter(60000, 10), grantExp)
 router.get(
   "/cooldown/:actionType/:userId",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 30),
   checkCooldown
 )
@@ -78,21 +78,21 @@ router.get(
 // 관리자 기능 라우트
 router.put(
   "/admin/config",
-  authenticateToken,
+  authMiddleware,
   isAdmin,
   rateLimiter(60000, 5),
   updateLevelConfig
 )
 router.post(
   "/admin/reset/:userId",
-  authenticateToken,
+  authMiddleware,
   isAdmin,
   rateLimiter(60000, 5),
   resetUserProgress
 )
 router.get(
   "/admin/stats",
-  authenticateToken,
+  authMiddleware,
   isAdmin,
   rateLimiter(60000, 10),
   getSystemStats

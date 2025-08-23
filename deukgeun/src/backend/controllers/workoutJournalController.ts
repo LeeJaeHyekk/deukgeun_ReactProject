@@ -1,6 +1,10 @@
 import { Request, Response } from "express"
 import { WorkoutJournalService } from "../services/workoutJournalService"
-import { AuthenticatedRequest } from "../../shared/types/auth"
+import { AuthenticatedRequest } from "../types"
+import {
+  WorkoutSessionTransformer,
+  toWorkoutSessionDTOList,
+} from "../transformers"
 
 export class WorkoutJournalController {
   private workoutJournalService: WorkoutJournalService
@@ -14,17 +18,37 @@ export class WorkoutJournalController {
     req: AuthenticatedRequest,
     res: Response
   ): Promise<void> {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(`🔍 [WorkoutController:${requestId}] getWorkoutPlans 요청 시작`)
+
     try {
       const userId = req.user?.userId
+      console.log(
+        `👤 [WorkoutController:${requestId}] 사용자 인증 확인 - userId: ${userId}`
+      )
+
       if (!userId) {
+        console.warn(
+          `⚠️ [WorkoutController:${requestId}] 인증되지 않은 사용자의 요청`
+        )
         res.status(401).json({ error: "인증이 필요합니다." })
         return
       }
 
+      console.log(
+        `📊 [WorkoutController:${requestId}] 운동 계획 조회 서비스 호출`
+      )
       const plans = await this.workoutJournalService.getUserPlans(userId)
+
+      console.log(
+        `✅ [WorkoutController:${requestId}] 운동 계획 조회 성공 - ${plans.length}개 반환`
+      )
       res.json({ success: true, data: plans })
     } catch (error) {
-      console.error("운동 계획 조회 실패:", error)
+      console.error(
+        `❌ [WorkoutController:${requestId}] 운동 계획 조회 실패:`,
+        error
+      )
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -37,24 +61,49 @@ export class WorkoutJournalController {
     req: AuthenticatedRequest,
     res: Response
   ): Promise<void> {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(
+      `🔍 [WorkoutController:${requestId}] createWorkoutPlan 요청 시작`
+    )
+
     try {
       const userId = req.user?.userId
+      console.log(
+        `👤 [WorkoutController:${requestId}] 사용자 인증 확인 - userId: ${userId}`
+      )
+
       if (!userId) {
+        console.warn(
+          `⚠️ [WorkoutController:${requestId}] 인증되지 않은 사용자의 요청`
+        )
         res.status(401).json({ error: "인증이 필요합니다." })
         return
       }
 
       const planData = req.body as any
-      console.log("컨트롤러에서 받은 데이터:", planData)
-      console.log("exercises 배열:", planData.exercises)
+      console.log(`📝 [WorkoutController:${requestId}] 받은 데이터:`, planData)
+      console.log(
+        `🏋️ [WorkoutController:${requestId}] exercises 배열:`,
+        planData.exercises
+      )
 
+      console.log(
+        `📊 [WorkoutController:${requestId}] 운동 계획 생성 서비스 호출`
+      )
       const plan = await this.workoutJournalService.createWorkoutPlan(
         userId,
         planData
       )
+
+      console.log(
+        `✅ [WorkoutController:${requestId}] 운동 계획 생성 성공 - ID: ${plan.id}`
+      )
       res.status(201).json({ success: true, data: plan })
     } catch (error) {
-      console.error("운동 계획 생성 실패:", error)
+      console.error(
+        `❌ [WorkoutController:${requestId}] 운동 계획 생성 실패:`,
+        error
+      )
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -69,7 +118,7 @@ export class WorkoutJournalController {
   ): Promise<void> {
     try {
       const userId = req.user?.userId
-      const { planId } = req.params
+      const planId = req.params?.planId
       if (!userId) {
         res.status(401).json({ error: "인증이 필요합니다." })
         return
@@ -127,18 +176,44 @@ export class WorkoutJournalController {
     req: AuthenticatedRequest,
     res: Response
   ): Promise<void> {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(
+      `🔍 [WorkoutController:${requestId}] getWorkoutSessions 요청 시작`
+    )
+
     try {
       const userId = req.user?.userId
+      console.log(
+        `👤 [WorkoutController:${requestId}] 사용자 인증 확인 - userId: ${userId}`
+      )
+
       if (!userId) {
+        console.warn(
+          `⚠️ [WorkoutController:${requestId}] 인증되지 않은 사용자의 요청`
+        )
         res.status(401).json({ error: "인증이 필요합니다." })
         return
       }
 
+      console.log(
+        `📊 [WorkoutController:${requestId}] 운동 세션 조회 서비스 호출`
+      )
       const sessions = await this.workoutJournalService.getUserSessions(userId)
-      res.json({ success: true, data: sessions })
+
+      console.log(
+        `✅ [WorkoutController:${requestId}] 운동 세션 조회 성공 - ${sessions.length}개 반환`
+      )
+      res.json({ success: true, data: toWorkoutSessionDTOList(sessions) })
     } catch (error) {
-      console.error("운동 세션 조회 실패:", error)
-      res.status(500).json({ error: "운동 세션 조회에 실패했습니다." })
+      console.error(
+        `❌ [WorkoutController:${requestId}] 운동 세션 조회 실패:`,
+        error
+      )
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "운동 세션 조회에 실패했습니다."
+      res.status(500).json({ error: errorMessage })
     }
   }
 
@@ -146,23 +221,40 @@ export class WorkoutJournalController {
     req: AuthenticatedRequest,
     res: Response
   ): Promise<void> {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(
+      `🔍 [WorkoutController:${requestId}] createWorkoutSession 요청 시작`
+    )
+
     try {
       const userId = req.user?.userId
+      console.log(
+        `👤 [WorkoutController:${requestId}] 사용자 인증 확인 - userId: ${userId}`
+      )
+
       if (!userId) {
+        console.warn(
+          `⚠️ [WorkoutController:${requestId}] 인증되지 않은 사용자의 요청`
+        )
         res.status(401).json({ error: "인증이 필요합니다." })
         return
       }
 
       const sessionData = req.body as any
+      console.log(
+        `📝 [WorkoutController:${requestId}] 받은 데이터:`,
+        sessionData
+      )
 
       // 필수 필드 검증 - name 또는 session_name 중 하나는 있어야 함
       if (!sessionData.name && !sessionData.session_name) {
+        console.warn(`⚠️ [WorkoutController:${requestId}] 세션 이름 누락`)
         res.status(400).json({ error: "세션 이름은 필수입니다." })
         return
       }
 
       console.log(
-        `세션 생성 시도 - User ID: ${userId}, Session Name: ${sessionData.name || sessionData.session_name}`
+        `📊 [WorkoutController:${requestId}] 세션 생성 시도 - User ID: ${userId}, Session Name: ${sessionData.name || sessionData.session_name}`
       )
 
       const session = await this.workoutJournalService.createWorkoutSession(
@@ -171,11 +263,14 @@ export class WorkoutJournalController {
       )
 
       console.log(
-        `세션 생성 성공 - User ID: ${userId}, Session ID: ${session.id}`
+        `✅ [WorkoutController:${requestId}] 세션 생성 성공 - User ID: ${userId}, Session ID: ${session.id}`
       )
       res.status(201).json({ success: true, data: session })
     } catch (error) {
-      console.error("운동 세션 생성 실패:", error)
+      console.error(
+        `❌ [WorkoutController:${requestId}] 운동 세션 생성 실패:`,
+        error
+      )
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -372,18 +467,42 @@ export class WorkoutJournalController {
     req: AuthenticatedRequest,
     res: Response
   ): Promise<void> {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(`🔍 [WorkoutController:${requestId}] getWorkoutGoals 요청 시작`)
+
     try {
       const userId = req.user?.userId
+      console.log(
+        `👤 [WorkoutController:${requestId}] 사용자 인증 확인 - userId: ${userId}`
+      )
+
       if (!userId) {
+        console.warn(
+          `⚠️ [WorkoutController:${requestId}] 인증되지 않은 사용자의 요청`
+        )
         res.status(401).json({ error: "인증이 필요합니다." })
         return
       }
 
+      console.log(
+        `📊 [WorkoutController:${requestId}] 운동 목표 조회 서비스 호출`
+      )
       const goals = await this.workoutJournalService.getUserGoals(userId)
+
+      console.log(
+        `✅ [WorkoutController:${requestId}] 운동 목표 조회 성공 - ${goals.length}개 반환`
+      )
       res.json({ success: true, data: goals })
     } catch (error) {
-      console.error("운동 목표 조회 실패:", error)
-      res.status(500).json({ error: "운동 목표 조회에 실패했습니다." })
+      console.error(
+        `❌ [WorkoutController:${requestId}] 운동 목표 조회 실패:`,
+        error
+      )
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "운동 목표 조회에 실패했습니다."
+      res.status(500).json({ error: errorMessage })
     }
   }
 
@@ -391,22 +510,50 @@ export class WorkoutJournalController {
     req: AuthenticatedRequest,
     res: Response
   ): Promise<void> {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(
+      `🔍 [WorkoutController:${requestId}] createWorkoutGoal 요청 시작`
+    )
+
     try {
       const userId = req.user?.userId
+      console.log(
+        `👤 [WorkoutController:${requestId}] 사용자 인증 확인 - userId: ${userId}`
+      )
+
       if (!userId) {
+        console.warn(
+          `⚠️ [WorkoutController:${requestId}] 인증되지 않은 사용자의 요청`
+        )
         res.status(401).json({ error: "인증이 필요합니다." })
         return
       }
 
       const goalData = req.body as any
+      console.log(`📝 [WorkoutController:${requestId}] 받은 데이터:`, goalData)
+
+      console.log(
+        `📊 [WorkoutController:${requestId}] 운동 목표 생성 서비스 호출`
+      )
       const goal = await this.workoutJournalService.createWorkoutGoal(
         userId,
         goalData
       )
+
+      console.log(
+        `✅ [WorkoutController:${requestId}] 운동 목표 생성 성공 - ID: ${goal.id}`
+      )
       res.status(201).json({ success: true, data: goal })
     } catch (error) {
-      console.error("운동 목표 생성 실패:", error)
-      res.status(500).json({ error: "운동 목표 생성에 실패했습니다." })
+      console.error(
+        `❌ [WorkoutController:${requestId}] 운동 목표 생성 실패:`,
+        error
+      )
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "운동 목표 생성에 실패했습니다."
+      res.status(500).json({ error: errorMessage })
     }
   }
 

@@ -1,5 +1,5 @@
 import { PostCard } from "./PostCard"
-import { CommunityPost } from "../../../../types/post"
+import { PostDTO as CommunityPost } from "../../../../shared/types"
 import styles from "./PostGrid.module.css"
 
 interface PostGridProps {

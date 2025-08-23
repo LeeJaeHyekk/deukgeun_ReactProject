@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
-import type { ExpActionType } from "../../shared/types"
+import type { ExpActionType } from "../types"
 import { User } from "./User"
 
 @Entity("exp_history")

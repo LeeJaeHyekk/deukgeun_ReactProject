@@ -2,11 +2,72 @@
 // 프론트엔드 타입 시스템 - 중앙화된 타입 관리
 // ============================================================================
 
-// 중앙 타입 시스템 재사용
-export * from "../../../shared/types"
+// 중앙 타입 시스템 재사용 (명시적 export로 중복 방지)
+export {
+  // 공통 타입들
+  ApiResponse,
+  PaginatedResponse,
+  ErrorResponse,
+  SuccessResponse,
+
+  // DTO 타입들
+  UserDTO,
+  CreateUserDTO,
+  UpdateUserDTO,
+  UserDTOResponse,
+  UserDTOListResponse,
+  MachineDTO,
+  CreateMachineDTO,
+  UpdateMachineDTO,
+  MachineDTOResponse,
+  MachineDTOListResponse,
+  MachineCategoryDTO,
+  DifficultyLevelDTO,
+  WorkoutPlanDTO,
+  CreateWorkoutPlanDTO,
+  UpdateWorkoutPlanDTO,
+  WorkoutPlanDTOResponse,
+  WorkoutPlanDTOListResponse,
+  WorkoutSessionDTO,
+  CreateWorkoutSessionDTO,
+  UpdateWorkoutSessionDTO,
+  WorkoutSessionDTOResponse,
+  WorkoutSessionDTOListResponse,
+  WorkoutGoalDTO,
+  CreateWorkoutGoalDTO,
+  UpdateWorkoutGoalDTO,
+  WorkoutGoalDTOResponse,
+  WorkoutGoalDTOListResponse,
+  ExerciseSetDTO,
+  CreateExerciseSetDTO,
+  UpdateExerciseSetDTO,
+  ExerciseSetDTOResponse,
+  ExerciseSetDTOListResponse,
+
+  // 타입 별칭들
+  User,
+  Machine,
+  WorkoutPlan,
+  WorkoutSession,
+  WorkoutGoal,
+  ExerciseSet,
+  CreatePlanRequest,
+  UpdatePlanRequest,
+  CreateSessionRequest,
+  UpdateSessionRequest,
+  CreateGoalRequest,
+  UpdateGoalRequest,
+
+  // 기타 타입들
+  DashboardData,
+  PostCategoryInfo,
+} from "../../../shared/types"
+
+// Mix.json 기반 자동 생성 타입들
+export * from "./mix-generated"
 
 // ============================================================================
-// 프론트엔드 전용 타입
+// 프론트엔드 전용 타입 (중앙 타입과 중복되지 않는 것들만)
 // ============================================================================
 
 // 프론트엔드 설정 타입

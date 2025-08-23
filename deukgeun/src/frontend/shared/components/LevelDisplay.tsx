@@ -1,7 +1,7 @@
 import React from "react"
 import { useLevel } from "../hooks/useLevel"
 import styles from "./LevelDisplay.module.css"
-import type { UserLevel } from "../../../types"
+import type { UserLevel } from "../../../shared/types"
 
 interface LevelDisplayProps {
   userLevel?: UserLevel // 테스트용 prop

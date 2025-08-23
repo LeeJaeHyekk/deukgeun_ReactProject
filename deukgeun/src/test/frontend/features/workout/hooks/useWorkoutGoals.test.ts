@@ -1,7 +1,7 @@
 import { renderHook, act, waitFor } from "@testing-library/react"
 import { useWorkoutGoals } from "../../../../../frontend/features/workout/hooks/useWorkoutGoals"
 import { WorkoutJournalApi } from "../../../../../frontend/shared/api/workoutJournalApi"
-import type { WorkoutGoal } from "../../../../../types"
+import type { WorkoutGoal } from "../../../../../shared/types"
 
 // Mock the API
 jest.mock("../../../../../frontend/shared/api/workoutJournalApi")

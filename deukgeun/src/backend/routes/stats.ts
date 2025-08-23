@@ -1,7 +1,7 @@
 import { Router } from "express"
 import { StatsController } from "../controllers/statsController"
 import { rateLimiter } from "../middlewares/rateLimiter"
-import { isAdmin, authenticateToken } from "../middlewares/auth"
+import { isAdmin, authMiddleware } from "../middlewares/auth"
 
 const router = Router()
 const statsController = new StatsController()
@@ -21,7 +21,7 @@ router.get(
 router.get(
   "/user",
   rateLimiter(),
-  authenticateToken,
+  authMiddleware,
   statsController.getUserStats
 )
 

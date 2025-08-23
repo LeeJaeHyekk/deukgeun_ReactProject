@@ -7,7 +7,7 @@ import type {
   CreatePlanRequest,
   CreateSessionRequest,
   CreateGoalRequest,
-} from "../../../../types"
+} from "../../../../shared/types"
 
 // Mock storage
 const mockStorage = {
@@ -33,10 +33,12 @@ describe("WorkoutJournalApi", () => {
     it("should fetch dashboard data successfully", async () => {
       const mockDashboardData: DashboardData = {
         summary: {
-          totalPlans: 5,
+          totalWorkouts: 20,
+          totalGoals: 5,
           totalSessions: 20,
+          totalPlans: 5,
           completedSessions: 18,
-          activeGoals: 3,
+          streak: 7,
         },
         weeklyStats: {
           totalSessions: 4,
@@ -117,7 +119,7 @@ describe("WorkoutJournalApi", () => {
           name: "상체 운동",
           description: "상체 근력 향상을 위한 운동",
           difficulty: "intermediate",
-          estimatedDurationMinutes: 60,
+          duration: 60,
           targetMuscleGroups: ["chest", "back", "shoulders"],
           isActive: true,
           exercises: [],
@@ -193,7 +195,7 @@ describe("WorkoutJournalApi", () => {
         name: "하체 운동",
         description: "하체 근력 향상을 위한 운동",
         difficulty: "beginner",
-        estimatedDurationMinutes: 45,
+        duration: 45,
         targetMuscleGroups: ["legs", "glutes"],
         isActive: true,
         exercises: [],
@@ -240,7 +242,7 @@ describe("WorkoutJournalApi", () => {
         name: "수정된 상체 운동",
         description: "수정된 설명",
         difficulty: "intermediate",
-        estimatedDurationMinutes: 60,
+        duration: 60,
         targetMuscleGroups: ["chest", "back"],
         isActive: true,
         exercises: [],
@@ -321,9 +323,10 @@ describe("WorkoutJournalApi", () => {
           startTime: new Date("2024-01-15T10:00:00Z"),
           endTime: new Date("2024-01-15T11:00:00Z"),
           duration: 60,
-          caloriesBurned: 300,
+          status: "completed" as const,
           notes: "컨디션이 좋았다",
           isCompleted: true,
+          exerciseSets: [],
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -359,18 +362,19 @@ describe("WorkoutJournalApi", () => {
     it("should create workout session successfully", async () => {
       const sessionData: CreateSessionRequest = {
         name: "새로운 운동 세션",
-        description: "하체 운동",
         planId: 1,
         startTime: new Date("2024-01-15T10:00:00Z"),
+        exerciseSets: [],
       }
 
       const createdSession: WorkoutSession = {
         id: 2,
         userId: 1,
         name: "새로운 운동 세션",
-        description: "하체 운동",
         startTime: new Date("2024-01-15T10:00:00Z"),
+        status: "in_progress" as const,
         isCompleted: false,
+        exerciseSets: [],
         createdAt: new Date(),
         updatedAt: new Date(),
       }

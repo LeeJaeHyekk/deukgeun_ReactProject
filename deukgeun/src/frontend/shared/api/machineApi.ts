@@ -7,9 +7,15 @@
 
 import { api } from "./index"
 import { API_ENDPOINTS } from "@shared/config"
-import type { Machine } from "../../../types"
+import type {
+  Machine,
+  CreateMachineRequest,
+  UpdateMachineRequest,
+  MachineListResponse as DTOMachineListResponse,
+  MachineResponse as DTOMachineResponse,
+} from "@dto/index"
 
-// 타입 정의
+// 타입 정의 (DTO 기반으로 통합)
 export interface MachineListResponse {
   machines: Machine[]
   count: number
@@ -19,25 +25,11 @@ export interface MachineResponse {
   machine: Machine
 }
 
-export interface CreateMachineRequest {
-  name: string
-  category: string
-  difficulty: string
-  description: string
-  instructions: string
-  imageUrl?: string
-  videoUrl?: string
-}
-
-export interface UpdateMachineRequest extends Partial<CreateMachineRequest> {
-  id: number
-}
-
-// Machine API functions (Legacy)
+// Machine API functions (Legacy) - DTO 타입 적용
 export const machineApi = {
   // Get all machines
   getMachines: async (): Promise<MachineListResponse> => {
-    const response = await api.get<MachineListResponse>(
+    const response = await api.get<DTOMachineListResponse>(
       API_ENDPOINTS.MACHINES.LIST
     )
     console.log("머신 API 응답:", response)
@@ -49,11 +41,11 @@ export const machineApi = {
 
   // Get machine by ID
   getMachine: async (id: number): Promise<MachineResponse> => {
-    const response = await api.get<MachineResponse>(
+    const response = await api.get<DTOMachineResponse>(
       API_ENDPOINTS.MACHINES.DETAIL(id)
     )
     return {
-      machine: (response.data.data || response.data) as any,
+      machine: (response.data.data || response.data) as unknown as Machine,
     }
   },
 
@@ -61,12 +53,12 @@ export const machineApi = {
   createMachine: async (
     data: CreateMachineRequest
   ): Promise<MachineResponse> => {
-    const response = await api.post<MachineResponse>(
+    const response = await api.post<DTOMachineResponse>(
       API_ENDPOINTS.MACHINES.CREATE,
       data
     )
     return {
-      machine: (response.data.data || response.data) as any,
+      machine: (response.data.data || response.data) as unknown as Machine,
     }
   },
 
@@ -75,12 +67,12 @@ export const machineApi = {
     id: number,
     data: UpdateMachineRequest
   ): Promise<MachineResponse> => {
-    const response = await api.put<MachineResponse>(
+    const response = await api.put<DTOMachineResponse>(
       API_ENDPOINTS.MACHINES.UPDATE(id),
       data
     )
     return {
-      machine: (response.data.data || response.data) as any,
+      machine: (response.data.data || response.data) as unknown as Machine,
     }
   },
 
@@ -100,7 +92,7 @@ export const machineApi = {
     if (filters.difficulty) params.append("difficulty", filters.difficulty)
     if (filters.search) params.append("target", filters.search)
 
-    const response = await api.get<MachineListResponse>(
+    const response = await api.get<DTOMachineListResponse>(
       `${API_ENDPOINTS.MACHINES.FILTER}?${params.toString()}`
     )
     return {
@@ -113,7 +105,7 @@ export const machineApi = {
   getMachinesByCategory: async (
     category: string
   ): Promise<MachineListResponse> => {
-    const response = await api.get<MachineListResponse>(
+    const response = await api.get<DTOMachineListResponse>(
       API_ENDPOINTS.MACHINES.GET_BY_CATEGORY(category)
     )
     return {
@@ -126,7 +118,7 @@ export const machineApi = {
   getMachinesByDifficulty: async (
     difficulty: string
   ): Promise<MachineListResponse> => {
-    const response = await api.get<MachineListResponse>(
+    const response = await api.get<DTOMachineListResponse>(
       API_ENDPOINTS.MACHINES.GET_BY_DIFFICULTY(difficulty)
     )
     return {
@@ -137,7 +129,7 @@ export const machineApi = {
 
   // Get machines by target
   getMachinesByTarget: async (target: string): Promise<MachineListResponse> => {
-    const response = await api.get<MachineListResponse>(
+    const response = await api.get<DTOMachineListResponse>(
       API_ENDPOINTS.MACHINES.GET_BY_TARGET(target)
     )
     return {

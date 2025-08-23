@@ -81,29 +81,29 @@ export function validateFormField(
     return { isValid: false, message: rules.message.required }
   }
 
-  // 형식 검증
-  if (rules.format && !rules.format(value)) {
-    return { isValid: false, message: rules.message.format }
+  // 형식 검증 (타입 가드 추가)
+  if ("format" in rules && rules.format && !rules.format(value)) {
+    return { isValid: false, message: (rules.message as any).format }
   }
 
-  // 길이 검증
-  if (rules.minLength && !rules.minLength(value)) {
-    return { isValid: false, message: rules.message.minLength }
+  // 길이 검증 (타입 가드 추가)
+  if ("minLength" in rules && rules.minLength && !rules.minLength(value)) {
+    return { isValid: false, message: (rules.message as any).minLength }
   }
 
-  if (rules.maxLength && !rules.maxLength(value)) {
-    return { isValid: false, message: rules.message.maxLength }
+  if ("maxLength" in rules && rules.maxLength && !rules.maxLength(value)) {
+    return { isValid: false, message: (rules.message as any).maxLength }
   }
 
-  // 복잡도 검증
-  if (rules.complexity && !rules.complexity(value)) {
-    return { isValid: false, message: rules.message.complexity }
+  // 복잡도 검증 (타입 가드 추가)
+  if ("complexity" in rules && rules.complexity && !rules.complexity(value)) {
+    return { isValid: false, message: (rules.message as any).complexity }
   }
 
-  // 일치 검증
-  if (rules.match && additionalData?.password) {
+  // 일치 검증 (타입 가드 추가)
+  if ("match" in rules && rules.match && additionalData?.password) {
     if (!rules.match(value, additionalData.password)) {
-      return { isValid: false, message: rules.message.match }
+      return { isValid: false, message: (rules.message as any).match }
     }
   }
 

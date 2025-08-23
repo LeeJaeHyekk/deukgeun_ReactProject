@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { X, Save, Plus, Trash2, Dumbbell, Clock, Repeat } from "lucide-react"
-import type { WorkoutPlanExercise, Machine } from "../../../../../types"
+import type { WorkoutPlanExercise } from "../../../../../shared/types"
+import type { Machine } from "@dto/index"
 import { findMatchingImage } from "../../../../shared/utils/machineImageUtils"
 import "./WorkoutSectionModal.css"
 

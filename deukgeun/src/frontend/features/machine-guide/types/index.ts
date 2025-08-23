@@ -182,7 +182,6 @@ export const TARGET_MUSCLES: TargetMuscle[] = [
   "엉덩이",
   "다리",
 ]
-
 // Utility Types
 export type MachineSortOption = "name" | "category" | "difficulty" | "createdAt"
 

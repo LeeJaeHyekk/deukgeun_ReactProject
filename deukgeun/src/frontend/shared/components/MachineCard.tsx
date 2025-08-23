@@ -1,5 +1,9 @@
 import React, { useMemo } from "react"
-import type { Machine } from "../../../types"
+import type {
+  Machine,
+  MachineCategoryDTO,
+  DifficultyLevelDTO,
+} from "@dto/index"
 import {
   findMatchingImage,
   getFullImageUrl,
@@ -89,18 +93,32 @@ export const MachineCard: React.FC<MachineCardProps> = React.memo(
           <div className="machine-card-overlay">
             <div
               className="machine-card-category"
-              style={{ backgroundColor: getCategoryColor(machine.category) }}
+              style={{
+                backgroundColor: getCategoryColor(
+                  typeof machine.category === "string"
+                    ? machine.category
+                    : machine.category.name
+                ),
+              }}
             >
-              {machine.category}
+              {typeof machine.category === "string"
+                ? machine.category
+                : machine.category.name}
             </div>
             {machine.difficulty && (
               <div
                 className="machine-card-difficulty"
                 style={{
-                  backgroundColor: getDifficultyColor(machine.difficulty),
+                  backgroundColor: getDifficultyColor(
+                    typeof machine.difficulty === "string"
+                      ? machine.difficulty
+                      : machine.difficulty.name
+                  ),
                 }}
               >
-                {machine.difficulty}
+                {typeof machine.difficulty === "string"
+                  ? machine.difficulty
+                  : machine.difficulty.name}
               </div>
             )}
           </div>
@@ -108,9 +126,7 @@ export const MachineCard: React.FC<MachineCardProps> = React.memo(
 
         <div className="machine-card-content">
           <h3 className="machine-card-title">{machine.name}</h3>
-          <p className="machine-card-description">
-            {machine.description || ""}
-          </p>
+          <p className="machine-card-description">{machine.shortDesc || ""}</p>
 
           {machine.targetMuscles && machine.targetMuscles.length > 0 && (
             <div className="machine-card-targets">

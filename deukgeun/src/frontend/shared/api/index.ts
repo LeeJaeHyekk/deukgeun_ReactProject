@@ -90,8 +90,10 @@ const createApiClient = (): AxiosInstance => {
         })
       }
 
+      // 401 또는 403 오류 시 토큰 갱신 시도
       if (
-        originalRequest.response?.status === 401 &&
+        (originalRequest.response?.status === 401 ||
+          originalRequest.response?.status === 403) &&
         !originalRequest.config?._retry &&
         originalRequest.config?.url !== "/api/auth/refresh" // refresh 엔드포인트 자체는 제외
       ) {
@@ -99,19 +101,23 @@ const createApiClient = (): AxiosInstance => {
         originalRequest.config._retry = true
 
         try {
+          console.log("🔄 토큰 갱신 시도...")
           const refreshResponse = await instance.post("/api/auth/refresh")
           const { accessToken } = refreshResponse.data.data
 
+          console.log("✅ 토큰 갱신 성공, 새 토큰 설정")
           storage.set("accessToken", accessToken)
 
+          // 원래 요청의 헤더에 새 토큰 설정
           if (originalRequest.config.headers) {
             originalRequest.config.headers.Authorization = `Bearer ${accessToken}`
           }
 
+          console.log("🔄 원래 요청 재시도")
           return instance(originalRequest.config)
         } catch (refreshError: unknown) {
           // 토큰 갱신 실패 시 로그아웃
-          console.log("토큰 갱신 실패, 로그아웃 처리")
+          console.log("❌ 토큰 갱신 실패, 로그아웃 처리")
           storage.remove("accessToken")
           storage.remove("user")
           window.location.href = "/login"

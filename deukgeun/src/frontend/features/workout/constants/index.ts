@@ -2,11 +2,11 @@ import type { TabConfig } from "../types"
 
 // 탭 설정 (중앙화)
 export const TAB_CONFIG: TabConfig[] = [
-  { id: "overview", label: "개요", icon: "📊" },
-  { id: "plans", label: "계획", icon: "📋" },
-  { id: "sessions", label: "세션", icon: "⏱️" },
-  { id: "goals", label: "목표", icon: "🎯" },
-  { id: "progress", label: "진행상황", icon: "📊" },
+  { key: "overview", label: "개요", icon: "📊" },
+  { key: "plans", label: "계획", icon: "📋" },
+  { key: "sessions", label: "세션", icon: "⏱️" },
+  { key: "goals", label: "목표", icon: "🎯" },
+  { key: "progress", label: "진행상황", icon: "📊" },
 ] as const
 
 // 차트 설정

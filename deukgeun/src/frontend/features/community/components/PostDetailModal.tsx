@@ -2,7 +2,10 @@ import { useState, useEffect } from "react"
 import { commentsApi } from "@shared/api"
 import { showToast } from "@shared/lib"
 import { useAuthContext } from "@shared/contexts/AuthContext"
-import { CommunityPost, PostComment } from "../../../../types/post"
+import {
+  PostDTO as CommunityPost,
+  Comment as PostComment,
+} from "../../../../shared/types"
 import styles from "./PostDetailModal.module.css"
 
 interface PostDetailModalProps {

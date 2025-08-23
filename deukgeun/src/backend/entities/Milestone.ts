@@ -8,7 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
-import type { MilestoneType } from "../../shared/types"
+import type { MilestoneType } from "../types"
 import { User } from "./User"
 
 @Entity("milestones")

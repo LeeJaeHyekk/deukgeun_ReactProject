@@ -4,7 +4,7 @@
 
 import { useState, useCallback, useRef, useMemo } from "react"
 import { MachineApiService } from "../services/machineApi"
-import type { Machine, MachineFilterQuery } from "../types"
+import type { Machine, MachineFilterQuery } from "@dto/index"
 
 const FETCH_COOLDOWN = 500 // 0.5초로 단축
 const CACHE_DURATION = 5 * 60 * 1000 // 5분 캐시
@@ -55,7 +55,7 @@ export const useMachines = () => {
         const endTime = performance.now()
 
         // 성능 메트릭 로깅 (개발 환경에서만)
-        if (process.env.NODE_ENV === "development") {
+        if (import.meta.env.DEV) {
           console.log(`🚀 API 호출 완료: ${(endTime - startTime).toFixed(2)}ms`)
         }
 

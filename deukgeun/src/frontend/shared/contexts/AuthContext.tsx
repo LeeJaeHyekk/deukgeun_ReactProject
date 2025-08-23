@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from "react"
 import { useAuth } from "../hooks/useAuth"
-import { User } from "../../../types"
+import { User } from "../../../shared/types"
 
 interface AuthContextType {
   isLoggedIn: boolean
@@ -14,6 +14,7 @@ interface AuthContextType {
   isLoading: boolean
   login: (user: User, token: string) => void
   logout: () => Promise<void>
+  updateUser: (updatedUser: Partial<User>) => void
   checkAuthStatus: () => Promise<boolean>
 }
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -34,6 +35,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isLoading: auth.isLoading,
       login: auth.login,
       logout: auth.logout,
+      updateUser: auth.updateUser,
       checkAuthStatus: auth.checkAuthStatus,
     }
 
@@ -58,6 +60,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     auth.isLoading,
     auth.login,
     auth.logout,
+    auth.updateUser,
     auth.checkAuthStatus,
   ])
 

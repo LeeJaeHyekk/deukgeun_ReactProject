@@ -1,11 +1,12 @@
 import { Request, Response } from "express"
 import { MachineService } from "../services/machineService"
+import { toMachineDTO, toMachineDTOList } from "@transformers/index"
 import type {
   CreateMachineRequest,
   UpdateMachineRequest,
   MachineFilterQuery,
   MachineListResponse,
-} from "../types/machine"
+} from "@dto/index"
 import { logger } from "../utils/logger"
 
 // Machine 서비스 인스턴스 생성 (지연 초기화)
@@ -27,24 +28,27 @@ export const createMachine = async (req: Request, res: Response) => {
     const machineData: CreateMachineRequest = req.body
     const savedMachine = await getMachineService().createMachine(machineData)
 
+    // DTO 변환 적용
+    const machineDTO = toMachineDTO(savedMachine)
+
     // 성공 로그 출력
     console.log("=== Machine Created Successfully ===")
-    console.log("Machine ID:", savedMachine.id)
-    console.log("Machine Name:", savedMachine.name)
-    console.log("Machine Name (EN):", savedMachine.nameEn)
-    console.log("Category:", savedMachine.category)
-    console.log("Difficulty Level:", savedMachine.difficulty)
-    console.log("Target Muscles:", savedMachine.targetMuscles)
-    console.log("Created At:", savedMachine.createdAt)
-    console.log("Full Object:", JSON.stringify(savedMachine, null, 2))
+    console.log("Machine ID:", machineDTO.id)
+    console.log("Machine Name:", machineDTO.name)
+    console.log("Machine Name (EN):", machineDTO.nameEn)
+    console.log("Category:", machineDTO.category)
+    console.log("Difficulty Level:", machineDTO.difficulty)
+    console.log("Target Muscles:", machineDTO.targetMuscles)
+    console.log("Created At:", machineDTO.createdAt)
+    console.log("Full Object:", JSON.stringify(machineDTO, null, 2))
 
     logger.info(
-      `Machine created - ID: ${savedMachine.id}, Name: ${savedMachine.name}`
+      `Machine created - ID: ${machineDTO.id}, Name: ${machineDTO.name}`
     )
 
     res.status(201).json({
       message: "Machine created successfully",
-      data: savedMachine,
+      data: machineDTO,
     })
   } catch (error) {
     logger.error("Machine creation failed:", error)
@@ -63,12 +67,15 @@ export const getAllMachines = async (_: Request, res: Response) => {
   try {
     const machines = await getMachineService().getAllMachines()
 
-    logger.info(`Retrieved ${machines.length} machines`)
+    // DTO 변환 적용
+    const machineDTOs = toMachineDTOList(machines)
+
+    logger.info(`Retrieved ${machineDTOs.length} machines`)
 
     res.status(200).json({
       message: "Machines retrieved successfully",
-      data: machines,
-      count: machines.length,
+      data: machineDTOs,
+      count: machineDTOs.length,
     })
   } catch (error) {
     logger.error("Machine retrieval failed:", error)
@@ -95,14 +102,17 @@ export const getMachineById = async (req: Request, res: Response) => {
       })
     }
 
+    // DTO 변환 적용
+    const machineDTO = toMachineDTO(machine)
+
     logger.info(`Machine retrieved - ID: ${id}`)
 
     res.status(200).json({
       message: "Machine retrieved successfully",
-      data: machine,
+      data: machineDTO,
     })
   } catch (error) {
-    logger.error(`Machine retrieval failed - ID: ${req.params.id}:`, error)
+    logger.error("Machine retrieval failed:", error)
     res.status(500).json({
       message: "Failed to retrieve machine",
     })
@@ -181,14 +191,10 @@ export const deleteMachine = async (req: Request, res: Response) => {
 export const filterMachines = async (req: Request, res: Response) => {
   try {
     const filters: MachineFilterQuery = {
-      category: req.query.category as
-        | "상체"
-        | "하체"
-        | "전신"
-        | "기타"
-        | undefined,
-      difficulty: req.query.difficulty as "초급" | "중급" | "고급" | undefined,
+      category: req.query.category as string | undefined,
+      difficulty: req.query.difficulty as string | undefined,
       target: req.query.target as string,
+      search: req.query.search as string | undefined,
     }
 
     const result = await getMachineService().filterMachines(filters)

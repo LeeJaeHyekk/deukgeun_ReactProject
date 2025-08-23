@@ -43,6 +43,27 @@ export interface ErrorResponse {
   statusCode?: number
 }
 
+// 성공 응답 타입
+export interface SuccessResponse<T = unknown> {
+  success: true
+  message: string
+  data: T
+  statusCode?: number
+}
+
+// 공통 상태 타입
+export interface LoadingState {
+  isLoading: boolean
+  error?: string
+}
+
+// ID 타입
+export type ID = number | string
+
+// 날짜 관련 타입
+export type DateString = string // ISO 8601 형식
+export type TimeString = string // HH:mm:ss 형식
+
 // 사용자 역할
 export type UserRole = "user" | "admin" | "moderator"
 
@@ -79,4 +100,46 @@ export interface UserProfile {
   isPublic: boolean
   createdAt: Date
   updatedAt: Date
+}
+
+// 대시보드 데이터 타입
+export interface DashboardData {
+  totalWorkouts: number
+  totalSessions: number
+  totalGoals: number
+  completedGoals: number
+  currentStreak: number
+  totalExp: number
+  level: number
+  summary?: {
+    totalWorkouts: number
+    totalGoals: number
+    totalSessions: number
+    totalPlans: number
+    completedSessions: number
+    streak: number
+  }
+  weeklyStats?: {
+    totalSessions: number
+    totalDuration: number
+    averageMood: number
+    averageEnergy: number
+  }
+  recentSessions: Array<{
+    id: number
+    name: string
+    date: Date
+    duration: number
+  }>
+  upcomingGoals: Array<{
+    id: number
+    title: string
+    deadline: Date
+    progress: number
+  }>
+  weeklyProgress: Array<{
+    date: Date
+    workouts: number
+    exp: number
+  }>
 }

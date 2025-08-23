@@ -10,7 +10,7 @@ import {
   ValidationResult,
   SecurityInfo,
   RecoveryLog,
-} from "../types/accountRecovery"
+} from "../types"
 import bcrypt from "bcrypt"
 import crypto from "crypto"
 
@@ -43,7 +43,7 @@ class AccountRecoveryService {
   private maskData(data: string, type: "email" | "phone"): string {
     if (type === "email") {
       const [local, domain] = data.split("@")
-      if (local.length <= 2) return data
+      if (!local || !domain || local.length <= 2) return data
       return `${local.substring(0, 2)}***@${domain}`
     } else if (type === "phone") {
       return data.replace(/(\d{3})-(\d{4})-\d{4}/, "$1-$2-****")
@@ -121,23 +121,32 @@ class AccountRecoveryService {
           type: "find_id",
           status: "failure",
           ipAddress: securityInfo.ipAddress,
-          userAgent: securityInfo.userAgent,
+          userAgent: securityInfo.userAgent || null,
           timestamp: securityInfo.timestamp,
           error: "Rate limit exceeded",
+          success: false,
         })
         return {
           success: false,
           error: "요청이 너무 많습니다. 1시간 후에 다시 시도해주세요.",
-        }
+        } as const
       }
 
       // Input validation
       const validation = this.validateUserInput(
-        { name, phone, gender, birthday },
+        {
+          name,
+          phone,
+          ...(gender && { gender }),
+          ...(birthday && { birthday }),
+        },
         "find_id_simple"
       )
       if (!validation.isValid) {
-        return { success: false, error: validation.errors[0] }
+        return {
+          success: false,
+          error: validation.errors[0] || "Validation failed",
+        } as const
       }
 
       // Build where clause based on provided fields
@@ -166,9 +175,10 @@ class AccountRecoveryService {
           type: "find_id",
           status: "failure",
           ipAddress: securityInfo.ipAddress,
-          userAgent: securityInfo.userAgent,
+          userAgent: securityInfo.userAgent || null,
           timestamp: securityInfo.timestamp,
           error: "User not found",
+          success: false,
         })
         return {
           success: false,
@@ -185,8 +195,9 @@ class AccountRecoveryService {
         type: "find_id",
         status: "success",
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        userAgent: securityInfo.userAgent || null,
         timestamp: securityInfo.timestamp,
+        success: true,
       })
 
       return {
@@ -226,9 +237,10 @@ class AccountRecoveryService {
           type: "reset_password",
           status: "failure",
           ipAddress: securityInfo.ipAddress,
-          userAgent: securityInfo.userAgent,
+          userAgent: securityInfo.userAgent || null,
           timestamp: securityInfo.timestamp,
           error: "Rate limit exceeded",
+          success: false,
         })
         return {
           success: false,
@@ -238,11 +250,20 @@ class AccountRecoveryService {
 
       // Input validation
       const validation = this.validateUserInput(
-        { username, name, phone, gender, birthday },
+        {
+          username,
+          name,
+          phone,
+          ...(gender && { gender }),
+          ...(birthday && { birthday }),
+        },
         "reset_password_simple_step1"
       )
       if (!validation.isValid) {
-        return { success: false, error: validation.errors[0] }
+        return {
+          success: false,
+          error: validation.errors[0] || "Validation failed",
+        }
       }
 
       // Build where clause based on provided fields
@@ -272,9 +293,10 @@ class AccountRecoveryService {
           type: "reset_password",
           status: "failure",
           ipAddress: securityInfo.ipAddress,
-          userAgent: securityInfo.userAgent,
+          userAgent: securityInfo.userAgent || null,
           timestamp: securityInfo.timestamp,
           error: "User not found",
+          success: false,
         })
         return {
           success: false,
@@ -294,10 +316,10 @@ class AccountRecoveryService {
         type: "reset_password",
         code,
         expiresAt,
-        phone: user.phone,
+        ...(user.phone && { phone: user.phone }),
         name: user.nickname,
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        ...(securityInfo.userAgent && { userAgent: securityInfo.userAgent }),
       })
 
       await this.verificationTokenRepo.save(verificationToken)
@@ -308,8 +330,9 @@ class AccountRecoveryService {
         type: "reset_password",
         status: "success",
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        userAgent: securityInfo.userAgent || null,
         timestamp: securityInfo.timestamp,
+        success: true,
       })
 
       return {
@@ -354,9 +377,10 @@ class AccountRecoveryService {
           type: "reset_password",
           status: "failure",
           ipAddress: securityInfo.ipAddress,
-          userAgent: securityInfo.userAgent,
+          userAgent: securityInfo.userAgent || null,
           timestamp: securityInfo.timestamp,
           error: "Rate limit exceeded",
+          success: false,
         })
         return {
           success: false,
@@ -370,7 +394,10 @@ class AccountRecoveryService {
         "reset_password_simple_step2"
       )
       if (!validation.isValid) {
-        return { success: false, error: validation.errors[0] }
+        return {
+          success: false,
+          error: validation.errors[0] || "Validation failed",
+        } as const
       }
 
       // 개발 환경에서는 인증 코드 검증 건너뛰기
@@ -395,9 +422,10 @@ class AccountRecoveryService {
             type: "reset_password",
             status: "failure",
             ipAddress: securityInfo.ipAddress,
-            userAgent: securityInfo.userAgent,
+            userAgent: securityInfo.userAgent || null,
             timestamp: securityInfo.timestamp,
             error: "Invalid or expired code",
+            success: false,
           })
           return {
             success: false,
@@ -433,8 +461,9 @@ class AccountRecoveryService {
         type: "reset_password",
         status: "success",
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        userAgent: securityInfo.userAgent || null,
         timestamp: securityInfo.timestamp,
+        success: true,
       })
 
       return {
@@ -591,9 +620,10 @@ class AccountRecoveryService {
           type: "find_id",
           status: "failure",
           ipAddress: securityInfo.ipAddress,
-          userAgent: securityInfo.userAgent,
+          userAgent: securityInfo.userAgent || null,
           timestamp: securityInfo.timestamp,
           error: "Rate limit exceeded",
+          success: false,
         })
         return {
           success: false,
@@ -604,7 +634,10 @@ class AccountRecoveryService {
       // Input validation
       const validation = this.validateUserInput({ name, phone }, "find_id")
       if (!validation.isValid) {
-        return { success: false, error: validation.errors[0] }
+        return {
+          success: false,
+          error: validation.errors[0] || "Validation failed",
+        }
       }
 
       // Find user by name and phone
@@ -622,9 +655,10 @@ class AccountRecoveryService {
           type: "find_id",
           status: "failure",
           ipAddress: securityInfo.ipAddress,
-          userAgent: securityInfo.userAgent,
+          userAgent: securityInfo.userAgent || null,
           timestamp: securityInfo.timestamp,
           error: "User not found",
+          success: false,
         })
         return {
           success: false,
@@ -644,10 +678,10 @@ class AccountRecoveryService {
         type: "find_id",
         code,
         expiresAt,
-        phone: user.phone,
+        ...(user.phone && { phone: user.phone }),
         name: user.nickname,
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        ...(securityInfo.userAgent && { userAgent: securityInfo.userAgent }),
       })
 
       await this.verificationTokenRepo.save(verificationToken)
@@ -658,8 +692,9 @@ class AccountRecoveryService {
         type: "find_id",
         status: "success",
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        userAgent: securityInfo.userAgent || null,
         timestamp: securityInfo.timestamp,
+        success: true,
       })
 
       return {
@@ -717,9 +752,10 @@ class AccountRecoveryService {
           type: "find_id",
           status: "failure",
           ipAddress: securityInfo.ipAddress,
-          userAgent: securityInfo.userAgent,
+          userAgent: securityInfo.userAgent || null,
           timestamp: securityInfo.timestamp,
           error: "Invalid or expired code",
+          success: false,
         })
         return {
           success: false,
@@ -747,8 +783,9 @@ class AccountRecoveryService {
         type: "find_id",
         status: "success",
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        userAgent: securityInfo.userAgent || null,
         timestamp: securityInfo.timestamp,
+        success: true,
       })
 
       return {
@@ -791,7 +828,10 @@ class AccountRecoveryService {
         "reset_password"
       )
       if (!validation.isValid) {
-        return { success: false, error: validation.errors[0] }
+        return {
+          success: false,
+          error: validation.errors[0] || "Validation failed",
+        }
       }
 
       // Find user by name and phone
@@ -809,9 +849,10 @@ class AccountRecoveryService {
           type: "reset_password",
           status: "failure",
           ipAddress: securityInfo.ipAddress,
-          userAgent: securityInfo.userAgent,
+          userAgent: securityInfo.userAgent || null,
           timestamp: securityInfo.timestamp,
           error: "User not found",
+          success: false,
         })
         return {
           success: false,
@@ -831,10 +872,10 @@ class AccountRecoveryService {
         type: "reset_password",
         code,
         expiresAt,
-        phone: user.phone,
+        ...(user.phone && { phone: user.phone }),
         name: user.nickname,
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        ...(securityInfo.userAgent && { userAgent: securityInfo.userAgent }),
       })
 
       await this.verificationTokenRepo.save(verificationToken)
@@ -845,8 +886,9 @@ class AccountRecoveryService {
         type: "reset_password",
         status: "success",
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        userAgent: securityInfo.userAgent || null,
         timestamp: securityInfo.timestamp,
+        success: true,
       })
 
       return {
@@ -904,9 +946,10 @@ class AccountRecoveryService {
           type: "reset_password",
           status: "failure",
           ipAddress: securityInfo.ipAddress,
-          userAgent: securityInfo.userAgent,
+          userAgent: securityInfo.userAgent || null,
           timestamp: securityInfo.timestamp,
           error: "Invalid or expired code",
+          success: false,
         })
         return {
           success: false,
@@ -929,7 +972,7 @@ class AccountRecoveryService {
         email: email.toLowerCase().trim(),
         expiresAt,
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        ...(securityInfo.userAgent && { userAgent: securityInfo.userAgent }),
       })
 
       await this.passwordResetTokenRepo.save(passwordResetToken)
@@ -940,8 +983,9 @@ class AccountRecoveryService {
         type: "reset_password",
         status: "success",
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        userAgent: securityInfo.userAgent || null,
         timestamp: securityInfo.timestamp,
+        success: true,
       })
 
       return {
@@ -984,7 +1028,10 @@ class AccountRecoveryService {
         "reset_password"
       )
       if (!validation.isValid) {
-        return { success: false, error: validation.errors[0] }
+        return {
+          success: false,
+          error: validation.errors[0] || "Validation failed",
+        }
       }
 
       // Find password reset token
@@ -1003,9 +1050,10 @@ class AccountRecoveryService {
           type: "reset_password",
           status: "failure",
           ipAddress: securityInfo.ipAddress,
-          userAgent: securityInfo.userAgent,
+          userAgent: securityInfo.userAgent || null,
           timestamp: securityInfo.timestamp,
           error: "Invalid or expired token",
+          success: false,
         })
         return {
           success: false,
@@ -1040,8 +1088,9 @@ class AccountRecoveryService {
         type: "reset_password",
         status: "success",
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        userAgent: securityInfo.userAgent || null,
         timestamp: securityInfo.timestamp,
+        success: true,
       })
 
       return { success: true }
@@ -1083,9 +1132,10 @@ class AccountRecoveryService {
           type: "find_id",
           status: "failure",
           ipAddress: securityInfo.ipAddress,
-          userAgent: securityInfo.userAgent,
+          userAgent: securityInfo.userAgent || null,
           timestamp: securityInfo.timestamp,
           error: "User not found",
+          success: false,
         })
         return {
           success: false,
@@ -1099,8 +1149,9 @@ class AccountRecoveryService {
         type: "find_id",
         status: "success",
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        userAgent: securityInfo.userAgent || null,
         timestamp: securityInfo.timestamp,
+        success: true,
       })
 
       return {
@@ -1148,9 +1199,10 @@ class AccountRecoveryService {
           type: "reset_password",
           status: "failure",
           ipAddress: securityInfo.ipAddress,
-          userAgent: securityInfo.userAgent,
+          userAgent: securityInfo.userAgent || null,
           timestamp: securityInfo.timestamp,
           error: "User not found",
+          success: false,
         })
         return {
           success: false,
@@ -1168,7 +1220,7 @@ class AccountRecoveryService {
         email: user.email,
         expiresAt,
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        ...(securityInfo.userAgent && { userAgent: securityInfo.userAgent }),
       })
 
       await this.passwordResetTokenRepo.save(passwordResetToken)
@@ -1179,8 +1231,9 @@ class AccountRecoveryService {
         type: "reset_password",
         status: "success",
         ipAddress: securityInfo.ipAddress,
-        userAgent: securityInfo.userAgent,
+        userAgent: securityInfo.userAgent || null,
         timestamp: securityInfo.timestamp,
+        success: true,
       })
 
       return {

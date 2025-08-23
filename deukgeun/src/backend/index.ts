@@ -8,8 +8,9 @@ import { autoInitializeScheduler } from "./services/autoUpdateScheduler"
 
 async function startServer() {
   try {
+    console.log("🔄 Initializing database connection...")
     await AppDataSource.initialize()
-    console.log("Database connected successfully")
+    console.log("✅ Database connected successfully")
 
     // Initialize auto-update scheduler
     autoInitializeScheduler()
@@ -18,10 +19,16 @@ async function startServer() {
     const availablePort = await getAvailablePort(config.port || 5000)
 
     app.listen(availablePort, () => {
-      logger.info(`Server is running on port ${availablePort}`)
+      logger.info(`🚀 Server is running on port ${availablePort}`)
+      console.log(
+        `🌐 Backend server is accessible at http://localhost:${availablePort}`
+      )
+      console.log(
+        `📊 Database: ${process.env.DB_NAME || "deukgeun_db"} on ${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || "3306"}`
+      )
     })
   } catch (error) {
-    console.error("Database connection failed:", error)
+    console.error("❌ Database connection failed:", error)
     process.exit(1)
   }
 }

@@ -8,11 +8,11 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
     <div className="tab-navigation">
       {TAB_CONFIG.map(tab => (
         <button
-          key={tab.id}
-          className={`tab-button ${activeTab === tab.id ? "active" : ""}`}
-          onClick={() => onTabChange(tab.id)}
+          key={tab.key}
+          className={`tab-button ${activeTab === tab.key ? "active" : ""}`}
+          onClick={() => onTabChange(tab.key)}
           aria-label={`${tab.label} 탭으로 이동`}
-          aria-selected={activeTab === tab.id}
+          aria-selected={activeTab === tab.key}
         >
           <span className="tab-icon">{tab.icon}</span>
           <span className="tab-label">{tab.label}</span>

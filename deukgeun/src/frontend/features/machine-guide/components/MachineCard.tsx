@@ -3,8 +3,12 @@
 // ============================================================================
 
 import React, { useCallback } from "react"
-import type { Machine } from "../types"
-import { findMatchingImage } from "../utils/machineImageUtils"
+import { findMatchingImage, getFullImageUrl } from "../utils/machineImageUtils"
+import type {
+  Machine,
+  MachineCategoryDTO,
+  DifficultyLevelDTO,
+} from "@dto/index"
 import "./MachineCard.css"
 
 interface MachineCardProps {
@@ -46,8 +50,9 @@ export const MachineCard: React.FC<MachineCardProps> = ({
   }
 
   // 카테고리 아이콘 가져오기
-  const getCategoryIcon = (category: string) => {
-    switch (category.toLowerCase()) {
+  const getCategoryIcon = (category: string | MachineCategoryDTO) => {
+    const categoryStr = typeof category === "string" ? category : category.name
+    switch (categoryStr.toLowerCase()) {
       case "cardio":
         return "🏃"
       case "strength":
@@ -108,15 +113,24 @@ export const MachineCard: React.FC<MachineCardProps> = ({
         {/* 카테고리 및 난이도 배지 */}
         <div className="card-badges">
           <span className="category-badge">
-            {getCategoryIcon(machine.category)} {machine.category}
+            {getCategoryIcon(machine.category)}{" "}
+            {typeof machine.category === "string"
+              ? machine.category
+              : machine.category.name}
           </span>
           <span
             className="difficulty-badge"
             style={{
-              backgroundColor: getDifficultyColor(machine.difficulty),
+              backgroundColor: getDifficultyColor(
+                typeof machine.difficulty === "string"
+                  ? machine.difficulty
+                  : machine.difficulty.name
+              ),
             }}
           >
-            {machine.difficulty}
+            {typeof machine.difficulty === "string"
+              ? machine.difficulty
+              : machine.difficulty.name}
           </span>
         </div>
       </div>
@@ -124,7 +138,7 @@ export const MachineCard: React.FC<MachineCardProps> = ({
       {/* 카드 본문 */}
       <div className="card-body">
         <h3 className="card-title">{machine.name}</h3>
-        
+
         {machine.nameKo && machine.nameKo !== machine.name && (
           <p className="card-subtitle">{machine.nameKo}</p>
         )}

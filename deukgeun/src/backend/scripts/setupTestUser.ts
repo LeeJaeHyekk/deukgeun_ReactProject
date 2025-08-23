@@ -63,6 +63,8 @@ async function setupTestUser() {
       userId: savedUser.id,
       rewardType: "badge",
       rewardId: "welcome_badge_001",
+      rewardName: "환영 뱃지",
+      rewardDescription: "첫 가입을 축하합니다!",
       metadata: {
         name: "환영 뱃지",
         description: "첫 가입을 축하합니다!",

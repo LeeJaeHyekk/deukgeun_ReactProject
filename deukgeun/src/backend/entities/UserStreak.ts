@@ -8,7 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
-import type { StreakType } from "../../shared/types"
+import type { StreakType } from "../types"
 import { User } from "./User"
 
 @Entity("user_streaks")

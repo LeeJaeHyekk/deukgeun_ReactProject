@@ -13,7 +13,8 @@ import type {
   EmailConfig,
   SMSConfig,
   UploadConfig,
-} from "../../types"
+  SchedulerConfig,
+} from "../types"
 
 // 환경 변수 로드
 dotenv.config()
@@ -29,6 +30,7 @@ const databaseConfig: DatabaseConfig = {
   username: process.env.DB_USERNAME || "root",
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "deukgeun_db",
+  dialect: "mysql",
   synchronize: environment === "development",
   logging: environment === "development",
 }
@@ -86,14 +88,9 @@ const uploadConfig: UploadConfig = {
 }
 
 // 스케줄러 설정
-const schedulerConfig = {
-  autoUpdateHour: parseInt(process.env.AUTO_UPDATE_HOUR || "6"),
-  autoUpdateMinute: parseInt(process.env.AUTO_UPDATE_MINUTE || "0"),
-  autoUpdateEnabled: process.env.AUTO_UPDATE_ENABLED === "true",
-  autoUpdateType: process.env.AUTO_UPDATE_TYPE || "enhanced",
-  autoUpdateIntervalDays: parseInt(
-    process.env.AUTO_UPDATE_INTERVAL_DAYS || "3"
-  ),
+const schedulerConfig: SchedulerConfig = {
+  enabled: process.env.AUTO_UPDATE_ENABLED === "true",
+  jobs: [],
 }
 
 // 애플리케이션 설정

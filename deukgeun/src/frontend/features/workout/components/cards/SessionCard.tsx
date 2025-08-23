@@ -11,7 +11,7 @@ import {
   User,
   Timer,
 } from "lucide-react"
-import type { WorkoutSession } from "../../../../../types"
+import type { WorkoutSession } from "../../../../../shared/types"
 import type { SessionCardProps } from "../../types"
 import "./SessionCard.css"
 
@@ -50,7 +50,7 @@ export function SessionCard({
     sessionId: session.id,
     sessionName: session.name,
     isActive,
-    isCompleted: session.isCompleted,
+    status: session.status,
   })
 
   // 운동 진행률 계산
@@ -69,9 +69,9 @@ export function SessionCard({
   const { completed, total, percentage } = calculateProgress()
 
   // 세션 상태 확인
-  const isInProgress = isActive && !session.isCompleted
-  const isPaused = isActive && session.isCompleted === false
-  const isCompleted = session.isCompleted
+  const isInProgress = isActive && session.status === "in_progress"
+  const isPaused = isActive && session.status === "paused"
+  const isCompleted = session.status === "completed"
 
   // 사용자 정보 추출
   const userName =
@@ -82,9 +82,9 @@ export function SessionCard({
     e.preventDefault()
     logger.info("Card clicked", { sessionId: session.id })
     if (onClick) {
-      onClick()
+      onClick(session)
     } else {
-      onView?.()
+      onView?.(session)
     }
   }
 
@@ -96,13 +96,13 @@ export function SessionCard({
           sessionId: session.id,
           key: e.key,
         })
-        onClick()
+        onClick(session)
       } else {
         logger.info("Card key pressed - onView handler", {
           sessionId: session.id,
           key: e.key,
         })
-        onView?.()
+        onView?.(session)
       }
     }
   }
@@ -110,31 +110,31 @@ export function SessionCard({
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     logger.info("Edit button clicked", { sessionId: session.id })
-    onEdit?.()
+    onEdit?.(session)
   }
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     logger.info("Delete button clicked", { sessionId: session.id })
-    onDelete?.()
+    onDelete?.(session.id)
   }
 
   const handleStartClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     logger.info("Start button clicked", { sessionId: session.id })
-    onStart?.()
+    onStart?.(session)
   }
 
   const handlePauseClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     logger.info("Pause button clicked", { sessionId: session.id })
-    onPause?.()
+    onPause?.(session)
   }
 
   const handleCompleteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     logger.info("Complete button clicked", { sessionId: session.id })
-    onComplete?.()
+    onComplete?.(0) // exerciseIndex는 0으로 기본값 설정
   }
 
   const formatDuration = (minutes?: number) => {
@@ -223,10 +223,10 @@ export function SessionCard({
                 <span>완료: {formatDate(session.endTime)}</span>
               </div>
             )}
-            {session.duration && (
+            {session.totalDurationMinutes && (
               <div className="info-item">
                 <Timer size={14} />
-                <span>소요시간: {formatDuration(session.duration)}</span>
+                <span>소요시간: {session.totalDurationMinutes}분</span>
               </div>
             )}
           </div>

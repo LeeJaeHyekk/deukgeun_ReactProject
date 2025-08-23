@@ -169,7 +169,10 @@ export class SectionGenerationService {
    */
   private getExercisesForGoal(goalConfig: GoalSectionConfig): string[] {
     const { goalType, muscleGroup } = goalConfig
-    const exercises = GOAL_TYPE_EXERCISES[goalType]?.[muscleGroup]
+    const exercises =
+      GOAL_TYPE_EXERCISES[goalType as keyof typeof GOAL_TYPE_EXERCISES]?.[
+        muscleGroup as keyof (typeof GOAL_TYPE_EXERCISES)[typeof goalType]
+      ]
 
     if (!exercises) {
       logger.warn("해당 목표 타입과 근육 그룹에 대한 운동이 없습니다", {

@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { PostLike } from "../entities/Like"
 import { Post } from "../entities/Post"
 import { AppDataSource } from "../config/database"
+import { toLikeDTO } from "../transformers"
 
 export class LikeController {
   // 좋아요 토글 (추가/제거)
@@ -52,6 +53,7 @@ export class LikeController {
 
       let isLiked: boolean
       let newLikeCount: number
+      let likeDTO: any
 
       if (existingLike) {
         // 좋아요 제거
@@ -77,7 +79,10 @@ export class LikeController {
           userId,
         })
 
-        await likeRepository.save(like)
+        const savedLike = await likeRepository.save(like)
+
+        // DTO 변환 적용
+        likeDTO = toLikeDTO(savedLike)
 
         // 포스트의 좋아요 수 증가
         await postRepository
@@ -100,6 +105,7 @@ export class LikeController {
         data: {
           isLiked,
           likeCount: newLikeCount,
+          like: likeDTO,
         },
       })
     } catch (error) {
@@ -107,6 +113,7 @@ export class LikeController {
       res.status(500).json({
         success: false,
         message: "좋아요 처리 중 오류가 발생했습니다.",
+        error: error instanceof Error ? error.message : "Unknown error",
       })
     }
   }

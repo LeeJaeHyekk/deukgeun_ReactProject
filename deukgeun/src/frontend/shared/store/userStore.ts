@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { persist, createJSONStorage } from "zustand/middleware"
-import type { User } from "@shared/types/common"
+import type { User } from "../../../shared/types"
 
 interface UserStore {
   user: User | null

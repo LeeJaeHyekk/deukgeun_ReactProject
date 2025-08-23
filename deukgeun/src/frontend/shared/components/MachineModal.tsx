@@ -1,5 +1,9 @@
 import React, { useMemo } from "react"
-import type { Machine } from "../../../types"
+import type {
+  Machine,
+  MachineCategoryDTO,
+  DifficultyLevelDTO,
+} from "../../../shared/types"
 import {
   findMatchingImage,
   getFullImageUrl,
@@ -15,6 +19,25 @@ interface MachineModalProps {
 
 export const MachineModal: React.FC<MachineModalProps> = React.memo(
   ({ machine, isOpen, onClose }) => {
+    // Union 타입을 처리하는 헬퍼 함수들
+    const getCategoryDisplay = (
+      category: string | MachineCategoryDTO
+    ): string => {
+      if (typeof category === "string") {
+        return category
+      }
+      return category.name
+    }
+
+    const getDifficultyDisplay = (
+      difficulty: string | DifficultyLevelDTO
+    ): string => {
+      if (typeof difficulty === "string") {
+        return difficulty
+      }
+      return difficulty.name
+    }
+
     const getDifficultyColor = (difficulty?: string) => {
       switch (difficulty) {
         case "beginner":
@@ -100,19 +123,23 @@ export const MachineModal: React.FC<MachineModalProps> = React.memo(
                 <span
                   className="machine-modal-badge category"
                   style={{
-                    backgroundColor: getCategoryColor(machine.category),
+                    backgroundColor: getCategoryColor(
+                      getCategoryDisplay(machine.category)
+                    ),
                   }}
                 >
-                  {machine.category}
+                  {getCategoryDisplay(machine.category)}
                 </span>
                 {machine.difficulty && (
                   <span
                     className="machine-modal-badge difficulty"
                     style={{
-                      backgroundColor: getDifficultyColor(machine.difficulty),
+                      backgroundColor: getDifficultyColor(
+                        getDifficultyDisplay(machine.difficulty)
+                      ),
                     }}
                   >
-                    {machine.difficulty}
+                    {getDifficultyDisplay(machine.difficulty)}
                   </span>
                 )}
               </div>

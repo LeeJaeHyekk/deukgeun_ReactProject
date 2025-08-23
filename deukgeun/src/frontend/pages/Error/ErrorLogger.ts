@@ -79,7 +79,7 @@ class ErrorLogger {
     }
 
     // 개발 환경에서는 즉시 콘솔에 출력
-    if (process.env.NODE_ENV === "development") {
+    if (import.meta.env.DEV) {
       this.logToConsole(errorLog)
     }
 
@@ -168,8 +168,8 @@ class ErrorLogger {
           ...log,
           timestamp: log.timestamp.toISOString(),
         })),
-        environment: process.env.NODE_ENV,
-        version: process.env.REACT_APP_VERSION || "unknown",
+        environment: import.meta.env.MODE,
+        version: import.meta.env.VITE_APP_VERSION || "unknown",
       }
 
       // 실제 구현 시 활성화

@@ -6,6 +6,7 @@ import { PostModal } from "../../features/community/components/PostModal"
 import { PostDetailModal } from "../../features/community/components/PostDetailModal"
 import styles from "./CommunityPage.module.css"
 import { Navigation } from "../../widgets/Navigation/Navigation"
+import type { PostDTO } from "../../../shared/types"
 
 // 타입 정의
 interface PostCategory {
@@ -14,31 +15,16 @@ interface PostCategory {
   count: number
 }
 
-interface Post {
-  id: number
-  title: string
-  content: string
-  author: {
-    id: number
-    nickname: string
-  }
-  category: string
-  likes: number
-  comments: number
-  createdAt: string
-  updatedAt: string
-}
-
 interface PostListResponse {
-  posts: Post[]
+  posts: PostDTO[]
   total: number
   page: number
   limit: number
 }
 
 export default function CommunityPage() {
-  const [posts, setPosts] = useState<Post[]>([])
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
+  const [posts, setPosts] = useState<PostDTO[]>([])
+  const [selectedPost, setSelectedPost] = useState<PostDTO | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>("")
@@ -134,7 +120,7 @@ export default function CommunityPage() {
   }
 
   // 게시글 상세 보기
-  const handleOpenPost = (post: Post) => {
+  const handleOpenPost = (post: PostDTO) => {
     setSelectedPost(post)
     setIsDetailModalOpen(true)
   }

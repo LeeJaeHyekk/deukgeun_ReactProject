@@ -30,8 +30,10 @@ app.use(
 // CORS 미들웨어 설정 - 프론트엔드와의 통신 허용
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173", // 허용할 오리진 설정
+    origin: ["http://localhost:5173", "http://localhost:3000"], // 허용할 오리진 설정 (배열로 여러 오리진 지원)
     credentials: true, // 쿠키/인증 정보 전달 허용
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // 허용할 HTTP 메서드
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // 허용할 헤더
   })
 )
 
@@ -45,29 +47,15 @@ app.use(cookieParser())
 app.use(express.json()) // JSON 형식 요청 본문 파싱
 app.use(express.urlencoded({ extended: true })) // URL 인코딩된 요청 본문 파싱
 
-// 정적 파일 서빙 설정 - 이미지 파일에 CORS 헤더 추가
+// 정적 파일 서빙 설정 - 이미지 파일 서빙 (CORS는 메인 미들웨어에서 처리)
 app.use(
   "/img",
-  (req, res, next) => {
-    // CORS 헤더 설정
-    res.header("Access-Control-Allow-Origin", "*") // 모든 오리진 허용
-    res.header("Access-Control-Allow-Methods", "GET") // GET 메서드만 허용
-    res.header("Access-Control-Allow-Headers", "Content-Type") // Content-Type 헤더 허용
-    next()
-  },
   express.static(path.join(__dirname, "../../public/img")) // 이미지 파일 정적 서빙
 )
 
-// 공개 파일 서빙 설정 - public 폴더에 CORS 헤더 추가
+// 공개 파일 서빙 설정 - public 폴더 서빙 (CORS는 메인 미들웨어에서 처리)
 app.use(
   "/public",
-  (req, res, next) => {
-    // CORS 헤더 설정
-    res.header("Access-Control-Allow-Origin", "*") // 모든 오리진 허용
-    res.header("Access-Control-Allow-Methods", "GET") // GET 메서드만 허용
-    res.header("Access-Control-Allow-Headers", "Content-Type") // Content-Type 헤더 허용
-    next()
-  },
   express.static(path.join(__dirname, "../../public")) // public 폴더 정적 서빙
 )
 

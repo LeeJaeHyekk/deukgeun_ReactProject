@@ -82,7 +82,7 @@ export function ErrorDashboard({ isOpen, onClose }: ErrorDashboardProps) {
                         }}
                       />
                     </div>
-                    <span style={styles.chartValue}>{count}</span>
+                    <span style={styles.chartValue}>{String(count)}</span>
                   </div>
                 ))}
               </div>
@@ -103,7 +103,7 @@ export function ErrorDashboard({ isOpen, onClose }: ErrorDashboardProps) {
                       >
                         {severity}
                       </span>
-                      <span style={styles.severityCount}>{count}</span>
+                      <span style={styles.severityCount}>{String(count)}</span>
                     </div>
                   )
                 )}

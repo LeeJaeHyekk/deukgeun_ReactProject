@@ -108,6 +108,8 @@ afterAll(() => {
 
 // 프론트엔드 테스트 환경 변수 설정
 if (typeof window !== "undefined") {
+  // Vite 환경에서는 import.meta.env를 사용하지만, 테스트 환경에서는 process.env를 사용
+  // 이 파일은 테스트 전용 설정이므로 그대로 유지
   process.env.NODE_ENV = "test"
   process.env.REACT_APP_API_URL = "http://localhost:5000"
   process.env.REACT_APP_ENVIRONMENT = "test"

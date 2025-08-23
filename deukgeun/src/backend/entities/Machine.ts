@@ -8,7 +8,7 @@ import {
 import type {
   MachineCategory,
   DifficultyLevel,
-} from "../../shared/types/machine"
+} from "../types/machine"
 
 @Entity("machines")
 export class Machine {

@@ -163,7 +163,7 @@ export function logAdminAction(
   console.log("🔧 Admin Action:", logEntry)
 
   // 실제 프로덕션에서는 서버로 로그를 전송
-  if (process.env.NODE_ENV === "production") {
+  if (import.meta.env.PROD) {
     // TODO: 서버 로그 API 호출
   }
 }

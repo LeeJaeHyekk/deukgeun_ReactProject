@@ -16,7 +16,7 @@ import {
   resetPasswordSimpleStep1,
   resetPasswordSimpleStep2,
 } from "../controllers/authController"
-import { authenticateToken } from "../middlewares/auth"
+import { authMiddleware } from "../middlewares/auth"
 
 const router = Router()
 
@@ -24,7 +24,7 @@ router.post("/login", login as any)
 router.post("/register", register as any)
 router.post("/refresh", refreshToken as any)
 router.post("/logout", logout as any)
-router.get("/check", authenticateToken, checkAuth as any)
+router.get("/check", authMiddleware, checkAuth as any)
 router.post("/find-id", findId as any)
 router.post("/find-password", findPassword as any)
 

@@ -123,7 +123,22 @@ interface CreateSetData {
 export class WorkoutJournalService {
   // 운동 계획 관련
   async getUserPlans(userId: number) {
+    console.log(
+      `🔍 [WorkoutJournalService] getUserPlans 호출 - userId: ${userId}`
+    )
+
     try {
+      // 데이터베이스 연결 상태 확인
+      if (!AppDataSource.isInitialized) {
+        console.error(
+          "❌ [WorkoutJournalService] 데이터베이스 연결이 초기화되지 않음"
+        )
+        throw new Error("데이터베이스 연결이 초기화되지 않았습니다.")
+      }
+
+      console.log(
+        `📊 [WorkoutJournalService] 사용자 ${userId}의 운동 계획 조회 시작`
+      )
       const planRepository = AppDataSource.getRepository(WorkoutPlan)
       const plans = await planRepository.find({
         where: { userId: userId },
@@ -131,8 +146,20 @@ export class WorkoutJournalService {
         relations: ["exercises", "exercises.machine"],
       })
 
+      console.log(
+        `✅ [WorkoutJournalService] 운동 계획 ${plans.length}개 조회 완료`
+      )
+      console.log(
+        `📋 [WorkoutJournalService] 조회된 계획 목록:`,
+        plans.map(p => ({
+          id: p.id,
+          name: p.name,
+          exerciseCount: p.exercises?.length || 0,
+        }))
+      )
+
       // 프론트엔드 호환성을 위해 필드명 변환
-      return plans.map(plan => ({
+      const transformedPlans = plans.map(plan => ({
         ...plan,
         exercises:
           plan.exercises?.map(exercise => ({
@@ -148,8 +175,13 @@ export class WorkoutJournalService {
             notes: exercise.notes || "",
           })) || [],
       }))
+
+      console.log(
+        `🔄 [WorkoutJournalService] 필드명 변환 완료 - 총 ${transformedPlans.length}개 계획`
+      )
+      return transformedPlans
     } catch (error) {
-      console.error("운동 계획 조회 중 오류:", error)
+      console.error("❌ [WorkoutJournalService] 운동 계획 조회 중 오류:", error)
       throw new Error(
         `운동 계획 조회에 실패했습니다: ${error instanceof Error ? error.message : "알 수 없는 오류"}`
       )
@@ -157,12 +189,20 @@ export class WorkoutJournalService {
   }
 
   async createWorkoutPlan(userId: number, planData: CreatePlanData) {
+    console.log(
+      `🔍 [WorkoutJournalService] createWorkoutPlan 호출 - userId: ${userId}`
+    )
+    console.log(`📝 [WorkoutJournalService] 계획 데이터:`, {
+      name: planData.plan_name || planData.name,
+      exerciseCount: planData.exercises?.length || 0,
+      difficulty: planData.difficulty,
+    })
+
     const planRepository = AppDataSource.getRepository(WorkoutPlan)
     const exerciseRepository = AppDataSource.getRepository(WorkoutPlanExercise)
 
-    console.log("운동 계획 생성 시작:", { userId, planData })
-
     // 트랜잭션 시작
+    console.log(`🔄 [WorkoutJournalService] 트랜잭션 시작`)
     const queryRunner = AppDataSource.createQueryRunner()
     await queryRunner.connect()
     await queryRunner.startTransaction()
@@ -180,14 +220,29 @@ export class WorkoutJournalService {
         isPublic: planData.is_public || false,
       })
 
-      console.log("생성할 계획:", plan)
+      console.log(`💾 [WorkoutJournalService] 계획 저장 중:`, {
+        name: plan.name,
+        difficulty: plan.difficulty,
+      })
       const savedPlan = await queryRunner.manager.save(plan)
-      console.log("저장된 계획:", savedPlan)
+      console.log(
+        `✅ [WorkoutJournalService] 계획 저장 완료 - ID: ${savedPlan.id}`
+      )
 
       // exercises 배열이 있으면 WorkoutPlanExercise 엔티티들 생성
       if (planData.exercises && planData.exercises.length > 0) {
-        console.log("운동 추가 시작:", planData.exercises)
-        console.log("운동 개수:", planData.exercises.length)
+        console.log(
+          `🏋️ [WorkoutJournalService] 운동 목록 추가 시작 - ${planData.exercises.length}개`
+        )
+        console.log(
+          `📋 [WorkoutJournalService] 운동 상세:`,
+          planData.exercises.map((ex, idx) => ({
+            index: idx,
+            exerciseName: ex.exerciseName,
+            sets: ex.sets,
+            machineId: ex.machine_id || ex.machineId,
+          }))
+        )
 
         const exercises = planData.exercises.map((exercise, index) => {
           console.log(`운동 ${index + 1} 데이터:`, exercise)
@@ -319,17 +374,18 @@ export class WorkoutJournalService {
           const exercises = updateData.exercises.map((exercise, index) => {
             console.log(`운동 ${index + 1} 데이터:`, exercise)
 
-            // machineId 처리 개선
+            // machineId 처리 개선 - 0이면 null로 처리 (기계 없음)
             const machineId = exercise.machine_id || exercise.machineId
-            if (!machineId) {
-              console.error(`운동 ${index + 1}에 machineId가 없음:`, exercise)
-              throw new Error(`운동 ${index + 1}에 machineId가 필요합니다.`)
-            }
+            const finalMachineId = machineId && machineId > 0 ? machineId : null
+            console.log(`운동 ${index + 1} machineId:`, {
+              original: machineId,
+              final: finalMachineId,
+            })
 
             const exerciseEntity = exerciseRepository.create({
               planId: planId,
-              machineId: machineId,
-              exerciseName: exercise.exerciseName || exercise.notes || "",
+              machineId: finalMachineId || undefined,
+              exerciseName: exercise.exerciseName || "새로운 운동",
               exerciseOrder: exercise.order || index,
               sets: exercise.sets || 3,
               repsRange: {
@@ -410,12 +466,50 @@ export class WorkoutJournalService {
 
   // 운동 세션 관련
   async getUserSessions(userId: number) {
-    const sessionRepository = AppDataSource.getRepository(WorkoutSession)
-    return await sessionRepository.find({
-      where: { userId: userId },
-      order: { startTime: "DESC" },
-      relations: ["exerciseSets"],
-    })
+    console.log(
+      `🔍 [WorkoutJournalService] getUserSessions 호출 - userId: ${userId}`
+    )
+
+    try {
+      // 데이터베이스 연결 상태 확인
+      if (!AppDataSource.isInitialized) {
+        console.error(
+          "❌ [WorkoutJournalService] 데이터베이스 연결이 초기화되지 않음"
+        )
+        throw new Error("데이터베이스 연결이 초기화되지 않았습니다.")
+      }
+
+      console.log(
+        `📊 [WorkoutJournalService] 사용자 ${userId}의 운동 세션 조회 시작`
+      )
+      const sessionRepository = AppDataSource.getRepository(WorkoutSession)
+      const sessions = await sessionRepository.find({
+        where: { userId: userId },
+        order: { startTime: "DESC" },
+        relations: ["exerciseSets"],
+      })
+
+      console.log(
+        `✅ [WorkoutJournalService] 운동 세션 ${sessions.length}개 조회 완료`
+      )
+      console.log(
+        `📋 [WorkoutJournalService] 세션 목록:`,
+        sessions.map(s => ({
+          id: s.id,
+          name: s.name,
+          status: s.status,
+          startTime: s.startTime,
+          setCount: s.exerciseSets?.length || 0,
+        }))
+      )
+
+      return sessions
+    } catch (error) {
+      console.error("❌ [WorkoutJournalService] 운동 세션 조회 중 오류:", error)
+      throw new Error(
+        `운동 세션 조회에 실패했습니다: ${error instanceof Error ? error.message : "알 수 없는 오류"}`
+      )
+    }
   }
 
   async createWorkoutSession(userId: number, sessionData: CreateSessionData) {
@@ -479,11 +573,50 @@ export class WorkoutJournalService {
 
   // 운동 목표 관련
   async getUserGoals(userId: number) {
-    const goalRepository = AppDataSource.getRepository(WorkoutGoal)
-    return await goalRepository.find({
-      where: { userId: userId },
-      order: { createdAt: "DESC" },
-    })
+    console.log(
+      `🔍 [WorkoutJournalService] getUserGoals 호출 - userId: ${userId}`
+    )
+
+    try {
+      // 데이터베이스 연결 상태 확인
+      if (!AppDataSource.isInitialized) {
+        console.error(
+          "❌ [WorkoutJournalService] 데이터베이스 연결이 초기화되지 않음"
+        )
+        throw new Error("데이터베이스 연결이 초기화되지 않았습니다.")
+      }
+
+      console.log(
+        `📊 [WorkoutJournalService] 사용자 ${userId}의 운동 목표 조회 시작`
+      )
+      const goalRepository = AppDataSource.getRepository(WorkoutGoal)
+      const goals = await goalRepository.find({
+        where: { userId: userId },
+        order: { createdAt: "DESC" },
+      })
+
+      console.log(
+        `✅ [WorkoutJournalService] 운동 목표 ${goals.length}개 조회 완료`
+      )
+      console.log(
+        `📋 [WorkoutJournalService] 목표 목록:`,
+        goals.map(g => ({
+          id: g.id,
+          title: g.title,
+          type: g.type,
+          currentValue: g.currentValue,
+          targetValue: g.targetValue,
+          isCompleted: g.isCompleted,
+        }))
+      )
+
+      return goals
+    } catch (error) {
+      console.error("❌ [WorkoutJournalService] 운동 목표 조회 중 오류:", error)
+      throw new Error(
+        `운동 목표 조회에 실패했습니다: ${error instanceof Error ? error.message : "알 수 없는 오류"}`
+      )
+    }
   }
 
   async createWorkoutGoal(userId: number, goalData: CreateGoalData) {

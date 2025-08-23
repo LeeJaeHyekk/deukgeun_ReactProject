@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { PostController } from "../controllers/post.controller"
-import { authenticateToken } from "../middlewares/auth"
+import { authMiddleware } from "../middlewares/auth"
 
 /**
  * Express 라우터 인스턴스 생성
@@ -27,10 +27,10 @@ const postController = new PostController()
 router.get("/", postController.getAllPosts)
 router.get("/categories", postController.getCategories)
 router.get("/categories/live", postController.getCategoriesLive)
-router.get("/my", authenticateToken, postController.getMyPosts)
+router.get("/my", authMiddleware, postController.getMyPosts)
 router.get("/:id", postController.getPostById)
-router.post("/", authenticateToken, postController.createPost)
-router.put("/:id", authenticateToken, postController.updatePost)
-router.delete("/:id", authenticateToken, postController.deletePost)
+router.post("/", authMiddleware, postController.createPost)
+router.put("/:id", authMiddleware, postController.updatePost)
+router.delete("/:id", authMiddleware, postController.deletePost)
 
 export default router

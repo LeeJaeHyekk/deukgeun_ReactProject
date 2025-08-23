@@ -96,7 +96,7 @@ export const MAP_CONFIG = {
   MAX_ZOOM: 18,
   DEFAULT_CENTER: {
     lat: 37.5665,
-    lng: 126.9780,
+    lng: 126.978,
   }, // 서울 시청
   SEARCH_RADIUS: 5000, // 5km
   MAX_SEARCH_RADIUS: 50000, // 50km

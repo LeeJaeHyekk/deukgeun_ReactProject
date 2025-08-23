@@ -1,6 +1,6 @@
 import React from "react"
 import { FormField } from "./common/FormField"
-import ReCAPTCHA from "react-google-recaptcha"
+import { RecaptchaWidget } from "@shared/components/RecaptchaWidget"
 import { AuthButton } from "./common/AuthButton"
 import { config } from "@shared/config"
 import { useAuthForm } from "../hooks/useAuthForm"

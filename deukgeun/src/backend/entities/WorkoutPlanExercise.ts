@@ -17,8 +17,8 @@ export class WorkoutPlanExercise {
   @Column({ type: "int" })
   planId!: number
 
-  @Column({ type: "int" })
-  machineId!: number
+  @Column({ type: "int", nullable: true })
+  machineId?: number
 
   @Column({ type: "varchar", length: 255 })
   exerciseName!: string
@@ -46,7 +46,7 @@ export class WorkoutPlanExercise {
   @JoinColumn({ name: "plan_id" })
   workoutPlan!: WorkoutPlan
 
-  @ManyToOne(() => Machine, { onDelete: "CASCADE" })
+  @ManyToOne(() => Machine, { onDelete: "CASCADE", nullable: true })
   @JoinColumn({ name: "machine_id" })
-  machine!: Machine
+  machine?: Machine
 }

@@ -146,7 +146,7 @@ export class MachineService {
   async getMachinesByCategory(category: string): Promise<Machine[]> {
     try {
       return await this.machineRepository.find({
-        where: { category },
+        where: { category: category as any },
         order: { name: "ASC" },
       })
     } catch (error) {
@@ -163,7 +163,7 @@ export class MachineService {
   async getMachinesByDifficulty(difficulty: string): Promise<Machine[]> {
     try {
       return await this.machineRepository.find({
-        where: { difficulty_level: difficulty },
+        where: { difficulty: difficulty as any },
         order: { name: "ASC" },
       })
     } catch (error) {

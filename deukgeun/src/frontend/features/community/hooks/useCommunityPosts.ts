@@ -1,7 +1,10 @@
 import { useState, useCallback } from "react"
 import { postsApi } from "@shared/api"
 import { showToast } from "@shared/lib"
-import { CommunityPost, PostCategoryInfo } from "../../../../types/post"
+import {
+  Post as CommunityPost,
+  PostCategoryInfo,
+} from "../../../../shared/types"
 
 interface UseCommunityPostsProps {
   limit: number

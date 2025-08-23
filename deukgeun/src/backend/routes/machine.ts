@@ -10,12 +10,11 @@ import {
   getMachinesByDifficulty,
   getMachinesByTarget,
 } from "../controllers/machineController"
-import {
-  validateCreateMachine,
-  validateUpdateMachine,
-  validateFilterQuery,
-  validateId,
-} from "../middlewares/validation"
+// import {
+//   validateMachine,
+//   validateMachineUpdate,
+//   validateId,
+// } from "../middlewares/mixValidation"
 import { machineRateLimiter } from "../middlewares/rateLimiter"
 
 const router = Router()
@@ -36,7 +35,7 @@ const router = Router()
 
 // 조회 라우트 (GET)
 router.get("/", machineRateLimiter, getAllMachines)
-router.get("/filter", machineRateLimiter, validateFilterQuery, filterMachines)
+router.get("/filter", machineRateLimiter, filterMachines)
 router.get("/category/:category", machineRateLimiter, getMachinesByCategory)
 router.get(
   "/difficulty/:difficulty",
@@ -44,21 +43,15 @@ router.get(
   getMachinesByDifficulty
 )
 router.get("/target/:target", machineRateLimiter, getMachinesByTarget)
-router.get("/:id", machineRateLimiter, validateId, getMachineById)
+router.get("/:id", machineRateLimiter, getMachineById)
 
 // 생성 라우트 (POST)
-router.post("/", machineRateLimiter, validateCreateMachine, createMachine)
+router.post("/", machineRateLimiter, createMachine)
 
 // 수정 라우트 (PUT)
-router.put(
-  "/:id",
-  machineRateLimiter,
-  validateId,
-  validateUpdateMachine,
-  updateMachine
-)
+router.put("/:id", machineRateLimiter, updateMachine)
 
 // 삭제 라우트 (DELETE)
-router.delete("/:id", machineRateLimiter, validateId, deleteMachine)
+router.delete("/:id", machineRateLimiter, deleteMachine)
 
 export default router

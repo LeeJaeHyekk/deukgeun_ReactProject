@@ -4,7 +4,7 @@
 
 import React, { useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import type { Machine } from "../types"
+import type { Machine } from "@dto/index"
 import { findMatchingImage } from "../utils/machineImageUtils"
 import { ROUTES } from "@shared/constants/routes"
 import "./MachineModal.css"
@@ -161,15 +161,15 @@ export const MachineModal: React.FC<MachineModalProps> = ({
             {/* 배지들 */}
             <div className="modal-badges">
               <span className="modal-category-badge">
-                {getCategoryIcon(machine.category)} {machine.category}
+                {getCategoryIcon(typeof machine.category === 'string' ? machine.category : machine.category.name)} {typeof machine.category === 'string' ? machine.category : machine.category.name}
               </span>
               <span
                 className="modal-difficulty-badge"
                 style={{
-                  backgroundColor: getDifficultyColor(machine.difficulty),
+                  backgroundColor: getDifficultyColor(typeof machine.difficulty === 'string' ? machine.difficulty : machine.difficulty.name),
                 }}
               >
-                {machine.difficulty}
+                {typeof machine.difficulty === 'string' ? machine.difficulty : machine.difficulty.name}
               </span>
             </div>
           </div>

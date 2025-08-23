@@ -10,7 +10,8 @@ import {
   Check,
   Timer,
 } from "lucide-react"
-import type { Machine, WorkoutSession, ExerciseSet } from "../../../../../types"
+import type { WorkoutSession, ExerciseSet } from "../../../../../shared/types"
+import type { Machine } from "@dto/index"
 import { useWorkoutTimer } from "../../../../shared/contexts/WorkoutTimerContext"
 import WorkoutSessionService from "../../services/WorkoutSessionService"
 import "./WorkoutSessionModal.css"
@@ -328,8 +329,6 @@ export function WorkoutSessionModal({
     stopTimer,
     setCurrentExercise: setGlobalCurrentExercise,
     completeSet: completeGlobalSet,
-    startRestTimer: startGlobalRestTimer,
-    stopRestTimer: stopGlobalRestTimer,
     getFormattedTime,
     getSessionProgress,
   } = useWorkoutTimer()
@@ -347,8 +346,9 @@ export function WorkoutSessionModal({
     startTime: new Date(),
     endTime: undefined,
     duration: undefined,
-    caloriesBurned: undefined,
     notes: "",
+    status: "in_progress" as const,
+    exerciseSets: [],
     isCompleted: false,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -390,8 +390,9 @@ export function WorkoutSessionModal({
         startTime: new Date(),
         endTime: undefined,
         duration: undefined,
-        caloriesBurned: undefined,
         notes: "",
+        status: "in_progress" as const,
+        exerciseSets: [],
         isCompleted: false,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -418,8 +419,9 @@ export function WorkoutSessionModal({
         startTime: new Date(),
         endTime: undefined,
         duration: undefined,
-        caloriesBurned: undefined,
         notes: "",
+        status: "in_progress" as const,
+        exerciseSets: [],
         isCompleted: false,
         createdAt: new Date(),
         updatedAt: new Date(),

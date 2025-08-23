@@ -1,4 +1,4 @@
-import type { Machine } from "../../../types"
+import type { Machine } from "@dto/index"
 import {
   IMAGE_MATCHING_CONFIG,
   ImageMatchingManager,

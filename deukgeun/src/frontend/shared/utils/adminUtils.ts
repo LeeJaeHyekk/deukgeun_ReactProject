@@ -2,7 +2,7 @@
 // 관리자 권한 유틸리티
 // ============================================================================
 
-import type { User, UserRole } from "@shared/types/common"
+import type { User, UserRole } from "../../../shared/types"
 
 /**
  * 사용자가 관리자인지 확인

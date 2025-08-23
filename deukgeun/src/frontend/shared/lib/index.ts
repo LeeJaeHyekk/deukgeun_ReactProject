@@ -28,6 +28,14 @@ export const validation = {
   required: (value: string): boolean => {
     return value.trim().length > 0
   },
+
+  minLength: (value: string, min: number): boolean => {
+    return value.length >= min
+  },
+
+  maxLength: (value: string, max: number): boolean => {
+    return value.length <= max
+  },
 }
 
 // Error Handling

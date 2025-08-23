@@ -3,7 +3,8 @@ import { PostService } from "../services/post.service"
 import { User } from "../entities/User"
 import { LevelService } from "../services/levelService"
 import { AppDataSource } from "../config/database"
-import { ApiResponse, ErrorResponse } from "../types/common"
+import { ApiResponse, ErrorResponse } from "../types"
+import { toPostDTO, toPostDTOList } from "@transformers/index"
 
 /**
  * 포스트 관련 HTTP 요청을 처리하는 컨트롤러 클래스
@@ -35,6 +36,12 @@ export class PostController {
         page: page ? parseInt(page) : undefined,
         limit: limit ? parseInt(limit) : undefined,
       })
+
+      // 서비스에서 반환된 데이터가 엔티티인 경우 DTO 변환
+      if (result.data && Array.isArray(result.data)) {
+        result.data = toPostDTOList(result.data)
+      }
+
       res.json(result)
     } catch (error) {
       next(error)
@@ -56,7 +63,11 @@ export class PostController {
       }
 
       const posts = await this.postService.getPostsByUserId(req.user.userId)
-      res.json(posts)
+
+      // DTO 변환 적용
+      const postDTOs = toPostDTOList(posts)
+
+      res.json(postDTOs)
     } catch (error) {
       next(error)
     }
@@ -76,7 +87,11 @@ export class PostController {
       if (!post) {
         return res.status(404).json({ message: "Post not found" })
       }
-      res.json(post)
+
+      // DTO 변환 적용
+      const postDTO = toPostDTO(post)
+
+      res.json(postDTO)
     } catch (error) {
       next(error)
     }

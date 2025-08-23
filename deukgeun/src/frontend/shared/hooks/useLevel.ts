@@ -21,7 +21,7 @@ export function useLevel() {
 
   // API 호출 제한을 위한 ref
   const lastFetchTime = useRef<number>(0)
-  const FETCH_COOLDOWN = 5000 // 5초 쿨다운
+  const FETCH_COOLDOWN = 1000 // 1초 쿨다운 (403 문제 해결 후 더 자주 호출)
 
   /**
    * 사용자 레벨 진행률 조회
@@ -42,7 +42,13 @@ export function useLevel() {
       lastFetchTime.current = now
       const progress = await levelApi.getUserProgress(user.id)
       setLevelProgress(progress)
-    } catch (err) {
+    } catch (err: any) {
+      // 403 오류는 토큰 문제일 수 있으므로 조용히 처리
+      if (err?.response?.status === 403) {
+        console.warn("레벨 진행률 조회 권한 없음 (토큰 문제일 수 있음)")
+        return
+      }
+
       setError("레벨 정보를 불러오는데 실패했습니다.")
       console.error("레벨 진행률 조회 실패:", err)
     } finally {
@@ -69,7 +75,13 @@ export function useLevel() {
       lastFetchTime.current = now
       const userRewards = await levelApi.getUserRewards(user.id)
       setRewards(userRewards)
-    } catch (err) {
+    } catch (err: any) {
+      // 403 오류는 토큰 문제일 수 있으므로 조용히 처리
+      if (err?.response?.status === 403) {
+        console.warn("보상 목록 조회 권한 없음 (토큰 문제일 수 있음)")
+        return
+      }
+
       setError("보상 정보를 불러오는데 실패했습니다.")
       console.error("보상 목록 조회 실패:", err)
     } finally {

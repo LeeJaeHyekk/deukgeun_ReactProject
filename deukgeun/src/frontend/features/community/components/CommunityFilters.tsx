@@ -1,4 +1,4 @@
-import { PostCategoryInfo } from "../../../../types/post"
+import { PostCategoryInfo } from "../../../../shared/types"
 import { SortOption } from "../hooks/useCommunityFilters"
 import styles from "./CommunityFilters.module.css"
 

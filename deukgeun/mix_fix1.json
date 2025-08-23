@@ -1,0 +1,119 @@
+{
+  "mapping": [
+    {
+      "entity": "User",
+      "table": "users",
+      "dto": "UserDTO",
+      "frontType": "UserType",
+      "relations": {
+        "posts": {
+          "type": "OneToMany",
+          "target": "Post",
+          "dto": "PostDTO",
+          "frontType": "PostType"
+        }
+      },
+      "fields": [
+        {
+          "entityField": "id",
+          "dbColumn": "id",
+          "dtoField": "id",
+          "frontField": "id",
+          "type": "number",
+          "rules": ["primaryKey", "autoIncrement"]
+        },
+        {
+          "entityField": "email",
+          "dbColumn": "email",
+          "dtoField": "email",
+          "frontField": "email",
+          "type": "string",
+          "rules": ["unique", "required"]
+        },
+        {
+          "entityField": "password",
+          "dbColumn": "password",
+          "dtoField": null,
+          "frontField": null,
+          "type": "string",
+          "rules": ["hashed", "private"]
+        },
+        {
+          "entityField": "nickname",
+          "dbColumn": "nickname",
+          "dtoField": "nickname",
+          "frontField": "nickname",
+          "type": "string"
+        },
+        {
+          "entityField": "createdAt",
+          "dbColumn": "created_at",
+          "dtoField": "createdAt",
+          "frontField": "createdAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        }
+      ]
+    },
+    {
+      "entity": "Post",
+      "table": "posts",
+      "dto": "PostDTO",
+      "frontType": "PostType",
+      "relations": {
+        "author": {
+          "type": "ManyToOne",
+          "target": "User",
+          "dto": "UserDTO",
+          "frontType": "UserType"
+        }
+      },
+      "fields": [
+        {
+          "entityField": "id",
+          "dbColumn": "id",
+          "dtoField": "id",
+          "frontField": "id",
+          "type": "number"
+        },
+        {
+          "entityField": "title",
+          "dbColumn": "title",
+          "dtoField": "title",
+          "frontField": "title",
+          "type": "string"
+        },
+        {
+          "entityField": "content",
+          "dbColumn": "content",
+          "dtoField": "content",
+          "frontField": "content",
+          "type": "string"
+        },
+        {
+          "entityField": "createdAt",
+          "dbColumn": "created_at",
+          "dtoField": "createdAt",
+          "frontField": "createdAt",
+          "type": "Date"
+        }
+      ]
+    }
+  ],
+  "rules": {
+    "naming": {
+      "entity": "camelCase",
+      "dto": "camelCase",
+      "front": "camelCase",
+      "dbColumn": "snake_case"
+    },
+    "serialization": {
+      "password": "exclude",
+      "date": "ISO8601"
+    },
+    "validation": {
+      "email": "isEmail",
+      "nickname": "min:2|max:20"
+    }
+  }
+}

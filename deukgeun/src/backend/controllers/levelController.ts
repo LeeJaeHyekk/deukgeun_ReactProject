@@ -13,15 +13,25 @@ export const getUserLevel = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "인증이 필요합니다." })
     }
 
-    const userId = parseInt(req.params.userId)
+    const userId = parseInt(req.params.userId || "")
+
+    // 사용자 ID 유효성 검사
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "잘못된 사용자 ID입니다." })
+    }
 
     // 본인 또는 관리자만 조회 가능
     if (req.user.userId !== userId && req.user.role !== "admin") {
+      console.log(
+        `🔐 권한 검사 실패: 요청된 사용자 ID: ${userId}, 토큰의 사용자 ID: ${req.user.userId}, 역할: ${req.user.role}`
+      )
       return res.status(403).json({ message: "권한이 없습니다." })
     }
 
+    console.log(`🔐 사용자 레벨 조회 시작: 사용자 ID ${userId}`)
     const userLevel = await levelService.getUserLevel(userId)
     const progress = await levelService.getLevelProgress(userId)
+    console.log(`🔐 사용자 레벨 조회 성공: 사용자 ID ${userId}`)
 
     res.json({
       success: true,
@@ -45,13 +55,24 @@ export const getUserProgress = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "인증이 필요합니다." })
     }
 
-    const userId = parseInt(req.params.userId)
+    const userId = parseInt(req.params.userId || "")
 
+    // 사용자 ID 유효성 검사
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "잘못된 사용자 ID입니다." })
+    }
+
+    // 권한 검사 (인증 미들웨어에서 이미 처리했지만 추가 검증)
     if (req.user.userId !== userId && req.user.role !== "admin") {
+      console.log(
+        `🔐 권한 검사 실패: 요청된 사용자 ID: ${userId}, 토큰의 사용자 ID: ${req.user.userId}, 역할: ${req.user.role}`
+      )
       return res.status(403).json({ message: "권한이 없습니다." })
     }
 
+    console.log(`🔐 사용자 진행률 조회 시작: 사용자 ID ${userId}`)
     const progress = await levelService.getLevelProgress(userId)
+    console.log(`🔐 사용자 진행률 조회 성공: 사용자 ID ${userId}`)
 
     res.json({
       success: true,
@@ -72,13 +93,24 @@ export const getUserRewards = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "인증이 필요합니다." })
     }
 
-    const userId = parseInt(req.params.userId)
+    const userId = parseInt(req.params.userId || "")
 
+    // 사용자 ID 유효성 검사
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "잘못된 사용자 ID입니다." })
+    }
+
+    // 권한 검사 (인증 미들웨어에서 이미 처리했지만 추가 검증)
     if (req.user.userId !== userId && req.user.role !== "admin") {
+      console.log(
+        `🔐 권한 검사 실패: 요청된 사용자 ID: ${userId}, 토큰의 사용자 ID: ${req.user.userId}, 역할: ${req.user.role}`
+      )
       return res.status(403).json({ message: "권한이 없습니다." })
     }
 
+    console.log(`🔐 사용자 보상 조회 시작: 사용자 ID ${userId}`)
     const rewards = await levelService.getUserRewards(userId)
+    console.log(`🔐 사용자 보상 조회 성공: 사용자 ID ${userId}`)
 
     res.json({
       success: true,
@@ -161,7 +193,7 @@ export const checkCooldown = async (req: Request, res: Response) => {
     }
 
     const { actionType } = req.params
-    const userId = parseInt(req.params.userId)
+    const userId = parseInt(req.params.userId || "")
 
     if (req.user.userId !== userId && req.user.role !== "admin") {
       return res.status(403).json({ message: "권한이 없습니다." })

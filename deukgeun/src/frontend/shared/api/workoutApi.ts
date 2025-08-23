@@ -3,14 +3,14 @@ import type {
   WorkoutSession,
   WorkoutGoal,
   ExerciseSet,
-} from "../../../types"
+} from "../../../shared/types"
 
 // API 함수들
 export const workoutApi = {
   // 운동 계획 관련
   async getPlans(accessToken: string): Promise<WorkoutPlan[]> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/plans`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/plans`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -32,7 +32,7 @@ export const workoutApi = {
     planData: Partial<WorkoutPlan>
   ): Promise<WorkoutPlan> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/plans`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/plans`,
       {
         method: "POST",
         headers: {
@@ -57,7 +57,7 @@ export const workoutApi = {
     planData: Partial<WorkoutPlan>
   ): Promise<WorkoutPlan> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/plans/${planId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/plans/${planId}`,
       {
         method: "PUT",
         headers: {
@@ -78,7 +78,7 @@ export const workoutApi = {
 
   async deletePlan(accessToken: string, planId: number): Promise<void> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/plans/${planId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/plans/${planId}`,
       {
         method: "DELETE",
         headers: {
@@ -95,7 +95,7 @@ export const workoutApi = {
   // 운동 세션 관련
   async getSessions(accessToken: string): Promise<WorkoutSession[]> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/sessions`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/sessions`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -117,7 +117,7 @@ export const workoutApi = {
     sessionData: Partial<WorkoutSession>
   ): Promise<WorkoutSession> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/sessions`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/sessions`,
       {
         method: "POST",
         headers: {
@@ -142,7 +142,7 @@ export const workoutApi = {
     sessionData: Partial<WorkoutSession>
   ): Promise<WorkoutSession> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/sessions/${sessionId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/sessions/${sessionId}`,
       {
         method: "PUT",
         headers: {
@@ -163,7 +163,7 @@ export const workoutApi = {
 
   async deleteSession(accessToken: string, sessionId: number): Promise<void> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/sessions/${sessionId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/sessions/${sessionId}`,
       {
         method: "DELETE",
         headers: {
@@ -180,7 +180,7 @@ export const workoutApi = {
   // 운동 목표 관련
   async getGoals(accessToken: string): Promise<WorkoutGoal[]> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/goals`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/goals`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -202,7 +202,7 @@ export const workoutApi = {
     goalData: Partial<WorkoutGoal>
   ): Promise<WorkoutGoal> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/goals`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/goals`,
       {
         method: "POST",
         headers: {
@@ -227,7 +227,7 @@ export const workoutApi = {
     goalData: Partial<WorkoutGoal>
   ): Promise<WorkoutGoal> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/goals/${goalId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/goals/${goalId}`,
       {
         method: "PUT",
         headers: {
@@ -248,7 +248,7 @@ export const workoutApi = {
 
   async deleteGoal(accessToken: string, goalId: number): Promise<void> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/goals/${goalId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/goals/${goalId}`,
       {
         method: "DELETE",
         headers: {
@@ -268,7 +268,7 @@ export const workoutApi = {
     setData: Partial<ExerciseSet>
   ): Promise<ExerciseSet> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/sets`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/sets`,
       {
         method: "POST",
         headers: {
@@ -294,7 +294,7 @@ export const workoutApi = {
     endTime: Date
   ): Promise<WorkoutSession> {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/workout/sessions/${sessionId}/complete`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/workout/sessions/${sessionId}/complete`,
       {
         method: "POST",
         headers: {

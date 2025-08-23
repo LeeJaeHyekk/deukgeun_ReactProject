@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react"
 import { likesApi } from "@shared/api"
 import { showToast } from "@shared/lib"
-import { CommunityPost } from "../../../../types/post"
+import { Post as CommunityPost } from "../../../../shared/types"
 
 export function usePostLikes() {
   const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set())

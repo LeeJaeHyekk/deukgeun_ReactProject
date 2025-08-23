@@ -1,7 +1,7 @@
 import { renderHook, act, waitFor } from "@testing-library/react"
 import { useWorkoutSessions } from "../../../../../frontend/features/workout/hooks/useWorkoutSessions"
 import { WorkoutJournalApi } from "../../../../../frontend/shared/api/workoutJournalApi"
-import type { WorkoutSession } from "../../../../../types"
+import type { WorkoutSession } from "../../../../../shared/types"
 
 // Mock the API
 jest.mock("../../../../../frontend/shared/api/workoutJournalApi")
@@ -23,9 +23,10 @@ describe("useWorkoutSessions", () => {
       startTime: new Date("2024-01-15T10:00:00Z"),
       endTime: new Date("2024-01-15T11:00:00Z"),
       duration: 60,
-      caloriesBurned: 300,
       notes: "컨디션이 좋았다",
+      status: "completed" as const,
       isCompleted: true,
+      exerciseSets: [],
       createdAt: new Date("2024-01-15T10:00:00Z"),
       updatedAt: new Date("2024-01-15T11:00:00Z"),
     },
@@ -37,9 +38,10 @@ describe("useWorkoutSessions", () => {
       startTime: new Date("2024-01-16T14:00:00Z"),
       endTime: new Date("2024-01-16T15:30:00Z"),
       duration: 90,
-      caloriesBurned: 450,
       notes: "다리가 아프다",
+      status: "completed" as const,
       isCompleted: true,
+      exerciseSets: [],
       createdAt: new Date("2024-01-16T14:00:00Z"),
       updatedAt: new Date("2024-01-16T15:30:00Z"),
     },
@@ -111,15 +113,17 @@ describe("useWorkoutSessions", () => {
     it("should create session successfully", async () => {
       const newSessionData = {
         name: "새로운 운동 세션",
-        description: "새로운 세션 설명",
         planId: 1,
         startTime: new Date("2024-01-17T10:00:00Z"),
+        exerciseSets: [],
       }
 
       const createdSession: WorkoutSession = {
         id: 3,
         userId: 1,
         ...newSessionData,
+        status: "in_progress" as const,
+        exerciseSets: [],
         isCompleted: false,
         createdAt: new Date("2024-01-17T10:00:00Z"),
         updatedAt: new Date("2024-01-17T10:00:00Z"),
@@ -155,7 +159,8 @@ describe("useWorkoutSessions", () => {
     it("should handle creation errors", async () => {
       const newSessionData = {
         name: "새로운 운동 세션",
-        description: "새로운 세션 설명",
+        startTime: new Date(),
+        exerciseSets: [],
       }
 
       const errorMessage = "Failed to create session"
@@ -185,7 +190,8 @@ describe("useWorkoutSessions", () => {
       const sessionDataWithUserId = {
         userId: 1,
         name: "새로운 운동 세션",
-        description: "새로운 세션 설명",
+        startTime: new Date(),
+        exerciseSets: [],
       }
 
       const createdSession: WorkoutSession = {
@@ -194,6 +200,8 @@ describe("useWorkoutSessions", () => {
         name: "새로운 운동 세션",
         description: "새로운 세션 설명",
         startTime: new Date(),
+        status: "in_progress" as const,
+        exerciseSets: [],
         isCompleted: false,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -424,6 +432,8 @@ describe("useWorkoutSessions", () => {
         name: "새로운 세션",
         description: "새로운 설명",
         startTime: new Date(),
+        status: "in_progress" as const,
+        exerciseSets: [],
         isCompleted: false,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -434,7 +444,8 @@ describe("useWorkoutSessions", () => {
       await act(async () => {
         await result.current.createSession({
           name: "새로운 세션",
-          description: "새로운 설명",
+          startTime: new Date(),
+          exerciseSets: [],
         })
       })
 
@@ -451,14 +462,14 @@ describe("useWorkoutSessions", () => {
           session_name: "상체 운동",
           start_time: new Date("2024-01-15T10:00:00Z"),
           end_time: new Date("2024-01-15T11:00:00Z"),
-          status: "completed",
+          status: "completed" as const,
         },
         {
           ...mockSessions[1],
           session_id: 2,
           session_name: "하체 운동",
           start_time: new Date("2024-01-16T14:00:00Z"),
-          status: "in_progress",
+          status: "in_progress" as const,
         },
       ]
 

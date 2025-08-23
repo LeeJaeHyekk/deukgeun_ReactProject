@@ -1,7 +1,7 @@
 import { renderHook, act, waitFor } from "@testing-library/react"
 import { useWorkoutPlans } from "../../../../../frontend/features/workout/hooks/useWorkoutPlans"
 import { WorkoutJournalApi } from "../../../../../frontend/shared/api/workoutJournalApi"
-import type { WorkoutPlan } from "../../../../../types"
+import type { WorkoutPlan } from "../../../../../shared/types"
 
 // Mock the API
 jest.mock("../../../../../frontend/shared/api/workoutJournalApi")
@@ -21,7 +21,7 @@ describe("useWorkoutPlans", () => {
       name: "상체 운동",
       description: "상체 근력 향상을 위한 운동",
       difficulty: "intermediate",
-      estimatedDurationMinutes: 60,
+      duration: 60,
       targetMuscleGroups: ["chest", "back", "shoulders"],
       isActive: true,
       exercises: [],
@@ -34,7 +34,7 @@ describe("useWorkoutPlans", () => {
       name: "하체 운동",
       description: "하체 근력 향상을 위한 운동",
       difficulty: "beginner",
-      estimatedDurationMinutes: 45,
+      duration: 45,
       targetMuscleGroups: ["legs", "glutes"],
       isActive: true,
       exercises: [],
@@ -107,7 +107,7 @@ describe("useWorkoutPlans", () => {
         name: "새로운 운동 계획",
         description: "새로운 계획 설명",
         difficulty: "beginner" as const,
-        estimatedDurationMinutes: 30,
+        duration: 30,
         targetMuscleGroups: ["chest"],
         exercises: [],
       }
@@ -187,7 +187,7 @@ describe("useWorkoutPlans", () => {
         name: "새로운 운동 계획",
         description: "새로운 계획 설명",
         difficulty: "beginner",
-        estimatedDurationMinutes: 30,
+        duration: 30,
         targetMuscleGroups: [],
         isActive: true,
         exercises: [],
@@ -399,7 +399,7 @@ describe("useWorkoutPlans", () => {
         name: "새로운 계획",
         description: "새로운 설명",
         difficulty: "beginner",
-        estimatedDurationMinutes: 30,
+        duration: 30,
         targetMuscleGroups: [],
         isActive: true,
         exercises: [],

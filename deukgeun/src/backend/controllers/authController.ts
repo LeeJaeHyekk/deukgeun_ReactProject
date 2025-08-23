@@ -7,15 +7,16 @@ import { verifyRecaptcha } from "../utils/recaptcha"
 import { createTokens, verifyRefreshToken } from "../utils/jwt"
 import { logger } from "../utils/logger"
 import { AppDataSource } from "../config/database"
-import { ApiResponse, ErrorResponse } from "../types/common"
+import { ApiResponse, ErrorResponse } from "../types"
 import {
   LoginRequest,
   RegisterRequest,
   LoginResponse,
   RegisterResponse,
-} from "../types/auth"
+} from "../types"
 import { accountRecoveryService } from "../services/accountRecoveryService"
-import { SecurityInfo } from "../types/accountRecovery"
+import { SecurityInfo } from "../types"
+import { UserTransformer } from "../transformers/user.transformer"
 
 export async function login(
   req: Request<Record<string, never>, Record<string, never>, LoginRequest>,
@@ -82,17 +83,7 @@ export async function login(
         success: true,
         message: "로그인 성공",
         accessToken,
-        user: {
-          id: user.id,
-          email: user.email,
-          nickname: user.nickname,
-          phone: user.phone,
-          gender: user.gender,
-          birthday: user.birthday,
-          profileImage: user.profileImage,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-        },
+        user: UserTransformer.toDTO(user),
       })
   } catch (error) {
     logger.error("로그인 처리 중 오류:", error)
@@ -225,7 +216,7 @@ export function checkAuth(
 export const register = async (
   req: Request<Record<string, never>, Record<string, never>, RegisterRequest>,
   res: Response<RegisterResponse | ErrorResponse>
-) => {
+): Promise<void> => {
   try {
     console.log("🚀 회원가입 요청 시작")
     console.log("📥 요청 IP:", req.ip)
@@ -438,8 +429,8 @@ export const register = async (
     if (birthday) {
       try {
         // birthday가 이미 Date 객체인 경우
-        if (birthday instanceof Date) {
-          birthdayDate = birthday
+        if (birthday && typeof birthday === "object" && "getTime" in birthday) {
+          birthdayDate = birthday as Date
           console.log("📅 Date 객체로 인식됨")
         } else if (typeof birthday === "string") {
           // ISO 문자열인 경우
@@ -487,9 +478,9 @@ export const register = async (
       email: email.toLowerCase().trim(),
       password: hashedPassword,
       nickname: nickname.trim(),
-      phone: phone?.trim(),
-      gender: gender as "male" | "female" | "other" | undefined,
-      birthday: birthdayDate,
+      ...(phone?.trim() && { phone: phone.trim() }),
+      ...(gender && { gender: gender as "male" | "female" | "other" }),
+      ...(birthdayDate && { birthday: birthdayDate }),
       role: "user",
     })
 
@@ -542,17 +533,7 @@ export const register = async (
       success: true,
       message: "회원가입 성공",
       accessToken,
-      user: {
-        id: newUser.id,
-        email: newUser.email,
-        nickname: newUser.nickname,
-        phone: newUser.phone,
-        gender: newUser.gender,
-        birthday: newUser.birthday,
-        profileImage: newUser.profileImage,
-        createdAt: newUser.createdAt,
-        updatedAt: newUser.updatedAt,
-      },
+      user: UserTransformer.toDTO(newUser),
     }
 
     console.log("📤 응답 데이터:", {
@@ -636,9 +617,10 @@ export async function findId(
     }
 
     // Security info for logging and rate limiting
+    const userAgent = req.get("User-Agent")
     const securityInfo: SecurityInfo = {
       ipAddress: req.ip || "unknown",
-      userAgent: req.get("User-Agent") || "unknown",
+      ...(userAgent && { userAgent }),
       timestamp: new Date(),
     }
 
@@ -718,9 +700,10 @@ export async function findPassword(
     }
 
     // Security info for logging and rate limiting
+    const userAgent = req.get("User-Agent")
     const securityInfo: SecurityInfo = {
       ipAddress: req.ip || "unknown",
-      userAgent: req.get("User-Agent") || "unknown",
+      ...(userAgent && { userAgent }),
       timestamp: new Date(),
     }
 
@@ -1262,8 +1245,8 @@ export async function resetPasswordSimpleStep1(
       return res.status(400).json({
         success: false,
         message: result.error || "사용자 인증에 실패했습니다.",
-        error: result.error,
-      })
+        error: result.error || "사용자 인증 실패",
+      } as ErrorResponse)
     }
   } catch (error) {
     logger.error("단순 비밀번호 재설정 Step 1 처리 중 오류:", error)
@@ -1305,9 +1288,8 @@ export async function resetPasswordSimpleStep2(
     }
 
     // 보안 정보 수집
-    const securityInfo = {
+    const securityInfo: SecurityInfo = {
       ipAddress: req.ip || req.connection.remoteAddress || "unknown",
-      userAgent: req.get("User-Agent") || "unknown",
       timestamp: new Date(),
     }
 
@@ -1331,8 +1313,8 @@ export async function resetPasswordSimpleStep2(
       return res.status(400).json({
         success: false,
         message: result.error || "비밀번호 재설정에 실패했습니다.",
-        error: result.error,
-      })
+        error: result.error || "비밀번호 재설정 실패",
+      } as ErrorResponse)
     }
   } catch (error) {
     logger.error("단순 비밀번호 재설정 Step 2 처리 중 오류:", error)

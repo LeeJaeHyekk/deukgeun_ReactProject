@@ -1,10 +1,10 @@
 import { Request, Response } from "express"
-import { WorkoutJournalController } from "../../../../backend/controllers/workoutJournalController"
-import { WorkoutJournalService } from "../../../../backend/services/workoutJournalService"
-import { AuthenticatedRequest } from "../../../../shared/types/auth"
+import { WorkoutJournalController } from "../../../backend/controllers/workoutJournalController"
+import { WorkoutJournalService } from "../../../backend/services/workoutJournalService"
+import { AuthenticatedRequest } from "../../../backend/types"
 
 // Mock the service
-jest.mock("../../../../backend/services/workoutJournalService")
+jest.mock("../../../backend/services/workoutJournalService")
 const mockedWorkoutJournalService = WorkoutJournalService as jest.MockedClass<
   typeof WorkoutJournalService
 >

@@ -2,7 +2,8 @@
 // Machine Image Utilities
 // ============================================================================
 
-import type { Machine } from "../types"
+import { IMAGE_MATCHING_CONFIG } from "@shared/config/imageMatchingConfig"
+import type { Machine } from "@dto/index"
 
 // 이미지 매칭 캐시
 const imageCache = new Map<string, string>()
@@ -128,4 +129,18 @@ export function getDifficultyColor(difficulty: string): string {
   }
 
   return difficultyColors[difficulty] || "#6b7280"
+}
+
+/**
+ * 전체 이미지 URL을 생성합니다.
+ * @param imagePath - 이미지 경로
+ * @returns 전체 이미지 URL
+ */
+export function getFullImageUrl(imagePath: string): string {
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+    return imagePath
+  }
+
+  // 상대 경로인 경우 기본 도메인 추가
+  return `${window.location.origin}${imagePath}`
 }

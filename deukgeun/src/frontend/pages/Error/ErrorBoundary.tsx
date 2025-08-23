@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
     // 에러 리포팅 로직 (예: Sentry, LogRocket 등)
     try {
       // 개발 환경에서는 콘솔에 출력
-      if (process.env.NODE_ENV === "development") {
+      if (import.meta.env.DEV) {
         console.group("🚨 Error Boundary Report")
         console.error("Error:", error)
         console.error("Error Info:", errorInfo)
@@ -53,7 +53,7 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       // 프로덕션 환경에서는 에러 리포팅 서비스로 전송
-      if (process.env.NODE_ENV === "production") {
+      if (import.meta.env.PROD) {
         // 예시: Sentry로 에러 전송
         // Sentry.captureException(error, { extra: errorInfo })
 

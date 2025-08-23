@@ -177,7 +177,7 @@ class GlobalErrorHandler {
   private errorHistory: ErrorContext[] = []
   private config: ErrorHandlerConfig = {
     enableConsoleLogging: true,
-    enableServerReporting: process.env.NODE_ENV === "production",
+    enableServerReporting: import.meta.env.PROD,
     enableUserNotification: true,
     maxErrorHistory: 100,
   }

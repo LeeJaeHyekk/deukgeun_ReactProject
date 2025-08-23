@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
-import type { RewardType } from "../../shared/types"
+import type { RewardType } from "../types"
 import { User } from "./User"
 
 @Entity("user_rewards")

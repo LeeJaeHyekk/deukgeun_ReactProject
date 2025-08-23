@@ -7,7 +7,7 @@ import { useMachines } from "./hooks/useMachines"
 import { MachineFilter } from "./components/MachineFilter"
 import { MachineCard } from "./components/MachineCard"
 import { MachineModal } from "./components/MachineModal"
-import type { Machine } from "./types"
+import type { Machine } from "@dto/index"
 import { Navigation } from "@widgets/Navigation/Navigation"
 import "./MachineGuidePage.css"
 

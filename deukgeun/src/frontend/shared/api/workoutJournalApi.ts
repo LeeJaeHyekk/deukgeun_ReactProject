@@ -11,7 +11,7 @@ import type {
   UpdateSessionRequest,
   CreateGoalRequest,
   UpdateGoalRequest,
-} from "../../../types"
+} from "../../../shared/types"
 import { storage } from "../lib"
 
 // 타입들을 다시 export
@@ -41,10 +41,18 @@ interface ApiResponse<T> {
 // 공통 헤더 생성 함수
 function getAuthHeaders(): HeadersInit {
   const token = storage.get("accessToken")
-  return {
+  console.log(
+    `🔐 [getAuthHeaders] 토큰 확인:`,
+    token ? `${token.substring(0, 20)}...` : "토큰 없음"
+  )
+
+  const headers = {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
   }
+
+  console.log(`🔐 [getAuthHeaders] 생성된 헤더:`, headers)
+  return headers
 }
 
 // API 함수들
@@ -74,14 +82,28 @@ export const WorkoutJournalApi = {
 
   // 운동 계획 관련
   async getWorkoutPlans(): Promise<WorkoutPlan[]> {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(`🔍 [WorkoutAPI:${requestId}] getWorkoutPlans 요청 시작`)
+
+    console.log(
+      `📡 [WorkoutAPI:${requestId}] API 호출: /api/workout-journal/plans`
+    )
     const response = await fetch("/api/workout-journal/plans", {
       headers: getAuthHeaders(),
     })
 
+    console.log(
+      `📊 [WorkoutAPI:${requestId}] 응답 상태: ${response.status} ${response.statusText}`
+    )
+
     if (!response.ok) {
+      console.warn(
+        `⚠️ [WorkoutAPI:${requestId}] API 응답 오류: ${response.status}`
+      )
       const errorData = await response.json().catch(() => ({}))
       const errorMessage =
         errorData.error || "운동 계획을 불러오는데 실패했습니다."
+      console.error(`❌ [WorkoutAPI:${requestId}] 오류 메시지:`, errorMessage)
       throw new Error(
         typeof errorMessage === "string"
           ? errorMessage
@@ -90,27 +112,58 @@ export const WorkoutJournalApi = {
     }
 
     const data: ApiResponse<WorkoutPlan[]> = await response.json()
+    console.log(`📋 [WorkoutAPI:${requestId}] 응답 데이터 확인:`, {
+      success: data.success,
+      dataLength: data.data?.length || 0,
+    })
+
     if (!data.success) {
       const errorMessage = data.error || "운동 계획을 불러오는데 실패했습니다."
+      console.error(`❌ [WorkoutAPI:${requestId}] 서비스 오류:`, errorMessage)
       throw new Error(
         typeof errorMessage === "string"
           ? errorMessage
           : JSON.stringify(errorMessage)
       )
     }
-    return data.data || []
+
+    const plans = data.data || []
+    console.log(
+      `✅ [WorkoutAPI:${requestId}] 운동 계획 ${plans.length}개 조회 성공`
+    )
+    console.log(
+      `📋 [WorkoutAPI:${requestId}] 계획 목록:`,
+      plans.map(p => ({ id: p.id, name: p.name }))
+    )
+
+    return plans
   },
 
   async createWorkoutPlan(planData: CreatePlanRequest): Promise<WorkoutPlan> {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(`🔍 [WorkoutAPI:${requestId}] createWorkoutPlan 요청 시작`)
+    console.log(`📝 [WorkoutAPI:${requestId}] 계획 데이터:`, planData)
+    console.log(
+      `📡 [WorkoutAPI:${requestId}] API 호출: /api/workout-journal/plans`
+    )
+
     const response = await fetch("/api/workout-journal/plans", {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(planData),
     })
 
+    console.log(
+      `📊 [WorkoutAPI:${requestId}] 응답 상태: ${response.status} ${response.statusText}`
+    )
+
     if (!response.ok) {
+      console.warn(
+        `⚠️ [WorkoutAPI:${requestId}] API 응답 오류: ${response.status}`
+      )
       const errorData = await response.json().catch(() => ({}))
       const errorMessage = errorData.error || "운동 계획 생성에 실패했습니다."
+      console.error(`❌ [WorkoutAPI:${requestId}] 오류 메시지:`, errorMessage)
       throw new Error(
         typeof errorMessage === "string"
           ? errorMessage
@@ -119,8 +172,14 @@ export const WorkoutJournalApi = {
     }
 
     const data: ApiResponse<WorkoutPlan> = await response.json()
+    console.log(`📋 [WorkoutAPI:${requestId}] 응답 데이터 확인:`, {
+      success: data.success,
+      hasData: !!data.data,
+    })
+
     if (!data.success || !data.data) {
       const errorMessage = data.error || "운동 계획 생성에 실패했습니다."
+      console.error(`❌ [WorkoutAPI:${requestId}] 서비스 오류:`, errorMessage)
       throw new Error(
         typeof errorMessage === "string"
           ? errorMessage
@@ -128,6 +187,7 @@ export const WorkoutJournalApi = {
       )
     }
 
+    console.log(`✅ [WorkoutAPI:${requestId}] 운동 계획 생성 성공:`, data.data)
     return data.data
   },
 
@@ -168,38 +228,124 @@ export const WorkoutJournalApi = {
 
   // 운동 세션 관련
   async getWorkoutSessions(): Promise<WorkoutSession[]> {
-    const response = await fetch("/api/workout-journal/sessions", {
-      headers: getAuthHeaders(),
-    })
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(`🔍 [WorkoutAPI:${requestId}] getWorkoutSessions 요청 시작`)
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || "운동 세션을 불러오는데 실패했습니다.")
+    try {
+      console.log(
+        `📡 [WorkoutAPI:${requestId}] API 호출: /api/workout-journal/sessions`
+      )
+      const response = await fetch("/api/workout-journal/sessions", {
+        headers: getAuthHeaders(),
+      })
+
+      console.log(
+        `📊 [WorkoutAPI:${requestId}] 응답 상태: ${response.status} ${response.statusText}`
+      )
+
+      if (!response.ok) {
+        console.warn(
+          `⚠️ [WorkoutAPI:${requestId}] API 응답 오류: ${response.status}`
+        )
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage =
+          errorData.error || "운동 세션을 불러오는데 실패했습니다."
+        console.error(`❌ [WorkoutAPI:${requestId}] 오류 메시지:`, errorMessage)
+        throw new Error(
+          typeof errorMessage === "string"
+            ? errorMessage
+            : JSON.stringify(errorMessage)
+        )
+      }
+
+      const data: ApiResponse<WorkoutSession[]> = await response.json()
+      console.log(`📋 [WorkoutAPI:${requestId}] 응답 데이터 확인:`, {
+        success: data.success,
+        dataLength: data.data?.length || 0,
+      })
+
+      if (!data.success) {
+        const errorMessage =
+          data.error || "운동 세션을 불러오는데 실패했습니다."
+        console.error(`❌ [WorkoutAPI:${requestId}] 서비스 오류:`, errorMessage)
+        throw new Error(
+          typeof errorMessage === "string"
+            ? errorMessage
+            : JSON.stringify(errorMessage)
+        )
+      }
+
+      const sessions = data.data || []
+      console.log(
+        `✅ [WorkoutAPI:${requestId}] 운동 세션 ${sessions.length}개 조회 성공`
+      )
+      console.log(
+        `📋 [WorkoutAPI:${requestId}] 세션 목록:`,
+        sessions.map(s => ({
+          id: s.id,
+          name: s.name,
+          status: s.status,
+        }))
+      )
+
+      return sessions
+    } catch (error) {
+      console.error(`❌ [WorkoutAPI:${requestId}] 운동 세션 조회 오류:`, error)
+      throw error
     }
-
-    const data: ApiResponse<WorkoutSession[]> = await response.json()
-    return data.data || []
   },
 
   async createWorkoutSession(
     sessionData: CreateSessionRequest
   ): Promise<WorkoutSession> {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(`🔍 [WorkoutAPI:${requestId}] createWorkoutSession 요청 시작`)
+    console.log(`📝 [WorkoutAPI:${requestId}] 세션 데이터:`, sessionData)
+    console.log(
+      `📡 [WorkoutAPI:${requestId}] API 호출: /api/workout-journal/sessions`
+    )
+
     const response = await fetch("/api/workout-journal/sessions", {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(sessionData),
     })
 
+    console.log(
+      `📊 [WorkoutAPI:${requestId}] 응답 상태: ${response.status} ${response.statusText}`
+    )
+
     if (!response.ok) {
+      console.warn(
+        `⚠️ [WorkoutAPI:${requestId}] API 응답 오류: ${response.status}`
+      )
       const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || "운동 세션 생성에 실패했습니다.")
+      const errorMessage = errorData.error || "운동 세션 생성에 실패했습니다."
+      console.error(`❌ [WorkoutAPI:${requestId}] 오류 메시지:`, errorMessage)
+      throw new Error(
+        typeof errorMessage === "string"
+          ? errorMessage
+          : JSON.stringify(errorMessage)
+      )
     }
 
     const data: ApiResponse<WorkoutSession> = await response.json()
+    console.log(`📋 [WorkoutAPI:${requestId}] 응답 데이터 확인:`, {
+      success: data.success,
+      hasData: !!data.data,
+    })
+
     if (!data.success || !data.data) {
-      throw new Error(data.error || "운동 세션 생성에 실패했습니다.")
+      const errorMessage = data.error || "운동 세션 생성에 실패했습니다."
+      console.error(`❌ [WorkoutAPI:${requestId}] 서비스 오류:`, errorMessage)
+      throw new Error(
+        typeof errorMessage === "string"
+          ? errorMessage
+          : JSON.stringify(errorMessage)
+      )
     }
 
+    console.log(`✅ [WorkoutAPI:${requestId}] 운동 세션 생성 성공:`, data.data)
     return data.data
   },
 
@@ -240,36 +386,122 @@ export const WorkoutJournalApi = {
 
   // 운동 목표 관련
   async getWorkoutGoals(): Promise<WorkoutGoal[]> {
-    const response = await fetch("/api/workout-journal/goals", {
-      headers: getAuthHeaders(),
-    })
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(`🔍 [WorkoutAPI:${requestId}] getWorkoutGoals 요청 시작`)
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || "운동 목표를 불러오는데 실패했습니다.")
+    try {
+      console.log(
+        `📡 [WorkoutAPI:${requestId}] API 호출: /api/workout-journal/goals`
+      )
+      const response = await fetch("/api/workout-journal/goals", {
+        headers: getAuthHeaders(),
+      })
+
+      console.log(
+        `📊 [WorkoutAPI:${requestId}] 응답 상태: ${response.status} ${response.statusText}`
+      )
+
+      if (!response.ok) {
+        console.warn(
+          `⚠️ [WorkoutAPI:${requestId}] API 응답 오류: ${response.status}`
+        )
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage =
+          errorData.error || "운동 목표를 불러오는데 실패했습니다."
+        console.error(`❌ [WorkoutAPI:${requestId}] 오류 메시지:`, errorMessage)
+        throw new Error(
+          typeof errorMessage === "string"
+            ? errorMessage
+            : JSON.stringify(errorMessage)
+        )
+      }
+
+      const data: ApiResponse<WorkoutGoal[]> = await response.json()
+      console.log(`📋 [WorkoutAPI:${requestId}] 응답 데이터 확인:`, {
+        success: data.success,
+        dataLength: data.data?.length || 0,
+      })
+
+      if (!data.success) {
+        const errorMessage =
+          data.error || "운동 목표를 불러오는데 실패했습니다."
+        console.error(`❌ [WorkoutAPI:${requestId}] 서비스 오류:`, errorMessage)
+        throw new Error(
+          typeof errorMessage === "string"
+            ? errorMessage
+            : JSON.stringify(errorMessage)
+        )
+      }
+
+      const goals = data.data || []
+      console.log(
+        `✅ [WorkoutAPI:${requestId}] 운동 목표 ${goals.length}개 조회 성공`
+      )
+      console.log(
+        `📋 [WorkoutAPI:${requestId}] 목표 목록:`,
+        goals.map(g => ({
+          id: g.id,
+          title: g.title,
+          type: g.type,
+        }))
+      )
+
+      return goals
+    } catch (error) {
+      console.error(`❌ [WorkoutAPI:${requestId}] 운동 목표 조회 오류:`, error)
+      throw error
     }
-
-    const data: ApiResponse<WorkoutGoal[]> = await response.json()
-    return data.data || []
   },
 
   async createWorkoutGoal(goalData: CreateGoalRequest): Promise<WorkoutGoal> {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(`🔍 [WorkoutAPI:${requestId}] createWorkoutGoal 요청 시작`)
+    console.log(`📝 [WorkoutAPI:${requestId}] 목표 데이터:`, goalData)
+    console.log(
+      `📡 [WorkoutAPI:${requestId}] API 호출: /api/workout-journal/goals`
+    )
+
     const response = await fetch("/api/workout-journal/goals", {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(goalData),
     })
 
+    console.log(
+      `📊 [WorkoutAPI:${requestId}] 응답 상태: ${response.status} ${response.statusText}`
+    )
+
     if (!response.ok) {
+      console.warn(
+        `⚠️ [WorkoutAPI:${requestId}] API 응답 오류: ${response.status}`
+      )
       const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || "운동 목표 생성에 실패했습니다.")
+      const errorMessage = errorData.error || "운동 목표 생성에 실패했습니다."
+      console.error(`❌ [WorkoutAPI:${requestId}] 오류 메시지:`, errorMessage)
+      throw new Error(
+        typeof errorMessage === "string"
+          ? errorMessage
+          : JSON.stringify(errorMessage)
+      )
     }
 
     const data: ApiResponse<WorkoutGoal> = await response.json()
+    console.log(`📋 [WorkoutAPI:${requestId}] 응답 데이터 확인:`, {
+      success: data.success,
+      hasData: !!data.data,
+    })
+
     if (!data.success || !data.data) {
-      throw new Error(data.error || "운동 목표 생성에 실패했습니다.")
+      const errorMessage = data.error || "운동 목표 생성에 실패했습니다."
+      console.error(`❌ [WorkoutAPI:${requestId}] 서비스 오류:`, errorMessage)
+      throw new Error(
+        typeof errorMessage === "string"
+          ? errorMessage
+          : JSON.stringify(errorMessage)
+      )
     }
 
+    console.log(`✅ [WorkoutAPI:${requestId}] 운동 목표 생성 성공:`, data.data)
     return data.data
   },
 

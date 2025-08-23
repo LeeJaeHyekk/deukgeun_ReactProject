@@ -1,12 +1,12 @@
 import request from "supertest"
-import { app } from "../../../../backend/app"
-import { AppDataSource } from "../../../../backend/config/database"
-import { User } from "../../../../backend/entities/User"
-import { WorkoutPlan } from "../../../../backend/entities/WorkoutPlan"
-import { WorkoutSession } from "../../../../backend/entities/WorkoutSession"
-import { WorkoutGoal } from "../../../../backend/entities/WorkoutGoal"
-import { Machine } from "../../../../backend/entities/Machine"
-import { generateToken } from "../../../../backend/utils/jwt"
+import { app } from "../../../backend/app"
+import { AppDataSource } from "../../../backend/config/database"
+import { User } from "../../../backend/entities/User"
+import { WorkoutPlan } from "../../../backend/entities/WorkoutPlan"
+import { WorkoutSession } from "../../../backend/entities/WorkoutSession"
+import { WorkoutGoal } from "../../../backend/entities/WorkoutGoal"
+import { Machine } from "../../../backend/entities/Machine"
+import { generateToken } from "../../../backend/utils/jwt"
 
 describe("WorkoutJournal API Integration Tests", () => {
   let authToken: string

@@ -8,7 +8,7 @@ import {
   OneToOne,
   OneToMany,
 } from "typeorm"
-import type { UserRole, Gender } from "../../shared/types/auth"
+import type { UserRole, Gender } from "../types"
 import { UserLevel } from "./UserLevel"
 import { ExpHistory } from "./ExpHistory"
 import { UserReward } from "./UserReward"

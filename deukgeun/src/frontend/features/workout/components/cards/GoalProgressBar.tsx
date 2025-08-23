@@ -1,5 +1,5 @@
 import React from "react"
-import type { WorkoutGoal } from "../../../../../types"
+import type { WorkoutGoal } from "../../../../../shared/types"
 import type { GoalProgressBarProps } from "../../types"
 import "./GoalProgressBar.css"
 

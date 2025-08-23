@@ -4,7 +4,7 @@ import { useAuthContext } from "@shared/contexts/AuthContext"
 import { useUserStore } from "@shared/store/userStore"
 import { LevelDisplay } from "@shared/components/LevelDisplay"
 import { Navigation } from "@widgets/Navigation/Navigation"
-import type { User } from "@shared/types/common"
+import type { User } from "../../../shared/types"
 import styles from "./myPage.module.css"
 
 // 타입 정의

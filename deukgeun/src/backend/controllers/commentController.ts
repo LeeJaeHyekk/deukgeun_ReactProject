@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { Comment } from "../entities/Comment"
 import { User } from "../entities/User"
 import { AppDataSource } from "../config/database"
+import { toCommentDTO, toCommentDTOList } from "../transformers"
 
 export class CommentController {
   // 댓글 생성
@@ -44,7 +45,7 @@ export class CommentController {
         postId: parseInt(postId),
         userId,
         content: content.trim(),
-        author: user.nickname,
+        author: user.nickname || "Unknown",
       })
 
       console.log("댓글 엔티티 생성:", comment)
@@ -52,10 +53,13 @@ export class CommentController {
       const savedComment = await repo.save(comment)
       console.log("댓글 저장 성공:", savedComment)
 
+      // DTO 변환 적용
+      const commentDTO = toCommentDTO(savedComment)
+
       res.status(201).json({
         success: true,
         message: "댓글이 성공적으로 작성되었습니다.",
-        data: savedComment,
+        data: commentDTO,
       })
     } catch (error) {
       console.error("댓글 생성 오류:", error)
@@ -82,21 +86,12 @@ export class CommentController {
         order: { createdAt: "ASC" },
       })
 
-      // 댓글 데이터를 프론트엔드 형식에 맞게 변환
-      const formattedComments = comments.map(comment => ({
-        id: comment.id,
-        content: comment.content,
-        author: {
-          id: comment.userId,
-          nickname: comment.author,
-        },
-        createdAt: comment.createdAt,
-        updatedAt: comment.updatedAt,
-      }))
+      // DTO 변환 적용
+      const commentDTOs = toCommentDTOList(comments)
 
       res.json({
         success: true,
-        data: formattedComments,
+        data: commentDTOs,
         message: "댓글을 성공적으로 조회했습니다.",
       })
     } catch (error) {

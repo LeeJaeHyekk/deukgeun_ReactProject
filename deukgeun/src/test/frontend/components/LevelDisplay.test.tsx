@@ -10,6 +10,9 @@ const createMockUserLevel = (overrides = {}) => ({
   level: 1,
   currentExp: 0,
   totalExp: 0,
+  seasonExp: 0,
+  totalLevelUps: 0,
+  currentSeason: 1,
   createdAt: new Date(),
   updatedAt: new Date(),
   ...overrides,
@@ -116,7 +119,10 @@ describe("LevelDisplay", () => {
     })
 
     it("should handle exp overflow correctly", () => {
-      const userWithOverflow = createMockUserLevel({ level: 1, currentExp: 150 })
+      const userWithOverflow = createMockUserLevel({
+        level: 1,
+        currentExp: 150,
+      })
       render(<LevelDisplay userLevel={userWithOverflow} />)
 
       expect(screen.getByText(/100\/100/)).toBeInTheDocument()
@@ -197,7 +203,9 @@ describe("LevelDisplay", () => {
     })
 
     it("should show different colors for different levels", () => {
-      const { rerender } = render(<LevelDisplay userLevel={createMockUserLevel()} />)
+      const { rerender } = render(
+        <LevelDisplay userLevel={createMockUserLevel()} />
+      )
 
       // 초보자 레벨
       let levelTitle = screen.getByText(/초보자/)
@@ -226,14 +234,20 @@ describe("LevelDisplay", () => {
     })
 
     it("should handle negative exp values", () => {
-      const userWithNegativeExp = createMockUserLevel({ level: 1, currentExp: -10 })
+      const userWithNegativeExp = createMockUserLevel({
+        level: 1,
+        currentExp: -10,
+      })
       render(<LevelDisplay userLevel={userWithNegativeExp} />)
 
       expect(screen.getByText(/0\/100/)).toBeInTheDocument()
     })
 
     it("should handle very high level values", () => {
-      const userWithHighLevel = createMockUserLevel({ level: 999, currentExp: 99999 })
+      const userWithHighLevel = createMockUserLevel({
+        level: 999,
+        currentExp: 99999,
+      })
       render(<LevelDisplay userLevel={userWithHighLevel} />)
 
       expect(screen.getByText(/Lv\.999/)).toBeInTheDocument()
@@ -243,7 +257,9 @@ describe("LevelDisplay", () => {
 
   describe("성능", () => {
     it("should not re-render unnecessarily", () => {
-      const { rerender } = render(<LevelDisplay userLevel={createMockUserLevel()} />)
+      const { rerender } = render(
+        <LevelDisplay userLevel={createMockUserLevel()} />
+      )
 
       // 같은 props로 리렌더링
       rerender(<LevelDisplay userLevel={createMockUserLevel()} />)
@@ -253,7 +269,9 @@ describe("LevelDisplay", () => {
     })
 
     it("should handle rapid prop changes", () => {
-      const { rerender } = render(<LevelDisplay userLevel={createMockUserLevel()} />)
+      const { rerender } = render(
+        <LevelDisplay userLevel={createMockUserLevel()} />
+      )
 
       // 빠른 prop 변경
       for (let i = 1; i <= 10; i++) {

@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express"
 import { WorkoutService } from "../services/workoutService"
-import { authenticateToken } from "../middlewares/auth"
+import { authMiddleware } from "../middlewares/auth"
 import { logger } from "../utils/logger"
+import { toWorkoutSessionDTO, toWorkoutSessionDTOList } from "../transformers"
 
 export class WorkoutController {
   private workoutService: WorkoutService
@@ -25,7 +26,15 @@ export class WorkoutController {
       const plans = await this.workoutService.getUserWorkoutPlans(
         req.user.userId
       )
-      res.json(plans)
+
+      // DTO 변환 적용 (서비스에서 반환된 데이터가 엔티티인 경우)
+      const planDTOs = Array.isArray(plans)
+        ? plans.map(plan =>
+            typeof plan === "object" && plan !== null ? plan : plan
+          )
+        : plans
+
+      res.json(planDTOs)
     } catch (error) {
       logger.error(`운동 계획 조회 실패: ${error}`)
       next(error)
@@ -49,7 +58,11 @@ export class WorkoutController {
       }
 
       const plan = await this.workoutService.createWorkoutPlan(planData)
-      res.status(201).json(plan)
+
+      // DTO 변환 적용
+      const planDTO = typeof plan === "object" && plan !== null ? plan : plan
+
+      res.status(201).json(planDTO)
     } catch (error) {
       logger.error(`운동 계획 생성 실패: ${error}`)
       next(error)
@@ -69,10 +82,14 @@ export class WorkoutController {
 
       const { id } = req.params
       const plan = await this.workoutService.updateWorkoutPlan(
-        parseInt(id),
+        parseInt(id || ""),
         req.body
       )
-      res.json(plan)
+
+      // DTO 변환 적용
+      const planDTO = typeof plan === "object" && plan !== null ? plan : plan
+
+      res.json(planDTO)
     } catch (error) {
       logger.error(`운동 계획 수정 실패: ${error}`)
       next(error)
@@ -91,7 +108,7 @@ export class WorkoutController {
       }
 
       const { id } = req.params
-      await this.workoutService.deleteWorkoutPlan(parseInt(id))
+      await this.workoutService.deleteWorkoutPlan(parseInt(id || ""))
       res.status(204).send()
     } catch (error) {
       logger.error(`운동 계획 삭제 실패: ${error}`)
@@ -159,7 +176,7 @@ export class WorkoutController {
 
       const { id } = req.params
       const session = await this.workoutService.completeWorkoutSession(
-        parseInt(id),
+        parseInt(id || ""),
         req.user.userId
       )
       res.json(session)
@@ -228,7 +245,7 @@ export class WorkoutController {
 
       const { id } = req.params
       const goal = await this.workoutService.updateWorkoutGoal(
-        parseInt(id),
+        parseInt(id || ""),
         req.body
       )
       res.json(goal)
@@ -250,7 +267,7 @@ export class WorkoutController {
       }
 
       const { id } = req.params
-      await this.workoutService.deleteWorkoutGoal(parseInt(id))
+      await this.workoutService.deleteWorkoutGoal(parseInt(id || ""))
       res.status(204).send()
     } catch (error) {
       logger.error(`운동 목표 삭제 실패: ${error}`)

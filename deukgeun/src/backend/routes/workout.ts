@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { WorkoutController } from "../controllers/workoutController"
-import { authenticateToken } from "../middlewares/auth"
+import { authMiddleware } from "../middlewares/auth"
 import { rateLimiter } from "../middlewares/rateLimiter"
 
 const router = Router()
@@ -33,25 +33,25 @@ const workoutController = new WorkoutController()
 // 운동 계획 라우트
 router.get(
   "/plans",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 30),
   workoutController.getUserPlans
 )
 router.post(
   "/plans",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 10),
   workoutController.createPlan
 )
 router.put(
   "/plans/:id",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 10),
   workoutController.updatePlan
 )
 router.delete(
   "/plans/:id",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 10),
   workoutController.deletePlan
 )
@@ -59,19 +59,19 @@ router.delete(
 // 운동 세션 라우트
 router.get(
   "/sessions",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 30),
   workoutController.getUserSessions
 )
 router.post(
   "/sessions",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 10),
   workoutController.startSession
 )
 router.post(
   "/sessions/:id/complete",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 10),
   workoutController.completeSession
 )
@@ -79,25 +79,25 @@ router.post(
 // 운동 목표 라우트
 router.get(
   "/goals",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 30),
   workoutController.getUserGoals
 )
 router.post(
   "/goals",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 10),
   workoutController.createGoal
 )
 router.put(
   "/goals/:id",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 10),
   workoutController.updateGoal
 )
 router.delete(
   "/goals/:id",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 10),
   workoutController.deleteGoal
 )
@@ -105,7 +105,7 @@ router.delete(
 // 운동 진행 상황 라우트
 router.get(
   "/progress",
-  authenticateToken,
+  authMiddleware,
   rateLimiter(60000, 30),
   workoutController.getProgress
 )

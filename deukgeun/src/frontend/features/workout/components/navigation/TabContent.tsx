@@ -1,14 +1,44 @@
 import React from "react"
-import { LoadingSpinner } from "../../../../shared/ui/LoadingSpinner"
-import {
-  OverviewTab,
-  PlansTab,
-  SessionsTab,
-  GoalsTab,
-  ProgressTab,
-} from "../../pages/tabs"
-import type { TabContentProps } from "../../types"
+import { LoadingSpinner } from "@shared/ui/LoadingSpinner"
+import { OverviewTab } from "../tabs/OverviewTab"
+import { PlansTab } from "../tabs/PlansTab"
+import { SessionsTab } from "../tabs/SessionsTab"
+import { GoalsTab } from "../tabs/GoalsTab"
+import { ProgressTab } from "../tabs/ProgressTab"
+import type { TabType } from "../../types"
+import type {
+  WorkoutPlan,
+  WorkoutSession,
+  WorkoutGoal,
+  DashboardData,
+} from "@shared/types"
 import "./TabContent.css"
+
+interface TabContentProps {
+  activeTab: TabType
+  isLoading: boolean
+  dashboardData: DashboardData | null
+  plans: WorkoutPlan[]
+  sessions: WorkoutSession[]
+  goals: WorkoutGoal[]
+  plansLoading: boolean
+  sessionsLoading: boolean
+  goalsLoading: boolean
+  onPlanClick: (planId: number) => void
+  onSessionClick: (sessionId: number) => void
+  onGoalClick: (goalId: number) => void
+  onCreatePlan: () => void
+  onEditPlan: (planId: number) => void
+  onStartSession: (planId: number) => void
+  onCreateSession: () => void
+  onEditSession: (sessionId: number) => void
+  onViewSession: (sessionId: number) => void
+  onCreateGoal: () => void
+  onEditGoal: (goalId: number) => void
+  onDeletePlan: (planId: number) => void
+  onDeleteSession: (sessionId: number) => void
+  onDeleteGoal: (goalId: number) => void
+}
 
 export function TabContent({
   activeTab,

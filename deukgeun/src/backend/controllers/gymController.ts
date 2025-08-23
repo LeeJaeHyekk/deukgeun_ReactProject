@@ -1,11 +1,12 @@
 import { Request, Response } from "express"
 import { Gym } from "../entities/Gym"
 import { AppDataSource } from "../config/database"
-import { ApiResponse, ErrorResponse } from "../types/common"
+import { ApiResponse, ErrorResponse } from "../types"
+import { toGymDTO, toGymDTOList } from "@transformers/index"
 
 export async function getAllGyms(
   req: Request,
-  res: Response<ApiResponse<Gym[]> | ErrorResponse>
+  res: Response<ApiResponse<any[]> | ErrorResponse>
 ) {
   try {
     const gymRepository = AppDataSource.getRepository(Gym)
@@ -15,10 +16,13 @@ export async function getAllGyms(
       },
     })
 
+    // DTO 변환 적용
+    const gymDTOs = toGymDTOList(gyms)
+
     res.json({
       success: true,
       message: "헬스장 목록을 성공적으로 가져왔습니다.",
-      data: gyms,
+      data: gymDTOs,
     })
   } catch (error) {
     console.error("헬스장 목록 조회 오류:", error)
@@ -32,7 +36,7 @@ export async function getAllGyms(
 
 export async function getGymById(
   req: Request<{ id: string }>,
-  res: Response<ApiResponse<Gym> | ErrorResponse>
+  res: Response<ApiResponse<any> | ErrorResponse>
 ) {
   try {
     const { id } = req.params
@@ -47,14 +51,17 @@ export async function getGymById(
       })
     }
 
-    res.json({
+    // DTO 변환 적용
+    const gymDTO = toGymDTO(gym)
+
+    return res.json({
       success: true,
       message: "헬스장 정보를 성공적으로 가져왔습니다.",
-      data: gym,
+      data: gymDTO,
     })
   } catch (error) {
     console.error("헬스장 조회 오류:", error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "헬스장 정보를 가져오는데 실패했습니다.",
       error: "서버 오류",
@@ -64,7 +71,7 @@ export async function getGymById(
 
 export async function searchGyms(
   req: Request,
-  res: Response<ApiResponse<Gym[]> | ErrorResponse>
+  res: Response<ApiResponse<any[]> | ErrorResponse>
 ) {
   try {
     const { query, latitude, longitude, radius = 10 } = req.query
@@ -99,14 +106,17 @@ export async function searchGyms(
       })
     }
 
-    res.json({
+    // DTO 변환 적용
+    const gymDTOs = toGymDTOList(gyms)
+
+    return res.json({
       success: true,
-      message: "헬스장 검색을 완료했습니다.",
-      data: gyms,
+      message: "헬스장 검색을 성공적으로 완료했습니다.",
+      data: gymDTOs,
     })
   } catch (error) {
     console.error("헬스장 검색 오류:", error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "헬스장 검색에 실패했습니다.",
       error: "서버 오류",
@@ -143,14 +153,14 @@ export async function getGymsByLocation(
       .orderBy("gym.name", "ASC")
       .getMany()
 
-    res.json({
+    return res.json({
       success: true,
       message: "주변 헬스장을 성공적으로 가져왔습니다.",
       data: gyms,
     })
   } catch (error) {
     console.error("주변 헬스장 조회 오류:", error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "주변 헬스장을 가져오는데 실패했습니다.",
       error: "서버 오류",
@@ -189,14 +199,14 @@ export async function updateGymData(
       }
     }
 
-    res.json({
+    return res.json({
       success: true,
       message: `${updatedCount}개의 헬스장 데이터를 업데이트했습니다.`,
       data: { updated: updatedCount },
     })
   } catch (error) {
     console.error("헬스장 데이터 업데이트 오류:", error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "헬스장 데이터 업데이트에 실패했습니다.",
       error: "서버 오류",

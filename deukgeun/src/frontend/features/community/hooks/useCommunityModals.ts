@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react"
-import { CommunityPost } from "../../../../types/post"
+import { Post as CommunityPost } from "../../../../shared/types"
 
 export function useCommunityModals() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)

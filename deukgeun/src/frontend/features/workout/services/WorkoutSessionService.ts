@@ -96,6 +96,7 @@ class WorkoutSessionService {
       const errorMessage = handleApiError(error)
       return {
         success: false,
+        message: errorMessage,
         data: null,
         error: errorMessage,
       }
@@ -189,6 +190,7 @@ class WorkoutSessionService {
 
       return {
         success: true,
+        message: "Session retrieved successfully",
         data,
       }
     } catch (error) {

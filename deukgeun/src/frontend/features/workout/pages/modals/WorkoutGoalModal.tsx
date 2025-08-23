@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { X, Save, Target, Calendar, BarChart3 } from "lucide-react"
-import type { WorkoutGoal } from "../../../../../types"
+import type { WorkoutGoal } from "../../../../../shared/types"
 import "./WorkoutGoalModal.css"
 
 interface WorkoutGoalModalProps {

@@ -290,6 +290,6 @@ class PerformanceMonitor {
 export const performanceMonitor = new PerformanceMonitor()
 
 // 자동 시작 (개발 환경에서만)
-if (process.env.NODE_ENV === "development") {
+if (import.meta.env.DEV) {
   performanceMonitor.startMonitoring()
 }

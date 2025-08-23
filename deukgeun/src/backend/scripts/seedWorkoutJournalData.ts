@@ -1,4 +1,4 @@
-import { getRepository } from "typeorm"
+import { AppDataSource } from "../config/database"
 import { User } from "../entities/User"
 import { WorkoutPlan } from "../entities/WorkoutPlan"
 import { WorkoutGoal } from "../entities/WorkoutGoal"
@@ -10,12 +10,20 @@ import { Machine } from "../entities/Machine"
 
 async function seedWorkoutJournalData() {
   try {
+    // 데이터베이스 연결 초기화
+    await AppDataSource.initialize()
+    console.log("✅ 데이터베이스 연결 성공")
+  } catch (error) {
+    console.error("❌ 데이터베이스 연결 실패:", error)
+    return
+  }
+  try {
     console.log("🏋️ WorkoutJournal 초기 데이터 생성 시작...")
 
-    // 사용자 조회 (테스트용 사용자)
-    const userRepository = getRepository(User)
+    // 사용자 조회 (첫 번째 사용자)
+    const userRepository = AppDataSource.getRepository(User)
     const user = await userRepository.findOne({
-      where: { email: "test@example.com" },
+      where: {},
     })
 
     if (!user) {
@@ -28,7 +36,7 @@ async function seedWorkoutJournalData() {
     console.log(`✅ 사용자 찾음: ${user.nickname} (ID: ${user.id})`)
 
     // 기계 데이터 조회
-    const machineRepository = getRepository(Machine)
+    const machineRepository = AppDataSource.getRepository(Machine)
     const machines = await machineRepository.find({ take: 10 })
 
     if (machines.length === 0) {
@@ -39,37 +47,37 @@ async function seedWorkoutJournalData() {
     console.log(`✅ 기계 데이터 찾음: ${machines.length}개`)
 
     // 1. 운동 계획 생성
-    const planRepository = getRepository(WorkoutPlan)
+    const planRepository = AppDataSource.getRepository(WorkoutPlan)
     const samplePlans = [
       {
-        user_id: user.id,
+        userId: user.id,
         name: "초보자 전체 운동",
         description: "전신을 골고루 발달시키는 초보자용 운동 계획",
-        difficulty_level: "beginner" as const,
-        estimated_duration_minutes: 60,
-        target_muscle_groups: ["chest", "back", "legs", "shoulders"],
-        is_template: false,
-        is_public: false,
+        difficulty: "beginner" as const,
+        estimatedDurationMinutes: 60,
+        targetMuscleGroups: ["chest", "back", "legs", "shoulders"],
+        isTemplate: false,
+        isPublic: false,
       },
       {
-        user_id: user.id,
+        userId: user.id,
         name: "상체 집중 운동",
         description: "가슴, 등, 어깨를 집중적으로 발달시키는 운동",
-        difficulty_level: "intermediate" as const,
-        estimated_duration_minutes: 45,
-        target_muscle_groups: ["chest", "back", "shoulders", "arms"],
-        is_template: false,
-        is_public: false,
+        difficulty: "intermediate" as const,
+        estimatedDurationMinutes: 45,
+        targetMuscleGroups: ["chest", "back", "shoulders", "arms"],
+        isTemplate: false,
+        isPublic: false,
       },
       {
-        user_id: user.id,
+        userId: user.id,
         name: "하체 강화 운동",
         description: "다리 근력을 강화하는 운동 계획",
-        difficulty_level: "intermediate" as const,
-        estimated_duration_minutes: 50,
-        target_muscle_groups: ["legs", "glutes"],
-        is_template: false,
-        is_public: false,
+        difficulty: "intermediate" as const,
+        estimatedDurationMinutes: 50,
+        targetMuscleGroups: ["legs", "glutes"],
+        isTemplate: false,
+        isPublic: false,
       },
     ]
 
@@ -82,40 +90,40 @@ async function seedWorkoutJournalData() {
     }
 
     // 2. 운동 목표 생성
-    const goalRepository = getRepository(WorkoutGoal)
+    const goalRepository = AppDataSource.getRepository(WorkoutGoal)
     const sampleGoals = [
       {
-        user_id: user.id,
-        goal_type: "strength" as const,
-        target_value: 100,
-        current_value: 60,
+        userId: user.id,
+        title: "벤치프레스 100kg 달성",
+        description: "벤치프레스 무게를 100kg까지 올리는 것이 목표입니다.",
+        type: "weight" as const,
+        targetValue: 100,
+        currentValue: 60,
         unit: "kg",
-        target_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30일 후
-        start_date: new Date(),
-        status: "active" as const,
-        progress_percentage: 60,
+        deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30일 후
+        isCompleted: false,
       },
       {
-        user_id: user.id,
-        goal_type: "weight_loss" as const,
-        target_value: 5,
-        current_value: 2,
+        userId: user.id,
+        title: "체중 5kg 감량",
+        description: "현재 체중에서 5kg를 감량하는 것이 목표입니다.",
+        type: "weight" as const,
+        targetValue: 5,
+        currentValue: 2,
         unit: "kg",
-        target_date: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60일 후
-        start_date: new Date(),
-        status: "active" as const,
-        progress_percentage: 40,
+        deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60일 후
+        isCompleted: false,
       },
       {
-        user_id: user.id,
-        goal_type: "endurance" as const,
-        target_value: 30,
-        current_value: 15,
+        userId: user.id,
+        title: "런닝 30분 지속",
+        description: "런닝을 30분 동안 지속할 수 있도록 하는 것이 목표입니다.",
+        type: "duration" as const,
+        targetValue: 30,
+        currentValue: 15,
         unit: "분",
-        target_date: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000), // 45일 후
-        start_date: new Date(),
-        status: "active" as const,
-        progress_percentage: 50,
+        deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000), // 45일 후
+        isCompleted: false,
       },
     ]
 
@@ -130,8 +138,8 @@ async function seedWorkoutJournalData() {
     }
 
     // 3. 운동 세션 생성 (최근 2주간)
-    const sessionRepository = getRepository(WorkoutSession)
-    const setRepository = getRepository(ExerciseSet)
+    const sessionRepository = AppDataSource.getRepository(WorkoutSession)
+    const setRepository = AppDataSource.getRepository(ExerciseSet)
 
     const recentDates = []
     for (let i = 0; i < 14; i++) {
@@ -185,7 +193,7 @@ async function seedWorkoutJournalData() {
     }
 
     // 4. 운동 통계 생성
-    const statsRepository = getRepository(WorkoutStats)
+    const statsRepository = AppDataSource.getRepository(WorkoutStats)
     for (let i = 0; i < 7; i++) {
       const date = new Date()
       date.setDate(date.getDate() - i)
@@ -211,7 +219,7 @@ async function seedWorkoutJournalData() {
     console.log("✅ 운동 통계 생성 완료")
 
     // 5. 운동 진행 상황 생성
-    const progressRepository = getRepository(WorkoutProgress)
+    const progressRepository = AppDataSource.getRepository(WorkoutProgress)
     for (let i = 0; i < 10; i++) {
       const date = new Date()
       date.setDate(date.getDate() - i * 2)

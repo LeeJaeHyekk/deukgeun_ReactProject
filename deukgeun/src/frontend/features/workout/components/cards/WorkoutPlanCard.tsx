@@ -1,6 +1,6 @@
 import React from "react"
 import { Edit, Trash2, Play, Calendar, Clock, Target } from "lucide-react"
-import type { WorkoutPlan } from "../../../../../types"
+import type { WorkoutPlan } from "../../../../../shared/types"
 import type { WorkoutPlanCardProps } from "../../types"
 import {
   getDifficultyColor,
@@ -27,24 +27,24 @@ export function WorkoutPlanCard({
     }
     // onClick이 있으면 onClick 우선, 없으면 onEdit
     if (onClick) {
-      onClick()
+      onClick(plan)
     } else {
-      onEdit?.()
+      onEdit?.(plan)
     }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault()
-      onEdit?.()
+      onEdit?.(plan)
     }
   }
 
   const exercisesCount = getExerciseCount(plan)
-  const estimatedDuration = plan.estimated_duration_minutes || 0
+  const estimatedDuration = plan.estimatedDurationMinutes || 0
   const targetMuscles = getTargetMuscleGroups(plan)
-  const isTemplate = plan.is_template || false
-  const createdAt = plan.created_at || plan.createdAt
+  const isTemplate = plan.isTemplate || false
+  const createdAt = plan.createdAt
 
   return (
     <div
@@ -53,10 +53,10 @@ export function WorkoutPlanCard({
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="button"
-      aria-label={`${plan.plan_name || plan.name} 운동 계획 카드`}
+      aria-label={`${plan.name} 운동 계획 카드`}
     >
       <div className="plan-header">
-        <h3 className="plan-name">{plan.plan_name || plan.name}</h3>
+        <h3 className="plan-name">{plan.name}</h3>
         <div
           className="difficulty-badge"
           style={{
@@ -129,7 +129,7 @@ export function WorkoutPlanCard({
           className="action-button edit-button"
           onClick={e => {
             e.stopPropagation()
-            onEdit?.()
+            onEdit?.(plan)
           }}
           aria-label="계획 수정"
         >
@@ -141,7 +141,7 @@ export function WorkoutPlanCard({
           className="action-button start-button"
           onClick={e => {
             e.stopPropagation()
-            onStartSession?.()
+            onStartSession?.(plan)
           }}
           aria-label="세션 시작"
         >
@@ -153,7 +153,7 @@ export function WorkoutPlanCard({
           className="action-button delete-button"
           onClick={e => {
             e.stopPropagation()
-            onDelete?.()
+            onDelete?.(plan.id)
           }}
           aria-label="계획 삭제"
         >

@@ -1,101 +1,160 @@
 // ============================================================================
-// 중앙 타입 시스템 - 메인 인덱스
+// 중앙화된 타입 시스템
+// 모든 타입 정의를 통합 관리
 // ============================================================================
 
-// 기본 유틸리티 타입
-export type Nullable<T> = T | null
-export type Optional<T> = T | undefined
-export type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P]
-}
+// 공통 유틸리티 타입
+export * from "./common"
 
-// API 응답 기본 타입
-export interface ApiResponse<T = unknown> {
-  success: boolean
-  message: string
-  data?: T
-  error?: string
-  statusCode?: number
-}
-
-// 페이지네이션 타입
-export interface PaginationParams {
-  page?: number
-  limit?: number
-  offset?: number
-}
-
-export interface PaginatedResponse<T> {
-  data: T[]
-  pagination: {
-    page: number
-    limit: number
-    total: number
-    totalPages: number
-  }
-}
-
-// 환경 설정 타입
-export type Environment = "development" | "production" | "test"
-
-// 데이터베이스 설정 타입
-export interface DatabaseConfig {
-  host: string
-  port: number
-  username: string
-  password: string
-  database: string
-  synchronize: boolean
-  logging: boolean
-}
-
-// 애플리케이션 설정 타입
-export interface AppConfig {
-  environment: Environment
-  port: number
-  jwtSecret: string
-  jwtExpiresIn: string
-  corsOrigin: string[]
-  database: DatabaseConfig
-}
-
-// 공통 상태 타입
-export interface LoadingState {
-  isLoading: boolean
-  error?: string
-}
-
-// 날짜 관련 타입
-export type DateString = string // ISO 8601 형식
-export type TimeString = string // HH:mm:ss 형식
-
-// ID 타입
-export type ID = number | string
+// DTO 타입들
+export * from "./dto"
 
 // ============================================================================
-// 도메인별 타입 내보내기
+// 통합된 타입 별칭 (기존 코드와의 호환성을 위해)
 // ============================================================================
 
-// 인증 관련 타입
-export * from "./auth"
+// Machine 관련 타입
+export type {
+  Machine,
+  CreateMachineRequest,
+  UpdateMachineRequest,
+  MachineResponse,
+  MachineListResponse,
+  MachineCategory,
+  DifficultyLevel,
+  MachineFilterQuery,
+} from "./dto"
 
-// 레벨 시스템 관련 타입
-export * from "./level"
+// User 관련 타입
+export type {
+  User,
+  CreateUserRequest,
+  UpdateUserRequest,
+  UserResponse,
+} from "./dto"
 
-// 워크아웃 관련 타입
-export * from "./workout"
+// Post 관련 타입
+export type {
+  Post,
+  PostCategoryInfo,
+  CreatePostRequest,
+  UpdatePostRequest,
+  PostResponse,
+} from "./dto"
 
-// 커뮤니티 관련 타입
-export * from "./post"
+// Comment 관련 타입
+export type {
+  Comment,
+  CreateCommentRequest,
+  UpdateCommentRequest,
+  CommentResponse,
+} from "./dto"
 
-// 헬스장 관련 타입
-export * from "./gym"
+// Gym 관련 타입
+export type {
+  Gym,
+  CreateGymRequest,
+  UpdateGymRequest,
+  GymResponse,
+} from "./dto"
 
-// 기계 관련 타입
-export * from "./machine"
+// WorkoutSession 관련 타입
+export type {
+  WorkoutSession,
+  CreateWorkoutSessionRequest,
+  UpdateWorkoutSessionRequest,
+  WorkoutSessionResponse,
+} from "./dto"
 
-// 통계 관련 타입
-export * from "./stats"
+// WorkoutPlan 관련 타입
+export type {
+  WorkoutPlan,
+  CreateWorkoutPlanRequest,
+  UpdateWorkoutPlanRequest,
+  WorkoutPlanResponse,
+} from "./dto"
 
-// 계정 복구 관련 타입
-export * from "./accountRecovery"
+// WorkoutGoal 관련 타입
+export type {
+  WorkoutGoal,
+  CreateWorkoutGoalRequest,
+  UpdateWorkoutGoalRequest,
+  WorkoutGoalResponse,
+} from "./dto"
+
+// ExerciseSet 관련 타입
+export type {
+  ExerciseSet,
+  CreateExerciseSetRequest,
+  UpdateExerciseSetRequest,
+  ExerciseSetResponse,
+} from "./dto"
+
+// ExpHistory 관련 타입
+export type {
+  ExpHistory,
+  CreateExpHistoryRequest,
+  UpdateExpHistoryRequest,
+  ExpHistoryResponse,
+} from "./dto"
+
+// UserLevel 관련 타입
+export type {
+  UserLevel,
+  CreateUserLevelRequest,
+  UpdateUserLevelRequest,
+  UserLevelResponse,
+} from "./dto"
+
+// UserReward 관련 타입
+export type {
+  UserReward,
+  CreateUserRewardRequest,
+  UpdateUserRewardRequest,
+  UserRewardResponse,
+} from "./dto"
+
+// UserStreak 관련 타입
+export type {
+  UserStreak,
+  CreateUserStreakRequest,
+  UpdateUserStreakRequest,
+  UserStreakResponse,
+} from "./dto"
+
+// Milestone 관련 타입
+export type {
+  Milestone,
+  CreateMilestoneRequest,
+  UpdateMilestoneRequest,
+  MilestoneResponse,
+} from "./dto"
+
+// Like 관련 타입
+export type {
+  Like,
+  CreateLikeRequest,
+  UpdateLikeRequest,
+  LikeResponse,
+} from "./dto"
+
+// Auth 관련 타입
+export type {
+  LoginRequest,
+  RegisterRequest,
+  LoginResponse,
+  RegisterResponse,
+  PasswordResetRequest,
+  PasswordResetConfirm,
+  EmailVerification,
+  AccountRecoveryRequest,
+} from "./dto"
+
+// API 관련 타입
+export type {
+  ApiResponse,
+  ErrorResponse,
+  PaginationInfo,
+  SearchQuery,
+  FilterQuery,
+} from "./dto"

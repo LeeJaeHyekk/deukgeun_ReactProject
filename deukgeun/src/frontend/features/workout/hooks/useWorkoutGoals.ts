@@ -10,20 +10,24 @@ export function useWorkoutGoals() {
   const [error, setError] = useState<string | null>(null)
 
   const getUserGoals = useCallback(async () => {
+    console.log(`🔍 [useWorkoutGoals] getUserGoals 호출 시작`)
     try {
       setLoading(true)
       setError(null)
+      console.log(`📡 [useWorkoutGoals] API 호출 중...`)
       const data = await WorkoutJournalApi.getWorkoutGoals()
+      console.log(`✅ [useWorkoutGoals] 운동 목표 ${data.length}개 조회 성공`)
       setGoals(data)
     } catch (err) {
       const errorMessage =
         err instanceof Error
           ? err.message
           : "운동 목표를 불러오는데 실패했습니다."
-      console.error("운동 목표 조회 실패:", err)
+      console.error(`❌ [useWorkoutGoals] 운동 목표 조회 실패:`, err)
       setError(errorMessage)
     } finally {
       setLoading(false)
+      console.log(`🏁 [useWorkoutGoals] getUserGoals 완료`)
     }
   }, [])
 

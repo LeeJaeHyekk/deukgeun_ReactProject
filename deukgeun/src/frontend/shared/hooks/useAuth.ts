@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { storage } from "../lib"
 import { authApi } from "../../features/auth/api/authApi"
 import { useUserStore } from "../store/userStore"
-import type { User } from "@shared/types/common"
+import type { User } from "../../../shared/types"
 
 // JWT 토큰 유효성 검사
 function isTokenValid(token: string): boolean {
@@ -137,6 +137,18 @@ export function useAuth() {
     [setUser, setupTokenRefresh, isLoggedIn]
   )
 
+  // 사용자 정보 업데이트
+  const updateUser = useCallback(
+    (updatedUser: Partial<User>) => {
+      if (user) {
+        const newUser = { ...user, ...updatedUser }
+        setUser(newUser)
+        storage.set("user", newUser)
+      }
+    },
+    [user, setUser]
+  )
+
   // 로그아웃 처리 (서버 + 클라이언트 정리)
   const logout = useCallback(async () => {
     try {
@@ -179,6 +191,7 @@ export function useAuth() {
     isLoading,
     login,
     logout,
+    updateUser,
     checkAuthStatus,
   }
 }

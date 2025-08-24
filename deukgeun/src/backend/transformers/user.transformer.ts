@@ -13,7 +13,7 @@ export class UserTransformer {
       nickname: entity.nickname,
       phone: entity.phone,
       gender: entity.gender,
-      birthday: entity.birthday,
+      birthDate: entity.birthday,
       profileImage: entity.profileImage,
       role: entity.role,
       isActive: entity.isActive,
@@ -24,7 +24,7 @@ export class UserTransformer {
       lastLoginAt: entity.lastLoginAt,
       lastActivityAt: entity.lastActivityAt,
       createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt
+      updatedAt: entity.updatedAt,
     }
   }
 
@@ -35,7 +35,7 @@ export class UserTransformer {
       nickname: dto.nickname,
       phone: dto.phone,
       gender: dto.gender,
-      birthday: dto.birthday,
+      birthday: dto.birthDate as Date | null,
       profileImage: dto.profileImage,
       role: dto.role,
       isActive: dto.isActive,
@@ -46,11 +46,11 @@ export class UserTransformer {
       lastLoginAt: dto.lastLoginAt,
       lastActivityAt: dto.lastActivityAt,
       createdAt: dto.createdAt,
-      updatedAt: dto.updatedAt
+      updatedAt: dto.updatedAt,
     }
   }
 
   static toDTOList(entities: User[]): UserDTO[] {
-    return entities.map(entity => this.toDTO(entity))
+    return entities.map(entity => UserTransformer.toDTO(entity))
   }
 }

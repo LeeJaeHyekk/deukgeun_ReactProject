@@ -211,7 +211,7 @@ export interface RegisterRequest {
   nickname: string
   phone?: string
   gender?: string
-  birthday?: string
+  birthday?: Date | string | null
   recaptchaToken: string
 }
 

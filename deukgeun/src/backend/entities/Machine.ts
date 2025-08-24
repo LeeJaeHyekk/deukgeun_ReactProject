@@ -5,10 +5,27 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm"
-import type {
-  MachineCategory,
-  DifficultyLevel,
-} from "../types/machine"
+// MachineCategory와 DifficultyLevel을 직접 정의
+type MachineCategory = 
+  | "cardio"
+  | "strength"
+  | "flexibility"
+  | "balance"
+  | "functional"
+  | "rehabilitation"
+  | "상체"
+  | "하체"
+  | "전신"
+  | "기타"
+
+type DifficultyLevel = 
+  | "beginner"
+  | "intermediate"
+  | "advanced"
+  | "expert"
+  | "초급"
+  | "중급"
+  | "고급"
 
 @Entity("machines")
 export class Machine {

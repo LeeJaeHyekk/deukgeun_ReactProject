@@ -43,6 +43,6 @@ export class UserLevelTransformer {
   }
 
   static toDTOList(entities: UserLevel[]): UserLevelDTO[] {
-    return entities.map(entity => this.toDTO(entity))
+    return entities.map(entity => UserLevelTransformer.toDTO(entity))
   }
 }

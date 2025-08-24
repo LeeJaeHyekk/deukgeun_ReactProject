@@ -9,7 +9,7 @@ export interface UserDTO {
   phone?: string
   phoneNumber?: string
   gender?: "male" | "female" | "other"
-  birthDate?: Date
+  birthDate?: Date | string | null
   profileImage?: string
   role: "user" | "admin" | "moderator"
   isActive: boolean

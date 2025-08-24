@@ -15,6 +15,7 @@ import { UserReward } from "./UserReward"
 import { Milestone } from "./Milestone"
 import { UserStreak } from "./UserStreak"
 import { Comment } from "./Comment"
+import { NullableDateTransformer } from "@transformers"
 
 @Entity("users")
 export class User {
@@ -36,8 +37,8 @@ export class User {
   @Column({ type: "enum", enum: ["male", "female", "other"], nullable: true })
   gender?: Gender
 
-  @Column({ type: "date", nullable: true })
-  birthday?: Date
+  @Column({ type: "date", nullable: true, transformer: NullableDateTransformer })
+  birthday: Date | null;
 
   @Column({ type: "varchar", nullable: true })
   profileImage?: string

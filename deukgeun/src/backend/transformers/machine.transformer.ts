@@ -23,7 +23,7 @@ export class MachineTransformer {
       videoUrl: entity.videoUrl,
       isActive: entity.isActive,
       createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt
+      updatedAt: entity.updatedAt,
     }
   }
 
@@ -32,23 +32,27 @@ export class MachineTransformer {
       id: dto.id,
       machineKey: dto.machineKey,
       name: dto.name,
-      nameKo: dto.nameKo,
-      nameEn: dto.nameEn,
+      nameKo: dto.nameKo || undefined,
+      nameEn: dto.nameEn || undefined,
       imageUrl: dto.imageUrl,
       shortDesc: dto.shortDesc,
       detailDesc: dto.detailDesc,
-      positiveEffect: dto.positiveEffect,
-      category: dto.category,
-      targetMuscles: dto.targetMuscles,
-      difficulty: dto.difficulty,
-      videoUrl: dto.videoUrl,
+      positiveEffect: dto.positiveEffect || undefined,
+      category: (typeof dto.category === "string"
+        ? dto.category
+        : dto.category.name) as any,
+      targetMuscles: dto.targetMuscles || undefined,
+      difficulty: (typeof dto.difficulty === "string"
+        ? dto.difficulty
+        : dto.difficulty.name) as any,
+      videoUrl: dto.videoUrl || undefined,
       isActive: dto.isActive,
       createdAt: dto.createdAt,
-      updatedAt: dto.updatedAt
+      updatedAt: dto.updatedAt,
     }
   }
 
   static toDTOList(entities: Machine[]): MachineDTO[] {
-    return entities.map(entity => this.toDTO(entity))
+    return entities.map(entity => MachineTransformer.toDTO(entity))
   }
 }

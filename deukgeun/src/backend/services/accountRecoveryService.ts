@@ -106,7 +106,7 @@ class AccountRecoveryService {
     phone: string,
     securityInfo: SecurityInfo,
     gender?: string,
-    birthday?: string
+    birthday?: Date | string | null
   ): Promise<{ success: boolean; data?: any; error?: string }> {
     try {
       // Rate limiting
@@ -222,7 +222,7 @@ class AccountRecoveryService {
     phone: string,
     securityInfo: SecurityInfo,
     gender?: string,
-    birthday?: string
+    birthday?: Date | string | null
   ): Promise<{ success: boolean; data?: any; error?: string }> {
     try {
       // Rate limiting
@@ -513,7 +513,7 @@ class AccountRecoveryService {
       email?: string
       username?: string
       gender?: string
-      birthday?: string
+      birthday?: Date | string | null
       newPassword?: string
       confirmPassword?: string
     },
@@ -555,11 +555,21 @@ class AccountRecoveryService {
 
     // Birthday validation
     if (data.birthday) {
+      let birthdayStr: string
+      if (data.birthday instanceof Date) {
+        birthdayStr = data.birthday.toISOString().split("T")[0]
+      } else if (typeof data.birthday === "string") {
+        birthdayStr = data.birthday
+      } else {
+        errors.push("유효한 생년월일을 입력하세요.")
+        return { isValid: false, errors }
+      }
+
       const birthdayRegex = /^\d{4}-\d{2}-\d{2}$/
-      if (!birthdayRegex.test(data.birthday)) {
+      if (!birthdayRegex.test(birthdayStr)) {
         errors.push("생년월일은 YYYY-MM-DD 형식으로 입력하세요.")
       } else {
-        const date = new Date(data.birthday)
+        const date = new Date(birthdayStr)
         if (isNaN(date.getTime())) {
           errors.push("유효한 생년월일을 입력하세요.")
         }

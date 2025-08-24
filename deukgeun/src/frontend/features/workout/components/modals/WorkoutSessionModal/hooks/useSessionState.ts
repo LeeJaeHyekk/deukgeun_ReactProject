@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react"
-import type { WorkoutSession } from "../../../../shared/types"
+import type { WorkoutSession } from "../../../../../shared/types"
 
 interface SessionData {
   sessionId: number

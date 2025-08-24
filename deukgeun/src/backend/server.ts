@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import app from "./app"
 import { connectDatabase } from "./config/database"
 import { autoInitializeScheduler } from "./services/autoUpdateScheduler"

@@ -37,6 +37,6 @@ export class ExpHistoryTransformer {
   }
 
   static toDTOList(entities: ExpHistory[]): ExpHistoryDTO[] {
-    return entities.map(entity => this.toDTO(entity))
+    return entities.map(entity => ExpHistoryTransformer.toDTO(entity))
   }
 }

@@ -4,8 +4,8 @@ import {
   generateAccessToken,
   generateRefreshToken,
   verifyToken,
-} from "../../utils/jwt"
-import { createMockUser } from "../../../frontend/shared/utils/testUtils"
+} from "../../backend/utils/jwt"
+import { createMockUser } from "../../frontend/shared/utils/testUtils"
 
 // 테스트 파일 임시 비활성화 - 타입 오류 해결 후 활성화 예정
 describe.skip("JWT Utils", () => {

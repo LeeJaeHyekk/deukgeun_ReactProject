@@ -13,14 +13,14 @@ export class PostTransformer {
       content: entity.content,
       author: entity.author,
       userId: entity.userId,
-      category: entity.category,
+      category: entity.category as string,
       tags: entity.tags,
-      thumbnailUrl: entity.thumbnailUrl,
+      thumbnailUrl: entity.thumbnail_url,
       images: entity.images,
-      likeCount: entity.likeCount,
-      commentCount: entity.commentCount,
+      likeCount: entity.like_count,
+      commentCount: entity.comment_count,
       createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt
+      updatedAt: entity.updatedAt,
     }
   }
 
@@ -31,18 +31,20 @@ export class PostTransformer {
       content: dto.content,
       author: dto.author,
       userId: dto.userId,
-      category: dto.category,
+      category: (typeof dto.category === "string"
+        ? dto.category
+        : dto.category.name) as any,
       tags: dto.tags,
-      thumbnailUrl: dto.thumbnailUrl,
+      thumbnail_url: dto.thumbnailUrl,
       images: dto.images,
-      likeCount: dto.likeCount,
-      commentCount: dto.commentCount,
+      like_count: dto.likeCount,
+      comment_count: dto.commentCount,
       createdAt: dto.createdAt,
-      updatedAt: dto.updatedAt
+      updatedAt: dto.updatedAt,
     }
   }
 
   static toDTOList(entities: Post[]): PostDTO[] {
-    return entities.map(entity => this.toDTO(entity))
+    return entities.map(entity => PostTransformer.toDTO(entity))
   }
 }

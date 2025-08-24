@@ -1,7 +1,7 @@
 import { AppDataSource } from "../config/database"
 import { Post } from "../entities/Post"
 import { User } from "../entities/User"
-import { ApiResponse } from "../types/common"
+import { ApiResponse } from "../types"
 
 interface PostQueryParams {
   category?: string

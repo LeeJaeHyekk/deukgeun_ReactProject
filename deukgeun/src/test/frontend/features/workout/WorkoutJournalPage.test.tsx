@@ -1,10 +1,10 @@
 import React from "react"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import WorkoutJournalPage from "../../../../../frontend/features/workout/WorkoutJournalPage"
-import { AuthContext } from "../../../../../frontend/shared/contexts/AuthContext"
-import { WorkoutTimerContext } from "../../../../../frontend/shared/contexts/WorkoutTimerContext"
-import type { User } from "../../../../../shared/types"
+import WorkoutJournalPage from "../../../frontend/features/workout/WorkoutJournalPage"
+import { AuthContext } from "../../../frontend/shared/contexts/AuthContext"
+import { WorkoutTimerContext } from "../../../frontend/shared/contexts/WorkoutTimerContext"
+import type { User } from "../../../shared/types"
 
 // Mock the hooks
 jest.mock("../../../../../frontend/features/workout/hooks/useWorkoutPlans")

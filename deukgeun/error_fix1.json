@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "name": "typeorm-ts5-phase1-fixes",
+    "description": "TS5 + TypeORM 0.3.x Phase1 우회: decorator 최소설정, transformer/nullable 타입 일원화",
+    "owner": "backend"
+  },
+  "actions": [
+    {
+      "type": "write_file",
+      "path": "deukgeun/src/backend/tsconfig.json",
+      "content": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2020\",\n    \"module\": \"commonjs\",\n    \"moduleResolution\": \"node\",\n    \"lib\": [\"ES2020\"],\n    \"outDir\": \"../../dist/backend\",\n    \"rootDir\": \"../\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true,\n    \"forceConsistentCasingInFileNames\": true,\n    \"resolveJsonModule\": true,\n\n    // TypeORM + TS5 안정화 핵심\n    \"experimentalDecorators\": true,\n    \"emitDecoratorMetadata\": true,\n    \"useDefineForClassFields\": false,\n\n    // 런타임 경로 alias\n    \"baseUrl\": \"../\",\n    \"paths\": {\n      \"@types/*\": [\"types/*\"],\n      \"@backend/*\": [\"backend/*\"],\n      \"@config/*\": [\"backend/config/*\"],\n      \"@controllers/*\": [\"backend/controllers/*\"],\n      \"@entities/*\": [\"backend/entities/*\"],\n      \"@middlewares/*\": [\"backend/middlewares/*\"],\n      \"@routes/*\": [\"backend/routes/*\"],\n      \"@services/*\": [\"backend/services/*\"],\n      \"@utils/*\": [\"backend/utils/*\"],\n      \"@transformers/*\": [\"backend/transformers/*\"],\n      \"@transformers\": [\"backend/transformers/index\"],\n      \"@dto/*\": [\"../shared/types/dto/*\"],\n      \"@dto\": [\"../shared/types/dto/index\"]\n    }\n  },\n  \"include\": [\"./**/*\", \"../types/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\", \"build\", \"**/*.js\", \"**/*.jsx\"]\n}\n"
+    },
+    {
+      "type": "ensure_dependency",
+      "package": "reflect-metadata",
+      "semver": "^0.1.13",
+      "dev": false
+    },
+    {
+      "type": "ensure_dependency",
+      "package": "tsconfig-paths",
+      "semver": "^4.2.0",
+      "dev": true
+    },
+    {
+      "type": "merge_package_json",
+      "path": "package.json",
+      "changes": {
+        "scripts": {
+          "dev:backend": "ts-node -r tsconfig-paths/register -r reflect-metadata deukgeun/src/backend/server.ts",
+          "build:backend": "tsc -p deukgeun/src/backend/tsconfig.json",
+          "start:backend": "node -r tsconfig-paths/register -r reflect-metadata dist/backend/server.js",
+          "typeorm:migrate": "ts-node -r tsconfig-paths/register -r reflect-metadata deukgeun/src/backend/scripts/typeorm.migrate.ts"
+        }
+      }
+    },
+    {
+      "type": "write_file",
+      "path": "deukgeun/src/backend/transformers/nullableDate.ts",
+      "content": "import { ValueTransformer } from 'typeorm';\n\n// Date <-> DB(date/timestamp) null-safe transformer (Phase 1: 보수적으로 null 허용)\nexport const NullableDateTransformer: ValueTransformer = {\n  to: (value: Date | string | null | undefined) => {\n    if (value == null) return null;\n    if (value instanceof Date) return value;\n    const d = new Date(value);\n    return isNaN(d.getTime()) ? null : d;\n  },\n  from: (value: Date | string | null) => {\n    if (value == null) return null;\n    const d = value instanceof Date ? value : new Date(value);\n    return isNaN(d.getTime()) ? null : d;\n  }\n};\n"
+    },
+    {
+      "type": "write_file",
+      "path": "deukgeun/src/backend/transformers/bigintNumber.ts",
+      "content": "import { ValueTransformer } from 'typeorm';\n\n// BIGINT <-> number (DB는 string 반환 가능) null-safe\nexport const BigIntNumberTransformer: ValueTransformer = {\n  to: (value: number | null | undefined) => (value == null ? null : String(value)),\n  from: (value: string | number | null) => (value == null ? null : Number(value))\n};\n"
+    },
+    {
+      "type": "write_file",
+      "path": "deukgeun/src/backend/transformers/index.ts",
+      "content": "export * from './nullableDate';\nexport * from './bigintNumber';\n"
+    },
+    {
+      "type": "ensure_top_of_file",
+      "path_glob": [
+        "deukgeun/src/backend/server.ts",
+        "deukgeun/src/backend/main.ts",
+        "deukgeun/src/backend/app.ts",
+        "deukgeun/src/backend/scripts/**/*.ts",
+        "deukgeun/src/backend/data-source.ts",
+        "deukgeun/src/backend/datasource.ts"
+      ],
+      "line": "import 'reflect-metadata';"
+    },
+    {
+      "type": "codemod_regex",
+      "path_glob": "deukgeun/src/backend/entities/**/*.ts",
+      "find": "@Column\\(([^)]*)\\)\\s*birthday\\s*:\\s*Date\\s*;?",
+      "replace": "@Column({ type: 'date', nullable: true, transformer: NullableDateTransformer })\n birthday: Date | null;"
+    },
+    {
+      "type": "codemod_regex",
+      "path_glob": [
+        "deukgeun/src/backend/controllers/**/*.ts",
+        "deukgeun/src/backend/services/**/*.ts",
+        "deukgeun/src/backend/dto/**/*.ts"
+      ],
+      "find": "(birthday\\s*:\\s*)(Date|string)(\\s*[;|,])",
+      "replace": "$1 Date | string | null $3"
+    },
+    {
+      "type": "codemod_regex",
+      "path_glob": [
+        "deukgeun/src/backend/controllers/**/*.ts",
+        "deukgeun/src/backend/services/**/*.ts"
+      ],
+      "find": "([\\w\\.\\]\\)\\?\\.]birthday)(?!\\s*\\|\\|\\s*null)",
+      "replace": "$1 ?? null"
+    },
+    {
+      "type": "insert_import_if_missing",
+      "path_glob": "deukgeun/src/backend/entities/**/*.ts",
+      "import": {
+        "what": "{ NullableDateTransformer }",
+        "from": "@transformers"
+      }
+    },
+    {
+      "type": "create_review_note",
+      "note": "TS18047(birthday is possibly null) 해결 체크: Entity/DTO/Controller에서 birthday를 Date|string|null 로 정렬했는지, @Column(nullable: true, transformer: NullableDateTransformer) 반영됐는지 확인."
+    }
+  ]
+}

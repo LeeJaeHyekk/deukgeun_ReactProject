@@ -19,7 +19,6 @@ export class ExerciseSetTransformer {
       rpeRating: entity.rpeRating,
       notes: entity.notes,
       createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt
     }
   }
 
@@ -35,11 +34,11 @@ export class ExerciseSetTransformer {
       distanceMeters: dto.distanceMeters,
       rpeRating: dto.rpeRating,
       notes: dto.notes,
-      createdAt: dto.createdAt
+      createdAt: dto.createdAt,
     }
   }
 
   static toDTOList(entities: ExerciseSet[]): ExerciseSetDTO[] {
-    return entities.map(entity => this.toDTO(entity))
+    return entities.map(entity => ExerciseSetTransformer.toDTO(entity))
   }
 }

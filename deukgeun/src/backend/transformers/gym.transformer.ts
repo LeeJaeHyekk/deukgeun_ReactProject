@@ -49,6 +49,6 @@ export class GymTransformer {
   }
 
   static toDTOList(entities: Gym[]): GymDTO[] {
-    return entities.map(entity => this.toDTO(entity))
+    return entities.map(entity => GymTransformer.toDTO(entity))
   }
 }

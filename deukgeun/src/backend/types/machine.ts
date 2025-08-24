@@ -1,11 +1,11 @@
 import { Repository } from "typeorm"
 import { Machine } from "../entities/Machine"
 import type {
-  Machine as SharedMachine,
-  MachineCategory,
-  DifficultyLevel,
-  CreateMachineRequest as SharedCreateMachineRequest,
-  UpdateMachineRequest as SharedUpdateMachineRequest,
+  MachineDTO as SharedMachine,
+  MachineCategoryDTO as MachineCategory,
+  DifficultyLevelDTO as DifficultyLevel,
+  CreateMachineDTO as SharedCreateMachineRequest,
+  UpdateMachineDTO as SharedUpdateMachineRequest,
 } from "../../shared/types/dto/machine.dto"
 
 // Machine Repository 타입 정의

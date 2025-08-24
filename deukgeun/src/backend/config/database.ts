@@ -1,3 +1,4 @@
+import "reflect-metadata"
 // TypeORM DataSource 클래스 import
 import { DataSource } from "typeorm"
 // 환경 변수 로드 라이브러리 import

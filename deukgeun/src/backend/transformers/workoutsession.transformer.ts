@@ -46,6 +46,6 @@ export class WorkoutSessionTransformer {
   }
 
   static toDTOList(entities: WorkoutSession[]): WorkoutSessionDTO[] {
-    return entities.map(entity => this.toDTO(entity))
+    return entities.map(entity => WorkoutSessionTransformer.toDTO(entity))
   }
 }

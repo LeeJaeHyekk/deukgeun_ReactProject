@@ -14,7 +14,7 @@ export class CommentTransformer {
       author: entity.author,
       content: entity.content,
       createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt
+      updatedAt: entity.updatedAt,
     }
   }
 
@@ -26,11 +26,11 @@ export class CommentTransformer {
       author: dto.author,
       content: dto.content,
       createdAt: dto.createdAt,
-      updatedAt: dto.updatedAt
+      updatedAt: dto.updatedAt,
     }
   }
 
   static toDTOList(entities: Comment[]): CommentDTO[] {
-    return entities.map(entity => this.toDTO(entity))
+    return entities.map(entity => CommentTransformer.toDTO(entity))
   }
 }

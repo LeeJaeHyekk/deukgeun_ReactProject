@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback } from "react"
-import type { WorkoutPlan, CreatePlanRequest } from "../../../../shared/types"
+import type {
+  WorkoutPlan,
+  CreatePlanRequest,
+} from "../../../../../shared/types"
 
 export function usePlanForm(currentPlan: WorkoutPlan | null) {
   const [formData, setFormData] = useState<CreatePlanRequest>({

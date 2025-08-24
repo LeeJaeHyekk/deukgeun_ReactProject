@@ -28,6 +28,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
+    "exactOptionalPropertyTypes": false,
     "skipLibCheck": true,
     "noEmit": true,
     "experimentalDecorators": true,

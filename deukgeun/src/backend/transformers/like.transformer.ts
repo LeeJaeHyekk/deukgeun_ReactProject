@@ -25,6 +25,6 @@ export class LikeTransformer {
   }
 
   static toDTOList(entities: Like[]): LikeDTO[] {
-    return entities.map(entity => this.toDTO(entity))
+    return entities.map(entity => LikeTransformer.toDTO(entity))
   }
 }

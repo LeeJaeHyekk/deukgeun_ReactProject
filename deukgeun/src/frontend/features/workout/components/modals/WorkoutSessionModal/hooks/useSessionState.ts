@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react"
-import type { WorkoutSession } from "../../../../../shared/types"
+import type { WorkoutSession } from "@shared/types"
 
 interface SessionData {
   sessionId: number
@@ -7,11 +7,16 @@ interface SessionData {
   startTime: number
   plan?: any
   exercises?: any[]
+  exerciseSets?: any[]
 }
 
 export function useSessionState() {
   const [currentSessionData, setCurrentSessionData] =
-    useState<SessionData | null>(null)
+    useState<SessionData | null>({
+      sessionId: Date.now(),
+      startTime: Date.now(),
+      exerciseSets: [],
+    })
   const [currentSession, setCurrentSession] = useState<WorkoutSession>({
     id: 0,
     userId: 0,
@@ -20,9 +25,10 @@ export function useSessionState() {
     startTime: new Date(),
     endTime: undefined,
     duration: undefined,
-    caloriesBurned: undefined,
     notes: "",
+    status: "in_progress",
     isCompleted: false,
+    exerciseSets: [],
     createdAt: new Date(),
     updatedAt: new Date(),
   })
@@ -39,6 +45,13 @@ export function useSessionState() {
     (session?: WorkoutSession, plan?: any) => {
       if (session) {
         setCurrentSession(session)
+        // 세션 데이터 초기화
+        setCurrentSessionData({
+          sessionId: session.id || Date.now(),
+          startTime: Date.now(),
+          exerciseSets: session.exerciseSets || [],
+          plan: plan,
+        })
       } else if (plan) {
         const newSession: WorkoutSession = {
           id: 0,
@@ -48,13 +61,22 @@ export function useSessionState() {
           startTime: new Date(),
           endTime: undefined,
           duration: undefined,
-          caloriesBurned: undefined,
           notes: "",
+          status: "in_progress",
           isCompleted: false,
+          exerciseSets: [],
           createdAt: new Date(),
           updatedAt: new Date(),
         }
         setCurrentSession(newSession)
+        // 계획 기반 세션 데이터 초기화
+        setCurrentSessionData({
+          sessionId: Date.now(),
+          planId: plan.id,
+          startTime: Date.now(),
+          plan: plan,
+          exerciseSets: plan.exercises || [],
+        })
       } else {
         const emptySession: WorkoutSession = {
           id: 0,
@@ -64,13 +86,20 @@ export function useSessionState() {
           startTime: new Date(),
           endTime: undefined,
           duration: undefined,
-          caloriesBurned: undefined,
           notes: "",
+          status: "in_progress",
           isCompleted: false,
+          exerciseSets: [],
           createdAt: new Date(),
           updatedAt: new Date(),
         }
         setCurrentSession(emptySession)
+        // 빈 세션 데이터 초기화
+        setCurrentSessionData({
+          sessionId: Date.now(),
+          startTime: Date.now(),
+          exerciseSets: [],
+        })
       }
 
       setCurrentExerciseIndex(0)
@@ -81,6 +110,19 @@ export function useSessionState() {
     },
     []
   )
+
+  const updateSessionData = useCallback((updates: Partial<SessionData>) => {
+    setCurrentSessionData((prev: SessionData | null) =>
+      prev
+        ? { ...prev, ...updates }
+        : {
+            sessionId: Date.now(),
+            startTime: Date.now(),
+            exerciseSets: [],
+            ...updates,
+          }
+    )
+  }, [])
 
   const updateSession = useCallback((updates: Partial<WorkoutSession>) => {
     setCurrentSession(prev => ({ ...prev, ...updates }))

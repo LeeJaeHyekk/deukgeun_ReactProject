@@ -74,7 +74,7 @@ interface RelationshipRules {
 }
 
 class MixTransformer {
-  private config: MixConfig
+  private config: MixConfig = {} as MixConfig
 
   constructor() {
     this.loadConfig()
@@ -407,7 +407,7 @@ class MixTransformer {
       return data
     }
 
-    const result = { ...data }
+    const result = { ...data } as Record<string, any>
 
     entityConfig.fields.forEach(field => {
       const defaultValue = this.getDefaultValue(field)
@@ -421,7 +421,7 @@ class MixTransformer {
       }
     })
 
-    return result
+    return result as T
   }
 
   /**

@@ -25,10 +25,19 @@ export function SessionsTab({
   onViewSession,
   onDeleteSession,
 }: SessionsTabProps) {
+  console.log("🏋️ [SessionsTab] 컴포넌트 렌더링", {
+    sessionsCount: sessions.length,
+    isLoading,
+    sessions: sessions.map(s => ({ id: s.id, name: s.name, status: s.status })),
+  })
+
   const { activeSession } = useWorkoutSessions()
   const { handleDeleteSession } = useSessionsActions(onDeleteSession)
 
+  console.log("📊 [SessionsTab] 활성 세션:", activeSession)
+
   if (isLoading) {
+    console.log("⏳ [SessionsTab] 로딩 중...")
     return (
       <div className="sessions-tab">
         <div className="loading-container">
@@ -38,6 +47,8 @@ export function SessionsTab({
       </div>
     )
   }
+
+  console.log("✅ [SessionsTab] 렌더링 완료")
 
   return (
     <div className="sessions-tab">

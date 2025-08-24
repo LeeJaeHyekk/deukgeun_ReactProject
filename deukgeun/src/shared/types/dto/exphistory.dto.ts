@@ -2,10 +2,12 @@
 // ExpHistoryDTO - Data Transfer Object
 // ============================================================================
 
+import type { ExpActionType } from "../../../backend/types"
+
 export interface ExpHistoryDTO {
   id: number
   userId: number
-  actionType: unknown
+  actionType: ExpActionType
   expGained: number
   source: string
   metadata?: Record<string, unknown>
@@ -19,7 +21,7 @@ export interface ExpHistoryDTO {
 export interface CreateExpHistoryDTO {
   id: number
   userId: number
-  actionType: unknown
+  actionType: ExpActionType
   expGained: number
   source: string
   metadata?: Record<string, unknown>
@@ -32,7 +34,7 @@ export interface CreateExpHistoryDTO {
 export interface UpdateExpHistoryDTO {
   id?: number
   userId?: number
-  actionType?: unknown
+  actionType?: ExpActionType
   expGained?: number
   source?: string
   metadata?: Record<string, unknown>

@@ -15,7 +15,7 @@ import { User } from "./User"
 @Unique(["postId", "userId"]) // 한 사용자당 한 포스트에 1회만 좋아요
 @Index(["postId"]) // 포스트별 좋아요 조회를 위한 인덱스
 @Index(["userId"]) // 사용자별 좋아요 조회를 위한 인덱스
-export class PostLike {
+export class Like {
   @PrimaryGeneratedColumn()
   id!: number
 

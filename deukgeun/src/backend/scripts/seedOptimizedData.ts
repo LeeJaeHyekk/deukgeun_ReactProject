@@ -4,7 +4,7 @@ import { Gym } from "../entities/Gym"
 import { Machine } from "../entities/Machine"
 import { Post } from "../entities/Post"
 import { Comment } from "../entities/Comment"
-import { PostLike } from "../entities/Like"
+import { Like } from "../entities/Like"
 import { UserLevel } from "../entities/UserLevel"
 import { ExpHistory } from "../entities/ExpHistory"
 import { UserReward } from "../entities/UserReward"
@@ -681,7 +681,7 @@ async function seedOptimizedData() {
 
     // 5-2. 좋아요 생성
     logger.info("좋아요 데이터 생성 중...")
-    const postLikeRepository = AppDataSource.getRepository(PostLike)
+    const postLikeRepository = AppDataSource.getRepository(Like)
 
     for (const post of createdPosts) {
       for (let i = 0; i < 2; i++) {

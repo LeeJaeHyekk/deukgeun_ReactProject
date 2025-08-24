@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { workoutApi } from "../api/workoutApi"
+import { WorkoutJournalApi } from "../../../shared/api/workoutJournalApi"
 import type {
   WorkoutSession,
   CreateSessionRequest,
@@ -7,20 +7,41 @@ import type {
 } from "../types"
 
 export function useWorkoutSessions() {
+  console.log("🚀 [useWorkoutSessions] 훅 초기화")
+
   const [sessions, setSessions] = useState<WorkoutSession[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  console.log("📊 [useWorkoutSessions] 현재 상태:", {
+    sessionsCount: sessions.length,
+    loading,
+    error,
+  })
+
   // 세션 목록 조회
   const fetchSessions = useCallback(async () => {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(`🔍 [useWorkoutSessions:${requestId}] fetchSessions 시작`)
+
     setLoading(true)
     setError(null)
     try {
-      const response = await workoutApi.getSessions()
+      console.log(
+        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.getWorkoutSessions 호출`
+      )
+      const response = await WorkoutJournalApi.getWorkoutSessions()
       const sessionData = response || []
+
+      console.log(`✅ [useWorkoutSessions:${requestId}] 세션 조회 성공:`, {
+        count: sessionData.length,
+        sessions: sessionData,
+      })
+
       setSessions(sessionData)
       return sessionData
     } catch (err) {
+      console.error(`❌ [useWorkoutSessions:${requestId}] 세션 조회 실패:`, err)
       const errorMessage =
         err instanceof Error
           ? err.message
@@ -29,17 +50,35 @@ export function useWorkoutSessions() {
       throw err
     } finally {
       setLoading(false)
+      console.log(`🏁 [useWorkoutSessions:${requestId}] fetchSessions 완료`)
     }
   }, [])
 
   // 특정 세션 조회
   const fetchSession = useCallback(async (sessionId: number) => {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(
+      `🔍 [useWorkoutSessions:${requestId}] fetchSession 시작 - sessionId: ${sessionId}`
+    )
+
     setLoading(true)
     setError(null)
     try {
-      const response = await workoutApi.getSession(sessionId)
+      console.log(
+        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.getWorkoutSession 호출`
+      )
+      const response = await WorkoutJournalApi.getWorkoutSession(sessionId)
+
+      console.log(
+        `✅ [useWorkoutSessions:${requestId}] 특정 세션 조회 성공:`,
+        response
+      )
       return response
     } catch (err) {
+      console.error(
+        `❌ [useWorkoutSessions:${requestId}] 특정 세션 조회 실패:`,
+        err
+      )
       const errorMessage =
         err instanceof Error
           ? err.message
@@ -48,26 +87,53 @@ export function useWorkoutSessions() {
       throw err
     } finally {
       setLoading(false)
+      console.log(`🏁 [useWorkoutSessions:${requestId}] fetchSession 완료`)
     }
   }, [])
 
   // 세션 생성
   const createSession = useCallback(
     async (sessionData: CreateSessionRequest) => {
+      const requestId = Math.random().toString(36).substring(2, 15)
+      console.log(`🔍 [useWorkoutSessions:${requestId}] createSession 시작`, {
+        sessionData,
+      })
+
       setLoading(true)
       setError(null)
       try {
-        const response = await workoutApi.createSession(sessionData)
+        console.log(
+          `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.createWorkoutSession 호출`
+        )
+        const response =
+          await WorkoutJournalApi.createWorkoutSession(sessionData)
         const newSession = response
-        setSessions(prev => [newSession, ...prev])
+
+        console.log(
+          `✅ [useWorkoutSessions:${requestId}] 세션 생성 성공:`,
+          newSession
+        )
+        setSessions(prev => {
+          const updated = [newSession, ...prev]
+          console.log(
+            `📝 [useWorkoutSessions:${requestId}] 세션 목록 업데이트:`,
+            updated
+          )
+          return updated
+        })
         return newSession
       } catch (err) {
+        console.error(
+          `❌ [useWorkoutSessions:${requestId}] 세션 생성 실패:`,
+          err
+        )
         const errorMessage =
           err instanceof Error ? err.message : "세션 생성에 실패했습니다."
         setError(errorMessage)
         throw err
       } finally {
         setLoading(false)
+        console.log(`🏁 [useWorkoutSessions:${requestId}] createSession 완료`)
       }
     },
     []
@@ -76,24 +142,51 @@ export function useWorkoutSessions() {
   // 세션 수정
   const updateSession = useCallback(
     async (sessionId: number, updateData: UpdateSessionRequest) => {
+      const requestId = Math.random().toString(36).substring(2, 15)
+      console.log(`🔍 [useWorkoutSessions:${requestId}] updateSession 시작`, {
+        sessionId,
+        updateData,
+      })
+
       setLoading(true)
       setError(null)
       try {
-        const response = await workoutApi.updateSession(sessionId, updateData)
+        console.log(
+          `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.updateWorkoutSession 호출`
+        )
+        const response = await WorkoutJournalApi.updateWorkoutSession(
+          sessionId,
+          updateData
+        )
         const updatedSession = response
-        setSessions(prev =>
-          prev.map(session =>
+
+        console.log(
+          `✅ [useWorkoutSessions:${requestId}] 세션 수정 성공:`,
+          updatedSession
+        )
+        setSessions(prev => {
+          const updated = prev.map(session =>
             session.id === sessionId ? updatedSession : session
           )
-        )
+          console.log(
+            `📝 [useWorkoutSessions:${requestId}] 세션 목록 업데이트:`,
+            updated
+          )
+          return updated
+        })
         return updatedSession
       } catch (err) {
+        console.error(
+          `❌ [useWorkoutSessions:${requestId}] 세션 수정 실패:`,
+          err
+        )
         const errorMessage =
           err instanceof Error ? err.message : "세션 수정에 실패했습니다."
         setError(errorMessage)
         throw err
       } finally {
         setLoading(false)
+        console.log(`🏁 [useWorkoutSessions:${requestId}] updateSession 완료`)
       }
     },
     []
@@ -101,110 +194,212 @@ export function useWorkoutSessions() {
 
   // 세션 삭제
   const deleteSession = useCallback(async (sessionId: number) => {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(
+      `🔍 [useWorkoutSessions:${requestId}] deleteSession 시작 - sessionId: ${sessionId}`
+    )
+
     setLoading(true)
     setError(null)
     try {
-      await workoutApi.deleteSession(sessionId)
-      setSessions(prev => prev.filter(session => session.id !== sessionId))
+      console.log(
+        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.deleteWorkoutSession 호출`
+      )
+      await WorkoutJournalApi.deleteWorkoutSession(sessionId)
+
+      console.log(`✅ [useWorkoutSessions:${requestId}] 세션 삭제 성공`)
+      setSessions(prev => {
+        const updated = prev.filter(session => session.id !== sessionId)
+        console.log(
+          `📝 [useWorkoutSessions:${requestId}] 세션 목록 업데이트:`,
+          updated
+        )
+        return updated
+      })
     } catch (err) {
+      console.error(`❌ [useWorkoutSessions:${requestId}] 세션 삭제 실패:`, err)
       const errorMessage =
         err instanceof Error ? err.message : "세션 삭제에 실패했습니다."
       setError(errorMessage)
       throw err
     } finally {
       setLoading(false)
+      console.log(`🏁 [useWorkoutSessions:${requestId}] deleteSession 완료`)
     }
   }, [])
 
   // 세션 시작
   const startSession = useCallback(async (sessionId: number) => {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(
+      `🔍 [useWorkoutSessions:${requestId}] startSession 시작 - sessionId: ${sessionId}`
+    )
+
     setLoading(true)
     setError(null)
     try {
-      const response = await workoutApi.startSession(sessionId)
+      console.log(
+        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.startWorkoutSession 호출`
+      )
+      const response = await WorkoutJournalApi.startWorkoutSession(sessionId)
       const updatedSession = response
-      setSessions(prev =>
-        prev.map(session =>
+
+      console.log(
+        `✅ [useWorkoutSessions:${requestId}] 세션 시작 성공:`,
+        updatedSession
+      )
+      setSessions(prev => {
+        const updated = prev.map(session =>
           session.id === sessionId ? updatedSession : session
         )
-      )
+        console.log(
+          `📝 [useWorkoutSessions:${requestId}] 세션 목록 업데이트:`,
+          updated
+        )
+        return updated
+      })
       return updatedSession
     } catch (err) {
+      console.error(`❌ [useWorkoutSessions:${requestId}] 세션 시작 실패:`, err)
       const errorMessage =
         err instanceof Error ? err.message : "세션 시작에 실패했습니다."
       setError(errorMessage)
       throw err
     } finally {
       setLoading(false)
+      console.log(`🏁 [useWorkoutSessions:${requestId}] startSession 완료`)
     }
   }, [])
 
   // 세션 일시정지
   const pauseSession = useCallback(async (sessionId: number) => {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(
+      `🔍 [useWorkoutSessions:${requestId}] pauseSession 시작 - sessionId: ${sessionId}`
+    )
+
     setLoading(true)
     setError(null)
     try {
-      const response = await workoutApi.pauseSession(sessionId)
+      console.log(
+        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.pauseWorkoutSession 호출`
+      )
+      const response = await WorkoutJournalApi.pauseWorkoutSession(sessionId)
       const updatedSession = response
-      setSessions(prev =>
-        prev.map(session =>
+
+      console.log(
+        `✅ [useWorkoutSessions:${requestId}] 세션 일시정지 성공:`,
+        updatedSession
+      )
+      setSessions(prev => {
+        const updated = prev.map(session =>
           session.id === sessionId ? updatedSession : session
         )
-      )
+        console.log(
+          `📝 [useWorkoutSessions:${requestId}] 세션 목록 업데이트:`,
+          updated
+        )
+        return updated
+      })
       return updatedSession
     } catch (err) {
+      console.error(
+        `❌ [useWorkoutSessions:${requestId}] 세션 일시정지 실패:`,
+        err
+      )
       const errorMessage =
         err instanceof Error ? err.message : "세션 일시정지에 실패했습니다."
       setError(errorMessage)
       throw err
     } finally {
       setLoading(false)
+      console.log(`🏁 [useWorkoutSessions:${requestId}] pauseSession 완료`)
     }
   }, [])
 
   // 세션 재개
   const resumeSession = useCallback(async (sessionId: number) => {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(
+      `🔍 [useWorkoutSessions:${requestId}] resumeSession 시작 - sessionId: ${sessionId}`
+    )
+
     setLoading(true)
     setError(null)
     try {
-      const response = await workoutApi.resumeSession(sessionId)
+      console.log(
+        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.resumeWorkoutSession 호출`
+      )
+      const response = await WorkoutJournalApi.resumeWorkoutSession(sessionId)
       const updatedSession = response
-      setSessions(prev =>
-        prev.map(session =>
+
+      console.log(
+        `✅ [useWorkoutSessions:${requestId}] 세션 재개 성공:`,
+        updatedSession
+      )
+      setSessions(prev => {
+        const updated = prev.map(session =>
           session.id === sessionId ? updatedSession : session
         )
-      )
+        console.log(
+          `📝 [useWorkoutSessions:${requestId}] 세션 목록 업데이트:`,
+          updated
+        )
+        return updated
+      })
       return updatedSession
     } catch (err) {
+      console.error(`❌ [useWorkoutSessions:${requestId}] 세션 재개 실패:`, err)
       const errorMessage =
         err instanceof Error ? err.message : "세션 재개에 실패했습니다."
       setError(errorMessage)
       throw err
     } finally {
       setLoading(false)
+      console.log(`🏁 [useWorkoutSessions:${requestId}] resumeSession 완료`)
     }
   }, [])
 
   // 세션 완료
   const completeSession = useCallback(async (sessionId: number) => {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(
+      `🔍 [useWorkoutSessions:${requestId}] completeSession 시작 - sessionId: ${sessionId}`
+    )
+
     setLoading(true)
     setError(null)
     try {
-      const response = await workoutApi.completeSession(sessionId)
+      console.log(
+        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.completeWorkoutSession 호출`
+      )
+      const response = await WorkoutJournalApi.completeWorkoutSession(sessionId)
       const updatedSession = response
-      setSessions(prev =>
-        prev.map(session =>
+
+      console.log(
+        `✅ [useWorkoutSessions:${requestId}] 세션 완료 성공:`,
+        updatedSession
+      )
+      setSessions(prev => {
+        const updated = prev.map(session =>
           session.id === sessionId ? updatedSession : session
         )
-      )
+        console.log(
+          `📝 [useWorkoutSessions:${requestId}] 세션 목록 업데이트:`,
+          updated
+        )
+        return updated
+      })
       return updatedSession
     } catch (err) {
+      console.error(`❌ [useWorkoutSessions:${requestId}] 세션 완료 실패:`, err)
       const errorMessage =
         err instanceof Error ? err.message : "세션 완료에 실패했습니다."
       setError(errorMessage)
       throw err
     } finally {
       setLoading(false)
+      console.log(`🏁 [useWorkoutSessions:${requestId}] completeSession 완료`)
     }
   }, [])
 
@@ -220,7 +415,10 @@ export function useWorkoutSessions() {
 
   // 초기 로드
   useEffect(() => {
-    fetchSessions()
+    console.log("🔄 [useWorkoutSessions] useEffect 실행 - 초기 세션 로드")
+    fetchSessions().catch(err => {
+      console.error("❌ [useWorkoutSessions] 초기 세션 로드 실패:", err)
+    })
   }, [fetchSessions])
 
   return {

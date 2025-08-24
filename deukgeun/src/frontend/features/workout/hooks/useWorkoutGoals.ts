@@ -32,24 +32,50 @@ export function useWorkoutGoals() {
   }, [])
 
   const createGoal = useCallback(async (goalData: Partial<WorkoutGoal>) => {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(`🔍 [useWorkoutGoals:${requestId}] createGoal 시작`, {
+      goalData,
+    })
+
     try {
       setLoading(true)
       setError(null)
       // userId는 백엔드에서 인증된 사용자 정보로 설정하므로 제거
       const { userId, ...createData } = goalData
+      console.log(
+        `📝 [useWorkoutGoals:${requestId}] API 호출용 데이터:`,
+        createData
+      )
+
+      console.log(
+        `📡 [useWorkoutGoals:${requestId}] WorkoutJournalApi.createWorkoutGoal 호출`
+      )
       const newGoal = await WorkoutJournalApi.createWorkoutGoal(
         createData as any
       )
-      setGoals(prev => [newGoal, ...prev])
+
+      console.log(`✅ [useWorkoutGoals:${requestId}] 목표 생성 성공:`, newGoal)
+      setGoals(prev => {
+        const updated = [newGoal, ...prev]
+        console.log(
+          `📝 [useWorkoutGoals:${requestId}] 목표 목록 업데이트:`,
+          updated
+        )
+        return updated
+      })
       return newGoal
     } catch (err) {
+      console.error(
+        `❌ [useWorkoutGoals:${requestId}] 운동 목표 생성 실패:`,
+        err
+      )
       const errorMessage =
         err instanceof Error ? err.message : "운동 목표 생성에 실패했습니다."
-      console.error("운동 목표 생성 실패:", err)
       setError(errorMessage)
       throw err
     } finally {
       setLoading(false)
+      console.log(`🏁 [useWorkoutGoals:${requestId}] createGoal 완료`)
     }
   }, [])
 

@@ -17,7 +17,7 @@ import type {
 } from "../types"
 
 // 환경 변수 로드
-dotenv.config()
+dotenv.config({ path: ".env" })
 
 // 환경 설정
 const environment: Environment =

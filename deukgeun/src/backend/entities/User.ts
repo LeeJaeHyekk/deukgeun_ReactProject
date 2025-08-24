@@ -15,7 +15,7 @@ import { UserReward } from "./UserReward"
 import { Milestone } from "./Milestone"
 import { UserStreak } from "./UserStreak"
 import { Comment } from "./Comment"
-import { NullableDateTransformer } from "@transformers"
+import { NullableDateTransformer } from "../transformers/nullableDate"
 
 @Entity("users")
 export class User {

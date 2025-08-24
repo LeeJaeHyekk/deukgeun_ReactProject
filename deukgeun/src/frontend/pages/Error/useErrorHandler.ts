@@ -50,7 +50,7 @@ export function useErrorHandler(options: UseErrorHandlerOptions = {}) {
         const message = customErrorMessages[statusCode || 500] || error.message
         // 토스트 메시지 표시 (기존 토스트 시스템 활용)
         if (typeof window !== "undefined" && "showToast" in window) {
-          ;(window as any).showToast(message, "error")
+          (window as any).showToast(message, "error")
         }
       }
     },
@@ -113,7 +113,7 @@ export function useErrorHandler(options: UseErrorHandlerOptions = {}) {
 
       if (enableUserNotification) {
         if (typeof window !== "undefined" && "showToast" in window) {
-          ;(window as any).showToast("네트워크 연결을 확인해주세요.", "error")
+          (window as any).showToast("네트워크 연결을 확인해주세요.", "error")
         }
       }
     },

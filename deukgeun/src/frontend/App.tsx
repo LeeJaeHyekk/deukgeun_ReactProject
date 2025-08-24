@@ -23,6 +23,7 @@ import { MachineGuidePage } from "@features/machine-guide"
 import CommunityPage from "@features/community/CommunityPage"
 import GymFinderPage from "@pages/location/GymFinderPage"
 import WorkoutJournalPage from "@features/workout/WorkoutJournalPage"
+import WorkoutPage from "@features/workout/WorkoutPage"
 import MyPage from "@pages/MyPage/myPage"
 import AdminDashboardPage from "@features/admin/AdminDashboardPage"
 import AdminPerformancePage from "@features/admin/AdminPerformancePage"
@@ -178,6 +179,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <WorkoutJournalPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={ROUTES.WORKOUT}
+        element={
+          <ProtectedRoute>
+            <WorkoutPage />
           </ProtectedRoute>
         }
       />

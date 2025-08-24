@@ -38,7 +38,7 @@ export function useWorkoutSessions() {
         sessions: sessionData,
       })
 
-      setSessions(sessionData)
+      setSessions(sessionData as WorkoutSession[])
       return sessionData
     } catch (err) {
       console.error(`❌ [useWorkoutSessions:${requestId}] 세션 조회 실패:`, err)
@@ -105,15 +105,16 @@ export function useWorkoutSessions() {
         console.log(
           `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.createWorkoutSession 호출`
         )
-        const response =
-          await WorkoutJournalApi.createWorkoutSession(sessionData)
+        const response = await WorkoutJournalApi.createWorkoutSession(
+          sessionData as any
+        )
         const newSession = response
 
         console.log(
           `✅ [useWorkoutSessions:${requestId}] 세션 생성 성공:`,
           newSession
         )
-        setSessions(prev => {
+        setSessions((prev: any) => {
           const updated = [newSession, ...prev]
           console.log(
             `📝 [useWorkoutSessions:${requestId}] 세션 목록 업데이트:`,
@@ -164,8 +165,8 @@ export function useWorkoutSessions() {
           `✅ [useWorkoutSessions:${requestId}] 세션 수정 성공:`,
           updatedSession
         )
-        setSessions(prev => {
-          const updated = prev.map(session =>
+        setSessions((prev: any) => {
+          const updated = prev.map((session: any) =>
             session.id === sessionId ? updatedSession : session
           )
           console.log(

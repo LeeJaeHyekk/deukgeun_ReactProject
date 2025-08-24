@@ -17,7 +17,7 @@ const developmentAuthMiddleware = (
 ) => {
   if (isDevelopment) {
     // 개발 환경에서 더미 사용자 정보 설정
-    ;(req as any).user = {
+    (req as any).user = {
       userId: 2, // 테스트 사용자 ID
       role: "user" as const,
     }

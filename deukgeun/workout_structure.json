@@ -1,0 +1,238 @@
+{
+  "page": {
+    "name": "WorkoutPage",
+    "description": "사용자의 운동 계획, 진행 상황, 목표, 리마인더, 세션 트래킹, 분석을 한 페이지에서 확인",
+    "sections": [
+      {
+        "id": "overview",
+        "name": "개요 섹션",
+        "description": "현재 진행중인 운동 계획과 주요 통계를 카드 형태로 표시",
+        "type": "card-list",
+        "layout": {
+          "columns": 3,
+          "cardSize": "medium",
+          "responsive": true,
+          "spacing": "16px"
+        },
+        "dataSources": ["WorkoutPlanDTO", "WorkoutStatsDTO"],
+        "components": [
+          {
+            "type": "Card",
+            "props": ["title", "progress", "streak", "badge"],
+            "actions": ["ViewDetails", "EditPlan"]
+          },
+          {
+            "type": "ProgressBar",
+            "props": ["currentValue", "targetValue", "unit"]
+          },
+          {
+            "type": "Badge",
+            "props": ["level", "milestone"]
+          }
+        ]
+      },
+      {
+        "id": "goals",
+        "name": "목표 섹션",
+        "description": "운동 목표와 달성 상태를 보여주며, 목표 추가/수정 가능",
+        "type": "card-list",
+        "layout": {
+          "columns": 2,
+          "cardSize": "medium",
+          "responsive": true,
+          "spacing": "16px"
+        },
+        "dataSources": ["WorkoutGoalDTO"],
+        "components": [
+          {
+            "type": "Card",
+            "props": [
+              "title",
+              "description",
+              "progress",
+              "targetDate",
+              "isCompleted"
+            ],
+            "actions": ["EditGoal", "DeleteGoal"]
+          },
+          {
+            "type": "ProgressBar",
+            "props": ["currentValue", "targetValue", "unit"]
+          },
+          {
+            "type": "Button",
+            "props": ["AddGoal"],
+            "styleHint": "primary"
+          }
+        ]
+      },
+      {
+        "id": "progress",
+        "name": "진행률 섹션",
+        "description": "체중, 체지방률, 근육량 등 기록을 시각화",
+        "type": "graph",
+        "layout": {
+          "columns": 1,
+          "fullWidth": true,
+          "responsive": true,
+          "spacing": "16px"
+        },
+        "dataSources": ["WorkoutProgressDTO"],
+        "components": [
+          {
+            "type": "LineChart",
+            "props": ["date", "weight", "bodyFat", "muscleMass"],
+            "interactions": ["hoverTooltip", "zoom", "filterByDateRange"]
+          },
+          {
+            "type": "BarChart",
+            "props": ["totalWorkouts", "duration", "calories"],
+            "interactions": ["hoverTooltip", "filterByDateRange"]
+          },
+          {
+            "type": "DateFilter",
+            "props": ["startDate", "endDate"]
+          }
+        ]
+      },
+      {
+        "id": "reminders",
+        "name": "리마인더 섹션",
+        "description": "운동 알림 목록과 상태, 알림 추가/수정 가능",
+        "type": "card-list",
+        "layout": {
+          "columns": 2,
+          "cardSize": "small",
+          "responsive": true,
+          "spacing": "12px"
+        },
+        "dataSources": ["WorkoutReminderDTO"],
+        "components": [
+          {
+            "type": "Card",
+            "props": [
+              "title",
+              "message",
+              "reminderTime",
+              "daysOfWeek",
+              "isActive"
+            ],
+            "actions": ["EditReminder", "DeleteReminder"]
+          },
+          {
+            "type": "SwitchToggle",
+            "props": ["isActive"],
+            "interactions": ["toggleActive"]
+          },
+          {
+            "type": "Button",
+            "props": ["AddReminder"],
+            "styleHint": "secondary"
+          }
+        ]
+      },
+      {
+        "id": "sessionTracking",
+        "name": "운동 세션 섹션",
+        "description": "실시간 운동 세션 기록과 세트별 트래킹",
+        "type": "session-tracker",
+        "layout": {
+          "columns": 1,
+          "fullWidth": true,
+          "responsive": true,
+          "spacing": "16px"
+        },
+        "dataSources": [
+          "WorkoutSessionDTO",
+          "ExerciseSetDTO",
+          "MachineDTO",
+          "GymDTO"
+        ],
+        "components": [
+          {
+            "type": "SessionTimer",
+            "props": ["startTime", "endTime", "duration"],
+            "interactions": ["start", "pause", "stop"]
+          },
+          {
+            "type": "SetInput",
+            "props": ["reps", "weight", "rpe", "distance"],
+            "interactions": ["addSet", "editSet", "deleteSet"]
+          },
+          {
+            "type": "MachineSelector",
+            "props": ["machineId", "name", "imageUrl", "category"]
+          },
+          {
+            "type": "NotesInput",
+            "props": ["notes"]
+          }
+        ]
+      },
+      {
+        "id": "analytics",
+        "name": "분석 섹션",
+        "description": "운동 통계, 진행률, 스탯 비교, 달성률 시각화",
+        "type": "dashboard",
+        "layout": {
+          "columns": 2,
+          "fullWidth": true,
+          "responsive": true,
+          "spacing": "16px"
+        },
+        "dataSources": ["WorkoutStatsDTO", "WorkoutProgressDTO"],
+        "components": [
+          {
+            "type": "LineChart",
+            "props": [
+              "totalWorkouts",
+              "totalDuration",
+              "totalCalories",
+              "currentStreak",
+              "longestStreak"
+            ]
+          },
+          {
+            "type": "BarChart",
+            "props": ["goalAchievementRate", "progressComparison"]
+          },
+          {
+            "type": "PieChart",
+            "props": ["workoutTypeDistribution"]
+          },
+          {
+            "type": "StreakDisplay",
+            "props": ["currentStreak", "longestStreak"]
+          },
+          {
+            "type": "GoalComparison",
+            "props": ["targetValue", "currentValue", "unit"]
+          }
+        ]
+      }
+    ],
+    "rules": {
+      "dataValidation": {
+        "useExistingRules": true
+      },
+      "relationships": {
+        "cascade": [
+          "WorkoutSession.exerciseSets",
+          "WorkoutPlan.workoutSessions",
+          "WorkoutPlan.workoutGoals"
+        ],
+        "lazy": ["WorkoutSession.exerciseSets", "WorkoutPlan.workoutSessions"],
+        "eager": ["ExerciseSet.machine", "WorkoutSession.user"]
+      },
+      "serialization": {
+        "date": "ISO8601",
+        "json": "stringify"
+      }
+    },
+    "metadata": {
+      "lastUpdated": "2025-08-24T06:00:00Z",
+      "pageType": "Dashboard",
+      "targetPlatform": ["Web", "Mobile"]
+    }
+  }
+}

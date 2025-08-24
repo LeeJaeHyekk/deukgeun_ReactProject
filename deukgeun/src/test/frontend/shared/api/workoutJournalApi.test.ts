@@ -714,7 +714,7 @@ describe("WorkoutJournalApi", () => {
 
   describe("Error handling", () => {
     it("should handle network errors", async () => {
-      ;(global.fetch as jest.Mock).mockRejectedValue(new Error("Network error"))
+      (global.fetch as jest.Mock).mockRejectedValue(new Error("Network error"))
       mockStorage.get.mockReturnValue("test-token")
 
       await expect(WorkoutJournalApi.getWorkoutPlans()).rejects.toThrow(

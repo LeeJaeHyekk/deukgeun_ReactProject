@@ -66,82 +66,65 @@ export function useDebounce<T>(
 }
 
 // 디바운스 유틸리티 함수
-export function debounce<T extends (...args: unknown[]) => unknown>(
+export function debounce<T extends (...args: any[]) => any>(
   func: T,
   delay: number,
   options: { leading?: boolean; trailing?: boolean } = {}
 ): T & { cancel: () => void; flush: () => void } {
   const { leading = false, trailing = true } = options
-  let timeoutId: NodeJS.Timeout | undefined
-  let lastArgs: unknown[] | undefined
-  let lastThis: unknown
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  let lastArgs: any[] | undefined
   let lastCallTime: number | undefined
 
-  const debounced = function (this: unknown, ...args: unknown[]) {
-    const time = Date.now()
-    const isInvoking = shouldInvoke(time)
+  const debounced = function (...args: any[]) {
+    const now = Date.now()
+    const isInvoking = lastCallTime === undefined || now - lastCallTime >= delay
 
     lastArgs = args
-    lastThis = this
-    lastCallTime = time
+    lastCallTime = now
 
     if (isInvoking) {
-      if (timeoutId === undefined) {
-        if (leading) {
-          invokeFunc(time)
-        } else {
-          startTimer(delay, time)
-        }
+      if (!timeoutId && leading) {
+        invokeFunc()
+      } else {
+        startTimer()
       }
-    } else if (timeoutId === undefined) {
-      startTimer(delay, time)
+    } else if (!timeoutId) {
+      startTimer()
     }
   } as T & { cancel: () => void; flush: () => void }
 
-  function startTimer(pendingDelay: number, time: number) {
+  function startTimer() {
     if (trailing) {
-      timeoutId = setTimeout(() => invokeFunc(time), pendingDelay)
+      timeoutId = setTimeout(() => invokeFunc(), delay)
     }
   }
 
-  function invokeFunc(time: number) {
-    const args = lastArgs
-    const thisArg = lastThis
-
-    lastArgs = undefined
-    lastThis = undefined
-    lastCallTime = undefined
-    timeoutId = undefined
-
-    if (args) {
-      func.apply(thisArg, args)
+  function invokeFunc() {
+    if (lastArgs) {
+      func(...lastArgs)
+      lastArgs = undefined
     }
-  }
-
-  function shouldInvoke(time: number): boolean {
-    const timeSinceLastCall = time - (lastCallTime || 0)
-    return lastCallTime === undefined || timeSinceLastCall >= delay
-  }
-
-  debounced.cancel = function () {
-    if (timeoutId !== undefined) {
-      clearTimeout(timeoutId)
-    }
-    lastArgs = undefined
-    lastThis = undefined
-    lastCallTime = undefined
     timeoutId = undefined
   }
 
-  debounced.flush = function () {
-    return timeoutId === undefined ? undefined : invokeFunc(Date.now())
+  debounced.cancel = () => {
+    if (timeoutId) clearTimeout(timeoutId)
+    timeoutId = undefined
+    lastArgs = undefined
+    lastCallTime = undefined
+  }
+
+  debounced.flush = () => {
+    if (timeoutId) {
+      invokeFunc()
+    }
   }
 
   return debounced
 }
 
-// 디바운스된 콜백 훅
-export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
+export function useDebouncedCallback<T extends (...args: any[]) => any>(
   callback: T,
   delay: number,
   options: { leading?: boolean; trailing?: boolean } = {}

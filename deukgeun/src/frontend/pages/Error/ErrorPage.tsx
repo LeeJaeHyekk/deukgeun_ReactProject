@@ -1,5 +1,6 @@
+import React, { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { useEffect, useState } from "react"
+import ErrorPageCSS from "./ErrorPage.module.css"
 
 interface ErrorPageProps {
   statusCode?: number
@@ -18,26 +19,14 @@ export default function ErrorPage({
   showRetryButton = false,
   onRetry,
 }: ErrorPageProps) {
-  // Router 컨텍스트가 없을 때를 대비한 안전한 네비게이션
-  const navigate = (() => {
-    try {
-      return useNavigate()
-    } catch {
-      return (path: string) => {
-        window.location.href = path
-      }
-    }
-  })()
-
-  const location = (() => {
-    try {
-      return useLocation()
-    } catch {
-      return { search: window.location.search }
-    }
-  })()
+  // React Hooks를 컴포넌트 최상위에서 호출
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
+  const [errorStatusCode, setErrorStatusCode] = useState(statusCode)
+  const [errorTitle, setErrorTitle] = useState(title)
+  const [errorMessage, setErrorMessage] = useState(message)
 
   // URL 파라미터에서 에러 정보 추출
   useEffect(() => {
@@ -47,33 +36,34 @@ export default function ErrorPage({
     const urlMessage = searchParams.get("message")
 
     if (urlStatusCode) {
-      statusCode = parseInt(urlStatusCode, 10)
+      setErrorStatusCode(parseInt(urlStatusCode, 10))
     }
     if (urlTitle) {
-      title = decodeURIComponent(urlTitle)
+      setErrorTitle(decodeURIComponent(urlTitle))
     }
     if (urlMessage) {
-      message = decodeURIComponent(urlMessage)
+      setErrorMessage(decodeURIComponent(urlMessage))
     }
   }, [location])
 
   // 에러 정보 결정
   const getErrorInfo = () => {
-    switch (statusCode) {
+    switch (errorStatusCode) {
       case 400:
         return {
-          title: title || "잘못된 요청",
+          title: errorTitle || "잘못된 요청",
           message:
-            message || "요청하신 정보가 올바르지 않습니다. 다시 확인해주세요.",
+            errorMessage ||
+            "요청하신 정보가 올바르지 않습니다. 다시 확인해주세요.",
           video: "/video/400Error.mp4",
           color: "#f59e0b",
           gradient: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
         }
       case 401:
         return {
-          title: title || "인증이 필요합니다",
+          title: errorTitle || "인증이 필요합니다",
           message:
-            message ||
+            errorMessage ||
             "로그인이 필요한 서비스입니다. 로그인 후 다시 시도해주세요.",
           video: "/video/401Error.mp4",
           color: "#3b82f6",
@@ -81,17 +71,17 @@ export default function ErrorPage({
         }
       case 403:
         return {
-          title: title || "접근이 거부되었습니다",
-          message: message || "이 페이지에 접근할 권한이 없습니다.",
+          title: errorTitle || "접근이 거부되었습니다",
+          message: errorMessage || "이 페이지에 접근할 권한이 없습니다.",
           video: "/video/403Error.mp4",
           color: "#ef4444",
           gradient: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
         }
       case 404:
         return {
-          title: title || "페이지를 찾을 수 없어요",
+          title: errorTitle || "페이지를 찾을 수 없어요",
           message:
-            message ||
+            errorMessage ||
             "요청하신 페이지가 존재하지 않거나, 이동되었을 수 있어요.",
           video: "/video/404Error.mp4",
           color: "#f59e0b",
@@ -99,26 +89,29 @@ export default function ErrorPage({
         }
       case 500:
         return {
-          title: title || "서버 오류가 발생했습니다",
+          title: errorTitle || "서버 오류가 발생했습니다",
           message:
-            message || "일시적인 서버 오류입니다. 잠시 후 다시 시도해주세요.",
+            errorMessage ||
+            "일시적인 서버 오류입니다. 잠시 후 다시 시도해주세요.",
           video: "/video/500Error.mp4",
           color: "#ef4444",
           gradient: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
         }
       case 503:
         return {
-          title: title || "서비스가 일시적으로 사용할 수 없습니다",
-          message: message || "서버 점검 중입니다. 잠시 후 다시 시도해주세요.",
+          title: errorTitle || "서비스가 일시적으로 사용할 수 없습니다",
+          message:
+            errorMessage || "서버 점검 중입니다. 잠시 후 다시 시도해주세요.",
           video: "/video/503Error.mp4",
           color: "#f59e0b",
           gradient: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
         }
       case 999:
         return {
-          title: title || "현재 준비중에 있습니다",
+          title: errorTitle || "현재 준비중에 있습니다",
           message:
-            message || "해당 기능은 현재 개발 중입니다. 조금만 기다려주세요!",
+            errorMessage ||
+            "해당 기능은 현재 개발 중입니다. 조금만 기다려주세요!",
           video: "/video/loading.mp4",
           color: "#8b5cf6",
           gradient: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
@@ -126,9 +119,10 @@ export default function ErrorPage({
         }
       default:
         return {
-          title: title || "오류가 발생했습니다",
+          title: errorTitle || "오류가 발생했습니다",
           message:
-            message || "예상치 못한 오류가 발생했습니다. 다시 시도해주세요.",
+            errorMessage ||
+            "예상치 못한 오류가 발생했습니다. 다시 시도해주세요.",
           video: "/video/404Error.mp4",
           color: "#ef4444",
           gradient: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
@@ -245,7 +239,7 @@ export default function ErrorPage({
 
           {/* 추가 정보 */}
           <div style={styles.additionalInfo}>
-            <p style={styles.errorCode}>오류 코드: {statusCode}</p>
+            <p style={styles.errorCode}>오류 코드: {errorStatusCode}</p>
             <p style={styles.timestamp}>
               발생 시간: {new Date().toLocaleString("ko-KR")}
             </p>

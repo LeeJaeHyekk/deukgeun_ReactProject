@@ -15,6 +15,7 @@ export const ROUTES = {
   MACHINE_GUIDE: "/machine-guide",
   LOCATION: "/location",
   WORKOUT_JOURNAL: "/workout-journal",
+  WORKOUT: "/workout",
   MYPAGE: "/mypage",
 
   // 관리자 전용 페이지
@@ -56,6 +57,13 @@ export const MENU_ITEMS = [
     description: "운동 기록을 관리하세요",
     requiresAuth: true,
   },
+  {
+    label: "운동 관리",
+    path: ROUTES.WORKOUT,
+    icon: "🏋️",
+    description: "운동 계획, 목표, 분석을 한 페이지에서 관리하세요",
+    requiresAuth: true,
+  },
 ] as const
 
 // 인증 관련 라우트
@@ -71,6 +79,7 @@ export const PROTECTED_ROUTES = [
   ROUTES.MACHINE_GUIDE,
   ROUTES.LOCATION,
   ROUTES.WORKOUT_JOURNAL,
+  ROUTES.WORKOUT,
   ROUTES.MYPAGE,
 ] as const
 

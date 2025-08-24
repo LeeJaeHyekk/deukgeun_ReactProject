@@ -67,13 +67,6 @@ export default function FindIdPage() {
         ;(icon as HTMLElement).style.position = "absolute"
         ;(icon as HTMLElement).style.top = "50%"
         ;(icon as HTMLElement).style.left = "50%"
-        ;(icon as HTMLElement).style.transform = "translate(-50%, -50%)"
-        ;(icon as HTMLElement).style.fontSize = "0"
-        ;(icon as HTMLElement).style.width = "8px"
-        ;(icon as HTMLElement).style.height = "8px"
-        ;(icon as HTMLElement).style.margin = "0"
-        ;(icon as HTMLElement).style.padding = "0"
-        ;(icon as HTMLElement).style.border = "none"
       })
 
       previousIcons.forEach(icon => {
@@ -133,18 +126,18 @@ export default function FindIdPage() {
   const handleBirthdayInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    let value = e.target.value.replace(/[^\d]/g, "") // 숫자만 추출
+    let inputValue = e.target.value.replace(/[^\d]/g, "") // 숫자만 추출
 
     // 길이에 따라 포맷팅
-    if (value.length <= 4) {
-      value = value
-    } else if (value.length <= 6) {
-      value = `${value.slice(0, 4)}-${value.slice(4)}`
+    if (inputValue.length <= 4) {
+      // 4자 이하일 때는 그대로 유지
+    } else if (inputValue.length <= 6) {
+      inputValue = `${inputValue.slice(0, 4)}-${inputValue.slice(4)}`
     } else {
-      value = `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`
+      inputValue = `${inputValue.slice(0, 4)}-${inputValue.slice(4, 6)}-${inputValue.slice(6, 8)}`
     }
 
-    setFormData(prev => ({ ...prev, birthday: value }))
+    setFormData(prev => ({ ...prev, birthday: inputValue }))
   }
 
   const validateForm = (): boolean => {

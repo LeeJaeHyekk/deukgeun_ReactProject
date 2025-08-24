@@ -87,7 +87,7 @@ function workoutPlanReducer(
         currentPlanExercises: action.payload?.exercises || [], // 드래프트 계획의 운동 목록 설정
       }
 
-    case "ADD_EXERCISE":
+    case "ADD_EXERCISE": {
       const newExercise = {
         ...action.payload,
         order: state.currentPlanExercises.length, // 현재 계획의 운동 개수로 순서 설정
@@ -106,8 +106,9 @@ function workoutPlanReducer(
             }
           : null,
       }
+    }
 
-    case "UPDATE_EXERCISE":
+    case "UPDATE_EXERCISE": {
       const updatedExercisesForUpdate = [...state.currentPlanExercises]
       updatedExercisesForUpdate[action.payload.index] = action.payload.exercise
       return {
@@ -120,8 +121,9 @@ function workoutPlanReducer(
             }
           : null,
       }
+    }
 
-    case "REMOVE_EXERCISE":
+    case "REMOVE_EXERCISE": {
       const filteredExercises = state.currentPlanExercises.filter(
         (_, index) => index !== action.payload
       )
@@ -140,8 +142,9 @@ function workoutPlanReducer(
             }
           : null,
       }
+    }
 
-    case "SAVE_EXERCISE":
+    case "SAVE_EXERCISE": {
       const exerciseToSave = action.payload.exercise
       const currentExercises = [...state.currentPlanExercises]
 
@@ -161,16 +164,18 @@ function workoutPlanReducer(
             }
           : null,
       }
+    }
 
-    case "CONFIRM_EXERCISE":
+    case "CONFIRM_EXERCISE": {
       const updatedConfirmedIndices = new Set(state.confirmedExerciseIndices)
       updatedConfirmedIndices.add(action.payload.index)
       return {
         ...state,
         confirmedExerciseIndices: updatedConfirmedIndices,
       }
+    }
 
-    case "REMOVE_SAVED_EXERCISE":
+    case "REMOVE_SAVED_EXERCISE": {
       const filteredFinalizedExercises = state.finalizedExercises.filter(
         (_, index) => index !== action.payload
       )
@@ -185,6 +190,7 @@ function workoutPlanReducer(
         ...state,
         finalizedExercises: reorderedFinalizedExercises,
       }
+    }
 
     case "REORDER_EXERCISES":
       return {
@@ -204,7 +210,7 @@ function workoutPlanReducer(
         isEditing: action.payload,
       }
 
-    case "OPEN_MODAL":
+    case "OPEN_MODAL": {
       const exercises = action.payload.plan?.exercises || []
       // 편집 모드일 때 기존 운동들을 모두 확정된 상태로 설정
       const initialConfirmedIndices: Set<number> =
@@ -224,8 +230,9 @@ function workoutPlanReducer(
         confirmedExerciseIndices: initialConfirmedIndices,
         isEditing: action.payload.mode === "edit",
       }
+    }
 
-    case "CLOSE_MODAL":
+    case "CLOSE_MODAL": {
       return {
         ...state,
         modalState: {
@@ -238,9 +245,11 @@ function workoutPlanReducer(
         confirmedExerciseIndices: new Set(),
         finalizedExercises: [],
       }
+    }
 
-    case "RESET_STATE":
+    case "RESET_STATE": {
       return initialState
+    }
 
     default:
       return state

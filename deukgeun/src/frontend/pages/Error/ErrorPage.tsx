@@ -18,8 +18,25 @@ export default function ErrorPage({
   showRetryButton = false,
   onRetry,
 }: ErrorPageProps) {
-  const navigate = useNavigate()
-  const location = useLocation()
+  // Router 컨텍스트가 없을 때를 대비한 안전한 네비게이션
+  const navigate = (() => {
+    try {
+      return useNavigate()
+    } catch {
+      return (path: string) => {
+        window.location.href = path
+      }
+    }
+  })()
+
+  const location = (() => {
+    try {
+      return useLocation()
+    } catch {
+      return { search: window.location.search }
+    }
+  })()
+
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
 
   // URL 파라미터에서 에러 정보 추출

@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { PostLike } from "../entities/Like"
+import { Like } from "../entities/Like"
 import { Post } from "../entities/Post"
 import { AppDataSource } from "../config/database"
 import { toLikeDTO } from "../transformers"
@@ -31,7 +31,7 @@ export class LikeController {
       }
 
       const postRepository = AppDataSource.getRepository(Post)
-      const likeRepository = AppDataSource.getRepository(PostLike)
+      const likeRepository = AppDataSource.getRepository(Like)
 
       // 포스트 존재 여부 확인
       const post = await postRepository.findOne({

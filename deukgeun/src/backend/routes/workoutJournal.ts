@@ -6,8 +6,33 @@ import { AuthenticatedRequest } from "../types"
 const router = Router()
 const workoutJournalController = new WorkoutJournalController()
 
-// 모든 라우트에 인증 미들웨어 적용
-router.use(authMiddleware)
+// 개발 환경에서 인증 우회 (테스트용)
+const isDevelopment = process.env.NODE_ENV === "development"
+
+// 개발 환경에서 더미 사용자 정보를 설정하는 미들웨어
+const developmentAuthMiddleware = (
+  req: Request,
+  res: Response,
+  next: Function
+) => {
+  if (isDevelopment) {
+    // 개발 환경에서 더미 사용자 정보 설정
+    ;(req as any).user = {
+      userId: 2, // 테스트 사용자 ID
+      role: "user" as const,
+    }
+    console.log("🔧 [Development] 더미 사용자 정보 설정:", (req as any).user)
+  }
+  next()
+}
+
+// 모든 라우트에 개발 환경 미들웨어 적용
+router.use(developmentAuthMiddleware)
+
+// 프로덕션 환경에서만 인증 미들웨어 적용
+if (!isDevelopment) {
+  router.use(authMiddleware)
+}
 
 // 운동 계획 관련 라우트
 router.get("/plans", (req: Request, res: Response) =>

@@ -134,7 +134,6 @@ export const workoutApi = {
       console.error("❌ [workoutApi] getPlans 실패", error)
       handleApiError(error)
       throw error
-      throw error
     }
   },
 
@@ -152,7 +151,6 @@ export const workoutApi = {
     } catch (error) {
       console.error("❌ [workoutApi] getPlan 실패", { planId, error })
       handleApiError(error)
-      throw error
       throw error
     }
   },
@@ -174,7 +172,6 @@ export const workoutApi = {
     } catch (error) {
       console.error("❌ [workoutApi] createPlan 실패", { planData, error })
       handleApiError(error)
-      throw error
       throw error
     }
   },
@@ -201,7 +198,6 @@ export const workoutApi = {
         error,
       })
       handleApiError(error)
-      throw error
       throw error
     }
   },
@@ -323,6 +319,7 @@ export const workoutApi = {
   async getSessions(params?: PaginationParams): Promise<WorkoutSession[]> {
     try {
       console.log("📡 [workoutApi] getSessions 호출", { params })
+
       const queryParams = params
         ? {
             page: params.page.toString(),

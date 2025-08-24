@@ -31,8 +31,8 @@
       "@utils/*": ["backend/utils/*"],
       "@transformers/*": ["backend/transformers/*"],
       "@transformers": ["backend/transformers/index"],
-      "@dto/*": ["../shared/types/dto/*"],
-      "@dto": ["../shared/types/dto/index"]
+      "@dto/*": ["shared/types/dto/*"],
+      "@dto": ["shared/types/dto/index"]
     }
   },
   "include": ["./**/*", "../types/**/*"],

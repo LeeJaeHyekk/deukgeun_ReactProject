@@ -14,7 +14,6 @@ export interface ExerciseSetDTO {
   rpeRating?: number
   notes?: string
   createdAt: Date
-  updatedAt: Date
 }
 
 // Create DTO (for creating new ExerciseSet)

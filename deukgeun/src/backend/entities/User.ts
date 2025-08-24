@@ -37,8 +37,12 @@ export class User {
   @Column({ type: "enum", enum: ["male", "female", "other"], nullable: true })
   gender?: Gender
 
-  @Column({ type: "date", nullable: true, transformer: NullableDateTransformer })
-  birthday: Date | null;
+  @Column({
+    type: "date",
+    nullable: true,
+    transformer: NullableDateTransformer,
+  })
+  birthday: Date | null = null
 
   @Column({ type: "varchar", nullable: true })
   profileImage?: string

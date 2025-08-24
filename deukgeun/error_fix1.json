@@ -2,25 +2,64 @@
   "meta": {
     "name": "typeorm-ts5-phase1-fixes",
     "description": "TS5 + TypeORM 0.3.x Phase1 우회: decorator 최소설정, transformer/nullable 타입 일원화",
-    "owner": "backend"
+    "owner": "backend",
+    "lastUpdated": "2024-12-23T17:00:00Z",
+    "currentStatus": "IN_PROGRESS"
+  },
+  "currentProjectStatus": {
+    "typescriptErrors": {
+      "total": 65,
+      "backend": 45,
+      "frontend": 20,
+      "critical": [
+        "Cannot find module '@transformers'",
+        "Property 'birthday' has no initializer",
+        "Property 'updatedAt' is missing in type",
+        "Type 'unknown' is not assignable to type 'ExpActionType'",
+        "Module has no exported member 'Like'"
+      ]
+    },
+    "eslintIssues": {
+      "total": 715,
+      "errors": 65,
+      "warnings": 657,
+      "mainCategories": [
+        "no-explicit-any",
+        "no-unused-vars",
+        "no-redeclare",
+        "import/no-unresolved"
+      ]
+    },
+    "buildStatus": {
+      "backend": "FAILED",
+      "frontend": "UNKNOWN",
+      "mainIssues": [
+        "tsconfig.json path resolution issues",
+        "Module resolution failures",
+        "Type definition conflicts"
+      ]
+    }
   },
   "actions": [
     {
       "type": "write_file",
       "path": "deukgeun/src/backend/tsconfig.json",
-      "content": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2020\",\n    \"module\": \"commonjs\",\n    \"moduleResolution\": \"node\",\n    \"lib\": [\"ES2020\"],\n    \"outDir\": \"../../dist/backend\",\n    \"rootDir\": \"../\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true,\n    \"forceConsistentCasingInFileNames\": true,\n    \"resolveJsonModule\": true,\n\n    // TypeORM + TS5 안정화 핵심\n    \"experimentalDecorators\": true,\n    \"emitDecoratorMetadata\": true,\n    \"useDefineForClassFields\": false,\n\n    // 런타임 경로 alias\n    \"baseUrl\": \"../\",\n    \"paths\": {\n      \"@types/*\": [\"types/*\"],\n      \"@backend/*\": [\"backend/*\"],\n      \"@config/*\": [\"backend/config/*\"],\n      \"@controllers/*\": [\"backend/controllers/*\"],\n      \"@entities/*\": [\"backend/entities/*\"],\n      \"@middlewares/*\": [\"backend/middlewares/*\"],\n      \"@routes/*\": [\"backend/routes/*\"],\n      \"@services/*\": [\"backend/services/*\"],\n      \"@utils/*\": [\"backend/utils/*\"],\n      \"@transformers/*\": [\"backend/transformers/*\"],\n      \"@transformers\": [\"backend/transformers/index\"],\n      \"@dto/*\": [\"../shared/types/dto/*\"],\n      \"@dto\": [\"../shared/types/dto/index\"]\n    }\n  },\n  \"include\": [\"./**/*\", \"../types/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\", \"build\", \"**/*.js\", \"**/*.jsx\"]\n}\n"
+      "content": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2020\",\n    \"module\": \"commonjs\",\n    \"moduleResolution\": \"node\",\n    \"lib\": [\"ES2020\"],\n    \"outDir\": \"../../dist/backend\",\n    \"rootDir\": \"../\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true,\n    \"forceConsistentCasingInFileNames\": true,\n    \"resolveJsonModule\": true,\n\n    // TypeORM + TS5 안정화 핵심\n    \"experimentalDecorators\": true,\n    \"emitDecoratorMetadata\": true,\n    \"useDefineForClassFields\": false,\n\n    // 런타임 경로 alias\n    \"baseUrl\": \"../\",\n    \"paths\": {\n      \"@types/*\": [\"types/*\"],\n      \"@backend/*\": [\"backend/*\"],\n      \"@config/*\": [\"backend/config/*\"],\n      \"@controllers/*\": [\"backend/controllers/*\"],\n      \"@entities/*\": [\"backend/entities/*\"],\n      \"@middlewares/*\": [\"backend/middlewares/*\"],\n      \"@routes/*\": [\"backend/routes/*\"],\n      \"@services/*\": [\"backend/services/*\"],\n      \"@utils/*\": [\"backend/utils/*\"],\n      \"@transformers/*\": [\"backend/transformers/*\"],\n      \"@transformers\": [\"backend/transformers/index\"],\n      \"@dto/*\": [\"../shared/types/dto/*\"],\n      \"@dto\": [\"../shared/types/dto/index\"]\n    }\n  },\n  \"include\": [\"./**/*\", \"../types/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\", \"build\", \"**/*.js\", \"**/*.jsx\"]\n}\n",
+      "status": "COMPLETED"
     },
     {
       "type": "ensure_dependency",
       "package": "reflect-metadata",
       "semver": "^0.1.13",
-      "dev": false
+      "dev": false,
+      "status": "COMPLETED"
     },
     {
       "type": "ensure_dependency",
       "package": "tsconfig-paths",
       "semver": "^4.2.0",
-      "dev": true
+      "dev": true,
+      "status": "COMPLETED"
     },
     {
       "type": "merge_package_json",
@@ -32,22 +71,26 @@
           "start:backend": "node -r tsconfig-paths/register -r reflect-metadata dist/backend/server.js",
           "typeorm:migrate": "ts-node -r tsconfig-paths/register -r reflect-metadata deukgeun/src/backend/scripts/typeorm.migrate.ts"
         }
-      }
+      },
+      "status": "COMPLETED"
     },
     {
       "type": "write_file",
       "path": "deukgeun/src/backend/transformers/nullableDate.ts",
-      "content": "import { ValueTransformer } from 'typeorm';\n\n// Date <-> DB(date/timestamp) null-safe transformer (Phase 1: 보수적으로 null 허용)\nexport const NullableDateTransformer: ValueTransformer = {\n  to: (value: Date | string | null | undefined) => {\n    if (value == null) return null;\n    if (value instanceof Date) return value;\n    const d = new Date(value);\n    return isNaN(d.getTime()) ? null : d;\n  },\n  from: (value: Date | string | null) => {\n    if (value == null) return null;\n    const d = value instanceof Date ? value : new Date(value);\n    return isNaN(d.getTime()) ? null : d;\n  }\n};\n"
+      "content": "import { ValueTransformer } from 'typeorm';\n\n// Date <-> DB(date/timestamp) null-safe transformer (Phase 1: 보수적으로 null 허용)\nexport const NullableDateTransformer: ValueTransformer = {\n  to: (value: Date | string | null | undefined) => {\n    if (value == null) return null;\n    if (value instanceof Date) return value;\n    const d = new Date(value);\n    return isNaN(d.getTime()) ? null : d;\n  },\n  from: (value: Date | string | null) => {\n    if (value == null) return null;\n    const d = value instanceof Date ? value : new Date(value);\n    return isNaN(d.getTime()) ? null : d;\n  }\n};",
+      "status": "COMPLETED"
     },
     {
       "type": "write_file",
       "path": "deukgeun/src/backend/transformers/bigintNumber.ts",
-      "content": "import { ValueTransformer } from 'typeorm';\n\n// BIGINT <-> number (DB는 string 반환 가능) null-safe\nexport const BigIntNumberTransformer: ValueTransformer = {\n  to: (value: number | null | undefined) => (value == null ? null : String(value)),\n  from: (value: string | number | null) => (value == null ? null : Number(value))\n};\n"
+      "content": "import { ValueTransformer } from 'typeorm';\n\n// BIGINT <-> number (DB는 string 반환 가능) null-safe\nexport const BigIntNumberTransformer: ValueTransformer = {\n  to: (value: number | null | undefined) => (value == null ? null : String(value)),\n  from: (value: string | number | null) => (value == null ? null : Number(value))\n};",
+      "status": "COMPLETED"
     },
     {
       "type": "write_file",
       "path": "deukgeun/src/backend/transformers/index.ts",
-      "content": "export * from './nullableDate';\nexport * from './bigintNumber';\n"
+      "content": "export * from './nullableDate';\nexport * from './bigintNumber';",
+      "status": "COMPLETED"
     },
     {
       "type": "ensure_top_of_file",
@@ -59,13 +102,15 @@
         "deukgeun/src/backend/data-source.ts",
         "deukgeun/src/backend/datasource.ts"
       ],
-      "line": "import 'reflect-metadata';"
+      "line": "import 'reflect-metadata';",
+      "status": "COMPLETED"
     },
     {
       "type": "codemod_regex",
       "path_glob": "deukgeun/src/backend/entities/**/*.ts",
       "find": "@Column\\(([^)]*)\\)\\s*birthday\\s*:\\s*Date\\s*;?",
-      "replace": "@Column({ type: 'date', nullable: true, transformer: NullableDateTransformer })\n birthday: Date | null;"
+      "replace": "@Column({ type: 'date', nullable: true, transformer: NullableDateTransformer })\n birthday: Date | null;",
+      "status": "PENDING"
     },
     {
       "type": "codemod_regex",
@@ -75,7 +120,8 @@
         "deukgeun/src/backend/dto/**/*.ts"
       ],
       "find": "(birthday\\s*:\\s*)(Date|string)(\\s*[;|,])",
-      "replace": "$1 Date | string | null $3"
+      "replace": "$1 Date | string | null $3",
+      "status": "PENDING"
     },
     {
       "type": "codemod_regex",
@@ -84,7 +130,8 @@
         "deukgeun/src/backend/services/**/*.ts"
       ],
       "find": "([\\w\\.\\]\\)\\?\\.]birthday)(?!\\s*\\|\\|\\s*null)",
-      "replace": "$1 ?? null"
+      "replace": "$1 ?? null",
+      "status": "PENDING"
     },
     {
       "type": "insert_import_if_missing",
@@ -92,11 +139,72 @@
       "import": {
         "what": "{ NullableDateTransformer }",
         "from": "@transformers"
-      }
+      },
+      "status": "PENDING"
+    },
+    {
+      "type": "fix_module_resolution",
+      "description": "모듈 해결 문제 수정",
+      "targets": [
+        "@transformers 모듈 해결",
+        "@dto/index 모듈 해결",
+        "Entity import 경로 수정",
+        "Transformer 타입 정의 수정"
+      ],
+      "status": "IN_PROGRESS"
+    },
+    {
+      "type": "fix_entity_initializers",
+      "description": "Entity 초기화 문제 수정",
+      "targets": [
+        "User entity birthday 필드 초기화",
+        "MixTransformer config 필드 초기화",
+        "필수 필드 누락 수정"
+      ],
+      "status": "IN_PROGRESS"
+    },
+    {
+      "type": "fix_type_definitions",
+      "description": "타입 정의 불일치 수정",
+      "targets": [
+        "ExpActionType 타입 정의",
+        "Like entity export 수정",
+        "ExerciseSetDTO updatedAt 필드 추가",
+        "Generic 타입 인덱싱 문제 해결"
+      ],
+      "status": "IN_PROGRESS"
     },
     {
       "type": "create_review_note",
-      "note": "TS18047(birthday is possibly null) 해결 체크: Entity/DTO/Controller에서 birthday를 Date|string|null 로 정렬했는지, @Column(nullable: true, transformer: NullableDateTransformer) 반영됐는지 확인."
+      "note": "TS18047(birthday is possibly null) 해결 체크: Entity/DTO/Controller에서 birthday를 Date|string|null 로 정렬했는지, @Column(nullable: true, transformer: NullableDateTransformer) 반영됐는지 확인.",
+      "status": "COMPLETED"
     }
-  ]
+  ],
+  "nextSteps": [
+    {
+      "priority": "HIGH",
+      "action": "모듈 해결 문제 수정",
+      "description": "@transformers, @dto 모듈 경로 해결"
+    },
+    {
+      "priority": "HIGH",
+      "action": "Entity 초기화 문제 수정",
+      "description": "birthday, config 필드 초기화 추가"
+    },
+    {
+      "priority": "MEDIUM",
+      "action": "타입 정의 통합",
+      "description": "ExpActionType, Like entity 타입 정의 수정"
+    },
+    {
+      "priority": "MEDIUM",
+      "action": "ESLint 경고 수정",
+      "description": "no-explicit-any, no-unused-vars 경고 해결"
+    }
+  ],
+  "progress": {
+    "completed": 8,
+    "total": 15,
+    "percentage": 53
+  }
 }

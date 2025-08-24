@@ -1331,5 +1331,31 @@
       "lazy": ["Post.comments", "Post.likes", "User.posts"],
       "eager": ["Comment.user", "Post.author"]
     }
+  },
+  "projectStatus": {
+    "lastUpdated": "2024-12-23T17:00:00Z",
+    "currentIssues": {
+      "typescriptErrors": 65,
+      "eslintWarnings": 657,
+      "buildStatus": "FAILED",
+      "criticalIssues": [
+        "Module resolution failures (@transformers, @dto)",
+        "Entity initialization problems",
+        "Type definition conflicts"
+      ]
+    },
+    "progress": {
+      "overall": 75,
+      "backend": 60,
+      "frontend": 85,
+      "types": 90,
+      "build": 40
+    },
+    "nextPriorities": [
+      "Fix module resolution issues",
+      "Resolve entity initialization problems",
+      "Update type definitions",
+      "Restore backend build functionality"
+    ]
   }
 }

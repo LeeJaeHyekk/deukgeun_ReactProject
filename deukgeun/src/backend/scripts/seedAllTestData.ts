@@ -4,7 +4,7 @@ import { Gym } from "../entities/Gym"
 import { Machine } from "../entities/Machine"
 import { Post } from "../entities/Post"
 import { Comment } from "../entities/Comment"
-import { PostLike } from "../entities/Like"
+import { Like } from "../entities/Like"
 import { UserLevel } from "../entities/UserLevel"
 import { ExpHistory } from "../entities/ExpHistory"
 import { UserReward } from "../entities/UserReward"
@@ -382,7 +382,7 @@ async function seedAllTestData() {
         Machine,
         Post,
         Comment,
-        PostLike,
+        Like,
         UserLevel,
         ExpHistory,
         UserReward,
@@ -558,7 +558,7 @@ async function seedAllTestData() {
 
     // 6. 좋아요 데이터 생성
     console.log("\n❤️ 좋아요 데이터 생성 중...")
-    const likeRepository = connection.getRepository(PostLike)
+    const likeRepository = connection.getRepository(Like)
 
     for (const post of createdPosts) {
       for (let i = 0; i < Math.floor(Math.random() * 3) + 1; i++) {

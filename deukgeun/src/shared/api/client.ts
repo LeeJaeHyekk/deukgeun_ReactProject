@@ -154,12 +154,12 @@ class ApiClient {
     const timeoutId = setTimeout(() => controller.abort(), this.timeout)
 
     try {
+      // 자동으로 인증 토큰 설정
+      const headers = await this.getRequestHeaders(options.headers)
+
       const response = await fetch(url, {
         ...options,
-        headers: {
-          ...this.defaultHeaders,
-          ...options.headers,
-        },
+        headers,
         signal: controller.signal,
       })
 
@@ -183,6 +183,22 @@ class ApiClient {
 
       throw new Error("Unknown error occurred")
     }
+  }
+
+  // 요청 헤더 생성 (인증 토큰 자동 포함)
+  private async getRequestHeaders(
+    customHeaders?: HeadersInit
+  ): Promise<HeadersInit> {
+    // localStorage에서 토큰 가져오기
+    const token = localStorage.getItem("accessToken")
+
+    const headers: HeadersInit = {
+      ...this.defaultHeaders,
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...customHeaders,
+    }
+
+    return headers
   }
 }
 

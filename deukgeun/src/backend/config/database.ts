@@ -10,7 +10,7 @@ import { Gym } from "../entities/Gym" // 헬스장 엔티티
 import { User } from "../entities/User" // 사용자 엔티티
 import { Machine } from "../entities/Machine" // 운동 머신 엔티티
 import { Comment } from "../entities/Comment" // 댓글 엔티티
-import { PostLike } from "../entities/Like" // 게시글 좋아요 엔티티
+import { Like } from "../entities/Like" // 게시글 좋아요 엔티티
 import { UserLevel } from "../entities/UserLevel" // 사용자 레벨 엔티티
 import { ExpHistory } from "../entities/ExpHistory" // 경험치 이력 엔티티
 import { UserReward } from "../entities/UserReward" // 사용자 보상 엔티티
@@ -61,7 +61,7 @@ export const AppDataSource = new DataSource({
     User, // 사용자 테이블
     Machine, // 운동 머신 테이블
     Comment, // 댓글 테이블
-    PostLike, // 게시글 좋아요 테이블
+    Like, // 게시글 좋아요 테이블
     UserLevel, // 사용자 레벨 테이블
     ExpHistory, // 경험치 이력 테이블
     UserReward, // 사용자 보상 테이블

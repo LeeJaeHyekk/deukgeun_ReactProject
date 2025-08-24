@@ -188,16 +188,45 @@
         "모든 라우트 파일에서 authMiddleware 사용으로 변경",
         "서버 정상 시작 확인 (포트 5000)"
       ]
+    },
+    "fix_current_critical_errors": {
+      "status": "IN_PROGRESS",
+      "description": "현재 65개 TypeScript 오류 및 715개 ESLint 문제 해결",
+      "currentErrors": 65,
+      "currentWarnings": 657,
+      "criticalIssues": [
+        "Cannot find module '@transformers'",
+        "Property 'birthday' has no initializer",
+        "Property 'updatedAt' is missing in type",
+        "Type 'unknown' is not assignable to type 'ExpActionType'",
+        "Module has no exported member 'Like'"
+      ],
+      "priorityActions": [
+        "모듈 해결 문제 수정 (@transformers, @dto)",
+        "Entity 초기화 문제 수정 (birthday, config 필드)",
+        "타입 정의 불일치 수정 (ExpActionType, Like entity)",
+        "Transformer 타입 정의 수정",
+        "Generic 타입 인덱싱 문제 해결"
+      ],
+      "targetFiles": [
+        "src/backend/entities/User.ts",
+        "src/backend/transformers/*.ts",
+        "src/backend/controllers/machineController.ts",
+        "src/frontend/features/community/components/*.tsx"
+      ],
+      "startedAt": "2024-12-23T17:00:00Z"
     }
   },
   "currentStatus": {
-    "totalErrors": 0,
-    "errors": 0,
-    "warnings": 0,
+    "totalErrors": 65,
+    "errors": 65,
+    "warnings": 657,
     "mainIssues": [
-      "서버 정상 시작됨",
-      "데이터베이스 연결 성공",
-      "자동 업데이트 스케줄러 초기화 완료"
+      "모듈 해결 실패 (@transformers, @dto)",
+      "Entity 초기화 문제",
+      "타입 정의 불일치",
+      "빌드 실패 (백엔드)",
+      "ESLint 경고 다수"
     ]
   },
   "typeSystemStatus": {
@@ -224,9 +253,13 @@
     "completedAt": "2024-12-23T16:49:00Z"
   },
   "nextSteps": [
+    "모듈 해결 문제 수정 (HIGH PRIORITY)",
+    "Entity 초기화 문제 수정 (HIGH PRIORITY)",
+    "타입 정의 불일치 해결 (MEDIUM PRIORITY)",
+    "ESLint 경고 수정 (MEDIUM PRIORITY)",
+    "백엔드 빌드 복구",
     "API 엔드포인트 테스트",
-    "데이터베이스 마이그레이션 확인",
-    "프로덕션 배포 준비"
+    "데이터베이스 마이그레이션 확인"
   ],
   "completionSummary": {
     "totalTasksCompleted": 8,
@@ -237,10 +270,9 @@
       "Controller DTO 적용으로 아키텍처 개선",
       "기본 DTO 구조 완성",
       "UserDTO, MachineDTO, WorkoutSessionDTO 필드 통일 완료",
-      "백엔드 서버 정상 시작 및 데이터베이스 연결 성공",
       "프론트엔드 import 경로 오류 수정 완료"
     ],
-    "codeQualityImprovement": "100% error reduction (315개 → 0개)",
+    "codeQualityImprovement": "74% error reduction (2596개 → 674개)",
     "structuralChanges": [
       "중앙화된 타입 시스템 구축",
       "DTO 패턴 적용",
@@ -250,5 +282,38 @@
       "인증 미들웨어 통일 (authMiddleware)",
       "프론트엔드 alias 기반 import 경로 적용"
     ]
+  },
+  "currentChallenges": {
+    "moduleResolution": {
+      "status": "CRITICAL",
+      "description": "모듈 해결 실패로 인한 빌드 중단",
+      "affectedModules": ["@transformers", "@dto/index"],
+      "impact": "백엔드 빌드 불가능"
+    },
+    "entityInitialization": {
+      "status": "HIGH",
+      "description": "Entity 필드 초기화 문제",
+      "affectedEntities": ["User", "MixTransformer"],
+      "impact": "TypeScript 컴파일 오류"
+    },
+    "typeDefinitionConflicts": {
+      "status": "MEDIUM",
+      "description": "타입 정의 불일치",
+      "affectedTypes": ["ExpActionType", "Like entity"],
+      "impact": "타입 안전성 저하"
+    },
+    "eslintWarnings": {
+      "status": "LOW",
+      "description": "다수의 ESLint 경고",
+      "categories": ["no-explicit-any", "no-unused-vars", "no-redeclare"],
+      "impact": "코드 품질 저하"
+    }
+  },
+  "progress": {
+    "overall": 75,
+    "backend": 60,
+    "frontend": 85,
+    "types": 90,
+    "build": 40
   }
 }

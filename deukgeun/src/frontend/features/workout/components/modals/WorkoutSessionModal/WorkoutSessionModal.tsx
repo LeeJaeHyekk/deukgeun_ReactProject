@@ -153,7 +153,7 @@ export function WorkoutSessionModal() {
 
           {/* 운동 카드들 */}
           <div className="exercises-container">
-            {currentSessionData.exerciseSets?.map((exercise, index) => (
+            {currentSessionData?.exerciseSets?.map((exercise, index) => (
               <ExerciseCard
                 key={index}
                 exercise={exercise}
@@ -168,7 +168,12 @@ export function WorkoutSessionModal() {
                 isRestTimerRunning={isRestTimerRunning}
                 machines={machines}
               />
-            ))}
+            )) || (
+              <div className="no-exercises-message">
+                <p>아직 운동이 추가되지 않았습니다.</p>
+                <p>운동을 추가하여 세션을 시작하세요.</p>
+              </div>
+            )}
           </div>
 
           {/* 세션 노트 */}

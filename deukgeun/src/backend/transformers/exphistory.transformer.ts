@@ -4,6 +4,7 @@
 
 import { ExpHistoryDTO } from "../../shared/types/dto/exphistory.dto"
 import { ExpHistory } from "../entities/ExpHistory"
+import type { ExpActionType } from "../types"
 
 export class ExpHistoryTransformer {
   static toDTO(entity: ExpHistory): ExpHistoryDTO {
@@ -17,7 +18,7 @@ export class ExpHistoryTransformer {
       levelBefore: entity.levelBefore,
       levelAfter: entity.levelAfter,
       isLevelUp: entity.isLevelUp,
-      createdAt: entity.createdAt
+      createdAt: entity.createdAt,
     }
   }
 
@@ -32,7 +33,7 @@ export class ExpHistoryTransformer {
       levelBefore: dto.levelBefore,
       levelAfter: dto.levelAfter,
       isLevelUp: dto.isLevelUp,
-      createdAt: dto.createdAt
+      createdAt: dto.createdAt,
     }
   }
 

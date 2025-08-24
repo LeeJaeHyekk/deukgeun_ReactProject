@@ -295,6 +295,63 @@ export const WorkoutJournalApi = {
     }
   },
 
+  async getWorkoutSession(sessionId: number): Promise<WorkoutSession> {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(`🔍 [WorkoutAPI:${requestId}] getWorkoutSession 요청 시작`)
+    console.log(`📝 [WorkoutAPI:${requestId}] 세션 ID:`, sessionId)
+
+    try {
+      console.log(
+        `📡 [WorkoutAPI:${requestId}] API 호출: /api/workout-journal/sessions/${sessionId}`
+      )
+      const response = await fetch(`/api/workout-journal/sessions/${sessionId}`, {
+        headers: getAuthHeaders(),
+      })
+
+      console.log(
+        `📊 [WorkoutAPI:${requestId}] 응답 상태: ${response.status} ${response.statusText}`
+      )
+
+      if (!response.ok) {
+        console.warn(
+          `⚠️ [WorkoutAPI:${requestId}] API 응답 오류: ${response.status}`
+        )
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage =
+          errorData.error || "운동 세션을 불러오는데 실패했습니다."
+        console.error(`❌ [WorkoutAPI:${requestId}] 오류 메시지:`, errorMessage)
+        throw new Error(
+          typeof errorMessage === "string"
+            ? errorMessage
+            : JSON.stringify(errorMessage)
+        )
+      }
+
+      const data: ApiResponse<WorkoutSession> = await response.json()
+      console.log(`📋 [WorkoutAPI:${requestId}] 응답 데이터 확인:`, {
+        success: data.success,
+        hasData: !!data.data,
+      })
+
+      if (!data.success || !data.data) {
+        const errorMessage =
+          data.error || "운동 세션을 불러오는데 실패했습니다."
+        console.error(`❌ [WorkoutAPI:${requestId}] 서비스 오류:`, errorMessage)
+        throw new Error(
+          typeof errorMessage === "string"
+            ? errorMessage
+            : JSON.stringify(errorMessage)
+        )
+      }
+
+      console.log(`✅ [WorkoutAPI:${requestId}] 운동 세션 조회 성공:`, data.data)
+      return data.data
+    } catch (error) {
+      console.error(`❌ [WorkoutAPI:${requestId}] 운동 세션 조회 오류:`, error)
+      throw error
+    }
+  },
+
   async createWorkoutSession(
     sessionData: CreateSessionRequest
   ): Promise<WorkoutSession> {

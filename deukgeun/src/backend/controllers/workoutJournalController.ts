@@ -27,6 +27,41 @@ export class WorkoutJournalController {
         `👤 [WorkoutController:${requestId}] 사용자 인증 확인 - userId: ${userId}`
       )
 
+      // 개발 환경에서 더미 데이터 반환
+      if (process.env.NODE_ENV === "development" && !userId) {
+        console.log(
+          `🔧 [WorkoutController:${requestId}] 개발 환경 - 더미 데이터 반환`
+        )
+        const dummyPlans = [
+          {
+            id: 1,
+            name: "초급자 전체 운동",
+            description: "초급자를 위한 전체 운동 계획",
+            targetMuscleGroups: ["상체", "하체"],
+            estimatedDurationMinutes: 60,
+            difficulty: "beginner",
+            status: "active",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            exercises: [],
+          },
+          {
+            id: 2,
+            name: "중급자 상체 집중",
+            description: "중급자를 위한 상체 집중 운동",
+            targetMuscleGroups: ["상체"],
+            estimatedDurationMinutes: 45,
+            difficulty: "intermediate",
+            status: "active",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            exercises: [],
+          },
+        ]
+        res.json({ success: true, data: dummyPlans })
+        return
+      }
+
       if (!userId) {
         console.warn(
           `⚠️ [WorkoutController:${requestId}] 인증되지 않은 사용자의 요청`
@@ -187,7 +222,8 @@ export class WorkoutJournalController {
         `👤 [WorkoutController:${requestId}] 사용자 인증 확인 - userId: ${userId}`
       )
 
-      if (!userId) {
+      // 개발 환경에서 인증 우회
+      if (!userId && process.env.NODE_ENV !== "development") {
         console.warn(
           `⚠️ [WorkoutController:${requestId}] 인증되지 않은 사용자의 요청`
         )
@@ -195,10 +231,45 @@ export class WorkoutJournalController {
         return
       }
 
+      // 개발 환경에서 더미 데이터 반환
+      if (process.env.NODE_ENV === "development") {
+        console.log(
+          `📊 [WorkoutController:${requestId}] 개발 환경 - 더미 데이터 반환`
+        )
+        const dummySessions = [
+          {
+            id: 1,
+            userId: userId || 1,
+            name: "오전 운동",
+            startTime: new Date().toISOString(),
+            endTime: null,
+            status: "in_progress",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: 2,
+            userId: userId || 1,
+            name: "저녁 운동",
+            startTime: new Date(Date.now() - 86400000).toISOString(),
+            endTime: new Date(Date.now() - 86400000 + 3600000).toISOString(),
+            status: "completed",
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+            updatedAt: new Date(Date.now() - 86400000 + 3600000).toISOString(),
+          },
+        ]
+
+        console.log(
+          `✅ [WorkoutController:${requestId}] 더미 세션 ${dummySessions.length}개 반환`
+        )
+        res.json({ success: true, data: dummySessions })
+        return
+      }
+
       console.log(
         `📊 [WorkoutController:${requestId}] 운동 세션 조회 서비스 호출`
       )
-      const sessions = await this.workoutJournalService.getUserSessions(userId)
+      const sessions = await this.workoutJournalService.getUserSessions(userId!)
 
       console.log(
         `✅ [WorkoutController:${requestId}] 운동 세션 조회 성공 - ${sessions.length}개 반환`
@@ -475,6 +546,45 @@ export class WorkoutJournalController {
       console.log(
         `👤 [WorkoutController:${requestId}] 사용자 인증 확인 - userId: ${userId}`
       )
+
+      // 개발 환경에서 더미 데이터 반환
+      if (process.env.NODE_ENV === "development" && !userId) {
+        console.log(
+          `🔧 [WorkoutController:${requestId}] 개발 환경 - 더미 목표 데이터 반환`
+        )
+        const dummyGoals = [
+          {
+            id: 1,
+            userId: 2,
+            type: "weight_loss",
+            target: 5,
+            current: 2,
+            unit: "kg",
+            deadline: new Date(
+              Date.now() + 30 * 24 * 60 * 60 * 1000
+            ).toISOString(), // 30일 후
+            status: "in_progress",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: 2,
+            userId: 2,
+            type: "strength",
+            target: 100,
+            current: 80,
+            unit: "kg",
+            deadline: new Date(
+              Date.now() + 60 * 24 * 60 * 60 * 1000
+            ).toISOString(), // 60일 후
+            status: "in_progress",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        ]
+        res.json({ success: true, data: dummyGoals })
+        return
+      }
 
       if (!userId) {
         console.warn(

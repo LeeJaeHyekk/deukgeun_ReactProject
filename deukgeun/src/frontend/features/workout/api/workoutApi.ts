@@ -3,6 +3,13 @@
 // ============================================================================
 
 import { apiClient } from "../../../../shared/api/client"
+import {
+  USE_MOCK_DATA,
+  mockPlans,
+  mockSessions,
+  mockGoals,
+  mockDashboardData,
+} from "../data/mockData"
 import type {
   WorkoutPlan,
   WorkoutSession,
@@ -112,6 +119,13 @@ export const workoutApi = {
    * 운동 계획 목록 조회
    */
   async getPlans(params?: PaginationParams): Promise<WorkoutPlan[]> {
+    if (USE_MOCK_DATA) {
+      console.log("🎭 [workoutApi] getPlans - 목데이터 사용")
+      // 목데이터 사용 시 약간의 지연을 주어 실제 API 호출처럼 보이게 함
+      await new Promise(resolve => setTimeout(resolve, 500))
+      return mockPlans as any
+    }
+
     try {
       console.log("📡 [workoutApi] getPlans 호출", { params })
       const queryParams = params
@@ -337,6 +351,13 @@ export const workoutApi = {
    * 운동 세션 목록 조회
    */
   async getSessions(params?: PaginationParams): Promise<WorkoutSession[]> {
+    if (USE_MOCK_DATA) {
+      console.log("🎭 [workoutApi] getSessions - 목데이터 사용")
+      // 목데이터 사용 시 약간의 지연을 주어 실제 API 호출처럼 보이게 함
+      await new Promise(resolve => setTimeout(resolve, 500))
+      return mockSessions as any
+    }
+
     try {
       console.log("📡 [workoutApi] getSessions 호출", { params })
 
@@ -685,6 +706,13 @@ export const workoutApi = {
    * 운동 목표 목록 조회
    */
   async getGoals(params?: PaginationParams): Promise<WorkoutGoal[]> {
+    if (USE_MOCK_DATA) {
+      console.log("🎭 [workoutApi] getGoals - 목데이터 사용")
+      // 목데이터 사용 시 약간의 지연을 주어 실제 API 호출처럼 보이게 함
+      await new Promise(resolve => setTimeout(resolve, 500))
+      return mockGoals as any
+    }
+
     try {
       console.log("📡 [workoutApi] getGoals 호출", { params })
 
@@ -811,6 +839,13 @@ export const workoutApi = {
    * 대시보드 데이터 조회
    */
   async getDashboardData(): Promise<DashboardData> {
+    if (USE_MOCK_DATA) {
+      console.log("🎭 [workoutApi] getDashboardData - 목데이터 사용")
+      // 목데이터 사용 시 약간의 지연을 주어 실제 API 호출처럼 보이게 함
+      await new Promise(resolve => setTimeout(resolve, 500))
+      return mockDashboardData as any
+    }
+
     try {
       console.log("📡 [workoutApi] getDashboardData 호출")
       const response = await apiClient.get<ApiResponse<DashboardData>>(

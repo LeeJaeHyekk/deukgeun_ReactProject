@@ -4,15 +4,20 @@ import { OverviewTab } from "../tabs/OverviewTab"
 import { PlansTab } from "../tabs/PlansTab"
 import { SessionsTab } from "../tabs/SessionsTab"
 import { GoalsTab } from "../tabs/GoalsTab"
-import { ProgressTab } from "../tabs/ProgressTab"
+
+import { WorkoutProgressTab } from "../tabs/WorkoutProgressTab"
 import type { TabType } from "../../types"
 import type {
   WorkoutPlan,
   WorkoutSession,
   WorkoutGoal,
-  DashboardData,
+  Machine,
 } from "@shared/types"
-import "./TabContent.css"
+import type {
+  DashboardData,
+  WorkoutStatsDTO,
+} from "../../types"
+import styles from "./TabContent.module.css"
 
 interface TabContentProps {
   activeTab: TabType
@@ -21,6 +26,8 @@ interface TabContentProps {
   plans: WorkoutPlan[]
   sessions: WorkoutSession[]
   goals: WorkoutGoal[]
+  workoutStats: WorkoutStatsDTO | null
+  machines: Machine[]
   plansLoading: boolean
   sessionsLoading: boolean
   goalsLoading: boolean
@@ -30,7 +37,7 @@ interface TabContentProps {
   onCreatePlan: () => void
   onEditPlan: (planId: number) => void
   onStartSession: (planId: number) => void
-  onCreateSession: () => void
+  // onCreateSession: () => void  // 주석 처리: 새 세션 생성 기능 비활성화
   onEditSession: (sessionId: number) => void
   onViewSession: (sessionId: number) => void
   onCreateGoal: () => void
@@ -38,6 +45,7 @@ interface TabContentProps {
   onDeletePlan: (planId: number) => void
   onDeleteSession: (sessionId: number) => void
   onDeleteGoal: (goalId: number) => void
+
 }
 
 export function TabContent({
@@ -47,6 +55,8 @@ export function TabContent({
   plans,
   sessions,
   goals,
+  workoutStats,
+  machines,
   plansLoading,
   sessionsLoading,
   goalsLoading,
@@ -56,7 +66,7 @@ export function TabContent({
   onCreatePlan,
   onEditPlan,
   onStartSession,
-  onCreateSession,
+  // onCreateSession,  // 주석 처리: 새 세션 생성 기능 비활성화
   onEditSession,
   onViewSession,
   onCreateGoal,
@@ -67,17 +77,17 @@ export function TabContent({
 }: TabContentProps) {
   if (isLoading) {
     return (
-      <div className="tab-content">
-        <div className="loading-container">
-          <LoadingSpinner />
-          <p>데이터를 불러오는 중...</p>
+      <div className={styles.tabContent}>
+        <div className={styles.tabLoadingState}>
+          <div className={styles.tabLoadingSpinner}></div>
+          <p className={styles.tabLoadingText}>데이터를 불러오는 중...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="tab-content">
+    <div className={styles.tabContent}>
       {activeTab === "overview" && (
         <OverviewTab
           dashboardData={dashboardData}
@@ -85,6 +95,16 @@ export function TabContent({
           onPlanClick={onPlanClick}
           onSessionClick={onSessionClick}
           onGoalClick={onGoalClick}
+        />
+      )}
+
+      {activeTab === "goals" && (
+        <GoalsTab
+          goals={goals as any}
+          isLoading={goalsLoading}
+          onCreateGoal={onCreateGoal}
+          onEditGoal={onEditGoal}
+          onDeleteGoal={onDeleteGoal}
         />
       )}
 
@@ -103,28 +123,18 @@ export function TabContent({
         <SessionsTab
           sessions={sessions}
           isLoading={sessionsLoading}
-          onCreateSession={onCreateSession}
           onEditSession={onEditSession}
           onViewSession={onViewSession}
           onDeleteSession={onDeleteSession}
         />
       )}
 
-      {activeTab === "goals" && (
-        <GoalsTab
-          goals={goals}
-          isLoading={goalsLoading}
-          onCreateGoal={onCreateGoal}
-          onEditGoal={onEditGoal}
-          onDeleteGoal={onDeleteGoal}
-        />
-      )}
 
-      {activeTab === "progress" && (
-        <ProgressTab
-          sessions={sessions}
+      {activeTab === "workoutProgress" && (
+        <WorkoutProgressTab
+          sessions={sessions as any}
+          workoutStats={workoutStats}
           isLoading={sessionsLoading}
-          onViewSession={onViewSession}
         />
       )}
     </div>

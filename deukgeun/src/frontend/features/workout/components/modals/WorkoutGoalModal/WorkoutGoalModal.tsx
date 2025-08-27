@@ -6,6 +6,26 @@ import { GoalForm } from "./components/GoalForm"
 import { useGoalForm } from "./hooks/useGoalForm"
 import "./WorkoutGoalModal.css"
 
+// 로깅 유틸리티
+const logger = {
+  info: (message: string, data?: any) => {
+    if (import.meta.env.DEV) {
+      console.log(`[WorkoutGoalModal] ${message}`, data || "")
+    }
+  },
+  debug: (message: string, data?: any) => {
+    if (import.meta.env.DEV) {
+      console.debug(`[WorkoutGoalModal] ${message}`, data || "")
+    }
+  },
+  warn: (message: string, data?: any) => {
+    console.warn(`[WorkoutGoalModal] ${message}`, data || "")
+  },
+  error: (message: string, data?: any) => {
+    console.error(`[WorkoutGoalModal] ${message}`, data || "")
+  },
+}
+
 export function WorkoutGoalModal() {
   const {
     modals: { goal: modalState },
@@ -27,6 +47,15 @@ export function WorkoutGoalModal() {
   const isEditMode = modalState.mode === "edit"
   const isViewMode = modalState.mode === "view"
   const goal = modalState.goal
+
+  logger.info("WorkoutGoalModal 렌더링", {
+    isOpen,
+    mode: modalState.mode,
+    hasGoal: !!goal,
+    goalId: goal?.id,
+    formDataKeys: Object.keys(formData),
+    hasErrors: Object.keys(errors).length > 0,
+  })
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -51,17 +80,30 @@ export function WorkoutGoalModal() {
 
   // 저장 핸들러
   const handleSave = async () => {
-    if (!validateForm()) return
+    logger.info("목표 저장 시도", {
+      mode: modalState.mode,
+      goalId: goal?.id,
+      formData,
+    })
+
+    if (!validateForm()) {
+      logger.warn("폼 검증 실패", { errors })
+      return
+    }
 
     try {
       if (isEditMode && goal) {
+        logger.info("목표 수정 시작", { goalId: goal.id })
         await updateGoal(goal.id, formData)
+        logger.info("목표 수정 완료", { goalId: goal.id })
       } else {
+        logger.info("새 목표 생성 시작")
         await createGoal(formData)
+        logger.info("새 목표 생성 완료")
       }
       closeGoalModal()
     } catch (error) {
-      console.error("Goal save failed:", error)
+      logger.error("목표 저장 실패", error)
     }
   }
 

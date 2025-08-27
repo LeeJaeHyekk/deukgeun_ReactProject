@@ -3,6 +3,7 @@ import {
   WorkoutJournalApi,
   WorkoutGoal,
 } from "../../../shared/api/workoutJournalApi"
+import { USE_MOCK_DATA, mockGoals } from "../data/mockData"
 
 export function useWorkoutGoals() {
   const [goals, setGoals] = useState<WorkoutGoal[]>([])
@@ -14,10 +15,21 @@ export function useWorkoutGoals() {
     try {
       setLoading(true)
       setError(null)
-      console.log(`📡 [useWorkoutGoals] API 호출 중...`)
-      const data = await WorkoutJournalApi.getWorkoutGoals()
-      console.log(`✅ [useWorkoutGoals] 운동 목표 ${data.length}개 조회 성공`)
-      setGoals(data)
+
+      if (USE_MOCK_DATA) {
+        console.log(`🎭 [useWorkoutGoals] 목데이터 사용 중...`)
+        // 목데이터 사용 시 약간의 지연을 주어 실제 API 호출처럼 보이게 함
+        await new Promise(resolve => setTimeout(resolve, 500))
+        setGoals(mockGoals as any)
+        console.log(
+          `✅ [useWorkoutGoals] 목데이터 ${mockGoals.length}개 로드 성공`
+        )
+      } else {
+        console.log(`📡 [useWorkoutGoals] API 호출 중...`)
+        const data = await WorkoutJournalApi.getWorkoutGoals()
+        console.log(`✅ [useWorkoutGoals] 운동 목표 ${data.length}개 조회 성공`)
+        setGoals(data)
+      }
     } catch (err) {
       const errorMessage =
         err instanceof Error
@@ -116,6 +128,14 @@ export function useWorkoutGoals() {
     try {
       setLoading(true)
       setError(null)
+      
+      // 개발 환경에서 더미 데이터 처리
+      if (process.env.NODE_ENV === "development" && (goalId === 1 || goalId === 2)) {
+        console.log(`🔧 개발 환경 - 더미 목표 삭제 처리: ${goalId}`)
+        setGoals(prev => prev.filter(goal => goal.goal_id !== goalId))
+        return
+      }
+      
       await WorkoutJournalApi.deleteWorkoutGoal(goalId)
       setGoals(prev => prev.filter(goal => goal.goal_id !== goalId))
     } catch (err) {

@@ -4,14 +4,18 @@ import type { WorkoutGoal } from "@shared/types"
 
 interface ActiveGoalsSectionProps {
   activeGoals: WorkoutGoal[]
+  selectedGoalId: number | null
   onEditGoal: (goalId: number) => void
   onDeleteGoal: (goalId: number) => void
+  onGoalSelect: (goalId: number | null) => void
 }
 
 export const ActiveGoalsSection: React.FC<ActiveGoalsSectionProps> = ({
   activeGoals,
+  selectedGoalId,
   onEditGoal,
   onDeleteGoal,
+  onGoalSelect,
 }) => {
   return (
     <section className="active-goals-section">
@@ -22,8 +26,10 @@ export const ActiveGoalsSection: React.FC<ActiveGoalsSectionProps> = ({
             <GoalProgressBar
               key={goal.id}
               goal={goal}
+              isSelected={selectedGoalId === goal.id}
               onEdit={() => onEditGoal(goal.id)}
               onDelete={() => onDeleteGoal(goal.id)}
+              onSelect={() => onGoalSelect(goal.id)}
             />
           ))}
         </div>

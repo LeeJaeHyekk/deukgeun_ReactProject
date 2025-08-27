@@ -662,17 +662,48 @@ export class WorkoutJournalService {
     const goalRepository = AppDataSource.getRepository(WorkoutGoal)
 
     try {
+      console.log(`🔍 목표 삭제 시도 - Goal ID: ${goalId}, User ID: ${userId}`)
+      
+      // 개발 환경에서 더미 데이터 처리
+      if (process.env.NODE_ENV === "development") {
+        console.log(`🔧 개발 환경 - 더미 데이터 삭제 처리`)
+        
+        // 더미 데이터 ID 범위 확인 (1, 2)
+        if (goalId === 1 || goalId === 2) {
+          console.log(`✅ 더미 목표 삭제 성공 - Goal ID: ${goalId}`)
+          return // 더미 데이터는 실제로 삭제할 필요 없음
+        }
+      }
+      
+      // 데이터베이스 연결 상태 확인
+      if (!AppDataSource.isInitialized) {
+        console.error("❌ 데이터베이스가 초기화되지 않았습니다.")
+        throw new Error("데이터베이스 연결 오류")
+      }
+
+      // 해당 사용자의 모든 목표 조회 (디버깅용)
+      const allUserGoals = await goalRepository.find({
+        where: { userId: userId },
+        select: ["id", "title", "type"]
+      })
+      console.log(`📋 사용자 ${userId}의 모든 목표:`, allUserGoals)
+
       const goal = await goalRepository.findOne({
         where: { id: goalId, userId: userId },
       })
 
+      console.log(`🔍 찾은 목표:`, goal)
+
       if (!goal) {
+        console.error(`❌ 목표를 찾을 수 없음 - Goal ID: ${goalId}, User ID: ${userId}`)
         throw new Error("운동 목표를 찾을 수 없습니다.")
       }
 
+      console.log(`✅ 목표 삭제 시작 - Goal ID: ${goalId}`)
       await goalRepository.remove(goal)
+      console.log(`✅ 목표 삭제 완료 - Goal ID: ${goalId}`)
     } catch (error) {
-      console.error("운동 목표 삭제 중 오류:", error)
+      console.error("❌ 운동 목표 삭제 중 오류:", error)
       if (error instanceof Error) {
         throw error
       }

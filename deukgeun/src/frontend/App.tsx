@@ -22,7 +22,6 @@ import FindPasswordPage from "@pages/auth/FindPasswordPage"
 import { MachineGuidePage } from "@features/machine-guide"
 import CommunityPage from "@features/community/CommunityPage"
 import GymFinderPage from "@pages/location/GymFinderPage"
-import WorkoutJournalPage from "@features/workout/WorkoutJournalPage"
 import WorkoutPage from "@features/workout/WorkoutPage"
 import MyPage from "@pages/MyPage/myPage"
 import AdminDashboardPage from "@features/admin/AdminDashboardPage"
@@ -171,14 +170,6 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <GymFinderPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path={ROUTES.WORKOUT_JOURNAL}
-        element={
-          <ProtectedRoute>
-            <WorkoutJournalPage />
           </ProtectedRoute>
         }
       />

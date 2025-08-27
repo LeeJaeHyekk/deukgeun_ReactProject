@@ -8,7 +8,9 @@ export function GoalProgressBar({
   onEdit,
   onDelete,
   onClick,
+  onSelect,
   compact = false,
+  isSelected = false,
 }: GoalProgressBarProps) {
   const getGoalTypeText = (type: string) => {
     switch (type) {
@@ -44,19 +46,19 @@ export function GoalProgressBar({
     if ((e.target as HTMLElement).closest(".action-button")) {
       return
     }
-    onClick?.()
+    onSelect?.() || onClick?.()
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault()
-      onClick?.()
+      onSelect?.() || onClick?.()
     }
   }
 
   return (
     <div
-      className={`goal-progress-bar ${compact ? "compact" : ""}`}
+      className={`goal-progress-bar ${compact ? "compact" : ""} ${isSelected ? "selected" : ""}`}
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}

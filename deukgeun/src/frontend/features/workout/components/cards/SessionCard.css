@@ -1,94 +1,136 @@
 .session-card {
   position: relative;
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  padding: 1.5rem;
+  border-radius: 20px;
+  padding: 24px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
   overflow: hidden;
   margin-bottom: 1rem;
+  cursor: pointer;
+}
+
+.session-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  opacity: 0.8;
+  transition: all 0.3s ease;
 }
 
 .session-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+}
+
+.session-card:hover::before {
+  opacity: 1;
 }
 
 /* 상태별 스타일 */
 .session-card.completed {
-  border-left: 4px solid #10b981; /* 초록색으로 변경 */
+  border-left: 4px solid #10b981;
   background: linear-gradient(
     135deg,
-    rgba(16, 185, 129, 0.05),
-    /* 초록색으로 변경 */ rgba(255, 255, 255, 0.95)
+    rgba(16, 185, 129, 0.05) 0%,
+    rgba(255, 255, 255, 0.95) 100%
   );
+}
+
+.session-card.completed::before {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
 }
 
 .session-card.in-progress {
-  border-left: 4px solid #f59e0b; /* 프로젝트 테마 색상으로 변경 */
+  border-left: 4px solid #f59e0b;
   background: linear-gradient(
     135deg,
-    rgba(245, 158, 11, 0.05),
-    /* 프로젝트 테마 색상으로 변경 */ rgba(255, 255, 255, 0.95)
+    rgba(245, 158, 11, 0.05) 0%,
+    rgba(255, 255, 255, 0.95) 100%
   );
 }
 
+.session-card.in-progress::before {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+}
+
 .session-card.paused {
-  border-left: 4px solid #f59e0b; /* 프로젝트 테마 색상으로 변경 */
+  border-left: 4px solid #6b7280;
   background: linear-gradient(
     135deg,
-    rgba(245, 158, 11, 0.05),
-    /* 프로젝트 테마 색상으로 변경 */ rgba(255, 255, 255, 0.95)
+    rgba(107, 114, 128, 0.05) 0%,
+    rgba(255, 255, 255, 0.95) 100%
   );
+}
+
+.session-card.paused::before {
+  background: linear-gradient(90deg, #6b7280 0%, #4b5563 100%);
+}
+
+.session-card.cancelled {
+  border-left: 4px solid #ef4444;
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.05) 0%,
+    rgba(255, 255, 255, 0.95) 100%
+  );
+}
+
+.session-card.cancelled::before {
+  background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
 }
 
 .session-card.not-started {
   border-left: 4px solid #a0aec0;
   background: linear-gradient(
     135deg,
-    rgba(160, 174, 192, 0.05),
-    rgba(255, 255, 255, 0.95)
+    rgba(160, 174, 192, 0.05) 0%,
+    rgba(255, 255, 255, 0.95) 100%
   );
+}
+
+.session-card.not-started::before {
+  background: linear-gradient(90deg, #a0aec0 0%, #718096 100%);
 }
 
 /* Compact 모드 스타일 */
 .session-card.compact {
-  padding: 1rem;
-  border-radius: 12px;
+  padding: 16px;
+  border-radius: 16px;
   margin-bottom: 0.75rem;
 }
 
 .session-card.compact .session-card-header {
-  margin-bottom: 0.75rem;
+  margin-bottom: 12px;
 }
 
 .session-card.compact .session-title {
   font-size: 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.session-card.compact .session-title-input {
-  font-size: 1rem;
-  padding: 0.375rem;
+  margin-bottom: 6px;
 }
 
 .session-card.compact .session-status-badge {
   font-size: 0.7rem;
-  padding: 0.2rem 0.6rem;
+  padding: 4px 8px;
 }
 
 .session-card.compact .session-info {
-  margin-bottom: 0.75rem;
+  margin-bottom: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 .session-card.compact .info-item {
-  margin-bottom: 0.375rem;
+  margin-bottom: 0;
 }
 
 .session-card.compact .info-label {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
 }
 
 .session-card.compact .info-value {
@@ -96,192 +138,219 @@
 }
 
 .session-card.compact .session-actions {
-  gap: 0.5rem;
+  gap: 6px;
 }
 
-.session-card.compact .action-button {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.8rem;
+.session-card.compact .action-btn {
+  padding: 6px 10px;
+  font-size: 0.7rem;
 }
 
-/* 카드 헤더 */
+/* 세션 카드 헤더 */
 .session-card-header {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
-}
-
-.session-title-section {
-  flex: 1;
-  min-width: 0;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  position: relative;
 }
 
 .session-title {
-  margin: 0 0 0.5rem 0;
   font-size: 1.25rem;
-  font-weight: 600;
-  color: #2d3748;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
   line-height: 1.3;
-}
-
-.session-title-input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 1.25rem;
-  font-weight: 600;
-  background: white;
-  transition: border-color 0.2s ease;
-}
-
-.session-title-input:focus {
-  outline: none;
-  border-color: #f59e0b; /* 프로젝트 테마 색상으로 변경 */
+  flex: 1;
 }
 
 .session-status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem;
+  gap: 4px;
+  padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.session-status-badge.completed {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.session-status-badge.in-progress {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.session-status-badge.paused {
+  background: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+  border: 1px solid rgba(107, 114, 128, 0.2);
+}
+
+.session-status-badge.cancelled {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* 세션 정보 */
+.session-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.session-card.completed .session-status-badge {
-  background: rgba(16, 185, 129, 0.1); /* 초록색으로 변경 */
-  color: #059669; /* 초록색으로 변경 */
-}
-
-.session-card.in-progress .session-status-badge {
-  background: rgba(245, 158, 11, 0.1); /* 프로젝트 테마 색상으로 변경 */
-  color: #d97706; /* 프로젝트 테마 색상으로 변경 */
-}
-
-.session-card.paused .session-status-badge {
-  background: rgba(245, 158, 11, 0.1); /* 프로젝트 테마 색상으로 변경 */
-  color: #d97706; /* 프로젝트 테마 색상으로 변경 */
-}
-
-.session-card.not-started .session-status-badge {
-  background: rgba(160, 174, 192, 0.1);
-  color: #718096;
-}
-
-/* 액션 버튼 */
-.session-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.action-btn {
+.info-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.8);
-  color: #4a5568;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
+  gap: 4px;
 }
 
-.action-btn:hover {
-  transform: scale(1.05);
-  background: rgba(255, 255, 255, 0.95);
-}
-
-.action-btn.edit-btn:hover {
-  background: rgba(245, 158, 11, 0.1); /* 프로젝트 테마 색상으로 변경 */
-  color: #d97706; /* 프로젝트 테마 색상으로 변경 */
-}
-
-.action-btn.delete-btn:hover {
-  background: rgba(245, 101, 101, 0.1);
-  color: #e53e3e;
-}
-
-.action-btn.save-btn {
-  background: rgba(16, 185, 129, 0.1); /* 초록색으로 변경 */
-  color: #059669; /* 초록색으로 변경 */
-}
-
-.action-btn.cancel-btn {
-  background: rgba(160, 174, 192, 0.1);
-  color: #718096;
+.info-value svg {
+  width: 14px;
+  height: 14px;
+  color: #6b7280;
 }
 
 /* 진행률 표시 */
-.session-progress {
-  margin-bottom: 1rem;
+.progress-section {
+  margin-bottom: 20px;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.progress-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.progress-percentage {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1f2937;
 }
 
 .progress-bar {
   width: 100%;
   height: 8px;
-  background: rgba(226, 232, 240, 0.5);
+  background: rgba(107, 114, 128, 0.1);
   border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 0.5rem;
+  position: relative;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    #f59e0b,
-    #d97706
-  ); /* 프로젝트 테마 색상으로 변경 */
   border-radius: 4px;
   transition: width 0.3s ease;
+  position: relative;
 }
 
-.session-card.completed .progress-fill {
-  background: linear-gradient(90deg, #10b981, #059669); /* 초록색으로 변경 */
+.progress-fill.completed {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
 }
 
-.progress-text {
+.progress-fill.in-progress {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+}
+
+.progress-fill.paused {
+  background: linear-gradient(90deg, #6b7280 0%, #4b5563 100%);
+}
+
+.progress-fill.cancelled {
+  background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* 세션 액션 */
+.session-actions {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.875rem;
-  color: #4a5568;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.progress-percent {
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: #2d3748;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #6b7280;
 }
 
-/* 세션 정보 */
-.session-info {
-  margin-bottom: 1rem;
+.action-btn:hover {
+  transform: translateY(-1px);
 }
 
-.info-row {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
+.action-btn.primary {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
 }
 
-.info-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: #4a5568;
+.action-btn.primary:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
-.info-item svg {
-  color: #718096;
+.action-btn.secondary {
+  background: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+  border: 1px solid rgba(107, 114, 128, 0.2);
+}
+
+.action-btn.secondary:hover {
+  background: rgba(107, 114, 128, 0.2);
+  color: #374151;
+}
+
+.action-btn.danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.action-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #dc2626;
 }
 
 /* 운동 목록 */
@@ -499,52 +568,35 @@
 /* 모바일 대응 */
 @media (max-width: 768px) {
   .session-card {
-    padding: 1rem;
-    margin-bottom: 0.75rem;
+    padding: 20px;
   }
 
-  .session-card-header {
-    flex-direction: column;
-    gap: 0.75rem;
+  .session-info {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .session-actions {
-    align-self: flex-end;
-  }
-
-  .info-row {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .session-controls {
     flex-direction: column;
   }
 
-  .control-btn {
-    min-height: 48px; /* 모바일에서 더 큰 터치 영역 */
+  .action-btn {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .session-card {
+    padding: 16px;
   }
 
-  .circular-timer {
-    width: 50px;
-    height: 50px;
-    top: 0.75rem;
-    right: 0.75rem;
+  .session-title {
+    font-size: 1.1rem;
   }
 
-  .timer-text {
-    font-size: 0.625rem;
-  }
-
-  .exercise-preview-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .exercise-sets {
-    min-width: auto;
-    text-align: left;
+  .session-status-badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
   }
 }
 

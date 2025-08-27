@@ -1,12 +1,33 @@
 import type { TabConfig } from "../types"
 
-// 탭 설정 (중앙화)
+// 탭 설정 (분석, 실시간 트래킹 탭 제거)
 export const TAB_CONFIG: TabConfig[] = [
-  { key: "overview", label: "개요", icon: "📊" },
-  { key: "plans", label: "계획", icon: "📋" },
-  { key: "sessions", label: "세션", icon: "⏱️" },
-  { key: "goals", label: "목표", icon: "🎯" },
-  { key: "progress", label: "진행상황", icon: "📊" },
+  {
+    key: "overview",
+    label: "개요",
+    icon: "📊",
+    description: "현재 진행중인 운동 계획과 주요 통계",
+  },
+  {
+    key: "goals",
+    label: "목표",
+    icon: "🎯",
+    description: "운동 목표와 달성 상태",
+  },
+  {
+    key: "plans",
+    label: "계획",
+    icon: "📋",
+    description: "새 계획 생성 및 운동 추가",
+  },
+  { key: "sessions", label: "세션", icon: "⏱️", description: "운동 세션 관리" },
+
+  {
+    key: "workoutProgress",
+    label: "진행상황",
+    icon: "📈",
+    description: "월/년 단위 진행 상황 시각화",
+  },
 ] as const
 
 // 차트 설정

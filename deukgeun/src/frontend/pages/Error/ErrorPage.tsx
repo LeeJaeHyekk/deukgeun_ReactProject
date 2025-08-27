@@ -20,8 +20,21 @@ export default function ErrorPage({
   onRetry,
 }: ErrorPageProps) {
   // React Hooks를 컴포넌트 최상위에서 호출
-  const navigate = useNavigate()
-  const location = useLocation()
+  let navigate: any = null
+  let location: any = null
+
+  try {
+    navigate = useNavigate()
+    location = useLocation()
+  } catch (error) {
+    // Router 컨텍스트가 없는 경우 기본값 사용
+    console.warn("Router context not available, using fallback navigation")
+    navigate = {
+      push: (path: string) => (window.location.href = path),
+      replace: (path: string) => window.location.replace(path),
+    }
+    location = { search: window.location.search }
+  }
 
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [errorStatusCode, setErrorStatusCode] = useState(statusCode)

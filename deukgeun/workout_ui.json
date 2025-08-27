@@ -1,0 +1,182 @@
+{
+  "page": {
+    "name": "WorkoutPage",
+    "description": "운동 관리 탭 페이지",
+    "tabs": [
+      {
+        "id": "overviewTab",
+        "name": "개요 (Overview)",
+        "component": "OverviewTab.tsx",
+        "css_module": "OverviewTab.module.css",
+        "content": {
+          "description": "현재 진행중인 운동 계획을 카드 형태로 보여줌",
+          "layout": {
+            "maxColumns": 3,
+            "responsive": { "mobile": 1, "tablet": 2, "desktop": 3 }
+          },
+          "card": {
+            "type": "WorkoutPlanCard",
+            "fields": [
+              "계획 이름",
+              "설명",
+              "난이도",
+              "총 소요 시간",
+              "운동 목록 요약",
+              "진행률"
+            ],
+            "actions": ["상세 보기", "수정", "삭제"]
+          }
+        }
+      },
+      {
+        "id": "plansTab",
+        "name": "계획 (Plans)",
+        "component": "PlansTab.tsx",
+        "css_module": "PlansTab.module.css",
+        "content": {
+          "description": "새 계획 생성 및 운동 추가 기능 제공",
+          "sections": [
+            {
+              "id": "new-plan",
+              "type": "button-modal",
+              "button": {
+                "label": "새 계획 생성",
+                "action": "openModal",
+                "modalId": "createPlanModal"
+              }
+            },
+            {
+              "id": "plan-list",
+              "type": "list",
+              "itemType": "WorkoutPlanCard",
+              "maxItems": 3
+            },
+            {
+              "id": "add-exercise",
+              "type": "button",
+              "button": {
+                "label": "운동 추가",
+                "action": "openExerciseSelector"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "sessionsTab",
+        "name": "세션 (Sessions)",
+        "component": "SessionsTab.tsx",
+        "css_module": "SessionsTab.module.css",
+        "content": {
+          "description": "등록된 운동 세션 표시 (사용자가 직접 추가 불가)",
+          "layout": {
+            "maxColumns": 3,
+            "responsive": { "mobile": 1, "tablet": 2, "desktop": 3 }
+          },
+          "card": {
+            "type": "WorkoutSessionCard",
+            "fields": [
+              "계획 타이틀",
+              "계획 내용",
+              "운동 세트 요약",
+              "진행률 표시"
+            ],
+            "actions": [
+              {
+                "label": "시작/일시정지",
+                "type": "toggleTimer"
+              },
+              { "label": "삭제", "action": "deleteSessionCard" }
+            ],
+            "progress": {
+              "display": "0 → 완료시 검은색",
+              "visualIndicator": "진행바 표시"
+            },
+            "completion": {
+              "label": "오운완",
+              "condition": "모든 세트 완료 시 활성화"
+            }
+          }
+        }
+      },
+      {
+        "id": "progressTab",
+        "name": "진행상황 (WorkoutProgress)",
+        "component": "WorkoutProgressTab.tsx",
+        "css_module": "WorkoutProgressTab.module.css",
+        "content": {
+          "description": "DB 기반 월/년 단위 진행 현황 그래프",
+          "graphs": [
+            {
+              "id": "monthlyGraph",
+              "title": "월별 진행 현황",
+              "type": "bar",
+              "metrics": ["completedSets", "totalSets", "durationMinutes"],
+              "aggregation": "month"
+            },
+            {
+              "id": "yearlyGraph",
+              "title": "년별 진행 현황",
+              "type": "line",
+              "metrics": ["completedSets", "totalSets", "durationMinutes"],
+              "aggregation": "year"
+            }
+          ],
+          "features": {
+            "filter": ["planId", "exerciseId", "dateRange"],
+            "caching": { "enabled": true, "durationMinutes": 60 },
+            "errorFallback": { "message": "데이터를 불러올 수 없습니다." }
+          }
+        }
+      }
+    ],
+    "modals": [
+      {
+        "id": "createPlanModal",
+        "component": "CreatePlanModal.tsx",
+        "fields": [
+          {
+            "name": "planName",
+            "type": "text",
+            "label": "계획 이름",
+            "required": true
+          },
+          { "name": "planDescription", "type": "textarea", "label": "설명" },
+          {
+            "name": "difficulty",
+            "type": "select",
+            "label": "난이도",
+            "options": ["쉬움", "보통", "어려움"]
+          },
+          { "name": "duration", "type": "number", "label": "총 소요 시간 (분)" }
+        ],
+        "buttons": [
+          { "label": "저장", "action": "savePlan" },
+          { "label": "취소", "action": "closeModal" }
+        ],
+        "exerciseModal": {
+          "id": "addExerciseModal",
+          "component": "AddExerciseModal.tsx",
+          "fields": [
+            {
+              "name": "exerciseSelect",
+              "type": "select",
+              "label": "운동 선택",
+              "dataSource": "dbExerciseList"
+            },
+            { "name": "setCount", "type": "number", "label": "세트 수" },
+            {
+              "name": "setDuration",
+              "type": "number",
+              "label": "세트 별 시간 (초)"
+            }
+          ],
+          "buttons": [
+            { "label": "추가", "action": "addExerciseToPlan" },
+            { "label": "취소", "action": "closeModal" }
+          ]
+        }
+      }
+    ]
+  }
+}

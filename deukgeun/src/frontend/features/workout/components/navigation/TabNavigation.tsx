@@ -1,21 +1,21 @@
 import React from "react"
 import { TAB_CONFIG } from "../../constants"
 import type { TabNavigationProps } from "../../types"
-import "./TabNavigation.css"
+import styles from "./TabNavigation.module.css"
 
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
   return (
-    <div className="tab-navigation">
+    <div className={styles.tabNavigation}>
       {TAB_CONFIG.map(tab => (
         <button
           key={tab.key}
-          className={`tab-button ${activeTab === tab.key ? "active" : ""}`}
+          className={`${styles.tabButton} ${activeTab === tab.key ? styles.active : ""}`}
           onClick={() => onTabChange(tab.key)}
           aria-label={`${tab.label} 탭으로 이동`}
           aria-selected={activeTab === tab.key}
         >
-          <span className="tab-icon">{tab.icon}</span>
-          <span className="tab-label">{tab.label}</span>
+          <span className={styles.tabIcon}>{tab.icon}</span>
+          <span className={styles.tabLabel}>{tab.label}</span>
         </button>
       ))}
     </div>

@@ -138,26 +138,7 @@ export interface MonthlyStats {
   improvementRate: number
 }
 
-// 리마인더 관련 타입
-export interface WorkoutReminderDTO {
-  id: number
-  title: string
-  description?: string
-  message: string
-  time: string
-  days: string[]
-  repeatInterval?: "daily" | "weekly" | "monthly"
-  reminderType?: "push" | "email" | "sms"
-  advanceNotice?: number
-  snoozeTime?: number
-  isActive: boolean
-  notes?: string
-  totalNotifications?: number
-  successRate?: number
-  lastNotificationTime?: string
-  createdAt: string
-  updatedAt: string
-}
+
 
 // 기구 관련 타입
 export interface MachineDTO {

@@ -1,291 +1,240 @@
-import React from "react"
-
-interface DataPoint {
-  x: string | number
-  y: number
-  label?: string
-}
+import React, { useState } from "react"
+import styles from "./LineChart.module.css"
 
 interface LineChartProps {
-  data: DataPoint[]
+  data: any[]
+  xKey: string
+  yKey: string
   title?: string
-  xAxisLabel?: string
-  yAxisLabel?: string
-  color?: string
-  height?: number
-  width?: number
-  showGrid?: boolean
-  showPoints?: boolean
-  smooth?: boolean
 }
 
-export function LineChart({
-  data,
-  title,
-  xAxisLabel,
-  yAxisLabel,
-  color = "#3b82f6",
-  height = 300,
-  width = 600,
-  showGrid = true,
-  showPoints = true,
-  smooth = true,
-}: LineChartProps) {
+export function LineChart({ data, xKey, yKey, title }: LineChartProps) {
+  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null)
+
   if (!data || data.length === 0) {
     return (
-      <div className="chart-container">
-        <div className="chart-empty">
-          <div className="empty-icon">📊</div>
+      <div className={styles.lineChart}>
+        <div className={styles.chartPlaceholder}>
           <p>데이터가 없습니다</p>
         </div>
       </div>
     )
   }
 
-  // 데이터 정렬 및 범위 계산
-  const sortedData = [...data].sort((a, b) => {
-    if (typeof a.x === "string" && typeof b.x === "string") {
-      return new Date(a.x).getTime() - new Date(b.x).getTime()
-    }
-    return Number(a.x) - Number(b.x)
+  const maxValue = Math.max(...data.map(d => d[yKey] || 0))
+  const minValue = Math.min(...data.map(d => d[yKey] || 0))
+  const valueRange = maxValue - minValue || 1
+
+  // Y축 눈금 계산
+  const yTicks = 5
+  const yTickValues = Array.from({ length: yTicks }, (_, i) => {
+    return minValue + (valueRange * i) / (yTicks - 1)
   })
 
-  const minX = Math.min(...sortedData.map(d => Number(d.x)))
-  const maxX = Math.max(...sortedData.map(d => Number(d.x)))
-  const minY = Math.min(...sortedData.map(d => d.y))
-  const maxY = Math.max(...sortedData.map(d => d.y))
+  const chartHeight = 300
+  const chartWidth = 600
+  const margin = { top: 20, right: 30, bottom: 40, left: 50 }
+  const innerWidth = chartWidth - margin.left - margin.right
+  const innerHeight = chartHeight - margin.top - margin.bottom
 
-  const padding = 40
-  const chartWidth = width - padding * 2
-  const chartHeight = height - padding * 2
-
-  // 좌표 변환 함수
-  const getX = (value: number) => {
-    return padding + ((value - minX) / (maxX - minX)) * chartWidth
+  const getX = (index: number) => {
+    return margin.left + (index / (data.length - 1)) * innerWidth
   }
 
   const getY = (value: number) => {
-    return height - padding - ((value - minY) / (maxY - minY)) * chartHeight
+    return (
+      margin.top + innerHeight - ((value - minValue) / valueRange) * innerHeight
+    )
   }
-
-  // 라인 경로 생성
-  const createPath = () => {
-    if (sortedData.length < 2) return ""
-
-    const points = sortedData.map(point => {
-      const x = getX(Number(point.x))
-      const y = getY(point.y)
-      return `${x},${y}`
-    })
-
-    if (smooth) {
-      // 부드러운 곡선 생성
-      let path = `M ${points[0]}`
-      for (let i = 1; i < points.length; i++) {
-        const prev = points[i - 1].split(",")
-        const curr = points[i].split(",")
-        const x1 = parseFloat(prev[0])
-        const y1 = parseFloat(prev[1])
-        const x2 = parseFloat(curr[0])
-        const y2 = parseFloat(curr[1])
-
-        const cp1x = x1 + (x2 - x1) * 0.5
-        const cp1y = y1
-        const cp2x = x1 + (x2 - x1) * 0.5
-        const cp2y = y2
-
-        path += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${x2},${y2}`
-      }
-      return path
-    } else {
-      return `M ${points.join(" L ")}`
-    }
-  }
-
-  // Y축 눈금 생성
-  const generateYTicks = () => {
-    const tickCount = 5
-    const ticks = []
-    for (let i = 0; i <= tickCount; i++) {
-      const value = minY + (maxY - minY) * (i / tickCount)
-      const y = getY(value)
-      ticks.push({ value: Math.round(value * 10) / 10, y })
-    }
-    return ticks
-  }
-
-  // X축 눈금 생성
-  const generateXTicks = () => {
-    const tickCount = Math.min(6, sortedData.length)
-    const ticks = []
-    for (let i = 0; i < tickCount; i++) {
-      const index = Math.floor((i / (tickCount - 1)) * (sortedData.length - 1))
-      const point = sortedData[index]
-      const x = getX(Number(point.x))
-      const label =
-        typeof point.x === "string"
-          ? new Date(point.x).toLocaleDateString("ko-KR", {
-              month: "short",
-              day: "numeric",
-            })
-          : point.x.toString()
-      ticks.push({ label, x })
-    }
-    return ticks
-  }
-
-  const yTicks = generateYTicks()
-  const xTicks = generateXTicks()
 
   return (
-    <div className="chart-container">
-      {title && <h3 className="chart-title">{title}</h3>}
-
-      <svg width={width} height={height} className="line-chart">
-        {/* 그리드 */}
-        {showGrid && (
-          <g className="chart-grid">
-            {yTicks.map((tick, index) => (
-              <line
-                key={index}
-                x1={padding}
-                y1={tick.y}
-                x2={width - padding}
-                y2={tick.y}
-                stroke="#e5e7eb"
+    <div className={styles.lineChart}>
+      {title && <h4 className={styles.chartTitle}>{title}</h4>}
+      <div className={styles.chartContainer}>
+        <svg
+          width="100%"
+          height={chartHeight}
+          className={styles.chartSvg}
+          viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+        >
+          {/* 배경 그리드 */}
+          <defs>
+            <pattern
+              id="grid"
+              width="10"
+              height="10"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M 10 0 L 0 0 0 10"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.1)"
                 strokeWidth="1"
               />
-            ))}
-          </g>
-        )}
+            </pattern>
+          </defs>
 
-        {/* Y축 */}
-        <line
-          x1={padding}
-          y1={padding}
-          x2={padding}
-          y2={height - padding}
-          stroke="#374151"
-          strokeWidth="2"
-        />
+          {/* 그리드 배경 */}
+          <rect width="100%" height="100%" fill="transparent" />
 
-        {/* X축 */}
-        <line
-          x1={padding}
-          y1={height - padding}
-          x2={width - padding}
-          y2={height - padding}
-          stroke="#374151"
-          strokeWidth="2"
-        />
-
-        {/* Y축 눈금 및 라벨 */}
-        <g className="y-axis">
-          {yTicks.map((tick, index) => (
-            <g key={index}>
+          {/* Y축 그리드 라인 */}
+          {yTickValues.map((tickValue, index) => (
+            <g key={`y-grid-${index}`}>
               <line
-                x1={padding - 5}
-                y1={tick.y}
-                x2={padding}
-                y2={tick.y}
-                stroke="#374151"
+                x1={margin.left}
+                y1={getY(tickValue)}
+                x2={margin.left + innerWidth}
+                y2={getY(tickValue)}
+                stroke="rgba(255, 255, 255, 0.2)"
                 strokeWidth="1"
+                strokeDasharray="2,2"
               />
               <text
-                x={padding - 10}
-                y={tick.y + 4}
+                x={margin.left - 10}
+                y={getY(tickValue)}
                 textAnchor="end"
+                dominantBaseline="middle"
                 fontSize="12"
-                fill="#6b7280"
+                fill="rgba(255, 255, 255, 0.8)"
+                className={styles.axisLabel}
               >
-                {tick.value}
+                {tickValue.toFixed(1)}
               </text>
             </g>
           ))}
-        </g>
 
-        {/* X축 눈금 및 라벨 */}
-        <g className="x-axis">
-          {xTicks.map((tick, index) => (
-            <g key={index}>
+          {/* X축 그리드 라인 */}
+          {data.map((item, index) => (
+            <g key={`x-grid-${index}`}>
               <line
-                x1={tick.x}
-                y1={height - padding}
-                x2={tick.x}
-                y2={height - padding + 5}
-                stroke="#374151"
+                x1={getX(index)}
+                y1={margin.top}
+                x2={getX(index)}
+                y2={margin.top + innerHeight}
+                stroke="rgba(255, 255, 255, 0.2)"
                 strokeWidth="1"
+                strokeDasharray="2,2"
               />
               <text
-                x={tick.x}
-                y={height - padding + 20}
+                x={getX(index)}
+                y={margin.top + innerHeight + 20}
                 textAnchor="middle"
                 fontSize="12"
-                fill="#6b7280"
+                fill="rgba(255, 255, 255, 0.8)"
+                className={styles.axisLabel}
               >
-                {tick.label}
+                {item[xKey]}
               </text>
             </g>
           ))}
-        </g>
 
-        {/* 라인 */}
-        <path
-          d={createPath()}
-          stroke={color}
-          strokeWidth="3"
-          fill="none"
-          className="chart-line"
-        />
+          {/* 라인 차트 */}
+          <g className={styles.chartContent}>
+            {/* 라인 */}
+            <path
+              d={data
+                .map((item, index) => {
+                  const x = getX(index)
+                  const y = getY(item[yKey] || 0)
+                  return `${index === 0 ? "M" : "L"} ${x} ${y}`
+                })
+                .join(" ")}
+              stroke="#3b82f6"
+              strokeWidth="3"
+              fill="none"
+              className={styles.chartLine}
+            />
 
-        {/* 포인트 */}
-        {showPoints &&
-          sortedData.map((point, index) => {
-            const x = getX(Number(point.x))
-            const y = getY(point.y)
-            return (
-              <g key={index} className="chart-point">
-                <circle
-                  cx={x}
-                  cy={y}
-                  r="4"
-                  fill={color}
-                  stroke="white"
-                  strokeWidth="2"
-                />
-                {point.label && <title>{point.label}</title>}
-              </g>
-            )
-          })}
+            {/* 포인트들 */}
+            {data.map((item, index) => {
+              const x = getX(index)
+              const y = getY(item[yKey] || 0)
+              const isHovered = hoveredPoint === index
 
-        {/* 축 라벨 */}
-        {xAxisLabel && (
-          <text
-            x={width / 2}
-            y={height - 5}
-            textAnchor="middle"
-            fontSize="14"
-            fill="#374151"
-            fontWeight="500"
-          >
-            {xAxisLabel}
-          </text>
-        )}
+              return (
+                <g key={index} className={styles.dataPoint}>
+                  {/* 호버 영역 */}
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r="8"
+                    fill="transparent"
+                    onMouseEnter={() => setHoveredPoint(index)}
+                    onMouseLeave={() => setHoveredPoint(null)}
+                    className={styles.hoverArea}
+                  />
 
-        {yAxisLabel && (
-          <text
-            x={-height / 2}
-            y={15}
-            textAnchor="middle"
-            fontSize="14"
-            fill="#374151"
-            fontWeight="500"
-            transform={`rotate(-90, 15, ${height / 2})`}
-          >
-            {yAxisLabel}
-          </text>
-        )}
-      </svg>
+                  {/* 포인트 */}
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r={isHovered ? "6" : "4"}
+                    fill={isHovered ? "#1d4ed8" : "#3b82f6"}
+                    stroke="white"
+                    strokeWidth="2"
+                    className={styles.dataPointCircle}
+                  />
+
+                  {/* 툴팁 */}
+                  {isHovered && (
+                    <g className={styles.tooltip}>
+                      <rect
+                        x={x + 10}
+                        y={y - 30}
+                        width="80"
+                        height="40"
+                        fill="#1f2937"
+                        rx="4"
+                        className={styles.tooltipBackground}
+                      />
+                      <text
+                        x={x + 50}
+                        y={y - 15}
+                        textAnchor="middle"
+                        fontSize="12"
+                        fill="white"
+                        className={styles.tooltipText}
+                      >
+                        {item[xKey]}
+                      </text>
+                      <text
+                        x={x + 50}
+                        y={y + 2}
+                        textAnchor="middle"
+                        fontSize="12"
+                        fill="white"
+                        className={styles.tooltipText}
+                      >
+                        {item[yKey]}
+                      </text>
+                    </g>
+                  )}
+                </g>
+              )
+            })}
+          </g>
+
+          {/* 축 */}
+          <line
+            x1={margin.left}
+            y1={margin.top}
+            x2={margin.left}
+            y2={margin.top + innerHeight}
+            stroke="rgba(255, 255, 255, 0.8)"
+            strokeWidth="2"
+            className={styles.axis}
+          />
+          <line
+            x1={margin.left}
+            y1={margin.top + innerHeight}
+            x2={margin.left + innerWidth}
+            y2={margin.top + innerHeight}
+            stroke="rgba(255, 255, 255, 0.8)"
+            strokeWidth="2"
+            className={styles.axis}
+          />
+        </svg>
+      </div>
     </div>
   )
 }

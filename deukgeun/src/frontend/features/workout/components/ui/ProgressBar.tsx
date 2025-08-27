@@ -1,4 +1,5 @@
 import React from "react"
+import styles from "./ProgressBar.module.css"
 
 interface ProgressBarProps {
   currentValue: number
@@ -16,14 +17,14 @@ export function ProgressBar({
   const percentage = Math.min((currentValue / targetValue) * 100, 100)
 
   return (
-    <div className={`progress-bar ${className}`}>
-      <div className="progress-bar-container">
+    <div className={`${styles.progressBar} ${className}`}>
+      <div className={styles.progressBarContainer}>
         <div
-          className="progress-bar-fill"
+          className={styles.progressBarFill}
           style={{ width: `${percentage}%` }}
         />
       </div>
-      <div className="progress-bar-text">
+      <div className={styles.progressBarText}>
         {currentValue}
         {unit} / {targetValue}
         {unit} ({Math.round(percentage)}%)

@@ -2,7 +2,7 @@
 // WorkoutPlanModal - Modular Component
 // ============================================================================
 
-import React, { useState, useCallback } from "react"
+import React, { useState, useCallback, useEffect } from "react"
 import { X, Save } from "lucide-react"
 import { useWorkoutStore } from "../../../store/workoutStore"
 import { useMachines } from "@shared/hooks/useMachines"
@@ -12,7 +12,7 @@ import { PlanModalHeader } from "./components/PlanModalHeader"
 import { PlanModalFooter } from "./components/PlanModalFooter"
 import { usePlanForm } from "./hooks/usePlanForm"
 import { usePlanValidation } from "./hooks/usePlanValidation"
-import "../../../pages/modals/WorkoutPlanModal.css"
+import styles from "./WorkoutPlanModal.module.css"
 
 export function WorkoutPlanModal() {
   const { machines } = useMachines()
@@ -24,9 +24,35 @@ export function WorkoutPlanModal() {
     updatePlan,
   } = useWorkoutStore()
 
-  const { formData, updateFormData, resetForm } = usePlanForm(currentPlan)
+  const {
+    formData,
+    updateFormData,
+    resetForm,
+    addExercise,
+    updateExercise,
+    removeExercise,
+    getCreatePlanRequest,
+  } = usePlanForm(currentPlan)
   const { errors, validateForm, clearErrors } = usePlanValidation()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [originalFormData, setOriginalFormData] = useState(formData)
+
+  // 초기 데이터 저장
+  useEffect(() => {
+    if (currentPlan) {
+      setOriginalFormData(formData)
+    }
+  }, [currentPlan, formData])
+
+  // 취소 핸들러
+  const handleCancel = useCallback(() => {
+    if (currentPlan) {
+      // 편집 모드에서 취소 시 원본 데이터로 복원
+      updateFormData(originalFormData)
+    }
+    closePlanModal()
+    resetForm()
+  }, [currentPlan, originalFormData, updateFormData, closePlanModal, resetForm])
 
   const isOpen = modalState.isOpen
   const isEditMode = modalState.mode === "edit"
@@ -41,9 +67,12 @@ export function WorkoutPlanModal() {
     setIsSubmitting(true)
     try {
       if (isEditMode && currentPlan) {
-        await updatePlan(currentPlan.id, formData)
+        // 편집 모드에서는 formData를 직접 사용
+        await updatePlan(currentPlan.id, formData as any)
       } else {
-        await createPlan(formData)
+        // 생성 모드에서는 CreatePlanRequest로 변환
+        const createPlanRequest = getCreatePlanRequest()
+        await createPlan(createPlanRequest)
       }
       closePlanModal()
       resetForm()
@@ -54,49 +83,28 @@ export function WorkoutPlanModal() {
     }
   }, [
     formData,
+    validateForm,
     isEditMode,
     currentPlan,
-    validateForm,
-    createPlan,
     updatePlan,
+    createPlan,
+    getCreatePlanRequest,
     closePlanModal,
     resetForm,
   ])
 
-  // 모달 닫기 핸들러
-  const handleClose = useCallback(() => {
-    closePlanModal()
-    resetForm()
-    clearErrors()
-  }, [closePlanModal, resetForm, clearErrors])
-
-  // 오버레이 클릭 핸들러
-  const handleOverlayClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (e.target === e.currentTarget) {
-        handleClose()
-      }
-    },
-    [handleClose]
-  )
-
-  if (!isOpen) {
-    return null
-  }
+  if (!isOpen) return null
 
   return (
-    <div className="workout-plan-modal-overlay" onClick={handleOverlayClick}>
-      <div className="workout-plan-modal" onClick={e => e.stopPropagation()}>
-        {/* 헤더 */}
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContainer}>
         <PlanModalHeader
           isEditMode={isEditMode}
           isViewMode={isViewMode}
-          onClose={handleClose}
+          onClose={handleCancel}
         />
 
-        {/* 본문 */}
-        <div className="workout-plan-modal-body">
-          {/* 기본 정보 섹션 */}
+        <div className={styles.modalContent}>
           <PlanBasicInfo
             formData={formData}
             updateFormData={updateFormData}
@@ -104,20 +112,21 @@ export function WorkoutPlanModal() {
             isViewMode={isViewMode}
           />
 
-          {/* 운동 목록 섹션 */}
           <PlanExercises
-            exercises={modalState.exercises}
+            exercises={formData.exercises as any}
+            onExerciseChange={updateExercise}
+            onExerciseRemove={removeExercise}
+            onExerciseAdd={addExercise}
             readOnly={isViewMode}
           />
         </div>
 
-        {/* 푸터 */}
         <PlanModalFooter
           isEditMode={isEditMode}
           isViewMode={isViewMode}
           isSubmitting={isSubmitting}
           onSubmit={handleSubmit}
-          onCancel={handleClose}
+          onCancel={handleCancel}
         />
       </div>
     </div>

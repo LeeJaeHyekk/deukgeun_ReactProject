@@ -45,10 +45,10 @@
   gap: 32px;
 }
 
-/* 헤더 콘텐츠 */
-.headerContent {
+/* 헤더 콘텐츠 - WorkoutPage 전용 */
+.workoutPageHeaderContent {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: flex-start;
   max-width: 1200px;
   margin: 0 auto;
@@ -297,7 +297,7 @@
     font-size: 2rem;
   }
 
-  .headerContent {
+  .workoutPageHeaderContent {
     flex-direction: column;
     gap: 16px;
   }

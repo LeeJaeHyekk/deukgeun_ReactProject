@@ -1,5 +1,6 @@
 import React from "react"
 import type { CreatePlanRequest } from "../../../../../shared/types"
+import styles from "./PlanBasicInfo.module.css"
 
 interface PlanBasicInfoProps {
   formData: CreatePlanRequest
@@ -20,49 +21,58 @@ export function PlanBasicInfo({
   }
 
   return (
-    <div className="form-section">
-      <h3>기본 정보</h3>
+    <div className={styles.formSection}>
+      <h3 className={styles.sectionTitle}>기본 정보</h3>
 
       {/* 계획 이름 */}
-      <div className="form-group">
-        <label htmlFor="plan-name">계획 이름 *</label>
+      <div className={styles.formGroup}>
+        <label htmlFor="plan-name" className={styles.formLabel}>
+          계획 이름 *
+        </label>
         <input
           id="plan-name"
           type="text"
           value={formData.name || ""}
           onChange={e => handleInputChange("name", e.target.value)}
           placeholder="예: 상체 근력 운동"
-          className={errors.name ? "error" : ""}
+          className={`${styles.formInput} ${errors.name ? styles.error : ""}`}
           disabled={isViewMode}
         />
-        {errors.name && <span className="error-message">{errors.name}</span>}
+        {errors.name && (
+          <span className={styles.errorMessage}>{errors.name}</span>
+        )}
       </div>
 
       {/* 계획 설명 */}
-      <div className="form-group">
-        <label htmlFor="plan-description">계획 설명 *</label>
+      <div className={styles.formGroup}>
+        <label htmlFor="plan-description" className={styles.formLabel}>
+          계획 설명 *
+        </label>
         <textarea
           id="plan-description"
           value={formData.description || ""}
           onChange={e => handleInputChange("description", e.target.value)}
           placeholder="이 운동 계획에 대한 설명을 입력하세요"
           rows={3}
-          className={errors.description ? "error" : ""}
+          className={`${styles.formTextarea} ${errors.description ? styles.error : ""}`}
           disabled={isViewMode}
         />
         {errors.description && (
-          <span className="error-message">{errors.description}</span>
+          <span className={styles.errorMessage}>{errors.description}</span>
         )}
       </div>
 
       {/* 난이도 및 소요시간 */}
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="plan-difficulty">난이도</label>
+      <div className={styles.formRow}>
+        <div className={styles.formGroup}>
+          <label htmlFor="plan-difficulty" className={styles.formLabel}>
+            난이도
+          </label>
           <select
             id="plan-difficulty"
             value={formData.difficulty || "beginner"}
             onChange={e => handleInputChange("difficulty", e.target.value)}
+            className={styles.formSelect}
             disabled={isViewMode}
           >
             <option value="beginner">초급</option>
@@ -71,8 +81,10 @@ export function PlanBasicInfo({
           </select>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="plan-duration">예상 소요시간 (분) *</label>
+        <div className={styles.formGroup}>
+          <label htmlFor="plan-duration" className={styles.formLabel}>
+            예상 소요시간 (분) *
+          </label>
           <input
             id="plan-duration"
             type="number"
@@ -85,11 +97,11 @@ export function PlanBasicInfo({
             }
             min="1"
             max="300"
-            className={errors.estimatedDurationMinutes ? "error" : ""}
+            className={`${styles.formInput} ${errors.estimatedDurationMinutes ? styles.error : ""}`}
             disabled={isViewMode}
           />
           {errors.estimatedDurationMinutes && (
-            <span className="error-message">
+            <span className={styles.errorMessage}>
               {errors.estimatedDurationMinutes}
             </span>
           )}

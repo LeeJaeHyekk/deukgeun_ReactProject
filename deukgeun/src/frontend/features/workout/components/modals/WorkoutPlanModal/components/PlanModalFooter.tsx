@@ -1,5 +1,6 @@
 import React from "react"
 import { Save } from "lucide-react"
+import styles from "../WorkoutPlanModal.module.css"
 
 interface PlanModalFooterProps {
   isEditMode: boolean
@@ -24,13 +25,17 @@ export function PlanModalFooter({
   }
 
   return (
-    <div className="workout-plan-modal-footer">
-      <button className="cancel-btn" onClick={onCancel}>
+    <div className={styles.modalFooter}>
+      <button className={styles.cancelButton} onClick={onCancel}>
         {isViewMode ? "닫기" : "취소"}
       </button>
 
       {!isViewMode && (
-        <button className="save-btn" onClick={onSubmit} disabled={isSubmitting}>
+        <button
+          className={styles.saveButton}
+          onClick={onSubmit}
+          disabled={isSubmitting}
+        >
           <Save size={16} />
           {getSubmitButtonText()}
         </button>

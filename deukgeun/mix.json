@@ -78,6 +78,30 @@
           "dto": "WorkoutReminderDTO",
           "frontType": "WorkoutReminderType"
         },
+        "workoutProgress": {
+          "type": "OneToMany",
+          "target": "WorkoutProgress",
+          "dto": "WorkoutProgressDTO",
+          "frontType": "WorkoutProgressType"
+        },
+        "milestones": {
+          "type": "OneToMany",
+          "target": "Milestone",
+          "dto": "MilestoneDTO",
+          "frontType": "MilestoneType"
+        },
+        "userStreaks": {
+          "type": "OneToMany",
+          "target": "UserStreak",
+          "dto": "UserStreakDTO",
+          "frontType": "UserStreakType"
+        },
+        "userRewards": {
+          "type": "OneToMany",
+          "target": "UserReward",
+          "dto": "UserRewardDTO",
+          "frontType": "UserRewardType"
+        },
         "posts": {
           "type": "OneToMany",
           "target": "Post",
@@ -1282,6 +1306,1003 @@
           "rules": ["readonly", "autoGenerate"]
         }
       ]
+    },
+    {
+      "entity": "WorkoutPlan",
+      "table": "workout_plans",
+      "dto": "WorkoutPlanDTO",
+      "frontType": "WorkoutPlanType",
+      "relations": {
+        "user": {
+          "type": "ManyToOne",
+          "target": "User",
+          "dto": "UserDTO",
+          "frontType": "UserType"
+        },
+        "exercises": {
+          "type": "OneToMany",
+          "target": "WorkoutPlanExercise",
+          "dto": "WorkoutPlanExerciseDTO",
+          "frontType": "WorkoutPlanExerciseType"
+        },
+        "sessions": {
+          "type": "OneToMany",
+          "target": "WorkoutSession",
+          "dto": "WorkoutSessionDTO",
+          "frontType": "WorkoutSessionType"
+        }
+      },
+      "fields": [
+        {
+          "entityField": "id",
+          "dbColumn": "id",
+          "dtoField": "id",
+          "frontField": "id",
+          "type": "number",
+          "rules": ["primaryKey", "autoIncrement"]
+        },
+        {
+          "entityField": "userId",
+          "dbColumn": "user_id",
+          "dtoField": "userId",
+          "frontField": "userId",
+          "type": "number",
+          "rules": ["required", "foreignKey"]
+        },
+        {
+          "entityField": "name",
+          "dbColumn": "name",
+          "dtoField": "name",
+          "frontField": "name",
+          "type": "string",
+          "rules": ["required", "max:100"]
+        },
+        {
+          "entityField": "description",
+          "dbColumn": "description",
+          "dtoField": "description",
+          "frontField": "description",
+          "type": "string",
+          "rules": ["optional"]
+        },
+        {
+          "entityField": "difficulty",
+          "dbColumn": "difficulty",
+          "dtoField": "difficulty",
+          "frontField": "difficulty",
+          "type": "enum",
+          "rules": [
+            "required",
+            "enum:beginner,intermediate,advanced",
+            "default:beginner"
+          ]
+        },
+        {
+          "entityField": "estimatedDurationMinutes",
+          "dbColumn": "estimated_duration_minutes",
+          "dtoField": "estimatedDurationMinutes",
+          "frontField": "estimatedDurationMinutes",
+          "type": "number",
+          "rules": ["required"]
+        },
+        {
+          "entityField": "targetMuscleGroups",
+          "dbColumn": "target_muscle_groups",
+          "dtoField": "targetMuscleGroups",
+          "frontField": "targetMuscleGroups",
+          "type": "string[]",
+          "rules": ["optional", "json"]
+        },
+        {
+          "entityField": "isTemplate",
+          "dbColumn": "is_template",
+          "dtoField": "isTemplate",
+          "frontField": "isTemplate",
+          "type": "boolean",
+          "rules": ["required", "default:false"]
+        },
+        {
+          "entityField": "isPublic",
+          "dbColumn": "is_public",
+          "dtoField": "isPublic",
+          "frontField": "isPublic",
+          "type": "boolean",
+          "rules": ["required", "default:false"]
+        },
+        {
+          "entityField": "createdAt",
+          "dbColumn": "created_at",
+          "dtoField": "createdAt",
+          "frontField": "createdAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        },
+        {
+          "entityField": "updatedAt",
+          "dbColumn": "updated_at",
+          "dtoField": "updatedAt",
+          "frontField": "updatedAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        }
+      ]
+    },
+    {
+      "entity": "WorkoutPlanExercise",
+      "table": "workout_plan_exercises",
+      "dto": "WorkoutPlanExerciseDTO",
+      "frontType": "WorkoutPlanExerciseType",
+      "relations": {
+        "workoutPlan": {
+          "type": "ManyToOne",
+          "target": "WorkoutPlan",
+          "dto": "WorkoutPlanDTO",
+          "frontType": "WorkoutPlanType"
+        },
+        "machine": {
+          "type": "ManyToOne",
+          "target": "Machine",
+          "dto": "MachineDTO",
+          "frontType": "MachineType"
+        }
+      },
+      "fields": [
+        {
+          "entityField": "id",
+          "dbColumn": "id",
+          "dtoField": "id",
+          "frontField": "id",
+          "type": "number",
+          "rules": ["primaryKey", "autoIncrement"]
+        },
+        {
+          "entityField": "planId",
+          "dbColumn": "plan_id",
+          "dtoField": "planId",
+          "frontField": "planId",
+          "type": "number",
+          "rules": ["required", "foreignKey"]
+        },
+        {
+          "entityField": "machineId",
+          "dbColumn": "machine_id",
+          "dtoField": "machineId",
+          "frontField": "machineId",
+          "type": "number",
+          "rules": ["optional", "foreignKey"]
+        },
+        {
+          "entityField": "exerciseName",
+          "dbColumn": "exercise_name",
+          "dtoField": "exerciseName",
+          "frontField": "exerciseName",
+          "type": "string",
+          "rules": ["required", "max:255"]
+        },
+        {
+          "entityField": "exerciseOrder",
+          "dbColumn": "exercise_order",
+          "dtoField": "exerciseOrder",
+          "frontField": "exerciseOrder",
+          "type": "number",
+          "rules": ["required"]
+        },
+        {
+          "entityField": "sets",
+          "dbColumn": "sets",
+          "dtoField": "sets",
+          "frontField": "sets",
+          "type": "number",
+          "rules": ["required"]
+        },
+        {
+          "entityField": "repsRange",
+          "dbColumn": "reps_range",
+          "dtoField": "repsRange",
+          "frontField": "repsRange",
+          "type": "object",
+          "rules": ["required", "json"]
+        },
+        {
+          "entityField": "weightRange",
+          "dbColumn": "weight_range",
+          "dtoField": "weightRange",
+          "frontField": "weightRange",
+          "type": "object",
+          "rules": ["optional", "json"]
+        },
+        {
+          "entityField": "restSeconds",
+          "dbColumn": "rest_seconds",
+          "dtoField": "restSeconds",
+          "frontField": "restSeconds",
+          "type": "number",
+          "rules": ["required", "default:90"]
+        },
+        {
+          "entityField": "notes",
+          "dbColumn": "notes",
+          "dtoField": "notes",
+          "frontField": "notes",
+          "type": "string",
+          "rules": ["optional"]
+        }
+      ]
+    },
+    {
+      "entity": "WorkoutGoal",
+      "table": "workout_goals",
+      "dto": "WorkoutGoalDTO",
+      "frontType": "WorkoutGoalType",
+      "relations": {
+        "user": {
+          "type": "ManyToOne",
+          "target": "User",
+          "dto": "UserDTO",
+          "frontType": "UserType"
+        }
+      },
+      "fields": [
+        {
+          "entityField": "id",
+          "dbColumn": "id",
+          "dtoField": "id",
+          "frontField": "id",
+          "type": "number",
+          "rules": ["primaryKey", "autoIncrement"]
+        },
+        {
+          "entityField": "userId",
+          "dbColumn": "user_id",
+          "dtoField": "userId",
+          "frontField": "userId",
+          "type": "number",
+          "rules": ["required", "foreignKey"]
+        },
+        {
+          "entityField": "title",
+          "dbColumn": "title",
+          "dtoField": "title",
+          "frontField": "title",
+          "type": "string",
+          "rules": ["required", "max:255"]
+        },
+        {
+          "entityField": "description",
+          "dbColumn": "description",
+          "dtoField": "description",
+          "frontField": "description",
+          "type": "string",
+          "rules": ["optional"]
+        },
+        {
+          "entityField": "type",
+          "dbColumn": "type",
+          "dtoField": "type",
+          "frontField": "type",
+          "type": "enum",
+          "rules": ["required", "enum:weight,reps,duration,frequency,streak"]
+        },
+        {
+          "entityField": "targetValue",
+          "dbColumn": "target_value",
+          "dtoField": "targetValue",
+          "frontField": "targetValue",
+          "type": "number",
+          "rules": ["required", "decimal:10,2"]
+        },
+        {
+          "entityField": "currentValue",
+          "dbColumn": "current_value",
+          "dtoField": "currentValue",
+          "frontField": "currentValue",
+          "type": "number",
+          "rules": ["required", "decimal:10,2", "default:0"]
+        },
+        {
+          "entityField": "unit",
+          "dbColumn": "unit",
+          "dtoField": "unit",
+          "frontField": "unit",
+          "type": "string",
+          "rules": ["required", "max:50"]
+        },
+        {
+          "entityField": "deadline",
+          "dbColumn": "deadline",
+          "dtoField": "deadline",
+          "frontField": "deadline",
+          "type": "Date",
+          "rules": ["optional", "date"]
+        },
+        {
+          "entityField": "isCompleted",
+          "dbColumn": "is_completed",
+          "dtoField": "isCompleted",
+          "frontField": "isCompleted",
+          "type": "boolean",
+          "rules": ["required", "default:false"]
+        },
+        {
+          "entityField": "completedAt",
+          "dbColumn": "completed_at",
+          "dtoField": "completedAt",
+          "frontField": "completedAt",
+          "type": "Date",
+          "rules": ["optional", "date"]
+        },
+        {
+          "entityField": "createdAt",
+          "dbColumn": "created_at",
+          "dtoField": "createdAt",
+          "frontField": "createdAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        },
+        {
+          "entityField": "updatedAt",
+          "dbColumn": "updated_at",
+          "dtoField": "updatedAt",
+          "frontField": "updatedAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        }
+      ]
+    },
+    {
+      "entity": "WorkoutStats",
+      "table": "workout_stats",
+      "dto": "WorkoutStatsDTO",
+      "frontType": "WorkoutStatsType",
+      "relations": {
+        "user": {
+          "type": "ManyToOne",
+          "target": "User",
+          "dto": "UserDTO",
+          "frontType": "UserType"
+        },
+        "machine": {
+          "type": "ManyToOne",
+          "target": "Machine",
+          "dto": "MachineDTO",
+          "frontType": "MachineType"
+        }
+      },
+      "fields": [
+        {
+          "entityField": "id",
+          "dbColumn": "id",
+          "dtoField": "id",
+          "frontField": "id",
+          "type": "number",
+          "rules": ["primaryKey", "autoIncrement"]
+        },
+        {
+          "entityField": "userId",
+          "dbColumn": "user_id",
+          "dtoField": "userId",
+          "frontField": "userId",
+          "type": "number",
+          "rules": ["required", "foreignKey"]
+        },
+        {
+          "entityField": "machineId",
+          "dbColumn": "machine_id",
+          "dtoField": "machineId",
+          "frontField": "machineId",
+          "type": "number",
+          "rules": ["optional", "foreignKey"]
+        },
+        {
+          "entityField": "workoutDate",
+          "dbColumn": "workout_date",
+          "dtoField": "workoutDate",
+          "frontField": "workoutDate",
+          "type": "Date",
+          "rules": ["required", "date"]
+        },
+        {
+          "entityField": "totalSessions",
+          "dbColumn": "total_sessions",
+          "dtoField": "totalSessions",
+          "frontField": "totalSessions",
+          "type": "number",
+          "rules": ["required", "default:0"]
+        },
+        {
+          "entityField": "totalDurationMinutes",
+          "dbColumn": "total_duration_minutes",
+          "dtoField": "totalDurationMinutes",
+          "frontField": "totalDurationMinutes",
+          "type": "number",
+          "rules": ["required", "default:0"]
+        },
+        {
+          "entityField": "totalSets",
+          "dbColumn": "total_sets",
+          "dtoField": "totalSets",
+          "frontField": "totalSets",
+          "type": "number",
+          "rules": ["required", "default:0"]
+        },
+        {
+          "entityField": "totalReps",
+          "dbColumn": "total_reps",
+          "dtoField": "totalReps",
+          "frontField": "totalReps",
+          "type": "number",
+          "rules": ["required", "default:0"]
+        },
+        {
+          "entityField": "totalWeightKg",
+          "dbColumn": "total_weight_kg",
+          "dtoField": "totalWeightKg",
+          "frontField": "totalWeightKg",
+          "type": "number",
+          "rules": ["required", "decimal:10,2", "default:0"]
+        },
+        {
+          "entityField": "totalDistanceMeters",
+          "dbColumn": "total_distance_meters",
+          "dtoField": "totalDistanceMeters",
+          "frontField": "totalDistanceMeters",
+          "type": "number",
+          "rules": ["required", "decimal:8,2", "default:0"]
+        },
+        {
+          "entityField": "averageMood",
+          "dbColumn": "average_mood",
+          "dtoField": "averageMood",
+          "frontField": "averageMood",
+          "type": "number",
+          "rules": ["required", "decimal:5,2", "default:0"]
+        },
+        {
+          "entityField": "averageEnergy",
+          "dbColumn": "average_energy",
+          "dtoField": "averageEnergy",
+          "frontField": "averageEnergy",
+          "type": "number",
+          "rules": ["required", "decimal:5,2", "default:0"]
+        },
+        {
+          "entityField": "averageRpe",
+          "dbColumn": "average_rpe",
+          "dtoField": "averageRpe",
+          "frontField": "averageRpe",
+          "type": "number",
+          "rules": ["required", "decimal:5,2", "default:0"]
+        },
+        {
+          "entityField": "caloriesBurned",
+          "dbColumn": "calories_burned",
+          "dtoField": "caloriesBurned",
+          "frontField": "caloriesBurned",
+          "type": "number",
+          "rules": ["required", "default:0"]
+        },
+        {
+          "entityField": "createdAt",
+          "dbColumn": "created_at",
+          "dtoField": "createdAt",
+          "frontField": "createdAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        },
+        {
+          "entityField": "updatedAt",
+          "dbColumn": "updated_at",
+          "dtoField": "updatedAt",
+          "frontField": "updatedAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        }
+      ]
+    },
+    {
+      "entity": "WorkoutProgress",
+      "table": "workout_progress",
+      "dto": "WorkoutProgressDTO",
+      "frontType": "WorkoutProgressType",
+      "relations": {
+        "user": {
+          "type": "ManyToOne",
+          "target": "User",
+          "dto": "UserDTO",
+          "frontType": "UserType"
+        },
+        "machine": {
+          "type": "ManyToOne",
+          "target": "Machine",
+          "dto": "MachineDTO",
+          "frontType": "MachineType"
+        }
+      },
+      "fields": [
+        {
+          "entityField": "id",
+          "dbColumn": "id",
+          "dtoField": "id",
+          "frontField": "id",
+          "type": "number",
+          "rules": ["primaryKey", "autoIncrement"]
+        },
+        {
+          "entityField": "userId",
+          "dbColumn": "user_id",
+          "dtoField": "userId",
+          "frontField": "userId",
+          "type": "number",
+          "rules": ["required", "foreignKey"]
+        },
+        {
+          "entityField": "machineId",
+          "dbColumn": "machine_id",
+          "dtoField": "machineId",
+          "frontField": "machineId",
+          "type": "number",
+          "rules": ["required", "foreignKey"]
+        },
+        {
+          "entityField": "progressDate",
+          "dbColumn": "progress_date",
+          "dtoField": "progressDate",
+          "frontField": "progressDate",
+          "type": "Date",
+          "rules": ["required", "date"]
+        },
+        {
+          "entityField": "setNumber",
+          "dbColumn": "set_number",
+          "dtoField": "setNumber",
+          "frontField": "setNumber",
+          "type": "number",
+          "rules": ["required"]
+        },
+        {
+          "entityField": "repsCompleted",
+          "dbColumn": "reps_completed",
+          "dtoField": "repsCompleted",
+          "frontField": "repsCompleted",
+          "type": "number",
+          "rules": ["required"]
+        },
+        {
+          "entityField": "weightKg",
+          "dbColumn": "weight_kg",
+          "dtoField": "weightKg",
+          "frontField": "weightKg",
+          "type": "number",
+          "rules": ["optional", "decimal:5,2"]
+        },
+        {
+          "entityField": "durationSeconds",
+          "dbColumn": "duration_seconds",
+          "dtoField": "durationSeconds",
+          "frontField": "durationSeconds",
+          "type": "number",
+          "rules": ["optional"]
+        },
+        {
+          "entityField": "distanceMeters",
+          "dbColumn": "distance_meters",
+          "dtoField": "distanceMeters",
+          "frontField": "distanceMeters",
+          "type": "number",
+          "rules": ["optional", "decimal:8,2"]
+        },
+        {
+          "entityField": "rpeRating",
+          "dbColumn": "rpe_rating",
+          "dtoField": "rpeRating",
+          "frontField": "rpeRating",
+          "type": "number",
+          "rules": ["optional", "min:1", "max:10"]
+        },
+        {
+          "entityField": "notes",
+          "dbColumn": "notes",
+          "dtoField": "notes",
+          "frontField": "notes",
+          "type": "string",
+          "rules": ["optional"]
+        },
+        {
+          "entityField": "isPersonalBest",
+          "dbColumn": "is_personal_best",
+          "dtoField": "isPersonalBest",
+          "frontField": "isPersonalBest",
+          "type": "boolean",
+          "rules": ["required", "default:false"]
+        },
+        {
+          "entityField": "improvementPercentage",
+          "dbColumn": "improvement_percentage",
+          "dtoField": "improvementPercentage",
+          "frontField": "improvementPercentage",
+          "type": "number",
+          "rules": ["optional", "decimal:5,2"]
+        },
+        {
+          "entityField": "createdAt",
+          "dbColumn": "created_at",
+          "dtoField": "createdAt",
+          "frontField": "createdAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        },
+        {
+          "entityField": "updatedAt",
+          "dbColumn": "updated_at",
+          "dtoField": "updatedAt",
+          "frontField": "updatedAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        }
+      ]
+    },
+    {
+      "entity": "WorkoutReminder",
+      "table": "workout_reminders",
+      "dto": "WorkoutReminderDTO",
+      "frontType": "WorkoutReminderType",
+      "relations": {
+        "user": {
+          "type": "ManyToOne",
+          "target": "User",
+          "dto": "UserDTO",
+          "frontType": "UserType"
+        }
+      },
+      "fields": [
+        {
+          "entityField": "id",
+          "dbColumn": "id",
+          "dtoField": "id",
+          "frontField": "id",
+          "type": "number",
+          "rules": ["primaryKey", "autoIncrement"]
+        },
+        {
+          "entityField": "userId",
+          "dbColumn": "user_id",
+          "dtoField": "userId",
+          "frontField": "userId",
+          "type": "number",
+          "rules": ["required", "foreignKey"]
+        },
+        {
+          "entityField": "title",
+          "dbColumn": "title",
+          "dtoField": "title",
+          "frontField": "title",
+          "type": "string",
+          "rules": ["required", "max:255"]
+        },
+        {
+          "entityField": "message",
+          "dbColumn": "message",
+          "dtoField": "message",
+          "frontField": "message",
+          "type": "string",
+          "rules": ["optional"]
+        },
+        {
+          "entityField": "reminderTime",
+          "dbColumn": "reminder_time",
+          "dtoField": "reminderTime",
+          "frontField": "reminderTime",
+          "type": "time",
+          "rules": ["required"]
+        },
+        {
+          "entityField": "daysOfWeek",
+          "dbColumn": "days_of_week",
+          "dtoField": "daysOfWeek",
+          "frontField": "daysOfWeek",
+          "type": "string[]",
+          "rules": ["optional", "json"]
+        },
+        {
+          "entityField": "isActive",
+          "dbColumn": "is_active",
+          "dtoField": "isActive",
+          "frontField": "isActive",
+          "type": "boolean",
+          "rules": ["required", "default:true"]
+        },
+        {
+          "entityField": "createdAt",
+          "dbColumn": "created_at",
+          "dtoField": "createdAt",
+          "frontField": "createdAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        },
+        {
+          "entityField": "updatedAt",
+          "dbColumn": "updated_at",
+          "dtoField": "updatedAt",
+          "frontField": "updatedAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        }
+      ]
+    },
+    {
+      "entity": "Milestone",
+      "table": "milestones",
+      "dto": "MilestoneDTO",
+      "frontType": "MilestoneType",
+      "relations": {
+        "user": {
+          "type": "ManyToOne",
+          "target": "User",
+          "dto": "UserDTO",
+          "frontType": "UserType"
+        }
+      },
+      "fields": [
+        {
+          "entityField": "id",
+          "dbColumn": "id",
+          "dtoField": "id",
+          "frontField": "id",
+          "type": "number",
+          "rules": ["primaryKey", "autoIncrement"]
+        },
+        {
+          "entityField": "userId",
+          "dbColumn": "user_id",
+          "dtoField": "userId",
+          "frontField": "userId",
+          "type": "number",
+          "rules": ["required", "foreignKey"]
+        },
+        {
+          "entityField": "title",
+          "dbColumn": "title",
+          "dtoField": "title",
+          "frontField": "title",
+          "type": "string",
+          "rules": ["required", "max:255"]
+        },
+        {
+          "entityField": "description",
+          "dbColumn": "description",
+          "dtoField": "description",
+          "frontField": "description",
+          "type": "string",
+          "rules": ["optional"]
+        },
+        {
+          "entityField": "type",
+          "dbColumn": "type",
+          "dtoField": "type",
+          "frontField": "type",
+          "type": "enum",
+          "rules": [
+            "required",
+            "enum:workout_count,streak_days,weight_goal,reps_goal"
+          ]
+        },
+        {
+          "entityField": "targetValue",
+          "dbColumn": "target_value",
+          "dtoField": "targetValue",
+          "frontField": "targetValue",
+          "type": "number",
+          "rules": ["required"]
+        },
+        {
+          "entityField": "currentValue",
+          "dbColumn": "current_value",
+          "dtoField": "currentValue",
+          "frontField": "currentValue",
+          "type": "number",
+          "rules": ["required", "default:0"]
+        },
+        {
+          "entityField": "isCompleted",
+          "dbColumn": "is_completed",
+          "dtoField": "isCompleted",
+          "frontField": "isCompleted",
+          "type": "boolean",
+          "rules": ["required", "default:false"]
+        },
+        {
+          "entityField": "completedAt",
+          "dbColumn": "completed_at",
+          "dtoField": "completedAt",
+          "frontField": "completedAt",
+          "type": "Date",
+          "rules": ["optional", "date"]
+        },
+        {
+          "entityField": "createdAt",
+          "dbColumn": "created_at",
+          "dtoField": "createdAt",
+          "frontField": "createdAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        },
+        {
+          "entityField": "updatedAt",
+          "dbColumn": "updated_at",
+          "dtoField": "updatedAt",
+          "frontField": "updatedAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        }
+      ]
+    },
+    {
+      "entity": "UserStreak",
+      "table": "user_streaks",
+      "dto": "UserStreakDTO",
+      "frontType": "UserStreakType",
+      "relations": {
+        "user": {
+          "type": "ManyToOne",
+          "target": "User",
+          "dto": "UserDTO",
+          "frontType": "UserType"
+        }
+      },
+      "fields": [
+        {
+          "entityField": "id",
+          "dbColumn": "id",
+          "dtoField": "id",
+          "frontField": "id",
+          "type": "number",
+          "rules": ["primaryKey", "autoIncrement"]
+        },
+        {
+          "entityField": "userId",
+          "dbColumn": "user_id",
+          "dtoField": "userId",
+          "frontField": "userId",
+          "type": "number",
+          "rules": ["required", "foreignKey"]
+        },
+        {
+          "entityField": "streakType",
+          "dbColumn": "streak_type",
+          "dtoField": "streakType",
+          "frontField": "streakType",
+          "type": "enum",
+          "rules": ["required", "enum:workout,login,goal_achievement"]
+        },
+        {
+          "entityField": "currentStreak",
+          "dbColumn": "current_streak",
+          "dtoField": "currentStreak",
+          "frontField": "currentStreak",
+          "type": "number",
+          "rules": ["required", "default:0"]
+        },
+        {
+          "entityField": "longestStreak",
+          "dbColumn": "longest_streak",
+          "dtoField": "longestStreak",
+          "frontField": "longestStreak",
+          "type": "number",
+          "rules": ["required", "default:0"]
+        },
+        {
+          "entityField": "lastActivityDate",
+          "dbColumn": "last_activity_date",
+          "dtoField": "lastActivityDate",
+          "frontField": "lastActivityDate",
+          "type": "Date",
+          "rules": ["required", "date"]
+        },
+        {
+          "entityField": "createdAt",
+          "dbColumn": "created_at",
+          "dtoField": "createdAt",
+          "frontField": "createdAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        },
+        {
+          "entityField": "updatedAt",
+          "dbColumn": "updated_at",
+          "dtoField": "updatedAt",
+          "frontField": "updatedAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        }
+      ]
+    },
+    {
+      "entity": "UserReward",
+      "table": "user_rewards",
+      "dto": "UserRewardDTO",
+      "frontType": "UserRewardType",
+      "relations": {
+        "user": {
+          "type": "ManyToOne",
+          "target": "User",
+          "dto": "UserDTO",
+          "frontType": "UserType"
+        }
+      },
+      "fields": [
+        {
+          "entityField": "id",
+          "dbColumn": "id",
+          "dtoField": "id",
+          "frontField": "id",
+          "type": "number",
+          "rules": ["primaryKey", "autoIncrement"]
+        },
+        {
+          "entityField": "userId",
+          "dbColumn": "user_id",
+          "dtoField": "userId",
+          "frontField": "userId",
+          "type": "number",
+          "rules": ["required", "foreignKey"]
+        },
+        {
+          "entityField": "rewardType",
+          "dbColumn": "reward_type",
+          "dtoField": "rewardType",
+          "frontField": "rewardType",
+          "type": "enum",
+          "rules": ["required", "enum:badge,title,theme,feature_unlock"]
+        },
+        {
+          "entityField": "rewardName",
+          "dbColumn": "reward_name",
+          "dtoField": "rewardName",
+          "frontField": "rewardName",
+          "type": "string",
+          "rules": ["required", "max:255"]
+        },
+        {
+          "entityField": "description",
+          "dbColumn": "description",
+          "dtoField": "description",
+          "frontField": "description",
+          "type": "string",
+          "rules": ["optional"]
+        },
+        {
+          "entityField": "isUnlocked",
+          "dbColumn": "is_unlocked",
+          "dtoField": "isUnlocked",
+          "frontField": "isUnlocked",
+          "type": "boolean",
+          "rules": ["required", "default:false"]
+        },
+        {
+          "entityField": "unlockedAt",
+          "dbColumn": "unlocked_at",
+          "dtoField": "unlockedAt",
+          "frontField": "unlockedAt",
+          "type": "Date",
+          "rules": ["optional", "date"]
+        },
+        {
+          "entityField": "createdAt",
+          "dbColumn": "created_at",
+          "dtoField": "createdAt",
+          "frontField": "createdAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        },
+        {
+          "entityField": "updatedAt",
+          "dbColumn": "updated_at",
+          "dtoField": "updatedAt",
+          "frontField": "updatedAt",
+          "type": "Date",
+          "rules": ["readonly", "autoGenerate"]
+        }
+      ]
     }
   ],
   "rules": {
@@ -1326,35 +2347,36 @@
         "User.workoutProgress",
         "User.workoutReminders",
         "User.posts",
-        "User.likes"
+        "User.likes",
+        "WorkoutPlan.exercises",
+        "WorkoutSession.exerciseSets",
+        "WorkoutStats.machine",
+        "WorkoutProgress.machine"
       ],
       "lazy": ["Post.comments", "Post.likes", "User.posts"],
       "eager": ["Comment.user", "Post.author"]
     }
   },
   "projectStatus": {
-    "lastUpdated": "2024-12-24T05:58:00Z",
+    "lastUpdated": "2025-01-27T00:00:00.000Z",
     "currentIssues": {
       "typescriptErrors": 0,
-      "eslintWarnings": 657,
+      "eslintWarnings": 0,
       "buildStatus": "SUCCESS",
-      "criticalIssues": [
-        "Database connection required for full functionality",
-        "ESLint warnings need cleanup"
-      ]
+      "criticalIssues": ["Database connection required for full functionality"]
     },
     "progress": {
-      "overall": 90,
-      "backend": 95,
+      "overall": 95,
+      "backend": 98,
       "frontend": 95,
       "types": 100,
       "build": 100
     },
     "nextPriorities": [
       "Set up database connection",
-      "Clean up ESLint warnings",
       "Complete API endpoint testing",
-      "Frontend-backend integration testing"
+      "Frontend-backend integration testing",
+      "Performance optimization"
     ],
     "testResults": {
       "serverStartup": "SUCCESS",

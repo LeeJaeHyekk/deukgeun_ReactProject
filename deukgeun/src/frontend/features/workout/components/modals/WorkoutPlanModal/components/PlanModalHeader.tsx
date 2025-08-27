@@ -1,5 +1,6 @@
 import React from "react"
 import { X } from "lucide-react"
+import styles from "../WorkoutPlanModal.module.css"
 
 interface PlanModalHeaderProps {
   isEditMode: boolean
@@ -19,9 +20,9 @@ export function PlanModalHeader({
   }
 
   return (
-    <div className="workout-plan-modal-header">
-      <h2 className="workout-plan-modal-title">{getTitle()}</h2>
-      <button className="workout-plan-modal-close" onClick={onClose}>
+    <div className={styles.modalHeader}>
+      <h2 className={styles.modalTitle}>{getTitle()}</h2>
+      <button className={styles.closeButton} onClick={onClose}>
         <X size={20} />
       </button>
     </div>

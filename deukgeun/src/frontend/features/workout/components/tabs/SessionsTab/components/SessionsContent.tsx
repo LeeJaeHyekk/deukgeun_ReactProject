@@ -1,7 +1,7 @@
 import React from "react"
 import { Grid3X3, List, Clock, Calendar, TrendingUp } from "lucide-react"
 import type { WorkoutSessionDTO } from "../../../../types"
-import "./SessionsContent.css"
+import styles from "./SessionsContent.module.css"
 
 interface SessionsContentProps {
   sessions: WorkoutSessionDTO[]
@@ -91,9 +91,9 @@ export const SessionsContent: React.FC<SessionsContentProps> = ({
 
   if (displaySessions.length === 0) {
     return (
-      <div className="sessions-content">
-        <div className="no-sessions-container">
-          <div className="no-sessions-icon">🏋️‍♂️</div>
+      <div className={styles.sessionsContent}>
+        <div className={styles.noSessionsContainer}>
+          <div className={styles.noSessionsIcon}>🏋️‍♂️</div>
           <h3>아직 운동 세션이 없습니다</h3>
           <p>첫 번째 운동 세션을 시작해보세요!</p>
         </div>
@@ -102,27 +102,27 @@ export const SessionsContent: React.FC<SessionsContentProps> = ({
   }
 
   return (
-    <div className="sessions-content">
+    <div className={styles.sessionsContent}>
       {/* 세션 목록 헤더 */}
-      <div className="sessions-list-header">
-        <div className="list-header-info">
+      <div className={styles.sessionsListHeader}>
+        <div className={styles.listHeaderInfo}>
           <h3>세션 목록</h3>
-          <div className="session-count">
+          <div className={styles.sessionCount}>
             총 {displaySessions.length}개의 세션
           </div>
         </div>
 
-        <div className="list-header-actions">
-          <div className="view-mode-toggle">
+        <div className={styles.listHeaderActions}>
+          <div className={styles.viewModeToggle}>
             <button
-              className={`view-mode-btn ${viewMode === "grid" ? "active" : ""}`}
+              className={`${styles.viewModeBtn} ${viewMode === "grid" ? styles.active : ""}`}
               onClick={() => setViewMode("grid")}
               title="그리드 보기"
             >
               <Grid3X3 size={16} />
             </button>
             <button
-              className={`view-mode-btn ${viewMode === "list" ? "active" : ""}`}
+              className={`${styles.viewModeBtn} ${viewMode === "list" ? styles.active : ""}`}
               onClick={() => setViewMode("list")}
               title="리스트 보기"
             >
@@ -133,89 +133,91 @@ export const SessionsContent: React.FC<SessionsContentProps> = ({
       </div>
 
       {/* 세션 통계 요약 */}
-      <div className="sessions-summary">
-        <div className="summary-stats">
-          <div className="summary-stat">
-            <div className="stat-number">{sessionStats.completed}</div>
-            <div className="stat-label">완료</div>
+      <div className={styles.sessionsSummary}>
+        <div className={styles.summaryStats}>
+          <div className={styles.summaryStat}>
+            <div className={styles.statNumber}>{sessionStats.completed}</div>
+            <div className={styles.statLabel}>완료</div>
           </div>
-          <div className="summary-stat">
-            <div className="stat-number">{sessionStats.inProgress}</div>
-            <div className="stat-label">진행중</div>
+          <div className={styles.summaryStat}>
+            <div className={styles.statNumber}>{sessionStats.inProgress}</div>
+            <div className={styles.statLabel}>진행중</div>
           </div>
-          <div className="summary-stat">
-            <div className="stat-number">{sessionStats.paused}</div>
-            <div className="stat-label">일시정지</div>
+          <div className={styles.summaryStat}>
+            <div className={styles.statNumber}>{sessionStats.paused}</div>
+            <div className={styles.statLabel}>일시정지</div>
           </div>
-          <div className="summary-stat">
-            <div className="stat-number">{sessionStats.completionRate}%</div>
-            <div className="stat-label">완료율</div>
+          <div className={styles.summaryStat}>
+            <div className={styles.statNumber}>
+              {sessionStats.completionRate}%
+            </div>
+            <div className={styles.statLabel}>완료율</div>
           </div>
         </div>
       </div>
 
-      {/* 세션 그리드/리스트 */}
-      <div className={`sessions-display ${viewMode}`}>
+      {/* 세션 목록 */}
+      <div className={`${styles.sessionsList} ${styles[viewMode]}`}>
         {displaySessions.map(session => (
-          <div key={session.id} className="session-item">
-            <div className="session-item-header">
-              <div className="session-info">
-                <h4 className="session-name">{session.name}</h4>
-                <div className="session-meta">
-                  <span className="session-date">
+          <div key={session.id} className={styles.sessionItem}>
+            <div className={styles.sessionItemHeader}>
+              <div className={styles.sessionInfo}>
+                <h4 className={styles.sessionName}>{session.name}</h4>
+                <div className={styles.sessionMeta}>
+                  <span className={styles.sessionDate}>
                     <Calendar size={14} />
                     {formatDate(session.startTime)}
                   </span>
-                  {session.totalDurationMinutes && (
-                    <span className="session-duration">
-                      <Clock size={14} />
-                      {formatDuration(session.totalDurationMinutes)}
-                    </span>
-                  )}
+                  <span className={styles.sessionDuration}>
+                    <Clock size={14} />
+                    {formatDuration(session.totalDurationMinutes)}
+                  </span>
                 </div>
               </div>
               <div
-                className="status-indicator"
+                className={styles.statusIndicator}
                 style={{ backgroundColor: getStatusColor(session.status) }}
                 title={getStatusText(session.status)}
               />
             </div>
 
-            <div className="session-item-content">
-              <div className="session-details">
-                <div className="detail-item">
-                  <span className="label">상태</span>
-                  <span className="value">{getStatusText(session.status)}</span>
+            <div className={styles.sessionItemContent}>
+              <div className={styles.sessionDetails}>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>상태</span>
+                  <span className={styles.detailValue}>
+                    {getStatusText(session.status)}
+                  </span>
                 </div>
-                <div className="detail-item">
-                  <span className="label">운동 세트</span>
-                  <span className="value">
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>운동 세트</span>
+                  <span className={styles.detailValue}>
                     {session.exerciseSets?.length || 0}개
                   </span>
                 </div>
                 {session.notes && (
-                  <div className="detail-item full-width">
-                    <span className="label">메모</span>
-                    <span className="value notes">{session.notes}</span>
+                  <div className={`${styles.detailItem} ${styles.fullWidth}`}>
+                    <span className={styles.detailLabel}>메모</span>
+                    <span className={styles.detailValue}>{session.notes}</span>
                   </div>
                 )}
               </div>
 
-              <div className="session-actions">
+              <div className={styles.sessionActions}>
                 <button
-                  className="action-btn view-btn"
+                  className={`${styles.actionBtn} ${styles.viewBtn}`}
                   onClick={() => onViewSession(session.id)}
                 >
                   상세보기
                 </button>
                 <button
-                  className="action-btn edit-btn"
+                  className={`${styles.actionBtn} ${styles.editBtn}`}
                   onClick={() => onEditSession(session.id)}
                 >
-                  편집
+                  수정
                 </button>
                 <button
-                  className="action-btn delete-btn"
+                  className={`${styles.actionBtn} ${styles.deleteBtn}`}
                   onClick={() => onDeleteSession(session.id)}
                 >
                   삭제
@@ -226,19 +228,15 @@ export const SessionsContent: React.FC<SessionsContentProps> = ({
         ))}
       </div>
 
-      {/* 세션 목록 푸터 */}
-      {displaySessions.length > 0 && (
-        <div className="sessions-footer">
-          <div className="footer-info">
-            <Clock size={14} />
-            <span>마지막 업데이트: {new Date().toLocaleString()}</span>
-          </div>
-          <div className="footer-stats">
-            <TrendingUp size={14} />
-            <span>평균 완료율: {sessionStats.completionRate}%</span>
-          </div>
+      {/* 세션 푸터 */}
+      <div className={styles.sessionsFooter}>
+        <div className={styles.footerInfo}>
+          <span>총 {displaySessions.length}개의 세션</span>
         </div>
-      )}
+        <div className={styles.footerStats}>
+          <span>완료율: {sessionStats.completionRate}%</span>
+        </div>
+      </div>
     </div>
   )
 }

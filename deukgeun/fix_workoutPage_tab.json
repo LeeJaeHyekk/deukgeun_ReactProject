@@ -1,0 +1,479 @@
+{
+  "page": {
+    "name": "WorkoutPage",
+    "description": "종합 운동 관리 페이지 - 운동 계획, 진행 상황, 목표, 실시간 세션 트래킹, 분석을 한 페이지에서 확인",
+    "mainFile": "WorkoutPage.tsx",
+    "architecture": {
+      "pattern": "Tab-based Architecture with Zustand State Management",
+      "components": "Functional Components with TypeScript",
+      "stateManagement": "Zustand Store with DevTools & Persist",
+      "styling": "CSS Modules with Tailwind-like utilities",
+      "accessibility": "ARIA-compliant tab navigation"
+    },
+    "tabs": [
+      {
+        "id": "overview",
+        "name": "개요",
+        "component": "OverviewTab",
+        "description": "운동 통계, 최근 세션, 목표 진행상황을 한눈에 확인",
+        "props": ["dashboardData", "isLoading"],
+        "actions": ["onPlanClick", "onSessionClick", "onGoalClick"],
+        "loadingKey": "overview",
+        "subComponents": [
+          "StatsSection",
+          "RecentSessionsSection",
+          "GoalsProgressSection",
+          "ChartsSection"
+        ]
+      },
+      {
+        "id": "plans",
+        "name": "계획",
+        "component": "PlansTab",
+        "description": "운동 계획 생성, 편집, 실행 관리",
+        "props": ["plans", "isLoading"],
+        "actions": [
+          "onCreatePlan",
+          "onEditPlan",
+          "onStartSession",
+          "onDeletePlan"
+        ],
+        "loadingKey": "plans",
+        "subComponents": ["PlansHeader", "PlansContent", "PlansStats"]
+      },
+      {
+        "id": "sessions",
+        "name": "세션",
+        "component": "SessionsTab",
+        "description": "운동 세션 기록 및 실시간 트래킹",
+        "props": ["sessions", "isLoading"],
+        "actions": [
+          "onCreateSession",
+          "onEditSession",
+          "onViewSession",
+          "onDeleteSession"
+        ],
+        "loadingKey": "sessions",
+        "subComponents": [
+          "SessionsHeader",
+          "ActiveSessionContainer",
+          "SessionsContent",
+          "SessionsStats"
+        ]
+      },
+      {
+        "id": "goals",
+        "name": "목표",
+        "component": "GoalsTab",
+        "description": "운동 목표 설정 및 진행상황 관리",
+        "props": ["goals", "isLoading"],
+        "actions": ["onCreateGoal", "onEditGoal", "onDeleteGoal"],
+        "loadingKey": "goals",
+        "subComponents": [
+          "GoalsHeader",
+          "GoalsContent",
+          "GoalsStats",
+          "ActiveGoalsSection",
+          "CompletedGoalsSection"
+        ]
+      },
+      {
+        "id": "progress",
+        "name": "진행상황",
+        "component": "ProgressTab",
+        "description": "운동 진행상황 차트 및 통계 분석",
+        "props": ["sessions", "isLoading"],
+        "actions": ["onViewSession"],
+        "loadingKey": "progress",
+        "subComponents": [
+          "ProgressHeader",
+          "ProgressContent",
+          "ProgressStats",
+          "ProgressCharts"
+        ]
+      }
+    ],
+    "context": {
+      "name": "WorkoutStore",
+      "provider": "Zustand Store",
+      "description": "전역 상태 관리를 위한 Zustand 스토어",
+      "state": {
+        "activeTab": "overview",
+        "plans": [],
+        "sessions": [],
+        "goals": [],
+        "currentPlan": null,
+        "currentSession": null,
+        "currentGoal": null,
+        "dashboardData": null,
+        "loading": {
+          "plans": { "isLoading": false, "error": null },
+          "sessions": { "isLoading": false, "error": null },
+          "goals": { "isLoading": false, "error": null },
+          "overview": { "isLoading": false, "error": null }
+        },
+        "modals": {
+          "plan": {
+            "isOpen": false,
+            "mode": "create",
+            "exercises": [],
+            "confirmedExerciseIndices": []
+          },
+          "session": {
+            "isOpen": false,
+            "mode": "create",
+            "currentExerciseIndex": 0,
+            "currentSetIndex": 0,
+            "isTimerRunning": false
+          },
+          "goal": {
+            "isOpen": false,
+            "mode": "create"
+          }
+        },
+        "tabStates": {},
+        "sharedState": {
+          "notifications": [],
+          "lastUpdatedPlan": null,
+          "lastUpdatedSession": null,
+          "lastUpdatedGoal": null
+        }
+      },
+      "actions": [
+        "fetchPlans",
+        "createPlan",
+        "updatePlan",
+        "deletePlan",
+        "fetchSessions",
+        "createSession",
+        "updateSession",
+        "deleteSession",
+        "fetchGoals",
+        "createGoal",
+        "updateGoal",
+        "deleteGoal",
+        "setActiveTab",
+        "openPlanModal",
+        "closePlanModal",
+        "openSessionModal",
+        "closeSessionModal",
+        "openGoalModal",
+        "closeGoalModal",
+        "updateTabState",
+        "resetTabState",
+        "updateSharedState",
+        "addNotification",
+        "removeNotification",
+        "clearNotifications",
+        "resetStore",
+        "clearErrors"
+      ]
+    },
+    "hooks": [
+      {
+        "name": "useWorkoutStoreData",
+        "description": "Zustand store에서 데이터 상태를 가져오는 훅",
+        "returns": [
+          "plans",
+          "sessions",
+          "goals",
+          "dashboardData",
+          "loading",
+          "activeTab",
+          "modals",
+          "tabStates",
+          "sharedState"
+        ]
+      },
+      {
+        "name": "useWorkoutPlansActions",
+        "description": "운동 계획 관련 액션들을 제공하는 훅",
+        "returns": ["fetchPlans", "createPlan", "updatePlan", "deletePlan"]
+      },
+      {
+        "name": "useWorkoutSessionsActions",
+        "description": "운동 세션 관련 액션들을 제공하는 훅",
+        "returns": [
+          "fetchSessions",
+          "createSession",
+          "updateSession",
+          "deleteSession"
+        ]
+      },
+      {
+        "name": "useWorkoutGoalsActions",
+        "description": "운동 목표 관련 액션들을 제공하는 훅",
+        "returns": ["fetchGoals", "createGoal", "updateGoal", "deleteGoal"]
+      },
+      {
+        "name": "useWorkoutUI",
+        "description": "UI 상태 관리 액션들을 제공하는 훅",
+        "returns": [
+          "setActiveTab",
+          "openPlanModal",
+          "closePlanModal",
+          "openSessionModal",
+          "closeSessionModal",
+          "openGoalModal",
+          "closeGoalModal",
+          "updateTabState",
+          "resetTabState"
+        ]
+      },
+      {
+        "name": "useWorkoutInitialization",
+        "description": "초기 데이터 로딩을 담당하는 훅",
+        "returns": ["initializeWorkoutData"]
+      },
+      {
+        "name": "useSharedState",
+        "description": "공유 상태 관리 훅",
+        "returns": [
+          "updateSharedState",
+          "addNotification",
+          "removeNotification",
+          "clearNotifications"
+        ]
+      }
+    ],
+    "tabContent": {
+      "component": "TabContent",
+      "description": "현재 탭 상태에 따라 적절한 탭 컴포넌트를 렌더링",
+      "props": [
+        "activeTab",
+        "dashboardData",
+        "plans",
+        "sessions",
+        "goals",
+        "plansLoading",
+        "sessionsLoading",
+        "goalsLoading",
+        "onPlanClick",
+        "onSessionClick",
+        "onGoalClick",
+        "onCreatePlan",
+        "onEditPlan",
+        "onStartSession",
+        "onCreateSession",
+        "onEditSession",
+        "onViewSession",
+        "onCreateGoal",
+        "onEditGoal",
+        "onDeletePlan",
+        "onDeleteSession",
+        "onDeleteGoal"
+      ],
+      "behavior": [
+        "activeTab에 따라 OverviewTab, PlansTab, SessionsTab, GoalsTab, ProgressTab 렌더링",
+        "각 탭에 필요한 props 및 액션 연결",
+        "로딩 상태에 따라 로딩 화면 표시",
+        "조건부 렌더링으로 성능 최적화"
+      ]
+    },
+    "modals": [
+      {
+        "id": "workoutPlanModal",
+        "component": "WorkoutPlanModal",
+        "description": "운동 계획 생성/편집 모달",
+        "props": [
+          "isOpen",
+          "mode",
+          "plan",
+          "exercises",
+          "confirmedExerciseIndices",
+          "onClose",
+          "onSave",
+          "onAddExercise",
+          "onRemoveExercise",
+          "onUpdateExercise",
+          "onConfirmExercise",
+          "onUnconfirmExercise"
+        ]
+      },
+      {
+        "id": "workoutSessionModal",
+        "component": "WorkoutSessionModal",
+        "description": "운동 세션 생성/편집 모달",
+        "props": [
+          "isOpen",
+          "mode",
+          "session",
+          "currentExerciseIndex",
+          "currentSetIndex",
+          "isTimerRunning",
+          "onClose",
+          "onSave",
+          "onStartTimer",
+          "onPauseTimer",
+          "onCompleteSet"
+        ]
+      },
+      {
+        "id": "workoutGoalModal",
+        "component": "WorkoutGoalModal",
+        "description": "운동 목표 생성/편집 모달",
+        "props": ["isOpen", "mode", "goal", "onClose", "onSave"]
+      }
+    ],
+    "stateManagement": {
+      "type": "Zustand Store",
+      "store": "workoutStore",
+      "description": "전역 상태 관리를 위한 Zustand 스토어",
+      "initialState": "위 context.state 값 참조",
+      "middleware": ["devtools", "persist"],
+      "dispatchActions": [
+        "fetchPlans",
+        "createPlan",
+        "updatePlan",
+        "deletePlan",
+        "fetchSessions",
+        "createSession",
+        "updateSession",
+        "deleteSession",
+        "fetchGoals",
+        "createGoal",
+        "updateGoal",
+        "deleteGoal",
+        "setActiveTab",
+        "openPlanModal",
+        "closePlanModal",
+        "openSessionModal",
+        "closeSessionModal",
+        "openGoalModal",
+        "closeGoalModal",
+        "updateTabState",
+        "resetTabState",
+        "updateSharedState",
+        "addNotification",
+        "removeNotification",
+        "clearNotifications",
+        "resetStore",
+        "clearErrors"
+      ]
+    },
+    "integration": {
+      "TabContent": "activeTab 상태에 따라 해당 탭 컴포넌트를 렌더링",
+      "각 탭 컴포넌트": "props: store state에서 필요한 데이터 전달 / actions: store actions 사용 가능",
+      "모달": "Zustand store의 modals 상태로 관리",
+      "API 통신": "workoutApi를 통한 서버 통신",
+      "타이머": "WorkoutTimerContext와 연동",
+      "인증": "AuthContext와 연동하여 사용자별 데이터 관리",
+      "기구 데이터": "useMachines 훅을 통한 기구 정보 연동"
+    },
+    "constants": {
+      "TAB_CONFIG": [
+        { "key": "overview", "label": "개요", "icon": "📊" },
+        { "key": "plans", "label": "계획", "icon": "📋" },
+        { "key": "sessions", "label": "세션", "icon": "⏱️" },
+        { "key": "goals", "label": "목표", "icon": "🎯" },
+        { "key": "progress", "label": "진행상황", "icon": "📊" }
+      ],
+      "SESSION_STATUS": {
+        "NOT_STARTED": "not_started",
+        "IN_PROGRESS": "in_progress",
+        "PAUSED": "paused",
+        "COMPLETED": "completed"
+      },
+      "GOAL_TYPES": {
+        "WEIGHT": "weight",
+        "REPS": "reps",
+        "DURATION": "duration",
+        "FREQUENCY": "frequency"
+      },
+      "CHART_TYPES": ["weekly", "monthly", "yearly"],
+      "TIME_RANGES": ["7days", "30days", "90days", "1year"],
+      "API_ENDPOINTS": {
+        "DASHBOARD": "/api/workout/dashboard",
+        "PLANS": "/api/workout/plans",
+        "SESSIONS": "/api/workout/sessions",
+        "GOALS": "/api/workout/goals",
+        "MACHINES": "/api/machines"
+      },
+      "ERROR_MESSAGES": {
+        "AUTH_REQUIRED": "로그인이 필요합니다",
+        "LOAD_FAILED": "데이터를 불러오는데 실패했습니다",
+        "SAVE_FAILED": "저장에 실패했습니다",
+        "DELETE_FAILED": "삭제에 실패했습니다",
+        "NETWORK_ERROR": "네트워크 오류가 발생했습니다",
+        "UNKNOWN_ERROR": "알 수 없는 오류가 발생했습니다"
+      },
+      "SUCCESS_MESSAGES": {
+        "PLAN_CREATED": "운동 계획이 생성되었습니다",
+        "PLAN_UPDATED": "운동 계획이 수정되었습니다",
+        "PLAN_DELETED": "운동 계획이 삭제되었습니다",
+        "SESSION_CREATED": "운동 세션이 생성되었습니다",
+        "SESSION_UPDATED": "운동 세션이 수정되었습니다",
+        "SESSION_DELETED": "운동 세션이 삭제되었습니다",
+        "GOAL_CREATED": "운동 목표가 생성되었습니다",
+        "GOAL_UPDATED": "운동 목표가 수정되었습니다",
+        "GOAL_DELETED": "운동 목표가 삭제되었습니다"
+      },
+      "LOADING_MESSAGES": {
+        "DASHBOARD": "대시보드 데이터를 불러오는 중...",
+        "PLANS": "운동 계획을 불러오는 중...",
+        "SESSIONS": "운동 세션을 불러오는 중...",
+        "GOALS": "운동 목표를 불러오는 중...",
+        "SAVING": "저장 중...",
+        "DELETING": "삭제 중..."
+      }
+    },
+    "dataFlow": {
+      "initialization": "페이지 로드 시 useWorkoutInitialization 훅으로 초기 데이터 로딩",
+      "tabSwitching": "setActiveTab 액션으로 탭 변경 시 해당 탭 데이터만 로딩",
+      "modalOperations": "모달 열기/닫기 시 store의 modals 상태 업데이트",
+      "dataUpdates": "CRUD 작업 시 store 상태 업데이트 후 UI 자동 반영",
+      "errorHandling": "각 탭별 개별 에러 상태 관리 및 사용자 친화적 메시지 표시",
+      "notifications": "공유 상태를 통한 전역 알림 시스템"
+    },
+    "performance": {
+      "optimizations": [
+        "조건부 렌더링으로 불필요한 컴포넌트 렌더링 방지",
+        "Zustand의 선택적 구독으로 필요한 상태만 구독",
+        "React.memo를 통한 컴포넌트 메모이제이션",
+        "useCallback을 통한 함수 메모이제이션"
+      ],
+      "loadingStates": [
+        "전역 로딩 상태와 개별 탭 로딩 상태 분리",
+        "스켈레톤 UI를 통한 로딩 경험 개선",
+        "에러 바운더리를 통한 에러 격리"
+      ]
+    },
+    "accessibility": {
+      "features": [
+        "ARIA-compliant 탭 네비게이션",
+        "키보드 네비게이션 지원",
+        "스크린 리더 호환성",
+        "포커스 관리",
+        "시맨틱 HTML 구조"
+      ],
+      "components": [
+        "TabNavigation 컴포넌트",
+        "모달 접근성 개선",
+        "로딩 상태 접근성"
+      ]
+    },
+    "testing": {
+      "unitTests": [
+        "각 탭 컴포넌트별 단위 테스트",
+        "Zustand store 액션 테스트",
+        "훅 테스트"
+      ],
+      "integrationTests": [
+        "탭 전환 테스트",
+        "모달 동작 테스트",
+        "데이터 로딩 테스트"
+      ],
+      "e2eTests": ["전체 워크플로우 테스트", "사용자 시나리오 테스트"]
+    },
+    "implementationStatus": {
+      "overall": "completed",
+      "architecture": "completed",
+      "tabs": "completed",
+      "stateManagement": "completed",
+      "modals": "completed",
+      "accessibility": "partial",
+      "testing": "not_started",
+      "performance": "partial"
+    }
+  }
+}

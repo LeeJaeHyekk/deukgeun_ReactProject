@@ -3,7 +3,6 @@ import {
   WorkoutPlanDTO,
   WorkoutGoalDTO,
   WorkoutSessionDTO,
-  WorkoutReminderDTO,
   ExerciseItem,
 } from "../types"
 
@@ -30,6 +29,31 @@ export function useWorkoutActions() {
     },
     []
   )
+
+  const updateWorkoutPlan = useCallback(
+    async (planId: number, updates: Partial<WorkoutPlanDTO>) => {
+      try {
+        // API 호출 로직 구현 예정
+        console.log("Updating workout plan:", planId, updates)
+        return { success: true, data: { id: planId, ...updates } }
+      } catch (error) {
+        console.error("Failed to update workout plan:", error)
+        return { success: false, error: "운동 계획 수정에 실패했습니다." }
+      }
+    },
+    []
+  )
+
+  const deleteWorkoutPlan = useCallback(async (planId: number) => {
+    try {
+      // API 호출 로직 구현 예정
+      console.log("Deleting workout plan:", planId)
+      return { success: true }
+    } catch (error) {
+      console.error("Failed to delete workout plan:", error)
+      return { success: false, error: "운동 계획 삭제에 실패했습니다." }
+    }
+  }, [])
 
   // 목표 관련 액션
   const createWorkoutGoal = useCallback(
@@ -115,73 +139,20 @@ export function useWorkoutActions() {
     }
   }, [])
 
-  // 리마인더 관련 액션
-  const createWorkoutReminder = useCallback(
-    async (
-      reminderData: Omit<WorkoutReminderDTO, "id" | "createdAt" | "updatedAt">
-    ) => {
-      try {
-        // API 호출 로직 구현 예정
-        console.log("Creating workout reminder:", reminderData)
-        return { success: true, data: { ...reminderData, id: Date.now() } }
-      } catch (error) {
-        console.error("Failed to create workout reminder:", error)
-        return { success: false, error: "알림 생성에 실패했습니다." }
-      }
-    },
-    []
-  )
-
-  const updateWorkoutReminder = useCallback(
-    async (reminderId: number, updates: Partial<WorkoutReminderDTO>) => {
-      try {
-        // API 호출 로직 구현 예정
-        console.log("Updating workout reminder:", reminderId, updates)
-        return { success: true, data: { id: reminderId, ...updates } }
-      } catch (error) {
-        console.error("Failed to update workout reminder:", error)
-        return { success: false, error: "알림 수정에 실패했습니다." }
-      }
-    },
-    []
-  )
-
-  const toggleWorkoutReminder = useCallback(
-    async (reminderId: number, isActive: boolean) => {
-      try {
-        // API 호출 로직 구현 예정
-        console.log("Toggling workout reminder:", reminderId, isActive)
-        return { success: true, data: { id: reminderId, isActive } }
-      } catch (error) {
-        console.error("Failed to toggle workout reminder:", error)
-        return { success: false, error: "알림 상태 변경에 실패했습니다." }
-      }
-    },
-    []
-  )
-
-  const deleteWorkoutReminder = useCallback(async (reminderId: number) => {
-    try {
-      // API 호출 로직 구현 예정
-      console.log("Deleting workout reminder:", reminderId)
-      return { success: true }
-    } catch (error) {
-      console.error("Failed to delete workout reminder:", error)
-      return { success: false, error: "알림 삭제에 실패했습니다." }
-    }
-  }, [])
-
   return {
+    // 계획 관련 액션
     createWorkoutPlan,
-    createWorkoutGoal,
-    updateWorkoutGoal,
-    deleteWorkoutGoal,
+    updateWorkoutPlan,
+    deleteWorkoutPlan,
+
+    // 세션 관련 액션
     createWorkoutSession,
     updateWorkoutSession,
     deleteWorkoutSession,
-    createWorkoutReminder,
-    updateWorkoutReminder,
-    toggleWorkoutReminder,
-    deleteWorkoutReminder,
+
+    // 목표 관련 액션
+    createWorkoutGoal,
+    updateWorkoutGoal,
+    deleteWorkoutGoal,
   }
 }

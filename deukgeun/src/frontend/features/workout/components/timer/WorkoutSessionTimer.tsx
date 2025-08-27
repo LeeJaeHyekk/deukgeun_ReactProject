@@ -3,6 +3,26 @@ import { Play, Pause, Square, RotateCcw } from "lucide-react"
 import { formatTime } from "../../utils/workoutUtils"
 import "./WorkoutSessionTimer.css"
 
+// 로깅 유틸리티
+const logger = {
+  info: (message: string, data?: any) => {
+    if (import.meta.env.DEV) {
+      console.log(`[WorkoutSessionTimer] ${message}`, data || "")
+    }
+  },
+  debug: (message: string, data?: any) => {
+    if (import.meta.env.DEV) {
+      console.debug(`[WorkoutSessionTimer] ${message}`, data || "")
+    }
+  },
+  warn: (message: string, data?: any) => {
+    console.warn(`[WorkoutSessionTimer] ${message}`, data || "")
+  },
+  error: (message: string, data?: any) => {
+    console.error(`[WorkoutSessionTimer] ${message}`, data || "")
+  },
+}
+
 interface WorkoutSessionTimerProps {
   onTimeUpdate?: (time: number) => void
   onSessionComplete?: (duration: number) => void
@@ -25,6 +45,7 @@ export function WorkoutSessionTimer({
 
   const startTimer = useCallback(() => {
     if (!isActive) {
+      logger.info("타이머 시작", { currentTime: time })
       setIsActive(true)
       setIsPaused(false)
       startTimeRef.current = Date.now() - time * 1000
@@ -32,18 +53,20 @@ export function WorkoutSessionTimer({
   }, [isActive, time])
 
   const pauseTimer = useCallback(() => {
+    logger.info("타이머 일시정지", { currentTime: time })
     setIsActive(false)
     setIsPaused(true)
-  }, [])
+  }, [time])
 
   const stopTimer = useCallback(() => {
+    logger.info("타이머 정지", { finalTime: time, lapsCount: laps.length })
     setIsActive(false)
     setIsPaused(false)
     const finalTime = time
     setTime(0)
     setLaps([])
     onSessionComplete?.(finalTime)
-  }, [time, onSessionComplete])
+  }, [time, laps.length, onSessionComplete])
 
   const resetTimer = useCallback(() => {
     setIsActive(false)

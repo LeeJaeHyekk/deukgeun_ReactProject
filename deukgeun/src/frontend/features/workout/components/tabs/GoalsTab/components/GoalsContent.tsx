@@ -5,16 +5,20 @@ import type { WorkoutGoal } from "@shared/types"
 
 interface GoalsContentProps {
   goals: WorkoutGoal[]
+  selectedGoalId: number | null
   onCreateGoal: () => void
   onEditGoal: (goalId: number) => void
   onDeleteGoal: (goalId: number) => void
+  onGoalSelect: (goalId: number | null) => void
 }
 
 export const GoalsContent: React.FC<GoalsContentProps> = ({
   goals,
+  selectedGoalId,
   onCreateGoal,
   onEditGoal,
   onDeleteGoal,
+  onGoalSelect,
 }) => {
   const activeGoals = goals.filter(goal => !goal.isCompleted)
   const completedGoals = goals.filter(goal => goal.isCompleted)
@@ -38,10 +42,16 @@ export const GoalsContent: React.FC<GoalsContentProps> = ({
     <div className="goals-content">
       <ActiveGoalsSection
         activeGoals={activeGoals}
+        selectedGoalId={selectedGoalId}
         onEditGoal={onEditGoal}
         onDeleteGoal={onDeleteGoal}
+        onGoalSelect={onGoalSelect}
       />
-      <CompletedGoalsSection completedGoals={completedGoals} />
+      <CompletedGoalsSection 
+        completedGoals={completedGoals}
+        selectedGoalId={selectedGoalId}
+        onGoalSelect={onGoalSelect}
+      />
     </div>
   )
 }

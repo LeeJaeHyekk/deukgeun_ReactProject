@@ -3,6 +3,7 @@ import {
   WorkoutJournalApi,
   WorkoutPlan,
 } from "../../../shared/api/workoutJournalApi"
+import { USE_MOCK_DATA, mockPlans } from "../data/mockData"
 
 export function useWorkoutPlans() {
   const [plans, setPlans] = useState<WorkoutPlan[]>([])
@@ -14,10 +15,21 @@ export function useWorkoutPlans() {
     try {
       setLoading(true)
       setError(null)
-      console.log(`📡 [useWorkoutPlans] API 호출 중...`)
-      const data = await WorkoutJournalApi.getWorkoutPlans()
-      console.log(`✅ [useWorkoutPlans] 운동 계획 ${data.length}개 조회 성공`)
-      setPlans(data)
+
+      if (USE_MOCK_DATA) {
+        console.log(`🎭 [useWorkoutPlans] 목데이터 사용 중...`)
+        // 목데이터 사용 시 약간의 지연을 주어 실제 API 호출처럼 보이게 함
+        await new Promise(resolve => setTimeout(resolve, 500))
+        setPlans(mockPlans as any)
+        console.log(
+          `✅ [useWorkoutPlans] 목데이터 ${mockPlans.length}개 로드 성공`
+        )
+      } else {
+        console.log(`📡 [useWorkoutPlans] API 호출 중...`)
+        const data = await WorkoutJournalApi.getWorkoutPlans()
+        console.log(`✅ [useWorkoutPlans] 운동 계획 ${data.length}개 조회 성공`)
+        setPlans(data)
+      }
     } catch (err) {
       const errorMessage =
         err instanceof Error

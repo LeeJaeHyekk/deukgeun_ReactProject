@@ -3,10 +3,14 @@ import type { WorkoutGoal } from "@shared/types"
 
 interface CompletedGoalsSectionProps {
   completedGoals: WorkoutGoal[]
+  selectedGoalId: number | null
+  onGoalSelect: (goalId: number | null) => void
 }
 
 export const CompletedGoalsSection: React.FC<CompletedGoalsSectionProps> = ({
   completedGoals,
+  selectedGoalId,
+  onGoalSelect,
 }) => {
   if (completedGoals.length === 0) {
     return null
@@ -17,7 +21,11 @@ export const CompletedGoalsSection: React.FC<CompletedGoalsSectionProps> = ({
       <h3>달성한 목표 ({completedGoals.length})</h3>
       <div className="completed-goals-grid">
         {completedGoals.map(goal => (
-          <div key={goal.id} className="completed-goal-card">
+          <div 
+            key={goal.id} 
+            className={`completed-goal-card ${selectedGoalId === goal.id ? 'selected' : ''}`}
+            onClick={() => onGoalSelect(goal.id)}
+          >
             <div className="goal-header">
               <h4>{goal.title}</h4>
               <span className="completion-date">

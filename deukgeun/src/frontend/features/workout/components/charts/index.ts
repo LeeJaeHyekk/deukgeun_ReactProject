@@ -1,2 +1,3 @@
-export { ProgressChart } from "./ProgressChart"
-export { WorkoutCalendar } from "./WorkoutCalendar"
+export { LineChart } from "./LineChart"
+export { BarChart } from "./BarChart"
+export { PieChart } from "./PieChart"

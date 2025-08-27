@@ -158,9 +158,7 @@ export function WorkoutSessionModal() {
                 key={index}
                 exercise={exercise}
                 isActive={index === currentExerciseIndex}
-                isCompleted={completedSets.has(
-                  `${index}-${exercise.setNumber}`
-                )}
+                isCompleted={completedSets[index] >= exercise.setNumber}
                 onComplete={completeSet}
                 onStartRest={startRest}
                 onStopRest={stopRest}

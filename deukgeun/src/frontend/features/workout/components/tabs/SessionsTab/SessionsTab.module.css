@@ -1,0 +1,285 @@
+/* SessionsTab CSS 모듈 - 완전 독립적 Glassmorphism 디자인 */
+
+/* 메인 컨테이너 - 완전 독립적 */
+.sessionsTab {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 24px !important;
+  padding: 24px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(20px) !important;
+  min-height: 100vh !important;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  color: #ffffff !important;
+  border-radius: 16px !important;
+  margin: 16px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  position: relative !important;
+  z-index: 1 !important;
+  isolation: isolate !important;
+}
+
+/* Glassmorphism 헤더 */
+.sessionsHeader {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 24px 0 !important;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.3) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 12px !important;
+  margin-bottom: 8px !important;
+}
+
+.headerContent {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.headerContent h2 {
+  margin: 0 0 4px 0 !important;
+  color: #ffffff !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.headerContent p {
+  margin: 0 !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 16px !important;
+}
+
+/* Glassmorphism 컨트롤 */
+.sessionsControls {
+  padding: 20px 0 !important;
+  border-bottom: 1px solid rgba(243, 244, 246, 0.3) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 12px !important;
+  margin-bottom: 8px !important;
+}
+
+.controlSection {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+
+.sortButtons {
+  display: flex !important;
+  gap: 8px !important;
+}
+
+.sortBtn {
+  padding: 10px 18px !important;
+  background: rgba(249, 250, 251, 0.8) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(229, 231, 235, 0.3) !important;
+  border-radius: 12px !important;
+  color: #374151 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.sortBtn:hover {
+  background: rgba(243, 244, 246, 0.9) !important;
+  border-color: rgba(209, 213, 219, 0.5) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.sortBtn.active {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.9) 0%,
+    rgba(217, 119, 6, 0.9) 100%
+  ) !important;
+  border-color: transparent !important;
+  color: white !important;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3) !important;
+}
+
+/* Glassmorphism 섹션 헤더 */
+.sectionHeader {
+  margin-bottom: 20px !important;
+  padding: 16px 20px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(229, 231, 235, 0.2) !important;
+}
+
+.sectionHeader h3 {
+  margin: 0 0 4px 0 !important;
+  color: #ffffff !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+}
+
+.sectionHeader p {
+  margin: 0 !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 14px !important;
+}
+
+/* Glassmorphism 활성 세션 섹션 */
+.activeSessionSection {
+  margin-bottom: 28px !important;
+  padding: 20px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(229, 231, 235, 0.2) !important;
+}
+
+/* Glassmorphism 세션 섹션 */
+.sessionsSection {
+  margin-bottom: 28px !important;
+  padding: 20px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(229, 231, 235, 0.2) !important;
+}
+
+/* Glassmorphism 로딩 상태 */
+.loadingContainer {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 360px !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(229, 231, 235, 0.2) !important;
+  padding: 40px !important;
+}
+
+.loadingSpinner {
+  width: 48px !important;
+  height: 48px !important;
+  border: 4px solid rgba(255, 255, 255, 0.2) !important;
+  border-top: 4px solid #f59e0b !important;
+  border-radius: 50% !important;
+  animation: spin 1s linear infinite !important;
+  margin-bottom: 20px !important;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingContainer p {
+  font-size: 16px !important;
+  margin: 0 !important;
+  font-weight: 500 !important;
+}
+
+/* Glassmorphism 빈 상태 */
+.noSessionsContainer {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 60px 20px !important;
+  text-align: center !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px) !important;
+  border-radius: 16px !important;
+  border: 2px dashed rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.noSessionsIcon {
+  font-size: 48px !important;
+  margin-bottom: 16px !important;
+}
+
+.noSessionsContainer h3 {
+  margin: 0 0 8px 0 !important;
+  color: #ffffff !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+.noSessionsContainer p {
+  margin: 0 !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 14px !important;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .sessionsTab {
+    padding: 20px !important;
+    gap: 20px !important;
+    margin: 12px !important;
+  }
+
+  .sessionsHeader {
+    flex-direction: column !important;
+    gap: 12px !important;
+    text-align: center !important;
+    padding: 16px 0 !important;
+  }
+
+  .headerContent h2 {
+    font-size: 24px !important;
+  }
+
+  .sessionsControls {
+    padding: 12px 0 !important;
+  }
+
+  .controlSection {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .sortButtons {
+    gap: 6px !important;
+  }
+
+  .sortBtn {
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .sessionsTab {
+    padding: 16px !important;
+    margin: 8px !important;
+  }
+
+  .sessionsHeader {
+    padding: 12px 0 !important;
+  }
+
+  .headerContent h2 {
+    font-size: 20px !important;
+  }
+
+  .sessionsControls {
+    padding: 8px 0 !important;
+  }
+
+  .sortButtons {
+    flex-direction: column !important;
+  }
+
+  .sortBtn {
+    width: 100% !important;
+    text-align: center !important;
+  }
+}

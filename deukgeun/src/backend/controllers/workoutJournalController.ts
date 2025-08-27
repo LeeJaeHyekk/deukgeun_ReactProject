@@ -696,31 +696,54 @@ export class WorkoutJournalController {
     req: AuthenticatedRequest,
     res: Response
   ): Promise<void> {
+    const requestId = Math.random().toString(36).substring(2, 15)
+    console.log(
+      `🔍 [WorkoutController:${requestId}] deleteWorkoutGoal 요청 시작`
+    )
+
     try {
       const userId = req.user?.userId
       const { goalId } = req.params
 
+      console.log(`📋 [WorkoutController:${requestId}] 요청 파라미터:`, {
+        userId,
+        goalId,
+        userAgent: req.headers.get("user-agent"),
+        authorization: req.headers.get("authorization") ? "present" : "missing",
+      })
+
       if (!userId) {
+        console.warn(`⚠️ [WorkoutController:${requestId}] 인증되지 않은 사용자`)
         res.status(401).json({ error: "인증이 필요합니다." })
         return
       }
 
       if (!goalId || isNaN(parseInt(goalId))) {
+        console.warn(
+          `⚠️ [WorkoutController:${requestId}] 유효하지 않은 목표 ID: ${goalId}`
+        )
         res.status(400).json({ error: "유효하지 않은 목표 ID입니다." })
         return
       }
 
-      console.log(`목표 삭제 시도 - User ID: ${userId}, Goal ID: ${goalId}`)
+      console.log(
+        `🚀 [WorkoutController:${requestId}] 서비스 호출 - User ID: ${userId}, Goal ID: ${goalId}`
+      )
 
       await this.workoutJournalService.deleteWorkoutGoal(
         parseInt(goalId),
         userId
       )
 
-      console.log(`목표 삭제 성공 - User ID: ${userId}, Goal ID: ${goalId}`)
+      console.log(
+        `✅ [WorkoutController:${requestId}] 목표 삭제 성공 - User ID: ${userId}, Goal ID: ${goalId}`
+      )
       res.json({ success: true, message: "운동 목표가 삭제되었습니다." })
     } catch (error) {
-      console.error("운동 목표 삭제 실패:", error)
+      console.error(
+        `❌ [WorkoutController:${requestId}] 운동 목표 삭제 실패:`,
+        error
+      )
       const errorMessage =
         error instanceof Error
           ? error.message

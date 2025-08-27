@@ -1,0 +1,116 @@
+/* ProgressChart.module.css - 진행률 차트 스타일 */
+
+.progressChart {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.chartPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.chartIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.chartMessage {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.chartDescription {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  line-height: 1.4;
+  max-width: 280px;
+}
+
+/* 실제 차트가 있을 때의 스타일 */
+.chartContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+}
+
+.chartContent {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .chartPlaceholder {
+    padding: 30px 16px;
+  }
+
+  .chartIcon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+  }
+
+  .chartMessage {
+    font-size: 1rem;
+  }
+
+  .chartDescription {
+    font-size: 0.85rem;
+    max-width: 240px;
+  }
+
+  .chartContainer {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chartPlaceholder {
+    padding: 24px 12px;
+  }
+
+  .chartIcon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+
+  .chartMessage {
+    font-size: 0.9rem;
+  }
+
+  .chartDescription {
+    font-size: 0.8rem;
+    max-width: 200px;
+  }
+
+  .chartContainer {
+    padding: 12px;
+  }
+}

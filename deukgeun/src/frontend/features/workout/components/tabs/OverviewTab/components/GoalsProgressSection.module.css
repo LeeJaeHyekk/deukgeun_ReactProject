@@ -1,0 +1,172 @@
+/* GoalsProgressSection.module.css - 목표 진행 섹션 스타일 */
+
+.goalsProgressSection {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(15px);
+  height: 100%;
+  min-height: 300px;
+}
+
+.goalsProgressSection h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 24px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.goalsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.goalItem {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.goalItem:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.goalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.goalHeader h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  flex: 1;
+  min-width: 0;
+}
+
+.goalProgress {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.2);
+  padding: 4px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.goalProgressBar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.goalProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.goalDetails {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.noDataMessage {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.noDataMessage p {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .goalsProgressSection {
+    padding: 20px;
+    min-height: 250px;
+  }
+
+  .goalsProgressSection h3 {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+  }
+
+  .goalsList {
+    gap: 12px;
+  }
+
+  .goalItem {
+    padding: 14px;
+  }
+
+  .goalHeader h4 {
+    font-size: 0.9rem;
+  }
+
+  .goalProgress {
+    font-size: 0.8rem;
+    padding: 3px 6px;
+  }
+
+  .goalDetails {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .goalsProgressSection {
+    padding: 16px;
+    min-height: 200px;
+  }
+
+  .goalsProgressSection h3 {
+    font-size: 1.125rem;
+    margin-bottom: 16px;
+  }
+
+  .goalItem {
+    padding: 12px;
+  }
+
+  .goalHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .goalProgress {
+    margin-left: 0;
+  }
+
+  .noDataMessage {
+    padding: 30px 16px;
+  }
+}

@@ -24,50 +24,78 @@ export function ProgressChart({
     return (
       <div className={styles.progressChart}>
         <div className={styles.chartContainer}>
-          <div className={styles.chartContent}>
-            {/* 실제 차트 구현 - 여기에 Chart.js나 Recharts를 사용할 수 있습니다 */}
-            <div style={{ textAlign: "center", color: "#ffffff" }}>
-              <h4 style={{ margin: "0 0 16px 0", fontSize: "1.1rem" }}>
-                {title || "주간 진행률"}
-              </h4>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-around",
-                  alignItems: "flex-end",
-                  height: "120px",
-                }}
-              >
-                {data.map((item, index) => (
+          <div className={styles.chartTitle}>
+            <h4
+              style={{
+                margin: 0,
+                fontSize: "1.2rem",
+                fontWeight: "600",
+                color: "#ffffff",
+              }}
+            >
+              {title || "주간 진행률"}
+            </h4>
+          </div>
+          <div className={styles.chartBody}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-around",
+                alignItems: "flex-end",
+                height: "180px",
+                padding: "0 10px",
+                width: "100%",
+              }}
+            >
+              {data.map((item, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    position: "relative",
+                  }}
+                >
+                  {/* 수치 표기 */}
                   <div
-                    key={index}
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
+                      position: "absolute",
+                      top: "-25px",
+                      fontSize: "0.8rem",
+                      fontWeight: "600",
+                      color: "#ffffff",
+                      textShadow: "0 1px 2px rgba(0, 0, 0, 0.5)",
                     }}
                   >
-                    <div
-                      style={{
-                        width: "20px",
-                        height: `${Math.max(item.value * 1.2, 10)}px`,
-                        backgroundColor: color,
-                        borderRadius: "4px 4px 0 0",
-                        marginBottom: "8px",
-                        transition: "height 0.3s ease",
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontSize: "0.75rem",
-                        color: "rgba(255, 255, 255, 0.8)",
-                      }}
-                    >
-                      {item.day}
-                    </span>
+                    {item.value}
+                    {unit}
                   </div>
-                ))}
-              </div>
+                  {/* 바 차트 */}
+                  <div
+                    style={{
+                      width: "28px",
+                      height: `${Math.max(item.value * 2, 15)}px`,
+                      backgroundColor: color,
+                      borderRadius: "6px 6px 0 0",
+                      marginBottom: "12px",
+                      transition: "height 0.3s ease",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+                      position: "relative",
+                    }}
+                  />
+                  {/* 요일 표기 */}
+                  <span
+                    style={{
+                      fontSize: "0.85rem",
+                      color: "rgba(255, 255, 255, 0.9)",
+                      fontWeight: "500",
+                    }}
+                  >
+                    {item.day}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

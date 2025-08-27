@@ -8,47 +8,118 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(15px);
   height: 100%;
-  min-height: 300px;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
 }
 
-.goalsProgressSection h3 {
-  font-size: 1.5rem;
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sectionHeader h3 {
+  font-size: 1.4rem;
   font-weight: 600;
   color: #ffffff;
-  margin: 0 0 24px 0;
+  margin: 0;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
+.goalsCount {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .goalsList {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .goalItem {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-  padding: 16px;
+  padding: 18px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.goalItem::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .goalItem:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   border-color: rgba(255, 255, 255, 0.2);
+}
+
+.goalItem:hover::before {
+  opacity: 1;
+}
+
+.goalItem.completed {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.goalItem.overdue {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 .goalHeader {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+
+.goalInfo {
+  display: flex;
   align-items: center;
-  margin-bottom: 12px;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.goalIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .goalHeader h4 {
@@ -56,7 +127,7 @@
   font-weight: 600;
   color: #ffffff;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.3;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   flex: 1;
   min-width: 0;
@@ -65,58 +136,122 @@
 .goalProgress {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.2);
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
   flex-shrink: 0;
-  margin-left: 8px;
+  border: 1px solid currentColor;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .goalProgressBar {
   width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
   overflow: hidden;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.goalProgressBar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .goalProgressFill {
   height: 100%;
-  background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
-  border-radius: 4px;
-  transition: width 0.3s ease;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .goalDetails {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 0.875rem;
   color: rgba(255, 255, 255, 0.8);
   margin: 0;
   line-height: 1.2;
 }
 
+.goalValues {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.goalDeadline {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .noDataMessage {
   text-align: center;
   padding: 40px 20px;
   color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.noDataIcon {
+  font-size: 3rem;
+  opacity: 0.5;
+  margin-bottom: 8px;
 }
 
 .noDataMessage p {
-  font-size: 0.9rem;
+  font-size: 1rem;
   margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.noDataMessage span {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
   .goalsProgressSection {
     padding: 20px;
-    min-height: 250px;
+    min-height: 280px;
   }
 
-  .goalsProgressSection h3 {
+  .sectionHeader h3 {
     font-size: 1.25rem;
-    margin-bottom: 20px;
+  }
+
+  .goalsCount {
+    font-size: 0.8rem;
+    padding: 3px 10px;
   }
 
   .goalsList {
@@ -124,7 +259,13 @@
   }
 
   .goalItem {
-    padding: 14px;
+    padding: 16px;
+  }
+
+  .goalIcon {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
   }
 
   .goalHeader h4 {
@@ -133,40 +274,64 @@
 
   .goalProgress {
     font-size: 0.8rem;
-    padding: 3px 6px;
+    padding: 4px 8px;
   }
 
   .goalDetails {
     font-size: 0.8rem;
+  }
+
+  .goalDeadline {
+    font-size: 0.75rem;
+    padding: 2px 6px;
   }
 }
 
 @media (max-width: 480px) {
   .goalsProgressSection {
     padding: 16px;
-    min-height: 200px;
+    min-height: 240px;
   }
 
-  .goalsProgressSection h3 {
-    font-size: 1.125rem;
-    margin-bottom: 16px;
-  }
-
-  .goalItem {
-    padding: 12px;
-  }
-
-  .goalHeader {
+  .sectionHeader {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
 
+  .sectionHeader h3 {
+    font-size: 1.125rem;
+  }
+
+  .goalItem {
+    padding: 14px;
+  }
+
+  .goalHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .goalInfo {
+    width: 100%;
+  }
+
   .goalProgress {
-    margin-left: 0;
+    align-self: flex-end;
+  }
+
+  .goalDetails {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
   }
 
   .noDataMessage {
     padding: 30px 16px;
+  }
+
+  .noDataIcon {
+    font-size: 2.5rem;
   }
 }

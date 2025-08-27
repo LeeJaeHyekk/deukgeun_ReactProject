@@ -3,6 +3,7 @@ import { WorkoutPlanDTO } from "../../types"
 import { ProgressBar } from "../ui/ProgressBar"
 import { Badge } from "../ui/Badge"
 import { Button } from "../ui/Button"
+import styles from "./WorkoutPlanCard.module.css"
 
 interface WorkoutPlanCardProps {
   plan: WorkoutPlanDTO
@@ -17,51 +18,88 @@ export function WorkoutPlanCard({
   onEdit,
   onDelete,
 }: WorkoutPlanCardProps) {
+  // 실제 데이터에서 계산된 값들
+  const getPlanStats = () => {
+    return {
+      exerciseCount: plan.exercises?.length || 0,
+      totalDuration: plan.totalDurationMinutes || 0,
+      streak: plan.streak || 0,
+      progress: plan.progress || 0,
+      difficulty: plan.difficulty || "보통",
+    }
+  }
+
+  const stats = getPlanStats()
+
+  // 난이도별 색상 클래스
+  const getDifficultyClass = (difficulty: string) => {
+    switch (difficulty.toLowerCase()) {
+      case "쉬움":
+      case "easy":
+        return styles.easy
+      case "어려움":
+      case "hard":
+        return styles.hard
+      default:
+        return styles.medium
+    }
+  }
+
   return (
-    <div className="workout-plan-card">
-      <div className="card-header">
-        <div className="card-title">
+    <div className={styles.workoutPlanCard}>
+      <div className={styles.cardHeader}>
+        <div className={styles.cardTitle}>
           <h3>{plan.name}</h3>
           {plan.badge && (
             <Badge level={plan.difficulty} milestone={plan.badge} />
           )}
         </div>
-        <div className="card-actions">
-          <Button onClick={onViewDetails} size="small" variant="primary">
+        <div className={styles.cardActions}>
+          <button
+            className={`${styles.actionButton} ${styles.primary}`}
+            onClick={onViewDetails}
+          >
             상세보기
-          </Button>
-          <Button onClick={onEdit} size="small" variant="secondary">
+          </button>
+          <button
+            className={`${styles.actionButton} ${styles.secondary}`}
+            onClick={onEdit}
+          >
             수정
-          </Button>
-          <Button onClick={onDelete} size="small" variant="danger">
+          </button>
+          <button
+            className={`${styles.actionButton} ${styles.danger}`}
+            onClick={onDelete}
+          >
             삭제
-          </Button>
+          </button>
         </div>
       </div>
 
-      <div className="card-content">
+      <div className={styles.cardContent}>
         {plan.description && (
-          <p className="card-description">{plan.description}</p>
+          <p className={styles.cardDescription}>{plan.description}</p>
         )}
 
-        <div className="card-stats">
-          <div className="stat-item">
-            <span className="stat-label">운동 수:</span>
-            <span className="stat-value">{plan.exercises.length}개</span>
+        <div className={styles.cardStats}>
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>운동 수</span>
+            <span className={styles.statValue}>{stats.exerciseCount}개</span>
           </div>
-          <div className="stat-item">
-            <span className="stat-label">소요 시간:</span>
-            <span className="stat-value">{plan.totalDurationMinutes}분</span>
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>소요 시간</span>
+            <span className={styles.statValue}>{stats.totalDuration}분</span>
           </div>
-          <div className="stat-item">
-            <span className="stat-label">연속 달성:</span>
-            <span className="stat-value">{plan.streak}일</span>
+          <div className={styles.statItem}>
+            <span className={styles.statLabel}>연속 달성</span>
+            <span className={styles.statValue}>{stats.streak}일</span>
           </div>
         </div>
 
-        <div className="card-progress">
+        <div className={styles.cardProgress}>
+          <div className={styles.progressLabel}>진행률</div>
           <ProgressBar
-            currentValue={plan.progress}
+            currentValue={stats.progress}
             targetValue={100}
             unit="%"
           />

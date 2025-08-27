@@ -11,6 +11,10 @@ import styles from "./myPage.module.css"
 interface UserInfo {
   nickname: string
   email: string
+  phone?: string
+  gender?: string
+  birthday?: string
+  createdAt?: string
 }
 
 interface MyPageProps {
@@ -21,10 +25,6 @@ interface MyPageProps {
 const selectUser = (state: { user: User | null }) => state.user
 
 // 메모이제이션된 컴포넌트들
-const UserAvatar = memo(({ src, alt }: { src: string; alt: string }) => (
-  <img src={src} alt={alt} className={styles.avatar} />
-))
-
 const InfoItem = memo(
   ({ label, value, icon }: { label: string; value: string; icon?: string }) => (
     <div className={styles.infoItem}>
@@ -83,7 +83,7 @@ const StatsCard = memo(
 )
 
 function MyPage({ className }: MyPageProps) {
-  // Zustand store에서 사용자 정보 가져오기 (최적화된 selector 사용)
+  const navigate = useNavigate()
   const user = useUserStore(selectUser)
   const { logout } = useAuthContext()
 
@@ -92,8 +92,21 @@ function MyPage({ className }: MyPageProps) {
     return {
       nickname: user?.nickname || "사용자",
       email: user?.email || "이메일 없음",
+      phone: user?.phone || "미등록",
+      gender:
+        user?.gender === "male"
+          ? "남성"
+          : user?.gender === "female"
+            ? "여성"
+            : "미등록",
+      birthday: user?.birthday
+        ? new Date(user.birthday).toLocaleDateString()
+        : "미등록",
+      createdAt: user?.createdAt
+        ? new Date(user.createdAt).toLocaleDateString()
+        : "미등록",
     }
-  }, [user?.nickname, user?.email])
+  }, [user])
 
   // 로그아웃 핸들러 메모이제이션
   const handleLogout = useCallback(async () => {
@@ -107,20 +120,34 @@ function MyPage({ className }: MyPageProps) {
 
   // 회원정보 수정 핸들러
   const handleEditProfile = useCallback(() => {
-    console.log("회원정보 수정 페이지로 이동")
-    // TODO: 회원정보 수정 페이지로 라우팅
-  }, [])
+    navigate("/profile/edit")
+  }, [navigate])
 
   // 운동 기록 보기 핸들러
   const handleViewWorkoutHistory = useCallback(() => {
-    console.log("운동 기록 페이지로 이동")
-    // TODO: 운동 기록 페이지로 라우팅
-  }, [])
+    navigate("/workout/history")
+  }, [navigate])
 
-  // 설정 아이콘 클릭 핸들러
-  const handleSettingsClick = useCallback(() => {
-    console.log("설정 페이지로 이동")
-    // TODO: 설정 페이지로 라우팅
+  // 운동 진행상황 보기 핸들러
+  const handleViewProgress = useCallback(() => {
+    navigate("/workout/progress")
+  }, [navigate])
+
+  // 설정 페이지 핸들러
+  const handleSettings = useCallback(() => {
+    navigate("/settings")
+  }, [navigate])
+
+  // 계정 삭제 핸들러
+  const handleDeleteAccount = useCallback(() => {
+    if (
+      window.confirm(
+        "정말로 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+      )
+    ) {
+      // TODO: 계정 삭제 API 호출
+      console.log("계정 삭제 요청")
+    }
   }, [])
 
   return (
@@ -130,18 +157,14 @@ function MyPage({ className }: MyPageProps) {
         {/* Header Section */}
         <div className={styles.headerSection}>
           <div className={styles.profile}>
-            <UserAvatar src="/img/user-avatar.png" alt="유저 아바타" />
             <div className={styles.userMeta}>
               <div className={styles.username}>{userInfo.nickname}</div>
               <div className={styles.userEmail}>{userInfo.email}</div>
-              <div
-                className={styles.settingIcon}
-                onClick={handleSettingsClick}
-                role="button"
-                tabIndex={0}
-                onKeyDown={e => e.key === "Enter" && handleSettingsClick()}
-              >
-                ⚙️
+              <div className={styles.userStatus}>
+                <span className={styles.statusBadge}>활성 계정</span>
+                <span className={styles.joinDate}>
+                  가입일: {userInfo.createdAt}
+                </span>
               </div>
             </div>
           </div>
@@ -159,31 +182,31 @@ function MyPage({ className }: MyPageProps) {
 
         {/* Stats Section */}
         <div className={styles.statsSection}>
-          <h3 className={styles.sectionTitle}>활동 통계</h3>
+          <h3 className={styles.sectionTitle}>운동 통계</h3>
           <div className={styles.statsGrid}>
             <StatsCard
-              title="총 운동일수"
-              value="24일"
+              title="총 운동 세션"
+              value="24회"
               subtitle="이번 달"
               icon="💪"
             />
             <StatsCard
-              title="연속 운동"
-              value="7일"
-              subtitle="현재 스트릭"
-              icon="🔥"
+              title="총 운동 시간"
+              value="1,440분"
+              subtitle="24시간"
+              icon="⏱️"
             />
             <StatsCard
-              title="완료한 미션"
-              value="12개"
+              title="완료한 세트"
+              value="156세트"
               subtitle="이번 달"
               icon="🎯"
             />
             <StatsCard
-              title="획득한 포인트"
-              value="1,250P"
-              subtitle="총 누적"
-              icon="⭐"
+              title="평균 운동 시간"
+              value="60분"
+              subtitle="세션당"
+              icon="📊"
             />
           </div>
         </div>
@@ -192,12 +215,12 @@ function MyPage({ className }: MyPageProps) {
         <div className={styles.infoSection}>
           <h3 className={styles.sectionTitle}>개인 정보</h3>
           <div className={styles.infoGrid}>
-            <InfoItem label="운동 부위" value="🔥 가슴 + 삼두" icon="🏋️" />
+            <InfoItem label="닉네임" value={userInfo.nickname} icon="👤" />
             <InfoItem label="이메일" value={userInfo.email} icon="📧" />
-            <InfoItem label="진행 중 미션" value="2개" icon="🎯" />
-            <InfoItem label="최근 운동일" value="2025.07.24" icon="📅" />
-            <InfoItem label="가입일" value="2024.01.15" icon="📝" />
-            <InfoItem label="활동 등급" value="골드" icon="🏆" />
+            <InfoItem label="전화번호" value={userInfo.phone} icon="📱" />
+            <InfoItem label="성별" value={userInfo.gender} icon="⚧" />
+            <InfoItem label="생년월일" value={userInfo.birthday} icon="🎂" />
+            <InfoItem label="가입일" value={userInfo.createdAt} icon="📝" />
           </div>
         </div>
 
@@ -215,8 +238,29 @@ function MyPage({ className }: MyPageProps) {
             >
               운동 기록 보기
             </ActionButton>
+            <ActionButton
+              onClick={handleViewProgress}
+              icon="📈"
+              variant="secondary"
+            >
+              진행상황 보기
+            </ActionButton>
+            <ActionButton
+              onClick={handleSettings}
+              icon="⚙️"
+              variant="secondary"
+            >
+              설정
+            </ActionButton>
             <ActionButton onClick={handleLogout} variant="danger" icon="🚪">
               로그아웃
+            </ActionButton>
+            <ActionButton
+              onClick={handleDeleteAccount}
+              variant="danger"
+              icon="🗑️"
+            >
+              계정 삭제
             </ActionButton>
           </div>
         </div>

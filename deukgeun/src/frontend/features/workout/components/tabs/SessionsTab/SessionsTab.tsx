@@ -1,7 +1,6 @@
 import React from "react"
 import { useTabState } from "../../../hooks/useWorkoutStore"
 import { useSharedState } from "../../../hooks/useWorkoutStore"
-import { GlobalWorkoutTimer } from "../../../components/timer/GlobalWorkoutTimer"
 import { useWorkoutSessions } from "../../../hooks/useWorkoutSessions"
 import { ActiveSessionContainer } from "./components/ActiveSessionContainer"
 import { SessionsContent } from "./components/SessionsContent"
@@ -98,222 +97,80 @@ export function SessionsTab({
     updateTabState({ sortBy })
   }
 
-  const handleSessionSelect = (sessionId: number | null) => {
-    updateTabState({ selectedSessionId: sessionId })
-  }
-
-  // Glassmorphism 스타일 객체
-  const glassmorphismStyles = {
-    main: {
-      display: "flex" as const,
-      flexDirection: "column" as const,
-      gap: "24px",
-      padding: "24px",
-      background: "rgba(255, 255, 255, 0.95)",
-      backdropFilter: "blur(20px)",
-      minHeight: "100vh",
-      fontFamily:
-        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      color: "#1f2937",
-      borderRadius: "16px",
-      margin: "16px",
-      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
-      border: "1px solid rgba(255, 255, 255, 0.2)",
-      position: "relative" as const,
-      zIndex: 1,
-    },
-    header: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "24px 0",
-      borderBottom: "1px solid rgba(229, 231, 235, 0.3)",
-      background: "rgba(255, 255, 255, 0.02)",
-      borderRadius: "12px",
-      marginBottom: "8px",
-    },
-    headerContent: {
-      display: "flex" as const,
-      flexDirection: "column" as const,
-      gap: "4px",
-    },
-    headerTitle: {
-      margin: "0 0 4px 0",
-      color: "#1f2937",
-      fontSize: "28px",
-      fontWeight: "700",
-      letterSpacing: "-0.025em",
-    },
-    headerSubtitle: {
-      margin: "0",
-      color: "#6b7280",
-      fontSize: "16px",
-    },
-    controls: {
-      padding: "20px 0",
-      borderBottom: "1px solid rgba(243, 244, 246, 0.3)",
-      background: "rgba(255, 255, 255, 0.02)",
-      borderRadius: "12px",
-      marginBottom: "8px",
-    },
-    controlSection: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      gap: "16px",
-    },
-    sortButtons: {
-      display: "flex",
-      gap: "8px",
-    },
-    sortBtn: (isActive: boolean) => ({
-      padding: "10px 18px",
-      background: isActive
-        ? "linear-gradient(135deg, rgba(245, 158, 11, 0.9) 0%, rgba(217, 119, 6, 0.9) 100%)"
-        : "rgba(249, 250, 251, 0.8)",
-      backdropFilter: "blur(10px)",
-      border: isActive ? "transparent" : "1px solid rgba(229, 231, 235, 0.3)",
-      borderRadius: "12px",
-      color: isActive ? "white" : "#374151",
-      fontSize: "14px",
-      fontWeight: "600",
-      cursor: "pointer",
-      transition: "all 0.3s ease",
-      boxShadow: isActive
-        ? "0 4px 16px rgba(245, 158, 11, 0.3)"
-        : "0 2px 8px rgba(0, 0, 0, 0.1)",
-    }),
-    section: {
-      marginBottom: "28px",
-      padding: "20px",
-      background: "rgba(255, 255, 255, 0.02)",
-      borderRadius: "16px",
-      border: "1px solid rgba(229, 231, 235, 0.2)",
-    },
-    sectionHeader: {
-      marginBottom: "20px",
-      padding: "16px 20px",
-      background: "rgba(255, 255, 255, 0.02)",
-      borderRadius: "12px",
-      border: "1px solid rgba(229, 231, 235, 0.2)",
-    },
-    sectionTitle: {
-      margin: "0 0 4px 0",
-      color: "#1f2937",
-      fontSize: "20px",
-      fontWeight: "600",
-    },
-    sectionSubtitle: {
-      margin: "0",
-      color: "#6b7280",
-      fontSize: "14px",
-    },
-    loading: {
-      display: "flex" as const,
-      flexDirection: "column" as const,
-      alignItems: "center" as const,
-      justifyContent: "center" as const,
-      minHeight: "360px",
-      color: "#6b7280",
-      background: "rgba(255, 255, 255, 0.02)",
-      borderRadius: "16px",
-      border: "1px solid rgba(229, 231, 235, 0.2)",
-      padding: "40px",
-    },
-    noSessions: {
-      display: "flex" as const,
-      flexDirection: "column" as const,
-      alignItems: "center" as const,
-      justifyContent: "center" as const,
-      padding: "60px 20px",
-      textAlign: "center" as const,
-      background: "rgba(249, 250, 251, 0.8)",
-      backdropFilter: "blur(10px)",
-      borderRadius: "16px",
-      border: "2px dashed rgba(209, 213, 219, 0.5)",
-      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
-    },
-    noSessionsIcon: {
-      fontSize: "48px",
-      marginBottom: "16px",
-    },
-    noSessionsTitle: {
-      margin: "0 0 8px 0",
-      color: "#1f2937",
-      fontSize: "18px",
-      fontWeight: "600",
-    },
-    noSessionsText: {
-      margin: "0",
-      color: "#6b7280",
-      fontSize: "14px",
-    },
+  const handleFilterChange = (filterStatus: string) => {
+    updateTabState({ filterStatus })
   }
 
   if (isLoading) {
     return (
-      <div className={styles.sessionsTab} style={glassmorphismStyles.main}>
-        <div
-          className={styles.loadingContainer}
-          style={glassmorphismStyles.loading}
-        >
+      <div className={styles.sessionsTab}>
+        <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}></div>
-          <p>세션을 불러오는 중...</p>
+          <h3>로딩 중...</h3>
+          <p>세션 정보를 불러오는 중입니다</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className={styles.sessionsTab} style={glassmorphismStyles.main}>
-      {/* Glassmorphism 헤더 */}
-      <div className={styles.sessionsHeader} style={glassmorphismStyles.header}>
-        <div
-          className={styles.headerContent}
-          style={glassmorphismStyles.headerContent}
-        >
-          <h2 style={glassmorphismStyles.headerTitle}>⏱️ 운동 세션</h2>
-          <p style={glassmorphismStyles.headerSubtitle}>
-            운동 세션을 관리하고 기록하세요
-          </p>
+    <div className={styles.sessionsTab}>
+      {/* 헤더 */}
+      <div className={styles.sessionsHeader}>
+        <div className={styles.sessionsHeaderContent}>
+          <h1>운동 세션</h1>
+          <p>운동 세션을 관리하고 진행 상황을 확인하세요</p>
         </div>
       </div>
 
-      {/* Glassmorphism 컨트롤 */}
-      <div
-        className={styles.sessionsControls}
-        style={glassmorphismStyles.controls}
-      >
-        <div
-          className={styles.controlSection}
-          style={glassmorphismStyles.controlSection}
-        >
-          <div
-            className={styles.sortButtons}
-            style={glassmorphismStyles.sortButtons}
-          >
+      {/* 컨트롤 섹션 */}
+      <div className={styles.sessionsControls}>
+        <div className={styles.controlSection}>
+          {/* 필터 버튼 */}
+          <div className={styles.filterButtons}>
+            <button
+              className={`${styles.filterBtn} ${tabState.filterStatus === "all" ? styles.active : ""}`}
+              onClick={() => handleFilterChange("all")}
+            >
+              전체
+            </button>
+            <button
+              className={`${styles.filterBtn} ${tabState.filterStatus === "completed" ? styles.active : ""}`}
+              onClick={() => handleFilterChange("completed")}
+            >
+              완료
+            </button>
+            <button
+              className={`${styles.filterBtn} ${tabState.filterStatus === "in_progress" ? styles.active : ""}`}
+              onClick={() => handleFilterChange("in_progress")}
+            >
+              진행중
+            </button>
+            <button
+              className={`${styles.filterBtn} ${tabState.filterStatus === "paused" ? styles.active : ""}`}
+              onClick={() => handleFilterChange("paused")}
+            >
+              일시정지
+            </button>
+          </div>
+
+          {/* 정렬 버튼 */}
+          <div className={styles.sortButtons}>
             <button
               className={`${styles.sortBtn} ${tabState.sortBy === "startTime" ? styles.active : ""}`}
               onClick={() => handleSortChange("startTime")}
-              style={glassmorphismStyles.sortBtn(
-                tabState.sortBy === "startTime"
-              )}
             >
               최신순
             </button>
             <button
               className={`${styles.sortBtn} ${tabState.sortBy === "name" ? styles.active : ""}`}
               onClick={() => handleSortChange("name")}
-              style={glassmorphismStyles.sortBtn(tabState.sortBy === "name")}
             >
               이름순
             </button>
             <button
               className={`${styles.sortBtn} ${tabState.sortBy === "duration" ? styles.active : ""}`}
               onClick={() => handleSortChange("duration")}
-              style={glassmorphismStyles.sortBtn(
-                tabState.sortBy === "duration"
-              )}
             >
               시간순
             </button>
@@ -321,77 +178,47 @@ export function SessionsTab({
         </div>
       </div>
 
-      {/* Glassmorphism 활성 세션 (있는 경우) */}
-      {activeSession && (
-        <div
-          className={styles.activeSessionSection}
-          style={glassmorphismStyles.section}
-        >
-          <div
-            className={styles.sectionHeader}
-            style={glassmorphismStyles.sectionHeader}
-          >
-            <h3 style={glassmorphismStyles.sectionTitle}>🔥 진행중인 세션</h3>
-            <p style={glassmorphismStyles.sectionSubtitle}>
-              현재 진행 중인 운동 세션입니다
-            </p>
-          </div>
-          <ActiveSessionContainer
-            activeSession={activeSession}
-            onViewSession={onViewSession}
-            onEditSession={onEditSession}
-            onDeleteSession={handleDeleteSession}
-          />
+      {/* 세션 목록 섹션 */}
+      <div className={styles.sessionsSection}>
+        <div className={styles.sectionHeader}>
+          <h3>📋 세션 목록</h3>
+          <p>총 {filteredSessions.length}개의 세션</p>
         </div>
-      )}
 
-      {/* Glassmorphism 세션 목록 */}
-      {filteredSessions.length > 0 ? (
-        <div
-          className={styles.sessionsSection}
-          style={glassmorphismStyles.section}
-        >
-          <div
-            className={styles.sectionHeader}
-            style={glassmorphismStyles.sectionHeader}
-          >
-            <h3 style={glassmorphismStyles.sectionTitle}>
-              📋 세션 목록 ({filteredSessions.length}개)
-            </h3>
-            <p style={glassmorphismStyles.sectionSubtitle}>
-              모든 운동 세션을 확인하세요
+        {filteredSessions.length === 0 ? (
+          <div className={styles.noSessionsContainer}>
+            <div className={styles.noSessionsIcon}>🏋️‍♂️</div>
+            <h3 className={styles.noSessionsTitle}>세션이 없습니다</h3>
+            <p className={styles.noSessionsText}>
+              새로운 운동 세션을 시작해보세요!
             </p>
           </div>
+        ) : (
           <SessionsContent
             sessions={filteredSessions}
             activeSession={activeSession}
             onViewSession={onViewSession}
             onEditSession={onEditSession}
-            onDeleteSession={handleDeleteSession}
+            onDeleteSession={onDeleteSession}
+          />
+        )}
+      </div>
+
+      {/* 진행중인 세션 섹션 */}
+      {activeSession && (
+        <div className={styles.activeSessionSection}>
+          <div className={styles.sectionHeader}>
+            <h3>🔥 진행중인 세션</h3>
+            <p>현재 진행 중인 운동 세션</p>
+          </div>
+          <ActiveSessionContainer
+            activeSession={activeSession}
+            onViewSession={onViewSession}
+            onEditSession={onEditSession}
+            onDeleteSession={onDeleteSession}
           />
         </div>
-      ) : (
-        <div
-          className={styles.noSessionsContainer}
-          style={glassmorphismStyles.noSessions}
-        >
-          <div
-            className={styles.noSessionsIcon}
-            style={glassmorphismStyles.noSessionsIcon}
-          >
-            ⏱️
-          </div>
-          <h3 style={glassmorphismStyles.noSessionsTitle}>
-            아직 운동 세션이 없습니다
-          </h3>
-          <p style={glassmorphismStyles.noSessionsText}>
-            첫 번째 운동 세션을 시작해보세요!
-          </p>
-        </div>
       )}
-
-      {/* 글로벌 타이머 */}
-      <GlobalWorkoutTimer />
     </div>
   )
 }

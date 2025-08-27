@@ -348,7 +348,7 @@ function WorkoutPageContent() {
 
       <div className={styles.workoutPageContent}>
         <header className={styles.workoutPageHeader}>
-          <div className={styles.headerContent}>
+          <div className={styles.workoutPageHeaderContent}>
             <div className={styles.headerText}>
               <h1>운동 관리</h1>
               <p>

@@ -4,8 +4,7 @@ import { OverviewTab } from "../tabs/OverviewTab"
 import { PlansTab } from "../tabs/PlansTab"
 import { SessionsTab } from "../tabs/SessionsTab"
 import { GoalsTab } from "../tabs/GoalsTab"
-
-import { WorkoutProgressTab } from "../tabs/WorkoutProgressTab"
+import { ProgressTab } from "../tabs/ProgressTab/ProgressTab"
 import type { TabType } from "../../types"
 import type {
   WorkoutPlan,
@@ -13,10 +12,7 @@ import type {
   WorkoutGoal,
   Machine,
 } from "@shared/types"
-import type {
-  DashboardData,
-  WorkoutStatsDTO,
-} from "../../types"
+import type { DashboardData, WorkoutStatsDTO } from "../../types"
 import styles from "./TabContent.module.css"
 
 interface TabContentProps {
@@ -45,7 +41,6 @@ interface TabContentProps {
   onDeletePlan: (planId: number) => void
   onDeleteSession: (sessionId: number) => void
   onDeleteGoal: (goalId: number) => void
-
 }
 
 export function TabContent({
@@ -121,7 +116,7 @@ export function TabContent({
 
       {activeTab === "sessions" && (
         <SessionsTab
-          sessions={sessions}
+          sessions={sessions as any}
           isLoading={sessionsLoading}
           onEditSession={onEditSession}
           onViewSession={onViewSession}
@@ -129,11 +124,10 @@ export function TabContent({
         />
       )}
 
-
       {activeTab === "workoutProgress" && (
-        <WorkoutProgressTab
+        <ProgressTab
           sessions={sessions as any}
-          workoutStats={workoutStats}
+          onViewSession={onViewSession}
           isLoading={sessionsLoading}
         />
       )}

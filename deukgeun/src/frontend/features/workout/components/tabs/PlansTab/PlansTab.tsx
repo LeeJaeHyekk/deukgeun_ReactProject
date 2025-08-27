@@ -5,7 +5,7 @@ import type { WorkoutPlan } from "../../../../../shared/api/workoutJournalApi"
 import { PlansContent } from "./components/PlansContent"
 import { PlansStats } from "./components/PlansStats"
 import { usePlansActions } from "./hooks/usePlansActions"
-import "./PlansTab.css"
+import styles from "./PlansTab.module.css"
 
 // 로깅 유틸리티
 const logger = {
@@ -120,9 +120,9 @@ export function PlansTab({
 
   if (isLoading) {
     return (
-      <div className="plans-tab">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
+      <div className={styles.plansTab}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
           <p>계획을 불러오는 중...</p>
         </div>
       </div>
@@ -130,50 +130,50 @@ export function PlansTab({
   }
 
   return (
-    <div className="plans-tab">
-      {/* 간단한 헤더 */}
-      <div className="plans-header">
-        <div className="header-content">
+    <div className={styles.plansTab}>
+      {/* 헤더 섹션 */}
+      <div className={styles.plansHeader}>
+        <div className={styles.plansHeaderContent}>
           <h2>📋 운동 계획</h2>
           <p>운동 계획을 만들고 관리하세요</p>
         </div>
-        <button className="create-plan-btn" onClick={onCreatePlan}>
-          <span className="icon">+</span>새 계획
+        <button className={styles.createPlanBtn} onClick={onCreatePlan}>
+          <span className={styles.icon}>+</span>새 계획
         </button>
       </div>
 
-      {/* 간단한 컨트롤 */}
-      <div className="plans-controls">
-        <div className="control-section">
-          <div className="sort-buttons">
+      {/* 컨트롤 섹션 */}
+      <div className={styles.plansControls}>
+        <div className={styles.controlSection}>
+          <div className={styles.sortButtons}>
             <button
-              className={`sort-btn ${tabState.sortBy === "createdAt" ? "active" : ""}`}
+              className={`${styles.sortBtn} ${tabState.sortBy === "createdAt" ? styles.active : ""}`}
               onClick={() => handleSortChange("createdAt")}
             >
               최신순
             </button>
             <button
-              className={`sort-btn ${tabState.sortBy === "name" ? "active" : ""}`}
+              className={`${styles.sortBtn} ${tabState.sortBy === "name" ? styles.active : ""}`}
               onClick={() => handleSortChange("name")}
             >
               이름순
             </button>
             <button
-              className={`sort-btn ${tabState.sortBy === "difficulty" ? "active" : ""}`}
+              className={`${styles.sortBtn} ${tabState.sortBy === "difficulty" ? styles.active : ""}`}
               onClick={() => handleSortChange("difficulty")}
             >
               난이도순
             </button>
           </div>
-          <div className="view-mode-toggle">
+          <div className={styles.viewModeToggle}>
             <button
-              className={`view-mode-btn ${tabState.viewMode === "grid" ? "active" : ""}`}
+              className={`${styles.viewModeBtn} ${tabState.viewMode === "grid" ? styles.active : ""}`}
               onClick={() => handleViewModeChange("grid")}
             >
               그리드
             </button>
             <button
-              className={`view-mode-btn ${tabState.viewMode === "list" ? "active" : ""}`}
+              className={`${styles.viewModeBtn} ${tabState.viewMode === "list" ? styles.active : ""}`}
               onClick={() => handleViewModeChange("list")}
             >
               리스트
@@ -184,16 +184,16 @@ export function PlansTab({
 
       {/* 최근 업데이트된 계획 표시 */}
       {sharedState.lastUpdatedPlan && (
-        <div className="recent-update">
+        <div className={styles.recentUpdate}>
           <h4>최근 활동</h4>
           <div
-            className="update-item"
+            className={styles.updateItem}
             onClick={() => onEditPlan(sharedState.lastUpdatedPlan!.id)}
           >
-            <span className="plan-name">
+            <span className={styles.planName}>
               {sharedState.lastUpdatedPlan.name}
             </span>
-            <span className="plan-difficulty">
+            <span className={styles.planDifficulty}>
               {sharedState.lastUpdatedPlan.difficulty}
             </span>
           </div>
@@ -202,13 +202,14 @@ export function PlansTab({
 
       {/* 계획 목록 */}
       {filteredPlans.length > 0 ? (
-        <div className="plans-section">
-          <div className="section-header">
+        <div className={styles.plansSection}>
+          <div className={styles.sectionHeader}>
             <h3>📋 운동 계획 ({filteredPlans.length}개)</h3>
             <p>설정한 운동 계획들을 확인하세요</p>
           </div>
           <PlansContent
             plans={filteredPlans}
+            viewMode={tabState.viewMode}
             onEditPlan={onEditPlan}
             onStartSession={onStartSession}
             onDeletePlan={handleDeletePlan}
@@ -216,11 +217,11 @@ export function PlansTab({
           />
         </div>
       ) : (
-        <div className="no-plans-container">
-          <div className="no-plans-icon">📋</div>
+        <div className={styles.noPlansContainer}>
+          <div className={styles.noPlansIcon}>📋</div>
           <h3>아직 운동 계획이 없습니다</h3>
           <p>첫 번째 운동 계획을 만들어보세요!</p>
-          <button className="create-first-plan-btn" onClick={onCreatePlan}>
+          <button className={styles.createFirstPlanBtn} onClick={onCreatePlan}>
             첫 계획 만들기
           </button>
         </div>

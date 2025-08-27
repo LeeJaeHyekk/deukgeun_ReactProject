@@ -1,7 +1,7 @@
 {
   "page": {
     "name": "WorkoutPage",
-    "description": "종합 운동 관리 페이지 - 운동 계획, 진행 상황, 목표, 리마인더, 실시간 세션 트래킹, 분석을 탭별로 확인",
+    "description": "종합 운동 관리 페이지 - 운동 계획, 진행 상황, 목표, 실시간 세션 트래킹, 분석을 탭별로 확인",
     "mainFile": "WorkoutPage.tsx",
     "layout": {
       "type": "tabbed-layout",
@@ -31,7 +31,13 @@
           }
         },
         "dataSources": ["WorkoutPlanDTO", "WorkoutStatsDTO"],
-        "props": ["workoutPlans", "workoutStats", "activeSessions"],
+        "props": [
+          "dashboardData",
+          "isLoading",
+          "onPlanClick",
+          "onSessionClick",
+          "onGoalClick"
+        ],
         "cards": {
           "type": "WorkoutPlanCard",
           "fields": [
@@ -75,7 +81,13 @@
           }
         },
         "dataSources": ["WorkoutGoalDTO"],
-        "props": ["goals", "onUpdateGoal", "onDeleteGoal", "onCreateGoal"],
+        "props": [
+          "goals",
+          "isLoading",
+          "onCreateGoal",
+          "onEditGoal",
+          "onDeleteGoal"
+        ],
         "cards": {
           "type": "GoalCard",
           "fields": [
@@ -108,7 +120,14 @@
         "description": "새 계획 생성 및 운동 추가 기능 제공",
         "component": "PlansTab",
         "type": "section",
-        "props": ["plans", "onCreatePlan", "onAddExercise"],
+        "props": [
+          "plans",
+          "isLoading",
+          "onCreatePlan",
+          "onEditPlan",
+          "onStartSession",
+          "onDeletePlan"
+        ],
         "subSections": [
           {
             "id": "new-plan",
@@ -158,9 +177,9 @@
         "dataSources": ["WorkoutSessionDTO", "ExerciseSetDTO"],
         "props": [
           "sessions",
-          "onStartSession",
-          "onPauseSession",
-          "onCompleteSession",
+          "isLoading",
+          "onEditSession",
+          "onViewSession",
           "onDeleteSession"
         ],
         "cards": {
@@ -202,65 +221,14 @@
         }
       },
       {
-        "id": "reminders",
-        "label": "리마인더",
-        "icon": "🔔",
-        "description": "운동 알림 목록과 상태, 알림 추가/수정 가능",
-        "component": "RemindersTab",
-        "type": "card-list",
-        "layout": {
-          "maxColumns": 2,
-          "cardSpacing": "12px",
-          "wrap": true,
-          "responsive": {
-            "mobile": 1,
-            "tablet": 2,
-            "desktop": 2
-          }
-        },
-        "dataSources": ["WorkoutReminderDTO"],
-        "props": [
-          "reminders",
-          "onCreateReminder",
-          "onEditReminder",
-          "onToggleReminder",
-          "onDeleteReminder"
-        ],
-        "cards": {
-          "type": "ReminderCard",
-          "fields": [
-            "title",
-            "message",
-            "reminderTime",
-            "daysOfWeek",
-            "isActive"
-          ],
-          "actions": ["EditReminder", "DeleteReminder"],
-          "components": [
-            {
-              "type": "SwitchToggle",
-              "props": ["isActive"],
-              "interactions": ["toggleActive"]
-            }
-          ]
-        },
-        "components": [
-          {
-            "type": "Button",
-            "props": ["AddReminder"],
-            "styleHint": "secondary"
-          }
-        ]
-      },
-      {
         "id": "workoutProgress",
         "label": "진행상황",
         "icon": "📈",
         "description": "DB에 저장된 운동 세션 정보를 기반으로 월 단위와 년 단위 진행 상황을 시각화",
-        "component": "WorkoutProgressTab",
+        "component": "ProgressTab",
         "type": "graph-section",
         "visibility": "internal-only",
-        "props": ["workoutStats", "completedSessions"],
+        "props": ["sessions", "onViewSession", "isLoading"],
         "dataSource": {
           "type": "database",
           "table": "workout_sessions",
@@ -273,6 +241,32 @@
             "date"
           ]
         },
+        "sections": [
+          {
+            "id": "statsSection",
+            "name": "전체 통계",
+            "component": "ProgressStats",
+            "description": "전체 운동 진행 상황 요약"
+          },
+          {
+            "id": "chartTypeSection",
+            "name": "차트 유형 선택",
+            "component": "ChartTypeSelector",
+            "description": "월간/연간 보기 토글"
+          },
+          {
+            "id": "chartsSection",
+            "name": "진행 차트",
+            "component": "ProgressCharts",
+            "description": "운동 진행 상황 차트"
+          },
+          {
+            "id": "recentActivitySection",
+            "name": "최근 활동",
+            "component": "RecentActivity",
+            "description": "가장 최근 운동 세션"
+          }
+        ],
         "graphs": [
           {
             "id": "monthlyGraph",
@@ -316,8 +310,8 @@
         "id": "createPlanModal",
         "name": "새 운동 계획 모달",
         "description": "새 계획 생성 및 운동 추가",
-        "component": "CreatePlanModal",
-        "props": ["isOpen", "onClose", "onCreatePlan"],
+        "component": "WorkoutPlanModal",
+        "props": ["isOpen", "onClose", "onCreatePlan", "mode", "plan"],
         "fields": [
           {
             "name": "planName",
@@ -362,49 +356,11 @@
         ]
       },
       {
-        "id": "addExerciseModal",
-        "name": "운동 선택 모달",
-        "description": "운동 선택 및 추가",
-        "component": "AddExerciseModal",
-        "props": ["isOpen", "onClose"],
-        "fields": [
-          {
-            "name": "exerciseSelect",
-            "type": "select",
-            "label": "운동 선택",
-            "dataSource": "dbExerciseList",
-            "required": true
-          },
-          {
-            "name": "setCount",
-            "type": "number",
-            "label": "세트 수",
-            "min": 1
-          },
-          {
-            "name": "setDuration",
-            "type": "number",
-            "label": "세트 별 시간 (초)",
-            "min": 10
-          }
-        ],
-        "buttons": [
-          {
-            "label": "추가",
-            "action": "addExerciseToPlan"
-          },
-          {
-            "label": "취소",
-            "action": "closeModal"
-          }
-        ]
-      },
-      {
         "id": "createGoalModal",
         "name": "목표 생성 모달",
         "description": "새 운동 목표 생성",
-        "component": "CreateGoalModal",
-        "props": ["isOpen", "onClose", "onCreateGoal"],
+        "component": "WorkoutGoalModal",
+        "props": ["isOpen", "onClose", "onCreateGoal", "mode", "goal"],
         "fields": [
           {
             "name": "title",
@@ -453,52 +409,39 @@
         ]
       },
       {
-        "id": "createReminderModal",
-        "name": "리마인더 생성 모달",
-        "description": "새 운동 리마인더 생성",
-        "component": "CreateReminderModal",
-        "props": ["isOpen", "onClose", "onCreateReminder"],
+        "id": "createSessionModal",
+        "name": "세션 생성 모달",
+        "description": "새 운동 세션 생성",
+        "component": "WorkoutSessionModal",
+        "props": ["isOpen", "onClose", "onCreateSession", "mode", "session"],
         "fields": [
           {
-            "name": "title",
+            "name": "sessionName",
             "type": "text",
-            "label": "알림 제목",
+            "label": "세션 이름",
             "required": true
           },
           {
-            "name": "message",
+            "name": "planId",
+            "type": "select",
+            "label": "운동 계획",
+            "dataSource": "plans"
+          },
+          {
+            "name": "startTime",
+            "type": "datetime",
+            "label": "시작 시간"
+          },
+          {
+            "name": "notes",
             "type": "textarea",
-            "label": "알림 메시지"
-          },
-          {
-            "name": "time",
-            "type": "time",
-            "label": "알림 시간",
-            "required": true
-          },
-          {
-            "name": "days",
-            "type": "checkbox-group",
-            "label": "반복 요일",
-            "options": ["월", "화", "수", "목", "금", "토", "일"]
-          },
-          {
-            "name": "repeatInterval",
-            "type": "select",
-            "label": "반복 간격",
-            "options": ["daily", "weekly", "monthly"]
-          },
-          {
-            "name": "reminderType",
-            "type": "select",
-            "label": "알림 타입",
-            "options": ["push", "email", "sms"]
+            "label": "메모"
           }
         ],
         "buttons": [
           {
             "label": "생성",
-            "action": "createReminder"
+            "action": "createSession"
           },
           {
             "label": "취소",
@@ -531,7 +474,6 @@
           "workoutGoals",
           "workoutSessions",
           "workoutStats",
-          "workoutReminders",
           "isLoading",
           "error"
         ]
@@ -546,11 +488,7 @@
           "deleteWorkoutGoal",
           "createWorkoutSession",
           "updateWorkoutSession",
-          "deleteWorkoutSession",
-          "createWorkoutReminder",
-          "updateWorkoutReminder",
-          "toggleWorkoutReminder",
-          "deleteWorkoutReminder"
+          "deleteWorkoutSession"
         ]
       },
       {
@@ -596,20 +534,13 @@
         ]
       },
       {
-        "name": "useWorkoutOptimization",
-        "description": "성능 최적화 훅",
+        "name": "useProgressData",
+        "description": "진행상황 데이터 관리 훅",
         "returns": [
-          "useDebounce",
-          "useThrottle",
-          "useLocalStorage",
-          "useSessionStorage",
-          "useIntersectionObserver",
-          "useWindowResize",
-          "useKeyboardEvent",
-          "useClickOutside",
-          "useFocusTrap",
-          "useVirtualization",
-          "usePerformanceMonitor"
+          "chartData",
+          "stats",
+          "selectedTimeRange",
+          "setSelectedTimeRange"
         ]
       }
     ],
@@ -635,10 +566,6 @@
         "description": "운동 통계 데이터 전송 객체"
       },
       {
-        "name": "WorkoutReminderDTO",
-        "description": "운동 리마인더 데이터 전송 객체"
-      },
-      {
         "name": "MachineDTO",
         "description": "기구 데이터 전송 객체"
       },
@@ -661,10 +588,19 @@
       {
         "name": "MonthlyStats",
         "description": "월간 통계 데이터 객체"
+      },
+      {
+        "name": "TabType",
+        "description": "탭 타입 정의"
       }
     ],
     "components": {
       "charts": [
+        {
+          "name": "ProgressChart",
+          "file": "components/charts/ProgressChart.tsx",
+          "description": "진행률 차트 컴포넌트"
+        },
         {
           "name": "LineChart",
           "file": "components/charts/LineChart.tsx",
@@ -674,31 +610,6 @@
           "name": "BarChart",
           "file": "components/charts/BarChart.tsx",
           "description": "막대 차트 컴포넌트"
-        },
-        {
-          "name": "PieChart",
-          "file": "components/charts/PieChart.tsx",
-          "description": "원형 차트 컴포넌트"
-        },
-        {
-          "name": "GoalComparison",
-          "file": "components/charts/GoalComparison.tsx",
-          "description": "목표 비교 차트 컴포넌트"
-        },
-        {
-          "name": "StreakDisplay",
-          "file": "components/charts/StreakDisplay.tsx",
-          "description": "연속 운동 표시 컴포넌트"
-        },
-        {
-          "name": "ProgressChart",
-          "file": "components/charts/ProgressChart.tsx",
-          "description": "진행률 차트 컴포넌트"
-        },
-        {
-          "name": "WorkoutCalendar",
-          "file": "components/charts/WorkoutCalendar.tsx",
-          "description": "운동 캘린더 컴포넌트"
         }
       ],
       "forms": [
@@ -720,9 +631,31 @@
       ],
       "cards": [
         {
-          "name": "ReminderCard",
-          "file": "components/ReminderCard.tsx",
-          "description": "리마인더 카드 컴포넌트"
+          "name": "WorkoutPlanCard",
+          "file": "components/cards/WorkoutPlanCard.tsx",
+          "description": "운동 계획 카드 컴포넌트"
+        },
+        {
+          "name": "WorkoutSessionCard",
+          "file": "components/cards/WorkoutSessionCard.tsx",
+          "description": "운동 세션 카드 컴포넌트"
+        },
+        {
+          "name": "GoalCard",
+          "file": "components/cards/GoalCard.tsx",
+          "description": "목표 카드 컴포넌트"
+        }
+      ],
+      "navigation": [
+        {
+          "name": "TabNavigation",
+          "file": "components/navigation/TabNavigation.tsx",
+          "description": "탭 네비게이션 컴포넌트"
+        },
+        {
+          "name": "TabContent",
+          "file": "components/navigation/TabContent.tsx",
+          "description": "탭 콘텐츠 컴포넌트"
         }
       ]
     },
@@ -749,17 +682,18 @@
       "pageType": "TabbedDashboard",
       "targetPlatform": ["Web", "Mobile"],
       "version": "2.2",
-      "description": "탭 기반 통합 운동 관리 페이지 - 계획, 세션, 목표, 리마인더, 진행상황 기능을 탭별로 분리",
+      "description": "탭 기반 통합 운동 관리 페이지 - 계획, 세션, 목표, 진행상황 기능을 탭별로 분리",
       "implementationStatus": "completed",
       "components": {
-        "total": 6,
-        "tabs": 6,
-        "modals": 4,
+        "total": 5,
+        "tabs": 5,
+        "modals": 3,
         "hooks": 7,
         "types": 12,
-        "charts": 7,
+        "charts": 3,
         "forms": 3,
-        "cards": 1
+        "cards": 3,
+        "navigation": 2
       }
     }
   }

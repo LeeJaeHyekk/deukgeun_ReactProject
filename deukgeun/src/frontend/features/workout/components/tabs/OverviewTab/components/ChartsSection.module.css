@@ -29,6 +29,34 @@
   min-height: 300px;
 }
 
+/* 파이 차트 컨테이너 - [0][2] 구조로 변경 */
+.pieChartContainer {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+  height: 100%;
+  align-items: center;
+}
+
+.pieChartWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.legendWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  height: 100%;
+}
+
 .chartContainer {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
@@ -79,6 +107,19 @@
 
   .chartContainer {
     min-height: 250px;
+  }
+
+  .pieChartContainer {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .pieChartWrapper {
+    order: 1;
+  }
+
+  .legendWrapper {
+    order: 2;
   }
 }
 

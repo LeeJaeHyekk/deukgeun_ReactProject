@@ -49,14 +49,96 @@ export const ChartsSection: React.FC<ChartsSectionProps> = ({
         </div>
         <div className={styles.chartContainer}>
           <h4>기구 사용률</h4>
-          <div className={styles.chartContent}>
-            <PieChart
-              data={generateMachineUsageData()}
-              title="기구별 사용률"
-              height={200}
-              width={250}
-              showLegend={true}
-            />
+          <div className={styles.pieChartContainer}>
+            <div className={styles.pieChartWrapper}>
+              <PieChart
+                data={generateMachineUsageData()}
+                title=""
+                height={180}
+                width={180}
+                showLegend={false}
+              />
+            </div>
+            <div className={styles.legendWrapper}>
+              <h5
+                style={{
+                  margin: "0 0 16px 0",
+                  fontSize: "1.1rem",
+                  color: "#ffffff",
+                  textAlign: "center",
+                  fontWeight: "600",
+                }}
+              >
+                기구별 사용률
+              </h5>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                }}
+              >
+                {generateMachineUsageData().map((item, index) => {
+                  const total = generateMachineUsageData().reduce(
+                    (sum, d) => sum + d.value,
+                    0
+                  )
+                  const percentage = ((item.value / total) * 100).toFixed(1)
+                  const colors = [
+                    "#3b82f6",
+                    "#ef4444",
+                    "#10b981",
+                    "#f59e0b",
+                    "#8b5cf6",
+                  ]
+
+                  return (
+                    <div
+                      key={index}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        padding: "8px 12px",
+                        background: "rgba(255, 255, 255, 0.1)",
+                        borderRadius: "8px",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "12px",
+                          height: "12px",
+                          backgroundColor: colors[index % colors.length],
+                          borderRadius: "2px",
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span
+                        style={{
+                          flex: 1,
+                          fontSize: "0.9rem",
+                          color: "rgba(255, 255, 255, 0.9)",
+                          fontWeight: "500",
+                        }}
+                      >
+                        {item.name}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "0.9rem",
+                          fontWeight: "600",
+                          color: "#ffffff",
+                          textShadow: "0 1px 2px rgba(0, 0, 0, 0.3)",
+                        }}
+                      >
+                        {percentage}%
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           </div>
         </div>
       </div>

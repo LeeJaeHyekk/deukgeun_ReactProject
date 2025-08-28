@@ -125,6 +125,16 @@
   transform: translateY(-1px);
 }
 
+.select option {
+  background: #1f2937;
+  color: #fff;
+  padding: 8px 12px;
+}
+
+.select option:hover {
+  background: #374151;
+}
+
 .categoriesRow {
   display: flex;
   align-items: center;

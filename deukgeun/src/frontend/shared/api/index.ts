@@ -82,8 +82,11 @@ const createApiClient = (): AxiosInstance => {
         response?: { status: number }
       }
 
-      // 전역 에러 핸들러에 에러 보고
-      if (originalRequest.response?.status) {
+      // 레벨 API 관련 요청은 특별 처리
+      const isLevelApiRequest = originalRequest.config?.url?.includes('/api/level/')
+      
+      // 전역 에러 핸들러에 에러 보고 (레벨 API 제외)
+      if (originalRequest.response?.status && !isLevelApiRequest) {
         globalErrorHandler.manualErrorReport(error, {
           errorType: "network",
           message: `HTTP ${originalRequest.response.status}: ${error.message}`,

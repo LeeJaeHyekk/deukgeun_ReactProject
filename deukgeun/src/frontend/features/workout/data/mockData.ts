@@ -7,7 +7,7 @@ import type {
 import type { WorkoutPlan as WorkoutPlanDTO } from "../../../shared/api/workoutJournalApi"
 
 // 목데이터 플래그 (개발 환경에서만 true)
-export const USE_MOCK_DATA = import.meta.env.DEV && true
+export const USE_MOCK_DATA = false
 
 // 운동 계획 목데이터 (API 타입에 맞춤)
 export const mockPlans: WorkoutPlanDTO[] = [
@@ -381,5 +381,3 @@ export const mockDashboardData: DashboardData = {
     { date: new Date("2024-01-21"), workouts: 1, exp: 200 },
   ],
 }
-
-

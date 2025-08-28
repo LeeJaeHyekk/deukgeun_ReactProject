@@ -110,8 +110,13 @@
 }
 
 .select option {
-  background: #333;
+  background: #1f2937;
   color: #fff;
+  padding: 8px 12px;
+}
+
+.select option:hover {
+  background: #374151;
 }
 
 .categories {

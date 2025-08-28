@@ -24,7 +24,8 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
     },
     {
       label: "활성 목표",
-      value: (dashboardData.totalGoals || 0) - (dashboardData.completedGoals || 0),
+      value:
+        (dashboardData.totalGoals || 0) - (dashboardData.completedGoals || 0),
       unit: "개",
       icon: "🎯",
     },

@@ -1,4 +1,7 @@
-import { useCallback } from "react"
+// ============================================================================
+// Workout Store Hooks - Zustand Store Integration
+// ============================================================================
+
 import { useWorkoutStore } from "../store/workoutStore"
 import type {
   WorkoutPlan,
@@ -11,459 +14,101 @@ import type {
   CreateGoalRequest,
   UpdateGoalRequest,
   TabType,
-  DashboardData,
+  OverviewTabState,
+  PlansTabState,
+  SessionsTabState,
+  GoalsTabState,
+  ProgressTabState,
+  Notification,
 } from "../types"
-import { WorkoutStoreState } from "../store/workoutStore"
-
-// 로깅 유틸리티
-const logger = {
-  info: (message: string, data?: any) => {
-    if (import.meta.env.DEV) {
-      console.log(`[useWorkoutStore] ${message}`, data || "")
-    }
-  },
-  debug: (message: string, data?: any) => {
-    if (import.meta.env.DEV) {
-      console.debug(`[useWorkoutStore] ${message}`, data || "")
-    }
-  },
-  warn: (message: string, data?: any) => {
-    console.warn(`[useWorkoutStore] ${message}`, data || "")
-  },
-  error: (message: string, data?: any) => {
-    console.error(`[useWorkoutStore] ${message}`, data || "")
-  },
-}
 
 // ============================================================================
-// Zustand Store-based Hooks
+// Data Hooks
 // ============================================================================
 
 export function useWorkoutStoreData() {
-  const {
-    plans,
-    sessions,
-    goals,
-    dashboardData,
-    loading,
-    activeTab,
-    modals,
-    currentPlan,
-    currentSession,
-    currentGoal,
-    tabStates,
-    sharedState,
-  } = useWorkoutStore()
+  const data = useWorkoutStore(state => ({
+    plans: state.plans,
+    sessions: state.sessions,
+    goals: state.goals,
+    dashboardData: state.dashboardData,
+    loading: state.loading,
+    activeTab: state.activeTab,
+    modals: state.modals,
+    tabStates: state.tabStates,
+    sharedState: state.sharedState,
+  }))
 
-  return {
-    plans,
-    sessions,
-    goals,
-    dashboardData,
-    loading,
-    activeTab,
-    modals,
-    currentPlan,
-    currentSession,
-    currentGoal,
-    tabStates,
-    sharedState,
-  }
+  console.log("[useWorkoutStoreData] 훅 실행됨", {
+    timestamp: new Date().toISOString(),
+    plansCount: data.plans.length,
+    sessionsCount: data.sessions.length,
+    goalsCount: data.goals.length,
+  })
+
+  return data
 }
+
+// ============================================================================
+// Plans Actions Hook
+// ============================================================================
 
 export function useWorkoutPlansActions() {
-  const {
-    fetchPlans,
-    createPlan,
-    updatePlan,
-    deletePlan,
-    addPlanExercise,
-    removePlanExercise,
-    updatePlanExercise,
-    updateSharedState,
-    addNotification,
-  } = useWorkoutStore()
+  const actions = useWorkoutStore(state => ({
+    fetchPlans: state.fetchPlans,
+    createPlan: state.createPlan,
+    updatePlan: state.updatePlan,
+    deletePlan: state.deletePlan,
+    duplicatePlan: state.duplicatePlan,
+  }))
 
-  const handleCreatePlan = useCallback(
-    async (planData: CreatePlanRequest) => {
-      logger.info("계획 생성 시작", { planData })
-      try {
-        const newPlan = await createPlan(planData)
-        logger.info("계획 생성 성공", { newPlan })
+  console.log("[useWorkoutPlansActions] 훅 실행됨", {
+    timestamp: new Date().toISOString(),
+    fetchPlansRef: actions.fetchPlans.toString().slice(0, 50),
+  })
 
-        // 공유 상태 업데이트
-        updateSharedState({ lastUpdatedPlan: newPlan })
-        addNotification({
-          type: "success",
-          message: "운동 계획이 성공적으로 생성되었습니다.",
-        })
-
-        return newPlan
-      } catch (error) {
-        logger.error("계획 생성 실패", error)
-        addNotification({
-          type: "error",
-          message: "운동 계획 생성에 실패했습니다.",
-        })
-        throw error
-      }
-    },
-    [createPlan, updateSharedState, addNotification]
-  )
-
-  const handleUpdatePlan = useCallback(
-    async (planId: number, planData: UpdatePlanRequest) => {
-      try {
-        const updatedPlan = await updatePlan(planId, planData)
-        console.log(
-          "✅ [useWorkoutPlansActions] 계획 업데이트 성공:",
-          updatedPlan
-        )
-
-        // 공유 상태 업데이트
-        updateSharedState({ lastUpdatedPlan: updatedPlan })
-        addNotification({
-          type: "success",
-          message: "운동 계획이 성공적으로 수정되었습니다.",
-        })
-
-        return updatedPlan
-      } catch (error) {
-        console.error("❌ [useWorkoutPlansActions] 계획 업데이트 실패:", error)
-        addNotification({
-          type: "error",
-          message: "운동 계획 수정에 실패했습니다.",
-        })
-        throw error
-      }
-    },
-    [updatePlan, updateSharedState, addNotification]
-  )
-
-  const handleDeletePlan = useCallback(
-    async (planId: number) => {
-      try {
-        await deletePlan(planId)
-        console.log("✅ [useWorkoutPlansActions] 계획 삭제 성공:", planId)
-
-        addNotification({
-          type: "success",
-          message: "운동 계획이 성공적으로 삭제되었습니다.",
-        })
-      } catch (error) {
-        console.error("❌ [useWorkoutPlansActions] 계획 삭제 실패:", error)
-        addNotification({
-          type: "error",
-          message: "운동 계획 삭제에 실패했습니다.",
-        })
-        throw error
-      }
-    },
-    [deletePlan, addNotification]
-  )
-
-  return {
-    fetchPlans,
-    createPlan: handleCreatePlan,
-    updatePlan: handleUpdatePlan,
-    deletePlan: handleDeletePlan,
-    addPlanExercise,
-    removePlanExercise,
-    updatePlanExercise,
-  }
+  return actions
 }
+
+// ============================================================================
+// Sessions Actions Hook
+// ============================================================================
 
 export function useWorkoutSessionsActions() {
-  const {
-    fetchSessions,
-    createSession,
-    updateSession,
-    deleteSession,
-    addSessionExercise,
-    removeSessionExercise,
-    updateSessionExercise,
-    updateSharedState,
-    addNotification,
-  } = useWorkoutStore()
-
-  const handleCreateSession = useCallback(
-    async (sessionData: CreateSessionRequest) => {
-      try {
-        const newSession = await createSession(sessionData)
-        console.log(
-          "✅ [useWorkoutSessionsActions] 세션 생성 성공:",
-          newSession
-        )
-
-        // 공유 상태 업데이트
-        updateSharedState({ lastUpdatedSession: newSession })
-        addNotification({
-          type: "success",
-          message: "운동 세션이 성공적으로 생성되었습니다.",
-        })
-
-        return newSession
-      } catch (error) {
-        console.error("❌ [useWorkoutSessionsActions] 세션 생성 실패:", error)
-        addNotification({
-          type: "error",
-          message: "운동 세션 생성에 실패했습니다.",
-        })
-        throw error
-      }
-    },
-    [createSession, updateSharedState, addNotification]
-  )
-
-  const handleUpdateSession = useCallback(
-    async (sessionId: number, sessionData: UpdateSessionRequest) => {
-      try {
-        const updatedSession = await updateSession(sessionId, sessionData)
-        console.log(
-          "✅ [useWorkoutSessionsActions] 세션 업데이트 성공:",
-          updatedSession
-        )
-
-        // 공유 상태 업데이트
-        updateSharedState({ lastUpdatedSession: updatedSession })
-        addNotification({
-          type: "success",
-          message: "운동 세션이 성공적으로 수정되었습니다.",
-        })
-
-        return updatedSession
-      } catch (error) {
-        console.error(
-          "❌ [useWorkoutSessionsActions] 세션 업데이트 실패:",
-          error
-        )
-        addNotification({
-          type: "error",
-          message: "운동 세션 수정에 실패했습니다.",
-        })
-        throw error
-      }
-    },
-    [updateSession, updateSharedState, addNotification]
-  )
-
-  const handleDeleteSession = useCallback(
-    async (sessionId: number) => {
-      try {
-        await deleteSession(sessionId)
-        console.log("✅ [useWorkoutSessionsActions] 세션 삭제 성공:", sessionId)
-
-        addNotification({
-          type: "success",
-          message: "운동 세션이 성공적으로 삭제되었습니다.",
-        })
-      } catch (error) {
-        console.error("❌ [useWorkoutSessionsActions] 세션 삭제 실패:", error)
-        addNotification({
-          type: "error",
-          message: "운동 세션 삭제에 실패했습니다.",
-        })
-        throw error
-      }
-    },
-    [deleteSession, addNotification]
-  )
-
-  return {
-    fetchSessions,
-    createSession: handleCreateSession,
-    updateSession: handleUpdateSession,
-    deleteSession: handleDeleteSession,
-    addSessionExercise,
-    removeSessionExercise,
-    updateSessionExercise,
-  }
+  return useWorkoutStore(state => ({
+    fetchSessions: state.fetchSessions,
+    createSession: state.createSession,
+    updateSession: state.updateSession,
+    deleteSession: state.deleteSession,
+    startSession: state.startSession,
+    pauseSession: state.pauseSession,
+    completeSession: state.completeSession,
+  }))
 }
+
+// ============================================================================
+// Goals Actions Hook
+// ============================================================================
 
 export function useWorkoutGoalsActions() {
-  const {
-    fetchGoals,
-    createGoal,
-    updateGoal,
-    deleteGoal,
-    updateSharedState,
-    addNotification,
-  } = useWorkoutStore()
-
-  const handleCreateGoal = useCallback(
-    async (goalData: CreateGoalRequest) => {
-      try {
-        const newGoal = await createGoal(goalData)
-        console.log("✅ [useWorkoutGoalsActions] 목표 생성 성공:", newGoal)
-
-        // 공유 상태 업데이트
-        updateSharedState({ lastUpdatedGoal: newGoal })
-        addNotification({
-          type: "success",
-          message: "운동 목표가 성공적으로 생성되었습니다.",
-        })
-
-        return newGoal
-      } catch (error) {
-        console.error("❌ [useWorkoutGoalsActions] 목표 생성 실패:", error)
-        addNotification({
-          type: "error",
-          message: "운동 목표 생성에 실패했습니다.",
-        })
-        throw error
-      }
-    },
-    [createGoal, updateSharedState, addNotification]
-  )
-
-  const handleUpdateGoal = useCallback(
-    async (goalId: number, goalData: UpdateGoalRequest) => {
-      try {
-        const updatedGoal = await updateGoal(goalId, goalData)
-        console.log(
-          "✅ [useWorkoutGoalsActions] 목표 업데이트 성공:",
-          updatedGoal
-        )
-
-        // 공유 상태 업데이트
-        updateSharedState({ lastUpdatedGoal: updatedGoal })
-        addNotification({
-          type: "success",
-          message: "운동 목표가 성공적으로 수정되었습니다.",
-        })
-
-        return updatedGoal
-      } catch (error) {
-        console.error("❌ [useWorkoutGoalsActions] 목표 업데이트 실패:", error)
-        addNotification({
-          type: "error",
-          message: "운동 목표 수정에 실패했습니다.",
-        })
-        throw error
-      }
-    },
-    [updateGoal, updateSharedState, addNotification]
-  )
-
-  const handleDeleteGoal = useCallback(
-    async (goalId: number) => {
-      try {
-        await deleteGoal(goalId)
-        console.log("✅ [useWorkoutGoalsActions] 목표 삭제 성공:", goalId)
-
-        addNotification({
-          type: "success",
-          message: "운동 목표가 성공적으로 삭제되었습니다.",
-        })
-      } catch (error) {
-        console.error("❌ [useWorkoutGoalsActions] 목표 삭제 실패:", error)
-        addNotification({
-          type: "error",
-          message: "운동 목표 삭제에 실패했습니다.",
-        })
-        throw error
-      }
-    },
-    [deleteGoal, addNotification]
-  )
-
-  return {
-    fetchGoals,
-    createGoal: handleCreateGoal,
-    updateGoal: handleUpdateGoal,
-    deleteGoal: handleDeleteGoal,
-  }
-}
-
-export function useWorkoutUI() {
-  const {
-    setActiveTab,
-    openPlanModal,
-    closePlanModal,
-    openSessionModal,
-    closeSessionModal,
-    openGoalModal,
-    closeGoalModal,
-    updateTabState,
-    resetTabState,
-  } = useWorkoutStore()
-
-  return {
-    setActiveTab,
-    openPlanModal,
-    closePlanModal,
-    openSessionModal,
-    closeSessionModal,
-    openGoalModal,
-    closeGoalModal,
-    updateTabState,
-    resetTabState,
-  }
-}
-
-export function useWorkoutInitialization() {
-  const {
-    fetchPlans,
-    fetchSessions,
-    fetchGoals,
-    fetchDashboardData,
-    initializeWorkoutData: storeInitializeWorkoutData,
-  } = useWorkoutStore()
-
-  const initializeWorkoutData = useCallback(async () => {
-    console.log("🚀 [useWorkoutInitialization] 워크아웃 데이터 초기화 시작")
-    try {
-      await storeInitializeWorkoutData()
-      console.log("✅ [useWorkoutInitialization] 워크아웃 데이터 초기화 완료")
-    } catch (error) {
-      console.error(
-        "❌ [useWorkoutInitialization] 워크아웃 데이터 초기화 실패:",
-        error
-      )
-      throw error
-    }
-  }, [storeInitializeWorkoutData])
-
-  return {
-    initializeWorkoutData,
-  }
+  return useWorkoutStore(state => ({
+    fetchGoals: state.fetchGoals,
+    createGoal: state.createGoal,
+    updateGoal: state.updateGoal,
+    deleteGoal: state.deleteGoal,
+    completeGoal: state.completeGoal,
+  }))
 }
 
 // ============================================================================
-// Tab State Management Hooks
+// Dashboard Actions Hook
 // ============================================================================
 
-export function useTabState<T extends TabType>(tab: T) {
-  const { tabStates, updateTabState, resetTabState } = useWorkoutStore()
-
-  return {
-    tabState: tabStates[tab],
-    updateTabState: (updates: Partial<WorkoutStoreState["tabStates"][T]>) =>
-      updateTabState(tab, updates),
-    resetTabState: () => resetTabState(tab),
-  }
-}
-
-// ============================================================================
-// Shared State Management Hooks
-// ============================================================================
-
-export function useSharedState() {
-  const {
-    sharedState,
-    updateSharedState,
-    addNotification,
-    removeNotification,
-    clearNotifications,
-  } = useWorkoutStore()
-
-  return {
-    sharedState,
-    updateSharedState,
-    addNotification,
-    removeNotification,
-    clearNotifications,
-  }
+export function useWorkoutDashboardActions() {
+  return useWorkoutStore(state => ({
+    fetchDashboardData: state.fetchDashboardData,
+    refreshDashboard: state.refreshDashboard,
+  }))
 }
 
 // ============================================================================
@@ -471,11 +116,307 @@ export function useSharedState() {
 // ============================================================================
 
 export function useDashboardData() {
-  const { dashboardData, loading } = useWorkoutStore()
+  return useWorkoutStore(state => ({
+    dashboardData: state.dashboardData,
+    isLoading: state.sharedState.globalLoading,
+  }))
+}
+
+// ============================================================================
+// UI Actions Hook
+// ============================================================================
+
+export function useWorkoutUI() {
+  return useWorkoutStore(state => ({
+    setActiveTab: state.setActiveTab,
+    openPlanModal: state.openPlanModal,
+    closePlanModal: state.closePlanModal,
+    openSessionModal: state.openSessionModal,
+    closeSessionModal: state.closeSessionModal,
+    openGoalModal: state.openGoalModal,
+    closeGoalModal: state.closeGoalModal,
+  }))
+}
+
+// ============================================================================
+// Notification Actions Hook
+// ============================================================================
+
+export function useWorkoutNotifications() {
+  return useWorkoutStore(state => ({
+    addNotification: state.addNotification,
+    removeNotification: state.removeNotification,
+    clearNotifications: state.clearNotifications,
+    notifications: state.sharedState.notifications,
+  }))
+}
+
+// ============================================================================
+// Error Actions Hook
+// ============================================================================
+
+export function useWorkoutErrors() {
+  return useWorkoutStore(state => ({
+    setGlobalError: state.setGlobalError,
+    clearGlobalError: state.clearGlobalError,
+    globalError: state.sharedState.globalError,
+  }))
+}
+
+// ============================================================================
+// Timer Actions Hook
+// ============================================================================
+
+export function useWorkoutTimer() {
+  return useWorkoutStore(state => ({
+    startTimer: state.startTimer,
+    pauseTimer: state.pauseTimer,
+    resetTimer: state.resetTimer,
+    updateTimer: state.updateTimer,
+    timer: state.sharedState.timer,
+  }))
+}
+
+// ============================================================================
+// Tab State Actions Hooks
+// ============================================================================
+
+export function useTabState(tabType: TabType) {
+  return useWorkoutStore(state => {
+    const tabState = state.tabStates[tabType]
+    const updateState = (
+      updates: Partial<
+        | OverviewTabState
+        | PlansTabState
+        | SessionsTabState
+        | GoalsTabState
+        | ProgressTabState
+      >
+    ) => {
+      switch (tabType) {
+        case "overview":
+          return state.updateOverviewTabState(
+            updates as Partial<OverviewTabState>
+          )
+        case "plans":
+          return state.updatePlansTabState(updates as Partial<PlansTabState>)
+        case "sessions":
+          return state.updateSessionsTabState(
+            updates as Partial<SessionsTabState>
+          )
+        case "goals":
+          return state.updateGoalsTabState(updates as Partial<GoalsTabState>)
+        case "workoutProgress":
+          return state.updateProgressTabState(
+            updates as Partial<ProgressTabState>
+          )
+        default:
+          return
+      }
+    }
+
+    return {
+      tabState,
+      updateTabState: updateState,
+    }
+  })
+}
+
+export function useOverviewTabState() {
+  return useWorkoutStore(state => ({
+    state: state.tabStates.overview,
+    updateState: state.updateOverviewTabState,
+  }))
+}
+
+export function usePlansTabState() {
+  return useWorkoutStore(state => ({
+    state: state.tabStates.plans,
+    updateState: state.updatePlansTabState,
+  }))
+}
+
+export function useSessionsTabState() {
+  return useWorkoutStore(state => ({
+    state: state.tabStates.sessions,
+    updateState: state.updateSessionsTabState,
+  }))
+}
+
+export function useGoalsTabState() {
+  return useWorkoutStore(state => ({
+    state: state.tabStates.goals,
+    updateState: state.updateGoalsTabState,
+  }))
+}
+
+export function useProgressTabState() {
+  return useWorkoutStore(state => ({
+    state: state.tabStates.workoutProgress,
+    updateState: state.updateProgressTabState,
+  }))
+}
+
+// ============================================================================
+// Utility Hooks
+// ============================================================================
+
+export function useWorkoutUtils() {
+  return useWorkoutStore(state => ({
+    resetStore: state.resetStore,
+    clearCache: state.clearCache,
+  }))
+}
+
+// ============================================================================
+// Shared State Hook
+// ============================================================================
+
+export function useSharedState() {
+  return useWorkoutStore(state => ({
+    sharedState: state.sharedState,
+    lastUpdatedPlan: state.sharedState.lastUpdatedPlan,
+    lastUpdatedSession: state.sharedState.lastUpdatedSession,
+    lastUpdatedGoal: state.sharedState.lastUpdatedGoal,
+    globalLoading: state.sharedState.globalLoading,
+    globalError: state.sharedState.globalError,
+    timer: state.sharedState.timer,
+  }))
+}
+
+// ============================================================================
+// Initialization Hook
+// ============================================================================
+
+export function useWorkoutInitialization() {
+  const { fetchPlans, fetchSessions, fetchGoals, fetchDashboardData } =
+    useWorkoutStore()
+
+  const initializeWorkoutData = async () => {
+    console.log("[useWorkoutInitialization] initializeWorkoutData 호출됨", {
+      timestamp: new Date().toISOString(),
+      stack: new Error().stack,
+    })
+
+    try {
+      await Promise.all([
+        fetchPlans(),
+        fetchSessions(),
+        fetchGoals(),
+        fetchDashboardData(),
+      ])
+      console.log("[useWorkoutInitialization] 데이터 초기화 완료")
+    } catch (error) {
+      console.error("Failed to initialize workout data:", error)
+    }
+  }
+
+  return { initializeWorkoutData }
+}
+
+// ============================================================================
+// Selector Hooks
+// ============================================================================
+
+export function useWorkoutPlans() {
+  return useWorkoutStore(state => state.plans)
+}
+
+export function useWorkoutSessions() {
+  return useWorkoutStore(state => state.sessions)
+}
+
+export function useWorkoutGoals() {
+  return useWorkoutStore(state => state.goals)
+}
+
+export function useWorkoutDashboardData() {
+  return useWorkoutStore(state => state.dashboardData)
+}
+
+export function useWorkoutLoading() {
+  return useWorkoutStore(state => state.loading)
+}
+
+export function useWorkoutActiveTab() {
+  return useWorkoutStore(state => state.activeTab)
+}
+
+export function useWorkoutModals() {
+  return useWorkoutStore(state => state.modals)
+}
+
+// ============================================================================
+// Computed Selectors
+// ============================================================================
+
+export function useWorkoutStats() {
+  const plans = useWorkoutPlans()
+  const sessions = useWorkoutSessions()
+  const goals = useWorkoutGoals()
 
   return {
-    dashboardData,
-    isLoading: loading.overview.isLoading,
-    error: loading.overview.error,
+    totalPlans: plans.length,
+    totalSessions: sessions.length,
+    totalGoals: goals.length,
+    completedSessions: sessions.filter(s => s.status === "completed").length,
+    activeGoals: goals.filter(g => !g.isCompleted).length,
+    completedGoals: goals.filter(g => g.isCompleted).length,
   }
+}
+
+export function useWorkoutPlanById(planId: number) {
+  return useWorkoutStore(state => state.plans.find(plan => plan.id === planId))
+}
+
+export function useWorkoutSessionById(sessionId: number) {
+  return useWorkoutStore(state =>
+    state.sessions.find(session => session.id === sessionId)
+  )
+}
+
+export function useWorkoutGoalById(goalId: number) {
+  return useWorkoutStore(state => state.goals.find(goal => goal.id === goalId))
+}
+
+export function useWorkoutSessionsByPlan(planId: number) {
+  return useWorkoutStore(state =>
+    state.sessions.filter(session => session.planId === planId)
+  )
+}
+
+export function useWorkoutGoalsByPlan(planId: number) {
+  return useWorkoutStore(state =>
+    state.goals.filter(goal => goal.planId === planId)
+  )
+}
+
+// ============================================================================
+// Loading State Hooks
+// ============================================================================
+
+export function useWorkoutLoadingState(
+  tab: "overview" | "plans" | "sessions" | "goals" | "progress"
+) {
+  return useWorkoutStore(state => state.loading[tab])
+}
+
+export function useWorkoutGlobalLoading() {
+  return useWorkoutStore(state => state.sharedState.globalLoading)
+}
+
+// ============================================================================
+// Modal State Hooks
+// ============================================================================
+
+export function useWorkoutPlanModal() {
+  return useWorkoutStore(state => state.modals.plan)
+}
+
+export function useWorkoutSessionModal() {
+  return useWorkoutStore(state => state.modals.session)
+}
+
+export function useWorkoutGoalModal() {
+  return useWorkoutStore(state => state.modals.goal)
 }

@@ -85,37 +85,101 @@
   font-weight: 500;
 }
 
-/* 메인 그리드 레이아웃 */
-.overviewGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+/* 메인 그리드 레이아웃 - CSS Module 특수성 강화 */
+.overviewTab .overviewGrid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 24px !important;
   grid-template-areas:
     "stats stats stats"
     "sessions goals charts"
-    "charts charts charts";
+    "charts charts charts" !important;
 }
 
-/* 그리드 영역별 스타일 */
-.statsSection {
-  grid-area: stats;
+/* CSS Module 특수성 최대 강화 */
+div[class*="overviewTab"] div[class*="overviewGrid"] {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 24px !important;
+  grid-template-areas:
+    "stats stats stats"
+    "sessions goals charts"
+    "charts charts charts" !important;
 }
 
-.sessionsSection {
-  grid-area: sessions;
+/* CSS Module 특수성 최대 강화 - 더 구체적인 선택자 */
+div[class*="overviewTab"] > div[class*="overviewGrid"] {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 24px !important;
+  grid-template-areas:
+    "stats stats stats"
+    "sessions goals charts"
+    "charts charts charts" !important;
 }
 
-.goalsSection {
-  grid-area: goals;
+/* 그리드 영역별 스타일 - CSS Module 특수성 강화 */
+.overviewTab .overviewStatsSection {
+  grid-area: stats !important;
 }
 
-.chartsSection {
-  grid-area: charts;
+.overviewTab .overviewSessionsSection {
+  grid-area: sessions !important;
+}
+
+.overviewTab .overviewGoalsSection {
+  grid-area: goals !important;
+}
+
+.overviewTab .overviewChartsSection {
+  grid-area: charts !important;
+}
+
+/* CSS Module 특수성 최대 강화 */
+div[class*="overviewTab"] div[class*="overviewStatsSection"] {
+  grid-area: stats !important;
+}
+
+div[class*="overviewTab"] div[class*="overviewSessionsSection"] {
+  grid-area: sessions !important;
+}
+
+div[class*="overviewTab"] div[class*="overviewGoalsSection"] {
+  grid-area: goals !important;
+}
+
+div[class*="overviewTab"] div[class*="overviewChartsSection"] {
+  grid-area: charts !important;
+}
+
+/* CSS Module 특수성 최대 강화 - 더 구체적인 선택자 */
+div[class*="overviewTab"]
+  > div[class*="overviewGrid"]
+  > div[class*="overviewStatsSection"] {
+  grid-area: stats !important;
+}
+
+div[class*="overviewTab"]
+  > div[class*="overviewGrid"]
+  > div[class*="overviewSessionsSection"] {
+  grid-area: sessions !important;
+}
+
+div[class*="overviewTab"]
+  > div[class*="overviewGrid"]
+  > div[class*="overviewGoalsSection"] {
+  grid-area: goals !important;
+}
+
+div[class*="overviewTab"]
+  > div[class*="overviewGrid"]
+  > div[class*="overviewChartsSection"] {
+  grid-area: charts !important;
 }
 
 /* 로딩 및 에러 상태 */
-.loadingContainer,
-.noDataContainer {
+.overviewLoadingContainer,
+.overviewNoDataContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -128,7 +192,7 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.loadingSpinner {
+.overviewLoadingSpinner {
   width: 40px;
   height: 40px;
   border: 4px solid rgba(255, 255, 255, 0.2);
@@ -138,14 +202,14 @@
   margin-bottom: 16px;
 }
 
-.loadingContainer p,
-.noDataContainer p {
+.overviewLoadingContainer p,
+.overviewNoDataContainer p {
   font-size: 1rem;
   color: rgba(255, 255, 255, 0.8);
   margin: 0;
 }
 
-.noDataContainer h3 {
+.overviewNoDataContainer h3 {
   font-size: 1.5rem;
   font-weight: 600;
   color: #ffffff;
@@ -164,12 +228,28 @@
 
 /* 반응형 디자인 */
 @media (max-width: 1200px) {
-  .overviewGrid {
-    grid-template-columns: repeat(2, 1fr);
+  .overviewTab .overviewGrid {
+    grid-template-columns: repeat(2, 1fr) !important;
     grid-template-areas:
       "stats stats"
       "sessions goals"
-      "charts charts";
+      "charts charts" !important;
+  }
+
+  div[class*="overviewTab"] div[class*="overviewGrid"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-areas:
+      "stats stats"
+      "sessions goals"
+      "charts charts" !important;
+  }
+
+  div[class*="overviewTab"] > div[class*="overviewGrid"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-areas:
+      "stats stats"
+      "sessions goals"
+      "charts charts" !important;
   }
 }
 
@@ -191,13 +271,33 @@
     font-size: 1rem;
   }
 
-  .overviewGrid {
-    grid-template-columns: 1fr;
+  .overviewTab .overviewGrid {
+    grid-template-columns: 1fr !important;
     grid-template-areas:
       "stats"
       "sessions"
       "goals"
-      "charts";
+      "charts" !important;
+    gap: 16px;
+  }
+
+  div[class*="overviewTab"] div[class*="overviewGrid"] {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "stats"
+      "sessions"
+      "goals"
+      "charts" !important;
+    gap: 16px;
+  }
+
+  div[class*="overviewTab"] > div[class*="overviewGrid"] {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "stats"
+      "sessions"
+      "goals"
+      "charts" !important;
     gap: 16px;
   }
 
@@ -228,8 +328,8 @@
     font-size: 1.5rem;
   }
 
-  .loadingContainer,
-  .noDataContainer {
+  .overviewLoadingContainer,
+  .overviewNoDataContainer {
     padding: 40px 16px;
   }
 }

@@ -142,6 +142,7 @@ export const GoalsProgressSection: React.FC<GoalsProgressSectionProps> = ({
                 key={goal.id}
                 className={`${styles.goalItem} ${styles[goal.status]}`}
                 onClick={() => onGoalClick(goal.id)}
+                title="클릭하여 목표 탭으로 이동"
               >
                 <div className={styles.goalHeader}>
                   <div className={styles.goalInfo}>

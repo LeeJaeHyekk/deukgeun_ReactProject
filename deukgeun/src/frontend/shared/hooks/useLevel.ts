@@ -1,7 +1,31 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useAuth } from "./useAuth"
-import { levelApi, LevelProgress, UserReward } from "../api/levelApi"
+import { levelApiWrapper, levelApiManager } from "../api/levelApiWrapper"
+import { LevelProgress, UserReward } from "../api/levelApi"
 import { showToast } from "../lib"
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const FETCH_COOLDOWN = 30000 // 30초 쿨다운
+
+// ============================================================================
+// Default Values
+// ============================================================================
+
+const DEFAULT_LEVEL_PROGRESS: LevelProgress = {
+  level: 1,
+  currentExp: 0,
+  totalExp: 0,
+  seasonExp: 0,
+  expToNextLevel: 100,
+  progressPercentage: 0,
+}
+
+// ============================================================================
+// Hook
+// ============================================================================
 
 export function useLevel() {
   const { user, isLoggedIn } = useAuth()
@@ -21,18 +45,21 @@ export function useLevel() {
 
   // API 호출 제한을 위한 ref
   const lastFetchTime = useRef<number>(0)
-  const FETCH_COOLDOWN = 1000 // 1초 쿨다운 (403 문제 해결 후 더 자주 호출)
 
-  /**
-   * 사용자 레벨 진행률 조회
-   */
+  // ============================================================================
+  // API 호출 함수들
+  // ============================================================================
+
   const fetchLevelProgress = useCallback(async () => {
-    if (!isLoggedIn || !user) return
+    if (!isLoggedIn || !user) {
+      setLevelProgress(DEFAULT_LEVEL_PROGRESS)
+      return
+    }
 
     // API 호출 제한 확인
     const now = Date.now()
     if (now - lastFetchTime.current < FETCH_COOLDOWN) {
-      console.log("API 호출 제한: 레벨 진행률 조회 스킵")
+      console.log("API 호출 제한: 쿨다운 중")
       return
     }
 
@@ -40,32 +67,34 @@ export function useLevel() {
       setIsLoading(true)
       setError(null)
       lastFetchTime.current = now
-      const progress = await levelApi.getUserProgress(user.id)
-      setLevelProgress(progress)
-    } catch (err: any) {
-      // 403 오류는 토큰 문제일 수 있으므로 조용히 처리
-      if (err?.response?.status === 403) {
-        console.warn("레벨 진행률 조회 권한 없음 (토큰 문제일 수 있음)")
-        return
-      }
 
-      setError("레벨 정보를 불러오는데 실패했습니다.")
+      const progress = await levelApiWrapper.getUserProgress(user.id)
+      // progress가 유효한지 확인하고 기본값과 병합
+      const safeProgress = {
+        ...DEFAULT_LEVEL_PROGRESS,
+        ...progress,
+        progressPercentage: progress?.progressPercentage ?? 0,
+      }
+      setLevelProgress(safeProgress)
+    } catch (err: any) {
       console.error("레벨 진행률 조회 실패:", err)
+      setError("레벨 정보를 불러오는데 실패했습니다.")
+      setLevelProgress(DEFAULT_LEVEL_PROGRESS)
     } finally {
       setIsLoading(false)
     }
   }, [isLoggedIn, user])
 
-  /**
-   * 사용자 보상 목록 조회
-   */
   const fetchRewards = useCallback(async () => {
-    if (!isLoggedIn || !user) return
+    if (!isLoggedIn || !user) {
+      setRewards([])
+      return
+    }
 
     // API 호출 제한 확인
     const now = Date.now()
     if (now - lastFetchTime.current < FETCH_COOLDOWN) {
-      console.log("API 호출 제한: 보상 목록 조회 스킵")
+      console.log("API 호출 제한: 쿨다운 중")
       return
     }
 
@@ -73,37 +102,37 @@ export function useLevel() {
       setIsLoading(true)
       setError(null)
       lastFetchTime.current = now
-      const userRewards = await levelApi.getUserRewards(user.id)
+
+      const userRewards = await levelApiWrapper.getUserRewards(user.id)
       setRewards(userRewards)
     } catch (err: any) {
-      // 403 오류는 토큰 문제일 수 있으므로 조용히 처리
-      if (err?.response?.status === 403) {
-        console.warn("보상 목록 조회 권한 없음 (토큰 문제일 수 있음)")
-        return
-      }
-
-      setError("보상 정보를 불러오는데 실패했습니다.")
       console.error("보상 목록 조회 실패:", err)
+      setError("보상 정보를 불러오는데 실패했습니다.")
+      setRewards([])
     } finally {
       setIsLoading(false)
     }
   }, [isLoggedIn, user])
 
-  /**
-   * 경험치 부여
-   */
+  // ============================================================================
+  // 경험치 부여 함수
+  // ============================================================================
+
   const grantExp = useCallback(
     async (actionType: string, source: string, metadata?: any) => {
-      if (!isLoggedIn || !user) return
+      if (!isLoggedIn || !user) {
+        console.log("로그인 상태 아님")
+        return null
+      }
 
       try {
-        const result = await levelApi.grantExp({
+        const result = await levelApiWrapper.grantExp({
           actionType,
           source,
           metadata,
         })
 
-        if (result.success) {
+        if (result) {
           // 쿨다운 정보 업데이트
           if (result.cooldownInfo) {
             setCooldownInfo(result.cooldownInfo)
@@ -121,7 +150,7 @@ export function useLevel() {
 
           // 보상 획득 시 알림
           if (result.rewards && result.rewards.length > 0) {
-            result.rewards.forEach(reward => {
+            result.rewards.forEach((reward: any) => {
               showToast(
                 `🎁 ${reward.metadata?.name || "보상"} 획득!`,
                 "success"
@@ -135,130 +164,84 @@ export function useLevel() {
 
           return result
         } else {
-          // 실패 이유에 따른 메시지
-          if (result.cooldownInfo?.isOnCooldown) {
-            const remainingSeconds = Math.ceil(
-              result.cooldownInfo.remainingTime / 1000
-            )
-            showToast(
-              `쿨다운 중입니다. ${remainingSeconds}초 후 다시 시도해주세요.`,
-              "warning"
-            )
-          } else if (
-            result.dailyLimitInfo &&
-            !result.dailyLimitInfo.withinLimit
-          ) {
-            showToast(
-              `일일 경험치 한도(${result.dailyLimitInfo.limit} EXP)를 초과했습니다.`,
-              "warning"
-            )
-          } else {
-            showToast("경험치를 획득할 수 없습니다.", "warning")
-          }
-
-          // 쿨다운 및 한도 정보 업데이트
-          if (result.cooldownInfo) {
-            setCooldownInfo(result.cooldownInfo)
-          }
-          if (result.dailyLimitInfo) {
-            setDailyLimitInfo(result.dailyLimitInfo)
-          }
-
-          return result
+          showToast("경험치 부여에 실패했습니다.", "error")
+          return null
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("경험치 부여 실패:", err)
+        showToast("경험치 부여 중 오류가 발생했습니다.", "error")
         return null
       }
     },
     [isLoggedIn, user, fetchLevelProgress, fetchRewards]
   )
 
-  /**
-   * 쿨다운 상태 확인
-   */
-  const checkCooldown = useCallback(
-    async (actionType: string) => {
-      if (!isLoggedIn || !user) return false
+  // ============================================================================
+  // 초기화 및 리셋 함수들
+  // ============================================================================
 
-      try {
-        const result = await levelApi.checkCooldown(actionType, user.id)
-        return result.canPerform
-      } catch (err) {
-        console.error("쿨다운 확인 실패:", err)
-        return false
-      }
-    },
-    [isLoggedIn, user]
-  )
+  const resetLevelData = useCallback(() => {
+    setLevelProgress(DEFAULT_LEVEL_PROGRESS)
+    setRewards([])
+    setCooldownInfo(null)
+    setDailyLimitInfo(null)
+    setError(null)
+  }, [])
 
-  /**
-   * 리더보드 조회
-   */
-  const getLeaderboard = useCallback(
-    async (page: number = 1, limit: number = 20) => {
-      try {
-        const result = await levelApi.getGlobalLeaderboard(page, limit)
-        return result
-      } catch (err) {
-        console.error("리더보드 조회 실패:", err)
-        return null
-      }
-    },
-    []
-  )
+  const enableLevelApi = useCallback(() => {
+    levelApiManager.enable()
+    console.log("레벨 API 활성화됨")
+  }, [])
 
-  /**
-   * 시즌 리더보드 조회
-   */
-  const getSeasonLeaderboard = useCallback(
-    async (seasonId: string, page: number = 1, limit: number = 20) => {
-      try {
-        const result = await levelApi.getSeasonLeaderboard(
-          seasonId,
-          page,
-          limit
-        )
-        return result
-      } catch (err) {
-        console.error("시즌 리더보드 조회 실패:", err)
-        return null
-      }
-    },
-    []
-  )
+  const disableLevelApi = useCallback(() => {
+    levelApiManager.disable()
+    resetLevelData()
+    console.log("레벨 API 비활성화됨")
+  }, [resetLevelData])
 
-  // 초기 데이터 로드
+  // ============================================================================
+  // Effects
+  // ============================================================================
+
   useEffect(() => {
     if (isLoggedIn && user) {
       fetchLevelProgress()
       fetchRewards()
+    } else {
+      // 로그아웃 시 기본값 설정
+      setLevelProgress(DEFAULT_LEVEL_PROGRESS)
+      setRewards([])
+      setCooldownInfo(null)
+      setDailyLimitInfo(null)
+      setError(null)
     }
   }, [isLoggedIn, user, fetchLevelProgress, fetchRewards])
 
+  // ============================================================================
+  // Return Values
+  // ============================================================================
+
   return {
     // 상태
-    levelProgress,
+    levelProgress: levelProgress ?? DEFAULT_LEVEL_PROGRESS,
     rewards,
     cooldownInfo,
     dailyLimitInfo,
     isLoading,
     error,
+    isLevelApiEnabled: levelApiManager.isEnabled(),
 
     // 액션
     fetchLevelProgress,
     fetchRewards,
     grantExp,
-    checkCooldown,
-    getLeaderboard,
-    getSeasonLeaderboard,
+    resetLevelData,
+    enableLevelApi,
+    disableLevelApi,
 
     // 유틸리티
-    isLevelUp: levelProgress?.levelUp || false,
-    currentLevel: levelProgress?.level || 1,
-    currentExp: levelProgress?.currentExp || 0,
-    totalExp: levelProgress?.totalExp || 0,
-    progressPercentage: levelProgress?.progressPercentage || 0,
-    expToNextLevel: levelProgress?.expToNextLevel || 0,
+    hasLevelData: levelProgress !== null,
+    canGrantExp:
+      levelApiManager.isEnabled() && isLoggedIn && !cooldownInfo?.isOnCooldown,
   }
 }

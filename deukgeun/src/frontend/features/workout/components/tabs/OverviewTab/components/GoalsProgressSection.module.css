@@ -84,6 +84,11 @@
   opacity: 1;
 }
 
+.goalItem:active {
+  transform: translateY(0px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 .goalItem.completed {
   background: rgba(16, 185, 129, 0.1);
   border-color: rgba(16, 185, 129, 0.3);

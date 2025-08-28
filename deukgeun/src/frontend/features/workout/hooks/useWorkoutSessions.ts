@@ -5,7 +5,6 @@ import type {
   CreateSessionRequest,
   UpdateSessionRequest,
 } from "../types"
-import { USE_MOCK_DATA, mockSessions } from "../data/mockData"
 
 export function useWorkoutSessions() {
   console.log("🚀 [useWorkoutSessions] 훅 초기화")
@@ -28,30 +27,19 @@ export function useWorkoutSessions() {
     setLoading(true)
     setError(null)
     try {
-      if (USE_MOCK_DATA) {
-        console.log(`🎭 [useWorkoutSessions:${requestId}] 목데이터 사용 중...`)
-        // 목데이터 사용 시 약간의 지연을 주어 실제 API 호출처럼 보이게 함
-        await new Promise(resolve => setTimeout(resolve, 500))
-        setSessions(mockSessions as any)
-        console.log(
-          `✅ [useWorkoutSessions:${requestId}] 목데이터 ${mockSessions.length}개 로드 성공`
-        )
-        return mockSessions
-      } else {
-        console.log(
-          `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.getWorkoutSessions 호출`
-        )
-        const response = await WorkoutJournalApi.getWorkoutSessions()
-        const sessionData = response || []
+      console.log(
+        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.getWorkoutSessions 호출`
+      )
+      const response = await WorkoutJournalApi.getWorkoutSessions()
+      const sessionData = response || []
 
-        console.log(`✅ [useWorkoutSessions:${requestId}] 세션 조회 성공:`, {
-          count: sessionData.length,
-          sessions: sessionData,
-        })
+      console.log(`✅ [useWorkoutSessions:${requestId}] 세션 조회 성공:`, {
+        count: sessionData.length,
+        sessions: sessionData,
+      })
 
-        setSessions(sessionData as WorkoutSession[])
-        return sessionData
-      }
+      setSessions(sessionData as WorkoutSession[])
+      return sessionData
     } catch (err) {
       console.error(`❌ [useWorkoutSessions:${requestId}] 세션 조회 실패:`, err)
       const errorMessage =

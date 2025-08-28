@@ -26,11 +26,11 @@ export default function HomePage() {
   const [isLoading] = useState(false)
   const user = useUserStore(state => state.user)
   const { isLoggedIn } = useAuthContext()
-  const {
-    currentLevel,
-    progressPercentage,
-    isLoading: levelLoading,
-  } = useLevel()
+  const { levelProgress, isLoading: levelLoading } = useLevel()
+
+  // 레벨 데이터에서 필요한 값들 추출
+  const currentLevel = levelProgress?.level ?? 1
+  const progressPercentage = levelProgress?.progressPercentage ?? 0
   const { stats, isLoading: statsLoading } = useStats()
   const navigate = useNavigate()
 
@@ -292,7 +292,7 @@ export default function HomePage() {
                     <span className={styles.progressText}>
                       {levelLoading
                         ? "로딩 중..."
-                        : `${progressPercentage.toFixed(0)}% 완료`}
+                        : `${Number(progressPercentage ?? 0).toFixed(0)}% 완료`}
                     </span>
                   </div>
                 </div>

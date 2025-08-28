@@ -3,13 +3,6 @@
 // ============================================================================
 
 import { apiClient } from "../../../../shared/api/client"
-import {
-  USE_MOCK_DATA,
-  mockPlans,
-  mockSessions,
-  mockGoals,
-  mockDashboardData,
-} from "../data/mockData"
 import type {
   WorkoutPlan,
   WorkoutSession,
@@ -119,19 +112,12 @@ export const workoutApi = {
    * 운동 계획 목록 조회
    */
   async getPlans(params?: PaginationParams): Promise<WorkoutPlan[]> {
-    if (USE_MOCK_DATA) {
-      console.log("🎭 [workoutApi] getPlans - 목데이터 사용")
-      // 목데이터 사용 시 약간의 지연을 주어 실제 API 호출처럼 보이게 함
-      await new Promise(resolve => setTimeout(resolve, 500))
-      return mockPlans as any
-    }
-
     try {
       console.log("📡 [workoutApi] getPlans 호출", { params })
       const queryParams = params
         ? {
-            page: params.page.toString(),
-            limit: params.limit.toString(),
+            ...(params.page && { page: params.page.toString() }),
+            ...(params.limit && { limit: params.limit.toString() }),
             ...(params.sortBy && { sortBy: params.sortBy }),
             ...(params.sortOrder && { sortOrder: params.sortOrder }),
           }
@@ -141,9 +127,9 @@ export const workoutApi = {
         queryParams
       )
       console.log("✅ [workoutApi] getPlans 성공", {
-        count: response.data?.data?.length,
+        count: response.data?.length,
       })
-      return response.data?.data || []
+      return response.data || []
     } catch (error) {
       console.error("❌ [workoutApi] getPlans 실패", error)
       handleApiError(error)
@@ -161,7 +147,7 @@ export const workoutApi = {
         API_ENDPOINTS.PLAN(planId)
       )
       console.log("✅ [workoutApi] getPlan 성공", { planId })
-      const data = response.data?.data
+      const data = response.data
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }
@@ -184,9 +170,9 @@ export const workoutApi = {
         planData
       )
       console.log("✅ [workoutApi] createPlan 성공", {
-        planId: response.data?.data?.id,
+        planId: response.data?.id,
       })
-      const data = response.data?.data
+      const data = response.data
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }
@@ -212,7 +198,7 @@ export const workoutApi = {
         planData
       )
       console.log("✅ [workoutApi] updatePlan 성공", { planId })
-      const data = response.data?.data
+      const data = response.data
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }
@@ -351,20 +337,13 @@ export const workoutApi = {
    * 운동 세션 목록 조회
    */
   async getSessions(params?: PaginationParams): Promise<WorkoutSession[]> {
-    if (USE_MOCK_DATA) {
-      console.log("🎭 [workoutApi] getSessions - 목데이터 사용")
-      // 목데이터 사용 시 약간의 지연을 주어 실제 API 호출처럼 보이게 함
-      await new Promise(resolve => setTimeout(resolve, 500))
-      return mockSessions as any
-    }
-
     try {
       console.log("📡 [workoutApi] getSessions 호출", { params })
 
       const queryParams = params
         ? {
-            page: params.page.toString(),
-            limit: params.limit.toString(),
+            ...(params.page && { page: params.page.toString() }),
+            ...(params.limit && { limit: params.limit.toString() }),
             ...(params.sortBy && { sortBy: params.sortBy }),
             ...(params.sortOrder && { sortOrder: params.sortOrder }),
           }
@@ -706,20 +685,13 @@ export const workoutApi = {
    * 운동 목표 목록 조회
    */
   async getGoals(params?: PaginationParams): Promise<WorkoutGoal[]> {
-    if (USE_MOCK_DATA) {
-      console.log("🎭 [workoutApi] getGoals - 목데이터 사용")
-      // 목데이터 사용 시 약간의 지연을 주어 실제 API 호출처럼 보이게 함
-      await new Promise(resolve => setTimeout(resolve, 500))
-      return mockGoals as any
-    }
-
     try {
       console.log("📡 [workoutApi] getGoals 호출", { params })
 
       const queryParams = params
         ? {
-            page: params.page.toString(),
-            limit: params.limit.toString(),
+            ...(params.page && { page: params.page.toString() }),
+            ...(params.limit && { limit: params.limit.toString() }),
             ...(params.sortBy && { sortBy: params.sortBy }),
             ...(params.sortOrder && { sortOrder: params.sortOrder }),
           }
@@ -772,9 +744,9 @@ export const workoutApi = {
         goalData
       )
       console.log("✅ [workoutApi] createGoal 성공", {
-        goalId: response.data?.data?.id,
+        goalId: response.data?.id,
       })
-      const data = response.data?.data
+      const data = response.data
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }
@@ -839,20 +811,13 @@ export const workoutApi = {
    * 대시보드 데이터 조회
    */
   async getDashboardData(): Promise<DashboardData> {
-    if (USE_MOCK_DATA) {
-      console.log("🎭 [workoutApi] getDashboardData - 목데이터 사용")
-      // 목데이터 사용 시 약간의 지연을 주어 실제 API 호출처럼 보이게 함
-      await new Promise(resolve => setTimeout(resolve, 500))
-      return mockDashboardData as any
-    }
-
     try {
       console.log("📡 [workoutApi] getDashboardData 호출")
       const response = await apiClient.get<ApiResponse<DashboardData>>(
         API_ENDPOINTS.DASHBOARD
       )
       console.log("✅ [workoutApi] getDashboardData 성공")
-      const data = response.data?.data
+      const data = response.data
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }

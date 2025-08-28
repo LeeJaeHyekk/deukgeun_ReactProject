@@ -1,0 +1,102 @@
+{
+  "analysis": {
+    "project": "Workout Frontend Structure Analysis & Optimization",
+    "description": "기존 구조(combined)와 현재 구조(front) 비교 분석 및 최적화 계획",
+    "createdAt": "2025-01-27T00:00:00.000Z",
+    "version": "2.0.0",
+
+    "comparison": {
+      "combined_structure": {
+        "strengths": [
+          "상세한 탭별 레이아웃 정의",
+          "카드 컴포넌트의 구체적인 필드 정의",
+          "모달 구조의 상세한 설계",
+          "진행상황 탭의 차트 및 그래프 상세 정의",
+          "세션 카드의 실시간 트래킹 기능",
+          "데이터 소스와 API 엔드포인트 명시"
+        ],
+        "unique_features": [
+          "세션 카드의 실시간 타이머 통합",
+          "진행률 시각화 (0 → 완료시 검은색)",
+          "월별/년별 차트 상세 정의",
+          "캐싱 및 에러 폴백 처리",
+          "세션 완료 조건 및 액션 정의"
+        ]
+      },
+      "front_structure": {
+        "strengths": [
+          "Zustand 상태관리 구조",
+          "타입 안전성 (TypeScript)",
+          "Feature-based 아키텍처",
+          "컴포넌트 분리 및 재사용성",
+          "API 통합 패턴"
+        ],
+        "missing_features": [
+          "세션 카드의 실시간 타이머 기능",
+          "진행률 시각화 세부 구현",
+          "차트 컴포넌트의 상세 정의",
+          "캐싱 및 에러 처리 로직",
+          "세션 완료 조건 처리"
+        ]
+      }
+    },
+
+    "optimization_plan": {
+      "phase_1": {
+        "name": "데이터 구조 보완",
+        "description": "기존 구조에서 누락된 데이터 타입 및 필드 추가",
+        "tasks": [
+          "세션 카드 실시간 상태 추가",
+          "진행률 시각화 타입 정의",
+          "차트 데이터 구조 보완",
+          "캐싱 및 에러 처리 타입 추가"
+        ],
+        "estimated_hours": 4
+      },
+      "phase_2": {
+        "name": "Zustand 상태관리 통합",
+        "description": "모든 상태를 Zustand로 통일하고 최적화",
+        "tasks": [
+          "실시간 타이머 상태 통합",
+          "진행률 상태 관리",
+          "캐싱 상태 관리",
+          "에러 처리 상태 통합"
+        ],
+        "estimated_hours": 6
+      },
+      "phase_3": {
+        "name": "컴포넌트 구조 최적화",
+        "description": "컴포넌트 분리 및 재사용성 향상",
+        "tasks": [
+          "세션 카드 컴포넌트 개선",
+          "진행률 컴포넌트 추가",
+          "차트 컴포넌트 상세화",
+          "모달 컴포넌트 최적화"
+        ],
+        "estimated_hours": 8
+      },
+      "phase_4": {
+        "name": "기능 통합 및 테스트",
+        "description": "모든 기능 통합 및 테스트",
+        "tasks": [
+          "실시간 기능 통합",
+          "성능 최적화",
+          "테스트 코드 작성",
+          "문서화"
+        ],
+        "estimated_hours": 6
+      }
+    },
+
+    "total_workload": {
+      "total_hours": 24,
+      "phases": 4,
+      "priority": "high",
+      "dependencies": [
+        "기존 Zustand 스토어 구조 유지",
+        "TypeScript 타입 안전성 보장",
+        "기존 API 엔드포인트 호환성"
+      ]
+    }
+  }
+}

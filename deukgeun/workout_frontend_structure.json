@@ -1,0 +1,1544 @@
+{
+  "workout_frontend_structure": {
+    "project": "Workout Frontend Structure Analysis",
+    "description": "워크아웃 프론트엔드 구조 파악 및 필요한 데이터 정리",
+    "createdAt": "2025-01-27T00:00:00.000Z",
+    "version": "1.0.0",
+
+    "architecture": {
+      "pattern": "Feature-based Architecture with Zustand State Management",
+      "framework": "React + TypeScript + Vite",
+      "stateManagement": "Zustand Store with DevTools & Persist",
+      "styling": "CSS Modules with Tailwind-like utilities",
+      "routing": "React Router v6",
+      "structure": "Feature-oriented with shared components"
+    },
+
+    "main_components": {
+      "WorkoutPage": {
+        "file": "WorkoutPage.tsx",
+        "description": "메인 워크아웃 페이지 - 탭 기반 레이아웃",
+        "props": {
+          "isLoggedIn": "boolean",
+          "user": "User | null"
+        },
+        "state": {
+          "activeTab": "TabType",
+          "globalError": "string | null",
+          "isDataLoading": "boolean"
+        },
+        "layout": {
+          "type": "tabbed-layout",
+          "header": "WorkoutPageHeader",
+          "navigation": "TabNavigation",
+          "content": "TabContent",
+          "modals": [
+            "WorkoutPlanModal",
+            "WorkoutSessionModal",
+            "WorkoutGoalModal"
+          ]
+        }
+      }
+    },
+
+    "tabs": {
+      "overview": {
+        "component": "OverviewTab",
+        "description": "운동 통계, 최근 세션, 목표 진행상황을 한눈에 확인",
+        "props": [
+          "dashboardData",
+          "isLoading",
+          "onPlanClick",
+          "onSessionClick",
+          "onGoalClick"
+        ],
+        "subComponents": [
+          "StatsSection",
+          "RecentSessionsSection",
+          "GoalsProgressSection",
+          "ChartsSection"
+        ],
+        "dataRequirements": [
+          "DashboardData",
+          "WorkoutStats",
+          "RecentSessions",
+          "ActiveGoals"
+        ]
+      },
+      "goals": {
+        "component": "GoalsTab",
+        "description": "운동 목표 생성, 편집, 달성 상태 관리",
+        "props": [
+          "goals",
+          "isLoading",
+          "onCreateGoal",
+          "onEditGoal",
+          "onDeleteGoal"
+        ],
+        "subComponents": [
+          "GoalsHeader",
+          "GoalsContent",
+          "GoalCard",
+          "GoalProgressBar"
+        ],
+        "dataRequirements": ["WorkoutGoal[]", "GoalProgress", "GoalStats"]
+      },
+      "plans": {
+        "component": "PlansTab",
+        "description": "운동 계획 생성, 편집, 실행 관리",
+        "props": [
+          "plans",
+          "isLoading",
+          "onCreatePlan",
+          "onEditPlan",
+          "onStartSession",
+          "onDeletePlan"
+        ],
+        "subComponents": [
+          "PlansHeader",
+          "PlansContent",
+          "PlansStats",
+          "WorkoutPlanCard"
+        ],
+        "dataRequirements": [
+          "WorkoutPlan[]",
+          "WorkoutPlanExercise[]",
+          "PlanProgress",
+          "Machine[]"
+        ]
+      },
+      "sessions": {
+        "component": "SessionsTab",
+        "description": "운동 세션 관리 및 실시간 트래킹",
+        "props": [
+          "sessions",
+          "isLoading",
+          "onEditSession",
+          "onViewSession",
+          "onDeleteSession"
+        ],
+        "subComponents": [
+          "SessionsHeader",
+          "SessionsContent",
+          "SessionCard",
+          "SessionTimer"
+        ],
+        "dataRequirements": [
+          "WorkoutSession[]",
+          "ExerciseSet[]",
+          "SessionStats",
+          "TimerState"
+        ]
+      },
+      "workoutProgress": {
+        "component": "ProgressTab",
+        "description": "월/년 단위 진행 상황 시각화",
+        "props": ["sessions", "onViewSession", "isLoading"],
+        "subComponents": [
+          "ProgressHeader",
+          "ProgressCharts",
+          "ProgressCalendar",
+          "ProgressStats"
+        ],
+        "dataRequirements": [
+          "WorkoutSession[]",
+          "ChartData[]",
+          "ProgressStats",
+          "TimeRangeData"
+        ]
+      }
+    },
+
+    "core_data_types": {
+      "WorkoutPlan": {
+        "id": "number",
+        "userId": "number",
+        "name": "string",
+        "description": "string?",
+        "difficulty": "'beginner' | 'intermediate' | 'advanced'",
+        "estimatedDurationMinutes": "number",
+        "targetMuscleGroups": "string[]?",
+        "isTemplate": "boolean",
+        "isPublic": "boolean",
+        "exercises": "WorkoutPlanExercise[]",
+        "status": "'active' | 'archived' | 'draft'",
+        "goals": "WorkoutGoal[]?",
+        "sessions": "WorkoutSession[]?",
+        "createdAt": "Date",
+        "updatedAt": "Date"
+      },
+      "WorkoutPlanExercise": {
+        "id": "number",
+        "planId": "number",
+        "machineId": "number?",
+        "exerciseName": "string",
+        "exerciseOrder": "number",
+        "sets": "number",
+        "repsRange": "{ min: number, max: number }",
+        "weightRange": "{ min: number, max: number }?",
+        "restSeconds": "number",
+        "notes": "string?",
+        "isCompleted": "boolean?",
+        "progress": "number?",
+        "createdAt": "Date",
+        "updatedAt": "Date"
+      },
+      "WorkoutSession": {
+        "id": "number",
+        "userId": "number",
+        "planId": "number?",
+        "gymId": "number?",
+        "name": "string",
+        "startTime": "Date",
+        "endTime": "Date?",
+        "totalDurationMinutes": "number?",
+        "moodRating": "number?",
+        "energyLevel": "number?",
+        "notes": "string?",
+        "status": "'in_progress' | 'completed' | 'paused' | 'cancelled'",
+        "exerciseSets": "ExerciseSet[]",
+        "plan": "WorkoutPlan?",
+        "createdAt": "Date",
+        "updatedAt": "Date"
+      },
+      "ExerciseSet": {
+        "id": "number",
+        "sessionId": "number",
+        "machineId": "number",
+        "setNumber": "number",
+        "repsCompleted": "number",
+        "weightKg": "number?",
+        "durationSeconds": "number?",
+        "distanceMeters": "number?",
+        "rpeRating": "number?",
+        "notes": "string?",
+        "createdAt": "Date",
+        "updatedAt": "Date"
+      },
+      "WorkoutGoal": {
+        "id": "number",
+        "userId": "number",
+        "title": "string",
+        "description": "string?",
+        "type": "'weight' | 'reps' | 'duration' | 'frequency' | 'streak'",
+        "targetValue": "number",
+        "currentValue": "number",
+        "unit": "string",
+        "deadline": "Date?",
+        "isCompleted": "boolean",
+        "completedAt": "Date?",
+        "planId": "number?",
+        "exerciseId": "number?",
+        "createdAt": "Date",
+        "updatedAt": "Date"
+      },
+      "Machine": {
+        "id": "number",
+        "name": "string",
+        "description": "string?",
+        "muscleGroup": "string",
+        "category": "string",
+        "difficulty": "'beginner' | 'intermediate' | 'advanced'",
+        "imageUrl": "string?",
+        "createdAt": "Date",
+        "updatedAt": "Date"
+      },
+      "DashboardData": {
+        "totalWorkouts": "number",
+        "totalSessions": "number",
+        "totalGoals": "number",
+        "completedGoals": "number",
+        "currentStreak": "number",
+        "totalExp": "number",
+        "level": "number",
+        "summary": {
+          "totalWorkouts": "number",
+          "totalGoals": "number",
+          "totalSessions": "number",
+          "totalPlans": "number",
+          "completedSessions": "number",
+          "streak": "number",
+          "activeGoals": "number"
+        },
+        "weeklyStats": {
+          "totalSessions": "number",
+          "totalDuration": "number",
+          "averageMood": "number",
+          "averageEnergy": "number"
+        },
+        "recentSessions": "Array<{ id: number, name: string, date: Date, duration: number }>",
+        "activeGoals": "WorkoutGoal[]",
+        "recentProgress": "Array<{ date: Date, value: number, type: string }>",
+        "upcomingGoals": "Array<{ id: number, title: string, deadline: Date, progress: number }>",
+        "weeklyProgress": "Array<{ date: Date, workouts: number, exp: number }>"
+      }
+    },
+
+    "ui_components": {
+      "cards": {
+        "WorkoutPlanCard": {
+          "props": [
+            "plan",
+            "onViewPlan",
+            "onEditPlan",
+            "onDeletePlan",
+            "onStartSession",
+            "className",
+            "compact"
+          ],
+          "features": [
+            "계획 정보 표시",
+            "진행률 표시",
+            "액션 버튼",
+            "반응형 레이아웃"
+          ],
+          "fields": [
+            "계획 이름",
+            "설명",
+            "난이도",
+            "총 소요 시간",
+            "운동 목록 요약",
+            "진행률",
+            "streak",
+            "badge"
+          ],
+          "actions": ["상세 보기", "수정", "삭제"],
+          "components": [
+            {
+              "type": "ProgressBar",
+              "props": ["currentValue", "targetValue", "unit"]
+            },
+            {
+              "type": "Badge",
+              "props": ["level", "milestone"]
+            }
+          ]
+        },
+        "SessionCard": {
+          "props": [
+            "session",
+            "onEdit",
+            "onDelete",
+            "onView",
+            "onStart",
+            "onPause",
+            "className",
+            "isActive",
+            "isCompleted",
+            "compact"
+          ],
+          "features": [
+            "세션 정보 표시",
+            "타이머 통합",
+            "진행 상태 표시",
+            "액션 버튼"
+          ],
+          "realTimeFeatures": [
+            "실시간 타이머",
+            "세트 완료 상태",
+            "진행률 시각화",
+            "완료 조건 체크"
+          ],
+          "fields": [
+            "계획 타이틀",
+            "계획 내용",
+            "운동 세트 요약 (예: 운동명 - 0 0 0)",
+            "진행률 표시 (세트 완료 검은색)"
+          ],
+          "actions": [
+            {
+              "label": "시작/일시정지",
+              "type": "toggleTimer",
+              "behavior": {
+                "start": "타이머 작동 및 진행바 표시",
+                "pause": "타이머 일시정지 및 버튼 변경"
+              }
+            },
+            {
+              "label": "삭제",
+              "action": "deleteSessionCard"
+            }
+          ],
+          "progress": {
+            "type": "sets",
+            "display": "0 → 완료시 검은색",
+            "maxValue": "계획된 세트 수",
+            "completedValueColor": "black",
+            "visualIndicator": "진행바 표시"
+          },
+          "completion": {
+            "type": "button",
+            "label": "오운완",
+            "trigger": ["카드 삭제", "내용 및 히스토리 DB 저장"],
+            "condition": "모든 세트 완료 시 활성화",
+            "position": "카드 중앙"
+          }
+        },
+        "GoalCard": {
+          "props": ["goal", "onEdit", "onDelete", "onClick", "className"],
+          "features": ["목표 정보 표시", "진행률 바", "달성 상태 표시"],
+          "fields": [
+            "title",
+            "description",
+            "progress",
+            "targetDate",
+            "isCompleted"
+          ],
+          "actions": ["EditGoal", "DeleteGoal"],
+          "components": [
+            {
+              "type": "ProgressBar",
+              "props": ["currentValue", "targetValue", "unit"]
+            }
+          ]
+        },
+        "GoalProgressBar": {
+          "props": [
+            "goal",
+            "currentValue",
+            "maxValue",
+            "showPercentage",
+            "className",
+            "compact",
+            "isSelected",
+            "onEdit",
+            "onDelete",
+            "onClick",
+            "onSelect"
+          ],
+          "features": ["진행률 시각화", "인터랙티브 요소", "컴팩트 모드"]
+        }
+      },
+      "charts": {
+        "LineChart": {
+          "props": ["data", "config", "className"],
+          "features": ["시계열 데이터 시각화", "반응형", "인터랙티브"]
+        },
+        "BarChart": {
+          "props": ["data", "config", "className"],
+          "features": ["카테고리별 비교", "반응형", "인터랙티브"]
+        },
+        "PieChart": {
+          "props": ["data", "config", "className"],
+          "features": ["비율 시각화", "반응형", "인터랙티브"]
+        },
+        "ProgressChart": {
+          "props": ["data", "config", "className"],
+          "features": ["진행률 차트", "반응형", "인터랙티브"]
+        }
+      },
+      "forms": {
+        "WorkoutPlanForm": {
+          "fields": [
+            "name",
+            "description",
+            "difficulty",
+            "estimatedDurationMinutes",
+            "targetMuscleGroups",
+            "exercises"
+          ],
+          "validation": "Zod schema",
+          "features": ["동적 운동 추가", "실시간 검증"]
+        },
+        "WorkoutSessionForm": {
+          "fields": ["name", "startTime", "moodRating", "energyLevel", "notes"],
+          "validation": "Zod schema",
+          "features": ["타이머 통합", "실시간 검증"]
+        },
+        "WorkoutGoalForm": {
+          "fields": [
+            "title",
+            "description",
+            "type",
+            "targetValue",
+            "unit",
+            "deadline"
+          ],
+          "validation": "Zod schema",
+          "features": ["목표 타입별 필드", "실시간 검증"]
+        }
+      },
+      "modals": {
+        "WorkoutPlanModal": {
+          "modes": ["create", "edit", "view", "duplicate"],
+          "components": ["WorkoutPlanForm", "ExerciseList", "ModalFooter"],
+          "features": ["동적 운동 관리", "실시간 미리보기"],
+          "fields": [
+            {
+              "name": "planName",
+              "type": "text",
+              "label": "계획 이름",
+              "required": true
+            },
+            {
+              "name": "planDescription",
+              "type": "textarea",
+              "label": "설명"
+            },
+            {
+              "name": "difficulty",
+              "type": "select",
+              "label": "난이도",
+              "options": ["쉬움", "보통", "어려움"]
+            },
+            {
+              "name": "duration",
+              "type": "number",
+              "label": "총 소요 시간 (분)",
+              "min": 1
+            },
+            {
+              "name": "exerciseList",
+              "type": "list",
+              "label": "운동 목록",
+              "itemType": "ExerciseItem",
+              "actions": ["수정", "삭제"]
+            }
+          ],
+          "buttons": [
+            {
+              "label": "저장",
+              "action": "savePlan"
+            },
+            {
+              "label": "취소",
+              "action": "closeModal"
+            }
+          ]
+        },
+        "WorkoutSessionModal": {
+          "modes": ["create", "edit", "view", "active"],
+          "components": ["WorkoutSessionForm", "Timer", "ExerciseTracker"],
+          "features": ["실시간 세션 트래킹", "타이머 통합"],
+          "fields": [
+            {
+              "name": "sessionName",
+              "type": "text",
+              "label": "세션 이름",
+              "required": true
+            },
+            {
+              "name": "planId",
+              "type": "select",
+              "label": "운동 계획",
+              "dataSource": "plans"
+            },
+            {
+              "name": "startTime",
+              "type": "datetime",
+              "label": "시작 시간"
+            },
+            {
+              "name": "notes",
+              "type": "textarea",
+              "label": "메모"
+            }
+          ],
+          "buttons": [
+            {
+              "label": "생성",
+              "action": "createSession"
+            },
+            {
+              "label": "취소",
+              "action": "closeModal"
+            }
+          ]
+        },
+        "WorkoutGoalModal": {
+          "modes": ["create", "edit", "view"],
+          "components": ["WorkoutGoalForm", "GoalProgress", "ModalFooter"],
+          "features": ["목표 진행률 표시", "자동 계산"],
+          "fields": [
+            {
+              "name": "title",
+              "type": "text",
+              "label": "목표 제목",
+              "required": true
+            },
+            {
+              "name": "description",
+              "type": "textarea",
+              "label": "목표 설명"
+            },
+            {
+              "name": "type",
+              "type": "select",
+              "label": "목표 타입",
+              "options": ["weight", "reps", "duration", "frequency", "streak"]
+            },
+            {
+              "name": "targetValue",
+              "type": "number",
+              "label": "목표 값",
+              "required": true
+            },
+            {
+              "name": "unit",
+              "type": "text",
+              "label": "단위",
+              "required": true
+            },
+            {
+              "name": "deadline",
+              "type": "date",
+              "label": "목표 기한"
+            }
+          ],
+          "buttons": [
+            {
+              "label": "생성",
+              "action": "createGoal"
+            },
+            {
+              "label": "취소",
+              "action": "closeModal"
+            }
+          ]
+        }
+      },
+      "timer": {
+        "SessionTimer": {
+          "props": [
+            "sessionId",
+            "isRunning",
+            "elapsedTime",
+            "totalTime",
+            "onStart",
+            "onPause",
+            "onStop"
+          ],
+          "features": [
+            "실시간 타이머",
+            "일시정지/재개",
+            "완료 알림",
+            "진행률 표시"
+          ]
+        },
+        "RestTimer": {
+          "props": ["duration", "isRunning", "onComplete", "onSkip"],
+          "features": ["휴식 시간 타이머", "자동 시작", "건너뛰기 옵션"]
+        },
+        "GlobalTimer": {
+          "props": [
+            "isRunning",
+            "elapsedTime",
+            "onStart",
+            "onPause",
+            "onReset"
+          ],
+          "features": ["전역 타이머", "세션 간 연속", "총 운동 시간"]
+        }
+      },
+      "progress": {
+        "ProgressBar": {
+          "props": [
+            "currentValue",
+            "maxValue",
+            "unit",
+            "showPercentage",
+            "color",
+            "size"
+          ],
+          "features": ["진행률 시각화", "커스터마이징", "애니메이션"]
+        },
+        "SetProgress": {
+          "props": [
+            "completedSets",
+            "totalSets",
+            "currentSet",
+            "onSetComplete"
+          ],
+          "features": ["세트별 진행률", "완료 상태 표시", "인터랙티브"]
+        },
+        "GoalProgress": {
+          "props": ["goal", "currentValue", "targetValue", "deadline"],
+          "features": ["목표 진행률", "데드라인 표시", "달성 예측"]
+        }
+      },
+      "navigation": {
+        "TabNavigation": {
+          "props": ["activeTab", "onTabChange", "tabs", "className"],
+          "features": ["탭 전환", "반응형 디자인", "접근성 지원"]
+        },
+        "TabContent": {
+          "props": ["activeTab", "children", "className"],
+          "features": ["탭 콘텐츠 관리", "애니메이션", "로딩 상태"]
+        }
+      }
+    },
+
+    "state_management": {
+      "store": "workoutStore.ts",
+      "pattern": "Zustand with DevTools & Persist",
+      "state_structure": {
+        "data": {
+          "plans": "WorkoutPlan[]",
+          "sessions": "WorkoutSession[]",
+          "goals": "WorkoutGoal[]",
+          "dashboardData": "DashboardData | null"
+        },
+        "loading": {
+          "overview": "LoadingState",
+          "plans": "LoadingState",
+          "sessions": "LoadingState",
+          "goals": "LoadingState",
+          "progress": "LoadingState"
+        },
+        "ui": {
+          "activeTab": "TabType",
+          "modals": {
+            "plan": "WorkoutPlanModalState",
+            "session": "WorkoutSessionModalState",
+            "goal": "WorkoutGoalModalState"
+          }
+        },
+        "current": {
+          "currentPlan": "WorkoutPlan | null",
+          "currentSession": "WorkoutSession | null",
+          "currentGoal": "WorkoutGoal | null"
+        },
+        "tabStates": {
+          "overview": "OverviewTabState",
+          "plans": "PlansTabState",
+          "sessions": "SessionsTabState",
+          "goals": "GoalsTabState",
+          "workoutProgress": "ProgressTabState"
+        },
+        "sharedState": {
+          "lastUpdatedPlan": "WorkoutPlan | null",
+          "lastUpdatedSession": "WorkoutSession | null",
+          "lastUpdatedGoal": "WorkoutGoal | null",
+          "notifications": "Notification[]",
+          "globalLoading": "boolean",
+          "globalError": "string | null"
+        }
+      },
+      "actions": {
+        "plans": ["fetchPlans", "createPlan", "updatePlan", "deletePlan"],
+        "sessions": [
+          "fetchSessions",
+          "createSession",
+          "updateSession",
+          "deleteSession"
+        ],
+        "goals": ["fetchGoals", "createGoal", "updateGoal", "deleteGoal"],
+        "dashboard": ["fetchDashboardData"],
+        "ui": [
+          "setActiveTab",
+          "openPlanModal",
+          "closePlanModal",
+          "openSessionModal",
+          "closeSessionModal",
+          "openGoalModal",
+          "closeGoalModal",
+          "addNotification",
+          "removeNotification",
+          "clearNotifications",
+          "setGlobalError",
+          "clearGlobalError"
+        ],
+        "modalSystem": [
+          "openModal",
+          "closeModal",
+          "updateModal",
+          "closeAllModals",
+          "goBack",
+          "setFieldValue",
+          "setFieldError",
+          "validateField",
+          "validateForm",
+          "resetForm",
+          "submitForm"
+        ]
+      }
+    },
+
+    "api_integration": {
+      "endpoints": {
+        "dashboard": "/api/workout/dashboard",
+        "plans": "/api/workout/plans",
+        "sessions": "/api/workout/sessions",
+        "goals": "/api/workout/goals",
+        "machines": "/api/machines",
+        "gyms": "/api/gyms",
+        "stats": "/api/workout/stats",
+        "progress": "/api/workout/progress",
+        "reminders": "/api/workout/reminders",
+        "userLevel": "/api/user/level",
+        "expHistory": "/api/user/exp-history",
+        "milestones": "/api/user/milestones",
+        "streaks": "/api/user/streaks",
+        "rewards": "/api/user/rewards"
+      },
+      "patterns": {
+        "request": "CreateRequest/UpdateRequest interfaces",
+        "response": "ApiResponse<T> wrapper",
+        "error": "Error handling with user-friendly messages",
+        "loading": "Individual loading states per feature"
+      },
+      "data_transformation": {
+        "backend_to_frontend": {
+          "Machine": {
+            "machineKey": "id (프론트엔드 호환성)",
+            "nameKo": "name (한국어 우선)",
+            "nameEn": "nameEn (영어 버전)",
+            "shortDesc": "description (간단 설명)"
+          },
+          "WorkoutSession": {
+            "exerciseSets": "실시간 변환",
+            "status": "프론트엔드 상태 매핑"
+          },
+          "WorkoutPlan": {
+            "exercises": "순서 정렬",
+            "status": "기본값 설정"
+          }
+        },
+        "frontend_to_backend": {
+          "Machine": {
+            "id": "machineKey (백엔드 호환성)",
+            "name": "nameKo (한국어 저장)",
+            "description": "shortDesc (간단 설명)"
+          },
+          "WorkoutSession": {
+            "status": "백엔드 상태 매핑",
+            "exerciseSets": "배치 처리"
+          }
+        }
+      },
+      "caching_strategy": {
+        "machines": "24시간 캐시",
+        "gyms": "7일 캐시",
+        "userLevel": "1시간 캐시",
+        "stats": "1시간 캐시",
+        "progress": "30분 캐시",
+        "sessions": "실시간 업데이트",
+        "plans": "실시간 업데이트",
+        "goals": "실시간 업데이트"
+      },
+      "error_handling": {
+        "network_errors": "재시도 로직",
+        "validation_errors": "사용자 친화적 메시지",
+        "server_errors": "폴백 UI",
+        "timeout_errors": "타임아웃 처리"
+      }
+    },
+
+    "constants": {
+      "TAB_CONFIG": [
+        {
+          "key": "overview",
+          "label": "개요",
+          "icon": "📊",
+          "description": "현재 진행중인 운동 계획과 주요 통계"
+        },
+        {
+          "key": "goals",
+          "label": "목표",
+          "icon": "🎯",
+          "description": "운동 목표와 달성 상태"
+        },
+        {
+          "key": "plans",
+          "label": "계획",
+          "icon": "📋",
+          "description": "새 계획 생성 및 운동 추가"
+        },
+        {
+          "key": "sessions",
+          "label": "세션",
+          "icon": "⏱️",
+          "description": "운동 세션 관리"
+        },
+        {
+          "key": "workoutProgress",
+          "label": "진행상황",
+          "icon": "📈",
+          "description": "월/년 단위 진행 상황 시각화"
+        }
+      ],
+      "GOAL_TYPES": {
+        "WEIGHT": "weight",
+        "REPS": "reps",
+        "DURATION": "duration",
+        "FREQUENCY": "frequency"
+      },
+      "SESSION_STATUS": {
+        "NOT_STARTED": "not_started",
+        "IN_PROGRESS": "in_progress",
+        "PAUSED": "paused",
+        "COMPLETED": "completed"
+      }
+    },
+
+    "required_data_sources": {
+      "user_data": {
+        "userId": "number",
+        "userProfile": "UserProfile",
+        "preferences": "UserPreferences"
+      },
+      "workout_data": {
+        "plans": "WorkoutPlan[]",
+        "sessions": "WorkoutSession[]",
+        "goals": "WorkoutGoal[]",
+        "exercises": "WorkoutPlanExercise[]",
+        "sets": "ExerciseSet[]"
+      },
+      "reference_data": {
+        "machines": "Machine[]",
+        "muscleGroups": "string[]",
+        "exerciseCategories": "string[]"
+      },
+      "analytics_data": {
+        "dashboard": "DashboardData",
+        "stats": "WorkoutStats",
+        "progress": "ProgressData",
+        "charts": "ChartData[]"
+      }
+    },
+
+    "file_structure": {
+      "src/frontend/features/workout/": {
+        "WorkoutPage.tsx": "메인 페이지 컴포넌트",
+        "WorkoutPage.module.css": "메인 페이지 스타일",
+        "index.ts": "기본 export",
+        "components/": {
+          "tabs/": "탭 컴포넌트들",
+          "cards/": "카드 컴포넌트들",
+          "modals/": "모달 컴포넌트들",
+          "forms/": "폼 컴포넌트들",
+          "charts/": "차트 컴포넌트들",
+          "navigation/": "네비게이션 컴포넌트들",
+          "ui/": "공통 UI 컴포넌트들",
+          "timer/": "타이머 컴포넌트들",
+          "layout/": "레이아웃 컴포넌트들",
+          "sections/": "섹션 컴포넌트들"
+        },
+        "types/": {
+          "index.ts": "타입 export",
+          "workout.ts": "워크아웃 관련 타입들"
+        },
+        "constants/": {
+          "index.ts": "상수 정의"
+        },
+        "store/": {
+          "workoutStore.ts": "Zustand 스토어"
+        },
+        "hooks/": "커스텀 훅들",
+        "api/": "API 통신",
+        "services/": "비즈니스 로직",
+        "utils/": "유틸리티 함수들",
+        "data/": "목 데이터",
+        "contexts/": "컨텍스트들"
+      }
+    },
+
+    "dependencies": {
+      "core": ["react", "react-dom", "react-router-dom"],
+      "state": [
+        "zustand",
+        "zustand/middleware/devtools",
+        "zustand/middleware/persist"
+      ],
+      "ui": ["tailwindcss", "css-modules"],
+      "validation": ["zod"],
+      "charts": ["recharts", "chart.js"],
+      "utils": ["date-fns", "lodash"]
+    },
+
+    "key_features": {
+      "authentication": "로그인 상태 확인 및 보호된 라우트",
+      "real_time_tracking": "실시간 세션 트래킹 및 타이머",
+      "progress_visualization": "차트 및 진행률 시각화",
+      "goal_management": "목표 설정 및 달성 추적",
+      "plan_management": "운동 계획 생성 및 관리",
+      "session_management": "운동 세션 기록 및 분석",
+      "responsive_design": "모바일/태블릿/데스크톱 반응형",
+      "offline_support": "오프라인 데이터 저장 및 동기화",
+      "notifications": "목표 달성 및 세션 알림",
+      "data_export": "운동 데이터 내보내기"
+    },
+
+    "modal_system": {
+      "core_components": {
+        "BaseModal": {
+          "description": "모든 모달의 기본 컴포넌트",
+          "props": {
+            "isOpen": "boolean",
+            "onClose": "() => void",
+            "title": "string",
+            "size": "'sm' | 'md' | 'lg' | 'xl' | 'full'",
+            "position": "'center' | 'top' | 'bottom'",
+            "backdrop": "boolean",
+            "closeOnBackdrop": "boolean",
+            "closeOnEscape": "boolean",
+            "showCloseButton": "boolean",
+            "children": "ReactNode",
+            "scrollable": "boolean",
+            "maxHeight": "string",
+            "fullScreen": "boolean"
+          },
+          "features": [
+            "접근성 지원 (ARIA)",
+            "키보드 네비게이션",
+            "포커스 트랩",
+            "애니메이션",
+            "반응형 디자인",
+            "백드롭 클릭 처리",
+            "ESC 키 처리",
+            "자동 스크롤 처리",
+            "반응형 높이 조정"
+          ],
+          "scroll_handling": {
+            "fixed_header": "모달 헤더 고정",
+            "scrollable_body": "모달 본문 스크롤 가능",
+            "fixed_footer": "모달 푸터 고정",
+            "max_height": "모달 최대 높이 설정 (80vh)",
+            "responsive": {
+              "mobile": "전체 화면 모달",
+              "tablet": "80% 높이 모달",
+              "desktop": "최대 800px 높이 모달"
+            }
+          }
+        },
+        "ModalHeader": {
+          "description": "모달 헤더 컴포넌트",
+          "props": {
+            "title": "string",
+            "subtitle": "string?",
+            "icon": "ReactNode?",
+            "actions": "ReactNode[]?",
+            "onClose": "() => void"
+          }
+        },
+        "ModalBody": {
+          "description": "모달 본문 컴포넌트",
+          "props": {
+            "children": "ReactNode",
+            "padding": "string",
+            "scrollable": "boolean",
+            "maxHeight": "string?"
+          }
+        },
+        "ModalFooter": {
+          "description": "모달 푸터 컴포넌트",
+          "props": {
+            "primaryAction": "ModalAction",
+            "secondaryAction": "ModalAction?",
+            "dangerAction": "ModalAction?",
+            "isLoading": "boolean",
+            "disabled": "boolean"
+          }
+        }
+      },
+
+      "workout_specific_modals": {
+        "WorkoutPlanModal": {
+          "modes": ["create", "edit", "view", "duplicate"],
+          "improved_structure": {
+            "header": {
+              "title": "운동 계획",
+              "mode_badge": "생성/수정/보기",
+              "close_button": "X"
+            },
+            "body": {
+              "basic_info_section": {
+                "title": "기본 정보",
+                "fields": ["이름", "설명", "난이도", "예상 시간"],
+                "collapsible": false
+              },
+              "exercises_section": {
+                "title": "운동 목록",
+                "add_button": "운동 추가",
+                "exercise_list": "스크롤 가능한 리스트",
+                "drag_drop": "순서 변경"
+              }
+            },
+            "footer": {
+              "actions": ["저장", "취소"],
+              "loading_state": "저장 중..."
+            }
+          },
+          "scroll_handling": {
+            "container": "고정 높이 (80vh)",
+            "body": "스크롤 가능",
+            "exercise_list": "독립 스크롤"
+          },
+          "sections": [
+            {
+              "id": "basic-info",
+              "title": "기본 정보",
+              "fields": [
+                {
+                  "name": "name",
+                  "type": "text",
+                  "label": "계획 이름",
+                  "required": true,
+                  "validation": {
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "pattern": "string"
+                  }
+                },
+                {
+                  "name": "description",
+                  "type": "textarea",
+                  "label": "설명",
+                  "required": false,
+                  "maxLength": 500
+                },
+                {
+                  "name": "difficulty",
+                  "type": "select",
+                  "label": "난이도",
+                  "required": true,
+                  "options": [
+                    { "value": "beginner", "label": "초급", "icon": "🌱" },
+                    { "value": "intermediate", "label": "중급", "icon": "🔥" },
+                    { "value": "advanced", "label": "고급", "icon": "💪" }
+                  ]
+                },
+                {
+                  "name": "estimatedDuration",
+                  "type": "number",
+                  "label": "예상 소요 시간 (분)",
+                  "required": true,
+                  "min": 5,
+                  "max": 300
+                }
+              ]
+            },
+            {
+              "id": "exercises",
+              "title": "운동 목록",
+              "type": "dynamic-list",
+              "component": "ExerciseList",
+              "features": [
+                "운동 추가/삭제",
+                "순서 변경 (드래그 앤 드롭)",
+                "세트/횟수 설정",
+                "휴식 시간 설정",
+                "기구 선택"
+              ],
+              "scrollable": true,
+              "maxHeight": "300px"
+            },
+            {
+              "id": "settings",
+              "title": "설정",
+              "fields": [
+                {
+                  "name": "isTemplate",
+                  "type": "checkbox",
+                  "label": "템플릿으로 저장"
+                },
+                {
+                  "name": "isPublic",
+                  "type": "checkbox",
+                  "label": "공개 계획"
+                },
+                {
+                  "name": "targetMuscleGroups",
+                  "type": "multi-select",
+                  "label": "타겟 근육군",
+                  "options": ["가슴", "등", "어깨", "팔", "복근", "하체"]
+                }
+              ]
+            }
+          ],
+          "actions": {
+            "create": {
+              "primary": "계획 생성",
+              "secondary": "임시 저장",
+              "danger": "취소"
+            },
+            "edit": {
+              "primary": "수정 완료",
+              "secondary": "변경사항 취소",
+              "danger": "삭제"
+            },
+            "view": {
+              "primary": "수정",
+              "secondary": "복제",
+              "danger": "삭제"
+            }
+          }
+        },
+
+        "WorkoutSessionModal": {
+          "modes": ["create", "edit", "view", "active"],
+          "simplified_structure": {
+            "header": {
+              "session_name": "세션 이름",
+              "status": "진행 중/완료",
+              "timer": "경과 시간"
+            },
+            "body": {
+              "current_exercise": {
+                "name": "현재 운동",
+                "progress": "진행률 (0/3 세트)",
+                "timer": "세트 타이머",
+                "actions": ["완료", "건너뛰기"]
+              },
+              "exercise_summary": {
+                "completed": "완료된 운동",
+                "remaining": "남은 운동",
+                "total_progress": "전체 진행률"
+              }
+            },
+            "footer": {
+              "primary": "세션 완료",
+              "secondary": "일시정지"
+            }
+          },
+          "information_architecture": {
+            "primary": "현재 운동 정보",
+            "secondary": "진행률 및 타이머",
+            "tertiary": "세션 요약"
+          },
+          "sections": [
+            {
+              "id": "session-info",
+              "title": "세션 정보",
+              "fields": [
+                {
+                  "name": "name",
+                  "type": "text",
+                  "label": "세션 이름",
+                  "required": true
+                },
+                {
+                  "name": "planId",
+                  "type": "select",
+                  "label": "운동 계획",
+                  "required": false,
+                  "dataSource": "plans"
+                },
+                {
+                  "name": "startTime",
+                  "type": "datetime",
+                  "label": "시작 시간",
+                  "required": false
+                }
+              ]
+            },
+            {
+              "id": "mood-energy",
+              "title": "컨디션",
+              "fields": [
+                {
+                  "name": "moodRating",
+                  "type": "rating",
+                  "label": "기분",
+                  "max": 5,
+                  "icons": ["😢", "😐", "😊", "😄", "🤩"]
+                },
+                {
+                  "name": "energyLevel",
+                  "type": "rating",
+                  "label": "에너지 레벨",
+                  "max": 5,
+                  "icons": ["😴", "😪", "😐", "😊", "⚡"]
+                }
+              ]
+            },
+            {
+              "id": "exercise-tracker",
+              "title": "운동 트래커",
+              "type": "dynamic",
+              "component": "ExerciseTracker",
+              "features": [
+                "실시간 세트 기록",
+                "무게/횟수 입력",
+                "RPE 기록",
+                "휴식 타이머",
+                "진행률 표시"
+              ]
+            },
+            {
+              "id": "notes",
+              "title": "메모",
+              "fields": [
+                {
+                  "name": "notes",
+                  "type": "textarea",
+                  "label": "세션 메모",
+                  "placeholder": "오늘 운동에 대한 메모를 작성하세요..."
+                }
+              ]
+            }
+          ],
+          "actions": {
+            "create": {
+              "primary": "세션 시작",
+              "secondary": "나중에 시작",
+              "danger": "취소"
+            },
+            "active": {
+              "primary": "세션 완료",
+              "secondary": "일시정지",
+              "danger": "세션 취소"
+            }
+          }
+        },
+
+        "WorkoutGoalModal": {
+          "modes": ["create", "edit", "view"],
+          "sections": [
+            {
+              "id": "goal-info",
+              "title": "목표 정보",
+              "fields": [
+                {
+                  "name": "title",
+                  "type": "text",
+                  "label": "목표 제목",
+                  "required": true
+                },
+                {
+                  "name": "description",
+                  "type": "textarea",
+                  "label": "목표 설명",
+                  "required": false
+                },
+                {
+                  "name": "type",
+                  "type": "select",
+                  "label": "목표 타입",
+                  "required": true,
+                  "options": [
+                    { "value": "weight", "label": "무게", "icon": "🏋️" },
+                    { "value": "reps", "label": "횟수", "icon": "🔢" },
+                    { "value": "duration", "label": "시간", "icon": "⏱️" },
+                    { "value": "frequency", "label": "빈도", "icon": "📅" },
+                    { "value": "streak", "label": "연속", "icon": "🔥" }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "target-settings",
+              "title": "목표 설정",
+              "fields": [
+                {
+                  "name": "targetValue",
+                  "type": "number",
+                  "label": "목표 값",
+                  "required": true,
+                  "dynamicLabel": "목표 타입에 따라 변경"
+                },
+                {
+                  "name": "unit",
+                  "type": "text",
+                  "label": "단위",
+                  "required": true,
+                  "dynamicOptions": "목표 타입에 따라 자동 설정"
+                },
+                {
+                  "name": "deadline",
+                  "type": "date",
+                  "label": "목표 기한",
+                  "required": false
+                },
+                {
+                  "name": "currentValue",
+                  "type": "number",
+                  "label": "현재 값",
+                  "required": false
+                }
+              ]
+            },
+            {
+              "id": "progress-preview",
+              "title": "진행률 미리보기",
+              "type": "component",
+              "component": "GoalProgressPreview",
+              "features": ["진행률 시각화", "달성 예측", "남은 기간 표시"]
+            }
+          ],
+          "actions": {
+            "create": {
+              "primary": "목표 생성",
+              "secondary": "임시 저장",
+              "danger": "취소"
+            },
+            "edit": {
+              "primary": "수정 완료",
+              "secondary": "변경사항 취소",
+              "danger": "삭제"
+            }
+          }
+        }
+      },
+
+      "form_components": {
+        "FormField": {
+          "description": "재사용 가능한 폼 필드 컴포넌트",
+          "props": {
+            "name": "string",
+            "type": "FormFieldType",
+            "label": "string",
+            "required": "boolean",
+            "error": "string?",
+            "helpText": "string?",
+            "disabled": "boolean",
+            "validation": "ValidationRule[]"
+          },
+          "types": [
+            "text",
+            "textarea",
+            "number",
+            "select",
+            "multi-select",
+            "checkbox",
+            "radio",
+            "date",
+            "datetime",
+            "rating",
+            "file"
+          ]
+        },
+        "FormSection": {
+          "description": "폼 섹션 컴포넌트",
+          "props": {
+            "title": "string",
+            "subtitle": "string?",
+            "collapsible": "boolean",
+            "defaultExpanded": "boolean",
+            "children": "ReactNode"
+          }
+        },
+        "ValidationProvider": {
+          "description": "폼 검증 제공자",
+          "features": [
+            "실시간 검증",
+            "사용자 정의 검증 규칙",
+            "에러 메시지 커스터마이징",
+            "검증 상태 관리"
+          ]
+        }
+      },
+
+      "state_management": {
+        "modalStore": {
+          "state": {
+            "activeModals": "Record<string, ModalState>",
+            "modalHistory": "ModalHistory[]",
+            "globalModalSettings": "GlobalModalSettings"
+          },
+          "actions": {
+            "openModal": "(modalId: string, config: ModalConfig) => void",
+            "closeModal": "(modalId: string) => void",
+            "updateModal": "(modalId: string, updates: Partial<ModalState>) => void",
+            "closeAllModals": "() => void",
+            "goBack": "() => void"
+          }
+        },
+        "formStore": {
+          "state": {
+            "formData": "Record<string, any>",
+            "formErrors": "Record<string, string[]>",
+            "formTouched": "Record<string, boolean>",
+            "isSubmitting": "boolean"
+          },
+          "actions": {
+            "setFieldValue": "(field: string, value: any) => void",
+            "setFieldError": "(field: string, error: string) => void",
+            "validateField": "(field: string) => void",
+            "validateForm": "() => boolean",
+            "resetForm": "() => void",
+            "submitForm": "() => Promise<void>"
+          }
+        }
+      },
+
+      "accessibility_features": {
+        "aria_labels": "모든 모달에 적절한 ARIA 라벨",
+        "focus_management": "포커스 트랩 및 키보드 네비게이션",
+        "screen_reader": "스크린 리더 지원",
+        "keyboard_shortcuts": "키보드 단축키 지원",
+        "high_contrast": "고대비 모드 지원"
+      },
+
+      "performance_optimizations": {
+        "lazy_loading": "모달 컴포넌트 지연 로딩",
+        "memoization": "React.memo 및 useMemo 사용",
+        "virtualization": "긴 목록 가상화",
+        "debouncing": "입력 디바운싱",
+        "code_splitting": "모달별 코드 분할"
+      },
+
+      "user_experience": {
+        "animations": "부드러운 진입/퇴장 애니메이션",
+        "loading_states": "로딩 상태 표시",
+        "error_handling": "사용자 친화적 에러 메시지",
+        "success_feedback": "성공 피드백",
+        "auto_save": "자동 저장 기능",
+        "undo_redo": "실행 취소/다시 실행"
+      },
+
+      "css_improvements": {
+        "modal_scroll_fix": {
+          ".modal-container": {
+            "position": "fixed",
+            "top": "0",
+            "left": "0",
+            "width": "100%",
+            "height": "100%",
+            "display": "flex",
+            "align-items": "center",
+            "justify-content": "center",
+            "z-index": "1000"
+          },
+          ".modal-content": {
+            "background": "white",
+            "border-radius": "8px",
+            "max-width": "90vw",
+            "max-height": "80vh",
+            "display": "flex",
+            "flex-direction": "column",
+            "overflow": "hidden"
+          },
+          ".modal-header": {
+            "padding": "20px",
+            "border-bottom": "1px solid #e5e7eb",
+            "flex-shrink": "0"
+          },
+          ".modal-body": {
+            "flex": "1",
+            "overflow-y": "auto",
+            "padding": "20px"
+          },
+          ".modal-footer": {
+            "padding": "20px",
+            "border-top": "1px solid #e5e7eb",
+            "flex-shrink": "0"
+          }
+        },
+
+        "simplified_design": {
+          "color_scheme": {
+            "primary": "#3b82f6",
+            "secondary": "#6b7280",
+            "success": "#10b981",
+            "danger": "#ef4444",
+            "background": "#ffffff",
+            "border": "#e5e7eb"
+          },
+          "typography": {
+            "heading": "font-size: 1.25rem, font-weight: 600",
+            "body": "font-size: 1rem, line-height: 1.5",
+            "caption": "font-size: 0.875rem, color: #6b7280"
+          },
+          "spacing": {
+            "xs": "4px",
+            "sm": "8px",
+            "md": "16px",
+            "lg": "24px",
+            "xl": "32px"
+          }
+        }
+      }
+    }
+  }
+}

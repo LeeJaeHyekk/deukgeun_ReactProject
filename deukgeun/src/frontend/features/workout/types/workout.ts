@@ -1,321 +1,76 @@
 // ============================================================================
-// Workout Feature Types - DB Schema Aligned with Frontend Compatibility
+// Workout Feature Types - Core Data Types
 // ============================================================================
 
-// Base entity interface
-export interface BaseEntity {
-  id: number
-  createdAt: Date
-  updatedAt: Date
-}
+// 공통 타입들을 import
+export type {
+  WorkoutPlan,
+  WorkoutPlanExercise,
+  WorkoutSession,
+  ExerciseSet,
+  WorkoutGoal,
+  Machine,
+  Gym,
+  DashboardData,
+  CreatePlanRequest,
+  UpdatePlanRequest,
+  CreateSessionRequest,
+  UpdateSessionRequest,
+  CreateGoalRequest,
+  UpdateGoalRequest,
+  CreateExerciseSetRequest,
+  UpdateExerciseSetRequest,
+  PaginationParams,
+  PaginatedResponse,
+} from "../../../../shared/types/common"
 
 // ============================================================================
-// Core Workout Entities
+// Dashboard & Analytics Types
 // ============================================================================
 
-// Workout Plan - matches WorkoutPlan entity
-export interface WorkoutPlan extends BaseEntity {
-  userId: number
-  name: string
-  description?: string
-  difficulty: "beginner" | "intermediate" | "advanced"
-  estimatedDurationMinutes: number
-  targetMuscleGroups?: string[]
-  isTemplate: boolean
-  isPublic: boolean
-  exercises: WorkoutPlanExercise[]
-  status: "active" | "archived" | "draft"
-  goals?: WorkoutGoal[]
-  sessions?: WorkoutSession[]
-}
-
-// Workout Plan Exercise - matches WorkoutPlanExercise entity with frontend compatibility
-export interface WorkoutPlanExercise extends BaseEntity {
-  planId: number
-  machineId?: number
-  exerciseName: string
-  exerciseOrder: number // DB: exerciseOrder
-  order?: number // Frontend compatibility
-  sets: number
-  repsRange: { min: number; max: number } // DB: repsRange (JSON)
-  reps?: number // Frontend compatibility (single value)
-  weightRange?: { min: number; max: number } // DB: weightRange (JSON)
-  weight?: number // Frontend compatibility (single value)
-  restSeconds: number // DB: restSeconds
-  restTime?: number // Frontend compatibility
-  notes?: string
-  isCompleted?: boolean
-  progress?: number
-}
-
-// Workout Session - matches WorkoutSession entity with frontend compatibility
-export interface WorkoutSession extends BaseEntity {
-  userId: number
-  planId?: number
-  gymId?: number
-  name: string
-  startTime: Date
-  endTime?: Date
-  totalDurationMinutes?: number // DB: totalDurationMinutes
-  duration?: number // Frontend compatibility
-  moodRating?: number
-  energyLevel?: number
-  notes?: string
-  status: "in_progress" | "completed" | "paused" | "cancelled" // DB: status enum
-  isCompleted?: boolean // Frontend compatibility (derived from status)
-  exerciseSets: ExerciseSet[]
-  plan?: WorkoutPlan
-}
-
-// Exercise Set - matches ExerciseSet entity
-export interface ExerciseSet extends BaseEntity {
-  sessionId: number
-  machineId: number
-  setNumber: number
-  repsCompleted: number
-  weightKg?: number
-  durationSeconds?: number
-  distanceMeters?: number
-  rpeRating?: number
-  notes?: string
-}
-
-// Workout Goal - matches WorkoutGoal entity with frontend compatibility
-export interface WorkoutGoal extends BaseEntity {
-  userId: number
-  title: string // DB: title
-  description?: string
-  type: "weight" | "reps" | "duration" | "frequency" | "streak" // DB: type
-  goalType?: "weight" | "reps" | "duration" | "frequency" | "streak" // Frontend compatibility
-  targetValue: number
-  currentValue: number
-  unit: string // DB: unit
-  deadline?: Date
-  isCompleted: boolean
-  completedAt?: Date
-  planId?: number
-  exerciseId?: number
-}
-
-// Machine - matches Machine entity
-export interface Machine extends BaseEntity {
-  name: string
-  description?: string
-  muscleGroup: string
-  category: string
-  difficulty: "beginner" | "intermediate" | "advanced"
-  imageUrl?: string
-}
-
-// ============================================================================
-// API Request & Response Types
-// ============================================================================
-
-// API Response Wrapper
-export interface ApiResponse<T> {
-  success: boolean
-  message?: string
-  data?: T
-  error?: string
-}
-
-// Pagination
-export interface PaginationParams {
-  page: number
-  limit: number
-  sortBy?: string
-  sortOrder?: "asc" | "desc"
-}
-
-export interface PaginatedResponse<T> {
-  data: T[]
-  total: number
-  page: number
-  limit: number
-  totalPages: number
-}
-
-// Request Payloads
-export interface CreatePlanRequest {
-  name: string
-  description?: string
-  difficulty?: string
-  estimatedDurationMinutes?: number
-  targetMuscleGroups?: string[]
-  exercises: WorkoutPlanExercise[]
-  isTemplate?: boolean
-  goals?: CreateGoalRequest[]
-}
-
-export interface UpdatePlanRequest {
-  name?: string
-  description?: string
-  difficulty?: string
-  estimatedDurationMinutes?: number
-  targetMuscleGroups?: string[]
-  exercises?: WorkoutPlanExercise[]
-  isTemplate?: boolean
-  status?: "active" | "archived" | "draft"
-  goals?: UpdateGoalRequest[]
-}
-
-export interface CreateSessionRequest {
-  planId?: number
-  name: string
-  startTime: Date
-  endTime?: Date
-  totalDurationMinutes?: number
-  moodRating?: number
-  energyLevel?: number
-  notes?: string
-  exerciseSets: ExerciseSet[]
-}
-
-export interface UpdateSessionRequest {
-  name?: string
-  startTime?: Date
-  endTime?: Date
-  totalDurationMinutes?: number
-  moodRating?: number
-  energyLevel?: number
-  notes?: string
-  status?: "in_progress" | "completed" | "paused" | "cancelled"
-  exerciseSets?: ExerciseSet[]
-}
-
-export interface CreateGoalRequest {
-  title: string
-  description?: string
-  type: "weight" | "reps" | "duration" | "frequency" | "streak"
-  targetValue: number
-  unit: string
-  deadline?: Date
-  planId?: number
-  exerciseId?: number
-}
-
-export interface UpdateGoalRequest extends Partial<CreateGoalRequest> {
-  goalId: number
-}
-
-// Create Exercise Set Request
-export interface CreateExerciseSetRequest {
-  sessionId: number
-  machineId: number
-  setNumber: number
-  repsCompleted: number
-  weightKg?: number
-  durationSeconds?: number
-  distanceMeters?: number
-  rpeRating?: number
-  notes?: string
-}
-
-// Update Exercise Set Request
-export interface UpdateExerciseSetRequest
-  extends Partial<CreateExerciseSetRequest> {
-  id: number
-}
-
-// ============================================================================
-// Frontend Specific Types
-// ============================================================================
-
-export interface SessionCardProps {
-  session: WorkoutSession
-  onEdit?: (session: WorkoutSession) => void
-  onDelete?: (sessionId: number) => void
-  onView?: (session: WorkoutSession) => void
-  onStart?: (session: WorkoutSession) => void
-  onPause?: (session: WorkoutSession) => void
-  onClick?: (session: WorkoutSession) => void
-  className?: string
-  isActive?: boolean
-  isCompleted?: boolean
-  compact?: boolean
-  onComplete?: (exerciseIndex: number) => void
-  onStartRest?: (seconds: number) => void
-  onEndRest?: () => void
-}
-
-export interface WorkoutPlanCardProps {
-  plan: WorkoutPlan
-  onViewPlan?: (plan: WorkoutPlan) => void
-  onEditPlan?: (plan: WorkoutPlan) => void
-  onDeletePlan?: (planId: number) => void
-  onStartSession?: (plan: WorkoutPlan) => void
-  className?: string
-  compact?: boolean
-}
-
-export interface TimerState {
-  isRunning: boolean
-  elapsedTime: number
-  totalTime: number
-  currentSection: number
-  sections: Array<{
-    id: number
-    name: string
-    duration: number
-    isCompleted: boolean
-  }>
-}
-
-export interface SessionData {
-  id: number
-  name: string
-  duration: number
-  isCompleted: boolean
-}
+// DashboardData는 공통 타입에서 import됨
 
 export interface WorkoutStats {
-  totalWorkouts: number
-  totalDuration: number
-  averageDuration: number
+  totalSessions: number
+  totalDurationMinutes: number
+  totalCaloriesBurned: number
+  longestStreak: number
+  currentStreak: number
+  favoriteMachines: string[]
   favoriteExercises: string[]
-  weeklyProgress: number[]
-  monthlyProgress: number[]
-  totalSessions?: number
-  totalExercises?: number
-  completionRate?: number
+  startDate: Date
+  lastWorkoutDate?: Date
+  dailyStats: DailyStats[]
+  weeklyStats: WeeklyStats[]
+  monthlyStats: MonthlyStats[]
 }
 
-export interface SessionSummary {
-  totalDuration: number
-  totalExercises: number
-  completedSections: number
-  totalSections: number
-  averageSectionDuration: number
-  completionRate: number
-  moodRating?: number
-  energyLevel?: number
-  notes?: string
-}
-
-export interface AutoGeneratedSection {
-  id: number
-  name: string
-  exerciseName?: string
-  type: "warmup" | "exercise" | "rest" | "cooldown"
+export interface DailyStats {
+  date: Date
+  sessions: number
   duration: number
-  exercises?: WorkoutPlanExercise[]
-  instructions?: string
-  sets?: number
-  reps?: number
-  weight?: number
-  restTime?: number
-  isCompleted?: boolean
-  progress?: number
+  calories: number
+  exercises: number
 }
 
-export interface GoalSectionConfig {
-  goalType: "weight" | "reps" | "duration" | "frequency"
-  targetValue: number
-  currentValue: number
+export interface WeeklyStats {
+  week: string
+  sessions: number
+  duration: number
+  calories: number
+  streak: number
+}
+
+export interface MonthlyStats {
+  month: string
+  sessions: number
+  duration: number
+  calories: number
+  goals: number
 }
 
 // ============================================================================
-// Store & UI Types
+// UI State Types
 // ============================================================================
 
 export type TabType =
@@ -323,174 +78,136 @@ export type TabType =
   | "goals"
   | "plans"
   | "sessions"
-  | "reminders"
   | "workoutProgress"
 
 export interface LoadingState {
   isLoading: boolean
   error: string | null
+  lastUpdated?: Date
 }
 
 export interface ModalState {
   isOpen: boolean
   mode: "create" | "edit" | "view"
+  data?: any
+  formData?: any
 }
 
 export interface WorkoutPlanModalState extends ModalState {
-  plan?: WorkoutPlan
-  exercises: WorkoutPlanExercise[]
-  confirmedExerciseIndices: Set<number>
+  data?: WorkoutPlan
+  formData?: Partial<WorkoutPlan>
 }
 
 export interface WorkoutSessionModalState extends ModalState {
-  session?: WorkoutSession
-  plan?: WorkoutPlan
-  currentExerciseIndex: number
-  currentSetIndex: number
-  isTimerRunning: boolean
-  restTimer: number
+  data?: WorkoutSession
+  formData?: Partial<WorkoutSession>
+  currentExerciseIndex?: number
+  timerState?: {
+    isRunning: boolean
+    elapsedTime: number
+    totalTime: number
+  }
 }
 
 export interface WorkoutGoalModalState extends ModalState {
-  goal?: WorkoutGoal
+  data?: WorkoutGoal
+  formData?: Partial<WorkoutGoal>
+  progressData?: {
+    currentValue: number
+    targetValue: number
+    percentage: number
+  }
+}
+
+// ============================================================================
+// Tab State Types
+// ============================================================================
+
+export interface OverviewTabState {
+  selectedTimeRange: string
+  selectedMetric: string
+}
+
+export interface PlansTabState {
+  selectedDifficulty: string
+  selectedStatus: string
+  searchQuery: string
+}
+
+export interface SessionsTabState {
+  selectedStatus: string
+  selectedDateRange: string
+  searchQuery: string
+}
+
+export interface GoalsTabState {
+  selectedType: string
+  selectedStatus: string
+  searchQuery: string
+  showCompleted: boolean
+  sortBy: "progress" | "deadline" | "title" | "createdAt"
+  selectedGoalId?: number
+}
+
+export interface ProgressTabState {
+  selectedTimeRange: string
+  selectedMetric: string
+  chartType: string
+  compareMode: boolean
+}
+
+// ============================================================================
+// Chart Data Types
+// ============================================================================
+
+export interface ChartDataPoint {
+  date: string
+  value: number
+  label?: string
+}
+
+export interface TimeRangeData {
+  label: string
+  value: number
+  change?: number
+  trend?: "up" | "down" | "stable"
+}
+
+// ============================================================================
+// Notification & Error Types
+// ============================================================================
+
+export interface Notification {
+  id: string
+  type: "success" | "error" | "warning" | "info"
+  title: string
+  message: string
+  timestamp: Date
+  duration?: number
+  action?: {
+    label: string
+    onClick: () => void
+  }
+}
+
+export interface ValidationError {
+  field: string
+  message: string
+  code?: string
+}
+
+export interface FormErrors {
+  [key: string]: string[]
 }
 
 // ============================================================================
 // Utility Types
 // ============================================================================
 
+export type Difficulty = "beginner" | "intermediate" | "advanced"
 export type GoalType = "weight" | "reps" | "duration" | "frequency" | "streak"
-
 export type SessionStatus = "in_progress" | "completed" | "paused" | "cancelled"
-
-export interface ChartData {
-  date: string
-  duration: number
-  sessions: number
-  exercises: number
-}
-
-export interface DashboardData {
-  totalWorkouts: number
-  totalSessions: number
-  totalGoals: number
-  completedGoals: number
-  currentStreak: number
-  totalExp: number
-  level: number
-  summary: {
-    totalWorkouts: number
-    totalGoals: number
-    totalSessions: number
-    totalPlans: number
-    completedSessions: number
-    streak: number
-    activeGoals: number
-  }
-  weeklyStats?: {
-    totalSessions: number
-    totalDuration: number
-    averageMood: number
-    averageEnergy: number
-  }
-  recentSessions: Array<{
-    id: number
-    name: string
-    date: Date
-    duration: number
-  }>
-  activeGoals: WorkoutGoal[]
-  recentProgress: Array<{
-    date: Date
-    value: number
-    type: string
-  }>
-  upcomingGoals: Array<{
-    id: number
-    title: string
-    deadline: Date
-    progress: number
-  }>
-  weeklyProgress: Array<{
-    date: Date
-    workouts: number
-    exp: number
-  }>
-}
-
-// Tab Navigation Props
-export interface TabNavigationProps {
-  activeTab: TabType
-  onTabChange: (tab: TabType) => void
-  tabs: TabConfig[]
-  className?: string
-}
-
-export interface TabConfig {
-  key: TabType
-  label: string
-  icon?: string
-  description?: string
-  badge?: number
-  disabled?: boolean
-}
-
-// Modal Footer Props
-export interface ModalFooterProps {
-  onSave: () => Promise<void>
-  onClose: () => void
-  isViewMode?: boolean
-}
-
-// Section Generation Params
-export interface SectionGenerationParams {
-  goalType: GoalType
-  intensity: string
-  duration: number
-  targetMuscles: string[]
-}
-
-// Section Timer State
-export interface SectionTimerState {
-  isActive: boolean
-  isRunning: boolean
-  currentSection: AutoGeneratedSection | null
-  timeRemaining: number
-  totalTime: number
-  elapsedTime: number
-  isPaused: boolean
-}
-
-// Goal Progress Bar Props
-export interface GoalProgressBarProps {
-  goal: WorkoutGoal
-  currentValue?: number
-  maxValue?: number
-  showPercentage?: boolean
-  className?: string
-  compact?: boolean
-  isSelected?: boolean
-  onEdit?: () => void
-  onDelete?: () => void
-  onClick?: () => void
-  onSelect?: () => void
-}
-
-// Dashboard Types
-export interface DashboardStats {
-  totalPlans: number
-  totalSessions: number
-  completedSessions: number
-  activeGoals: number
-  weeklyWorkouts: number
-  totalDuration: number
-  averageMood: number
-  averageEnergy: number
-}
-
-export interface WeeklyProgress {
-  date: string
-  sessions: number
-  duration: number
-  calories: number
-}
+export type PlanStatus = "active" | "archived" | "draft"
+export type ViewMode = "grid" | "list" | "calendar" | "progress"
+export type ChartType = "line" | "bar" | "pie" | "area" | "radar"
+export type TimeRange = "day" | "week" | "month" | "quarter" | "year"

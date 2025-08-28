@@ -33,6 +33,7 @@ interface GoalsTabProps {
   onCreateGoal: () => void
   onEditGoal: (goalId: number) => void
   onDeleteGoal: (goalId: number) => void
+  selectedGoalId?: number
 }
 
 export function GoalsTab({
@@ -41,6 +42,7 @@ export function GoalsTab({
   onCreateGoal,
   onEditGoal,
   onDeleteGoal,
+  selectedGoalId,
 }: GoalsTabProps) {
   const { tabState, updateTabState } = useTabState("goals")
 

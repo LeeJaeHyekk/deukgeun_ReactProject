@@ -29,6 +29,13 @@ const logger = {
   error: (message: string, data?: any) => {
     console.error(`[OverviewTab] ${message}`, data || "")
   },
+  grid: (message: string, data?: any) => {
+    const gridEl = document.querySelector(`.${styles.overviewGrid}`)
+    console.log("overviewGrid element:", gridEl)
+    if (gridEl) {
+      console.log("Computed style:", window.getComputedStyle(gridEl).display)
+    }
+  },
 }
 
 interface OverviewTabProps {
@@ -87,8 +94,8 @@ export function OverviewTab({
   if (finalIsLoading) {
     return (
       <div className={styles.overviewTab}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingSpinner}></div>
+        <div className={styles.overviewLoadingContainer}>
+          <div className={styles.overviewLoadingSpinner}></div>
           <p>데이터를 불러오는 중...</p>
         </div>
       </div>
@@ -98,7 +105,7 @@ export function OverviewTab({
   if (!finalDashboardData) {
     return (
       <div className={styles.overviewTab}>
-        <div className={styles.noDataContainer}>
+        <div className={styles.overviewNoDataContainer}>
           <h3>운동 데이터가 없습니다</h3>
           <p>첫 번째 운동 계획을 만들어보세요!</p>
         </div>
@@ -155,22 +162,22 @@ export function OverviewTab({
 
       {/* 메인 콘텐츠 그리드 */}
       <div className={styles.overviewGrid}>
-        <div className={styles.statsSection}>
+        <div className={styles.overviewStatsSection}>
           <StatsSection dashboardData={finalDashboardData} />
         </div>
-        <div className={styles.sessionsSection}>
+        <div className={styles.overviewSessionsSection}>
           <RecentSessionsSection
             dashboardData={finalDashboardData}
             onSessionClick={onSessionClick}
           />
         </div>
-        <div className={styles.goalsSection}>
+        <div className={styles.overviewGoalsSection}>
           <GoalsProgressSection
             dashboardData={finalDashboardData}
             onGoalClick={onGoalClick}
           />
         </div>
-        <div className={styles.chartsSection}>
+        <div className={styles.overviewChartsSection}>
           <ChartsSection dashboardData={finalDashboardData} />
         </div>
       </div>

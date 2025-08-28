@@ -61,8 +61,13 @@
 }
 
 .select option {
-  background: rgba(45, 55, 72, 0.95);
+  background: #1f2937;
   color: #fff;
+  padding: 8px 12px;
+}
+
+.select option:hover {
+  background: #374151;
 }
 
 .select:focus {

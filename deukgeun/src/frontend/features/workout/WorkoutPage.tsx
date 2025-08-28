@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect } from "react"
 import { useAuthContext } from "../../shared/contexts/AuthContext"
-import { useWorkoutTimer } from "../../shared/contexts/WorkoutTimerContext"
 import { useMachines } from "../../shared/hooks/useMachines"
 import { Navigation } from "../../widgets/Navigation/Navigation"
 import { TabNavigation } from "./components/navigation/TabNavigation"
@@ -17,6 +16,9 @@ import {
   useWorkoutUI,
   useWorkoutInitialization,
   useSharedState,
+  useWorkoutNotifications,
+  useWorkoutErrors,
+  useWorkoutTimer,
 } from "./hooks/useWorkoutStore"
 import { USE_MOCK_DATA } from "./data/mockData"
 import type { TabType } from "./types"
@@ -60,7 +62,6 @@ const logger = {
 
 function WorkoutPageContent() {
   const { isLoggedIn, user } = useAuthContext()
-  const [globalError, setGlobalError] = useState<string | null>(null)
   const [isDataLoading, setIsDataLoading] = useState(true)
 
   logger.info("워크아웃 페이지 컴포넌트 렌더링", {
@@ -99,14 +100,14 @@ function WorkoutPageContent() {
     closeSessionModal,
     openGoalModal,
     closeGoalModal,
-    updateTabState,
-    resetTabState,
   } = useWorkoutUI()
 
   const { initializeWorkoutData } = useWorkoutInitialization()
 
   // 공유 상태 훅
-  const { removeNotification } = useSharedState()
+  const { removeNotification } = useWorkoutNotifications()
+  const { setGlobalError } = useWorkoutErrors()
+  const { timer, updateTimer } = useWorkoutTimer()
 
   // 기계 데이터 훅
   const { machines } = useMachines()
@@ -119,60 +120,48 @@ function WorkoutPageContent() {
     isDataLoading
 
   // 탭 변경 핸들러
-  const handleTabChange = useCallback(
-    (tab: TabType) => {
-      logger.info("탭 변경", { from: activeTab, to: tab })
-      setActiveTab(tab)
-    },
-    [activeTab, setActiveTab]
-  )
+  const handleTabChange = (tab: TabType) => {
+    logger.info("탭 변경", { from: activeTab, to: tab })
+    setActiveTab(tab)
+  }
 
   // 계획 관련 핸들러
-  const handleCreatePlan = useCallback(() => {
+  const handleCreatePlan = () => {
     logger.modalOperation("Opening", "Plan Create", {})
     openPlanModal("create")
-  }, [openPlanModal])
+  }
 
-  const handleEditPlan = useCallback(
-    (planId: number) => {
-      const plan = plans.find(p => p.id === planId)
-      if (plan) {
-        logger.modalOperation("Opening", "Plan Edit", {
-          planId,
-          planName: plan.name,
-        })
-        openPlanModal("edit", plan)
-      }
-    },
-    [plans, openPlanModal]
-  )
+  const handleEditPlan = (planId: number) => {
+    const plan = plans.find(p => p.id === planId)
+    if (plan) {
+      logger.modalOperation("Opening", "Plan Edit", {
+        planId,
+        planName: plan.name,
+      })
+      openPlanModal("edit", plan)
+    }
+  }
 
-  const handleDeletePlan = useCallback(
-    async (planId: number) => {
-      try {
-        await deletePlan(planId)
-        logger.info("Plan deleted successfully", { planId })
-      } catch (error) {
-        logger.error("Failed to delete plan", error)
-        setGlobalError("계획을 삭제하는데 실패했습니다.")
-      }
-    },
-    [deletePlan]
-  )
+  const handleDeletePlan = async (planId: number) => {
+    try {
+      await deletePlan(planId)
+      logger.info("Plan deleted successfully", { planId })
+    } catch (error) {
+      logger.error("Failed to delete plan", error)
+      setGlobalError("계획을 삭제하는데 실패했습니다.")
+    }
+  }
 
-  const handleStartSession = useCallback(
-    (planId: number) => {
-      const plan = plans.find(p => p.id === planId)
-      if (plan) {
-        logger.modalOperation("Opening", "Session Create from Plan", {
-          planId,
-          planName: plan.name,
-        })
-        openSessionModal("create", undefined)
-      }
-    },
-    [plans, openSessionModal]
-  )
+  const handleStartSession = (planId: number) => {
+    const plan = plans.find(p => p.id === planId)
+    if (plan) {
+      logger.modalOperation("Opening", "Session Create from Plan", {
+        planId,
+        planName: plan.name,
+      })
+      openSessionModal("create", undefined)
+    }
+  }
 
   // 세션 관련 핸들러
   // 주석 처리: 새 세션 생성 기능 비활성화
@@ -181,107 +170,95 @@ function WorkoutPageContent() {
   //   openSessionModal("create")
   // }, [openSessionModal])
 
-  const handleEditSession = useCallback(
-    (sessionId: number) => {
-      const session = sessions.find(s => s.id === sessionId)
-      if (session) {
-        logger.modalOperation("Opening", "Session Edit", {
-          sessionId,
-          sessionName: session.name,
-        })
-        openSessionModal("edit", session)
-      }
-    },
-    [sessions, openSessionModal]
-  )
+  const handleEditSession = (sessionId: number) => {
+    const session = sessions.find(s => s.id === sessionId)
+    if (session) {
+      logger.modalOperation("Opening", "Session Edit", {
+        sessionId,
+        sessionName: session.name,
+      })
+      openSessionModal("edit", session)
+    }
+  }
 
-  const handleViewSession = useCallback(
-    (sessionId: number) => {
-      const session = sessions.find(s => s.id === sessionId)
-      if (session) {
-        logger.modalOperation("Opening", "Session View", {
-          sessionId,
-          sessionName: session.name,
-        })
-        openSessionModal("view", session)
-      }
-    },
-    [sessions, openSessionModal]
-  )
+  const handleViewSession = (sessionId: number) => {
+    const session = sessions.find(s => s.id === sessionId)
+    if (session) {
+      logger.modalOperation("Opening", "Session View", {
+        sessionId,
+        sessionName: session.name,
+      })
+      openSessionModal("view", session)
+    }
+  }
 
-  const handleDeleteSession = useCallback(
-    async (sessionId: number) => {
-      try {
-        await deleteSession(sessionId)
-        logger.info("Session deleted successfully", { sessionId })
-      } catch (error) {
-        logger.error("Failed to delete session", error)
-        setGlobalError("세션을 삭제하는데 실패했습니다.")
-      }
-    },
-    [deleteSession]
-  )
+  const handleDeleteSession = async (sessionId: number) => {
+    try {
+      await deleteSession(sessionId)
+      logger.info("Session deleted successfully", { sessionId })
+    } catch (error) {
+      logger.error("Failed to delete session", error)
+      setGlobalError("세션을 삭제하는데 실패했습니다.")
+    }
+  }
 
   // 목표 관련 핸들러
-  const handleCreateGoal = useCallback(() => {
+  const handleCreateGoal = () => {
     logger.modalOperation("Opening", "Goal Create", {})
     openGoalModal("create")
-  }, [openGoalModal])
+  }
 
-  const handleEditGoal = useCallback(
-    (goalId: number) => {
-      const goal = goals.find(g => g.id === goalId)
-      if (goal) {
-        logger.modalOperation("Opening", "Goal Edit", {
-          goalId,
-          goalTitle: goal.title,
-        })
-        openGoalModal("edit", goal)
-      }
-    },
-    [goals, openGoalModal]
-  )
+  const handleEditGoal = (goalId: number) => {
+    const goal = goals.find(g => g.id === goalId)
+    if (goal) {
+      logger.modalOperation("Opening", "Goal Edit", {
+        goalId,
+        goalTitle: goal.title,
+      })
+      openGoalModal("edit", goal)
+    }
+  }
 
-  const handleDeleteGoal = useCallback(
-    async (goalId: number) => {
-      try {
-        await deleteGoal(goalId)
-        logger.info("Goal deleted successfully", { goalId })
-      } catch (error) {
-        logger.error("Failed to delete goal", error)
-        setGlobalError("목표를 삭제하는데 실패했습니다.")
-      }
-    },
-    [deleteGoal]
-  )
+  const handleDeleteGoal = async (goalId: number) => {
+    try {
+      await deleteGoal(goalId)
+      logger.info("Goal deleted successfully", { goalId })
+    } catch (error) {
+      logger.error("Failed to delete goal", error)
+      setGlobalError("목표를 삭제하는데 실패했습니다.")
+    }
+  }
 
   // 클릭 핸들러
-  const handlePlanClick = useCallback(
-    (planId: number) => {
-      logger.debug("Plan clicked", { planId })
-      handleEditPlan(planId)
-    },
-    [handleEditPlan]
-  )
+  const handlePlanClick = (planId: number) => {
+    logger.debug("Plan clicked", { planId })
+    handleEditPlan(planId)
+  }
 
-  const handleSessionClick = useCallback(
-    (sessionId: number) => {
-      logger.debug("Session clicked", { sessionId })
-      handleViewSession(sessionId)
-    },
-    [handleViewSession]
-  )
+  const handleSessionClick = (sessionId: number) => {
+    logger.debug("Session clicked", { sessionId })
+    handleViewSession(sessionId)
+  }
 
-  const handleGoalClick = useCallback(
-    (goalId: number) => {
-      logger.debug("Goal clicked", { goalId })
+  const handleGoalClick = (goalId: number) => {
+    logger.debug("Goal clicked", { goalId })
+    // 목표 탭으로 이동하고 해당 목표 편집 모달 열기
+    handleTabChange("goals")
+    // 약간의 지연 후 편집 모달 열기 (탭 변경이 완료된 후)
+    setTimeout(() => {
       handleEditGoal(goalId)
-    },
-    [handleEditGoal]
-  )
+    }, 100)
+  }
 
   // 데이터 초기화
   useEffect(() => {
+    console.log("[WorkoutPage] useEffect 실행됨", {
+      isLoggedIn,
+      userId: user?.id,
+      timestamp: new Date().toISOString(),
+      stack: new Error().stack?.split("\n").slice(1, 4).join("\n"),
+    })
+
     const initializeData = async () => {
       const startTime = performance.now()
       logger.info("데이터 초기화 시작", {
@@ -309,16 +286,27 @@ function WorkoutPageContent() {
     if (isLoggedIn) {
       initializeData()
     }
-  }, [isLoggedIn, initializeWorkoutData])
+  }, [isLoggedIn, user?.id]) // initializeWorkoutData 의존성 제거
+
+  // 타이머 업데이트
+  useEffect(() => {
+    if (!timer.isRunning) return
+
+    const interval = setInterval(() => {
+      updateTimer(timer.elapsedTime + 1000)
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [timer.isRunning, timer.elapsedTime, updateTimer])
 
   // 에러 처리
-  if (globalError) {
+  if (sharedState.globalError) {
     return (
       <div className={styles.workoutPage}>
         <Navigation />
         <div className={styles.errorContainer}>
           <h2>오류가 발생했습니다</h2>
-          <p>{globalError}</p>
+          <p>{sharedState.globalError}</p>
           <button onClick={() => window.location.reload()}>
             페이지 새로고침
           </button>

@@ -6,119 +6,17 @@ import { WorkoutStats } from "../entities/WorkoutStats"
 import { WorkoutProgress } from "../entities/WorkoutProgress"
 import { ExerciseSet } from "../entities/ExerciseSet"
 import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
+import type {
+  CreatePlanRequest,
+  UpdatePlanRequest,
+  CreateSessionRequest,
+  UpdateSessionRequest,
+  CreateGoalRequest,
+  UpdateGoalRequest,
+  DashboardData,
+} from "../../shared/types/common"
 
-// 타입 정의
-interface CreatePlanData {
-  plan_name?: string
-  name?: string // 프론트엔드 호환성을 위해 추가
-  description?: string
-  difficulty?: "beginner" | "intermediate" | "advanced"
-  estimated_duration_minutes?: number
-  target_muscle_groups?: string[]
-  is_template?: boolean
-  is_public?: boolean
-  exercises?: {
-    machine_id?: number
-    machineId?: number
-    order?: number
-    sets: number
-    reps?: number
-    reps_min?: number
-    reps_max?: number
-    weight?: number
-    weight_min?: number
-    weight_max?: number
-    rest_time?: number
-    restTime?: number
-    notes?: string
-    exerciseName?: string // 프론트엔드 호환성을 위해 추가
-  }[]
-}
-
-interface UpdatePlanData {
-  name?: string
-  plan_name?: string // 프론트엔드 호환성을 위해 추가
-  description?: string
-  difficulty?: string
-  estimated_duration_minutes?: number
-  target_muscle_groups?: string[]
-  is_template?: boolean
-  is_public?: boolean
-  exercises?: {
-    machine_id?: number
-    machineId?: number
-    order?: number
-    sets: number
-    reps?: number
-    reps_min?: number
-    reps_max?: number
-    weight?: number
-    weight_min?: number
-    weight_max?: number
-    rest_time?: number
-    restTime?: number
-    notes?: string
-    exerciseName?: string // 프론트엔드 호환성을 위해 추가
-  }[]
-}
-
-interface CreateSessionData {
-  plan_id?: number
-  gym_id?: number
-  session_name?: string
-  name?: string // 프론트엔드 호환성을 위해 추가
-  start_time?: string | Date
-  mood_rating?: number
-  energy_level?: number
-  notes?: string
-}
-
-interface UpdateSessionData {
-  plan_id?: number
-  gym_id?: number
-  name?: string
-  start_time?: Date
-  end_time?: Date
-  mood_rating?: number
-  energy_level?: number
-  notes?: string
-  status?: string
-  total_duration_minutes?: number
-}
-
-interface CreateGoalData {
-  title: string
-  description?: string
-  type: "weight" | "reps" | "duration" | "frequency" | "streak"
-  targetValue: number
-  currentValue?: number
-  unit: string
-  deadline?: string | Date
-}
-
-interface UpdateGoalData {
-  title?: string
-  description?: string
-  type?: "weight" | "reps" | "duration" | "frequency" | "streak"
-  targetValue?: number
-  currentValue?: number
-  unit?: string
-  deadline?: string | Date
-  isCompleted?: boolean
-  completedAt?: Date
-}
-
-interface CreateSetData {
-  session_id: number
-  machine_id: number
-  set_number: number
-  reps_completed: number
-  weight_kg?: number
-  duration_seconds?: number
-  distance_meters?: number
-  rpe_rating?: number
-  notes?: string
-}
+// 공통 타입을 사용하므로 중복된 타입 정의 제거
 
 export class WorkoutJournalService {
   // 운동 계획 관련
@@ -188,7 +86,7 @@ export class WorkoutJournalService {
     }
   }
 
-  async createWorkoutPlan(userId: number, planData: CreatePlanData) {
+  async createWorkoutPlan(userId: number, planData: CreatePlanRequest) {
     console.log(
       `🔍 [WorkoutJournalService] createWorkoutPlan 호출 - userId: ${userId}`
     )
@@ -208,16 +106,16 @@ export class WorkoutJournalService {
     await queryRunner.startTransaction()
 
     try {
-      // 운동 계획 생성 - name과 plan_name 모두 처리
+      // 운동 계획 생성 - 공통 타입 사용
       const plan = planRepository.create({
         userId: userId,
-        name: planData.plan_name || planData.name || "", // plan_name 또는 name 사용
+        name: planData.name,
         description: planData.description,
-        difficulty: planData.difficulty || "beginner",
-        estimatedDurationMinutes: planData.estimated_duration_minutes || 60,
-        targetMuscleGroups: planData.target_muscle_groups || [],
-        isTemplate: planData.is_template || false,
-        isPublic: planData.is_public || false,
+        difficulty: planData.difficulty,
+        estimatedDurationMinutes: planData.estimatedDurationMinutes,
+        targetMuscleGroups: planData.targetMuscleGroups,
+        isTemplate: planData.isTemplate || false,
+        isPublic: planData.isPublic || false,
       })
 
       console.log(`💾 [WorkoutJournalService] 계획 저장 중:`, {
@@ -249,22 +147,14 @@ export class WorkoutJournalService {
 
           const exerciseEntity = exerciseRepository.create({
             planId: savedPlan.id,
-            machineId: exercise.machine_id || exercise.machineId || 1,
-            exerciseName: exercise.exerciseName || exercise.notes || "",
-            exerciseOrder: exercise.order || index,
-            sets: exercise.sets || 3,
-            repsRange: {
-              min: exercise.reps || 10,
-              max: exercise.reps || 10,
-            },
-            weightRange: exercise.weight
-              ? {
-                  min: exercise.weight,
-                  max: exercise.weight,
-                }
-              : undefined,
-            restSeconds: exercise.rest_time || exercise.restTime || 60,
-            notes: exercise.notes || "",
+            machineId: exercise.machineId || 1,
+            exerciseName: exercise.exerciseName,
+            exerciseOrder: exercise.exerciseOrder,
+            sets: exercise.sets,
+            repsRange: exercise.repsRange,
+            weightRange: exercise.weightRange,
+            restSeconds: exercise.restSeconds,
+            notes: exercise.notes,
           })
           console.log(`생성할 운동 ${index + 1}:`, exerciseEntity)
           return exerciseEntity
@@ -512,22 +402,23 @@ export class WorkoutJournalService {
     }
   }
 
-  async createWorkoutSession(userId: number, sessionData: CreateSessionData) {
+  async createWorkoutSession(
+    userId: number,
+    sessionData: CreateSessionRequest
+  ) {
     const sessionRepository = AppDataSource.getRepository(WorkoutSession)
 
-    // 필수 필드 검증 - name 또는 session_name 중 하나는 있어야 함
-    if (!sessionData.name && !sessionData.session_name) {
+    // 필수 필드 검증
+    if (!sessionData.name) {
       throw new Error("세션 이름은 필수입니다.")
     }
 
     const session = sessionRepository.create({
       userId: userId,
-      planId: sessionData.plan_id,
-      gymId: sessionData.gym_id,
-      name: sessionData.name || sessionData.session_name, // name 또는 session_name 사용
-      startTime: new Date(sessionData.start_time || new Date()),
-      moodRating: sessionData.mood_rating,
-      energyLevel: sessionData.energy_level,
+      planId: sessionData.planId,
+      gymId: sessionData.gymId,
+      name: sessionData.name,
+      startTime: sessionData.startTime,
       notes: sessionData.notes,
       status: "in_progress",
     })
@@ -543,7 +434,7 @@ export class WorkoutJournalService {
   async updateWorkoutSession(
     sessionId: number,
     userId: number,
-    updateData: UpdateSessionData
+    updateData: UpdateSessionRequest
   ) {
     const sessionRepository = AppDataSource.getRepository(WorkoutSession)
     const session = await sessionRepository.findOne({
@@ -619,7 +510,7 @@ export class WorkoutJournalService {
     }
   }
 
-  async createWorkoutGoal(userId: number, goalData: CreateGoalData) {
+  async createWorkoutGoal(userId: number, goalData: CreateGoalRequest) {
     const goalRepository = AppDataSource.getRepository(WorkoutGoal)
     const goal = goalRepository.create({
       userId: userId,
@@ -638,7 +529,7 @@ export class WorkoutJournalService {
   async updateWorkoutGoal(
     goalId: number,
     userId: number,
-    updateData: UpdateGoalData
+    updateData: UpdateGoalRequest
   ) {
     const goalRepository = AppDataSource.getRepository(WorkoutGoal)
     const goal = await goalRepository.findOne({
@@ -663,18 +554,18 @@ export class WorkoutJournalService {
 
     try {
       console.log(`🔍 목표 삭제 시도 - Goal ID: ${goalId}, User ID: ${userId}`)
-      
+
       // 개발 환경에서 더미 데이터 처리
       if (process.env.NODE_ENV === "development") {
         console.log(`🔧 개발 환경 - 더미 데이터 삭제 처리`)
-        
+
         // 더미 데이터 ID 범위 확인 (1, 2)
         if (goalId === 1 || goalId === 2) {
           console.log(`✅ 더미 목표 삭제 성공 - Goal ID: ${goalId}`)
           return // 더미 데이터는 실제로 삭제할 필요 없음
         }
       }
-      
+
       // 데이터베이스 연결 상태 확인
       if (!AppDataSource.isInitialized) {
         console.error("❌ 데이터베이스가 초기화되지 않았습니다.")
@@ -684,7 +575,7 @@ export class WorkoutJournalService {
       // 해당 사용자의 모든 목표 조회 (디버깅용)
       const allUserGoals = await goalRepository.find({
         where: { userId: userId },
-        select: ["id", "title", "type"]
+        select: ["id", "title", "type"],
       })
       console.log(`📋 사용자 ${userId}의 모든 목표:`, allUserGoals)
 
@@ -695,7 +586,9 @@ export class WorkoutJournalService {
       console.log(`🔍 찾은 목표:`, goal)
 
       if (!goal) {
-        console.error(`❌ 목표를 찾을 수 없음 - Goal ID: ${goalId}, User ID: ${userId}`)
+        console.error(
+          `❌ 목표를 찾을 수 없음 - Goal ID: ${goalId}, User ID: ${userId}`
+        )
         throw new Error("운동 목표를 찾을 수 없습니다.")
       }
 
@@ -935,17 +828,77 @@ export class WorkoutJournalService {
           : 0,
     }
 
+    // 프론트엔드 호환성을 위한 데이터 변환
+    const transformedRecentSessions = recentSessions.map(session => ({
+      id: session.id,
+      name: session.name,
+      date: new Date(session.startTime),
+      duration: session.totalDurationMinutes || 0,
+    }))
+
+    const transformedActiveGoals = activeGoals
+      .filter(g => !g.isCompleted)
+      .map(goal => ({
+        id: goal.id,
+        title: goal.title,
+        type: goal.type,
+        targetValue: goal.targetValue,
+        currentValue: goal.currentValue,
+        unit: goal.unit,
+        deadline: goal.deadline ? new Date(goal.deadline) : undefined,
+        isCompleted: goal.isCompleted,
+      }))
+
+    const transformedRecentProgress = recentProgress.map(progress => ({
+      date: new Date(progress.createdAt),
+      value: progress.repsCompleted || 0,
+      type: "reps",
+    }))
+
+    // 주간 진행 상황 생성 (임시 데이터)
+    const weeklyProgress = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date()
+      date.setDate(date.getDate() - i)
+      return {
+        date,
+        workouts: Math.floor(Math.random() * 3),
+        exp: Math.floor(Math.random() * 500),
+      }
+    }).reverse()
+
+    // 다가오는 목표 생성
+    const upcomingGoals = transformedActiveGoals
+      .filter(goal => goal.deadline && goal.deadline > new Date())
+      .map(goal => ({
+        id: goal.id,
+        title: goal.title,
+        deadline: goal.deadline!,
+        progress: Math.round((goal.currentValue / goal.targetValue) * 100),
+      }))
+
     return {
+      totalWorkouts: totalPlans.length,
+      totalSessions: totalSessions.length,
+      totalGoals: activeGoals.length,
+      completedGoals: activeGoals.filter(g => g.isCompleted).length,
+      currentStreak: 5, // 임시 값
+      totalExp: 1500, // 임시 값
+      level: 3, // 임시 값
       summary: {
-        totalPlans: totalPlans.length,
+        totalWorkouts: totalPlans.length,
+        totalGoals: activeGoals.length,
         totalSessions: totalSessions.length,
+        totalPlans: totalPlans.length,
         completedSessions: completedSessions.length,
+        streak: 5, // 임시 값
         activeGoals: activeGoalsCount,
       },
       weeklyStats,
-      recentSessions,
-      recentProgress,
-      activeGoals: activeGoals.filter(g => !g.isCompleted),
+      recentSessions: transformedRecentSessions,
+      activeGoals: transformedActiveGoals,
+      recentProgress: transformedRecentProgress,
+      upcomingGoals,
+      weeklyProgress,
     }
   }
 

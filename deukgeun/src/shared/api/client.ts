@@ -6,7 +6,7 @@ import type { ApiResponse } from "../types"
 
 // API 설정
 const API_CONFIG = {
-  baseURL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
+  baseURL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5001",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",

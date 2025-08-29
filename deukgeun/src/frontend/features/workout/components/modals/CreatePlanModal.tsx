@@ -43,7 +43,7 @@ export function CreatePlanModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onCreatePlan(formData)
+    onCreatePlan(formData as any)
     onClose()
     setFormData({
       name: "",
@@ -60,8 +60,9 @@ export function CreatePlanModal({
         id: Date.now(),
         name: newExercise.name,
         machineId: newExercise.machineId,
-        setCount: newExercise.setCount,
-        setDurationSeconds: newExercise.setDurationSeconds,
+        sets: newExercise.setCount,
+        reps: 10, // 기본값
+        restTime: newExercise.setDurationSeconds,
         order: formData.exercises.length + 1,
       }
       setFormData({
@@ -87,11 +88,17 @@ export function CreatePlanModal({
   const moveExercise = (exerciseId: number, direction: "up" | "down") => {
     const exercises = [...formData.exercises]
     const index = exercises.findIndex(ex => ex.id === exerciseId)
-    
+
     if (direction === "up" && index > 0) {
-      [exercises[index], exercises[index - 1]] = [exercises[index - 1], exercises[index]]
+      ;[exercises[index], exercises[index - 1]] = [
+        exercises[index - 1],
+        exercises[index],
+      ]
     } else if (direction === "down" && index < exercises.length - 1) {
-      [exercises[index], exercises[index + 1]] = [exercises[index + 1], exercises[index]]
+      ;[exercises[index], exercises[index + 1]] = [
+        exercises[index + 1],
+        exercises[index],
+      ]
     }
 
     setFormData({
@@ -172,7 +179,9 @@ export function CreatePlanModal({
             <div className="exercise-input-group">
               <select
                 value={newExercise.name}
-                onChange={e => setNewExercise({ ...newExercise, name: e.target.value })}
+                onChange={e =>
+                  setNewExercise({ ...newExercise, name: e.target.value })
+                }
               >
                 <option value="">운동을 선택하세요</option>
                 {availableExercises.map(exercise => (
@@ -186,16 +195,31 @@ export function CreatePlanModal({
                 placeholder="세트 수"
                 min="1"
                 value={newExercise.setCount}
-                onChange={e => setNewExercise({ ...newExercise, setCount: parseInt(e.target.value) })}
+                onChange={e =>
+                  setNewExercise({
+                    ...newExercise,
+                    setCount: parseInt(e.target.value),
+                  })
+                }
               />
               <input
                 type="number"
                 placeholder="세트 시간(초)"
                 min="10"
                 value={newExercise.setDurationSeconds}
-                onChange={e => setNewExercise({ ...newExercise, setDurationSeconds: parseInt(e.target.value) })}
+                onChange={e =>
+                  setNewExercise({
+                    ...newExercise,
+                    setDurationSeconds: parseInt(e.target.value),
+                  })
+                }
               />
-              <Button type="button" onClick={addExercise} variant="secondary" size="small">
+              <Button
+                type="button"
+                onClick={addExercise}
+                variant="secondary"
+                size="small"
+              >
                 추가
               </Button>
             </div>
@@ -210,7 +234,7 @@ export function CreatePlanModal({
                     <span className="exercise-order">{index + 1}.</span>
                     <span className="exercise-name">{exercise.name}</span>
                     <span className="exercise-details">
-                      {exercise.setCount}세트 × {exercise.setDurationSeconds}초
+                      {exercise.sets}세트 × {exercise.restTime}초
                     </span>
                     <div className="exercise-actions">
                       <Button

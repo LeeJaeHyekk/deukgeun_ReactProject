@@ -1,5 +1,5 @@
 // ============================================================================
-// Workout Feature Utils Export
+// Workout Feature Contexts Export
 // ============================================================================
 
-export * from "./workoutUtils"
+export { WorkoutPlanContext, useWorkoutPlan } from "./WorkoutPlanContext"

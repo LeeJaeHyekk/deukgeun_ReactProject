@@ -1,5 +1,5 @@
 import React from "react"
-import { useTabState } from "../../../hooks/useWorkoutStore"
+import { useSessionsTabState } from "../../../hooks/useWorkoutStore"
 import { useSharedState } from "../../../hooks/useWorkoutStore"
 import { useWorkoutSessions } from "../../../hooks/useWorkoutSessions"
 import { ActiveSessionContainer } from "./components/ActiveSessionContainer"
@@ -23,8 +23,8 @@ export function SessionsTab({
   onViewSession,
   onDeleteSession,
 }: SessionsTabProps) {
-  // 탭별 상태 관리
-  const { tabState, updateTabState } = useTabState("sessions")
+  // 탭별 상태 관리 - 타입 안전한 훅 사용
+  const { state: tabState, updateState: updateTabState } = useSessionsTabState()
 
   // 공유 상태 훅
   const { sharedState } = useSharedState()
@@ -93,11 +93,11 @@ export function SessionsTab({
     return filtered
   }, [sessions, tabState.filterStatus, tabState.sortBy])
 
-  const handleSortChange = (sortBy: string) => {
+  const handleSortChange = (sortBy: "startTime" | "name" | "duration" | "status") => {
     updateTabState({ sortBy })
   }
 
-  const handleFilterChange = (filterStatus: string) => {
+  const handleFilterChange = (filterStatus: "all" | "completed" | "in_progress" | "paused" | "cancelled") => {
     updateTabState({ filterStatus })
   }
 

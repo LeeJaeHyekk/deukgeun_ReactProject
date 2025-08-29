@@ -1,5 +1,5 @@
 import React from "react"
-import type { WorkoutReminderDTO } from "../../types"
+import type { WorkoutReminderDTO } from "../../../../shared/types"
 import "./ReminderCard.css"
 
 interface ReminderCardProps {

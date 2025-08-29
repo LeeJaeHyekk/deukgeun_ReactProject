@@ -143,7 +143,7 @@ export function PostDetailModal({
               comment.createdAt ||
               comment.created_at ||
               new Date().toISOString(),
-          }))
+          })) as any
         }
       }
 
@@ -294,12 +294,12 @@ export function PostDetailModal({
             <>
               <div className={styles.postInfo}>
                 <div className={styles.authorInfo}>
-                  <span className={styles.author}>{post.author.nickname}</span>
+                  <span className={styles.author}>{(post.author as any)?.nickname || "익명"}</span>
                   <span className={styles.date}>
                     {new Date(post.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <div className={styles.category}>{post.category}</div>
+                <div className={styles.category}>{(post.category as any)?.name || post.category}</div>
               </div>
 
               <div className={styles.postContent}>
@@ -308,10 +308,10 @@ export function PostDetailModal({
 
               <div className={styles.postActions}>
                 <button className={styles.likeButton}>
-                  ❤️ {post.like_count || post.likes || 0}
+                  ❤️ {(post as any).likeCount || 0}
                 </button>
                 <button className={styles.commentButton}>
-                  💬 {post.comment_count || post.comments || 0}
+                  💬 {(post as any).commentCount || 0}
                 </button>
                 {/* 자신의 게시물에만 수정/삭제 버튼 표시 */}
                 {isAuthor && onUpdate && (
@@ -373,7 +373,7 @@ export function PostDetailModal({
                   <div key={comment.id} className={styles.comment}>
                     <div className={styles.commentHeader}>
                       <span className={styles.commentAuthor}>
-                        {comment.author.nickname}
+                        {(comment.author as any).nickname}
                       </span>
                       <span className={styles.commentDate}>
                         {new Date(comment.createdAt).toLocaleDateString()}

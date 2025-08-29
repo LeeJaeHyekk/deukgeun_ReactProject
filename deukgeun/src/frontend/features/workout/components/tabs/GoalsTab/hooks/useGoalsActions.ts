@@ -1,8 +1,8 @@
 import { useCallback } from "react"
-import { useWorkoutGoals } from "../../../../hooks/useWorkoutGoals"
+import { useWorkoutGoalsActions } from "../../../../hooks/useWorkoutStore"
 
 export function useGoalsActions(onDeleteGoal: (goalId: number) => void) {
-  const { deleteGoal } = useWorkoutGoals()
+  const { deleteGoal } = useWorkoutGoalsActions()
 
   const handleDeleteGoal = useCallback(
     async (goalId: number) => {

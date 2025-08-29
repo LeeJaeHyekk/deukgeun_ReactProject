@@ -29,32 +29,30 @@ import type {
 
 const API_ENDPOINTS = {
   // Plans
-  PLANS: "/api/workout-journal/plans",
-  PLAN: (id: number) => `/api/workout-journal/plans/${id}`,
-  PLAN_EXERCISES: (planId: number) =>
-    `/api/workout-journal/plans/${planId}/exercises`,
+  PLANS: "/api/workouts/plans",
+  PLAN: (id: number) => `/api/workouts/plans/${id}`,
+  PLAN_EXERCISES: (planId: number) => `/api/workouts/plans/${planId}/exercises`,
   PLAN_EXERCISE: (planId: number, exerciseId: number) =>
-    `/api/workout-journal/plans/${planId}/exercises/${exerciseId}`,
+    `/api/workouts/plans/${planId}/exercises/${exerciseId}`,
 
   // Sessions
-  SESSIONS: "/api/workout-journal/sessions",
-  SESSION: (id: number) => `/api/workout-journal/sessions/${id}`,
+  SESSIONS: "/api/workouts/sessions",
+  SESSION: (id: number) => `/api/workouts/sessions/${id}`,
   SESSION_EXERCISES: (sessionId: number) =>
-    `/api/workout-journal/sessions/${sessionId}/exercises`,
+    `/api/workouts/sessions/${sessionId}/exercises`,
   SESSION_EXERCISE: (sessionId: number, exerciseId: number) =>
-    `/api/workout-journal/sessions/${sessionId}/exercises/${exerciseId}`,
-  SESSION_START: (id: number) => `/api/workout-journal/sessions/${id}/start`,
-  SESSION_PAUSE: (id: number) => `/api/workout-journal/sessions/${id}/pause`,
-  SESSION_RESUME: (id: number) => `/api/workout-journal/sessions/${id}/resume`,
-  SESSION_COMPLETE: (id: number) =>
-    `/api/workout-journal/sessions/${id}/complete`,
+    `/api/workouts/sessions/${sessionId}/exercises/${exerciseId}`,
+  SESSION_START: (id: number) => `/api/workouts/sessions/${id}/start`,
+  SESSION_PAUSE: (id: number) => `/api/workouts/sessions/${id}/pause`,
+  SESSION_RESUME: (id: number) => `/api/workouts/sessions/${id}/resume`,
+  SESSION_COMPLETE: (id: number) => `/api/workouts/sessions/${id}/complete`,
 
   // Goals
-  GOALS: "/api/workout-journal/goals",
-  GOAL: (id: number) => `/api/workout-journal/goals/${id}`,
+  GOALS: "/api/workouts/goals",
+  GOAL: (id: number) => `/api/workouts/goals/${id}`,
 
   // Dashboard
-  DASHBOARD: "/api/workout-journal/dashboard",
+  DASHBOARD: "/api/workouts/dashboard",
 } as const
 
 // ============================================================================
@@ -129,7 +127,11 @@ export const workoutApi = {
       console.log("✅ [workoutApi] getPlans 성공", {
         count: response.data?.length,
       })
-      return response.data || []
+      const data = response.data
+      if (!data) {
+        throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
+      }
+      return data
     } catch (error) {
       console.error("❌ [workoutApi] getPlans 실패", error)
       handleApiError(error)
@@ -687,23 +689,40 @@ export const workoutApi = {
   async getGoals(params?: PaginationParams): Promise<WorkoutGoal[]> {
     try {
       console.log("📡 [workoutApi] getGoals 호출", { params })
-
       const queryParams = params
         ? {
             ...(params.page && { page: params.page.toString() }),
             ...(params.limit && { limit: params.limit.toString() }),
-            ...(params.sortBy && { sortBy: params.sortBy }),
-            ...(params.sortOrder && { sortOrder: params.sortOrder }),
           }
         : undefined
       const response = await apiClient.get<ApiResponse<WorkoutGoal[]>>(
         API_ENDPOINTS.GOALS,
         queryParams
       )
+
+      console.log("📡 [workoutApi] getGoals 응답 전체:", response)
+      console.log("📡 [workoutApi] getGoals response.data:", response.data)
+      console.log(
+        "📡 [workoutApi] getGoals response.data?.data:",
+        response.data?.data
+      )
+
+      // 응답 구조 확인 및 데이터 추출
+      let goals: WorkoutGoal[] = []
+
+      if (response.data?.data) {
+        goals = response.data.data
+      } else if (Array.isArray(response.data)) {
+        goals = response.data
+      } else if (response.data?.success && Array.isArray(response.data.data)) {
+        goals = response.data.data
+      }
+
       console.log("✅ [workoutApi] getGoals 성공", {
-        count: response.data?.data?.length,
+        count: goals.length,
+        goals: goals.map(g => ({ id: g.id, title: g.title, type: g.type })),
       })
-      return response.data?.data || []
+      return goals
     } catch (error) {
       console.error("❌ [workoutApi] getGoals 실패", error)
       handleApiError(error)
@@ -772,7 +791,7 @@ export const workoutApi = {
         goalData
       )
       console.log("✅ [workoutApi] updateGoal 성공", { goalId })
-      const data = response.data?.data
+      const data = response.data
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }

@@ -3,7 +3,18 @@
 // ============================================================================
 
 import { config as dotenvConfig } from "dotenv"
-import type { AppConfig, Environment, DatabaseConfig } from "../types"
+
+interface AppConfig {
+  // 임시 타입 정의
+  [key: string]: any
+}
+
+type Environment = "development" | "production" | "test"
+
+interface DatabaseConfig {
+  // 임시 타입 정의
+  [key: string]: any
+}
 
 // 환경 변수 로드
 dotenvConfig()

@@ -1,5 +1,5 @@
 import React from "react"
-import type { WorkoutSession } from "../../../../../../shared/api/workoutJournalApi"
+import type { WorkoutSession } from "../../../../../../shared/types"
 
 interface SessionsStatsProps {
   sessions: WorkoutSession[]

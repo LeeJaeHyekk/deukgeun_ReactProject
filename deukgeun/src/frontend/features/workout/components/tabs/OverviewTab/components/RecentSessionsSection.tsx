@@ -1,5 +1,5 @@
 import React from "react"
-import type { DashboardData } from "../../../../../../shared/api/workoutJournalApi"
+import type { DashboardData } from "../../../../../../shared/types"
 import styles from "./RecentSessionsSection.module.css"
 
 interface RecentSessionsSectionProps {
@@ -30,7 +30,7 @@ export const RecentSessionsSection: React.FC<RecentSessionsSectionProps> = ({
       <h3>⏱️ 최근 세션</h3>
       <div className={styles.sessionsList}>
         {recentSessions.length > 0 ? (
-          recentSessions.map(session => (
+          recentSessions.map((session: any) => (
             <div
               key={session.id}
               className={styles.sessionItem}

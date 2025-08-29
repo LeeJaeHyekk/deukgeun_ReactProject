@@ -289,13 +289,23 @@ export function useSharedState() {
 // ============================================================================
 
 export function useWorkoutInitialization() {
-  const { fetchPlans, fetchSessions, fetchGoals, fetchDashboardData } =
-    useWorkoutStore()
+  const { fetchPlans } = useWorkoutPlansActions()
+  const { fetchSessions } = useWorkoutSessionsActions()
+  const { fetchGoals } = useWorkoutGoalsActions()
+  const { fetchDashboardData } = useWorkoutDashboardActions()
 
   const initializeWorkoutData = async () => {
     console.log("[useWorkoutInitialization] initializeWorkoutData 호출됨", {
       timestamp: new Date().toISOString(),
       stack: new Error().stack,
+    })
+
+    // 인증 토큰 확인
+    const token = localStorage.getItem("accessToken")
+    console.log("[useWorkoutInitialization] 인증 토큰 확인:", {
+      hasToken: !!token,
+      tokenPreview: token ? `${token.substring(0, 20)}...` : "없음",
+      timestamp: new Date().toISOString(),
     })
 
     try {

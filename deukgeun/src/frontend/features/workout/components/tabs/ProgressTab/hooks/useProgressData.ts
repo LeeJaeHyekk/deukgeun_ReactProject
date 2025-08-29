@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react"
-import type { WorkoutSession } from "../../../../../../shared/api/workoutJournalApi"
+import type { WorkoutSession } from "../../../../types"
 
 type ChartType = "weekly" | "monthly" | "yearly"
 type TimeRange = "7days" | "30days" | "90days" | "1year"

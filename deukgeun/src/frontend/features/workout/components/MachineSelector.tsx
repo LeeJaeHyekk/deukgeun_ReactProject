@@ -1,5 +1,5 @@
 import React from "react"
-import type { Machine } from "../../types"
+import type { Machine } from "../../../../shared/types"
 import "./MachineSelector.css"
 
 interface MachineSelectorProps {

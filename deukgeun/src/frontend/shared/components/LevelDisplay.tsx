@@ -21,10 +21,7 @@ export function LevelDisplay({
   className = "",
 }: LevelDisplayProps) {
   const {
-    currentLevel,
-    currentExp,
-    progressPercentage,
-    expToNextLevel,
+    levelProgress,
     rewards,
     cooldownInfo,
     dailyLimitInfo,
@@ -33,8 +30,10 @@ export function LevelDisplay({
   } = useLevel()
 
   // 테스트용 userLevel이 제공되면 해당 데이터 사용
-  const displayLevel = userLevel ? userLevel.level : currentLevel
-  const displayExp = userLevel ? userLevel.currentExp : currentExp
+  const displayLevel = userLevel ? userLevel.level : levelProgress.level
+  const displayExp = userLevel ? userLevel.currentExp : levelProgress.currentExp
+  const progressPercentage = levelProgress.progressPercentage
+  const expToNextLevel = levelProgress.expToNextLevel
 
   if (isLoading && !userLevel) {
     return (

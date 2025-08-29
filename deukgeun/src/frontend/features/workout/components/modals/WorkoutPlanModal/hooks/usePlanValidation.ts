@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react"
-import type { CreatePlanRequest } from "../../../../../shared/types"
+import type { CreatePlanRequest } from "../../../../../../shared/types"
 
 export function usePlanValidation() {
   const [errors, setErrors] = useState<Record<string, string>>({})

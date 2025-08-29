@@ -27,6 +27,7 @@ export function CreateGoalModal({
     e.preventDefault()
     onCreateGoal({
       ...formData,
+      userId: 1, // 임시로 하드코딩
       isCompleted: false,
     })
     onClose()

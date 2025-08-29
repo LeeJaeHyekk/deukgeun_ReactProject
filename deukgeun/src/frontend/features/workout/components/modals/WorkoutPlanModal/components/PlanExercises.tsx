@@ -1,5 +1,5 @@
-import React, { useState } from "react"
-import type { WorkoutPlanExercise } from "../../../../../shared/types"
+import React from "react"
+import type { WorkoutPlanExercise } from "../../../../../../shared/types"
 import styles from "./PlanExercises.module.css"
 
 interface PlanExercisesProps {

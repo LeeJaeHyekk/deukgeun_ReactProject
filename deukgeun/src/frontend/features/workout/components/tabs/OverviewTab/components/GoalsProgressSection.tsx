@@ -1,5 +1,5 @@
 import React from "react"
-import type { DashboardData } from "../../../../../../shared/api/workoutJournalApi"
+import type { DashboardData, WorkoutGoal } from "../../../../types"
 import styles from "./GoalsProgressSection.module.css"
 
 interface Goal {
@@ -15,67 +15,66 @@ interface Goal {
 
 interface GoalsProgressSectionProps {
   dashboardData: DashboardData
+  goals?: WorkoutGoal[]
   onGoalClick: (goalId: number) => void
 }
 
 export const GoalsProgressSection: React.FC<GoalsProgressSectionProps> = ({
   dashboardData,
+  goals,
   onGoalClick,
 }) => {
   // 실제 데이터에서 목표 정보를 가져오는 함수
   const getActiveGoals = (): Goal[] => {
-    // dashboardData에서 목표 정보를 추출하는 로직
-    // 실제 구현 시에는 dashboardData.upcomingGoals 등을 사용하여 변환
+    console.log("🎯 [GoalsProgressSection] dashboardData:", dashboardData)
+    console.log("🎯 [GoalsProgressSection] goals:", goals)
+
+    // 실제 목표 데이터를 우선적으로 사용
+    if (goals && goals.length > 0) {
+      console.log("🎯 [GoalsProgressSection] Using actual goals data:", goals)
+      return goals
+        .filter(goal => !goal.isCompleted) // 완료되지 않은 목표만
+        .map(goal => ({
+          id: goal.id,
+          title: goal.title,
+          currentValue: goal.currentValue,
+          targetValue: goal.targetValue,
+          unit: goal.unit || "회",
+          category: (goal.type as Goal["category"]) || "workout",
+          deadline: goal.deadline
+            ? new Date(goal.deadline).toLocaleDateString()
+            : undefined,
+          status: goal.isCompleted ? "completed" : ("active" as Goal["status"]),
+        }))
+    }
+
+    // dashboardData에서 목표 정보를 추출하는 로직 (fallback)
     if (
       dashboardData &&
-      dashboardData.upcomingGoals &&
-      dashboardData.upcomingGoals.length > 0
+      dashboardData.activeGoals &&
+      dashboardData.activeGoals.length > 0
     ) {
-      return dashboardData.upcomingGoals.map(goal => ({
+      console.log(
+        "🎯 [GoalsProgressSection] activeGoals found in dashboardData:",
+        dashboardData.activeGoals
+      )
+      return dashboardData.activeGoals.map(goal => ({
         id: goal.id,
         title: goal.title,
-        currentValue: Math.round(goal.progress), // 진행률을 현재값으로 변환
-        targetValue: 100, // 목표값을 100으로 설정
-        unit: "%",
-        category: "workout" as Goal["category"], // 기본값
+        currentValue: goal.currentValue,
+        targetValue: goal.targetValue,
+        unit: goal.unit || "회",
+        category: (goal.type as Goal["category"]) || "workout",
         deadline: goal.deadline
           ? new Date(goal.deadline).toLocaleDateString()
           : undefined,
-        status:
-          goal.progress >= 100 ? "completed" : ("active" as Goal["status"]),
+        status: goal.isCompleted ? "completed" : ("active" as Goal["status"]),
       }))
     }
 
+    console.log("🎯 [GoalsProgressSection] No goals found, using mock data")
     // 기본 목표 데이터 (실제 데이터 연동 전까지 사용)
-    return [
-      {
-        id: 1,
-        title: "주 3회 운동하기",
-        currentValue: 2,
-        targetValue: 3,
-        unit: "회",
-        category: "workout",
-        status: "active",
-      },
-      {
-        id: 2,
-        title: "체중 5kg 감량",
-        currentValue: 2,
-        targetValue: 5,
-        unit: "kg",
-        category: "weight",
-        status: "active",
-      },
-      {
-        id: 3,
-        title: "벤치프레스 100kg",
-        currentValue: 80,
-        targetValue: 100,
-        unit: "kg",
-        category: "strength",
-        status: "active",
-      },
-    ]
+    return []
   }
 
   const activeGoals = getActiveGoals()

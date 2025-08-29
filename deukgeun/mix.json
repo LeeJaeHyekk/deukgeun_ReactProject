@@ -78,24 +78,6 @@
           "dto": "WorkoutReminderDTO",
           "frontType": "WorkoutReminderType"
         },
-        "workoutProgress": {
-          "type": "OneToMany",
-          "target": "WorkoutProgress",
-          "dto": "WorkoutProgressDTO",
-          "frontType": "WorkoutProgressType"
-        },
-        "milestones": {
-          "type": "OneToMany",
-          "target": "Milestone",
-          "dto": "MilestoneDTO",
-          "frontType": "MilestoneType"
-        },
-        "userStreaks": {
-          "type": "OneToMany",
-          "target": "UserStreak",
-          "dto": "UserStreakDTO",
-          "frontType": "UserStreakType"
-        },
         "userRewards": {
           "type": "OneToMany",
           "target": "UserReward",
@@ -2358,32 +2340,79 @@
     }
   },
   "projectStatus": {
-    "lastUpdated": "2025-01-27T00:00:00.000Z",
+    "lastUpdated": "2025-01-27T14:30:00.000Z",
     "currentIssues": {
-      "typescriptErrors": 0,
+      "typescriptErrors": 169,
       "eslintWarnings": 0,
-      "buildStatus": "SUCCESS",
-      "criticalIssues": ["Database connection required for full functionality"]
+      "buildStatus": "PARTIAL_SUCCESS",
+      "criticalIssues": [
+        "DTO property mismatches need resolution",
+        "API response type inconsistencies",
+        "Type conversion errors (Date ↔ string)",
+        "Missing React hook imports"
+      ]
     },
     "progress": {
-      "overall": 95,
+      "overall": 66,
       "backend": 98,
-      "frontend": 95,
-      "types": 100,
-      "build": 100
+      "frontend": 66,
+      "types": 85,
+      "build": 66
     },
     "nextPriorities": [
-      "Set up database connection",
-      "Complete API endpoint testing",
-      "Frontend-backend integration testing",
-      "Performance optimization"
+      "Resolve DTO property mismatches",
+      "Fix API response type errors",
+      "Address type conversion issues",
+      "Add missing React hook imports",
+      "Complete backend test fixes"
     ],
     "testResults": {
       "serverStartup": "SUCCESS",
       "apiEndpoints": "PARTIAL_SUCCESS",
       "databaseConnection": "OFFLINE_MODE",
-      "frontendIntegration": "SUCCESS",
-      "buildProcess": "SUCCESS"
+      "frontendIntegration": "PARTIAL_SUCCESS",
+      "buildProcess": "PARTIAL_SUCCESS"
+    },
+    "recentFixes": {
+      "typeSystemIntegration": {
+        "status": "COMPLETED",
+        "description": "Centralized type system integration",
+        "files": [
+          "src/shared/types/index.ts",
+          "src/shared/types/dto/index.ts",
+          "src/frontend/shared/types/index.ts"
+        ]
+      },
+      "importPathFixes": {
+        "status": "COMPLETED",
+        "description": "Fixed import path errors",
+        "files": [
+          "MachineSelector.tsx",
+          "ReminderCard.tsx",
+          "RecentSessionsSection.tsx",
+          "PlansContent.tsx",
+          "PlansStats.tsx",
+          "SessionsStats.tsx",
+          "GoalForm.tsx",
+          "GoalTypeSelector.tsx",
+          "useGoalForm.ts",
+          "PlanBasicInfo.tsx",
+          "PlanExercises.tsx",
+          "usePlanValidation.ts"
+        ]
+      },
+      "dtoTypeAliases": {
+        "status": "COMPLETED",
+        "description": "Added comprehensive DTO type aliases",
+        "types": [
+          "PaginationParams",
+          "WorkoutReminderDTO",
+          "GoalProgressBarProps",
+          "SessionCardProps",
+          "DashboardData",
+          "WorkoutStatsDTO"
+        ]
+      }
     }
   }
 }

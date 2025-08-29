@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from "react"
 import { LineChart, BarChart } from "../charts"
-import type { WorkoutSession, WorkoutStatsDTO } from "../../types"
+import type { WorkoutSession, WorkoutStats } from "../../types"
 import "./WorkoutProgressTab.css"
 
 interface WorkoutProgressTabProps {
   sessions: WorkoutSession[]
-  workoutStats: WorkoutStatsDTO | null
+  workoutStats: WorkoutStats | null
   isLoading: boolean
 }
 
@@ -27,7 +27,11 @@ export function WorkoutProgressTab({
     "weekly" | "monthly" | "yearly"
   >("monthly")
   const [selectedMetric, setSelectedMetric] = useState<
-    "completedSets" | "totalSets" | "durationMinutes" | "sessions" | "completionRate"
+    | "completedSets"
+    | "totalSets"
+    | "durationMinutes"
+    | "sessions"
+    | "completionRate"
   >("completionRate")
 
   // 전체 통계 계산
@@ -36,7 +40,8 @@ export function WorkoutProgressTab({
 
     const totalSessions = sessions.length
     const totalCompletedSets = sessions.reduce(
-      (sum, session) => sum + session.exerciseSets.filter(set => set.repsCompleted > 0).length,
+      (sum, session) =>
+        sum + session.exerciseSets.filter(set => set.repsCompleted > 0).length,
       0
     )
     const totalSets = sessions.reduce(
@@ -47,7 +52,8 @@ export function WorkoutProgressTab({
       (sum, session) => sum + (session.totalDurationMinutes || 0),
       0
     )
-    const completionRate = totalSets > 0 ? (totalCompletedSets / totalSets) * 100 : 0
+    const completionRate =
+      totalSets > 0 ? (totalCompletedSets / totalSets) * 100 : 0
 
     return {
       totalSessions,
@@ -75,7 +81,7 @@ export function WorkoutProgressTab({
         case "weekly":
           const weekStart = new Date(sessionDate)
           weekStart.setDate(sessionDate.getDate() - sessionDate.getDay())
-          periodKey = weekStart.toISOString().split('T')[0]
+          periodKey = weekStart.toISOString().split("T")[0]
           break
         case "monthly":
           periodKey = `${sessionDate.getFullYear()}-${String(sessionDate.getMonth() + 1).padStart(2, "0")}`
@@ -84,7 +90,7 @@ export function WorkoutProgressTab({
           periodKey = sessionDate.getFullYear().toString()
           break
         default:
-          periodKey = sessionDate.toISOString().split('T')[0]
+          periodKey = sessionDate.toISOString().split("T")[0]
       }
 
       if (!data[periodKey]) {
@@ -98,7 +104,9 @@ export function WorkoutProgressTab({
         }
       }
 
-      const completedSets = session.exerciseSets.filter(set => set.repsCompleted > 0).length
+      const completedSets = session.exerciseSets.filter(
+        set => set.repsCompleted > 0
+      ).length
       const totalSets = session.exerciseSets.length
 
       data[periodKey].completedSets += completedSets
@@ -109,9 +117,10 @@ export function WorkoutProgressTab({
 
     // 완료율 계산
     Object.values(data).forEach(item => {
-      item.completionRate = item.totalSets > 0 
-        ? Math.round((item.completedSets / item.totalSets) * 100 * 10) / 10 
-        : 0
+      item.completionRate =
+        item.totalSets > 0
+          ? Math.round((item.completedSets / item.totalSets) * 100 * 10) / 10
+          : 0
     })
 
     return Object.values(data).sort((a, b) => a.period.localeCompare(b.period))
@@ -120,22 +129,32 @@ export function WorkoutProgressTab({
   // 메트릭 표시명
   const getMetricLabel = (metric: string) => {
     switch (metric) {
-      case "completedSets": return "완료된 세트"
-      case "totalSets": return "전체 세트"
-      case "durationMinutes": return "운동 시간 (분)"
-      case "sessions": return "세션 수"
-      case "completionRate": return "완료율 (%)"
-      default: return metric
+      case "completedSets":
+        return "완료된 세트"
+      case "totalSets":
+        return "전체 세트"
+      case "durationMinutes":
+        return "운동 시간 (분)"
+      case "sessions":
+        return "세션 수"
+      case "completionRate":
+        return "완료율 (%)"
+      default:
+        return metric
     }
   }
 
   // 시간 범위 표시명
   const getTimeRangeLabel = (range: string) => {
     switch (range) {
-      case "weekly": return "주별"
-      case "monthly": return "월별"
-      case "yearly": return "년별"
-      default: return range
+      case "weekly":
+        return "주별"
+      case "monthly":
+        return "월별"
+      case "yearly":
+        return "년별"
+      default:
+        return range
     }
   }
 
@@ -178,7 +197,9 @@ export function WorkoutProgressTab({
             </div>
             <div className="stat-card">
               <h3>평균 세션 시간</h3>
-              <p className="stat-value">{overallStats.averageDurationPerSession}분</p>
+              <p className="stat-value">
+                {overallStats.averageDurationPerSession}분
+              </p>
             </div>
             <div className="stat-card">
               <h3>평균 세트 수</h3>
@@ -227,7 +248,10 @@ export function WorkoutProgressTab({
 
       <div className="progress-charts">
         <div className="chart-container">
-          <h3>{getTimeRangeLabel(selectedTimeRange)} {getMetricLabel(selectedMetric)}</h3>
+          <h3>
+            {getTimeRangeLabel(selectedTimeRange)}{" "}
+            {getMetricLabel(selectedMetric)}
+          </h3>
           {selectedTimeRange === "yearly" ? (
             <LineChart
               data={chartData}

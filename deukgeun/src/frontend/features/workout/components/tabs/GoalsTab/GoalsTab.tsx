@@ -5,6 +5,7 @@ import { GoalsContent } from "./components/GoalsContent"
 import { GoalsStats } from "./components/GoalsStats"
 import { useGoalsActions } from "./hooks/useGoalsActions"
 import type { WorkoutGoal } from "../../../types"
+import type { GoalsTabState } from "../../../types"
 import "./GoalsTab.css"
 
 // 로깅 유틸리티
@@ -46,6 +47,40 @@ export function GoalsTab({
 }: GoalsTabProps) {
   const { tabState, updateTabState } = useTabState("goals")
 
+  // 타입 캐스팅을 사용하여 GoalsTabState로 처리
+  const goalsTabState = tabState as GoalsTabState
+
+  // selectedGoalId가 변경되면 해당 목표를 선택하고 편집 모달 열기
+  React.useEffect(() => {
+    if (selectedGoalId && selectedGoalId !== goalsTabState.selectedGoalId) {
+      updateTabState({ selectedGoalId } as GoalsTabState)
+      // 약간의 지연 후 편집 모달 열기
+      setTimeout(() => {
+        onEditGoal(selectedGoalId)
+      }, 100)
+    }
+  }, [selectedGoalId, goalsTabState.selectedGoalId, updateTabState, onEditGoal])
+
+  // 초기 상태 설정 (목표가 있을 때)
+  React.useEffect(() => {
+    if (
+      goals.length > 0 &&
+      !goalsTabState.showCompleted &&
+      !goalsTabState.sortBy
+    ) {
+      updateTabState({
+        showCompleted: false,
+        sortBy: "progress",
+        selectedGoalId: undefined,
+      } as GoalsTabState)
+    }
+  }, [
+    goals.length,
+    goalsTabState.showCompleted,
+    goalsTabState.sortBy,
+    updateTabState,
+  ])
+
   // 공유 상태 훅
   const { sharedState } = useSharedState()
 
@@ -54,9 +89,9 @@ export function GoalsTab({
   logger.info("GoalsTab 렌더링", {
     goalsCount: goals.length,
     isLoading,
-    showCompleted: tabState.showCompleted,
-    sortBy: tabState.sortBy,
-    selectedGoalId: tabState.selectedGoalId,
+    showCompleted: goalsTabState.showCompleted,
+    sortBy: goalsTabState.sortBy,
+    selectedGoalId: goalsTabState.selectedGoalId,
     activeGoalsCount: goals.filter(g => !g.isCompleted).length,
     completedGoalsCount: goals.filter(g => g.isCompleted).length,
   })
@@ -66,7 +101,7 @@ export function GoalsTab({
     let filtered = goals
 
     // 완료된 목표 필터링
-    if (!tabState.showCompleted) {
+    if (!goalsTabState.showCompleted) {
       filtered = filtered.filter(goal => !goal.isCompleted)
     }
 
@@ -75,7 +110,7 @@ export function GoalsTab({
       const progressA = (a.currentValue / a.targetValue) * 100
       const progressB = (b.currentValue / b.targetValue) * 100
 
-      switch (tabState.sortBy) {
+      switch (goalsTabState.sortBy) {
         case "deadline":
           if (!a.deadline && !b.deadline) return 0
           if (!a.deadline) return 1
@@ -96,22 +131,24 @@ export function GoalsTab({
     })
 
     return filtered
-  }, [goals, tabState.showCompleted, tabState.sortBy])
+  }, [goals, goalsTabState.showCompleted, goalsTabState.sortBy])
 
   // 진행중인 목표와 완료된 목표 분리
   const activeGoals = filteredGoals.filter(goal => !goal.isCompleted)
   const completedGoals = filteredGoals.filter(goal => goal.isCompleted)
 
-  const handleSortChange = (sortBy: string) => {
-    updateTabState({ sortBy })
+  const handleSortChange = (
+    sortBy: "progress" | "deadline" | "title" | "createdAt"
+  ) => {
+    updateTabState({ sortBy } as GoalsTabState)
   }
 
   const handleShowCompletedChange = (showCompleted: boolean) => {
-    updateTabState({ showCompleted })
+    updateTabState({ showCompleted } as GoalsTabState)
   }
 
   const handleGoalSelect = (goalId: number | null) =>
-    updateTabState({ selectedGoalId: goalId })
+    updateTabState({ selectedGoalId: goalId } as GoalsTabState)
 
   if (isLoading) {
     return (
@@ -142,30 +179,32 @@ export function GoalsTab({
         <div className="control-section">
           <div className="sort-buttons">
             <button
-              className={`sort-btn ${tabState.sortBy === "progress" ? "active" : ""}`}
+              className={`sort-btn ${goalsTabState.sortBy === "progress" ? "active" : ""}`}
               onClick={() => handleSortChange("progress")}
             >
               진행률순
             </button>
             <button
-              className={`sort-btn ${tabState.sortBy === "deadline" ? "active" : ""}`}
+              className={`sort-btn ${goalsTabState.sortBy === "deadline" ? "active" : ""}`}
               onClick={() => handleSortChange("deadline")}
             >
               마감일순
             </button>
             <button
-              className={`sort-btn ${tabState.sortBy === "createdAt" ? "active" : ""}`}
+              className={`sort-btn ${goalsTabState.sortBy === "createdAt" ? "active" : ""}`}
               onClick={() => handleSortChange("createdAt")}
             >
               최신순
             </button>
           </div>
           <button
-            className={`toggle-btn ${tabState.showCompleted ? "active" : ""}`}
-            onClick={() => handleShowCompletedChange(!tabState.showCompleted)}
+            className={`toggle-btn ${goalsTabState.showCompleted ? "active" : ""}`}
+            onClick={() =>
+              handleShowCompletedChange(!goalsTabState.showCompleted)
+            }
           >
             <span className="toggle-icon">
-              {tabState.showCompleted ? "✓" : "○"}
+              {goalsTabState.showCompleted ? "✓" : "○"}
             </span>
             완료된 목표
           </button>
@@ -192,7 +231,7 @@ export function GoalsTab({
               return (
                 <div
                   key={goal.id}
-                  className={`goal-card ${goal.id === tabState.selectedGoalId ? "selected" : ""}`}
+                  className={`goal-card ${goal.id === goalsTabState.selectedGoalId ? "selected" : ""}`}
                   onClick={() => handleGoalSelect(goal.id)}
                 >
                   <div className="goal-header">
@@ -261,7 +300,7 @@ export function GoalsTab({
       )}
 
       {/* 완료된 목표 섹션 */}
-      {completedGoals.length > 0 && tabState.showCompleted && (
+      {completedGoals.length > 0 && goalsTabState.showCompleted && (
         <div className="completed-goals-section">
           <div className="section-header">
             <h3>✅ 완료된 목표 ({completedGoals.length}개)</h3>
@@ -271,7 +310,7 @@ export function GoalsTab({
             {completedGoals.map(goal => (
               <div
                 key={goal.id}
-                className={`goal-card completed ${goal.id === tabState.selectedGoalId ? "selected" : ""}`}
+                className={`goal-card completed ${goal.id === goalsTabState.selectedGoalId ? "selected" : ""}`}
                 onClick={() => handleGoalSelect(goal.id)}
               >
                 <div className="goal-header">

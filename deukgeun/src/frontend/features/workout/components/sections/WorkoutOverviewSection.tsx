@@ -1,11 +1,11 @@
 import React from "react"
 import { WorkoutPlanCard } from "../cards/WorkoutPlanCard"
 import { WorkoutStatsCard } from "../cards/WorkoutStatsCard"
-import { WorkoutPlanDTO, WorkoutStatsDTO, WorkoutSessionDTO } from "../../types"
+import { WorkoutPlanDTO, WorkoutStats, WorkoutSessionDTO } from "../../types"
 
 interface WorkoutOverviewSectionProps {
   workoutPlans: WorkoutPlanDTO[]
-  workoutStats: WorkoutStatsDTO
+  workoutStats: WorkoutStats
   activeSessions: WorkoutSessionDTO[]
 }
 

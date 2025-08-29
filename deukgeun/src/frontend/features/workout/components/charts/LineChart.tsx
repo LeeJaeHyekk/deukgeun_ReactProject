@@ -3,12 +3,23 @@ import styles from "./LineChart.module.css"
 
 interface LineChartProps {
   data: any[]
-  xKey: string
-  yKey: string
+  xKey?: string
+  yKey?: string
   title?: string
+  xAxisLabel?: string
+  yAxisLabel?: string
+  height?: number
+  width?: number
+  config?: any
+  className?: string
 }
 
-export function LineChart({ data, xKey, yKey, title }: LineChartProps) {
+export function LineChart({
+  data,
+  xKey = "x",
+  yKey = "y",
+  title,
+}: LineChartProps) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null)
 
   if (!data || data.length === 0) {

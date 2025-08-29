@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { WorkoutJournalApi } from "../../../shared/api/workoutJournalApi"
+import { workoutApi } from "../api/workoutApi"
 import type {
   WorkoutSession,
   CreateSessionRequest,
@@ -28,9 +28,9 @@ export function useWorkoutSessions() {
     setError(null)
     try {
       console.log(
-        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.getWorkoutSessions 호출`
+        `📡 [useWorkoutSessions:${requestId}] workoutApi.getSessions 호출`
       )
-      const response = await WorkoutJournalApi.getWorkoutSessions()
+      const response = await workoutApi.getSessions()
       const sessionData = response || []
 
       console.log(`✅ [useWorkoutSessions:${requestId}] 세션 조회 성공:`, {
@@ -65,9 +65,9 @@ export function useWorkoutSessions() {
     setError(null)
     try {
       console.log(
-        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.getWorkoutSession 호출`
+        `📡 [useWorkoutSessions:${requestId}] workoutApi.getSession 호출`
       )
-      const response = await WorkoutJournalApi.getWorkoutSession(sessionId)
+      const response = await workoutApi.getSession(sessionId)
 
       console.log(
         `✅ [useWorkoutSessions:${requestId}] 특정 세션 조회 성공:`,
@@ -103,11 +103,9 @@ export function useWorkoutSessions() {
       setError(null)
       try {
         console.log(
-          `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.createWorkoutSession 호출`
+          `📡 [useWorkoutSessions:${requestId}] workoutApi.createSession 호출`
         )
-        const response = await WorkoutJournalApi.createWorkoutSession(
-          sessionData as any
-        )
+        const response = await workoutApi.createSession(sessionData as any)
         const newSession = response
 
         console.log(
@@ -153,12 +151,9 @@ export function useWorkoutSessions() {
       setError(null)
       try {
         console.log(
-          `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.updateWorkoutSession 호출`
+          `📡 [useWorkoutSessions:${requestId}] workoutApi.updateSession 호출`
         )
-        const response = await WorkoutJournalApi.updateWorkoutSession(
-          sessionId,
-          updateData
-        )
+        const response = await workoutApi.updateSession(sessionId, updateData)
         const updatedSession = response
 
         console.log(
@@ -204,9 +199,9 @@ export function useWorkoutSessions() {
     setError(null)
     try {
       console.log(
-        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.deleteWorkoutSession 호출`
+        `📡 [useWorkoutSessions:${requestId}] workoutApi.deleteSession 호출`
       )
-      await WorkoutJournalApi.deleteWorkoutSession(sessionId)
+      await workoutApi.deleteSession(sessionId)
 
       console.log(`✅ [useWorkoutSessions:${requestId}] 세션 삭제 성공`)
       setSessions(prev => {
@@ -240,9 +235,9 @@ export function useWorkoutSessions() {
     setError(null)
     try {
       console.log(
-        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.startWorkoutSession 호출`
+        `📡 [useWorkoutSessions:${requestId}] workoutApi.startSession 호출`
       )
-      const response = await WorkoutJournalApi.startWorkoutSession(sessionId)
+      const response = await workoutApi.startSession(sessionId)
       const updatedSession = response
 
       console.log(
@@ -283,9 +278,9 @@ export function useWorkoutSessions() {
     setError(null)
     try {
       console.log(
-        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.pauseWorkoutSession 호출`
+        `📡 [useWorkoutSessions:${requestId}] workoutApi.pauseSession 호출`
       )
-      const response = await WorkoutJournalApi.pauseWorkoutSession(sessionId)
+      const response = await workoutApi.pauseSession(sessionId)
       const updatedSession = response
 
       console.log(
@@ -329,9 +324,9 @@ export function useWorkoutSessions() {
     setError(null)
     try {
       console.log(
-        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.resumeWorkoutSession 호출`
+        `📡 [useWorkoutSessions:${requestId}] workoutApi.resumeSession 호출`
       )
-      const response = await WorkoutJournalApi.resumeWorkoutSession(sessionId)
+      const response = await workoutApi.resumeSession(sessionId)
       const updatedSession = response
 
       console.log(
@@ -372,9 +367,9 @@ export function useWorkoutSessions() {
     setError(null)
     try {
       console.log(
-        `📡 [useWorkoutSessions:${requestId}] WorkoutJournalApi.completeWorkoutSession 호출`
+        `📡 [useWorkoutSessions:${requestId}] workoutApi.completeSession 호출`
       )
-      const response = await WorkoutJournalApi.completeWorkoutSession(sessionId)
+      const response = await workoutApi.completeSession(sessionId)
       const updatedSession = response
 
       console.log(

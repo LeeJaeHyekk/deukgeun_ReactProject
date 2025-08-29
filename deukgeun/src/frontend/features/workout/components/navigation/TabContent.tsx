@@ -12,7 +12,7 @@ import type {
   WorkoutGoal,
   Machine,
 } from "@shared/types"
-import type { DashboardData, WorkoutStatsDTO } from "../../types"
+import type { DashboardData, WorkoutStats } from "../../types"
 import styles from "./TabContent.module.css"
 
 interface TabContentProps {
@@ -22,7 +22,7 @@ interface TabContentProps {
   plans: WorkoutPlan[]
   sessions: WorkoutSession[]
   goals: WorkoutGoal[]
-  workoutStats: WorkoutStatsDTO | null
+  workoutStats: WorkoutStats | null
   machines: Machine[]
   plansLoading: boolean
   sessionsLoading: boolean
@@ -41,6 +41,7 @@ interface TabContentProps {
   onDeletePlan: (planId: number) => void
   onDeleteSession: (sessionId: number) => void
   onDeleteGoal: (goalId: number) => void
+  selectedGoalId?: number
 }
 
 export function TabContent({
@@ -69,6 +70,7 @@ export function TabContent({
   onDeletePlan,
   onDeleteSession,
   onDeleteGoal,
+  selectedGoalId,
 }: TabContentProps) {
   if (isLoading) {
     return (
@@ -100,6 +102,7 @@ export function TabContent({
           onCreateGoal={onCreateGoal}
           onEditGoal={onEditGoal}
           onDeleteGoal={onDeleteGoal}
+          selectedGoalId={selectedGoalId}
         />
       )}
 

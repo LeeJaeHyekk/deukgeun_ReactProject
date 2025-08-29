@@ -20,6 +20,9 @@ export class WorkoutPlanExercise {
   @Column({ type: "int", nullable: true })
   machineId?: number
 
+  @Column({ type: "int", nullable: true })
+  exerciseId?: number
+
   @Column({ type: "varchar", length: 255 })
   exerciseName!: string
 

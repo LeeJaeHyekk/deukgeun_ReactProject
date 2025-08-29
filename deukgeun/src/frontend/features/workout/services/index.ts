@@ -1,2 +1,7 @@
+// ============================================================================
+// Workout Feature Services Export
+// ============================================================================
+
+export { workoutApi } from "./workoutApi"
 export { default as WorkoutSessionService } from "./WorkoutSessionService"
-export { default as SectionGenerationService } from "./SectionGenerationService"
+export { SectionGenerationService } from "./SectionGenerationService"

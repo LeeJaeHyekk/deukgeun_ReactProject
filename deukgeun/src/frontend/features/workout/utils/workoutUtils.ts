@@ -374,6 +374,13 @@ export const calculateWorkoutStats = (sessions: any[]): WorkoutStats => {
       favoriteExercises: [],
       weeklyProgress: [],
       monthlyProgress: [],
+      currentStreak: 0,
+      averageMood: 0,
+      averageEnergy: 0,
+      completedGoals: 0,
+      activeGoals: 0,
+      totalExp: 0,
+      level: 1,
     }
   }
 
@@ -398,6 +405,13 @@ export const calculateWorkoutStats = (sessions: any[]): WorkoutStats => {
     favoriteExercises: [],
     weeklyProgress: [],
     monthlyProgress: [],
+    currentStreak: 0,
+    averageMood: 0,
+    averageEnergy: 0,
+    completedGoals: 0,
+    activeGoals: 0,
+    totalExp: 0,
+    level: 1,
   }
 }
 

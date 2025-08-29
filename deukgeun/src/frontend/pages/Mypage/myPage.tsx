@@ -26,13 +26,13 @@ const selectUser = (state: { user: User | null }) => state.user
 
 // 메모이제이션된 컴포넌트들
 const InfoItem = memo(
-  ({ label, value, icon }: { label: string; value: string; icon?: string }) => (
+  ({ label, value, icon }: { label: string; value: string | undefined; icon?: string }) => (
     <div className={styles.infoItem}>
       <div className={styles.infoHeader}>
         {icon && <span className={styles.infoIcon}>{icon}</span>}
         <p className={styles.label}>{label}</p>
       </div>
-      <p className={styles.value}>{value}</p>
+      <p className={styles.value}>{value || "미등록"}</p>
     </div>
   )
 )
@@ -99,8 +99,8 @@ function MyPage({ className }: MyPageProps) {
           : user?.gender === "female"
             ? "여성"
             : "미등록",
-      birthday: user?.birthday
-        ? new Date(user.birthday).toLocaleDateString()
+      birthday: user?.birthDate
+        ? new Date(user.birthDate).toLocaleDateString()
         : "미등록",
       createdAt: user?.createdAt
         ? new Date(user.createdAt).toLocaleDateString()

@@ -1,8 +1,8 @@
 import React from "react"
-import { WorkoutStatsDTO, WorkoutSessionDTO } from "../../types"
+import { WorkoutStats, WorkoutSessionDTO } from "../../types"
 
 interface WorkoutProgressSectionProps {
-  workoutStats: WorkoutStatsDTO
+  workoutStats: WorkoutStats
   completedSessions: WorkoutSessionDTO[]
 }
 

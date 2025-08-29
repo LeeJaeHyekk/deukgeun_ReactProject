@@ -185,6 +185,7 @@ export function WorkoutTimerProvider({
 
     setTimerState({
       isRunning: false,
+      isPaused: false,
       elapsedTime: 0,
       totalTime: 0,
       currentSection: 0,

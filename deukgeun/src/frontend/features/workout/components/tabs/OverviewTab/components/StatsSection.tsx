@@ -1,6 +1,10 @@
 import React from "react"
-import type { DashboardData } from "../../../../../../shared/api/workoutJournalApi"
 import styles from "./StatsSection.module.css"
+
+interface DashboardData {
+  // 임시 타입 정의
+  [key: string]: any
+}
 
 interface StatsSectionProps {
   dashboardData: DashboardData

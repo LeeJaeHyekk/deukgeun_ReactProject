@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
-import {
-  WorkoutJournalApi,
-  WorkoutGoal,
-} from "../../../shared/api/workoutJournalApi"
+import { workoutApi } from "../api/workoutApi"
+import type { WorkoutGoal } from "../types"
 
 export function useWorkoutGoals() {
   const [goals, setGoals] = useState<WorkoutGoal[]>([])
@@ -16,7 +14,7 @@ export function useWorkoutGoals() {
       setError(null)
 
       console.log(`📡 [useWorkoutGoals] API 호출 중...`)
-      const data = await WorkoutJournalApi.getWorkoutGoals()
+      const data = await workoutApi.getGoals()
       console.log(`✅ [useWorkoutGoals] 운동 목표 ${data.length}개 조회 성공`)
       setGoals(data)
     } catch (err) {
@@ -49,11 +47,9 @@ export function useWorkoutGoals() {
       )
 
       console.log(
-        `📡 [useWorkoutGoals:${requestId}] WorkoutJournalApi.createWorkoutGoal 호출`
+        `📡 [useWorkoutGoals:${requestId}] workoutApi.createGoal 호출`
       )
-      const newGoal = await WorkoutJournalApi.createWorkoutGoal(
-        createData as any
-      )
+      const newGoal = await workoutApi.createGoal(createData as any)
 
       console.log(`✅ [useWorkoutGoals:${requestId}] 목표 생성 성공:`, newGoal)
       setGoals(prev => {
@@ -90,10 +86,7 @@ export function useWorkoutGoals() {
           ...goalData,
           goalId,
         } as any
-        const updatedGoal = await WorkoutJournalApi.updateWorkoutGoal(
-          goalId,
-          updateData
-        )
+        const updatedGoal = await workoutApi.updateGoal(goalId, updateData)
         setGoals(prev =>
           prev.map(goal => (goal.goal_id === goalId ? updatedGoal : goal))
         )
@@ -128,7 +121,7 @@ export function useWorkoutGoals() {
         return
       }
 
-      await WorkoutJournalApi.deleteWorkoutGoal(goalId)
+      await workoutApi.deleteGoal(goalId)
       setGoals(prev => prev.filter(goal => goal.goal_id !== goalId))
     } catch (err) {
       const errorMessage =

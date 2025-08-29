@@ -21,6 +21,9 @@ export class ExerciseSet {
   @Column({ type: "int" })
   machineId!: number
 
+  @Column({ type: "varchar", length: 255 })
+  exerciseName!: string
+
   @Column({ type: "int" })
   setNumber!: number
 
@@ -41,6 +44,12 @@ export class ExerciseSet {
 
   @Column({ type: "text", nullable: true })
   notes?: string
+
+  @Column({ type: "boolean", default: false })
+  isPersonalBest!: boolean
+
+  @Column({ type: "boolean", default: false })
+  isCompleted!: boolean
 
   @CreateDateColumn()
   createdAt!: Date

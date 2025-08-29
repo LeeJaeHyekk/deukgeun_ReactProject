@@ -340,13 +340,15 @@ export function WorkoutSectionModal({
                                 )?.color || "#9E9E9E",
                             }}
                           >
-                            {DIFFICULTY_LEVELS.find(
-                              d => d.value === machine.difficulty
-                            )?.label || machine.difficulty}
+                            {typeof machine.difficulty === 'string' 
+                              ? machine.difficulty 
+                              : machine.difficulty?.name || '알 수 없음'}
                           </span>
                         )}
                         <span className="category-badge">
-                          {machine.category}
+                          {typeof machine.category === 'string' 
+                            ? machine.category 
+                            : machine.category?.name || '알 수 없음'}
                         </span>
                       </div>
                     </div>

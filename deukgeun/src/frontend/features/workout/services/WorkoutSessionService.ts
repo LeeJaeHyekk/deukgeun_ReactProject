@@ -138,6 +138,7 @@ class WorkoutSessionService {
         success: false,
         data: null,
         error: errorMessage,
+        message: errorMessage,
       }
     }
   }
@@ -169,6 +170,7 @@ class WorkoutSessionService {
         success: false,
         data: false,
         error: errorMessage,
+        message: errorMessage,
       }
     }
   }
@@ -190,8 +192,8 @@ class WorkoutSessionService {
 
       return {
         success: true,
-        message: "Session retrieved successfully",
         data,
+        message: "Session retrieved successfully",
       }
     } catch (error) {
       logger.error("Session retrieval failed", { sessionId, error })
@@ -200,6 +202,7 @@ class WorkoutSessionService {
         success: false,
         data: null,
         error: errorMessage,
+        message: errorMessage,
       }
     }
   }
@@ -224,6 +227,7 @@ class WorkoutSessionService {
       return {
         success: true,
         data,
+        message: "User sessions retrieved successfully",
       }
     } catch (error) {
       logger.error("User sessions retrieval failed", { error })
@@ -232,6 +236,7 @@ class WorkoutSessionService {
         success: false,
         data: [],
         error: errorMessage,
+        message: errorMessage,
       }
     }
   }
@@ -279,6 +284,7 @@ class WorkoutSessionService {
         success: false,
         data: null,
         error: errorMessage,
+        message: errorMessage,
       }
     }
   }
@@ -315,6 +321,7 @@ class WorkoutSessionService {
         success: false,
         data: null,
         error: errorMessage,
+        message: errorMessage,
       }
     }
   }

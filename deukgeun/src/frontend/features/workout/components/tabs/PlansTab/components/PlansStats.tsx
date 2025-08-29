@@ -1,5 +1,5 @@
 import React from "react"
-import type { WorkoutPlan } from "../../../../../../shared/api/workoutJournalApi"
+import type { WorkoutPlan } from "../../../../../../shared/types"
 
 interface PlansStatsProps {
   plans: WorkoutPlan[]
@@ -19,7 +19,7 @@ export const PlansStats: React.FC<PlansStatsProps> = ({ plans }) => {
       <div className="stat-item">
         <span className="stat-label">활성 계획:</span>
         <span className="stat-value">
-          {plans.filter(plan => plan.isActive).length}개
+          {plans.filter(plan => plan.status === "active").length}개
         </span>
       </div>
     </div>

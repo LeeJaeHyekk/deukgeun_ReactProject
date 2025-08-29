@@ -1,5 +1,5 @@
 // ============================================================================
-// Workout Feature Utils Export
+// Workout Feature Data Export
 // ============================================================================
 
-export * from "./workoutUtils"
+export { USE_MOCK_DATA, mockPlans } from "./mockData"

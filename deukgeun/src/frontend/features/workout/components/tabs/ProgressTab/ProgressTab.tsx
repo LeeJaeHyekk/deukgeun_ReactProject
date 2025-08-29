@@ -3,7 +3,7 @@ import { useSharedState } from "../../../hooks/useWorkoutStore"
 import { ProgressStats } from "./components/ProgressStats"
 import { ProgressCharts } from "./components/ProgressCharts"
 import { useProgressData } from "./hooks/useProgressData"
-import type { WorkoutSession } from "../../../../../shared/api/workoutJournalApi"
+import type { WorkoutSession } from "../../../types"
 import styles from "./ProgressTab.module.css"
 
 interface ProgressTabProps {

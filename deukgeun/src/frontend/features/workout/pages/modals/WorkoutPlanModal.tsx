@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react"
 import { X, Plus, Save, Clock, Target, Edit, Trash2 } from "lucide-react"
-import type {
-  WorkoutPlan,
-  WorkoutPlanExercise,
-} from "../../../../../shared/types"
+import type { WorkoutPlan } from "../../../../../shared/types"
+import type { WorkoutPlanExerciseDTO } from "../../../../../shared/types/dto/workoutplanexercise.dto"
 import type { Machine } from "@dto/index"
 import { useWorkoutPlan } from "../../contexts/WorkoutPlanContext"
 import "./WorkoutPlanModal.css"
@@ -79,9 +77,10 @@ export function WorkoutPlanModal({
   // 운동 추가
   const handleAddExercise = useCallback(() => {
     logger.info("Adding exercise")
-    const newExercise: Omit<WorkoutPlanExercise, "order"> = {
+    const newExercise: Omit<WorkoutPlanExerciseDTO, "order"> = {
       id: 0,
       planId: plan?.id || 0,
+      exerciseId: 0,
       machineId: 0,
       exerciseName: "새로운 운동",
       sets: 3,
@@ -89,6 +88,8 @@ export function WorkoutPlanModal({
       weight: 0,
       restTime: 60,
       notes: "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }
     addExercise(newExercise)
     setErrors(prev => ({ ...prev, exercises: "" }))
@@ -105,7 +106,7 @@ export function WorkoutPlanModal({
 
   // 운동 정보 업데이트
   const handleUpdateExercise = useCallback(
-    (index: number, field: keyof WorkoutPlanExercise, value: any) => {
+    (index: number, field: keyof WorkoutPlanExerciseDTO, value: any) => {
       logger.debug("Exercise updated", { index, field, value })
       const updatedExercise = { ...currentPlanExercises[index], [field]: value }
       updateExercise(index, updatedExercise)
@@ -170,7 +171,7 @@ export function WorkoutPlanModal({
     } else {
       // 각 운동의 유효성 검사
       currentPlanExercises.forEach((exercise, index) => {
-        if (!exercise.exerciseName.trim()) {
+        if (!exercise.exerciseName?.trim()) {
           newErrors[`exercise_${index}_name`] = "운동 이름을 입력해주세요"
         }
         if (exercise.sets <= 0) {

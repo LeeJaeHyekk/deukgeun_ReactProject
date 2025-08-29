@@ -1,5 +1,5 @@
 // ============================================================================
-// Workout Feature API Exports
+// Workout Feature API Export
 // ============================================================================
 
 export { workoutApi, WorkoutApiError } from "./workoutApi"

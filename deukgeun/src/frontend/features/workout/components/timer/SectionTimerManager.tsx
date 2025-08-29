@@ -134,7 +134,7 @@ export function SectionTimerManager({
       sectionId: section.id,
       exerciseName: section.exerciseName,
     })
-    onStart(section.id)
+    onStart(Number(section.id))
   }, [section.id, section.exerciseName, onStart])
 
   const handlePause = useCallback(() => {
@@ -142,7 +142,7 @@ export function SectionTimerManager({
       sectionId: section.id,
       exerciseName: section.exerciseName,
     })
-    onPause(section.id)
+    onPause(Number(section.id))
   }, [section.id, section.exerciseName, onPause])
 
   const handleComplete = useCallback(() => {
@@ -150,7 +150,7 @@ export function SectionTimerManager({
       sectionId: section.id,
       exerciseName: section.exerciseName,
     })
-    onComplete(section.id)
+    onComplete(Number(section.id))
   }, [section.id, section.exerciseName, onComplete])
 
   const handleReset = useCallback(() => {
@@ -158,7 +158,7 @@ export function SectionTimerManager({
       sectionId: section.id,
       exerciseName: section.exerciseName,
     })
-    onReset(section.id)
+    onReset(Number(section.id))
   }, [section.id, section.exerciseName, onReset])
 
   return (

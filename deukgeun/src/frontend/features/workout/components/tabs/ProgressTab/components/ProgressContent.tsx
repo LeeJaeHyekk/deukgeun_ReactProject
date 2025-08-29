@@ -1,7 +1,7 @@
 import React from "react"
 import { ProgressStats } from "./ProgressStats"
 import { ProgressCharts } from "./ProgressCharts"
-import type { WorkoutSession } from "../../../../../../shared/api/workoutJournalApi"
+import type { WorkoutSession } from "../../../../types"
 import styles from "./ProgressContent.module.css"
 
 interface ProgressContentProps {
@@ -57,6 +57,7 @@ export const ProgressContent: React.FC<ProgressContentProps> = ({
           <p>시간별 운동 진행 상황</p>
         </div>
         <ProgressCharts
+          chartType="monthly"
           chartData={chartData}
           sessions={sessions}
           onViewSession={onViewSession}

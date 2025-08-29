@@ -26,8 +26,8 @@ import type {
   WorkoutPlan,
   WorkoutSession,
   WorkoutGoal,
-} from "../../../shared/types"
-import type { DashboardData } from "./types"
+  DashboardData,
+} from "./types"
 import styles from "./WorkoutPage.module.css"
 
 // 로깅 유틸리티
@@ -63,6 +63,9 @@ const logger = {
 function WorkoutPageContent() {
   const { isLoggedIn, user } = useAuthContext()
   const [isDataLoading, setIsDataLoading] = useState(true)
+  const [selectedGoalId, setSelectedGoalId] = useState<number | undefined>(
+    undefined
+  )
 
   logger.info("워크아웃 페이지 컴포넌트 렌더링", {
     isLoggedIn,
@@ -123,6 +126,11 @@ function WorkoutPageContent() {
   const handleTabChange = (tab: TabType) => {
     logger.info("탭 변경", { from: activeTab, to: tab })
     setActiveTab(tab)
+
+    // 목표 탭이 아닌 다른 탭으로 이동할 때 selectedGoalId 초기화
+    if (tab !== "goals") {
+      setSelectedGoalId(undefined)
+    }
   }
 
   // 계획 관련 핸들러
@@ -242,26 +250,38 @@ function WorkoutPageContent() {
 
   const handleGoalClick = (goalId: number) => {
     logger.debug("Goal clicked", { goalId })
-    // 목표 탭으로 이동하고 해당 목표 편집 모달 열기
+    // 목표 탭으로 이동하고 해당 목표 선택
+    setSelectedGoalId(goalId)
     handleTabChange("goals")
-    // 약간의 지연 후 편집 모달 열기 (탭 변경이 완료된 후)
-    setTimeout(() => {
-      handleEditGoal(goalId)
-    }, 100)
   }
 
   // 데이터 초기화
   useEffect(() => {
-    console.log("[WorkoutPage] useEffect 실행됨", {
+    if (!isLoggedIn) {
+      console.log("[WorkoutPage] 로그인되지 않은 상태 - 데이터 초기화 스킵")
+      return
+    }
+
+    console.log("[WorkoutPage] 로그인 상태 확인:", {
       isLoggedIn,
       userId: user?.id,
+      userEmail: user?.email,
       timestamp: new Date().toISOString(),
-      stack: new Error().stack?.split("\n").slice(1, 4).join("\n"),
+    })
+
+    // 토큰 상태 확인
+    const token = localStorage.getItem("accessToken")
+    console.log("[WorkoutPage] 토큰 상태 확인:", {
+      hasToken: !!token,
+      tokenPreview: token ? `${token.substring(0, 20)}...` : "없음",
+      timestamp: new Date().toISOString(),
     })
 
     const initializeData = async () => {
       const startTime = performance.now()
-      logger.info("데이터 초기화 시작", {
+      setIsDataLoading(true)
+
+      console.log("[WorkoutPage] 데이터 초기화 시작", {
         isLoggedIn,
         userId: user?.id,
         machinesCount: machines.length,
@@ -379,6 +399,7 @@ function WorkoutPageContent() {
           onDeletePlan={handleDeletePlan}
           onDeleteSession={handleDeleteSession}
           onDeleteGoal={handleDeleteGoal}
+          selectedGoalId={selectedGoalId}
         />
       </div>
 
@@ -412,7 +433,7 @@ function WorkoutPageContent() {
 }
 
 // 메인 컴포넌트
-export default function WorkoutPage() {
+export function WorkoutPage() {
   const { isLoggedIn } = useAuthContext()
 
   if (!isLoggedIn) {

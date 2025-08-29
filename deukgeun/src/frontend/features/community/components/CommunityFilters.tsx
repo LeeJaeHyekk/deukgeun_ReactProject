@@ -28,12 +28,12 @@ export function CommunityFilters({
     {
       id: "all",
       label: "전체",
-      count: availableCategories.reduce((sum, cat) => sum + cat.count, 0),
+      count: availableCategories.reduce((sum, cat) => sum + (cat.count || 0), 0),
     },
     ...availableCategories.map(cat => ({
       id: cat.name,
       label: cat.name,
-      count: cat.count,
+      count: cat.count || 0,
     })),
   ]
 

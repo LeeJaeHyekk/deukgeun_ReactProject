@@ -29,7 +29,6 @@ const logger = {
 export function WorkoutGoalModal() {
   const {
     modals: { goal: modalState },
-    currentGoal,
     closeGoalModal,
     createGoal,
     updateGoal,
@@ -41,12 +40,12 @@ export function WorkoutGoalModal() {
     handleInputChange,
     handleTypeChange,
     validateForm,
-  } = useGoalForm(currentGoal)
+  } = useGoalForm(modalState.data)
 
   const isOpen = modalState.isOpen
   const isEditMode = modalState.mode === "edit"
   const isViewMode = modalState.mode === "view"
-  const goal = modalState.goal
+  const goal = modalState.data
 
   logger.info("WorkoutGoalModal 렌더링", {
     isOpen,

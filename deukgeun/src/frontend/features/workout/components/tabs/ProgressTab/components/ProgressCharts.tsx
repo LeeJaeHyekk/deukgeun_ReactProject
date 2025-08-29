@@ -1,6 +1,6 @@
 import React from "react"
 import { ProgressChart } from "../../../../components/charts/ProgressChart"
-import type { WorkoutSession } from "../../../../../../shared/api/workoutJournalApi"
+import type { WorkoutSession } from "../../../../types"
 import styles from "./ProgressCharts.module.css"
 
 interface ProgressChartsProps {

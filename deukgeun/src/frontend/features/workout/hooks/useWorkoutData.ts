@@ -3,7 +3,7 @@ import {
   WorkoutPlanDTO,
   WorkoutGoalDTO,
   WorkoutSessionDTO,
-  WorkoutStatsDTO,
+  WorkoutStats,
   WorkoutReminderDTO,
 } from "../types"
 
@@ -13,7 +13,7 @@ export function useWorkoutData() {
   const [workoutSessions, setWorkoutSessions] = useState<WorkoutSessionDTO[]>(
     []
   )
-  const [workoutStats, setWorkoutStats] = useState<WorkoutStatsDTO>({
+  const [workoutStats, setWorkoutStats] = useState<WorkoutStats>({
     totalSessions: 0,
     totalDurationMinutes: 0,
     totalCaloriesBurned: 0,
@@ -316,11 +316,11 @@ export function useWorkoutData() {
           },
         }
 
-        setWorkoutPlans(mockData.plans)
-        setWorkoutGoals(mockData.goals)
-        setWorkoutSessions(mockData.sessions)
-        setWorkoutReminders(mockData.reminders)
-        setWorkoutStats(mockData.stats)
+        setWorkoutPlans(mockData.plans as any)
+        setWorkoutGoals(mockData.goals as any)
+        setWorkoutSessions(mockData.sessions as any)
+        setWorkoutReminders(mockData.reminders as any)
+        setWorkoutStats(mockData.stats as any)
       } catch (err) {
         setError(
           err instanceof Error

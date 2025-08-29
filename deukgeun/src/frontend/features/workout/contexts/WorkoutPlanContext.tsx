@@ -1,14 +1,15 @@
 import React, { createContext, useContext, useReducer, ReactNode } from "react"
-import type { WorkoutPlan, WorkoutPlanExercise } from "../../../../shared/types"
+import type { WorkoutPlan } from "../../../../shared/types"
+import type { WorkoutPlanExerciseDTO } from "../../../../shared/types/dto/workoutplanexercise.dto"
 
 // 상태 타입 정의
 interface WorkoutPlanState {
   currentPlan: WorkoutPlan | null
   draftPlan: WorkoutPlan | null
   // 현재 편집 중인 계획의 운동 목록만 관리
-  currentPlanExercises: WorkoutPlanExercise[]
+  currentPlanExercises: WorkoutPlanExerciseDTO[]
   confirmedExerciseIndices: Set<number> // 확정된 운동 인덱스들
-  finalizedExercises: WorkoutPlanExercise[] // 최종 확정된 운동 목록
+  finalizedExercises: WorkoutPlanExerciseDTO[] // 최종 확정된 운동 목록
   isEditing: boolean
   modalState: {
     isOpen: boolean
@@ -20,22 +21,22 @@ interface WorkoutPlanState {
 type WorkoutPlanAction =
   | { type: "SET_CURRENT_PLAN"; payload: WorkoutPlan | null }
   | { type: "SET_DRAFT_PLAN"; payload: WorkoutPlan | null }
-  | { type: "ADD_EXERCISE"; payload: WorkoutPlanExercise }
+  | { type: "ADD_EXERCISE"; payload: WorkoutPlanExerciseDTO }
   | {
       type: "UPDATE_EXERCISE"
-      payload: { index: number; exercise: WorkoutPlanExercise }
+      payload: { index: number; exercise: WorkoutPlanExerciseDTO }
     }
   | { type: "REMOVE_EXERCISE"; payload: number }
   | {
       type: "SAVE_EXERCISE"
-      payload: { index: number; exercise: WorkoutPlanExercise }
+      payload: { index: number; exercise: WorkoutPlanExerciseDTO }
     }
   | {
       type: "CONFIRM_EXERCISE"
-      payload: { index: number; exercise: WorkoutPlanExercise }
+      payload: { index: number; exercise: WorkoutPlanExerciseDTO }
     }
   | { type: "REMOVE_SAVED_EXERCISE"; payload: number }
-  | { type: "REORDER_EXERCISES"; payload: WorkoutPlanExercise[] }
+  | { type: "REORDER_EXERCISES"; payload: WorkoutPlanExerciseDTO[] }
   | { type: "SET_EDITING"; payload: boolean }
   | {
       type: "OPEN_MODAL"
@@ -265,21 +266,21 @@ interface WorkoutPlanContextType {
   openEditModal: (plan: WorkoutPlan) => void
   openViewModal: (plan: WorkoutPlan) => void
   closeModal: () => void
-  addExercise: (exercise: Omit<WorkoutPlanExercise, "order">) => void
-  updateExercise: (index: number, exercise: WorkoutPlanExercise) => void
+  addExercise: (exercise: Omit<WorkoutPlanExerciseDTO, "order">) => void
+  updateExercise: (index: number, exercise: WorkoutPlanExerciseDTO) => void
   removeExercise: (index: number) => void
-  saveExercise: (index: number, exercise: WorkoutPlanExercise) => void
-  confirmExercise: (index: number, exercise: WorkoutPlanExercise) => void
+  saveExercise: (index: number, exercise: WorkoutPlanExerciseDTO) => void
+  confirmExercise: (index: number, exercise: WorkoutPlanExerciseDTO) => void
   removeSavedExercise: (index: number) => void
-  reorderExercises: (exercises: WorkoutPlanExercise[]) => void
+  reorderExercises: (exercises: WorkoutPlanExerciseDTO[]) => void
   saveDraft: (planData: Partial<WorkoutPlan>) => void
   getFinalPlan: () => WorkoutPlan | null
   resetState: () => void
 }
 
-const WorkoutPlanContext = createContext<WorkoutPlanContextType | undefined>(
-  undefined
-)
+export const WorkoutPlanContext = createContext<
+  WorkoutPlanContextType | undefined
+>(undefined)
 
 // Provider 컴포넌트
 interface WorkoutPlanProviderProps {
@@ -314,8 +315,8 @@ export function WorkoutPlanProvider({ children }: WorkoutPlanProviderProps) {
     dispatch({ type: "CLOSE_MODAL" })
   }
 
-  const addExercise = (exercise: Omit<WorkoutPlanExercise, "order">) => {
-    const newExercise: WorkoutPlanExercise = {
+  const addExercise = (exercise: Omit<WorkoutPlanExerciseDTO, "order">) => {
+    const newExercise: WorkoutPlanExerciseDTO = {
       ...exercise,
       order: state.currentPlanExercises.length, // 현재 계획의 운동 개수로 순서 설정
     }
@@ -325,7 +326,7 @@ export function WorkoutPlanProvider({ children }: WorkoutPlanProviderProps) {
     dispatch({ type: "ADD_EXERCISE", payload: newExercise })
   }
 
-  const updateExercise = (index: number, exercise: WorkoutPlanExercise) => {
+  const updateExercise = (index: number, exercise: WorkoutPlanExerciseDTO) => {
     console.log(
       `✏️ [WorkoutPlanContext] updateExercise - 운동 수정: 인덱스 ${index}, 운동명: ${exercise.exerciseName}`
     )
@@ -339,11 +340,11 @@ export function WorkoutPlanProvider({ children }: WorkoutPlanProviderProps) {
     dispatch({ type: "REMOVE_EXERCISE", payload: index })
   }
 
-  const saveExercise = (index: number, exercise: WorkoutPlanExercise) => {
+  const saveExercise = (index: number, exercise: WorkoutPlanExerciseDTO) => {
     dispatch({ type: "SAVE_EXERCISE", payload: { index, exercise } })
   }
 
-  const confirmExercise = (index: number, exercise: WorkoutPlanExercise) => {
+  const confirmExercise = (index: number, exercise: WorkoutPlanExerciseDTO) => {
     dispatch({ type: "CONFIRM_EXERCISE", payload: { index, exercise } })
   }
 
@@ -351,7 +352,7 @@ export function WorkoutPlanProvider({ children }: WorkoutPlanProviderProps) {
     dispatch({ type: "REMOVE_SAVED_EXERCISE", payload: index })
   }
 
-  const reorderExercises = (exercises: WorkoutPlanExercise[]) => {
+  const reorderExercises = (exercises: WorkoutPlanExerciseDTO[]) => {
     dispatch({ type: "REORDER_EXERCISES", payload: exercises })
   }
 

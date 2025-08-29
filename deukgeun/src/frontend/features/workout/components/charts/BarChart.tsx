@@ -3,12 +3,19 @@ import styles from "./BarChart.module.css"
 
 interface BarChartProps {
   data: any[]
-  xKey: string
-  yKey: string
+  xKey?: string
+  yKey?: string
   title?: string
+  xAxisLabel?: string
+  yAxisLabel?: string
+  height?: number
+  width?: number
+  horizontal?: boolean
+  config?: any
+  className?: string
 }
 
-export function BarChart({ data, xKey, yKey, title }: BarChartProps) {
+export function BarChart({ data, xKey = "x", yKey = "y", title }: BarChartProps) {
   const [hoveredBar, setHoveredBar] = useState<number | null>(null)
 
   if (!data || data.length === 0) {

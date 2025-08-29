@@ -39,10 +39,16 @@ export function PostCard({
     <div className={styles.card} onClick={onClick}>
       <div className={styles.header}>
         <div className={styles.authorInfo}>
-          <span className={styles.author}>{post.author.nickname}</span>
-          <span className={styles.date}>{formatDate(post.createdAt)}</span>
+          <span className={styles.author}>
+            {(post.author as any)?.nickname || "익명"}
+          </span>
+          <span className={styles.date}>
+            {formatDate(post.createdAt.toString())}
+          </span>
         </div>
-        <span className={styles.category}>{post.category}</span>
+        <span className={styles.category}>
+          {(post.category as any)?.name || post.category}
+        </span>
       </div>
 
       <div className={styles.content}>
@@ -59,10 +65,10 @@ export function PostCard({
               onLikeClick()
             }}
           >
-            {isLiked ? "❤️" : "🤍"} {post.like_count || post.likes || 0}
+            {isLiked ? "❤️" : "🤍"} {(post as any).likeCount || 0}
           </button>
           <span className={styles.commentCount}>
-            💬 {post.comment_count || post.comments || 0}
+            💬 {(post as any).commentCount || 0}
           </span>
         </div>
       </div>

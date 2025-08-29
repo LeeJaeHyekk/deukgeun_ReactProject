@@ -3,7 +3,161 @@
 // ============================================================================
 
 export * from "./workout"
-export * from "../../../../shared/types/common"
+
+// 공통 타입들을 import하고 다시 export
+import type {
+  ApiResponse,
+  PaginationParams,
+  PaginatedResponse,
+  LoadingState,
+  User,
+  Machine,
+  Gym,
+  WorkoutPlan,
+  WorkoutSession,
+  WorkoutGoal,
+  WorkoutPlanExercise,
+  ExerciseSet,
+  DashboardData,
+  CreatePlanRequest,
+  UpdatePlanRequest,
+  CreateSessionRequest,
+  UpdateSessionRequest,
+  CreateGoalRequest,
+  UpdateGoalRequest,
+  CreateExerciseSetRequest,
+  UpdateExerciseSetRequest,
+} from "../../../../shared/types/common"
+
+// DTO 타입들을 import
+import type {
+  // Machine DTOs
+  MachineDTO,
+  MachineCategoryDTO,
+  DifficultyLevelDTO,
+  CreateMachineDTO,
+  UpdateMachineDTO,
+  MachineDTOResponse,
+  MachineDTOListResponse,
+  
+  // User DTOs
+  UserDTO,
+  CreateUserDTO,
+  UpdateUserDTO,
+  UserDTOResponse,
+  UserDTOListResponse,
+  
+  // WorkoutPlan DTOs
+  WorkoutPlanDTO,
+  CreateWorkoutPlanDTO,
+  UpdateWorkoutPlanDTO,
+  WorkoutPlanDTOResponse,
+  WorkoutPlanDTOListResponse,
+  
+  // WorkoutSession DTOs
+  WorkoutSessionDTO,
+  CreateWorkoutSessionDTO,
+  UpdateWorkoutSessionDTO,
+  WorkoutSessionDTOResponse,
+  WorkoutSessionDTOListResponse,
+  
+  // WorkoutGoal DTOs
+  WorkoutGoalDTO,
+  CreateWorkoutGoalDTO,
+  UpdateWorkoutGoalDTO,
+  WorkoutGoalDTOResponse,
+  WorkoutGoalDTOListResponse,
+  
+  // ExerciseSet DTOs
+  ExerciseSetDTO,
+  CreateExerciseSetDTO,
+  UpdateExerciseSetDTO,
+  ExerciseSetDTOResponse,
+  ExerciseSetDTOListResponse,
+  
+  // UserLevel DTOs
+  UserLevelDTO,
+  
+  // UserStreak DTOs
+  UserStreakDTO,
+} from "../../../../shared/types/dto"
+
+export type {
+  ApiResponse,
+  PaginationParams,
+  PaginatedResponse,
+  LoadingState,
+  User,
+  Machine,
+  Gym,
+  WorkoutPlan,
+  WorkoutSession,
+  WorkoutGoal,
+  WorkoutPlanExercise,
+  ExerciseSet,
+  DashboardData,
+  CreatePlanRequest,
+  UpdatePlanRequest,
+  CreateSessionRequest,
+  UpdateSessionRequest,
+  CreateGoalRequest,
+  UpdateGoalRequest,
+  CreateExerciseSetRequest,
+  UpdateExerciseSetRequest,
+}
+
+// DTO 타입들을 export
+export type {
+  // Machine DTOs
+  MachineDTO,
+  MachineCategoryDTO,
+  DifficultyLevelDTO,
+  CreateMachineDTO,
+  UpdateMachineDTO,
+  MachineDTOResponse,
+  MachineDTOListResponse,
+  
+  // User DTOs
+  UserDTO,
+  CreateUserDTO,
+  UpdateUserDTO,
+  UserDTOResponse,
+  UserDTOListResponse,
+  
+  // WorkoutPlan DTOs
+  WorkoutPlanDTO,
+  CreateWorkoutPlanDTO,
+  UpdateWorkoutPlanDTO,
+  WorkoutPlanDTOResponse,
+  WorkoutPlanDTOListResponse,
+  
+  // WorkoutSession DTOs
+  WorkoutSessionDTO,
+  CreateWorkoutSessionDTO,
+  UpdateWorkoutSessionDTO,
+  WorkoutSessionDTOResponse,
+  WorkoutSessionDTOListResponse,
+  
+  // WorkoutGoal DTOs
+  WorkoutGoalDTO,
+  CreateWorkoutGoalDTO,
+  UpdateWorkoutGoalDTO,
+  WorkoutGoalDTOResponse,
+  WorkoutGoalDTOListResponse,
+  
+  // ExerciseSet DTOs
+  ExerciseSetDTO,
+  CreateExerciseSetDTO,
+  UpdateExerciseSetDTO,
+  ExerciseSetDTOResponse,
+  ExerciseSetDTOListResponse,
+  
+  // UserLevel DTOs
+  UserLevelDTO,
+  
+  // UserStreak DTOs
+  UserStreakDTO,
+}
 
 // ============================================================================
 // 프론트엔드 전용 타입들 (UI/UX 관련)
@@ -59,4 +213,45 @@ export interface FilterOptions {
 export interface SortOptions {
   field: string
   direction: "asc" | "desc"
+}
+
+// 탭 네비게이션 타입
+export interface TabNavigationProps {
+  activeTab: string
+  onTabChange: (tab: string | TabType) => void
+  tabs: Array<{
+    key: string
+    label: string
+    icon?: string
+  }>
+  className?: string
+}
+
+// TabType 정의
+export type TabType = "overview" | "goals" | "plans" | "sessions" | "workoutProgress"
+
+// 운동 리마인더 타입
+export interface WorkoutReminderDTO {
+  id: number
+  userId: number
+  title: string
+  description?: string
+  scheduledTime: Date
+  isActive: boolean
+  repeatDays?: number[]
+  createdAt: Date
+  updatedAt: Date
+}
+
+// 운동 아이템 타입
+export interface ExerciseItem {
+  id: number
+  name: string
+  machineId?: number
+  sets: number
+  reps: number
+  weight?: number
+  restTime: number
+  order: number
+  isCompleted?: boolean
 }

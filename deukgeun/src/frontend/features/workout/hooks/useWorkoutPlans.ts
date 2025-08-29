@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react"
-import {
-  WorkoutJournalApi,
-  WorkoutPlan,
-} from "../../../shared/api/workoutJournalApi"
+import { workoutApi } from "../api/workoutApi"
+import type { WorkoutPlan } from "../types"
 
 export function useWorkoutPlans() {
   const [plans, setPlans] = useState<WorkoutPlan[]>([])
@@ -16,7 +14,7 @@ export function useWorkoutPlans() {
       setError(null)
 
       console.log(`📡 [useWorkoutPlans] API 호출 중...`)
-      const data = await WorkoutJournalApi.getWorkoutPlans()
+      const data = await workoutApi.getPlans()
       console.log(`✅ [useWorkoutPlans] 운동 계획 ${data.length}개 조회 성공`)
       setPlans(data)
     } catch (err) {
@@ -43,12 +41,8 @@ export function useWorkoutPlans() {
       const { userId, ...createData } = planData
       console.log(`📝 [useWorkoutPlans] API 호출용 데이터:`, createData)
 
-      console.log(
-        `📡 [useWorkoutPlans] WorkoutJournalApi.createWorkoutPlan 호출`
-      )
-      const newPlan = await WorkoutJournalApi.createWorkoutPlan(
-        createData as any
-      )
+      console.log(`📡 [useWorkoutPlans] workoutApi.createPlan 호출`)
+      const newPlan = await workoutApi.createPlan(createData as any)
       console.log(`✅ [useWorkoutPlans] API 응답 성공:`, newPlan)
 
       setPlans(prev => [newPlan, ...prev])
@@ -76,10 +70,7 @@ export function useWorkoutPlans() {
       try {
         setLoading(true)
         setError(null)
-        const updatedPlan = await WorkoutJournalApi.updateWorkoutPlan(
-          planId,
-          planData
-        )
+        const updatedPlan = await workoutApi.updatePlan(planId, planData)
         console.log(
           "📥 [useWorkoutPlans] API returned updatedPlan:",
           updatedPlan
@@ -119,7 +110,7 @@ export function useWorkoutPlans() {
     try {
       setLoading(true)
       setError(null)
-      await WorkoutJournalApi.deleteWorkoutPlan(planId)
+      await workoutApi.deletePlan(planId)
       setPlans(prev => prev.filter(plan => plan.id !== planId))
     } catch (err) {
       const errorMessage =

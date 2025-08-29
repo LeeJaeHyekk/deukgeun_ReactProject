@@ -1,7 +1,7 @@
 import React from "react"
 import { ProgressChart } from "../../../../components/charts/ProgressChart"
 import { PieChart } from "../../../../components/charts/PieChart"
-import type { DashboardData } from "../../../../../../shared/api/workoutJournalApi"
+import type { DashboardData } from "../../../../types"
 import styles from "./ChartsSection.module.css"
 
 interface ChartsSectionProps {

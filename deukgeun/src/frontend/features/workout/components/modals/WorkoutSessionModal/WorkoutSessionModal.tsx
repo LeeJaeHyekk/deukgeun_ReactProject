@@ -81,7 +81,7 @@ export function WorkoutSessionModal() {
   const isOpen = modalState.isOpen
   const isEditMode = modalState.mode === "edit"
   const isViewMode = modalState.mode === "view"
-  const session = modalState.session
+  const session = currentSession
 
   // 모달 열릴 때 초기화
   useEffect(() => {
@@ -110,10 +110,10 @@ export function WorkoutSessionModal() {
     logger.info("Saving session", { sessionData: currentSessionData })
 
     try {
-      if (isEditMode && session) {
+      if (isEditMode && session && currentSessionData) {
         await updateSession(session.id, currentSessionData)
         logger.info("Session updated successfully")
-      } else {
+      } else if (currentSessionData) {
         await createSession(currentSessionData)
         logger.info("Session created successfully")
       }
@@ -145,10 +145,14 @@ export function WorkoutSessionModal() {
         <div className="modal-body">
           {/* 타이머 표시 */}
           <TimerDisplay
-            timerState={timerState}
-            sessionState={sessionState}
-            getFormattedTime={getFormattedTime}
-            getSessionProgress={getSessionProgress}
+            seconds={timerState.seconds}
+            label="세션 타이머"
+            isRunning={timerState.isRunning}
+            onToggle={() =>
+              timerState.isRunning ? pauseTimer() : resumeTimer()
+            }
+            variant="session"
+            progress={getSessionProgress()}
           />
 
           {/* 운동 카드들 */}
@@ -157,14 +161,13 @@ export function WorkoutSessionModal() {
               <ExerciseCard
                 key={index}
                 exercise={exercise}
-                isActive={index === currentExerciseIndex}
+                isCurrent={index === currentExerciseIndex}
                 isCompleted={completedSets[index] >= exercise.setNumber}
-                onComplete={completeSet}
+                completedSets={completedSets[index] || 0}
+                totalSets={exercise.setNumber || 1}
+                onCompleteSet={() => completeSet(index)}
                 onStartRest={startRest}
-                onStopRest={stopRest}
-                restTimer={restTimer}
-                isRestTimerRunning={isRestTimerRunning}
-                machines={machines}
+                order={index + 1}
               />
             )) || (
               <div className="no-exercises-message">
@@ -176,7 +179,7 @@ export function WorkoutSessionModal() {
 
           {/* 세션 노트 */}
           <SessionNotes
-            notes={currentSessionData.notes || ""}
+            notes={currentSessionData?.notes || ""}
             onChange={notes =>
               setCurrentSessionData({ ...currentSessionData, notes })
             }
@@ -185,9 +188,14 @@ export function WorkoutSessionModal() {
 
         {/* 푸터 */}
         <ModalFooter
-          isViewMode={isViewMode}
-          onSave={handleSave}
           onClose={handleClose}
+          onComplete={handleSave}
+          isTimerRunning={timerState.isRunning}
+          onToggleTimer={() =>
+            timerState.isRunning ? pauseTimer() : resumeTimer()
+          }
+          currentExerciseIndex={currentExerciseIndex}
+          totalExercises={currentSessionData?.exerciseSets?.length || 0}
         />
       </div>
     </div>

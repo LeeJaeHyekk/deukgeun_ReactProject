@@ -194,11 +194,11 @@ const initialState: WorkoutStoreState = {
 
   // Loading States
   loading: {
-    overview: { isLoading: false, error: null },
-    plans: { isLoading: false, error: null },
-    sessions: { isLoading: false, error: null },
-    goals: { isLoading: false, error: null },
-    progress: { isLoading: false, error: null },
+    overview: { isLoading: false, error: null, lastUpdated: undefined },
+    plans: { isLoading: false, error: null, lastUpdated: undefined },
+    sessions: { isLoading: false, error: null, lastUpdated: undefined },
+    goals: { isLoading: false, error: null, lastUpdated: undefined },
+    progress: { isLoading: false, error: null, lastUpdated: undefined },
   },
 
   // UI State
@@ -218,29 +218,31 @@ const initialState: WorkoutStoreState = {
   tabStates: {
     overview: {
       selectedTimeRange: "week",
-      selectedMetrics: ["sessions", "duration"],
-      chartType: "line",
+      selectedMetric: "sessions",
     },
     plans: {
-      selectedPlanId: null,
+      selectedDifficulty: "all",
+      selectedStatus: "all",
+      searchQuery: "",
       filterStatus: "all",
       sortBy: "date_desc",
       viewMode: "grid",
-      searchQuery: "",
+      selectedPlanId: null,
     },
     sessions: {
-      selectedSessionId: null,
+      selectedStatus: "all",
+      selectedDateRange: "all",
+      searchQuery: "",
       filterStatus: "all",
-      sortBy: "date_desc",
-      activeSessionId: null,
-      viewMode: "list",
+      sortBy: "startTime",
     },
     goals: {
-      selectedGoalId: null,
-      filterType: "all",
-      sortBy: "date_desc",
+      selectedType: "all",
+      selectedStatus: "all",
+      searchQuery: "",
       showCompleted: false,
-      viewMode: "list",
+      sortBy: "progress",
+      selectedGoalId: undefined,
     },
     workoutProgress: {
       selectedTimeRange: "month",
@@ -260,6 +262,7 @@ const initialState: WorkoutStoreState = {
     globalError: null,
     timer: {
       isRunning: false,
+      isPaused: false,
       elapsedTime: 0,
       totalTime: 0,
     },
@@ -643,6 +646,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
         // ============================================================================
 
         fetchGoals: async () => {
+          console.log("🎯 [workoutStore] fetchGoals 시작")
           set(state => ({
             loading: {
               ...state.loading,
@@ -652,6 +656,10 @@ export const useWorkoutStore = create<WorkoutStore>()(
 
           try {
             const goals = await workoutApi.getGoals()
+            console.log("🎯 [workoutStore] fetchGoals 성공", {
+              goalsCount: goals.length,
+              goals,
+            })
             set(state => ({
               goals,
               loading: {
@@ -663,7 +671,9 @@ export const useWorkoutStore = create<WorkoutStore>()(
                 },
               },
             }))
+            console.log("🎯 [workoutStore] goals 상태 업데이트 완료")
           } catch (error) {
+            console.error("🎯 [workoutStore] fetchGoals 실패", error)
             set(state => ({
               loading: {
                 ...state.loading,
@@ -1012,6 +1022,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
               ...state.sharedState,
               timer: {
                 isRunning: false,
+                isPaused: false,
                 elapsedTime: 0,
                 totalTime: 0,
               },

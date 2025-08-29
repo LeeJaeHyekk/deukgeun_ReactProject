@@ -4,6 +4,8 @@ import styles from "./PieChart.module.css"
 interface PieChartData {
   name: string
   value: number
+  label?: string
+  color?: string
 }
 
 interface PieChartProps {
@@ -12,6 +14,8 @@ interface PieChartProps {
   height?: number
   width?: number
   showLegend?: boolean
+  config?: any
+  className?: string
 }
 
 export function PieChart({

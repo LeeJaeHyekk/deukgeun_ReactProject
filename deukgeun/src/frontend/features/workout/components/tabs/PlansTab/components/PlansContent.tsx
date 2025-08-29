@@ -1,6 +1,5 @@
 import React from "react"
-import { WorkoutPlanCard } from "../../../../components/cards/WorkoutPlanCard"
-import type { WorkoutPlan } from "../../../../../../shared/api/workoutJournalApi"
+import type { WorkoutPlan } from "../../../../../../shared/types"
 import styles from "./PlansContent.module.css"
 
 interface PlansContentProps {

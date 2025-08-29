@@ -534,7 +534,7 @@ export function WorkoutSessionModal({
     setRestTimer(seconds)
     setIsRestTimerRunning(true)
     // 글로벌 컨텍스트에도 휴식 타이머 시작
-    startGlobalRestTimer(seconds)
+    startRestTimer(seconds)
   }
 
   // 세트 완료
@@ -546,7 +546,7 @@ export function WorkoutSessionModal({
     })
 
     // 글로벌 컨텍스트에 세트 완료 알림
-    completeGlobalSet(currentExerciseIndex)
+    completeGlobalSet(currentExerciseIndex, currentSetIndex)
 
     // 완료된 세트 수 업데이트
     setCompletedSets(prev => ({

@@ -8,6 +8,7 @@ interface SessionData {
   plan?: any
   exercises?: any[]
   exerciseSets?: any[]
+  notes?: string
 }
 
 export function useSessionState() {
@@ -157,6 +158,7 @@ export function useSessionState() {
     setCurrentExerciseIndex,
     setCurrentSetIndex,
     initializeSession,
+    updateSessionData,
     updateSession,
     completeSet,
     startRest,

@@ -1,8 +1,8 @@
 import React, { useMemo } from "react"
 import type {
   Machine,
-  MachineCategoryDTO,
-  DifficultyLevelDTO,
+  MachineCategory,
+  DifficultyLevel,
 } from "../../../shared/types"
 import {
   findMatchingImage,
@@ -21,7 +21,7 @@ export const MachineModal: React.FC<MachineModalProps> = React.memo(
   ({ machine, isOpen, onClose }) => {
     // Union 타입을 처리하는 헬퍼 함수들
     const getCategoryDisplay = (
-      category: string | MachineCategoryDTO
+      category: string | MachineCategory
     ): string => {
       if (typeof category === "string") {
         return category
@@ -30,7 +30,7 @@ export const MachineModal: React.FC<MachineModalProps> = React.memo(
     }
 
     const getDifficultyDisplay = (
-      difficulty: string | DifficultyLevelDTO
+      difficulty: string | DifficultyLevel
     ): string => {
       if (typeof difficulty === "string") {
         return difficulty

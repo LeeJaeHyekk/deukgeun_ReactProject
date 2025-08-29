@@ -54,7 +54,8 @@ export interface SuccessResponse<T = unknown> {
 // 공통 상태 타입
 export interface LoadingState {
   isLoading: boolean
-  error?: string
+  error?: string | null
+  lastUpdated?: Date
 }
 
 // ID 타입
@@ -129,10 +130,14 @@ export interface WorkoutPlanExercise {
   machineId?: number
   exerciseName: string
   exerciseOrder: number
+  order?: number // 프론트엔드 호환성을 위한 별칭
   sets: number
   repsRange: { min: number; max: number }
+  reps?: number // 단일 값으로도 사용 가능
   weightRange?: { min: number; max: number }
+  weight?: number // 단일 값으로도 사용 가능
   restSeconds: number
+  restTime?: number // 프론트엔드 호환성을 위한 별칭
   notes?: string
   isCompleted?: boolean
   progress?: number
@@ -150,11 +155,13 @@ export interface WorkoutSession {
   startTime: Date
   endTime?: Date
   totalDurationMinutes?: number
+  duration?: number // 프론트엔드 호환성을 위한 별칭
   moodRating?: number
   energyLevel?: number
   notes?: string
   status: "in_progress" | "completed" | "paused" | "cancelled"
   exerciseSets: ExerciseSet[]
+  plan?: WorkoutPlan
   createdAt: Date
   updatedAt: Date
 }
@@ -180,6 +187,7 @@ export interface ExerciseSet {
 // 운동 목표 관련 타입
 export interface WorkoutGoal {
   id: number
+  goal_id?: number // 호환성을 위한 별칭
   userId: number
   title: string
   description?: string
@@ -214,6 +222,68 @@ export interface Gym {
   address: string
   latitude: number
   longitude: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+// ============================================================================
+// Workout Core Types
+// ============================================================================
+
+// 운동 계획 타입
+export interface WorkoutPlan {
+  id: number
+  userId: number
+  name: string
+  description?: string
+  difficulty: "beginner" | "intermediate" | "advanced"
+  estimatedDurationMinutes: number
+  targetMuscleGroups?: string[]
+  isTemplate: boolean
+  isPublic: boolean
+  exercises: WorkoutPlanExercise[]
+  status: "active" | "archived" | "draft"
+  goals?: WorkoutGoal[]
+  sessions?: WorkoutSession[]
+  createdAt: Date
+  updatedAt: Date
+}
+
+// 운동 계획 운동 타입
+export interface WorkoutPlanExercise {
+  id: number
+  planId: number
+  machineId?: number
+  exerciseId?: number // 프론트엔드 호환성을 위한 속성
+  exerciseName: string
+  exerciseOrder: number
+  sets: number
+  repsRange: { min: number; max: number }
+  weightRange?: { min: number; max: number }
+  restSeconds: number
+  notes?: string
+  isCompleted?: boolean
+  progress?: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+// 운동 세션 타입
+export interface WorkoutSession {
+  id: number
+  userId: number
+  planId?: number
+  gymId?: number
+  name: string
+  startTime: Date
+  endTime?: Date
+  totalDurationMinutes?: number
+  moodRating?: number
+  energyLevel?: number
+  notes?: string
+  status: "in_progress" | "completed" | "paused" | "cancelled"
+  exerciseSets: ExerciseSet[]
+  plan?: WorkoutPlan
   createdAt: Date
   updatedAt: Date
 }

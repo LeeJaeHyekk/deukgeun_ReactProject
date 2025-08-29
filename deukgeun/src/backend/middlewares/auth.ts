@@ -38,9 +38,23 @@ export const authMiddleware = (
       token ? `${token.substring(0, 20)}...` : "없음"
     )
 
+    // 개발 환경에서 토큰이 없어도 통과
     if (!token) {
-      console.log(`🔐 [AuthMiddleware:${requestId}] 토큰 없음 - 401 반환`)
-      return res.status(401).json({ message: "액세스 토큰이 필요합니다." })
+      if (process.env.NODE_ENV === "development") {
+        console.log(
+          `🔐 [AuthMiddleware:${requestId}] 개발 환경 - 토큰 없음이지만 통과`
+        )
+        // 개발 환경에서는 더미 사용자 정보 설정
+        req.user = {
+          userId: 1,
+          role: "user",
+        }
+        next()
+        return
+      } else {
+        console.log(`🔐 [AuthMiddleware:${requestId}] 토큰 없음 - 401 반환`)
+        return res.status(401).json({ message: "액세스 토큰이 필요합니다." })
+      }
     }
 
     console.log(`🔐 [AuthMiddleware:${requestId}] 토큰 검증 시작`)

@@ -4,10 +4,10 @@ import { BarChart } from "../charts/BarChart"
 import { PieChart } from "../charts/PieChart"
 import { StreakDisplay } from "../charts/StreakDisplay"
 import { GoalComparison } from "../charts/GoalComparison"
-import { WorkoutStatsDTO, WorkoutGoalDTO, WorkoutSessionDTO } from "../../types"
+import { WorkoutStats, WorkoutGoalDTO, WorkoutSessionDTO } from "../../types"
 
 interface WorkoutAnalyticsSectionProps {
-  workoutStats: WorkoutStatsDTO
+  workoutStats: WorkoutStats
   workoutGoals: WorkoutGoalDTO[]
   workoutSessions: WorkoutSessionDTO[]
 }
@@ -44,11 +44,11 @@ export function WorkoutAnalyticsSection({
   // 운동 기구 사용률 데이터
   const generateMachineUsageData = () => {
     return [
-      { label: "벤치프레스", value: 35, color: "#3b82f6" },
-      { label: "스쿼트랙", value: 25, color: "#10b981" },
-      { label: "레그프레스", value: 20, color: "#f59e0b" },
-      { label: "덤벨", value: 15, color: "#ef4444" },
-      { label: "기타", value: 5, color: "#8b5cf6" },
+      { name: "벤치프레스", value: 35, color: "#3b82f6" },
+      { name: "스쿼트랙", value: 25, color: "#10b981" },
+      { name: "레그프레스", value: 20, color: "#f59e0b" },
+      { name: "덤벨", value: 15, color: "#ef4444" },
+      { name: "기타", value: 5, color: "#8b5cf6" },
     ]
   }
 
@@ -66,9 +66,10 @@ export function WorkoutAnalyticsSection({
   // 연속 운동 데이터
   const generateStreakData = () => ({
     currentStreak: workoutStats.currentStreak,
-    longestStreak: workoutStats.longestStreak,
-    startDate: workoutStats.startDate,
-    lastWorkoutDate: workoutStats.lastWorkoutDate,
+    longestStreak: workoutStats.longestStreak || 0,
+    startDate:
+      workoutStats.startDate?.toISOString() || new Date().toISOString(),
+    lastWorkoutDate: workoutStats.lastWorkoutDate?.toISOString(),
     weeklyGoal: 3,
     weeklyProgress: Math.floor(Math.random() * 4), // 임시 데이터
   })
@@ -196,11 +197,15 @@ export function WorkoutAnalyticsSection({
               <div className="stat-label">총 운동 세션</div>
             </div>
             <div className="stat-item">
-              <div className="stat-number">{workoutStats.totalDurationMinutes}</div>
+              <div className="stat-number">
+                {workoutStats.totalDurationMinutes}
+              </div>
               <div className="stat-label">총 운동 시간 (분)</div>
             </div>
             <div className="stat-item">
-              <div className="stat-number">{workoutStats.totalCaloriesBurned}</div>
+              <div className="stat-number">
+                {workoutStats.totalCaloriesBurned}
+              </div>
               <div className="stat-label">총 소모 칼로리</div>
             </div>
             <div className="stat-item">
@@ -213,7 +218,8 @@ export function WorkoutAnalyticsSection({
             </div>
             <div className="stat-item">
               <div className="stat-number">
-                {workoutStats.favoriteMachines.length > 0
+                {workoutStats.favoriteMachines &&
+                workoutStats.favoriteMachines.length > 0
                   ? workoutStats.favoriteMachines[0]
                   : "없음"}
               </div>

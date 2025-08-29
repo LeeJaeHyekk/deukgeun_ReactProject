@@ -3,6 +3,7 @@ import {
   useTabState,
   useDashboardData,
   useSharedState,
+  useWorkoutStoreData,
 } from "../../../hooks/useWorkoutStore"
 import type { DashboardData } from "../../../types/workout"
 import { StatsSection } from "./components/StatsSection"
@@ -58,6 +59,9 @@ export function OverviewTab({
   // 대시보드 데이터 훅
   const { dashboardData: storeDashboardData, isLoading: storeIsLoading } =
     useDashboardData()
+
+  // 목표 데이터 훅
+  const { goals } = useWorkoutStoreData()
 
   // 공유 상태 훅
   const { sharedState } = useSharedState()
@@ -174,6 +178,7 @@ export function OverviewTab({
         <div className={styles.overviewGoalsSection}>
           <GoalsProgressSection
             dashboardData={finalDashboardData}
+            goals={goals}
             onGoalClick={onGoalClick}
           />
         </div>

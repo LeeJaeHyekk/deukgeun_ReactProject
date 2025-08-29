@@ -1,7 +1,8 @@
 import React from "react"
 import { useTabState } from "../../../hooks/useWorkoutStore"
 import { useSharedState } from "../../../hooks/useWorkoutStore"
-import type { WorkoutPlan } from "../../../../../shared/api/workoutJournalApi"
+import type { WorkoutPlan } from "../../../../../../shared/types/common"
+import type { PlansTabState } from "../../../types"
 import { PlansContent } from "./components/PlansContent"
 import { PlansStats } from "./components/PlansStats"
 import { usePlansActions } from "./hooks/usePlansActions"
@@ -46,22 +47,22 @@ export function PlansTab({
 }: PlansTabProps) {
   // 탭별 상태 관리
   const { tabState, updateTabState } = useTabState("plans")
+  const plansTabState = tabState as PlansTabState
 
   // 공유 상태 훅
   const { sharedState } = useSharedState()
 
   const { handleDeletePlan } = usePlansActions(() => {
-    // onDeletePlan은 planId를 받지만, usePlansActions는 매개변수 없는 함수를 기대함
-    // 실제 삭제 후 콜백만 호출하면 되므로 빈 함수로 래핑
+    // 삭제 완료 후 추가 작업이 필요하면 여기에 추가
   })
 
   logger.info("PlansTab 렌더링", {
     plansCount: plans.length,
     isLoading,
-    filterStatus: tabState.filterStatus,
-    sortBy: tabState.sortBy,
-    viewMode: tabState.viewMode,
-    selectedPlanId: tabState.selectedPlanId,
+    filterStatus: plansTabState.filterStatus,
+    sortBy: plansTabState.sortBy,
+    viewMode: plansTabState.viewMode,
+    selectedPlanId: plansTabState.selectedPlanId,
   })
 
   // 필터링된 계획 목록
@@ -69,7 +70,7 @@ export function PlansTab({
     let filtered = plans
 
     // 상태별 필터링
-    if (tabState.filterStatus !== "all") {
+    if (plansTabState.filterStatus !== "all") {
       filtered = filtered.filter(plan => {
         // 여기에 필터링 로직 추가
         return true
@@ -78,7 +79,7 @@ export function PlansTab({
 
     // 정렬 (최신순으로 기본 정렬)
     filtered.sort((a, b) => {
-      switch (tabState.sortBy) {
+      switch (plansTabState.sortBy) {
         case "createdAt":
           return (
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -104,9 +105,9 @@ export function PlansTab({
     })
 
     return filtered
-  }, [plans, tabState.filterStatus, tabState.sortBy])
+  }, [plans, plansTabState.filterStatus, plansTabState.sortBy])
 
-  const handleSortChange = (sortBy: string) => {
+  const handleSortChange = (sortBy: "createdAt" | "name" | "difficulty") => {
     updateTabState({ sortBy })
   }
 
@@ -147,19 +148,19 @@ export function PlansTab({
         <div className={styles.controlSection}>
           <div className={styles.sortButtons}>
             <button
-              className={`${styles.sortBtn} ${tabState.sortBy === "createdAt" ? styles.active : ""}`}
+              className={`${styles.sortBtn} ${plansTabState.sortBy === "createdAt" ? styles.active : ""}`}
               onClick={() => handleSortChange("createdAt")}
             >
               최신순
             </button>
             <button
-              className={`${styles.sortBtn} ${tabState.sortBy === "name" ? styles.active : ""}`}
+              className={`${styles.sortBtn} ${plansTabState.sortBy === "name" ? styles.active : ""}`}
               onClick={() => handleSortChange("name")}
             >
               이름순
             </button>
             <button
-              className={`${styles.sortBtn} ${tabState.sortBy === "difficulty" ? styles.active : ""}`}
+              className={`${styles.sortBtn} ${plansTabState.sortBy === "difficulty" ? styles.active : ""}`}
               onClick={() => handleSortChange("difficulty")}
             >
               난이도순
@@ -167,13 +168,13 @@ export function PlansTab({
           </div>
           <div className={styles.viewModeToggle}>
             <button
-              className={`${styles.viewModeBtn} ${tabState.viewMode === "grid" ? styles.active : ""}`}
+              className={`${styles.viewModeBtn} ${plansTabState.viewMode === "grid" ? styles.active : ""}`}
               onClick={() => handleViewModeChange("grid")}
             >
               그리드
             </button>
             <button
-              className={`${styles.viewModeBtn} ${tabState.viewMode === "list" ? styles.active : ""}`}
+              className={`${styles.viewModeBtn} ${plansTabState.viewMode === "list" ? styles.active : ""}`}
               onClick={() => handleViewModeChange("list")}
             >
               리스트
@@ -209,7 +210,7 @@ export function PlansTab({
           </div>
           <PlansContent
             plans={filteredPlans}
-            viewMode={tabState.viewMode}
+            viewMode={plansTabState.viewMode}
             onEditPlan={onEditPlan}
             onStartSession={onStartSession}
             onDeletePlan={handleDeletePlan}

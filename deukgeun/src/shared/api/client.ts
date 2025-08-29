@@ -192,11 +192,25 @@ class ApiClient {
     // localStorage에서 토큰 가져오기
     const token = localStorage.getItem("accessToken")
 
+    console.log("🔐 [ApiClient] 토큰 확인:", {
+      hasToken: !!token,
+      tokenPreview: token ? `${token.substring(0, 20)}...` : "없음",
+      timestamp: new Date().toISOString(),
+    })
+
     const headers: HeadersInit = {
       ...this.defaultHeaders,
       ...(token && { Authorization: `Bearer ${token}` }),
       ...customHeaders,
     }
+
+    console.log("🔐 [ApiClient] 생성된 헤더:", {
+      hasAuthorization: !!headers.Authorization,
+      authorizationPreview: headers.Authorization
+        ? `${headers.Authorization.toString().substring(0, 30)}...`
+        : "없음",
+      allHeaders: Object.keys(headers),
+    })
 
     return headers
   }

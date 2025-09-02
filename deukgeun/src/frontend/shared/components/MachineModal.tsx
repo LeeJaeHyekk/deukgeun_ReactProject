@@ -3,6 +3,8 @@ import type {
   Machine,
   MachineCategory,
   DifficultyLevel,
+  MachineCategoryDTO,
+  DifficultyLevelDTO,
 } from "../../../shared/types"
 import {
   findMatchingImage,
@@ -20,22 +22,26 @@ interface MachineModalProps {
 export const MachineModal: React.FC<MachineModalProps> = React.memo(
   ({ machine, isOpen, onClose }) => {
     // Union 타입을 처리하는 헬퍼 함수들
-    const getCategoryDisplay = (
-      category: string | MachineCategory
-    ): string => {
+    const getCategoryDisplay = (category: string | MachineCategory | MachineCategoryDTO): string => {
       if (typeof category === "string") {
         return category
       }
-      return category.name
+      if (typeof category === "object" && category.name) {
+        return category.name
+      }
+      return "기타"
     }
 
     const getDifficultyDisplay = (
-      difficulty: string | DifficultyLevel
+      difficulty: string | DifficultyLevel | DifficultyLevelDTO
     ): string => {
       if (typeof difficulty === "string") {
         return difficulty
       }
-      return difficulty.name
+      if (typeof difficulty === "object" && difficulty.name) {
+        return difficulty.name
+      }
+      return "초급"
     }
 
     const getDifficultyColor = (difficulty?: string) => {
@@ -55,18 +61,24 @@ export const MachineModal: React.FC<MachineModalProps> = React.memo(
 
     const getCategoryColor = (category: string) => {
       switch (category) {
-        case "strength":
+        case "chest":
           return "#2196F3"
-        case "cardio":
+        case "back":
           return "#4CAF50"
-        case "flexibility":
+        case "legs":
           return "#9C27B0"
-        case "balance":
+        case "shoulders":
           return "#FF9800"
-        case "functional":
+        case "arms":
           return "#607D8B"
-        case "rehabilitation":
+        case "core":
           return "#795548"
+        case "cardio":
+          return "#00BCD4"
+        case "flexibility":
+          return "#E91E63"
+        case "functional":
+          return "#3F51B5"
         default:
           return "#9E9E9E"
       }

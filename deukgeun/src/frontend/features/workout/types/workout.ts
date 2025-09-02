@@ -61,14 +61,17 @@ export interface WorkoutStats {
   totalDuration: number
   totalDurationMinutes?: number // 호환성을 위한 별칭
   totalCaloriesBurned?: number // 호환성을 위한 별칭
+  totalCalories?: number // WorkoutStatsDTO 호환성
   averageDuration?: number // 호환성을 위한 별칭
+  averageWorkoutDuration?: number // WorkoutStatsDTO 호환성
   completionRate?: number // 호환성을 위한 별칭
   weeklyProgress?: any[] // 호환성을 위한 별칭
   monthlyProgress?: any[] // 호환성을 위한 별칭
   longestStreak?: number // 호환성을 위한 별칭
   currentStreak: number
+  workoutStreak?: number // WorkoutStatsDTO 호환성
   favoriteMachines?: string[] // 호환성을 위한 별칭
-  favoriteExercises?: string[] // 호환성을 위한 별칭
+  favoriteExercises?: Array<{ name: string; count: number }> // WorkoutStatsDTO 호환성
   startDate?: Date // 호환성을 위한 별칭
   lastWorkoutDate?: Date
   dailyStats?: DailyStats[] // 호환성을 위한 별칭
@@ -78,6 +81,7 @@ export interface WorkoutStats {
   averageEnergy: number
   completedGoals: number
   activeGoals: number
+  totalGoals?: number // WorkoutStatsDTO 호환성
   totalExp: number
   level: number
 }
@@ -330,6 +334,8 @@ export interface TimerState {
   isPaused: boolean
   elapsedTime: number
   totalTime: number
+  seconds: number
+  totalSeconds: number
   startTime?: Date
   pauseTime?: Date
   sessionId?: number

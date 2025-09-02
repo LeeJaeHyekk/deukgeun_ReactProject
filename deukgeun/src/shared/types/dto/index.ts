@@ -68,18 +68,11 @@ export type CreateMachineDTO = import("./machine.dto").CreateMachineDTO
 export type UpdateMachineDTO = import("./machine.dto").UpdateMachineDTO
 
 // Machine 관련 추가 타입들
-export type MachineCategory = import("./machine.dto").MachineCategoryDTO
-export type DifficultyLevel = import("./machine.dto").DifficultyLevelDTO
+export type MachineCategory = import("./machine.dto").MachineCategory
+export type DifficultyLevel = import("./machine.dto").DifficultyLevel
 export type MachineCategoryDTO = import("./machine.dto").MachineCategoryDTO
 export type DifficultyLevelDTO = import("./machine.dto").DifficultyLevelDTO
-
-// Machine Filter Query 타입
-export interface MachineFilterQuery {
-  category?: string
-  difficulty?: string
-  target?: string
-  search?: string
-}
+export type MachineFilterQuery = import("./machine.dto").MachineFilterQuery
 
 // User 타입 별칭
 export type User = import("./user.dto").UserDTO
@@ -93,7 +86,9 @@ export type UpdateUserDTO = import("./user.dto").UpdateUserDTO
 
 // Post 타입 별칭
 export type Post = import("./post.dto").PostDTO
+export type PostCategory = import("./post.dto").PostCategory
 export type PostCategoryInfo = import("./post.dto").PostCategoryInfo
+export type PostAuthor = import("./post.dto").PostAuthor
 export type CreatePostRequest = import("./post.dto").CreatePostDTO
 export type UpdatePostRequest = import("./post.dto").UpdatePostDTO
 export type PostResponse = import("./post.dto").PostDTOResponse
@@ -479,4 +474,75 @@ export interface SessionCardProps {
   onEdit?: (session: import("./workoutsession.dto").WorkoutSessionDTO) => void
   onDelete?: (sessionId: number) => void
   className?: string
+}
+
+// ============================================================================
+// 추가 타입들
+// ============================================================================
+
+// GeolocationCoordinates 타입
+export interface GeolocationCoordinates {
+  latitude: number
+  longitude: number
+  accuracy?: number
+  altitude?: number | null
+  altitudeAccuracy?: number | null
+  heading?: number | null
+  speed?: number | null
+}
+
+// Headers 타입
+export interface Headers {
+  [key: string]: string | string[] | undefined
+}
+
+// PaginatedResponse 타입
+export interface PaginatedResponse<T> {
+  data: T[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+// Test Utils 타입들
+export interface MockGeolocation {
+  getCurrentPosition: (
+    success: PositionCallback,
+    error?: PositionErrorCallback,
+    options?: PositionOptions
+  ) => void
+  watchPosition: (
+    success: PositionCallback,
+    error?: PositionErrorCallback,
+    options?: PositionOptions
+  ) => number
+  clearWatch: (id: number) => void
+}
+
+export interface PositionCallback {
+  (position: GeolocationPosition): void
+}
+
+export interface PositionErrorCallback {
+  (error: GeolocationPositionError): void
+}
+
+export interface PositionOptions {
+  enableHighAccuracy?: boolean
+  timeout?: number
+  maximumAge?: number
+}
+
+export interface GeolocationPosition {
+  coords: GeolocationCoordinates
+  timestamp: number
+}
+
+export interface GeolocationPositionError {
+  code: number
+  message: string
+  PERMISSION_DENIED: number
+  POSITION_UNAVAILABLE: number
+  TIMEOUT: number
 }

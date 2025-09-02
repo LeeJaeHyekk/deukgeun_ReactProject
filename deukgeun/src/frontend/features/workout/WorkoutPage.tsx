@@ -313,11 +313,11 @@ function WorkoutPageContent() {
     if (!timer.isRunning) return
 
     const interval = setInterval(() => {
-      updateTimer(timer.elapsedTime + 1000)
+      updateTimer(timer.seconds + 1000)
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [timer.isRunning, timer.elapsedTime, updateTimer])
+  }, [timer.isRunning, timer.seconds, updateTimer])
 
   // 에러 처리
   if (sharedState.globalError) {

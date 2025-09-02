@@ -117,7 +117,10 @@ export function GoalProgressBar({
         {onEdit && (
           <button
             className="action-button edit-button"
-            onClick={onEdit}
+            onClick={e => {
+              e.stopPropagation()
+              onEdit(goal)
+            }}
             aria-label="목표 수정"
           >
             수정
@@ -126,7 +129,10 @@ export function GoalProgressBar({
         {onDelete && (
           <button
             className="action-button delete-button"
-            onClick={onDelete}
+            onClick={e => {
+              e.stopPropagation()
+              onDelete(goal.id)
+            }}
             aria-label="목표 삭제"
           >
             삭제

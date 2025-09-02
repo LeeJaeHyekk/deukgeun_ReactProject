@@ -114,7 +114,7 @@ export function WorkoutPlanModal() {
 
           <PlanExercises
             exercises={formData.exercises as any}
-            onExerciseChange={updateExercise}
+            onExerciseChange={updateExercise as any}
             onExerciseRemove={removeExercise}
             onExerciseAdd={addExercise}
             readOnly={isViewMode}

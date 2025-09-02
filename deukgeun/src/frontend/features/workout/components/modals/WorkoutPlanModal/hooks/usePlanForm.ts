@@ -21,12 +21,11 @@ interface FormExercise {
 interface FormData {
   name: string
   description?: string
-  difficulty?: string
-  estimatedDurationMinutes?: number
+  difficulty: "beginner" | "intermediate" | "advanced"
+  estimatedDurationMinutes: number
   targetMuscleGroups?: string[]
   isTemplate?: boolean
   exercises: FormExercise[]
-  goals?: any[]
 }
 
 export function usePlanForm(currentPlan: WorkoutPlan | null) {
@@ -128,14 +127,17 @@ export function usePlanForm(currentPlan: WorkoutPlan | null) {
   // CreatePlanRequest로 변환하는 함수
   const getCreatePlanRequest = useCallback((): CreatePlanRequest => {
     return {
-      name: formData.name,
-      description: formData.description,
-      difficulty: formData.difficulty,
-      estimatedDurationMinutes: formData.estimatedDurationMinutes,
-      targetMuscleGroups: formData.targetMuscleGroups,
-      isTemplate: formData.isTemplate,
+      name: formData.name || "",
+      description: formData.description || "",
+      difficulty: (formData.difficulty || "beginner") as
+        | "beginner"
+        | "intermediate"
+        | "advanced",
+      estimatedDurationMinutes: formData.estimatedDurationMinutes || 60,
+      targetMuscleGroups: formData.targetMuscleGroups || [],
+      isTemplate: formData.isTemplate || false,
       exercises: formData.exercises as WorkoutPlanExercise[], // 타입 캐스팅
-      goals: formData.goals,
+
     }
   }, [formData])
 

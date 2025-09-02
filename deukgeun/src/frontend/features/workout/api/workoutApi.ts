@@ -124,10 +124,10 @@ export const workoutApi = {
         API_ENDPOINTS.PLANS,
         queryParams
       )
+      const data = response.data as unknown as WorkoutPlan[]
       console.log("✅ [workoutApi] getPlans 성공", {
-        count: response.data?.length,
+        count: data?.length || 0,
       })
-      const data = response.data
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }
@@ -149,11 +149,11 @@ export const workoutApi = {
         API_ENDPOINTS.PLAN(planId)
       )
       console.log("✅ [workoutApi] getPlan 성공", { planId })
-      const data = response.data
+      const data = response.data?.data || response.data
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }
-      return data
+      return data as WorkoutPlan
     } catch (error) {
       console.error("❌ [workoutApi] getPlan 실패", { planId, error })
       handleApiError(error)
@@ -171,14 +171,14 @@ export const workoutApi = {
         API_ENDPOINTS.PLANS,
         planData
       )
+      const data = response.data?.data || response.data
       console.log("✅ [workoutApi] createPlan 성공", {
-        planId: response.data?.id,
+        planId: (data as any)?.id,
       })
-      const data = response.data
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }
-      return data
+      return data as WorkoutPlan
     } catch (error) {
       console.error("❌ [workoutApi] createPlan 실패", { planData, error })
       handleApiError(error)
@@ -199,12 +199,12 @@ export const workoutApi = {
         API_ENDPOINTS.PLAN(planId),
         planData
       )
+      const data = response.data?.data || response.data
       console.log("✅ [workoutApi] updatePlan 성공", { planId })
-      const data = response.data
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }
-      return data
+      return data as WorkoutPlan
     } catch (error) {
       console.error("❌ [workoutApi] updatePlan 실패", {
         planId,
@@ -762,14 +762,14 @@ export const workoutApi = {
         API_ENDPOINTS.GOALS,
         goalData
       )
+      const data = response.data?.data || response.data
       console.log("✅ [workoutApi] createGoal 성공", {
-        goalId: response.data?.id,
+        goalId: (data as any)?.id,
       })
-      const data = response.data
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }
-      return data
+      return data as WorkoutGoal
     } catch (error) {
       console.error("❌ [workoutApi] createGoal 실패", { goalData, error })
       handleApiError(error)
@@ -790,12 +790,12 @@ export const workoutApi = {
         API_ENDPOINTS.GOAL(goalId),
         goalData
       )
+      const data = response.data?.data || response.data
       console.log("✅ [workoutApi] updateGoal 성공", { goalId })
-      const data = response.data
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }
-      return data
+      return data as WorkoutGoal
     } catch (error) {
       console.error("❌ [workoutApi] updateGoal 실패", {
         goalId,
@@ -835,12 +835,12 @@ export const workoutApi = {
       const response = await apiClient.get<ApiResponse<DashboardData>>(
         API_ENDPOINTS.DASHBOARD
       )
+      const data = response.data?.data || response.data
       console.log("✅ [workoutApi] getDashboardData 성공")
-      const data = response.data
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }
-      return data
+      return data as DashboardData
     } catch (error) {
       console.error("❌ [workoutApi] getDashboardData 실패", error)
       handleApiError(error)

@@ -96,43 +96,35 @@ export function TabContent({
       )}
 
       {activeTab === "goals" && (
-        <GoalsTab
-          goals={goals as any}
-          isLoading={goalsLoading}
-          onCreateGoal={onCreateGoal}
-          onEditGoal={onEditGoal}
-          onDeleteGoal={onDeleteGoal}
-          selectedGoalId={selectedGoalId}
-        />
+        <div className={styles.developmentMessage}>
+          <h3>🚧 개발 중인 기능입니다</h3>
+          <p>운동 목표 관리 기능은 현재 개발 중입니다.</p>
+          <p>곧 만나보실 수 있습니다!</p>
+        </div>
       )}
 
       {activeTab === "plans" && (
-        <PlansTab
-          plans={plans}
-          isLoading={plansLoading}
-          onCreatePlan={onCreatePlan}
-          onEditPlan={onEditPlan}
-          onStartSession={onStartSession}
-          onDeletePlan={onDeletePlan}
-        />
+        <div className={styles.developmentMessage}>
+          <h3>🚧 개발 중인 기능입니다</h3>
+          <p>운동 계획 관리 기능은 현재 개발 중입니다.</p>
+          <p>곧 만나보실 수 있습니다!</p>
+        </div>
       )}
 
       {activeTab === "sessions" && (
-        <SessionsTab
-          sessions={sessions as any}
-          isLoading={sessionsLoading}
-          onEditSession={onEditSession}
-          onViewSession={onViewSession}
-          onDeleteSession={onDeleteSession}
-        />
+        <div className={styles.developmentMessage}>
+          <h3>🚧 개발 중인 기능입니다</h3>
+          <p>운동 세션 관리 기능은 현재 개발 중입니다.</p>
+          <p>곧 만나보실 수 있습니다!</p>
+        </div>
       )}
 
       {activeTab === "workoutProgress" && (
-        <ProgressTab
-          sessions={sessions as any}
-          onViewSession={onViewSession}
-          isLoading={sessionsLoading}
-        />
+        <div className={styles.developmentMessage}>
+          <h3>🚧 개발 중인 기능입니다</h3>
+          <p>운동 진행상황 시각화 기능은 현재 개발 중입니다.</p>
+          <p>곧 만나보실 수 있습니다!</p>
+        </div>
       )}
     </div>
   )

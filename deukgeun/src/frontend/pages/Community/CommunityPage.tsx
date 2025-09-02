@@ -208,7 +208,11 @@ export default function CommunityPage() {
               setSelectedPost(null)
             }}
             onSubmit={handleCreatePost}
-            categories={availableCategories}
+            categories={availableCategories.map(category => ({
+              id: String(category.id),
+              name: category.name,
+              count: category.count || 0,
+            }))}
           />
         )}
 

@@ -205,9 +205,9 @@ class ApiClient {
     }
 
     console.log("🔐 [ApiClient] 생성된 헤더:", {
-      hasAuthorization: !!headers.Authorization,
-      authorizationPreview: headers.Authorization
-        ? `${headers.Authorization.toString().substring(0, 30)}...`
+      hasAuthorization: !!(headers as any).Authorization,
+      authorizationPreview: (headers as any).Authorization
+        ? `${String((headers as any).Authorization).substring(0, 30)}...`
         : "없음",
       allHeaders: Object.keys(headers),
     })

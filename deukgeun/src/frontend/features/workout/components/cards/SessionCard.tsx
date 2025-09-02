@@ -12,7 +12,7 @@ import {
   Timer,
 } from "lucide-react"
 import type { WorkoutSession } from "../../../../../shared/types"
-import type { SessionCardProps } from "../../types"
+import type { WorkoutSessionCardProps as SessionCardProps } from "../../types"
 import "./SessionCard.css"
 
 export function SessionCard({
@@ -134,7 +134,7 @@ export function SessionCard({
   const handleCompleteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     logger.info("Complete button clicked", { sessionId: session.id })
-    onComplete?.(0) // exerciseIndex는 0으로 기본값 설정
+    onComplete?.(session)
   }
 
   const formatDuration = (minutes?: number) => {

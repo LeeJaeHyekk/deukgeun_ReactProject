@@ -5,27 +5,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm"
-// MachineCategory와 DifficultyLevel을 직접 정의
-type MachineCategory = 
-  | "cardio"
-  | "strength"
-  | "flexibility"
-  | "balance"
-  | "functional"
-  | "rehabilitation"
-  | "상체"
-  | "하체"
-  | "전신"
-  | "기타"
-
-type DifficultyLevel = 
-  | "beginner"
-  | "intermediate"
-  | "advanced"
-  | "expert"
-  | "초급"
-  | "중급"
-  | "고급"
+// MachineCategory와 DifficultyLevel을 shared types에서 import
+import type { MachineCategory, DifficultyLevel } from "../../shared/types/dto/machine.dto"
 
 @Entity("machines")
 export class Machine {
@@ -59,18 +40,16 @@ export class Machine {
   @Column({
     type: "enum",
     enum: [
+      "chest",
+      "back",
+      "shoulders",
+      "arms",
+      "legs",
+      "core",
       "cardio",
-      "strength",
-      "flexibility",
-      "balance",
-      "functional",
-      "rehabilitation",
-      "상체",
-      "하체",
-      "전신",
-      "기타",
+      "fullbody",
     ],
-    default: "strength",
+    default: "chest",
   })
   category!: MachineCategory
 
@@ -84,9 +63,6 @@ export class Machine {
       "intermediate",
       "advanced",
       "expert",
-      "초급",
-      "중급",
-      "고급",
     ],
     default: "beginner",
   })

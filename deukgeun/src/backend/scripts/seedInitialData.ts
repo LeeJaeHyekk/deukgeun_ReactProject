@@ -226,7 +226,7 @@ async function createTestMachines() {
       detailDesc:
         "벤치프레스는 가슴 근육을 발달시키는 가장 효과적인 운동 중 하나입니다. 벤치에 누워 바를 어깨 너비로 잡고, 바를 가슴까지 내렸다가 올리는 동작을 반복합니다.",
       positiveEffect: "가슴 근육 발달, 삼두근 강화, 어깨 안정성 향상",
-      category: "strength" as const,
+      category: "chest" as const,
       targetMuscles: ["가슴", "삼두근", "어깨"],
       difficulty: "beginner" as const,
     },
@@ -240,7 +240,7 @@ async function createTestMachines() {
       detailDesc:
         "스쿼트랙은 하체 근육을 발달시키는 복합 운동 기구입니다. 바를 어깨에 올리고 무릎을 구부려 앉았다가 일어나는 동작을 반복합니다.",
       positiveEffect: "하체 근육 발달, 코어 강화, 전신 밸런스 향상",
-      category: "strength" as const,
+      category: "legs" as const,
       targetMuscles: ["대퇴사두근", "둔근", "햄스트링"],
       difficulty: "intermediate" as const,
     },
@@ -254,7 +254,7 @@ async function createTestMachines() {
       detailDesc:
         "랫풀다운은 등 근육을 발달시키는 상체 운동 기구입니다. 바를 어깨 너비로 잡고 바를 가슴까지 당기는 동작을 반복합니다.",
       positiveEffect: "등 근육 발달, 자세 개선, 어깨 안정성 향상",
-      category: "strength" as const,
+      category: "back" as const,
       targetMuscles: ["광배근", "승모근", "이두근"],
       difficulty: "beginner" as const,
     },
@@ -268,7 +268,7 @@ async function createTestMachines() {
       detailDesc:
         "레그프레스는 하체 근육을 발달시키는 기계식 운동 기구입니다. 발을 플랫폼에 올리고 무릎을 구부렸다가 펴는 동작을 반복합니다.",
       positiveEffect: "하체 근육 발달, 무릎 안정성 향상, 하체 힘 증가",
-      category: "strength" as const,
+      category: "legs" as const,
       targetMuscles: ["대퇴사두근", "둔근"],
       difficulty: "beginner" as const,
     },
@@ -282,7 +282,7 @@ async function createTestMachines() {
       detailDesc:
         "덤벨은 다양한 운동에 활용할 수 있는 자유 중량 도구입니다. 전신 운동에 활용할 수 있으며, 근육의 균형을 발달시킵니다.",
       positiveEffect: "전신 근육 발달, 균형감각 향상, 기능적 움직임 개선",
-      category: "strength" as const,
+      category: "chest" as const,
       targetMuscles: ["전신"],
       difficulty: "beginner" as const,
     },
@@ -462,7 +462,7 @@ async function createCommunityPosts(users: any[]) {
       title: "헬스 초보자를 위한 첫 운동 루틴",
       content:
         "안녕하세요! 헬스를 처음 시작하는 분들을 위해 간단한 운동 루틴을 공유해드려요.\n\n1. 스쿼트 3세트 x 15회\n2. 푸시업 3세트 x 10회\n3. 플랭크 3세트 x 30초\n\n꾸준히 하는 것이 가장 중요해요!",
-      category: "운동루틴",
+      category: "workout",
       tags: ["초보자", "운동루틴", "기초"],
       author: users[1].nickname,
       userId: users[1].id,
@@ -471,7 +471,7 @@ async function createCommunityPosts(users: any[]) {
       title: "단백질 섭취 시간 언제가 좋을까요?",
       content:
         "운동 후 30분 이내에 단백질을 섭취하는 것이 근육 합성에 가장 효과적이라고 들었는데, 정말인가요? 다른 분들은 언제 단백질을 드시는지 궁금해요.",
-      category: "팁",
+      category: "tips",
       tags: ["단백질", "영양", "운동후"],
       author: users[2].nickname,
       userId: users[2].id,
@@ -480,7 +480,7 @@ async function createCommunityPosts(users: any[]) {
       title: "다이어트 중인데 치팅데이 어떻게 관리하시나요?",
       content:
         "다이어트를 시작한 지 한 달이 되었는데, 치팅데이를 어떻게 관리해야 할지 모르겠어요. 너무 엄격하게 하면 스트레스가 쌓이고, 너무 자주 하면 다이어트가 안 될 것 같고... 조언 부탁드려요!",
-      category: "다이어트",
+      category: "nutrition",
       tags: ["다이어트", "치팅데이", "스트레스"],
       author: users[3].nickname,
       userId: users[3].id,
@@ -489,7 +489,7 @@ async function createCommunityPosts(users: any[]) {
       title: "벤치프레스 자세 교정 도움 요청",
       content:
         "벤치프레스를 할 때 어깨가 자꾸 앞으로 말리는 것 같아요. 정확한 자세를 알려주시면 감사하겠습니다. 무게는 60kg 정도 들고 있어요.",
-      category: "기구가이드",
+      category: "tips",
       tags: ["벤치프레스", "자세교정", "어깨"],
       author: users[1].nickname,
       userId: users[1].id,
@@ -498,7 +498,7 @@ async function createCommunityPosts(users: any[]) {
       title: "헬스장 에티켓에 대해 알려주세요",
       content:
         "헬스장을 처음 가는데, 지켜야 할 에티켓이나 매너가 있나요? 다른 사람들에게 피해를 주지 않으려고 해요.",
-      category: "기타",
+      category: "general",
       tags: ["헬스장", "에티켓", "매너"],
       author: users[2].nickname,
       userId: users[2].id,
@@ -507,7 +507,7 @@ async function createCommunityPosts(users: any[]) {
       title: "홈트레이닝 vs 헬스장, 어떤 게 더 효과적일까요?",
       content:
         "집에서 운동하는 것과 헬스장에서 운동하는 것 중 어떤 게 더 효과적일까요? 각각의 장단점이 궁금해요. 현재 홈트를 하고 있는데 헬스장 등록을 고민 중입니다.",
-      category: "팁",
+      category: "tips",
       tags: ["홈트레이닝", "헬스장", "비교"],
       author: users[3].nickname,
       userId: users[3].id,
@@ -516,7 +516,7 @@ async function createCommunityPosts(users: any[]) {
       title: "근력운동 후 유산소 vs 유산소 후 근력운동",
       content:
         "체중감량이 목표인데, 근력운동과 유산소 운동 순서를 어떻게 하는 게 좋을까요? 인터넷에서 찾아보니 의견이 다양해서 혼란스럽네요.",
-      category: "운동루틴",
+      category: "workout",
       tags: ["근력운동", "유산소", "체중감량"],
       author: users[1].nickname,
       userId: users[1].id,
@@ -525,7 +525,7 @@ async function createCommunityPosts(users: any[]) {
       title: "간헐적 단식과 운동 병행 후기",
       content:
         "간헐적 단식을 시작한 지 2주가 되었어요. 16:8 방법으로 하고 있는데, 운동과 병행하니까 확실히 효과가 있는 것 같아요. 다만 운동 시간 조절이 조금 어렵네요. 다른 분들은 어떻게 하시는지 궁금해요.",
-      category: "다이어트",
+      category: "nutrition",
       tags: ["간헐적단식", "16:8", "운동병행"],
       author: users[2].nickname,
       userId: users[2].id,
@@ -534,7 +534,7 @@ async function createCommunityPosts(users: any[]) {
       title: "스쿼트할 때 무릎이 아픈데 정상인가요?",
       content:
         "스쿼트를 할 때 무릎에서 약간의 통증이 느껴져요. 자세가 잘못된 건지, 아니면 근육이 적응하는 과정인지 궁금합니다. 계속 해도 괜찮을까요?",
-      category: "기구가이드",
+      category: "tips",
       tags: ["스쿼트", "무릎통증", "자세"],
       author: users[3].nickname,
       userId: users[3].id,
@@ -543,7 +543,7 @@ async function createCommunityPosts(users: any[]) {
       title: "운동 일지 작성하시나요?",
       content:
         "운동할 때마다 일지를 작성하는 게 도움이 될까요? 어떤 내용을 기록하면 좋은지, 추천하는 앱이나 방법이 있으면 알려주세요!",
-      category: "기타",
+      category: "general",
       tags: ["운동일지", "기록", "앱추천"],
       author: users[1].nickname,
       userId: users[1].id,
@@ -562,11 +562,10 @@ async function createCommunityPosts(users: any[]) {
       title: postData.title,
       content: postData.content,
       category: postData.category as
-        | "운동루틴"
-        | "팁"
-        | "다이어트"
-        | "기구가이드"
-        | "기타",
+        | "workout"
+        | "tips"
+        | "nutrition"
+        | "general",
       tags: postData.tags,
       author: postData.author,
       userId: postData.userId,

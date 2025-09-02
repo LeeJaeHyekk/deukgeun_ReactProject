@@ -1,37 +1,36 @@
 import React from "react"
-import type { WorkoutPlan } from "../../../../../../shared/types"
+import { WorkoutPlanCard } from "../../../cards/WorkoutPlanCard"
+import type { WorkoutPlan } from "../../../../types"
 import styles from "./PlansContent.module.css"
 
 interface PlansContentProps {
   plans: WorkoutPlan[]
   viewMode: "grid" | "list"
-  onEditPlan: (planId: number) => void
-  onStartSession: (planId: number) => void
-  onDeletePlan: (planId: number) => void
   onCreatePlan: () => void
+  onEditPlan: (planId: number) => void
+  onDeletePlan: (planId: number) => void
 }
 
-export const PlansContent: React.FC<PlansContentProps> = ({
+export function PlansContent({
   plans,
   viewMode,
-  onEditPlan,
-  onStartSession,
-  onDeletePlan,
   onCreatePlan,
-}) => {
-  // 난이도별 색상 클래스
+  onEditPlan,
+  onDeletePlan,
+}: PlansContentProps) {
   const getDifficultyClass = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
-      case "쉬움":
-      case "easy":
-        return styles.easy
-      case "어려움":
-      case "hard":
-        return styles.hard
+      case "beginner":
+        return styles.beginner
+      case "intermediate":
+        return styles.intermediate
+      case "advanced":
+        return styles.advanced
       default:
-        return styles.medium
+        return styles.beginner
     }
   }
+
   if (plans.length === 0) {
     return (
       <div className={styles.plansContent}>
@@ -54,7 +53,7 @@ export const PlansContent: React.FC<PlansContentProps> = ({
           {plans.map(plan => (
             <WorkoutPlanCard
               key={plan.id}
-              plan={plan}
+              plan={plan as any}
               onViewDetails={() => onEditPlan(plan.id)}
               onEdit={() => onEditPlan(plan.id)}
               onDelete={() => onDeletePlan(plan.id)}
@@ -110,20 +109,16 @@ export const PlansContent: React.FC<PlansContentProps> = ({
                 <div className={styles.planListStatItem}>
                   <span className={styles.planListStatLabel}>소요 시간</span>
                   <span className={styles.planListStatValue}>
-                    {plan.totalDurationMinutes || 0}분
+                    {plan.estimatedDurationMinutes || 0}분
                   </span>
                 </div>
                 <div className={styles.planListStatItem}>
                   <span className={styles.planListStatLabel}>연속 달성</span>
-                  <span className={styles.planListStatValue}>
-                    {plan.streak || 0}일
-                  </span>
+                  <span className={styles.planListStatValue}>0일</span>
                 </div>
                 <div className={styles.planListStatItem}>
                   <span className={styles.planListStatLabel}>진행률</span>
-                  <span className={styles.planListStatValue}>
-                    {plan.progress || 0}%
-                  </span>
+                  <span className={styles.planListStatValue}>0%</span>
                 </div>
               </div>
             </div>

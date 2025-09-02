@@ -132,16 +132,26 @@ export default function MachineGuidePage() {
 
     const searchLower = searchTerm.toLowerCase()
     return machines.filter(
-      machine =>
-        machine.name.toLowerCase().includes(searchLower) ||
-        machine.nameKo?.toLowerCase().includes(searchLower) ||
-        machine.nameEn?.toLowerCase().includes(searchLower) ||
-        machine.shortDesc.toLowerCase().includes(searchLower) ||
-        machine.category.toLowerCase().includes(searchLower) ||
-        machine.difficulty.toLowerCase().includes(searchLower) ||
-        machine.targetMuscles?.some(muscle =>
-          muscle.toLowerCase().includes(searchLower)
+      machine => {
+        const categoryStr = typeof machine.category === 'string' 
+          ? machine.category 
+          : machine.category?.name || ''
+        const difficultyStr = typeof machine.difficulty === 'string' 
+          ? machine.difficulty 
+          : machine.difficulty?.name || ''
+        
+        return (
+          machine.name.toLowerCase().includes(searchLower) ||
+          machine.nameKo?.toLowerCase().includes(searchLower) ||
+          machine.nameEn?.toLowerCase().includes(searchLower) ||
+          machine.shortDesc.toLowerCase().includes(searchLower) ||
+          categoryStr.toLowerCase().includes(searchLower) ||
+          difficultyStr.toLowerCase().includes(searchLower) ||
+          machine.targetMuscles?.some(muscle =>
+            muscle.toLowerCase().includes(searchLower)
+          )
         )
+      }
     )
   }, [machines, searchTerm])
 

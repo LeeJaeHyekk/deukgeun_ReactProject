@@ -31,7 +31,7 @@ export function PostDetailModal({
   const [editData, setEditData] = useState({
     title: post.title,
     content: post.content,
-    category: post.category,
+    category: typeof post.category === 'string' ? post.category : post.category.name || 'tips',
   })
   const [loading, setLoading] = useState(false)
   const [commentsLoading, setCommentsLoading] = useState(false)
@@ -58,16 +58,12 @@ export function PostDetailModal({
           if (Array.isArray(rawComments)) {
             commentData = rawComments.map((comment: any) => ({
               id: comment.id || 0,
-              author: {
-                id: comment.author?.id || comment.author_id || 0,
-                nickname:
-                  comment.author?.nickname || comment.author_name || "익명",
-              },
+              postId: comment.postId || post.id,
+              userId: comment.userId || comment.author_id || 0,
+              author: comment.author?.nickname || comment.author_name || "익명",
               content: comment.content || "",
-              createdAt:
-                comment.createdAt ||
-                comment.created_at ||
-                new Date().toISOString(),
+              createdAt: new Date(comment.createdAt || comment.created_at || Date.now()),
+              updatedAt: new Date(comment.updatedAt || comment.updated_at || Date.now()),
             }))
           }
         }
@@ -80,15 +76,21 @@ export function PostDetailModal({
         const dummyComments: PostComment[] = [
           {
             id: 1,
-            author: { id: 1, nickname: "테스트 사용자" },
+            postId: post.id,
+            userId: 1,
+            author: "테스트 사용자",
             content: "이 게시글 정말 좋네요! 👍",
-            createdAt: new Date().toISOString(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
           },
           {
             id: 2,
-            author: { id: 2, nickname: "운동러버" },
+            postId: post.id,
+            userId: 2,
+            author: "운동러버",
             content: "저도 비슷한 경험이 있어요. 공감합니다!",
-            createdAt: new Date(Date.now() - 3600000).toISOString(),
+            createdAt: new Date(Date.now() - 3600000),
+            updatedAt: new Date(Date.now() - 3600000),
           },
         ]
         setComments(dummyComments)
@@ -133,16 +135,12 @@ export function PostDetailModal({
         if (Array.isArray(rawComments)) {
           commentData = rawComments.map(comment => ({
             id: comment.id || 0,
-            author: {
-              id: comment.author?.id || comment.author_id || 0,
-              nickname:
-                comment.author?.nickname || comment.author_name || "익명",
-            },
+            postId: comment.postId || post.id,
+            userId: comment.userId || comment.author_id || 0,
+            author: comment.author?.nickname || comment.author_name || "익명",
             content: comment.content || "",
-            createdAt:
-              comment.createdAt ||
-              comment.created_at ||
-              new Date().toISOString(),
+            createdAt: new Date(comment.createdAt || comment.created_at || Date.now()),
+            updatedAt: new Date(comment.updatedAt || comment.updated_at || Date.now()),
           })) as any
         }
       }

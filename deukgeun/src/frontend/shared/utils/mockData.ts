@@ -42,7 +42,7 @@ export const createMockMachine = (
   description: "테스트 머신 설명",
   instructions: "테스트 머신 사용법",
   positiveEffect: "근력 향상",
-  category: "strength",
+  category: "chest",
   targetMuscles: ["삼두근", "이두근"],
   difficulty: "beginner",
   videoUrl: "/test-video.mp4",
@@ -70,13 +70,19 @@ export const createMockWorkoutGoal = (
   ...overrides,
 })
 
-export const createMockPost = (overrides: Partial<Post> = {}): Post => ({
+export const createMockPost = (
+  overrides: Partial<Post> = {}
+): Post => ({
   id: 1,
   title: "테스트 포스트",
   content: "테스트 포스트 내용",
-  author: "테스트 작성자",
+  author: {
+    id: 1,
+    nickname: "테스트 작성자",
+    avatarUrl: "/test-avatar.jpg",
+  },
   userId: 1,
-  category: "workout_tip",
+  category: "tips",
   tags: ["운동", "팁"],
   thumbnailUrl: "/test-thumbnail.jpg",
   images: ["/test-image1.jpg"],
@@ -136,7 +142,15 @@ export const createMockUsers = (count: number = 3): User[] => {
 }
 
 export const createMockMachines = (count: number = 5): Machine[] => {
-  const categories = ["strength", "cardio", "flexibility"] as const
+  const categories = [
+    "chest",
+    "back",
+    "legs",
+    "shoulders",
+    "arms",
+    "core",
+    "cardio",
+  ] as const
   const difficulties = ["beginner", "intermediate", "advanced"] as const
 
   return Array.from({ length: count }, (_, index) =>
@@ -150,7 +164,7 @@ export const createMockMachines = (count: number = 5): Machine[] => {
 }
 
 export const createMockPosts = (count: number = 10): Post[] => {
-  const categories = ["workout_tip", "motivation", "question"] as const
+  const categories = ["tips", "motivation", "general"] as const
 
   return Array.from({ length: count }, (_, index) =>
     createMockPost({

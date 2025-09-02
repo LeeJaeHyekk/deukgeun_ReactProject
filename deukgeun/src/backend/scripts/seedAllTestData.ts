@@ -296,11 +296,11 @@ const sampleMachines = [
 // 샘플 포스트 데이터
 const samplePosts = [
   {
-    title: "초보자를 위한 운동 루틴 가이드",
+    title: "헬스장에 처음 가는 분들을 위한 기본 운동 루틴",
     content:
       "헬스장에 처음 가는 분들을 위한 기본 운동 루틴을 소개합니다. 체스트 프레스, 레그 프레스, 랫 풀다운으로 시작하세요!",
     author: "운동맨",
-    category: "운동루틴" as const,
+    category: "workout" as const,
     tags: ["초보자", "루틴", "가이드"],
     thumbnail_url: "https://via.placeholder.com/300x200",
     like_count: 15,
@@ -311,7 +311,7 @@ const samplePosts = [
     content:
       "체스트 프레스, 벤치프레스, 딥스 등 가슴 운동의 종류와 효과적인 방법을 자세히 설명합니다.",
     author: "피트니스여신",
-    category: "기구가이드" as const,
+    category: "workout" as const,
     tags: ["가슴", "체스트", "운동법"],
     thumbnail_url: "https://via.placeholder.com/300x200",
     like_count: 23,
@@ -322,7 +322,7 @@ const samplePosts = [
     content:
       "운동과 식단을 병행한 다이어트 성공 경험을 공유합니다. 꾸준함이 가장 중요한 비결입니다.",
     author: "헬스초보",
-    category: "다이어트" as const,
+    category: "tips" as const,
     tags: ["다이어트", "팁", "성공"],
     thumbnail_url: "https://via.placeholder.com/300x200",
     like_count: 45,
@@ -333,7 +333,7 @@ const samplePosts = [
     content:
       "등 근육을 강화하면 자세가 좋아지고 전반적인 건강에 도움이 됩니다. 랫 풀다운과 친업 운동을 추천합니다.",
     author: "운동맨",
-    category: "팁" as const,
+    category: "tips" as const,
     tags: ["등", "자세", "건강"],
     thumbnail_url: "https://via.placeholder.com/300x200",
     like_count: 18,
@@ -344,7 +344,7 @@ const samplePosts = [
     content:
       "하체는 전신의 기초가 되는 중요한 부위입니다. 스쿼트와 레그 프레스로 강한 하체를 만들어보세요.",
     author: "피트니스여신",
-    category: "운동루틴" as const,
+    category: "workout" as const,
     tags: ["하체", "스쿼트", "근력"],
     thumbnail_url: "https://via.placeholder.com/300x200",
     like_count: 32,

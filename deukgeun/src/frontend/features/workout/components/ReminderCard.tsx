@@ -41,7 +41,9 @@ export function ReminderCard({
         </div>
         <div className="detail-item">
           <span className="detail-label">반복:</span>
-          <span className="detail-value">{reminder.days.join(", ")}</span>
+          <span className="detail-value">
+            {reminder.days ? reminder.days.join(", ") : "설정되지 않음"}
+          </span>
         </div>
       </div>
 

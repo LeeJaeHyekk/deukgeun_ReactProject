@@ -227,7 +227,7 @@ const sampleMachines = [
     shortDesc: "상체 근력을 종합적으로 발달시키는 기구입니다.",
     detailDesc:
       "친업과 딥스 운동을 할 수 있는 복합 운동 기구로, 가슴, 등, 삼두근 등 상체 전반의 근력을 발달시키는데 매우 효과적입니다.",
-    category: "strength" as const,
+    category: "back" as const,
     difficulty: "intermediate" as const,
     targetMuscles: ["광배근", "대흉근", "삼두근", "이두근"],
     positiveEffect: "상체 근력 향상, 코어 강화, 전반적인 근지구력 향상",
@@ -243,7 +243,7 @@ const sampleMachines = [
     shortDesc: "가슴 근육을 강화하는 대표적인 운동 기구입니다.",
     detailDesc:
       "체스트 프레스는 가슴 근육(대흉근)을 주로 발달시키는 운동 기구입니다. 앉아서 하는 운동으로 안정적이고 효과적인 가슴 운동을 할 수 있습니다.",
-    category: "strength" as const,
+    category: "chest" as const,
     difficulty: "beginner" as const,
     targetMuscles: ["대흉근", "삼두근", "삼각근"],
     positiveEffect: "가슴 근육 발달, 상체 근력 향상, 자세 개선",
@@ -259,7 +259,7 @@ const sampleMachines = [
     shortDesc: "등 근육을 발달시키는 효과적인 운동 기구입니다.",
     detailDesc:
       "랫 풀다운은 등 근육(광배근)을 발달시키는 대표적인 운동 기구입니다. 앉아서 하는 운동으로 안전하고 효과적인 등 운동을 할 수 있습니다.",
-    category: "strength" as const,
+    category: "back" as const,
     difficulty: "beginner" as const,
     targetMuscles: ["광배근", "승모근", "이두근"],
     positiveEffect: "등 근육 발달, 자세 개선, 상체 근력 향상",
@@ -275,7 +275,7 @@ const sampleMachines = [
     shortDesc: "하체 근력을 발달시키는 대표적인 운동 기구입니다.",
     detailDesc:
       "레그 프레스는 하체 근육(대퇴사두근, 대퇴이두근, 둔근)을 발달시키는 효과적인 운동 기구입니다. 안정적인 자세로 하체 운동을 할 수 있습니다.",
-    category: "strength" as const,
+    category: "legs" as const,
     difficulty: "beginner" as const,
     targetMuscles: ["대퇴사두근", "대퇴이두근", "둔근", "비복근"],
     positiveEffect: "하체 근력 향상, 전신 균형감각 발달, 기초 대사량 증가",
@@ -339,7 +339,7 @@ const sampleMachines = [
     shortDesc: "가슴 근육을 발달시키는 대표적인 운동입니다.",
     detailDesc:
       "벤치 프레스는 가슴 근육(대흉근)을 발달시키는 가장 효과적인 운동 중 하나입니다. 상체 근력의 기본이 되는 운동입니다.",
-    category: "strength" as const,
+    category: "chest" as const,
     difficulty: "intermediate" as const,
     targetMuscles: ["대흉근", "삼두근", "삼각근"],
     positiveEffect: "가슴 근육 발달, 상체 근력 향상, 기능적 힘 향상",
@@ -355,7 +355,7 @@ const sampleMachines = [
     shortDesc: "하체 근력을 발달시키는 핵심 운동 기구입니다.",
     detailDesc:
       "스쿼트 랙은 스쿼트, 데드리프트 등 하체 중심의 복합 운동을 할 수 있는 기구입니다. 전신 근력 향상에 매우 효과적입니다.",
-    category: "strength" as const,
+    category: "legs" as const,
     difficulty: "advanced" as const,
     targetMuscles: ["대퇴사두근", "대퇴이두근", "둔근", "코어"],
     positiveEffect: "하체 근력 향상, 전신 균형감각 발달, 호르몬 분비 촉진",
@@ -371,7 +371,7 @@ const sampleMachines = [
     shortDesc: "다양한 운동을 할 수 있는 다목적 기구입니다.",
     detailDesc:
       "케이블 머신은 다양한 각도와 높이에서 운동할 수 있는 다목적 기구입니다. 상체, 하체, 코어 운동을 모두 할 수 있습니다.",
-    category: "functional" as const,
+    category: "fullbody" as const,
     difficulty: "intermediate" as const,
     targetMuscles: ["전신 근육"],
     positiveEffect: "근력 향상, 근지구력 향상, 기능적 움직임 개선",
@@ -387,7 +387,7 @@ const samplePosts = [
     content:
       "운동을 처음 시작하는 분들을 위한 기본적인 팁들을 공유합니다. 꾸준함이 가장 중요합니다!",
     author: "운동맨",
-    category: "팁" as const,
+    category: "tips" as const,
     tags: ["초보자", "팁", "운동"],
     like_count: 25,
     comment_count: 5,
@@ -397,7 +397,7 @@ const samplePosts = [
     content:
       "체스트 프레스와 덤벨 플라이를 조합한 효과적인 가슴 운동 루틴을 공유합니다.",
     author: "피트니스여신",
-    category: "운동루틴" as const,
+    category: "workout" as const,
     tags: ["가슴", "루틴", "체스트프레스"],
     like_count: 18,
     comment_count: 3,
@@ -407,7 +407,7 @@ const samplePosts = [
     content:
       "3개월간 꾸준한 운동과 식단 관리로 10kg 감량에 성공했습니다. 여러분도 할 수 있어요!",
     author: "헬스초보",
-    category: "다이어트" as const,
+    category: "nutrition" as const,
     tags: ["다이어트", "성공후기", "감량"],
     like_count: 45,
     comment_count: 12,
@@ -417,7 +417,7 @@ const samplePosts = [
     content:
       "강남 지역 헬스장들을 비교해보고 추천드립니다. 각 헬스장의 장단점을 정리했습니다.",
     author: "운동맨",
-    category: "기타" as const,
+    category: "general" as const,
     tags: ["헬스장", "추천", "강남"],
     like_count: 32,
     comment_count: 8,
@@ -427,7 +427,7 @@ const samplePosts = [
     content:
       "하체 운동이 왜 중요한지, 그리고 어떤 효과가 있는지 자세히 설명드립니다.",
     author: "근육맨",
-    category: "팁" as const,
+    category: "tips" as const,
     tags: ["하체", "스쿼트", "근력"],
     like_count: 28,
     comment_count: 6,
@@ -436,7 +436,7 @@ const samplePosts = [
     title: "요가와 필라테스의 차이점",
     content: "요가와 필라테스의 차이점과 각각의 장점에 대해 알아보겠습니다.",
     author: "요가여신",
-    category: "운동루틴" as const,
+    category: "workout" as const,
     tags: ["요가", "필라테스", "스트레칭"],
     like_count: 35,
     comment_count: 9,
@@ -446,7 +446,7 @@ const samplePosts = [
     content:
       "운동 전후에 어떤 영양소를 언제 섭취해야 하는지 상세히 안내드립니다.",
     author: "피트니스여신",
-    category: "기타" as const,
+    category: "general" as const,
     tags: ["영양", "프로틴", "탄수화물"],
     like_count: 42,
     comment_count: 15,
@@ -456,7 +456,7 @@ const samplePosts = [
     content:
       "헬스장에 가지 않고도 집에서 효과적으로 할 수 있는 운동들을 소개합니다.",
     author: "헬스초보",
-    category: "운동루틴" as const,
+    category: "workout" as const,
     tags: ["홈트레이닝", "집운동", "체중운동"],
     like_count: 38,
     comment_count: 11,
@@ -466,7 +466,7 @@ const samplePosts = [
     content:
       "운동 중 부상을 예방하는 방법과 안전한 운동을 위한 팁들을 공유합니다.",
     author: "근육맨",
-    category: "팁" as const,
+    category: "tips" as const,
     tags: ["부상예방", "안전", "워밍업"],
     like_count: 31,
     comment_count: 7,
@@ -476,7 +476,7 @@ const samplePosts = [
     content:
       "여성들이 근력 운동을 할 때 주의해야 할 점들과 효과적인 루틴을 제안합니다.",
     author: "요가여신",
-    category: "운동루틴" as const,
+    category: "workout" as const,
     tags: ["여성", "근력운동", "호르몬"],
     like_count: 29,
     comment_count: 8,
@@ -653,7 +653,13 @@ async function seedOptimizedData() {
       const user = createdUsers[i % createdUsers.length]
 
       const post = postRepository.create({
-        ...postData,
+        title: postData.title,
+        content: postData.content,
+        author: postData.author,
+        category: postData.category,
+        tags: postData.tags,
+        like_count: postData.like_count,
+        comment_count: postData.comment_count,
         userId: user.id,
       })
       const savedPost = await postRepository.save(post)

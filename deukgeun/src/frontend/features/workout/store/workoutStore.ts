@@ -262,9 +262,8 @@ const initialState: WorkoutStoreState = {
     globalError: null,
     timer: {
       isRunning: false,
-      isPaused: false,
-      elapsedTime: 0,
-      totalTime: 0,
+      seconds: 0,
+      totalSeconds: 0,
     },
   },
 }
@@ -1022,9 +1021,8 @@ export const useWorkoutStore = create<WorkoutStore>()(
               ...state.sharedState,
               timer: {
                 isRunning: false,
-                isPaused: false,
-                elapsedTime: 0,
-                totalTime: 0,
+                seconds: 0,
+                totalSeconds: 0,
               },
             },
           }))

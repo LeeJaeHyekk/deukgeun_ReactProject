@@ -16,7 +16,8 @@ import type {
   SchedulerConfig,
 } from "../types"
 
-// 환경 변수 로드
+// 환경 변수 로드 - 프로덕션 우선
+dotenv.config({ path: ".env.production" })
 dotenv.config({ path: ".env" })
 
 // 환경 설정
@@ -31,7 +32,7 @@ const databaseConfig: DatabaseConfig = {
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "deukgeun_db",
   dialect: "mysql",
-  synchronize: environment === "development",
+  synchronize: false, // 프로덕션에서는 false
   logging: environment === "development",
 }
 
@@ -98,7 +99,7 @@ export const appConfig: AppConfig = {
   environment,
   port: parseInt(process.env.PORT || "5000"),
   jwt: jwtConfig,
-  corsOrigin: process.env.CORS_ORIGIN?.split(",") || ["http://localhost:5173"],
+  corsOrigin: process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3000", "http://localhost:5173", "https://yourdomain.com", "https://www.yourdomain.com"],
   database: databaseConfig,
   apiKeys: apiKeyConfig,
   security: securityConfig,
@@ -163,7 +164,7 @@ export const {
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "7d",
   JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || "your-access-secret",
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "your-refresh-secret",
-  CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:5173",
+  CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:3000,http://localhost:5173",
   KAKAO_API_KEY: process.env.KAKAO_API_KEY || "",
   KAKAO_JAVASCRIPT_MAP_API_KEY: process.env.KAKAO_JAVASCRIPT_MAP_API_KEY || "",
   KAKAO_Location_MobileMapApiKey:

@@ -21,21 +21,21 @@ export function WorkoutSessionCard({
   const [showDetails, setShowDetails] = useState(false)
 
   const completedSets = session.exerciseSets.filter(
-    set => set.isCompleted
+    set => set.repsCompleted > 0
   ).length
   const totalSets = session.exerciseSets.length
   const isCompleted = session.status === "completed"
   const isInProgress = session.status === "in_progress"
   const isPaused = session.status === "paused"
 
-  const formatDuration = (minutes: number) => {
+  const formatDuration = (minutes: number | undefined) => {
+    if (!minutes) return "0분"
     const hours = Math.floor(minutes / 60)
     const mins = minutes % 60
     return hours > 0 ? `${hours}시간 ${mins}분` : `${mins}분`
   }
 
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString)
+  const formatDateTime = (date: Date) => {
     return date.toLocaleString("ko-KR", {
       month: "short",
       day: "numeric",
@@ -158,24 +158,7 @@ export function WorkoutSessionCard({
         </div>
 
         <div className="session-stats">
-          {session.caloriesBurned && (
-            <div className="stat-item">
-              <span className="stat-label">소모 칼로리:</span>
-              <span className="stat-value">{session.caloriesBurned}kcal</span>
-            </div>
-          )}
-          {session.totalWeight && (
-            <div className="stat-item">
-              <span className="stat-label">총 무게:</span>
-              <span className="stat-value">{session.totalWeight}kg</span>
-            </div>
-          )}
-          {session.totalReps && (
-            <div className="stat-item">
-              <span className="stat-label">총 횟수:</span>
-              <span className="stat-value">{session.totalReps}회</span>
-            </div>
-          )}
+          {/* WorkoutSessionDTO에는 caloriesBurned, totalWeight, totalReps 속성이 없으므로 제거 */}
         </div>
 
         <div className="exercise-summary">
@@ -195,7 +178,7 @@ export function WorkoutSessionCard({
               {session.exerciseSets.map((set, index) => (
                 <div key={index} className="exercise-item-detailed">
                   <div className="exercise-header">
-                    <span className="exercise-name">{set.exerciseName}</span>
+                    <span className="exercise-name">{set.machineId ? `머신 ${set.machineId}` : "운동"}</span>
                     <span className="set-number">세트 {set.setNumber}</span>
                   </div>
                   <div className="exercise-details">
@@ -206,9 +189,7 @@ export function WorkoutSessionCard({
                     {set.rpeRating && (
                       <span className="detail-item">RPE: {set.rpeRating}</span>
                     )}
-                    {set.isPersonalBest && (
-                      <span className="personal-best-badge">🏆 PB</span>
-                    )}
+                    {/* ExerciseSetDTO에는 isPersonalBest 속성이 없으므로 제거 */}
                   </div>
                   {set.notes && (
                     <div className="exercise-notes">
@@ -222,7 +203,7 @@ export function WorkoutSessionCard({
             <div className="exercise-list">
               {session.exerciseSets.slice(0, 3).map((set, index) => (
                 <div key={index} className="exercise-item">
-                  <span className="exercise-name">{set.exerciseName}</span>
+                  <span className="exercise-name">{set.machineId ? `머신 ${set.machineId}` : "운동"}</span>
                   <span className="exercise-sets">
                     {set.repsCompleted}회{" "}
                     {set.weightKg ? `× ${set.weightKg}kg` : ""}

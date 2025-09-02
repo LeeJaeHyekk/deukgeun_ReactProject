@@ -111,10 +111,18 @@ export function WorkoutSessionModal() {
 
     try {
       if (isEditMode && session && currentSessionData) {
-        await updateSession(session.id, currentSessionData)
+        await updateSession(session.id, {
+          ...currentSessionData,
+          id: session.id,
+          startTime: new Date(currentSessionData.startTime),
+        })
         logger.info("Session updated successfully")
       } else if (currentSessionData) {
-        await createSession(currentSessionData)
+        await createSession({
+          ...currentSessionData,
+          name: "새 세션",
+          startTime: new Date(currentSessionData.startTime),
+        })
         logger.info("Session created successfully")
       }
       handleClose()
@@ -180,9 +188,14 @@ export function WorkoutSessionModal() {
           {/* 세션 노트 */}
           <SessionNotes
             notes={currentSessionData?.notes || ""}
-            onChange={notes =>
-              setCurrentSessionData({ ...currentSessionData, notes })
-            }
+            onChange={notes => {
+              if (currentSessionData) {
+                setCurrentSessionData({
+                  ...currentSessionData,
+                  notes,
+                })
+              }
+            }}
           />
         </div>
 

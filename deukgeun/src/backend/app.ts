@@ -16,55 +16,116 @@ import routes from "./routes"
 import cookieParser from "cookie-parser"
 // 파일 경로 처리 유틸리티 import
 import path from "path"
+// 환경 설정 import
+import { config } from "./config/env"
 
 // Express 애플리케이션 인스턴스 생성
 const app = express()
 
+// 환경별 CORS 설정
+const corsOptions = {
+  origin:
+    config.environment === "production"
+      ? [
+          // 프로덕션 도메인들
+          "https://yourdomain.com",
+          "https://www.yourdomain.com",
+          // 개발 환경 (필요시)
+          "http://localhost:5173",
+          "http://localhost:3000",
+        ]
+      : [
+          // 개발 환경
+          "http://localhost:5173",
+          "http://localhost:3000",
+        ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "X-API-Key",
+  ],
+  exposedHeaders: ["X-Total-Count"],
+  maxAge: 86400, // 24시간
+}
+
 // 보안 미들웨어 설정 - Helmet을 사용한 보안 헤더 추가
 app.use(
   helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }, // 크로스 오리진 리소스 정책 설정
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https:"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        connectSrc: [
+          "'self'",
+          "https://api.kakao.com",
+          "https://maps.googleapis.com",
+        ],
+      },
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
   })
 )
 
-// CORS 미들웨어 설정 - 프론트엔드와의 통신 허용
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "http://localhost:3000"], // 허용할 오리진 설정 (배열로 여러 오리진 지원)
-    credentials: true, // 쿠키/인증 정보 전달 허용
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // 허용할 HTTP 메서드
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // 허용할 헤더
-  })
-)
+// CORS 미들웨어 설정
+app.use(cors(corsOptions))
 
-// HTTP 요청 로깅 미들웨어 설정
-app.use(morgan("combined"))
+// HTTP 요청 로깅 미들웨어 설정 (프로덕션에서는 간소화)
+const morganFormat = config.environment === "production" ? "combined" : "dev"
+app.use(morgan(morganFormat))
 
 // 쿠키 파싱 미들웨어 설정
 app.use(cookieParser())
 
 // 요청 본문 파싱 미들웨어 설정
-app.use(express.json()) // JSON 형식 요청 본문 파싱
-app.use(express.urlencoded({ extended: true })) // URL 인코딩된 요청 본문 파싱
+app.use(express.json({ limit: "10mb" })) // JSON 형식 요청 본문 파싱
+app.use(express.urlencoded({ extended: true, limit: "10mb" })) // URL 인코딩된 요청 본문 파싱
 
-// 정적 파일 서빙 설정 - 이미지 파일 서빙 (CORS는 메인 미들웨어에서 처리)
+// 정적 파일 서빙 설정 - 이미지 파일 서빙
 app.use(
   "/img",
-  express.static(path.join(__dirname, "../../public/img")) // 이미지 파일 정적 서빙
+  express.static(path.join(__dirname, "../../public/img"), {
+    maxAge: "1d", // 캐시 1일
+    etag: true,
+  })
 )
 
-// 공개 파일 서빙 설정 - public 폴더 서빙 (CORS는 메인 미들웨어에서 처리)
+// 공개 파일 서빙 설정 - public 폴더 서빙
 app.use(
   "/public",
-  express.static(path.join(__dirname, "../../public")) // public 폴더 정적 서빙
+  express.static(path.join(__dirname, "../../public"), {
+    maxAge: "1d", // 캐시 1일
+    etag: true,
+  })
 )
 
 // 루트 엔드포인트 - API 상태 확인용
 app.get("/", (req, res) => {
   res.json({
-    message: "Deukgeun Backend API", // API 이름
-    version: "1.0.0", // API 버전
-    timestamp: new Date().toISOString(), // 현재 시간
+    message: "Deukgeun Backend API",
+    version: "1.0.0",
+    timestamp: new Date().toISOString(),
+    environment: config.environment,
+    status: "healthy",
+  })
+})
+
+// 헬스체크 엔드포인트
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
   })
 })
 

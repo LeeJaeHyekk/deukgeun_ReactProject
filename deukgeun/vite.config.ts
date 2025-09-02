@@ -21,22 +21,24 @@ export default defineConfig(({ mode }) => {
     // Vite 플러그인 설정
     plugins: [react()], // React SWC 플러그인 활성화
 
-    // 개발 서버 설정
-    server: {
-      port: process.env.FRONTEND_PORT
-        ? parseInt(process.env.FRONTEND_PORT) // 환경 변수에서 포트 설정
-        : 5173, // 기본 포트
-      host: true, // 모든 네트워크 인터페이스에서 접근 허용
-      strictPort: false, // 포트가 사용 중이면 다른 포트 사용
-      proxy: {
-        // API 요청 프록시 설정
-        "/api": {
-          target: process.env.VITE_BACKEND_URL || "http://localhost:5000", // 백엔드 서버 주소
-          changeOrigin: true, // Origin 헤더 변경
-          rewrite: path => path.replace(/^\/api/, "/api"), // 경로 재작성
-        },
-      },
-    },
+    // 개발 서버 설정 (개발 환경에서만 활성화)
+    server:
+      mode === "development"
+        ? {
+            port: process.env.FRONTEND_PORT
+              ? parseInt(process.env.FRONTEND_PORT)
+              : 5173,
+            host: true,
+            strictPort: false,
+            proxy: {
+              "/api": {
+                target: process.env.VITE_BACKEND_URL || "http://localhost:5000",
+                changeOrigin: true,
+                rewrite: path => path.replace(/^\/api/, "/api"),
+              },
+            },
+          }
+        : undefined,
 
     // 에셋 포함 설정
     assetsInclude: ["*.mp4"], // MP4 파일을 에셋으로 포함
@@ -109,6 +111,8 @@ export default defineConfig(({ mode }) => {
 
           // 에셋 파일명 최적화 - 파일 타입별로 다른 디렉토리에 저장
           assetFileNames: assetInfo => {
+            if (!assetInfo.name) return `assets/[name]-[hash].[ext]`
+
             const info = assetInfo.name.split(".")
             const ext = info[info.length - 1] // 파일 확장자
 
@@ -149,8 +153,8 @@ export default defineConfig(({ mode }) => {
         },
       },
 
-      // 소스맵 설정 - 개발 환경에서만 생성
-      sourcemap: mode === "development",
+      // 소스맵 설정 - 프로덕션에서는 비활성화
+      sourcemap: false,
 
       // 청크 크기 경고 임계값 (KB 단위)
       chunkSizeWarningLimit: 1000,

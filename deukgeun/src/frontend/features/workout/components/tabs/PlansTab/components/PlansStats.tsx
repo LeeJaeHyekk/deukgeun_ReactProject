@@ -19,7 +19,7 @@ export const PlansStats: React.FC<PlansStatsProps> = ({ plans }) => {
       <div className="stat-item">
         <span className="stat-label">활성 계획:</span>
         <span className="stat-value">
-          {plans.filter(plan => plan.status === "active").length}개
+          {plans.filter(plan => plan.isActive !== false).length}개
         </span>
       </div>
     </div>

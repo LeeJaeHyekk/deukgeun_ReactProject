@@ -2,6 +2,16 @@
 // PostDTO - Data Transfer Object
 // ============================================================================
 
+export type PostCategory = 
+  | "general"
+  | "workout"
+  | "nutrition"
+  | "motivation"
+  | "tips"
+  | "questions"
+  | "achievements"
+  | "challenges"
+
 export interface PostCategoryInfo {
   id: string
   name: string
@@ -9,13 +19,21 @@ export interface PostCategoryInfo {
   count?: number
 }
 
+// User 정보를 위한 간단한 인터페이스
+export interface PostAuthor {
+  id: number
+  nickname: string
+  email?: string
+  avatarUrl?: string
+}
+
 export interface PostDTO {
   id: number
   title: string
   content: string
-  author: string
+  author: PostAuthor
   userId: number
-  category: string | PostCategoryInfo
+  category: PostCategory | PostCategoryInfo
   tags?: string[]
   thumbnailUrl?: string
   images?: string[]
@@ -31,9 +49,9 @@ export interface CreatePostDTO {
   id: number
   title: string
   content: string
-  author: string
+  author: PostAuthor
   userId: number
-  category: unknown
+  category: PostCategory | PostCategoryInfo
   tags?: string[]
   thumbnailUrl?: string
   images?: string[]
@@ -44,9 +62,9 @@ export interface UpdatePostDTO {
   id?: number
   title?: string
   content?: string
-  author?: string
+  author?: PostAuthor
   userId?: number
-  category?: unknown
+  category?: PostCategory | PostCategoryInfo
   tags?: string[]
   thumbnailUrl?: string
   images?: string[]

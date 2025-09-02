@@ -211,10 +211,9 @@ export function PlansTab({
           <PlansContent
             plans={filteredPlans}
             viewMode={plansTabState.viewMode}
-            onEditPlan={onEditPlan}
-            onStartSession={onStartSession}
-            onDeletePlan={handleDeletePlan}
             onCreatePlan={onCreatePlan}
+            onEditPlan={onEditPlan}
+            onDeletePlan={handleDeletePlan}
           />
         </div>
       ) : (
@@ -229,7 +228,7 @@ export function PlansTab({
       )}
 
       {/* 통계 */}
-      {plans.length > 0 && <PlansStats plans={plans} />}
+      {plans.length > 0 && <PlansStats plans={plans as any} />}
     </div>
   )
 }

@@ -1,5 +1,5 @@
-import React from "react"
-import type { WorkoutPlanExercise } from "../../../../../../shared/types"
+import React, { useState } from "react"
+import type { WorkoutPlanExercise } from "../../../../types"
 import styles from "./PlanExercises.module.css"
 
 interface PlanExercisesProps {
@@ -48,20 +48,24 @@ export function PlanExercises({
   const getExerciseDisplayValue = (
     exercise: WorkoutPlanExercise,
     field: string
-  ) => {
+  ): string => {
     switch (field) {
       case "reps":
         return exercise.repsRange
           ? `${exercise.repsRange.min}-${exercise.repsRange.max}회`
-          : exercise.reps || "0회"
+          : `${exercise.reps || 0}회`
       case "weight":
         return exercise.weightRange
           ? `${exercise.weightRange.min}-${exercise.weightRange.max}kg`
-          : exercise.weight || "0kg"
+          : `${exercise.weight || 0}kg`
       case "restTime":
         return exercise.restSeconds ? `${exercise.restSeconds}초` : "0초"
       default:
-        return exercise[field as keyof WorkoutPlanExercise] || ""
+        const value = exercise[field as keyof WorkoutPlanExercise]
+        if (value instanceof Date) {
+          return value.toLocaleDateString()
+        }
+        return String(value || "")
     }
   }
 
@@ -164,29 +168,13 @@ export function PlanExercises({
                   </div>
 
                   <div className={styles.fieldGroup}>
-                    <label className={styles.fieldLabel}>횟수 (최소)</label>
+                    <label className={styles.fieldLabel}>횟수</label>
                     <input
                       type="number"
-                      value={exercise.repsRange?.min || exercise.reps || 0}
+                      value={exercise.reps || 0}
                       onChange={e => {
-                        const min = parseInt(e.target.value)
-                        const max = exercise.repsRange?.max || min
-                        handleExerciseChange(index, "repsRange", { min, max })
-                      }}
-                      min="1"
-                      className={styles.fieldInput}
-                    />
-                  </div>
-
-                  <div className={styles.fieldGroup}>
-                    <label className={styles.fieldLabel}>횟수 (최대)</label>
-                    <input
-                      type="number"
-                      value={exercise.repsRange?.max || exercise.reps || 0}
-                      onChange={e => {
-                        const max = parseInt(e.target.value)
-                        const min = exercise.repsRange?.min || max
-                        handleExerciseChange(index, "repsRange", { min, max })
+                        const reps = parseInt(e.target.value)
+                        handleExerciseChange(index, "reps", reps)
                       }}
                       min="1"
                       className={styles.fieldInput}
@@ -197,7 +185,7 @@ export function PlanExercises({
                     <label className={styles.fieldLabel}>무게 (kg)</label>
                     <input
                       type="number"
-                      value={exercise.weightRange?.min || exercise.weight || 0}
+                      value={exercise.weight || 0}
                       onChange={e => {
                         const weight = parseFloat(e.target.value) || 0
                         handleExerciseChange(index, "weight", weight)
@@ -212,10 +200,10 @@ export function PlanExercises({
                     <label className={styles.fieldLabel}>휴식 (초)</label>
                     <input
                       type="number"
-                      value={exercise.restSeconds || exercise.restTime || 0}
+                      value={exercise.restTime || 0}
                       onChange={e => {
-                        const restSeconds = parseInt(e.target.value) || 0
-                        handleExerciseChange(index, "restSeconds", restSeconds)
+                        const restTime = parseInt(e.target.value) || 0
+                        handleExerciseChange(index, "restTime", restTime)
                       }}
                       min="0"
                       className={styles.fieldInput}

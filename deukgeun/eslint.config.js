@@ -24,7 +24,6 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.node,
-        ...globals.jest,
         React: "readonly",
         NodeJS: "readonly",
         HeadersInit: "readonly",
@@ -62,29 +61,7 @@ export default [
       "no-undef": "off", // TypeScript가 처리하므로 비활성화
     },
   },
-  {
-    files: [
-      "**/*.test.{ts,tsx}",
-      "**/*.spec.{ts,tsx}",
-      "src/test/**/*.{ts,tsx}",
-    ],
-    languageOptions: {
-      globals: {
-        ...globals.jest,
-        ...globals.node,
-        React: "readonly",
-        NodeJS: "readonly",
-        Express: "readonly",
-        bcrypt: "readonly",
-        jwt: "readonly",
-      },
-    },
-    rules: {
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-var-requires": "off",
-      "no-undef": "off",
-    },
-  },
+
   {
     files: ["vite.config.ts", "*.config.{ts,js}", "scripts/**/*.{ts,js}"],
     languageOptions: {

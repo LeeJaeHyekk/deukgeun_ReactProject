@@ -115,36 +115,47 @@ export const SUCCESS_MESSAGES = {
 // Tab Configuration
 // ============================================================================
 
-export const TAB_CONFIG = [
+export const TAB_CONFIG: Array<{
+  key: TabType
+  label: string
+  icon: string
+  description: string
+  enabled: boolean
+}> = [
   {
-    key: "overview" as TabType,
+    key: "overview",
     label: "개요",
     icon: "📊",
     description: "현재 진행중인 운동 계획과 주요 통계",
+    enabled: true, // 활성화
   },
   {
-    key: "goals" as TabType,
+    key: "goals",
     label: "목표",
     icon: "🎯",
-    description: "운동 목표와 달성 상태",
+    description: "운동 목표와 달성 상태 (개발 중)",
+    enabled: false, // 비활성화
   },
   {
-    key: "plans" as TabType,
+    key: "plans",
     label: "계획",
     icon: "📋",
-    description: "새 계획 생성 및 운동 추가",
+    description: "새 계획 생성 및 운동 추가 (개발 중)",
+    enabled: false, // 비활성화
   },
   {
-    key: "sessions" as TabType,
+    key: "sessions",
     label: "세션",
     icon: "⏱️",
-    description: "운동 세션 관리",
+    description: "운동 세션 관리 (개발 중)",
+    enabled: false, // 비활성화
   },
   {
-    key: "workoutProgress" as TabType,
+    key: "workoutProgress",
     label: "진행상황",
     icon: "📈",
-    description: "월/년 단위 진행 상황 시각화",
+    description: "월/년 단위 진행 상황 시각화 (개발 중)",
+    enabled: false, // 비활성화
   },
 ]
 

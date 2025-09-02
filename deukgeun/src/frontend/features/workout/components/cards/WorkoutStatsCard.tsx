@@ -20,19 +20,19 @@ export function WorkoutStatsCard({ stats }: WorkoutStatsCardProps) {
           </div>
           <div className="stat-item">
             <span className="stat-label">총 시간</span>
-            <span className="stat-value">{stats.totalDurationMinutes}분</span>
+            <span className="stat-value">{stats.totalDuration}분</span>
           </div>
           <div className="stat-item">
             <span className="stat-label">총 칼로리</span>
-            <span className="stat-value">{stats.totalCaloriesBurned}kcal</span>
+            <span className="stat-value">{stats.totalCalories}kcal</span>
           </div>
           <div className="stat-item">
             <span className="stat-label">최장 연속</span>
-            <span className="stat-value">{stats.longestStreak}일</span>
+            <span className="stat-value">{stats.workoutStreak}일</span>
           </div>
           <div className="stat-item">
             <span className="stat-label">현재 연속</span>
-            <span className="stat-value">{stats.currentStreak}일</span>
+            <span className="stat-value">{stats.workoutStreak}일</span>
           </div>
         </div>
 
@@ -42,7 +42,7 @@ export function WorkoutStatsCard({ stats }: WorkoutStatsCardProps) {
             <div className="exercise-tags">
               {stats.favoriteExercises.slice(0, 3).map((exercise, index) => (
                 <span key={index} className="exercise-tag">
-                  {exercise}
+                  {exercise.name}
                 </span>
               ))}
             </div>

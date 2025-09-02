@@ -93,8 +93,8 @@ export function GoalComparison({
           const progress = (goal.currentValue / goal.targetValue) * 100
           const progressColor = getProgressColor(progress)
           const progressStatus = getProgressStatus(progress)
-          const daysUntilDeadline = getDaysUntilDeadline(goal.deadline)
-          const formattedDeadline = formatDeadline(goal.deadline)
+          const daysUntilDeadline = goal.deadline ? getDaysUntilDeadline(goal.deadline.toISOString()) : null
+          const formattedDeadline = goal.deadline ? formatDeadline(goal.deadline.toISOString()) : "설정되지 않음"
           const goalIcon = getGoalIcon(goal.type)
 
           return (
@@ -184,12 +184,7 @@ export function GoalComparison({
                   </span>
                 </div>
 
-                {goal.planId && (
-                  <div className="detail-item">
-                    <span className="detail-label">관련 계획:</span>
-                    <span className="detail-value">계획 #{goal.planId}</span>
-                  </div>
-                )}
+                {/* WorkoutGoalDTO에는 planId 속성이 없으므로 제거 */}
               </div>
             </div>
           )

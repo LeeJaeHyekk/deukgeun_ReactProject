@@ -13,6 +13,12 @@ export function MachineSelector({
   selectedMachineId,
   onMachineSelect,
 }: MachineSelectorProps) {
+  const getCategoryDisplay = (category: any) => {
+    if (typeof category === "string") return category
+    if (category && typeof category === "object" && category.name) return category.name
+    return "기타"
+  }
+
   return (
     <div className="machine-selector">
       <h3>기구 선택</h3>
@@ -32,7 +38,7 @@ export function MachineSelector({
             )}
             <div className="machine-info">
               <span className="machine-name">{machine.name}</span>
-              <span className="machine-category">{machine.category}</span>
+              <span className="machine-category">{getCategoryDisplay(machine.category)}</span>
             </div>
           </div>
         ))}

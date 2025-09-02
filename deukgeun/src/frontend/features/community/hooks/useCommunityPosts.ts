@@ -105,15 +105,13 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
           console.log("Individual post:", post)
           return {
             id: post.id,
+            userId: post.user?.id || post.userId || 0,
             title: post.title || "",
             content: post.content || "",
-            author: {
-              id: post.user?.id || post.author?.id || 0,
-              nickname: post.user?.nickname || post.author || "익명",
-            },
+            author: post.user?.nickname || post.author || "익명",
             category: post.category || "",
-            likes: post.like_count || post.likes || 0,
-            comments: post.comment_count || post.comments || 0,
+            likeCount: post.like_count || post.likes || 0,
+            commentCount: post.comment_count || post.comments || 0,
             createdAt:
               post.createdAt || post.created_at || new Date().toISOString(),
             updatedAt:

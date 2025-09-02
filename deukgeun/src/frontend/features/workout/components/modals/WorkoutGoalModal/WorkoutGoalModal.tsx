@@ -93,12 +93,16 @@ export function WorkoutGoalModal() {
     try {
       if (isEditMode && goal) {
         logger.info("목표 수정 시작", { goalId: goal.id })
-        await updateGoal(goal.id, formData)
-        logger.info("목표 수정 완료", { goalId: goal.id })
+        if (goal.id) {
+          await updateGoal(goal.id, { ...formData, id: goal.id, type: formData.type as "weight" | "reps" | "duration" | "frequency" | "streak" })
+          logger.info("목표 수정 완료", { goalId: goal.id })
+        }
       } else {
         logger.info("새 목표 생성 시작")
-        await createGoal(formData)
-        logger.info("새 목표 생성 완료")
+        if (formData.title) {
+          await createGoal(formData as any)
+          logger.info("새 목표 생성 완료")
+        }
       }
       closeGoalModal()
     } catch (error) {

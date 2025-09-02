@@ -4,7 +4,8 @@
 
 import { useState, useCallback, useRef, useMemo } from "react"
 import { MachineApiService } from "../services/machineApi"
-import type { Machine, MachineFilterQuery } from "@dto/index"
+import type { Machine, MachineDTO } from "@dto/index"
+import type { MachineFilterQuery } from "../types"
 
 const FETCH_COOLDOWN = 500 // 0.5초로 단축
 const CACHE_DURATION = 5 * 60 * 1000 // 5분 캐시
@@ -12,7 +13,7 @@ const MAX_RETRY_ATTEMPTS = 3
 const RETRY_DELAY = 1000
 
 export const useMachines = () => {
-  const [machines, setMachines] = useState<Machine[]>([])
+  const [machines, setMachines] = useState<MachineDTO[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [currentFilter, setCurrentFilter] = useState<string>("")
@@ -21,7 +22,7 @@ export const useMachines = () => {
 
   // 캐시 시스템
   const machinesCache = useRef<
-    Map<string, { data: Machine[]; timestamp: number }>
+    Map<string, { data: MachineDTO[]; timestamp: number }>
   >(new Map())
 
   // API 서비스 인스턴스
@@ -36,7 +37,7 @@ export const useMachines = () => {
     return null
   }, [])
 
-  const setCachedData = useCallback((key: string, data: Machine[]) => {
+  const setCachedData = useCallback((key: string, data: MachineDTO[]) => {
     machinesCache.current.set(key, {
       data,
       timestamp: Date.now(),
@@ -127,8 +128,8 @@ export const useMachines = () => {
 
     await withLoading(async () => {
       const result = await withRetry(() => apiService.getMachines())
-      setMachines(result.machines)
-      setCachedData(cacheKey, result.machines)
+      setMachines(result.machines as MachineDTO[])
+      setCachedData(cacheKey, result.machines as MachineDTO[])
       setCurrentFilter("")
       setLastFetchTime(Date.now())
     })
@@ -159,8 +160,8 @@ export const useMachines = () => {
         const result = await withRetry(() =>
           apiService.getMachinesByCategory(category)
         )
-        setMachines(result.machines)
-        setCachedData(cacheKey, result.machines)
+        setMachines(result.machines as MachineDTO[])
+        setCachedData(cacheKey, result.machines as MachineDTO[])
         setCurrentFilter(`카테고리: ${category}`)
         setLastFetchTime(Date.now())
       })
@@ -193,8 +194,8 @@ export const useMachines = () => {
         const result = await withRetry(() =>
           apiService.getMachinesByDifficulty(difficulty)
         )
-        setMachines(result.machines)
-        setCachedData(cacheKey, result.machines)
+        setMachines(result.machines as MachineDTO[])
+        setCachedData(cacheKey, result.machines as MachineDTO[])
         setCurrentFilter(`난이도: ${difficulty}`)
         setLastFetchTime(Date.now())
       })
@@ -227,8 +228,8 @@ export const useMachines = () => {
         const result = await withRetry(() =>
           apiService.getMachinesByTarget(target)
         )
-        setMachines(result.machines)
-        setCachedData(cacheKey, result.machines)
+        setMachines(result.machines as MachineDTO[])
+        setCachedData(cacheKey, result.machines as MachineDTO[])
         setCurrentFilter(`타겟: ${target}`)
         setLastFetchTime(Date.now())
       })
@@ -259,8 +260,8 @@ export const useMachines = () => {
 
       await withLoading(async () => {
         const result = await withRetry(() => apiService.filterMachines(filters))
-        setMachines(result.machines)
-        setCachedData(cacheKey, result.machines)
+        setMachines(result.machines as MachineDTO[])
+        setCachedData(cacheKey, result.machines as MachineDTO[])
         setCurrentFilter("필터 적용됨")
         setLastFetchTime(Date.now())
       })
@@ -285,7 +286,7 @@ export const useMachines = () => {
         // 캐시 무효화
         machinesCache.current.clear()
         // 새로 생성된 머신을 목록에 추가
-        setMachines(prev => [...prev, result.machine])
+        setMachines(prev => [...prev, result.machine as MachineDTO])
         setLastFetchTime(Date.now())
         return result
       })
@@ -304,7 +305,7 @@ export const useMachines = () => {
         machinesCache.current.clear()
         // 수정된 머신을 목록에서 업데이트
         setMachines(prev =>
-          prev.map(machine => (machine.id === id ? result.machine : machine))
+          prev.map(machine => (machine.id === id ? result.machine as MachineDTO : machine))
         )
         setLastFetchTime(Date.now())
         return result

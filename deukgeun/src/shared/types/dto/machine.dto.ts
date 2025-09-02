@@ -2,6 +2,22 @@
 // MachineDTO - Data Transfer Object
 // ============================================================================
 
+export type MachineCategory = 
+  | "chest"
+  | "back"
+  | "shoulders"
+  | "arms"
+  | "legs"
+  | "core"
+  | "cardio"
+  | "fullbody"
+
+export type DifficultyLevel = 
+  | "beginner"
+  | "intermediate"
+  | "advanced"
+  | "expert"
+
 export interface MachineCategoryDTO {
   id: string
   name: string
@@ -16,6 +32,17 @@ export interface DifficultyLevelDTO {
   level: number
 }
 
+export interface MachineFilterQuery {
+  category?: MachineCategory
+  difficulty?: DifficultyLevel
+  target?: string
+  search?: string
+  page?: number
+  limit?: number
+  sortBy?: string
+  sortOrder?: "asc" | "desc"
+}
+
 export interface MachineDTO {
   id: number
   machineKey: string
@@ -28,9 +55,9 @@ export interface MachineDTO {
   description?: string
   instructions?: string
   positiveEffect?: string
-  category: string | MachineCategoryDTO
+  category: MachineCategory | MachineCategoryDTO
   targetMuscles?: string[]
-  difficulty: string | DifficultyLevelDTO
+  difficulty: DifficultyLevel | DifficultyLevelDTO
   videoUrl?: string
   isActive: boolean
   createdAt: Date
@@ -50,9 +77,9 @@ export interface CreateMachineDTO {
   description?: string
   instructions?: string
   positiveEffect?: string
-  category: string | MachineCategoryDTO
+  category: MachineCategory | MachineCategoryDTO
   targetMuscles?: string[]
-  difficulty: string | DifficultyLevelDTO
+  difficulty: DifficultyLevel | DifficultyLevelDTO
   videoUrl?: string
   isActive: boolean
 }
@@ -70,9 +97,9 @@ export interface UpdateMachineDTO {
   description?: string
   instructions?: string
   positiveEffect?: string
-  category?: string | MachineCategoryDTO
+  category?: MachineCategory | MachineCategoryDTO
   targetMuscles?: string[]
-  difficulty?: string | DifficultyLevelDTO
+  difficulty?: DifficultyLevel | DifficultyLevelDTO
   videoUrl?: string
   isActive?: boolean
 }

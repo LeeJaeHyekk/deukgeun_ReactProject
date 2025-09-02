@@ -8,11 +8,14 @@ export type {
   RegisterRequest,
   LoginResponse,
   RegisterResponse,
-  RefreshResponse,
-  LogoutResponse,
-  AuthenticatedRequest,
   PasswordResetRequest,
   PasswordResetConfirm,
   EmailVerification,
   AccountRecoveryRequest,
 } from "../../../shared/types"
+
+export type {
+  RefreshResponse,
+  LogoutResponse,
+  AuthenticatedRequest,
+} from "../../../shared/types/dto"

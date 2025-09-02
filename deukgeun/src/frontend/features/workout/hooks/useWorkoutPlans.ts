@@ -70,7 +70,7 @@ export function useWorkoutPlans() {
       try {
         setLoading(true)
         setError(null)
-        const updatedPlan = await workoutApi.updatePlan(planId, planData)
+        const updatedPlan = await workoutApi.updatePlan(planId, { ...planData, id: planId })
         console.log(
           "📥 [useWorkoutPlans] API returned updatedPlan:",
           updatedPlan
@@ -78,7 +78,7 @@ export function useWorkoutPlans() {
 
         setPlans(prev => {
           const updatedPlans = prev.map(plan => {
-            if (plan.id === planId) {
+            if (plan.id && plan.id === planId) {
               console.log("🔄 [useWorkoutPlans] Updating plan in array:", {
                 oldPlan: plan,
                 newPlan: updatedPlan,

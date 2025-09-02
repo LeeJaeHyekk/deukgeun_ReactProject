@@ -317,10 +317,8 @@ export const createMockGeolocation = () => ({
         altitudeAccuracy: null,
         heading: null,
         speed: null,
-        toJSON: () => ({}),
       },
       timestamp: Date.now(),
-      toJSON: () => ({}),
     }
     success(mockPosition)
   }),

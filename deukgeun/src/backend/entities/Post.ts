@@ -11,6 +11,7 @@ import {
 } from "typeorm"
 import { User } from "./User"
 import { Like } from "./Like"
+import type { PostCategory } from "../../shared/types/dto/post.dto"
 
 /**
  * 포스트 엔티티 클래스
@@ -57,11 +58,11 @@ export class Post {
   // 추가 필드들
   @Column({
     type: "enum",
-    enum: ["운동루틴", "팁", "다이어트", "기구가이드", "기타"],
-    default: "기타",
+    enum: ["general", "workout", "nutrition", "motivation", "tips", "questions", "achievements", "challenges"],
+    default: "general",
   })
   @Index()
-  category!: "운동루틴" | "팁" | "다이어트" | "기구가이드" | "기타"
+  category!: PostCategory
 
   @Column({ type: "json", nullable: true })
   tags?: string[]

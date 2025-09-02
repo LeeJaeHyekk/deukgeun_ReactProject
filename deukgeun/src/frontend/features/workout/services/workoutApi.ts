@@ -149,10 +149,12 @@ export const workoutPlansApi = {
 
       return {
         data: plans,
-        total: (response.data as any).total || plans.length,
-        page: (response.data as any).page || 1,
-        limit: (response.data as any).limit || plans.length,
-        totalPages: (response.data as any).totalPages || 1,
+        pagination: {
+          page: 1,
+          limit: plans.length,
+          total: plans.length,
+          totalPages: 1,
+        },
       }
     } catch (error) {
       console.error("❌ [WorkoutPlansApi] Failed to fetch plans:", error)
@@ -254,10 +256,12 @@ export const workoutSessionsApi = {
 
       return {
         data: sessions,
-        total: (response.data as any).total || sessions.length,
-        page: (response.data as any).page || 1,
-        limit: (response.data as any).limit || sessions.length,
-        totalPages: (response.data as any).totalPages || 1,
+        pagination: {
+          page: 1,
+          limit: sessions.length,
+          total: sessions.length,
+          totalPages: 1,
+        },
       }
     } catch (error) {
       console.error("❌ [WorkoutSessionsApi] Failed to fetch sessions:", error)
@@ -372,10 +376,12 @@ export const workoutGoalsApi = {
 
       return {
         data: goals,
-        total: (response.data as any).total || goals.length,
-        page: (response.data as any).page || 1,
-        limit: (response.data as any).limit || goals.length,
-        totalPages: (response.data as any).totalPages || 1,
+        pagination: {
+          page: 1,
+          limit: goals.length,
+          total: goals.length,
+          totalPages: 1,
+        },
       }
     } catch (error) {
       console.error("❌ [WorkoutGoalsApi] Failed to fetch goals:", error)

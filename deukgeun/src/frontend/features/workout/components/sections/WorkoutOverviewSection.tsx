@@ -38,7 +38,7 @@ export function WorkoutOverviewSection({
         ))}
 
         {/* 통계 카드 */}
-        <WorkoutStatsCard stats={workoutStats} />
+        <WorkoutStatsCard stats={workoutStats as any} />
       </div>
     </section>
   )

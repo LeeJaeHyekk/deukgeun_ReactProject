@@ -244,11 +244,14 @@ export class PostController {
   getCategories = async (_req: Request, res: Response) => {
     try {
       const categories = [
-        "운동루틴",
-        "팁",
-        "다이어트",
-        "기구가이드",
-        "기타",
+        "general",
+        "workout",
+        "nutrition",
+        "motivation",
+        "tips",
+        "questions",
+        "achievements",
+        "challenges",
       ] as const
 
       // 각 카테고리별 포스트 수를 조회

@@ -11,6 +11,8 @@ interface TimerState {
   isPaused: boolean
   elapsedTime: number
   totalTime: number
+  seconds: number
+  totalSeconds: number
   currentSection: number
   sections: Array<{
     id: number
@@ -70,6 +72,8 @@ export function WorkoutTimerProvider({
     isPaused: false,
     elapsedTime: 0,
     totalTime: 0,
+    seconds: 0,
+    totalSeconds: 0,
     currentSection: 0,
     sections: [],
   })
@@ -91,20 +95,24 @@ export function WorkoutTimerProvider({
 
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null)
 
-  const startTimer = useCallback((sessionId?: string, planId?: number) => {
-    if (timerState.isRunning) return
+  const startTimer = useCallback(
+    (sessionId?: string, planId?: number) => {
+      if (timerState.isRunning) return
 
-    setTimerState(prev => ({ ...prev, isRunning: true, isPaused: false }))
+      setTimerState(prev => ({ ...prev, isRunning: true, isPaused: false }))
 
-    const id = setInterval(() => {
-      setTimerState(prev => ({
-        ...prev,
-        elapsedTime: prev.elapsedTime + 1,
-      }))
-    }, 1000)
+      const id = setInterval(() => {
+        setTimerState(prev => ({
+          ...prev,
+          elapsedTime: prev.elapsedTime + 1,
+          seconds: prev.elapsedTime + 1,
+        }))
+      }, 1000)
 
-    setIntervalId(id)
-  }, [timerState.isRunning])
+      setIntervalId(id)
+    },
+    [timerState.isRunning]
+  )
 
   const pauseTimer = useCallback(() => {
     if (!timerState.isRunning) return
@@ -126,6 +134,7 @@ export function WorkoutTimerProvider({
       setTimerState(prev => ({
         ...prev,
         elapsedTime: prev.elapsedTime + 1,
+        seconds: prev.elapsedTime + 1,
       }))
     }, 1000)
 
@@ -138,11 +147,11 @@ export function WorkoutTimerProvider({
       setIntervalId(null)
     }
 
-    setTimerState(prev => ({ 
-      ...prev, 
+    setTimerState(prev => ({
+      ...prev,
       isRunning: false,
       isPaused: false,
-      elapsedTime: 0 
+      elapsedTime: 0,
     }))
   }, [intervalId])
 
@@ -153,7 +162,7 @@ export function WorkoutTimerProvider({
   const completeSet = useCallback((exerciseIndex: number, setIndex: number) => {
     setSessionState(prev => ({
       ...prev,
-      completedSets: { ...prev.completedSets, [exerciseIndex]: setIndex }
+      completedSets: { ...prev.completedSets, [exerciseIndex]: setIndex },
     }))
   }, [])
 
@@ -161,7 +170,7 @@ export function WorkoutTimerProvider({
     setSessionState(prev => ({
       ...prev,
       restTimer: seconds,
-      isRestTimerRunning: true
+      isRestTimerRunning: true,
     }))
   }, [])
 
@@ -169,7 +178,7 @@ export function WorkoutTimerProvider({
     setSessionState(prev => ({
       ...prev,
       isRestTimerRunning: false,
-      restTimer: 0
+      restTimer: 0,
     }))
   }, [])
 
@@ -188,6 +197,8 @@ export function WorkoutTimerProvider({
       isPaused: false,
       elapsedTime: 0,
       totalTime: 0,
+      seconds: 0,
+      totalSeconds: 0,
       currentSection: 0,
       sections: [],
     })

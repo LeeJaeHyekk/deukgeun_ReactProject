@@ -45,10 +45,46 @@
   }
 }
 
+/* 개발 중 메시지 스타일 */
+.developmentMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.developmentMessage h3 {
+  font-size: 24px;
+  margin: 0 0 16px 0;
+  color: #f59e0b;
+}
+
+.developmentMessage p {
+  font-size: 16px;
+  margin: 8px 0;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+}
+
 /* 반응형 탭 콘텐츠 */
 @media (max-width: 768px) {
   .tabContent {
     min-height: 350px;
+  }
+  
+  .developmentMessage {
+    padding: 60px 20px;
+  }
+  
+  .developmentMessage h3 {
+    font-size: 20px;
+  }
+  
+  .developmentMessage p {
+    font-size: 14px;
   }
 }
 

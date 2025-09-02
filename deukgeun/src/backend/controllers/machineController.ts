@@ -6,7 +6,9 @@ import type {
   UpdateMachineRequest,
   MachineFilterQuery,
   MachineListResponse,
-} from "@dto/index"
+  MachineCategory,
+  DifficultyLevel,
+} from "../../shared/types/dto"
 import { logger } from "../utils/logger"
 
 // Machine 서비스 인스턴스 생성 (지연 초기화)
@@ -191,8 +193,8 @@ export const deleteMachine = async (req: Request, res: Response) => {
 export const filterMachines = async (req: Request, res: Response) => {
   try {
     const filters: MachineFilterQuery = {
-      category: req.query.category as string | undefined,
-      difficulty: req.query.difficulty as string | undefined,
+      category: req.query.category as MachineCategory | undefined,
+      difficulty: req.query.difficulty as DifficultyLevel | undefined,
       target: req.query.target as string,
       search: req.query.search as string | undefined,
     }

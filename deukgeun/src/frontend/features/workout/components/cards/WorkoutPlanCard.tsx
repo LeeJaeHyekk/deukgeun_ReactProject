@@ -22,9 +22,9 @@ export function WorkoutPlanCard({
   const getPlanStats = () => {
     return {
       exerciseCount: plan.exercises?.length || 0,
-      totalDuration: plan.totalDurationMinutes || 0,
-      streak: plan.streak || 0,
-      progress: plan.progress || 0,
+      totalDuration: plan.estimated_duration_minutes || 0,
+      streak: 0, // WorkoutPlanDTO에는 streak 속성이 없음
+      progress: 0, // WorkoutPlanDTO에는 progress 속성이 없음
       difficulty: plan.difficulty || "보통",
     }
   }
@@ -50,9 +50,7 @@ export function WorkoutPlanCard({
       <div className={styles.cardHeader}>
         <div className={styles.cardTitle}>
           <h3>{plan.name}</h3>
-          {plan.badge && (
-            <Badge level={plan.difficulty} milestone={plan.badge} />
-          )}
+          {/* WorkoutPlanDTO에는 badge 속성이 없으므로 제거 */}
         </div>
         <div className={styles.cardActions}>
           <button

@@ -16,7 +16,8 @@ interface DatabaseConfig {
   [key: string]: any
 }
 
-// 환경 변수 로드
+// 환경 변수 로드 - 프로덕션 우선
+dotenvConfig({ path: ".env.production" })
 dotenvConfig()
 
 // 환경 설정
@@ -44,7 +45,7 @@ export const appConfig: AppConfig = {
     accessSecret: process.env.JWT_ACCESS_SECRET || "",
     refreshSecret: process.env.JWT_REFRESH_SECRET || "",
   },
-  corsOrigin: process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3000"],
+  corsOrigin: process.env.CORS_ORIGIN?.split(",") || ["https://yourdomain.com", "https://www.yourdomain.com"],
   database: databaseConfig,
   apiKeys: {
     kakao: process.env.KAKAO_API_KEY || "",
@@ -244,7 +245,7 @@ export const devConfig = {
   enableDebug: process.env.ENABLE_DEBUG === "true",
   enablePerformanceMonitoring:
     process.env.ENABLE_PERFORMANCE_MONITORING === "true",
-  enableHotReload: environment === "development",
+  enableHotReload: false, // 프로덕션에서는 비활성화
 }
 
 // 전체 설정 내보내기

@@ -4,6 +4,7 @@ import {
   WorkoutGoalDTO,
   WorkoutSessionDTO,
   WorkoutStats,
+  WorkoutStatsDTO,
   WorkoutReminderDTO,
 } from "../types"
 
@@ -13,18 +14,17 @@ export function useWorkoutData() {
   const [workoutSessions, setWorkoutSessions] = useState<WorkoutSessionDTO[]>(
     []
   )
-  const [workoutStats, setWorkoutStats] = useState<WorkoutStats>({
+  const [workoutStats, setWorkoutStats] = useState<WorkoutStatsDTO>({
+    totalWorkouts: 0,
     totalSessions: 0,
-    totalDurationMinutes: 0,
-    totalCaloriesBurned: 0,
-    longestStreak: 0,
-    currentStreak: 0,
-    favoriteMachines: [],
+    totalGoals: 0,
+    completedGoals: 0,
+    totalDuration: 0,
+    totalCalories: 0,
+    averageWorkoutDuration: 0,
+    workoutStreak: 0,
     favoriteExercises: [],
-    startDate: new Date().toISOString(),
-    dailyStats: [],
-    weeklyStats: [],
-    monthlyStats: [],
+    monthlyProgress: [],
   })
   const [workoutReminders, setWorkoutReminders] = useState<
     WorkoutReminderDTO[]

@@ -21,7 +21,6 @@
     "baseUrl": "../",
     "paths": {
       "@types/*": ["types/*"],
-      "@backend/*": ["backend/*"],
       "@config/*": ["backend/config/*"],
       "@controllers/*": ["backend/controllers/*"],
       "@entities/*": ["backend/entities/*"],
@@ -31,10 +30,11 @@
       "@utils/*": ["backend/utils/*"],
       "@transformers/*": ["backend/transformers/*"],
       "@transformers": ["backend/transformers/index"],
-      "@dto/*": ["shared/types/dto/*"],
-      "@dto": ["shared/types/dto/index"]
+      "@dto/*": ["types/dto/*"],
+      "@dto": ["types/dto/index"],
+      "@shared/*": ["shared/*"]
     }
   },
-  "include": ["./**/*", "../types/**/*"],
+  "include": ["./**/*", "../types/**/*", "../shared/**/*"],
   "exclude": ["node_modules", "dist", "build", "**/*.js", "**/*.jsx"]
 }

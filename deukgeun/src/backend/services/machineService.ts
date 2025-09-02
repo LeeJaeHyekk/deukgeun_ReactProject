@@ -1,12 +1,12 @@
-import { AppDataSource } from "../config/database"
-import { Machine } from "../entities/Machine"
+import { AppDataSource } from "../config/database.js"
+import { Machine } from "../entities/Machine.js"
 import type {
   CreateMachineRequest,
   UpdateMachineRequest,
   MachineFilterQuery,
   MachineCategory,
   DifficultyLevel,
-} from "../types/machine"
+} from "../types/machine.js"
 
 /**
  * Machine 관련 비즈니스 로직을 처리하는 서비스 클래스

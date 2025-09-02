@@ -1,7 +1,9 @@
-import { connectDatabase } from "../config/database"
-import { Gym } from "../entities/Gym"
-import { updateGymDetailsWithEnhancedSources } from "../services/enhancedCrawlerService"
-import { config } from "../config/env"
+import { AppDataSource } from "../config/database.js"
+import { Gym } from "../entities/Gym.js"
+import { Machine } from "../entities/Machine.js"
+import { logger } from "../utils/logger.js"
+import { updateGymDetailsWithEnhancedSources } from "../services/enhancedCrawlerService.js"
+import { config } from "../config/env.js"
 
 async function testCrawling() {
   console.log("🧪 Testing Enhanced Crawling Service...\n")
@@ -21,7 +23,7 @@ async function testCrawling() {
 
   try {
     console.log("📡 Connecting to database...")
-    const connection = await connectDatabase()
+    const connection = await AppDataSource.initialize()
     console.log("✅ Database connected successfully")
 
     const gymRepo = connection.getRepository(Gym)

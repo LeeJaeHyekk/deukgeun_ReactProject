@@ -1,24 +1,24 @@
-import { AppDataSource } from "../config/database"
-import { User } from "../entities/User"
-import { Gym } from "../entities/Gym"
-import { Machine } from "../entities/Machine"
-import { Post } from "../entities/Post"
-import { Comment } from "../entities/Comment"
-import { Like } from "../entities/Like"
-import { UserLevel } from "../entities/UserLevel"
-import { ExpHistory } from "../entities/ExpHistory"
-import { UserReward } from "../entities/UserReward"
-import { Milestone } from "../entities/Milestone"
-import { UserStreak } from "../entities/UserStreak"
-import { WorkoutSession } from "../entities/WorkoutSession"
-import { ExerciseSet } from "../entities/ExerciseSet"
-import { WorkoutGoal } from "../entities/WorkoutGoal"
-import { WorkoutPlan } from "../entities/WorkoutPlan"
-import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
-import { WorkoutStats } from "../entities/WorkoutStats"
-import { WorkoutProgress } from "../entities/WorkoutProgress"
-import { WorkoutReminder } from "../entities/WorkoutReminder"
-import { logger } from "../utils/logger"
+import { AppDataSource } from "../config/database.js"
+import { User } from "../entities/User.js"
+import { Gym } from "../entities/Gym.js"
+import { Machine } from "../entities/Machine.js"
+import { Post } from "../entities/Post.js"
+import { Comment } from "../entities/Comment.js"
+import { Like } from "../entities/Like.js"
+import { UserLevel } from "../entities/UserLevel.js"
+import { ExpHistory } from "../entities/ExpHistory.js"
+import { UserReward } from "../entities/UserReward.js"
+import { Milestone } from "../entities/Milestone.js"
+import { UserStreak } from "../entities/UserStreak.js"
+import { WorkoutSession } from "../entities/WorkoutSession.js"
+import { ExerciseSet } from "../entities/ExerciseSet.js"
+import { WorkoutGoal } from "../entities/WorkoutGoal.js"
+import { WorkoutPlan } from "../entities/WorkoutPlan.js"
+import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise.js"
+import { WorkoutStats } from "../entities/WorkoutStats.js"
+import { WorkoutProgress } from "../entities/WorkoutProgress.js"
+import { WorkoutReminder } from "../entities/WorkoutReminder.js"
+import { logger } from "../utils/logger.js"
 import bcrypt from "bcrypt"
 
 /**
@@ -748,6 +748,7 @@ async function seedOptimizedData() {
         const workoutPlanExercise = workoutPlanExerciseRepository.create({
           planId: plan.id,
           machineId: machine.id,
+          exerciseName: machine.name,
           exerciseOrder: i + 1,
           sets: 3,
           repsRange: { min: 8, max: 12 },
@@ -799,6 +800,7 @@ async function seedOptimizedData() {
         const exerciseSet = exerciseSetRepository.create({
           sessionId: session.id,
           machineId: machine.id,
+          exerciseName: machine.name,
           setNumber: i + 1,
           weightKg: 50 + Math.floor(Math.random() * 50),
           repsCompleted: 8 + Math.floor(Math.random() * 8),
@@ -1005,7 +1007,7 @@ async function seedOptimizedData() {
 }
 
 // 스크립트 실행
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   seedOptimizedData()
     .then(() => {
       logger.info("✅ 데이터 시드 완료!")

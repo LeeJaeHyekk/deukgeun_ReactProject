@@ -8,8 +8,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
-import { Post } from "./Post"
-import { User } from "./User"
+import { Post } from "./Post.js"
+import { User } from "./User.js"
 
 @Entity("post_likes")
 @Unique(["postId", "userId"]) // 한 사용자당 한 포스트에 1회만 좋아요

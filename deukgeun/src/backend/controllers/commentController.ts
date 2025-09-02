@@ -1,8 +1,8 @@
 import { Request, Response } from "express"
-import { Comment } from "../entities/Comment"
-import { User } from "../entities/User"
-import { AppDataSource } from "../config/database"
-import { toCommentDTO, toCommentDTOList } from "../transformers"
+import { Comment } from "../entities/Comment.js"
+import { User } from "../entities/User.js"
+import { AppDataSource } from "../config/database.js"
+import { toCommentDTO, toCommentDTOList } from "../transformers/index.js"
 
 export class CommentController {
   // 댓글 생성

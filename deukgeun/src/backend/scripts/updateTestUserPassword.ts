@@ -1,5 +1,5 @@
-import { connectDatabase } from "../config/database"
-import { User } from "../entities/User"
+import { connectDatabase } from "../config/database.js"
+import { User } from "../entities/User.js"
 import bcrypt from "bcrypt"
 
 async function updateTestUserPassword() {

@@ -2,33 +2,30 @@ import "reflect-metadata"
 // TypeORM DataSource 클래스 import
 import { DataSource } from "typeorm"
 // 환경 변수 로드 라이브러리 import
-import { config } from "dotenv"
+import { config } from "./env.js"
 
 // 엔티티 클래스들 import - 데이터베이스 테이블과 매핑되는 클래스들
-import { Post } from "../entities/Post" // 게시글 엔티티
-import { Gym } from "../entities/Gym" // 헬스장 엔티티
-import { User } from "../entities/User" // 사용자 엔티티
-import { Machine } from "../entities/Machine" // 운동 머신 엔티티
-import { Comment } from "../entities/Comment" // 댓글 엔티티
-import { Like } from "../entities/Like" // 게시글 좋아요 엔티티
-import { UserLevel } from "../entities/UserLevel" // 사용자 레벨 엔티티
-import { ExpHistory } from "../entities/ExpHistory" // 경험치 이력 엔티티
-import { UserReward } from "../entities/UserReward" // 사용자 보상 엔티티
-import { Milestone } from "../entities/Milestone" // 마일스톤 엔티티
-import { UserStreak } from "../entities/UserStreak" // 사용자 연속 활동 엔티티
-import { WorkoutSession } from "../entities/WorkoutSession" // 운동 세션 엔티티
-import { ExerciseSet } from "../entities/ExerciseSet" // 운동 세트 엔티티
-import { WorkoutGoal } from "../entities/WorkoutGoal" // 운동 목표 엔티티
-import { WorkoutPlan } from "../entities/WorkoutPlan" // 운동 계획 엔티티
-import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise" // 운동 계획 운동 엔티티
-import { WorkoutStats } from "../entities/WorkoutStats" // 운동 통계 엔티티
-import { WorkoutProgress } from "../entities/WorkoutProgress" // 운동 진행 상황 엔티티
-import { WorkoutReminder } from "../entities/WorkoutReminder" // 운동 알림 엔티티
-import { VerificationToken } from "../entities/VerificationToken" // 이메일 인증 토큰 엔티티
-import { PasswordResetToken } from "../entities/PasswordResetToken" // 비밀번호 재설정 토큰 엔티티
-
-// 환경 변수 로드 (.env 파일에서 환경 변수 읽기)
-config()
+import { Post } from "../entities/Post.js" // 게시글 엔티티
+import { Gym } from "../entities/Gym.js" // 헬스장 엔티티
+import { User } from "../entities/User.js" // 사용자 엔티티
+import { Machine } from "../entities/Machine.js" // 운동 머신 엔티티
+import { Comment } from "../entities/Comment.js" // 댓글 엔티티
+import { Like } from "../entities/Like.js" // 게시글 좋아요 엔티티
+import { UserLevel } from "../entities/UserLevel.js" // 사용자 레벨 엔티티
+import { ExpHistory } from "../entities/ExpHistory.js" // 경험치 이력 엔티티
+import { UserReward } from "../entities/UserReward.js" // 사용자 보상 엔티티
+import { Milestone } from "../entities/Milestone.js" // 마일스톤 엔티티
+import { UserStreak } from "../entities/UserStreak.js" // 사용자 연속 활동 엔티티
+import { WorkoutSession } from "../entities/WorkoutSession.js" // 운동 세션 엔티티
+import { ExerciseSet } from "../entities/ExerciseSet.js" // 운동 세트 엔티티
+import { WorkoutGoal } from "../entities/WorkoutGoal.js" // 운동 목표 엔티티
+import { WorkoutPlan } from "../entities/WorkoutPlan.js" // 운동 계획 엔티티
+import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise.js" // 운동 계획 운동 엔티티
+import { WorkoutStats } from "../entities/WorkoutStats.js" // 운동 통계 엔티티
+import { WorkoutProgress } from "../entities/WorkoutProgress.js" // 운동 진행 상황 엔티티
+import { WorkoutReminder } from "../entities/WorkoutReminder.js" // 운동 알림 엔티티
+import { VerificationToken } from "../entities/VerificationToken.js" // 이메일 인증 토큰 엔티티
+import { PasswordResetToken } from "../entities/PasswordResetToken.js" // 비밀번호 재설정 토큰 엔티티
 
 // 현재 환경 설정 (기본값: development)
 const environment = process.env.NODE_ENV || "development"
@@ -47,6 +44,11 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME || "root", // 데이터베이스 사용자명
   password: process.env.DB_PASSWORD || "", // 데이터베이스 비밀번호
   database: process.env.DB_NAME || "deukgeun_db", // 데이터베이스 이름
+
+  // mysql2 드라이버 사용을 위한 extra 설정
+  extra: {
+    driver: "mysql2",
+  },
 
   // 스키마 자동 동기화 설정 (외래키 제약조건 문제로 인해 비활성화)
   synchronize: false,

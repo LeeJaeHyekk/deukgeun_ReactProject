@@ -1,6 +1,14 @@
+import { MachineService } from "../services/machineService.js"
 import { Request, Response } from "express"
-import { MachineService } from "../services/machineService"
-import { toMachineDTO, toMachineDTOList } from "@transformers/index"
+import { Machine } from "../entities/Machine.js"
+import { Gym } from "../entities/Gym.js"
+import { User } from "../entities/User.js"
+import { UserLevel } from "../entities/UserLevel.js"
+import { ExpHistory } from "../entities/ExpHistory.js"
+import { UserReward } from "../entities/UserReward.js"
+import { Milestone } from "../entities/Milestone.js"
+import { UserStreak } from "../entities/UserStreak.js"
+import { toMachineDTO, toMachineDTOList } from "../transformers/index.js"
 import type {
   CreateMachineRequest,
   UpdateMachineRequest,
@@ -8,8 +16,8 @@ import type {
   MachineListResponse,
   MachineCategory,
   DifficultyLevel,
-} from "../../shared/types/dto"
-import { logger } from "../utils/logger"
+} from "../../shared/types/dto/index.js"
+import { logger } from "../utils/logger.js"
 
 // Machine 서비스 인스턴스 생성 (지연 초기화)
 let machineService: MachineService | null = null

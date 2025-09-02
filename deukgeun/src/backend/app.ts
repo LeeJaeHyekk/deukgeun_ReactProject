@@ -9,15 +9,20 @@ import morgan from "morgan"
 // TypeORM 메타데이터 리플렉션 지원
 import "reflect-metadata"
 // 커스텀 에러 핸들러 미들웨어 import
-import { errorHandler } from "./middlewares/errorHandler"
+import { errorHandler } from "./middlewares/errorHandler.js"
 // API 라우트 설정 import
-import routes from "./routes"
+import routes from "./routes/index.js"
 // 쿠키 파싱 미들웨어 import
 import cookieParser from "cookie-parser"
 // 파일 경로 처리 유틸리티 import
 import path from "path"
 // 환경 설정 import
-import { config } from "./config/env"
+import { config } from "./config/env.js"
+import { fileURLToPath } from "url"
+
+// ESM에서 __dirname 대체
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // Express 애플리케이션 인스턴스 생성
 const app = express()

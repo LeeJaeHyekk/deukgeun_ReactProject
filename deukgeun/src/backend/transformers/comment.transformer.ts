@@ -2,8 +2,8 @@
 // Comment Transformer
 // ============================================================================
 
-import { CommentDTO } from "../../shared/types/dto/comment.dto"
-import { Comment } from "../entities/Comment"
+import { CommentDTO } from "../../shared/types/dto/comment.dto.js"
+import { Comment } from "../entities/Comment.js"
 
 export class CommentTransformer {
   static toDTO(entity: Comment): CommentDTO {

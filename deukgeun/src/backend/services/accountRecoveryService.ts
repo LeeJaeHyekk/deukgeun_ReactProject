@@ -1,16 +1,16 @@
-import { AppDataSource } from "../config/database"
-import { User } from "../entities/User"
-import { VerificationToken } from "../entities/VerificationToken"
-import { PasswordResetToken } from "../entities/PasswordResetToken"
-import { emailService } from "./emailService"
-import { logger } from "../utils/logger"
+import { AppDataSource } from "../config/database.js"
+import { User } from "../entities/User.js"
+import { VerificationToken } from "../entities/VerificationToken.js"
+import { PasswordResetToken } from "../entities/PasswordResetToken.js"
+import { emailService } from "./emailService.js"
+import { logger } from "../utils/logger.js"
 import {
   VerificationTokenData,
   PasswordResetTokenData,
   ValidationResult,
   SecurityInfo,
   RecoveryLog,
-} from "../types"
+} from "../types/index.js"
 import bcrypt from "bcrypt"
 import crypto from "crypto"
 

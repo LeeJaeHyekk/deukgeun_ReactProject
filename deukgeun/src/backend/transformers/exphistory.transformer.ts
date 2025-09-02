@@ -2,9 +2,9 @@
 // ExpHistory Transformer
 // ============================================================================
 
-import { ExpHistoryDTO } from "../../shared/types/dto/exphistory.dto"
-import { ExpHistory } from "../entities/ExpHistory"
-import type { ExpActionType } from "../types"
+import { ExpHistoryDTO } from "../../shared/types/dto/exphistory.dto.js"
+import { ExpHistory } from "../entities/ExpHistory.js"
+import type { ExpActionType } from "../types/index.js"
 
 export class ExpHistoryTransformer {
   static toDTO(entity: ExpHistory): ExpHistoryDTO {

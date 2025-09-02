@@ -1,6 +1,6 @@
-import { AppDataSource } from "../config/database"
-import { User } from "../entities/User"
-import { accountRecoveryService } from "../services/accountRecoveryService"
+import { AppDataSource } from "../config/database.js"
+import { User } from "../entities/User.js"
+import { accountRecoveryService } from "../services/accountRecoveryService.js"
 
 async function testAccountRecovery() {
   try {
@@ -69,6 +69,6 @@ async function testAccountRecovery() {
 }
 
 // 스크립트 실행
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   testAccountRecovery()
 }

@@ -7,8 +7,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
-import type { RewardType } from "../types"
-import { User } from "./User"
+import type { RewardType } from "../types/index.js"
+import { User } from "./User.js"
 
 @Entity("user_rewards")
 export class UserReward {

@@ -1,12 +1,12 @@
 import { Repository } from "typeorm"
-import { Machine } from "../entities/Machine"
+import { Machine } from "../entities/Machine.js"
 import type {
   MachineDTO as SharedMachine,
   MachineCategoryDTO as MachineCategory,
   DifficultyLevelDTO as DifficultyLevel,
   CreateMachineDTO as SharedCreateMachineRequest,
   UpdateMachineDTO as SharedUpdateMachineRequest,
-} from "../../shared/types/dto/machine.dto"
+} from "../../shared/types/dto/machine.dto.js"
 
 // Machine Repository 타입 정의
 export type MachineRepository = Repository<Machine>
@@ -47,7 +47,7 @@ export interface MachineFilterResponse {
 }
 
 // 중앙 타입 시스템 재내보내기
-export * from "../../shared/types/dto/machine.dto"
+export * from "../../shared/types/dto/machine.dto.js"
 
 // MachineCategory와 DifficultyLevel 타입 재내보내기
 export type { MachineCategory, DifficultyLevel }

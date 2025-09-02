@@ -1,7 +1,7 @@
 import { Repository } from "typeorm"
-import { Gym } from "../entities/Gym"
-import { logger } from "../utils/logger"
-import { ErrorHandlingService, ErrorContext } from "./errorHandlingService"
+import { Gym } from "../entities/Gym.js"
+import { logger } from "../utils/logger.js"
+import { ErrorHandlingService, ErrorContext } from "./errorHandlingService.js"
 
 export interface BatchConfig {
   batchSize: number

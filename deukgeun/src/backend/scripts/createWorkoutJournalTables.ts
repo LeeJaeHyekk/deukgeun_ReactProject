@@ -1,22 +1,22 @@
-import { createConnection } from "typeorm"
-import { config } from "../config/env"
-import { WorkoutSession } from "../entities/WorkoutSession"
-import { ExerciseSet } from "../entities/ExerciseSet"
-import { WorkoutGoal } from "../entities/WorkoutGoal"
-import { WorkoutPlan } from "../entities/WorkoutPlan"
-import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
-import { WorkoutStats } from "../entities/WorkoutStats"
-import { WorkoutProgress } from "../entities/WorkoutProgress"
-import { WorkoutReminder } from "../entities/WorkoutReminder"
-import { Machine } from "../entities/Machine"
-import { User } from "../entities/User"
-import { Gym } from "../entities/Gym"
+import { DataSource } from "typeorm"
+import { config } from "../config/env.js"
+import { WorkoutSession } from "../entities/WorkoutSession.js"
+import { ExerciseSet } from "../entities/ExerciseSet.js"
+import { WorkoutGoal } from "../entities/WorkoutGoal.js"
+import { WorkoutPlan } from "../entities/WorkoutPlan.js"
+import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise.js"
+import { WorkoutStats } from "../entities/WorkoutStats.js"
+import { WorkoutProgress } from "../entities/WorkoutProgress.js"
+import { WorkoutReminder } from "../entities/WorkoutReminder.js"
+import { Machine } from "../entities/Machine.js"
+import { User } from "../entities/User.js"
+import { Gym } from "../entities/Gym.js"
 
 async function createWorkoutJournalTables() {
   try {
     console.log("데이터베이스 연결 중...")
 
-    const connection = await createConnection({
+    const dataSource = new DataSource({
       type: "mysql",
       host: config.database.host,
       port: config.database.port,
@@ -40,13 +40,14 @@ async function createWorkoutJournalTables() {
       ],
     })
 
+    await dataSource.initialize()
     console.log("데이터베이스 연결 성공!")
 
     // 테이블 생성
     console.log("운동 일지 관련 테이블 생성 중...")
 
     // WorkoutSession 테이블 생성
-    await connection.query(`
+    await dataSource.query(`
       CREATE TABLE IF NOT EXISTS workout_sessions (
         session_id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
@@ -72,7 +73,7 @@ async function createWorkoutJournalTables() {
     `)
 
     // ExerciseSet 테이블 생성
-    await connection.query(`
+    await dataSource.query(`
       CREATE TABLE IF NOT EXISTS exercise_sets (
         set_id INT AUTO_INCREMENT PRIMARY KEY,
         session_id INT NOT NULL,
@@ -93,7 +94,7 @@ async function createWorkoutJournalTables() {
     `)
 
     // WorkoutGoal 테이블 생성
-    await connection.query(`
+    await dataSource.query(`
       CREATE TABLE IF NOT EXISTS workout_goals (
         goal_id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
@@ -113,7 +114,7 @@ async function createWorkoutJournalTables() {
     `)
 
     // WorkoutPlan 테이블 생성
-    await connection.query(`
+    await dataSource.query(`
       CREATE TABLE IF NOT EXISTS workout_plans (
         plan_id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
@@ -132,7 +133,7 @@ async function createWorkoutJournalTables() {
     `)
 
     // WorkoutPlanExercise 테이블 생성
-    await connection.query(`
+    await dataSource.query(`
       CREATE TABLE IF NOT EXISTS workout_plan_exercises (
         plan_exercise_id INT AUTO_INCREMENT PRIMARY KEY,
         plan_id INT NOT NULL,
@@ -151,7 +152,7 @@ async function createWorkoutJournalTables() {
     `)
 
     // WorkoutStats 테이블 생성
-    await connection.query(`
+    await dataSource.query(`
       CREATE TABLE IF NOT EXISTS workout_stats (
         stat_id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
@@ -178,7 +179,7 @@ async function createWorkoutJournalTables() {
     `)
 
     // WorkoutProgress 테이블 생성
-    await connection.query(`
+    await dataSource.query(`
       CREATE TABLE IF NOT EXISTS workout_progress (
         progress_id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
@@ -204,7 +205,7 @@ async function createWorkoutJournalTables() {
     `)
 
     // WorkoutReminder 테이블 생성
-    await connection.query(`
+    await dataSource.query(`
       CREATE TABLE IF NOT EXISTS workout_reminders (
         reminder_id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
@@ -226,7 +227,7 @@ async function createWorkoutJournalTables() {
 
     console.log("운동 일지 관련 테이블 생성 완료!")
 
-    await connection.close()
+    await dataSource.destroy()
     console.log("데이터베이스 연결 종료")
   } catch (error) {
     console.error("테이블 생성 중 오류 발생:", error)
@@ -235,7 +236,7 @@ async function createWorkoutJournalTables() {
 }
 
 // 스크립트 실행
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   createWorkoutJournalTables()
     .then(() => {
       console.log("운동 일지 테이블 생성이 완료되었습니다.")

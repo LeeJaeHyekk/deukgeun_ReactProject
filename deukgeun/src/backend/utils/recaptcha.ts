@@ -1,5 +1,5 @@
 import axios from "axios"
-import { logger } from "./logger"
+import { logger } from "./logger.js"
 
 // reCAPTCHA 검증 함수
 export async function verifyRecaptcha(token: string): Promise<boolean> {

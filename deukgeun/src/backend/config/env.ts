@@ -14,7 +14,7 @@ import type {
   SMSConfig,
   UploadConfig,
   SchedulerConfig,
-} from "../types"
+} from "../types/index.js"
 
 // 환경 변수 로드 - 프로덕션 우선
 dotenv.config({ path: ".env.production" })

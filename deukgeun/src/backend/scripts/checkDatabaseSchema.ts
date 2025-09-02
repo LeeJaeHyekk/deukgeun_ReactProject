@@ -1,5 +1,5 @@
-import { AppDataSource } from "../config/database"
-import { logger } from "../utils/logger"
+import { AppDataSource } from "../config/database.js"
+import { logger } from "../utils/logger.js"
 
 /**
  * 현재 데이터베이스 스키마 확인 스크립트
@@ -65,6 +65,6 @@ async function checkDatabaseSchema() {
 }
 
 // 스크립트 실행
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   checkDatabaseSchema()
 }

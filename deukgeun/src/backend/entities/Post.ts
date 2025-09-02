@@ -9,9 +9,9 @@ import {
   JoinColumn,
   Index,
 } from "typeorm"
-import { User } from "./User"
-import { Like } from "./Like"
-import type { PostCategory } from "../../shared/types/dto/post.dto"
+import { User } from "./User.js"
+import { Like } from "./Like.js"
+import type { PostCategory } from "../../shared/types/dto/post.dto.js"
 
 /**
  * 포스트 엔티티 클래스

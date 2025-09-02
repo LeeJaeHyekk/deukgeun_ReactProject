@@ -1,7 +1,7 @@
-import { AppDataSource } from "../config/database"
-import { Post } from "../entities/Post"
-import { User } from "../entities/User"
-import { ApiResponse } from "../types"
+import { AppDataSource } from "../config/database.js"
+import { Post } from "../entities/Post.js"
+import { User } from "../entities/User.js"
+import { ApiResponse } from "../types/index.js"
 
 interface PostQueryParams {
   category?: string

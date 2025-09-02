@@ -7,8 +7,8 @@ import {
   JoinColumn,
   Index,
 } from "typeorm"
-import { WorkoutSession } from "./WorkoutSession"
-import { Machine } from "./Machine"
+import { WorkoutSession } from "./WorkoutSession.js"
+import { Machine } from "./Machine.js"
 
 @Entity("exercise_sets")
 export class ExerciseSet {

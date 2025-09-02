@@ -4,7 +4,10 @@
 // ============================================================================
 
 import { Request, Response, NextFunction } from "express"
-import { extendedLogger } from "../utils/logger"
+import { performance } from "perf_hooks"
+import { setTimeout } from "timers/promises"
+import { randomBytes } from "crypto"
+import { extendedLogger } from "../utils/logger.js"
 
 // 성능 메트릭 인터페이스
 interface PerformanceMetrics {

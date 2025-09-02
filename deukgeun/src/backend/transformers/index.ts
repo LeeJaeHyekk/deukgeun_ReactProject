@@ -4,49 +4,49 @@
 // ============================================================================
 
 // Machine Transformer
-export { MachineTransformer } from "./machine.transformer"
+export { MachineTransformer } from "./machine.transformer.js"
 
 // User Transformer
-export { UserTransformer } from "./user.transformer"
+export { UserTransformer } from "./user.transformer.js"
 
 // Post Transformer
-export { PostTransformer } from "./post.transformer"
+export { PostTransformer } from "./post.transformer.js"
 
 // Comment Transformer
-export { CommentTransformer } from "./comment.transformer"
+export { CommentTransformer } from "./comment.transformer.js"
 
 // Gym Transformer
-export { GymTransformer } from "./gym.transformer"
+export { GymTransformer } from "./gym.transformer.js"
 
 // WorkoutSession Transformer
-export { WorkoutSessionTransformer } from "./workoutsession.transformer"
+export { WorkoutSessionTransformer } from "./workoutsession.transformer.js"
 
 // ExerciseSet Transformer
-export { ExerciseSetTransformer } from "./exerciseset.transformer"
+export { ExerciseSetTransformer } from "./exerciseset.transformer.js"
 
 // ExpHistory Transformer
-export { ExpHistoryTransformer } from "./exphistory.transformer"
+export { ExpHistoryTransformer } from "./exphistory.transformer.js"
 
 // UserLevel Transformer
-export { UserLevelTransformer } from "./userlevel.transformer"
+export { UserLevelTransformer } from "./userlevel.transformer.js"
 
 // Like Transformer
-export { LikeTransformer } from "./like.transformer"
+export { LikeTransformer } from "./like.transformer.js"
 
 // ============================================================================
 // 통합된 Transformer 함수들 (편의성을 위해)
 // ============================================================================
 
-import { MachineTransformer } from "./machine.transformer"
-import { UserTransformer } from "./user.transformer"
-import { PostTransformer } from "./post.transformer"
-import { CommentTransformer } from "./comment.transformer"
-import { GymTransformer } from "./gym.transformer"
-import { WorkoutSessionTransformer } from "./workoutsession.transformer"
-import { ExerciseSetTransformer } from "./exerciseset.transformer"
-import { ExpHistoryTransformer } from "./exphistory.transformer"
-import { UserLevelTransformer } from "./userlevel.transformer"
-import { LikeTransformer } from "./like.transformer"
+import { MachineTransformer } from "./machine.transformer.js"
+import { UserTransformer } from "./user.transformer.js"
+import { PostTransformer } from "./post.transformer.js"
+import { CommentTransformer } from "./comment.transformer.js"
+import { GymTransformer } from "./gym.transformer.js"
+import { WorkoutSessionTransformer } from "./workoutsession.transformer.js"
+import { ExerciseSetTransformer } from "./exerciseset.transformer.js"
+import { ExpHistoryTransformer } from "./exphistory.transformer.js"
+import { UserLevelTransformer } from "./userlevel.transformer.js"
+import { LikeTransformer } from "./like.transformer.js"
 
 // Machine 변환 함수들
 export const toMachineDTO = MachineTransformer.toDTO
@@ -98,5 +98,5 @@ export const toLikeDTO = LikeTransformer.toDTO
 export const toLikeEntity = LikeTransformer.toEntity
 export const toLikeDTOList = LikeTransformer.toDTOList
 
-export * from "./nullableDate"
-export * from "./bigintNumber"
+export * from "./nullableDate.js"
+export * from "./bigintNumber.js"

@@ -1,22 +1,22 @@
 import { Request, Response } from "express"
-import { User } from "../entities/User"
-import { UserLevel } from "../entities/UserLevel"
-import { UserStreak } from "../entities/UserStreak"
+import { User } from "../entities/User.js"
+import { UserLevel } from "../entities/UserLevel.js"
+import { UserStreak } from "../entities/UserStreak.js"
 import bcrypt from "bcrypt"
-import { verifyRecaptcha } from "../utils/recaptcha"
-import { createTokens, verifyRefreshToken } from "../utils/jwt"
-import { logger } from "../utils/logger"
-import { AppDataSource } from "../config/database"
-import { ApiResponse, ErrorResponse } from "../types"
+import { verifyRecaptcha } from "../utils/recaptcha.js"
+import { createTokens, verifyRefreshToken } from "../utils/jwt.js"
+import { logger } from "../utils/logger.js"
+import { AppDataSource } from "../config/database.js"
+import { ApiResponse, ErrorResponse } from "../types/index.js"
 import {
   LoginRequest,
   RegisterRequest,
   LoginResponse,
   RegisterResponse,
-} from "../types"
-import { accountRecoveryService } from "../services/accountRecoveryService"
-import { SecurityInfo } from "../types"
-import { UserTransformer } from "../transformers/user.transformer"
+} from "../types/index.js"
+import { accountRecoveryService } from "../services/accountRecoveryService.js"
+import { SecurityInfo } from "../types/index.js"
+import { UserTransformer } from "../transformers/user.transformer.js"
 
 export async function login(
   req: Request<Record<string, never>, Record<string, never>, LoginRequest>,

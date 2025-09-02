@@ -1,6 +1,7 @@
 import { Router } from "express"
-import { authMiddleware } from "../middlewares/auth"
-import { LikeController } from "../controllers/likeController"
+import { LikeController } from "../controllers/likeController.js"
+import { authMiddleware } from "../middlewares/auth.js"
+import { rateLimiter } from "../middlewares/rateLimiter.js"
 
 const router = Router()
 const likeController = new LikeController()

@@ -1,9 +1,9 @@
-import { AppDataSource } from "../config/database"
-import { User } from "../entities/User"
-import { UserLevel } from "../entities/UserLevel"
-import { ExpHistory } from "../entities/ExpHistory"
-import { UserReward } from "../entities/UserReward"
-import { UserStreak } from "../entities/UserStreak"
+import { AppDataSource } from "../config/database.js"
+import { User } from "../entities/User.js"
+import { UserLevel } from "../entities/UserLevel.js"
+import { ExpHistory } from "../entities/ExpHistory.js"
+import { UserReward } from "../entities/UserReward.js"
+import { UserStreak } from "../entities/UserStreak.js"
 import bcrypt from "bcrypt"
 
 async function setupTestUser() {

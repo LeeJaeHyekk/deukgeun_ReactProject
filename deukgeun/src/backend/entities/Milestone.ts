@@ -8,8 +8,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
-import type { MilestoneType } from "../types"
-import { User } from "./User"
+import type { MilestoneType } from "../types/index.js"
+import { User } from "./User.js"
 
 @Entity("milestones")
 export class Milestone {

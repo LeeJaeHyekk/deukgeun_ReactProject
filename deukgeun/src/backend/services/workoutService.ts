@@ -1,9 +1,9 @@
-import { AppDataSource } from "../config/database"
-import { WorkoutPlan } from "../entities/WorkoutPlan"
-import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
-import { WorkoutSession } from "../entities/WorkoutSession"
-import { ExerciseSet } from "../entities/ExerciseSet"
-import { WorkoutGoal } from "../entities/WorkoutGoal"
+import { AppDataSource } from "../config/database.js"
+import { WorkoutPlan } from "../entities/WorkoutPlan.js"
+import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise.js"
+import { WorkoutSession } from "../entities/WorkoutSession.js"
+import { ExerciseSet } from "../entities/ExerciseSet.js"
+import { WorkoutGoal } from "../entities/WorkoutGoal.js"
 import { In } from "typeorm"
 
 export class WorkoutService {

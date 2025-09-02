@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express"
-import { PostService } from "../services/post.service"
-import { User } from "../entities/User"
-import { LevelService } from "../services/levelService"
-import { AppDataSource } from "../config/database"
-import { ApiResponse, ErrorResponse } from "../types"
-import { toPostDTO, toPostDTOList } from "@transformers/index"
+import { PostService } from "../services/post.service.js"
+import { User } from "../entities/User.js"
+import { LevelService } from "../services/levelService.js"
+import { AppDataSource } from "../config/database.js"
+import { ApiResponse, ErrorResponse } from "../types/index.js"
+import { toPostDTO, toPostDTOList } from "../transformers/index.js"
 
 /**
  * 포스트 관련 HTTP 요청을 처리하는 컨트롤러 클래스

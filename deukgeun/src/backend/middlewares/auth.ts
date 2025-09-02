@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express"
-import { verifyAccessToken } from "../utils/jwt"
-import { logger } from "../utils/logger"
+import { verifyAccessToken } from "../utils/jwt.js"
+import { logger } from "../utils/logger.js"
 
 // Request 인터페이스 확장
 declare global {

@@ -1,12 +1,31 @@
-import { AppDataSource } from "../config/database"
-import { logger } from "../utils/logger"
+import { AppDataSource } from "../config/database.js"
+import { logger } from "../utils/logger.js"
+import { User } from "../entities/User.js"
+import { Gym } from "../entities/Gym.js"
+import { Machine } from "../entities/Machine.js"
+import { Post } from "../entities/Post.js"
+import { Comment } from "../entities/Comment.js"
+import { Like } from "../entities/Like.js"
+import { UserLevel } from "../entities/UserLevel.js"
+import { ExpHistory } from "../entities/ExpHistory.js"
+import { UserReward } from "../entities/UserReward.js"
+import { Milestone } from "../entities/Milestone.js"
+import { UserStreak } from "../entities/UserStreak.js"
+import { WorkoutSession } from "../entities/WorkoutSession.js"
+import { ExerciseSet } from "../entities/ExerciseSet.js"
+import { WorkoutGoal } from "../entities/WorkoutGoal.js"
+import { WorkoutPlan } from "../entities/WorkoutPlan.js"
+import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise.js"
+import { WorkoutStats } from "../entities/WorkoutStats.js"
+import { WorkoutProgress } from "../entities/WorkoutProgress.js"
+import { WorkoutReminder } from "../entities/WorkoutReminder.js"
 
 /**
  * 최적화된 스키마로 전체 데이터베이스 마이그레이션
- * 
+ *
  * 실행 방법:
  * npm run migrate:optimized
- * 
+ *
  * 주의사항:
  * - 실행 전 반드시 데이터베이스 백업을 수행하세요
  * - 프로덕션 환경에서는 신중하게 실행하세요
@@ -188,6 +207,6 @@ async function main() {
 }
 
 // 스크립트 실행
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   main()
 }

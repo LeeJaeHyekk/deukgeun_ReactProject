@@ -1,10 +1,10 @@
 import { Router } from "express"
-import { schedulerAPI } from "../services/autoUpdateScheduler"
-import { DataReferenceService } from "../services/dataReferenceService"
-import { ErrorHandlingService } from "../services/errorHandlingService"
-import { BatchProcessingService } from "../services/batchProcessingService"
-import { connectDatabase } from "../config/database"
-import { Gym } from "../entities/Gym"
+import { schedulerAPI } from "../services/autoUpdateScheduler.js"
+import { DataReferenceService } from "../services/dataReferenceService.js"
+import { ErrorHandlingService } from "../services/errorHandlingService.js"
+import { BatchProcessingService } from "../services/batchProcessingService.js"
+import { connectDatabase } from "../config/database.js"
+import { Gym } from "../entities/Gym.js"
 
 const router = Router()
 

@@ -1,24 +1,24 @@
-import { createConnection } from "typeorm"
-import { User } from "../entities/User"
-import { Gym } from "../entities/Gym"
-import { Machine } from "../entities/Machine"
-import { Post } from "../entities/Post"
-import { Comment } from "../entities/Comment"
-import { Like } from "../entities/Like"
-import { UserLevel } from "../entities/UserLevel"
-import { ExpHistory } from "../entities/ExpHistory"
-import { UserReward } from "../entities/UserReward"
-import { Milestone } from "../entities/Milestone"
-import { UserStreak } from "../entities/UserStreak"
-import { WorkoutSession } from "../entities/WorkoutSession"
-import { ExerciseSet } from "../entities/ExerciseSet"
-import { WorkoutGoal } from "../entities/WorkoutGoal"
-import { WorkoutPlan } from "../entities/WorkoutPlan"
-import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
-import { WorkoutStats } from "../entities/WorkoutStats"
-import { WorkoutProgress } from "../entities/WorkoutProgress"
-import { WorkoutReminder } from "../entities/WorkoutReminder"
-import { config } from "../config/env"
+import { DataSource } from "typeorm"
+import { User } from "../entities/User.js"
+import { Gym } from "../entities/Gym.js"
+import { Machine } from "../entities/Machine.js"
+import { Post } from "../entities/Post.js"
+import { Comment } from "../entities/Comment.js"
+import { Like } from "../entities/Like.js"
+import { UserLevel } from "../entities/UserLevel.js"
+import { ExpHistory } from "../entities/ExpHistory.js"
+import { UserReward } from "../entities/UserReward.js"
+import { Milestone } from "../entities/Milestone.js"
+import { UserStreak } from "../entities/UserStreak.js"
+import { WorkoutSession } from "../entities/WorkoutSession.js"
+import { ExerciseSet } from "../entities/ExerciseSet.js"
+import { WorkoutGoal } from "../entities/WorkoutGoal.js"
+import { WorkoutPlan } from "../entities/WorkoutPlan.js"
+import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise.js"
+import { WorkoutStats } from "../entities/WorkoutStats.js"
+import { WorkoutProgress } from "../entities/WorkoutProgress.js"
+import { WorkoutReminder } from "../entities/WorkoutReminder.js"
+import { config } from "../config/env.js"
 import bcrypt from "bcrypt"
 
 // 샘플 사용자 데이터
@@ -362,12 +362,11 @@ const sampleComments = [
 ]
 
 async function seedAllTestData() {
-  let connection
+  let dataSource: DataSource | null = null
   try {
-    console.log("🚀 전체 테스트 데이터 생성 시작...")
+    console.log("데이터베이스 연결 중...")
 
-    // 데이터베이스 연결
-    connection = await createConnection({
+    dataSource = new DataSource({
       type: "mysql",
       host: config.database.host,
       port: config.database.port,
@@ -375,7 +374,7 @@ async function seedAllTestData() {
       password: config.database.password,
       database: config.database.database,
       synchronize: false,
-      logging: false,
+      logging: true,
       entities: [
         User,
         Gym,
@@ -397,13 +396,16 @@ async function seedAllTestData() {
         WorkoutProgress,
         WorkoutReminder,
       ],
+      subscribers: [],
+      migrations: [],
     })
 
-    console.log("✅ 데이터베이스 연결 성공")
+    await dataSource.initialize()
+    console.log("데이터베이스 연결 성공!")
 
     // 1. 사용자 생성
     console.log("\n👥 사용자 데이터 생성 중...")
-    const userRepository = connection.getRepository(User)
+    const userRepository = dataSource.getRepository(User)
     const createdUsers = []
 
     for (const userData of sampleUsers) {
@@ -447,7 +449,7 @@ async function seedAllTestData() {
 
     // 2. 헬스장 데이터 생성
     console.log("\n🏋️ 헬스장 데이터 생성 중...")
-    const gymRepository = connection.getRepository(Gym)
+    const gymRepository = dataSource.getRepository(Gym)
     const createdGyms = []
 
     for (const gymData of sampleGyms) {
@@ -483,7 +485,7 @@ async function seedAllTestData() {
 
     // 3. 운동 기구 데이터 생성
     console.log("\n💪 운동 기구 데이터 생성 중...")
-    const machineRepository = connection.getRepository(Machine)
+    const machineRepository = dataSource.getRepository(Machine)
     const createdMachines = []
 
     for (const machineData of sampleMachines) {
@@ -520,13 +522,12 @@ async function seedAllTestData() {
 
     // 4. 포스트 데이터 생성
     console.log("\n📝 포스트 데이터 생성 중...")
-    const postRepository = connection.getRepository(Post)
-    const createdPosts = []
+    const postRepository = dataSource.getRepository(Post)
+    const createdPosts: Post[] = []
 
-    for (let i = 0; i < samplePosts.length; i++) {
-      const postData = samplePosts[i]
-      const user = createdUsers[i % createdUsers.length]
-
+    for (let i = 0; i < createdUsers.length; i++) {
+      const user = createdUsers[i]
+      const postData = samplePosts[i % samplePosts.length]
       const post = postRepository.create({
         ...postData,
         userId: user.id,
@@ -538,7 +539,7 @@ async function seedAllTestData() {
 
     // 5. 댓글 데이터 생성
     console.log("\n💬 댓글 데이터 생성 중...")
-    const commentRepository = connection.getRepository(Comment)
+    const commentRepository = dataSource.getRepository(Comment)
 
     for (let i = 0; i < createdPosts.length; i++) {
       const post = createdPosts[i]
@@ -558,7 +559,7 @@ async function seedAllTestData() {
 
     // 6. 좋아요 데이터 생성
     console.log("\n❤️ 좋아요 데이터 생성 중...")
-    const likeRepository = connection.getRepository(Like)
+    const likeRepository = dataSource.getRepository(Like)
 
     for (const post of createdPosts) {
       for (let i = 0; i < Math.floor(Math.random() * 3) + 1; i++) {
@@ -574,7 +575,7 @@ async function seedAllTestData() {
 
     // 7. 사용자 레벨 데이터 생성
     console.log("\n📊 사용자 레벨 데이터 생성 중...")
-    const userLevelRepository = connection.getRepository(UserLevel)
+    const userLevelRepository = dataSource.getRepository(UserLevel)
 
     for (const user of createdUsers) {
       const level = userLevelRepository.create({
@@ -590,7 +591,7 @@ async function seedAllTestData() {
 
     // 8. 경험치 히스토리 생성
     console.log("\n📈 경험치 히스토리 생성 중...")
-    const expHistoryRepository = connection.getRepository(ExpHistory)
+    const expHistoryRepository = dataSource.getRepository(ExpHistory)
 
     for (const user of createdUsers) {
       for (let i = 0; i < 5; i++) {
@@ -616,8 +617,8 @@ async function seedAllTestData() {
 
     // 9. 운동 계획 생성
     console.log("\n📋 운동 계획 생성 중...")
-    const workoutPlanRepository = connection.getRepository(WorkoutPlan)
-    const createdPlans = []
+    const workoutPlanRepository = dataSource.getRepository(WorkoutPlan)
+    const createdPlans: WorkoutPlan[] = []
 
     for (const user of createdUsers) {
       const plan = workoutPlanRepository.create({
@@ -637,7 +638,7 @@ async function seedAllTestData() {
 
     // 10. 운동 목표 생성
     console.log("\n🎯 운동 목표 생성 중...")
-    const workoutGoalRepository = connection.getRepository(WorkoutGoal)
+    const workoutGoalRepository = dataSource.getRepository(WorkoutGoal)
 
     for (const user of createdUsers) {
       const goal = workoutGoalRepository.create({
@@ -657,8 +658,8 @@ async function seedAllTestData() {
 
     // 11. 운동 세션 생성
     console.log("\n🏃 운동 세션 생성 중...")
-    const workoutSessionRepository = connection.getRepository(WorkoutSession)
-    const exerciseSetRepository = connection.getRepository(ExerciseSet)
+    const workoutSessionRepository = dataSource.getRepository(WorkoutSession)
+    const exerciseSetRepository = dataSource.getRepository(ExerciseSet)
 
     for (const user of createdUsers) {
       for (let i = 0; i < 3; i++) {
@@ -700,7 +701,7 @@ async function seedAllTestData() {
 
     // 12. 운동 통계 생성
     console.log("\n📊 운동 통계 생성 중...")
-    const workoutStatsRepository = connection.getRepository(WorkoutStats)
+    const workoutStatsRepository = dataSource.getRepository(WorkoutStats)
 
     for (const user of createdUsers) {
       for (let i = 0; i < 7; i++) {
@@ -728,7 +729,7 @@ async function seedAllTestData() {
 
     // 13. 운동 진행 상황 생성
     console.log("\n📈 운동 진행 상황 생성 중...")
-    const workoutProgressRepository = connection.getRepository(WorkoutProgress)
+    const workoutProgressRepository = dataSource.getRepository(WorkoutProgress)
 
     for (const user of createdUsers) {
       for (let i = 0; i < 5; i++) {
@@ -755,7 +756,7 @@ async function seedAllTestData() {
 
     // 14. 운동 알림 생성
     console.log("\n⏰ 운동 알림 생성 중...")
-    const workoutReminderRepository = connection.getRepository(WorkoutReminder)
+    const workoutReminderRepository = dataSource.getRepository(WorkoutReminder)
 
     for (const user of createdUsers) {
       const reminder = workoutReminderRepository.create({
@@ -773,7 +774,7 @@ async function seedAllTestData() {
 
     // 15. 사용자 스트릭 생성
     console.log("\n🔥 사용자 스트릭 생성 중...")
-    const userStreakRepository = connection.getRepository(UserStreak)
+    const userStreakRepository = dataSource.getRepository(UserStreak)
 
     for (const user of createdUsers) {
       const streak = userStreakRepository.create({
@@ -790,7 +791,7 @@ async function seedAllTestData() {
 
     // 16. 마일스톤 생성
     console.log("\n🏆 마일스톤 생성 중...")
-    const milestoneRepository = connection.getRepository(Milestone)
+    const milestoneRepository = dataSource.getRepository(Milestone)
 
     // 각 사용자별로 마일스톤 생성
     for (const user of createdUsers) {
@@ -830,7 +831,7 @@ async function seedAllTestData() {
 
     // 17. 사용자 보상 생성
     console.log("\n🎁 사용자 보상 생성 중...")
-    const userRewardRepository = connection.getRepository(UserReward)
+    const userRewardRepository = dataSource.getRepository(UserReward)
 
     for (const user of createdUsers) {
       const reward = userRewardRepository.create({
@@ -872,15 +873,15 @@ async function seedAllTestData() {
     console.error("❌ 테스트 데이터 생성 실패:", error)
     throw error
   } finally {
-    if (connection) {
-      await connection.close()
+    if (dataSource) {
+      await dataSource.destroy()
       console.log("🔌 데이터베이스 연결 종료")
     }
   }
 }
 
 // 스크립트 실행
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   seedAllTestData()
     .then(() => {
       console.log("✅ 스크립트 실행 완료")

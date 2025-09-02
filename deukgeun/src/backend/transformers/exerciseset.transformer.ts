@@ -2,8 +2,8 @@
 // ExerciseSet Transformer
 // ============================================================================
 
-import { ExerciseSetDTO } from "../../shared/types/dto/exerciseset.dto"
-import { ExerciseSet } from "../entities/ExerciseSet"
+import { ExerciseSetDTO } from "../../shared/types/dto/exerciseset.dto.js"
+import { ExerciseSet } from "../entities/ExerciseSet.js"
 
 export class ExerciseSetTransformer {
   static toDTO(entity: ExerciseSet): ExerciseSetDTO {

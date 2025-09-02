@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
 } from "typeorm"
 // MachineCategory와 DifficultyLevel을 shared types에서 import
-import type { MachineCategory, DifficultyLevel } from "../../shared/types/dto/machine.dto"
+import type { MachineCategory, DifficultyLevel } from "../../shared/types/dto/machine.dto.js"
 
 @Entity("machines")
 export class Machine {

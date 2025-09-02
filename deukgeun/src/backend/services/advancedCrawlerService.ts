@@ -1,7 +1,7 @@
 import { Repository } from "typeorm"
-import { Gym } from "../entities/Gym"
+import { Gym } from "../entities/Gym.js"
 import axios from "axios"
-import { config } from "../config/env"
+import { config } from "../config/env.js"
 import * as cheerio from "cheerio"
 
 // 검색 결과 타입 정의

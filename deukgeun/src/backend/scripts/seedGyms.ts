@@ -1,10 +1,15 @@
+import { DataSource } from "typeorm"
+import { config } from "../config/env.js"
+import { Gym } from "../entities/Gym.js"
 import fs from "fs"
 import path from "path"
-import { createConnection } from "typeorm"
-import { Gym } from "../entities/Gym"
+import { fileURLToPath } from "url"
 import { filterGyms } from "./gymUtils"
-import { convertTMToWGS84 } from "../utils/coordinateUtils"
-import { config } from "../config/env"
+import { convertTMToWGS84 } from "../utils/coordinateUtils.js"
+
+// ESM에서 __dirname 대체
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // API related constants
 const API_KEY = process.env.VITE_GYM_API_KEY
@@ -97,9 +102,9 @@ const fetchGymsFromAPI = async (): Promise<Partial<Gym>[]> => {
  * 헬스장 데이터를 API로부터 가져와 필터링 후 DB에 저장
  */
 async function seedGyms() {
-  let connection
+  let dataSource: DataSource | null = null
   try {
-    connection = await createConnection({
+    dataSource = new DataSource({
       type: "mysql",
       host: config.database.host,
       port: config.database.port,
@@ -112,6 +117,8 @@ async function seedGyms() {
       subscribers: [],
       migrations: [],
     })
+
+    await dataSource.initialize()
     console.log("📦 DB 연결 성공")
 
     const rawGyms = await fetchGymsFromAPI()
@@ -123,14 +130,14 @@ async function seedGyms() {
 
     // DB에 데이터 저장
     for (const gym of rawGyms) {
-      await connection.getRepository(Gym).save(gym)
+      await dataSource.getRepository(Gym).save(gym)
     }
 
     console.log("✅ 필터링된 헬스장 DB 저장 완료")
   } catch (err) {
     console.error("❌ 헬스장 시드 실패", err)
   } finally {
-    if (connection) await connection.close()
+    if (dataSource && dataSource.isInitialized) await dataSource.destroy()
   }
 }
 

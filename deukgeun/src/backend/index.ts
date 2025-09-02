@@ -1,10 +1,10 @@
 import "reflect-metadata"
-import { AppDataSource } from "./config/database"
-import app from "./app"
-import { logger } from "./utils/logger"
-import { getAvailablePort } from "./utils/getAvailablePort"
-import { config } from "./config/env"
-import { autoInitializeScheduler } from "./services/autoUpdateScheduler"
+import { AppDataSource } from "./config/database.js"
+import app from "./app.js"
+import { logger } from "./utils/logger.js"
+import { getAvailablePort } from "./utils/getAvailablePort.js"
+import { config } from "./config/env.js"
+import { autoInitializeScheduler } from "./services/autoUpdateScheduler.js"
 
 const environment = process.env.NODE_ENV || "development"
 

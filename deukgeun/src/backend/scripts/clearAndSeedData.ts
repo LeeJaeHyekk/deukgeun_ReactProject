@@ -1,5 +1,5 @@
-import { AppDataSource } from "../config/database"
-import { logger } from "../utils/logger"
+import { AppDataSource } from "../config/database.js"
+import { logger } from "../utils/logger.js"
 
 /**
  * 기존 데이터를 삭제하고 새로운 시드 데이터를 넣는 스크립트
@@ -71,7 +71,7 @@ async function clearAndSeedData() {
 }
 
 // 스크립트 실행
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   clearAndSeedData()
     .then(() => {
       logger.info("✅ 데이터 삭제 및 시드 완료!")

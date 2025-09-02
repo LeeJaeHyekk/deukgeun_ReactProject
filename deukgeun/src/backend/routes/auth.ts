@@ -15,8 +15,8 @@ import {
   findIdSimple,
   resetPasswordSimpleStep1,
   resetPasswordSimpleStep2,
-} from "../controllers/authController"
-import { authMiddleware } from "../middlewares/auth"
+} from "../controllers/authController.js"
+import { authMiddleware } from "../middlewares/auth.js"
 
 const router = Router()
 

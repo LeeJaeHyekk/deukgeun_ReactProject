@@ -1,10 +1,10 @@
 import { Repository } from "typeorm"
-import { Gym } from "../entities/Gym"
+import { Gym } from "../entities/Gym.js"
 import axios from "axios"
-import { config } from "../config/env"
+import { config } from "../config/env.js"
 import * as cheerio from "cheerio"
-import { BatchProcessingService } from "./batchProcessingService"
-import { ErrorHandlingService, ErrorContext } from "./errorHandlingService"
+import { BatchProcessingService } from "./batchProcessingService.js"
+import { ErrorHandlingService, ErrorContext } from "./errorHandlingService.js"
 
 interface SearchResult {
   name: string

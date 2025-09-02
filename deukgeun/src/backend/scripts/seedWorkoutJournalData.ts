@@ -1,12 +1,12 @@
-import { AppDataSource } from "../config/database"
-import { User } from "../entities/User"
-import { WorkoutPlan } from "../entities/WorkoutPlan"
-import { WorkoutGoal } from "../entities/WorkoutGoal"
-import { WorkoutSession } from "../entities/WorkoutSession"
-import { ExerciseSet } from "../entities/ExerciseSet"
-import { WorkoutStats } from "../entities/WorkoutStats"
-import { WorkoutProgress } from "../entities/WorkoutProgress"
-import { Machine } from "../entities/Machine"
+import { AppDataSource } from "../config/database.js"
+import { User } from "../entities/User.js"
+import { WorkoutPlan } from "../entities/WorkoutPlan.js"
+import { WorkoutGoal } from "../entities/WorkoutGoal.js"
+import { WorkoutSession } from "../entities/WorkoutSession.js"
+import { ExerciseSet } from "../entities/ExerciseSet.js"
+import { WorkoutStats } from "../entities/WorkoutStats.js"
+import { WorkoutProgress } from "../entities/WorkoutProgress.js"
+import { Machine } from "../entities/Machine.js"
 
 async function seedWorkoutJournalData() {
   try {
@@ -258,7 +258,7 @@ async function seedWorkoutJournalData() {
 }
 
 // 스크립트 실행
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   seedWorkoutJournalData()
     .then(() => {
       console.log("✅ 스크립트 실행 완료")

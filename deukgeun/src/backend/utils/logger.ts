@@ -3,8 +3,11 @@
 // ============================================================================
 
 import winston from "winston"
+import DailyRotateFile from "winston-daily-rotate-file"
 import path from "path"
-import { config } from "../config/env"
+import { fileURLToPath } from "url"
+import { config } from "../config/env.js"
+import fs from "fs"
 
 // 로그 레벨 정의
 const logLevels = {
@@ -52,40 +55,45 @@ const logger = winston.createLogger({
   level: config.environment === "production" ? "info" : "debug",
   format: config.environment === "production" ? productionFormat : logFormat,
   transports: [
-    // 에러 로그 파일
-    new winston.transports.File({
-      filename: errorLogPath,
+    // 에러 로그 파일 (DailyRotateFile 사용)
+    new DailyRotateFile({
+      filename: path.join(logDir, "error-%DATE%.log"),
+      datePattern: "YYYY-MM-DD",
       level: "error",
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-      tailable: true,
+      maxSize: "5m",
+      maxFiles: "14d", // 14일간 보관
+      zippedArchive: true,
     }),
-    // 통합 로그 파일
-    new winston.transports.File({
-      filename: combinedLogPath,
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-      tailable: true,
+    // 통합 로그 파일 (DailyRotateFile 사용)
+    new DailyRotateFile({
+      filename: path.join(logDir, "combined-%DATE%.log"),
+      datePattern: "YYYY-MM-DD",
+      maxSize: "5m",
+      maxFiles: "14d", // 14일간 보관
+      zippedArchive: true,
     }),
     // HTTP 액세스 로그 (프로덕션에서만)
     ...(config.environment === "production"
       ? [
-          new winston.transports.File({
-            filename: accessLogPath,
+          new DailyRotateFile({
+            filename: path.join(logDir, "access-%DATE%.log"),
+            datePattern: "YYYY-MM-DD",
             level: "http",
-            maxsize: 5242880, // 5MB
-            maxFiles: 5,
-            tailable: true,
+            maxSize: "5m",
+            maxFiles: "14d", // 14일간 보관
+            zippedArchive: true,
           }),
         ]
       : []),
   ],
   // 예외 처리
   exceptionHandlers: [
-    new winston.transports.File({
-      filename: path.join(logDir, "exceptions.log"),
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
+    new DailyRotateFile({
+      filename: path.join(logDir, "exceptions-%DATE%.log"),
+      datePattern: "YYYY-MM-DD",
+      maxSize: "5m",
+      maxFiles: "14d", // 14일간 보관
+      zippedArchive: true,
     }),
   ],
   // 프로세스 종료 시 로그 처리
@@ -99,37 +107,6 @@ if (config.environment !== "production") {
       format: logFormat,
     })
   )
-}
-
-// 로그 로테이션 설정 (프로덕션)
-if (config.environment === "production") {
-  // 매일 자정에 로그 로테이션
-  const rotateLogs = () => {
-    const today = new Date().toISOString().split("T")[0]
-    const archiveDir = path.join(logDir, "archive", today)
-
-    // 아카이브 디렉토리 생성
-    require("fs").mkdirSync(archiveDir, { recursive: true })
-
-    // 로그 파일 이동
-    const files = ["error.log", "combined.log", "access.log"]
-    files.forEach(file => {
-      const sourcePath = path.join(logDir, file)
-      const targetPath = path.join(archiveDir, file)
-
-      if (require("fs").existsSync(sourcePath)) {
-        require("fs").renameSync(sourcePath, targetPath)
-      }
-    })
-  }
-
-  // 매일 자정에 로그 로테이션 실행
-  setInterval(() => {
-    const now = new Date()
-    if (now.getHours() === 0 && now.getMinutes() === 0) {
-      rotateLogs()
-    }
-  }, 60000) // 1분마다 체크
 }
 
 // 로그 메서드 확장

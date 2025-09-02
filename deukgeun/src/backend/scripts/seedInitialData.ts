@@ -2,19 +2,19 @@
 // 초기 데이터 생성 스크립트
 // ============================================================================
 
-import { AppDataSource } from "../config/database"
-import { User } from "../entities/User"
-import { UserLevel } from "../entities/UserLevel"
-import { UserReward } from "../entities/UserReward"
-import { Milestone } from "../entities/Milestone"
-import { UserStreak } from "../entities/UserStreak"
-import { Gym } from "../entities/Gym"
-import { Machine } from "../entities/Machine"
-import { WorkoutPlan } from "../entities/WorkoutPlan"
-import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
-import { ExpHistory } from "../entities/ExpHistory"
-import { Post } from "../entities/Post"
-import { Comment } from "../entities/Comment"
+import { AppDataSource } from "../config/database.js"
+import { User } from "../entities/User.js"
+import { UserLevel } from "../entities/UserLevel.js"
+import { UserReward } from "../entities/UserReward.js"
+import { Milestone } from "../entities/Milestone.js"
+import { UserStreak } from "../entities/UserStreak.js"
+import { Gym } from "../entities/Gym.js"
+import { Machine } from "../entities/Machine.js"
+import { WorkoutPlan } from "../entities/WorkoutPlan.js"
+import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise.js"
+import { ExpHistory } from "../entities/ExpHistory.js"
+import { Post } from "../entities/Post.js"
+import { Comment } from "../entities/Comment.js"
 import bcrypt from "bcrypt"
 
 async function seedInitialData() {
@@ -619,7 +619,7 @@ async function createCommunityPosts(users: any[]) {
 }
 
 // 스크립트 실행
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   seedInitialData()
     .then(() => {
       console.log("🎉 Seeding completed!")

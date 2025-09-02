@@ -1,0 +1,29 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "../../dist"
+  },
+  "include": [
+    "./**/*",
+    "../types/**/*",
+    "../shared/types/**/*",
+    "../shared/validation/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "**/*.js",
+    "**/*.jsx",
+    "**/__tests__/**/*",
+    "**/*.test.*",
+    "**/*.spec.*",
+    "../shared/api/**/*",
+    "../shared/components/**/*",
+    "../shared/utils/**/*",
+    "../shared/constants/**/*",
+    "../shared/hooks/**/*",
+    "../shared/interfaces/**/*"
+  ]
+}

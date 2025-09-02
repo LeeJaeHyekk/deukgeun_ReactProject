@@ -1,5 +1,6 @@
-import { AppDataSource } from "../config/database"
-import { logger } from "../utils/logger"
+import { AppDataSource } from "../config/database.js"
+import { User } from "../entities/User.js"
+import { logger } from "../utils/logger.js"
 
 /**
  * User 테이블 마이그레이션 스크립트
@@ -72,6 +73,6 @@ async function main() {
 }
 
 // 스크립트 실행
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   main()
 }

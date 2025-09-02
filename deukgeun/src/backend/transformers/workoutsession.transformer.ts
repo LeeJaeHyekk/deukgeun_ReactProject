@@ -2,8 +2,8 @@
 // WorkoutSession Transformer
 // ============================================================================
 
-import { WorkoutSessionDTO } from "../../shared/types/dto/workoutsession.dto"
-import { WorkoutSession } from "../entities/WorkoutSession"
+import { WorkoutSessionDTO } from "../../shared/types/dto/workoutsession.dto.js"
+import { WorkoutSession } from "../entities/WorkoutSession.js"
 
 export class WorkoutSessionTransformer {
   static toDTO(entity: WorkoutSession): WorkoutSessionDTO {

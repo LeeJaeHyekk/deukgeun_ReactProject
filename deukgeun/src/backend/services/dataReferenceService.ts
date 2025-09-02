@@ -1,6 +1,6 @@
 import { Repository } from "typeorm"
-import { Gym } from "../entities/Gym"
-import { logger } from "../utils/logger"
+import { Gym } from "../entities/Gym.js"
+import { logger } from "../utils/logger.js"
 
 interface DataReferenceStatus {
   lastUpdateDate: Date

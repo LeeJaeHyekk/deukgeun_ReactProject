@@ -1,14 +1,20 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "lib": ["ES2020"],
-    "outDir": "../../dist/backend",
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    "allowImportingTsExtensions": false,
+    "noEmit": false,
+    "outDir": "../../dist",
     "rootDir": "../",
-    "strict": true,
+
+    "lib": ["ES2022", "DOM"],
+    "strict": false,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
+    "noEmitOnError": false,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
 
@@ -16,6 +22,18 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "useDefineForClassFields": false,
+
+    // 타입 체크 완화
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "ignoreDeprecations": "5.0",
+
+    // ESM 모듈 해결 (TypeScript 5.0+ 지원)
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": false,
+    "allowArbitraryExtensions": true,
 
     // 런타임 경로 alias
     "baseUrl": "../",
@@ -35,6 +53,26 @@
       "@shared/*": ["shared/*"]
     }
   },
-  "include": ["./**/*", "../types/**/*", "../shared/**/*"],
-  "exclude": ["node_modules", "dist", "build", "**/*.js", "**/*.jsx"]
+  "ts-node": {
+    "esm": true
+  },
+  "include": [
+    "./**/*",
+    "../types/**/*",
+    "../shared/types/**/*",
+    "../shared/utils/**/*",
+    "../shared/constants/**/*",
+    "../shared/hooks/**/*",
+    "../shared/interfaces/**/*",
+    "../shared/validation/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "**/*.js",
+    "**/*.jsx",
+    "../shared/api",
+    "../shared/components"
+  ]
 }

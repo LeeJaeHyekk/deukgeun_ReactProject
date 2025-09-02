@@ -1,7 +1,7 @@
 import { Repository } from "typeorm"
-import { Gym } from "../entities/Gym"
+import { Gym } from "../entities/Gym.js"
 import axios from "axios"
-import { config } from "../config/env"
+import { config } from "../config/env.js"
 
 // Clean gym name by removing special characters and company prefixes
 function cleanGymName(name: string): string {

@@ -8,14 +8,14 @@ import {
   OneToOne,
   OneToMany,
 } from "typeorm"
-import type { UserRole, Gender } from "../types"
-import { UserLevel } from "./UserLevel"
-import { ExpHistory } from "./ExpHistory"
-import { UserReward } from "./UserReward"
-import { Milestone } from "./Milestone"
-import { UserStreak } from "./UserStreak"
-import { Comment } from "./Comment"
-import { NullableDateTransformer } from "../transformers/nullableDate"
+import type { UserRole, Gender } from "../types/index.js"
+import { UserLevel } from "./UserLevel.js"
+import { ExpHistory } from "./ExpHistory.js"
+import { UserReward } from "./UserReward.js"
+import { Milestone } from "./Milestone.js"
+import { UserStreak } from "./UserStreak.js"
+import { Comment } from "./Comment.js"
+import { NullableDateTransformer } from "../transformers/nullableDate.js"
 
 @Entity("users")
 export class User {

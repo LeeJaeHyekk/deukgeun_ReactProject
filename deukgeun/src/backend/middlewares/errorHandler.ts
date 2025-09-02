@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express"
-import { logger } from "../utils/logger"
+import { logger } from "../utils/logger.js"
 
 /**
  * 애플리케이션 에러 인터페이스

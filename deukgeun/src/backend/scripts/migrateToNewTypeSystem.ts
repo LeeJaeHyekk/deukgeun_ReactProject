@@ -1,7 +1,7 @@
-import { AppDataSource } from "../config/database"
-import { Machine } from "../entities/Machine"
-import { WorkoutGoal } from "../entities/WorkoutGoal"
-import { logger } from "../utils/logger"
+import { AppDataSource } from "../config/database.js"
+import { Machine } from "../entities/Machine.js"
+import { WorkoutGoal } from "../entities/WorkoutGoal.js"
+import { logger } from "../utils/logger.js"
 
 /**
  * 기존 데이터베이스 스키마를 새로운 타입 시스템에 맞게 마이그레이션하는 스크립트
@@ -278,7 +278,7 @@ async function main() {
 }
 
 // 스크립트 실행
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   main()
 }
 

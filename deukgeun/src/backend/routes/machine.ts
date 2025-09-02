@@ -9,13 +9,13 @@ import {
   getMachinesByCategory,
   getMachinesByDifficulty,
   getMachinesByTarget,
-} from "../controllers/machineController"
+} from "../controllers/machineController.js"
 // import {
 //   validateMachine,
 //   validateMachineUpdate,
 //   validateId,
 // } from "../middlewares/mixValidation"
-import { machineRateLimiter } from "../middlewares/rateLimiter"
+import { machineRateLimiter } from "../middlewares/rateLimiter.js"
 
 const router = Router()
 

@@ -1,6 +1,6 @@
-import { AppDataSource } from "../config/database"
-import { Post } from "../entities/Post"
-import { User } from "../entities/User"
+import { AppDataSource } from "../config/database.js"
+import { Post } from "../entities/Post.js"
+import { User } from "../entities/User.js"
 
 async function createTestPosts() {
   try {

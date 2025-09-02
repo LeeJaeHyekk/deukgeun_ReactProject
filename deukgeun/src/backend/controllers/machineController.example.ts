@@ -1,11 +1,11 @@
 import { Request, Response } from "express"
-import { MachineService } from "../services/machineService"
+import { MachineService } from "../services/machineService.js"
 import {
   validateMachine,
   validateMachineUpdate,
-} from "../middlewares/mixValidation"
-import { machineTransformer } from "../transformers/mixTransformer"
-import { logger } from "../utils/logger"
+} from "../middlewares/mixValidation.js"
+import { machineTransformer } from "../transformers/mixTransformer.js"
+import { logger } from "../utils/logger.js"
 
 /**
  * Machine Controller - Updated to use mix.json configuration

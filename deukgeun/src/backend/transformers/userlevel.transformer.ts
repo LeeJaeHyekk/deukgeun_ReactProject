@@ -2,8 +2,8 @@
 // UserLevel Transformer
 // ============================================================================
 
-import { UserLevelDTO } from "../../shared/types/dto/userlevel.dto"
-import { UserLevel } from "../entities/UserLevel"
+import { UserLevelDTO } from "../../shared/types/dto/userlevel.dto.js"
+import { UserLevel } from "../entities/UserLevel.js"
 
 export class UserLevelTransformer {
   static toDTO(entity: UserLevel): UserLevelDTO {

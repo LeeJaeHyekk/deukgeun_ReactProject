@@ -1,8 +1,8 @@
 import { Request, Response } from "express"
-import { Like } from "../entities/Like"
-import { Post } from "../entities/Post"
-import { AppDataSource } from "../config/database"
-import { toLikeDTO } from "../transformers"
+import { Like } from "../entities/Like.js"
+import { Post } from "../entities/Post.js"
+import { AppDataSource } from "../config/database.js"
+import { toLikeDTO } from "../transformers/index.js"
 
 export class LikeController {
   // 좋아요 토글 (추가/제거)

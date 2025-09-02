@@ -8,8 +8,8 @@ import {
   JoinColumn,
   Index,
 } from "typeorm"
-import { User } from "./User"
-import { Machine } from "./Machine"
+import { User } from "./User.js"
+import { Machine } from "./Machine.js"
 
 @Entity("workout_stats")
 export class WorkoutStats {

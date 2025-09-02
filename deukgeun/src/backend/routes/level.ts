@@ -10,9 +10,9 @@ import {
   updateLevelConfig,
   resetUserProgress,
   getSystemStats,
-} from "../controllers/levelController"
-import { authMiddleware, isAdmin } from "../middlewares/auth"
-import { rateLimiter } from "../middlewares/rateLimiter"
+} from "../controllers/levelController.js"
+import { authMiddleware, isAdmin } from "../middlewares/auth.js"
+import { rateLimiter } from "../middlewares/rateLimiter.js"
 
 const router = Router()
 
@@ -38,7 +38,7 @@ const router = Router()
  * GET    /api/admin/level/stats               - 시스템 통계 조회
  */
 
-// 사용자 진행률 관련 라우트
+// 사용자 레벨 관련 라우트
 router.get(
   "/user/:userId",
   authMiddleware,
@@ -75,7 +75,7 @@ router.get(
   getSeasonLeaderboard
 )
 
-// 관리자 기능 라우트
+// 관리자 전용 라우트
 router.put(
   "/admin/config",
   authMiddleware,

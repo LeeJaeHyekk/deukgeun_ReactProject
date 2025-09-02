@@ -5,7 +5,9 @@ import {
   searchGyms,
   getGymsByLocation,
   updateGymData,
-} from "../controllers/gymController"
+} from "../controllers/gymController.js"
+import { authMiddleware } from "../middlewares/auth.js"
+import { rateLimiter } from "../middlewares/rateLimiter.js"
 
 const router = Router()
 

@@ -9,8 +9,8 @@ import {
   OneToMany,
   Index,
 } from "typeorm"
-import { User } from "./User"
-import { WorkoutPlanExercise } from "./WorkoutPlanExercise"
+import { User } from "./User.js"
+import { WorkoutPlanExercise } from "./WorkoutPlanExercise.js"
 
 @Entity("workout_plans")
 export class WorkoutPlan {

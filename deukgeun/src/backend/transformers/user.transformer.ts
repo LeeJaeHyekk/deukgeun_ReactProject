@@ -2,8 +2,8 @@
 // User Transformer
 // ============================================================================
 
-import { UserDTO } from "../../shared/types/dto/user.dto"
-import { User } from "../entities/User"
+import { UserDTO } from "../../shared/types/dto/user.dto.js"
+import { User } from "../entities/User.js"
 
 export class UserTransformer {
   static toDTO(entity: User): UserDTO {

@@ -1,8 +1,8 @@
 import React from "react"
-import { WorkoutStatsDTO } from "../../types"
+import { WorkoutStats } from "../../types"
 
 interface WorkoutStatsCardProps {
-  stats: WorkoutStatsDTO
+  stats: WorkoutStats
 }
 
 export function WorkoutStatsCard({ stats }: WorkoutStatsCardProps) {

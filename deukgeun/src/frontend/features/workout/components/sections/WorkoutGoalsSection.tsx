@@ -2,14 +2,14 @@ import React, { useState } from "react"
 import { GoalCard } from "../../components/cards/GoalCard"
 import { CreateGoalModal } from "../modals/CreateGoalModal"
 import { Button } from "../ui/Button"
-import { WorkoutGoalDTO } from "../../types"
+import { WorkoutGoal } from "../../types"
 
 interface WorkoutGoalsSectionProps {
-  goals: WorkoutGoalDTO[]
-  onUpdateGoal: (goalId: number, updates: Partial<WorkoutGoalDTO>) => void
+  goals: WorkoutGoal[]
+  onUpdateGoal: (goalId: number, updates: Partial<WorkoutGoal>) => void
   onDeleteGoal: (goalId: number) => void
   onCreateGoal: (
-    goalData: Omit<WorkoutGoalDTO, "id" | "createdAt" | "updatedAt">
+    goalData: Omit<WorkoutGoal, "id" | "createdAt" | "updatedAt">
   ) => void
 }
 
@@ -22,7 +22,7 @@ export function WorkoutGoalsSection({
   const [isAddingGoal, setIsAddingGoal] = useState(false)
 
   const handleCreateGoal = (
-    goalData: Omit<WorkoutGoalDTO, "id" | "createdAt" | "updatedAt">
+    goalData: Omit<WorkoutGoal, "id" | "createdAt" | "updatedAt">
   ) => {
     onCreateGoal(goalData)
     setIsAddingGoal(false)

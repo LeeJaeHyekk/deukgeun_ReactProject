@@ -1,11 +1,11 @@
 import React from "react"
-import type { Machine } from "../../../../shared/types"
+import type { Machine } from "../types"
 import "./MachineSelector.css"
 
 interface MachineSelectorProps {
   machines: Machine[]
-  selectedMachineId: number | null
-  onMachineSelect: (machineId: number) => void
+  selectedMachineId: string | null
+  onMachineSelect: (machineId: string) => void
 }
 
 export function MachineSelector({
@@ -26,8 +26,8 @@ export function MachineSelector({
         {machines.map(machine => (
           <div
             key={machine.id}
-            className={`machine-item ${selectedMachineId === machine.id ? "selected" : ""}`}
-            onClick={() => onMachineSelect(machine.id)}
+            className={`machine-item ${selectedMachineId === machine.id.toString() ? "selected" : ""}`}
+            onClick={() => onMachineSelect(machine.id.toString())}
           >
             {machine.imageUrl && (
               <img

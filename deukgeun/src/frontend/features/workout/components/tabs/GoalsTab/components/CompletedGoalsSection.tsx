@@ -1,5 +1,5 @@
 import React from "react"
-import type { WorkoutGoal } from "@shared/types"
+import type { WorkoutGoal } from "../../../../types"
 
 interface CompletedGoalsSectionProps {
   completedGoals: WorkoutGoal[]
@@ -21,9 +21,9 @@ export const CompletedGoalsSection: React.FC<CompletedGoalsSectionProps> = ({
       <h3>달성한 목표 ({completedGoals.length})</h3>
       <div className="completed-goals-grid">
         {completedGoals.map(goal => (
-          <div 
-            key={goal.id} 
-            className={`completed-goal-card ${selectedGoalId === goal.id ? 'selected' : ''}`}
+          <div
+            key={goal.id}
+            className={`completed-goal-card ${selectedGoalId === goal.id ? "selected" : ""}`}
             onClick={() => onGoalSelect(goal.id)}
           >
             <div className="goal-header">

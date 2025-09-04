@@ -1,8 +1,8 @@
 import { useCallback } from "react"
 import {
-  WorkoutPlanDTO,
-  WorkoutGoalDTO,
-  WorkoutSessionDTO,
+  WorkoutPlan,
+  WorkoutGoal,
+  WorkoutSession,
   ExerciseItem,
 } from "../types"
 
@@ -15,9 +15,7 @@ interface ActionResponse<T = any> {
 export function useWorkoutActions() {
   // 계획 관련 액션
   const createWorkoutPlan = useCallback(
-    async (
-      planData: Omit<WorkoutPlanDTO, "id" | "createdAt" | "updatedAt">
-    ) => {
+    async (planData: Omit<WorkoutPlan, "id" | "createdAt" | "updatedAt">) => {
       try {
         // API 호출 로직 구현 예정
         console.log("Creating workout plan:", planData)
@@ -31,7 +29,7 @@ export function useWorkoutActions() {
   )
 
   const updateWorkoutPlan = useCallback(
-    async (planId: number, updates: Partial<WorkoutPlanDTO>) => {
+    async (planId: number, updates: Partial<WorkoutPlan>) => {
       try {
         // API 호출 로직 구현 예정
         console.log("Updating workout plan:", planId, updates)
@@ -57,9 +55,7 @@ export function useWorkoutActions() {
 
   // 목표 관련 액션
   const createWorkoutGoal = useCallback(
-    async (
-      goalData: Omit<WorkoutGoalDTO, "id" | "createdAt" | "updatedAt">
-    ) => {
+    async (goalData: Omit<WorkoutGoal, "id" | "createdAt" | "updatedAt">) => {
       try {
         // API 호출 로직 구현 예정
         console.log("Creating workout goal:", goalData)
@@ -73,7 +69,7 @@ export function useWorkoutActions() {
   )
 
   const updateWorkoutGoal = useCallback(
-    async (goalId: number, updates: Partial<WorkoutGoalDTO>) => {
+    async (goalId: number, updates: Partial<WorkoutGoal>) => {
       try {
         // API 호출 로직 구현 예정
         console.log("Updating workout goal:", goalId, updates)
@@ -100,7 +96,7 @@ export function useWorkoutActions() {
   // 세션 관련 액션
   const createWorkoutSession = useCallback(
     async (
-      sessionData: Omit<WorkoutSessionDTO, "id" | "createdAt" | "updatedAt">
+      sessionData: Omit<WorkoutSession, "id" | "createdAt" | "updatedAt">
     ) => {
       try {
         // API 호출 로직 구현 예정
@@ -115,7 +111,7 @@ export function useWorkoutActions() {
   )
 
   const updateWorkoutSession = useCallback(
-    async (sessionId: number, updates: Partial<WorkoutSessionDTO>) => {
+    async (sessionId: number, updates: Partial<WorkoutSession>) => {
       try {
         // API 호출 로직 구현 예정
         console.log("Updating workout session:", sessionId, updates)

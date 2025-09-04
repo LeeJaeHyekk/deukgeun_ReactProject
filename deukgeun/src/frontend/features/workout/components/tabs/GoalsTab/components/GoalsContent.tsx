@@ -1,7 +1,7 @@
 import React from "react"
 import { ActiveGoalsSection } from "./ActiveGoalsSection"
 import { CompletedGoalsSection } from "./CompletedGoalsSection"
-import type { WorkoutGoal } from "@shared/types"
+import type { WorkoutGoal } from "../../../../types"
 
 interface GoalsContentProps {
   goals: WorkoutGoal[]
@@ -47,7 +47,7 @@ export const GoalsContent: React.FC<GoalsContentProps> = ({
         onDeleteGoal={onDeleteGoal}
         onGoalSelect={onGoalSelect}
       />
-      <CompletedGoalsSection 
+      <CompletedGoalsSection
         completedGoals={completedGoals}
         selectedGoalId={selectedGoalId}
         onGoalSelect={onGoalSelect}

@@ -6,7 +6,7 @@ import React, { useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import type { Machine } from "@dto/index"
 import { findMatchingImage } from "../utils/machineImageUtils"
-import { ROUTES } from "@shared/constants/routes"
+import { ROUTES } from "../../../constants/routes"
 import "./MachineModal.css"
 
 interface MachineModalProps {

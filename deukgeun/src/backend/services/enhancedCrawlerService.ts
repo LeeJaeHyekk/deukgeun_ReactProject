@@ -1,7 +1,7 @@
 import { Repository } from "typeorm"
 import { Gym } from "../entities/Gym.js"
 import axios from "axios"
-import { config } from "../config/env.js"
+import { appConfig } from "../config/env.js"
 import * as cheerio from "cheerio"
 import { BatchProcessingService } from "./batchProcessingService.js"
 import { ErrorHandlingService, ErrorContext } from "./errorHandlingService.js"
@@ -190,7 +190,7 @@ async function searchKakaoMapEnhanced(query: string): Promise<SearchResult[]> {
           page: 1,
         },
         headers: {
-          Authorization: `KakaoAK ${config.apiKeys.kakao}`,
+          Authorization: `KakaoAK ${appConfig.apiKeys.kakao}`,
         },
       }
     )
@@ -248,7 +248,7 @@ async function searchGooglePlacesEnhanced(
       {
         params: {
           query: query + " 헬스장",
-          key: config.apiKeys.googlePlaces,
+          key: appConfig.apiKeys.googlePlaces,
           language: "ko",
           type: "gym",
         },
@@ -299,7 +299,7 @@ async function searchSeoulOpenDataEnhanced(
 ): Promise<SearchResult[]> {
   try {
     const response = await axios.get(
-      `http://openapi.seoul.go.kr:8088/${config.apiKeys.seoulOpenApi}/json/LOCALDATA_104201/1/1000/`
+      `http://openapi.seoul.go.kr:8088/${appConfig.apiKeys.seoulOpenApi}/json/LOCALDATA_104201/1/1000/`
     )
 
     if (!response.data.LOCALDATA_104201?.row) return []

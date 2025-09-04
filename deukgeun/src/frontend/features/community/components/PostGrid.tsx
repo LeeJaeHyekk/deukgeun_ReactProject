@@ -1,10 +1,10 @@
 import { PostCard } from "./PostCard"
-import { PostDTO as CommunityPost } from "../../../../shared/types"
+import type { Post } from "../../../types/community"
 import styles from "./PostGrid.module.css"
 
 interface PostGridProps {
-  posts: CommunityPost[]
-  onPostClick: (post: CommunityPost) => void
+  posts: Post[]
+  onPostClick: (post: Post) => void
   onLikeClick: (postId: number) => void
   loading: boolean
   currentPage: number

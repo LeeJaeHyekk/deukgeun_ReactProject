@@ -2,10 +2,10 @@
 // 공통 환경 변수 유틸리티
 // ============================================================================
 
-import { config } from "dotenv"
+import { config as dotenvConfig } from "dotenv"
 
 // 환경 변수 로드
-config()
+dotenvConfig()
 
 // 환경 변수 타입 정의
 interface EnvironmentVariables {
@@ -108,3 +108,16 @@ export function getAllEnvVars(): EnvironmentVariables {
     RATE_LIMIT_MAX: getEnvVar("RATE_LIMIT_MAX", "100")!,
   }
 }
+
+// 공통 설정 객체
+export const config = {
+  API_BASE_URL: getEnvVar("API_BASE_URL", "http://localhost:3001"),
+  RECAPTCHA_SITE_KEY: getEnvVar("RECAPTCHA_SITE_KEY", ""),
+  KAKAO_APP_KEY: getEnvVar("KAKAO_API_KEY", ""),
+  RECAPTCHA: {
+    IS_DEVELOPMENT: isDevelopment(),
+    IS_TEST_KEY: getEnvVar("RECAPTCHA_SITE_KEY", "").includes(
+      "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+    ),
+  },
+} as const

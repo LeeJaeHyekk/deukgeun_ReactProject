@@ -90,6 +90,7 @@ class WorkoutSessionService {
         success: true,
         data,
         message: getSuccessMessage("created", "session"),
+        statusCode: 201,
       }
     } catch (error) {
       logger.error("Session creation failed", { error, sessionData })
@@ -99,6 +100,7 @@ class WorkoutSessionService {
         message: errorMessage,
         data: null,
         error: errorMessage,
+        statusCode: 400,
       }
     }
   }
@@ -131,6 +133,7 @@ class WorkoutSessionService {
         success: true,
         data,
         message: getSuccessMessage("updated", "session"),
+        statusCode: 200,
       }
     } catch (error) {
       const errorMessage = handleApiError(error)
@@ -139,6 +142,7 @@ class WorkoutSessionService {
         data: null,
         error: errorMessage,
         message: errorMessage,
+        statusCode: 400,
       }
     }
   }
@@ -162,6 +166,7 @@ class WorkoutSessionService {
         success: true,
         data: true,
         message: getSuccessMessage("deleted", "session"),
+        statusCode: 200,
       }
     } catch (error) {
       logger.error("Session deletion failed", { sessionId, error })
@@ -171,6 +176,7 @@ class WorkoutSessionService {
         data: false,
         error: errorMessage,
         message: errorMessage,
+        statusCode: 400,
       }
     }
   }
@@ -194,6 +200,7 @@ class WorkoutSessionService {
         success: true,
         data,
         message: "Session retrieved successfully",
+        statusCode: 200,
       }
     } catch (error) {
       logger.error("Session retrieval failed", { sessionId, error })
@@ -203,6 +210,7 @@ class WorkoutSessionService {
         data: null,
         error: errorMessage,
         message: errorMessage,
+        statusCode: 400,
       }
     }
   }
@@ -228,6 +236,7 @@ class WorkoutSessionService {
         success: true,
         data,
         message: "User sessions retrieved successfully",
+        statusCode: 200,
       }
     } catch (error) {
       logger.error("User sessions retrieval failed", { error })
@@ -237,6 +246,7 @@ class WorkoutSessionService {
         data: [],
         error: errorMessage,
         message: errorMessage,
+        statusCode: 400,
       }
     }
   }
@@ -276,6 +286,7 @@ class WorkoutSessionService {
         success: true,
         data,
         message: "세션 상태가 업데이트되었습니다",
+        statusCode: 200,
       }
     } catch (error) {
       logger.error("Session status update failed", { sessionId, status, error })
@@ -285,6 +296,7 @@ class WorkoutSessionService {
         data: null,
         error: errorMessage,
         message: errorMessage,
+        statusCode: 400,
       }
     }
   }
@@ -313,6 +325,7 @@ class WorkoutSessionService {
         success: true,
         data,
         message: "세션이 완료되었습니다",
+        statusCode: 200,
       }
     } catch (error) {
       logger.error("Session completion via API failed", { sessionId, error })
@@ -322,6 +335,7 @@ class WorkoutSessionService {
         data: null,
         error: errorMessage,
         message: errorMessage,
+        statusCode: 400,
       }
     }
   }

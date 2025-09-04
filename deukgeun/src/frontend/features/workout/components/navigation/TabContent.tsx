@@ -1,5 +1,5 @@
 import React from "react"
-import { LoadingSpinner } from "@shared/ui/LoadingSpinner"
+import { LoadingSpinner } from "../../../../ui/LoadingSpinner"
 import { OverviewTab } from "../tabs/OverviewTab"
 import { PlansTab } from "../tabs/PlansTab"
 import { SessionsTab } from "../tabs/SessionsTab"
@@ -11,7 +11,7 @@ import type {
   WorkoutSession,
   WorkoutGoal,
   Machine,
-} from "@shared/types"
+} from "../../types/workout"
 import type { DashboardData, WorkoutStats } from "../../types"
 import styles from "./TabContent.module.css"
 

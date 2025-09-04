@@ -43,13 +43,13 @@ export function filterAdminMenuItems(
 export function evaluateSystemHealth(
   stats: SystemStats
 ): "healthy" | "warning" | "error" {
-  const { systemLoad, memoryUsage, diskUsage } = stats
+  const { memoryUsage, diskUsage } = stats
 
-  if (systemLoad > 80 || memoryUsage > 90 || diskUsage > 95) {
+  if (memoryUsage.percentage > 90 || diskUsage.percentage > 95) {
     return "error"
   }
 
-  if (systemLoad > 60 || memoryUsage > 75 || diskUsage > 85) {
+  if (memoryUsage.percentage > 75 || diskUsage.percentage > 85) {
     return "warning"
   }
 
@@ -60,13 +60,13 @@ export function evaluateSystemHealth(
 export function evaluatePerformance(
   metrics: PerformanceMetrics
 ): "good" | "fair" | "poor" {
-  const { averageResponseTime, errorRate, cacheHitRate } = metrics
+  const { responseTime, errorRate, cacheHitRate } = metrics
 
-  if (averageResponseTime < 200 && errorRate < 1 && cacheHitRate > 80) {
+  if (responseTime.average < 200 && errorRate.percentage < 1 && cacheHitRate > 80) {
     return "good"
   }
 
-  if (averageResponseTime < 500 && errorRate < 5 && cacheHitRate > 60) {
+  if (responseTime.average < 500 && errorRate.percentage < 5 && cacheHitRate > 60) {
     return "fair"
   }
 

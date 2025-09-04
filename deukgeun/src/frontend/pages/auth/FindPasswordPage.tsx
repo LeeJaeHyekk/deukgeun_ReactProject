@@ -390,6 +390,7 @@ export default function FindPasswordPage() {
           {/* reCAPTCHA */}
           <div className={styles.inputGroup}>
             <RecaptchaWidget
+              onVerify={handleRecaptchaChange}
               onChange={handleRecaptchaChange}
               className={styles.recaptchaWidget}
             />
@@ -529,6 +530,7 @@ export default function FindPasswordPage() {
         {/* reCAPTCHA */}
         <div className={styles.inputGroup}>
           <RecaptchaWidget
+            onVerify={handleRecaptchaChange}
             onChange={handleRecaptchaChange}
             className={styles.recaptchaWidget}
           />

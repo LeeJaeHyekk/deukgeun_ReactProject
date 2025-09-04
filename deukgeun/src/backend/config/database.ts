@@ -2,7 +2,7 @@ import "reflect-metadata"
 // TypeORM DataSource 클래스 import
 import { DataSource } from "typeorm"
 // 환경 변수 로드 라이브러리 import
-import { config } from "./env.js"
+import { appConfig } from "./env.js"
 
 // 엔티티 클래스들 import - 데이터베이스 테이블과 매핑되는 클래스들
 import { Post } from "../entities/Post.js" // 게시글 엔티티
@@ -27,36 +27,19 @@ import { WorkoutReminder } from "../entities/WorkoutReminder.js" // 운동 알�
 import { VerificationToken } from "../entities/VerificationToken.js" // 이메일 인증 토큰 엔티티
 import { PasswordResetToken } from "../entities/PasswordResetToken.js" // 비밀번호 재설정 토큰 엔티티
 
-// 현재 환경 설정 (기본값: development)
-const environment = process.env.NODE_ENV || "development"
-
-/**
- * TypeORM DataSource 설정
- * 데이터베이스 연결 및 ORM 설정을 담당
- */
-export const AppDataSource = new DataSource({
-  // 데이터베이스 타입 설정
-  type: "mysql", // MySQL 데이터베이스 사용
-
-  // 데이터베이스 연결 설정
-  host: process.env.DB_HOST || "localhost", // 데이터베이스 호스트
-  port: parseInt(process.env.DB_PORT || "3306"), // 데이터베이스 포트
-  username: process.env.DB_USERNAME || "root", // 데이터베이스 사용자명
-  password: process.env.DB_PASSWORD || "", // 데이터베이스 비밀번호
-  database: process.env.DB_NAME || "deukgeun_db", // 데이터베이스 이름
-
-  // mysql2 드라이버 사용을 위한 extra 설정
+// TypeORM DataSource 설정을 위한 databaseConfig export
+export const databaseConfig = {
+  type: "mysql" as const,
+  host: appConfig.database.host,
+  port: appConfig.database.port,
+  username: appConfig.database.username,
+  password: appConfig.database.password,
+  database: appConfig.database.database,
   extra: {
     driver: "mysql2",
   },
-
-  // 스키마 자동 동기화 설정 (외래키 제약조건 문제로 인해 비활성화)
-  synchronize: false,
-
-  // SQL 쿼리 로깅 설정 (개발 환경에서만 활성화)
-  logging: environment === "development",
-
-  // 엔티티 클래스 목록 - 데이터베이스 테이블과 매핑될 클래스들
+  synchronize: appConfig.database.synchronize,
+  logging: appConfig.database.logging,
   entities: [
     Post, // 게시글 테이블
     Gym, // 헬스장 테이블
@@ -80,13 +63,15 @@ export const AppDataSource = new DataSource({
     VerificationToken, // 이메일 인증 토큰 테이블
     PasswordResetToken, // 비밀번호 재설정 토큰 테이블
   ],
-
-  // 구독자 목록 (현재 사용하지 않음)
   subscribers: [],
-
-  // 마이그레이션 목록 (현재 사용하지 않음)
   migrations: [],
-})
+}
+
+/**
+ * TypeORM DataSource 설정
+ * 데이터베이스 연결 및 ORM 설정을 담당
+ */
+export const AppDataSource = new DataSource(databaseConfig)
 
 /**
  * 데이터베이스 연결 함수
@@ -99,7 +84,7 @@ export const connectDatabase = async () => {
     await AppDataSource.initialize()
     console.log("✅ Database connection established successfully")
     console.log(
-      `📊 Database: ${process.env.DB_NAME || "deukgeun_db"} on ${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || "3306"}`
+      `📊 Database: ${appConfig.database.database} on ${appConfig.database.host}:${appConfig.database.port}`
     )
     return AppDataSource
   } catch (error) {

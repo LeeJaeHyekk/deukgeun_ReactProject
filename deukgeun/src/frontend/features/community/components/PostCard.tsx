@@ -1,8 +1,8 @@
-import { Post as CommunityPost } from "../../../../shared/types"
+import type { Post } from "../../../types/community"
 import styles from "./PostCard.module.css"
 
 interface PostCardProps {
-  post: CommunityPost
+  post: Post
   onClick: () => void
   onLikeClick: () => void
   isLiked?: boolean
@@ -40,14 +40,14 @@ export function PostCard({
       <div className={styles.header}>
         <div className={styles.authorInfo}>
           <span className={styles.author}>
-            {(post.author as any)?.nickname || "익명"}
+            {post.author?.nickname || "익명"}
           </span>
           <span className={styles.date}>
             {formatDate(post.createdAt.toString())}
           </span>
         </div>
         <span className={styles.category}>
-          {(post.category as any)?.name || post.category}
+          {typeof post.category === 'object' ? post.category.name : post.category}
         </span>
       </div>
 

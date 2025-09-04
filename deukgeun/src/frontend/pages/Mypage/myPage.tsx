@@ -26,7 +26,15 @@ const selectUser = (state: { user: User | null }) => state.user
 
 // 메모이제이션된 컴포넌트들
 const InfoItem = memo(
-  ({ label, value, icon }: { label: string; value: string | undefined; icon?: string }) => (
+  ({
+    label,
+    value,
+    icon,
+  }: {
+    label: string
+    value: string | undefined
+    icon?: string
+  }) => (
     <div className={styles.infoItem}>
       <div className={styles.infoHeader}>
         {icon && <span className={styles.infoIcon}>{icon}</span>}
@@ -87,21 +95,14 @@ function MyPage({ className }: MyPageProps) {
   const user = useUserStore(selectUser)
   const { logout } = useAuthContext()
 
-  // 사용자 정보 메모이제이션 (성능 최적화)
-  const userInfo = useMemo((): UserInfo => {
+  // 사용자 정보 메모이제이션
+  const userInfo = useMemo(() => {
     return {
       nickname: user?.nickname || "사용자",
       email: user?.email || "이메일 없음",
-      phone: user?.phone || "미등록",
-      gender:
-        user?.gender === "male"
-          ? "남성"
-          : user?.gender === "female"
-            ? "여성"
-            : "미등록",
-      birthday: user?.birthDate
-        ? new Date(user.birthDate).toLocaleDateString()
-        : "미등록",
+      phone: "미등록", // User 타입에 phone 속성이 없음
+      gender: "미등록", // User 타입에 gender 속성이 없음
+      birthday: "미등록", // User 타입에 birthDate 속성이 없음
       createdAt: user?.createdAt
         ? new Date(user.createdAt).toLocaleDateString()
         : "미등록",
@@ -174,8 +175,10 @@ function MyPage({ className }: MyPageProps) {
         <div className={styles.levelSection}>
           <h3 className={styles.sectionTitle}>레벨 정보</h3>
           <LevelDisplay
+            level={user?.level || 1}
+            experience={user?.experience || 0}
+            maxExperience={user?.maxExperience || 100}
             showProgress={true}
-            showRewards={true}
             className={styles.myPageLevelDisplay}
           />
         </div>

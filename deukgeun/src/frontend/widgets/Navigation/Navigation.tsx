@@ -1,15 +1,15 @@
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useState } from "react"
-import { useUserStore } from "@shared/store/userStore"
-import { useAuthContext } from "@shared/contexts/AuthContext"
-import { MENU_ITEMS, ROUTES, routeUtils } from "@shared/constants/routes"
-import { shouldShowAdminMenu } from "@shared/utils/adminUtils"
+import { useUserStore } from "../../store/userStore"
+import { useAuthContext } from "../../contexts/AuthContext"
+import { MENU_ITEMS, ROUTES, routeUtils } from "../../constants/routes"
+import { shouldShowAdminMenu } from "../../utils/adminUtils"
 import styles from "./Navigation.module.css"
 
 export const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const user = useUserStore(state => state.user)
-  const { isLoggedIn, logout } = useAuthContext()
+  const { isAuthenticated, logout } = useAuthContext()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -33,7 +33,7 @@ export const Navigation = () => {
   }
 
   // 사용자 인증 상태에 따라 접근 가능한 메뉴 아이템 필터링
-  const accessibleMenuItems = routeUtils.getAccessibleMenuItems(isLoggedIn)
+  const accessibleMenuItems = routeUtils.getAccessibleMenuItems(isAuthenticated)
 
   // 관리자 메뉴 표시 여부 확인
   const showAdminMenu = shouldShowAdminMenu(user)
@@ -61,7 +61,7 @@ export const Navigation = () => {
           </li>
         ))}
 
-        {!isLoggedIn || !user ? (
+        {!isAuthenticated || !user ? (
           <li>
             <Link
               to={ROUTES.LOGIN}
@@ -149,7 +149,7 @@ export const Navigation = () => {
             </li>
           ))}
 
-          {!isLoggedIn || !user ? (
+          {!isAuthenticated || !user ? (
             <li>
               <Link
                 to={ROUTES.LOGIN}

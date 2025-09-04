@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { useAuthContext } from "../../shared/contexts/AuthContext"
+import { useAuthContext } from "../../contexts/AuthContext"
 import "./UserProfilePage.module.css"
 
 interface UserProfileForm {
@@ -28,7 +28,7 @@ function UserProfilePage() {
           ? new Date(user.birthDate).toISOString().split("T")[0]
           : "",
         gender: user.gender || "male",
-        phoneNumber: user.phoneNumber || "",
+        phoneNumber: (user as any).phoneNumber || "",
       })
     }
   }, [user])

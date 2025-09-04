@@ -116,7 +116,7 @@ export function ProgressTab({
           <div className={styles.recentSessionCard}>
             <div className={styles.sessionInfo}>
               <span className={styles.sessionName}>
-                {sharedState.lastUpdatedSession.name}
+                운동 세션 #{sharedState.lastUpdatedSession.id}
               </span>
               <span className={styles.sessionDate}>
                 {new Date(
@@ -127,10 +127,10 @@ export function ProgressTab({
             </div>
             <div className={styles.sessionStats}>
               <span className={styles.sessionDuration}>
-                {sharedState.lastUpdatedSession.totalDurationMinutes}분
+                {sharedState.lastUpdatedSession.totalDuration}분
               </span>
               <span className={styles.sessionSets}>
-                {sharedState.lastUpdatedSession.exerciseSets?.length || 0}세트
+                {sharedState.lastUpdatedSession.exercises?.length || 0}세트
               </span>
             </div>
           </div>

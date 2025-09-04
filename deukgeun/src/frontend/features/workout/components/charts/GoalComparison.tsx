@@ -1,8 +1,8 @@
 import React from "react"
-import { WorkoutGoalDTO } from "../../types"
+import { WorkoutGoal } from "../../types"
 
 interface GoalComparisonProps {
-  goals: WorkoutGoalDTO[]
+  goals: WorkoutGoal[]
   title?: string
   showProgress?: boolean
   showDeadlines?: boolean

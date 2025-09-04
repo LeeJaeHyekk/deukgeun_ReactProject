@@ -41,15 +41,15 @@ export default function LoginPage() {
       recaptcha?: string
     } = {}
 
-    if (!validation.required(email)) {
+    if (!validation.isRequired(email)) {
       newErrors.email = "이메일을 입력해주세요."
-    } else if (!validation.email(email)) {
+    } else if (!validation.isEmail(email)) {
       newErrors.email = "유효한 이메일 주소를 입력해주세요."
     }
 
-    if (!validation.required(password)) {
+    if (!validation.isRequired(password)) {
       newErrors.password = "비밀번호를 입력해주세요."
-    } else if (!validation.password(password)) {
+    } else if (!validation.isPassword(password)) {
       newErrors.password = "비밀번호는 최소 8자 이상이어야 합니다."
     }
 
@@ -81,7 +81,10 @@ export default function LoginPage() {
 
       console.log("🧪 로그인 데이터:", { ...loginData, password: "***" })
 
-      const response = await authApi.login(loginData)
+      const response = await authApi.login({
+        ...loginData,
+        recaptchaToken: loginData.recaptchaToken || "",
+      })
 
       console.log("🧪 로그인 응답:", response)
 
@@ -109,7 +112,16 @@ export default function LoginPage() {
         createdAt: new Date(),
         updatedAt: new Date(),
       }
-      login(userWithToken, response.accessToken)
+      login(
+        {
+          ...userWithToken,
+          id: userWithToken.id.toString(),
+          level: 1,
+          experience: 0,
+          maxExperience: 100,
+        },
+        response.accessToken
+      )
 
       console.log("🧪 로그인 성공!")
       showToast("로그인 성공!", "success")
@@ -278,6 +290,7 @@ export default function LoginPage() {
 
           <div className={styles.recaptchaContainer}>
             <RecaptchaWidget
+              onVerify={handleRecaptchaChange}
               onChange={handleRecaptchaChange}
               className={styles.recaptchaWidget}
               aria-describedby={

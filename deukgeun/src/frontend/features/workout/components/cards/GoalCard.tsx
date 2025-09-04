@@ -1,11 +1,11 @@
 import React from "react"
-import { WorkoutGoalDTO } from "../../types"
+import { WorkoutGoal } from "../../types"
 import { ProgressBar } from "../ui/ProgressBar"
 import { Button } from "../ui/Button"
 
 interface GoalCardProps {
-  goal: WorkoutGoalDTO
-  onEdit: (updates: Partial<WorkoutGoalDTO>) => void
+  goal: WorkoutGoal
+  onEdit: (updates: Partial<WorkoutGoal>) => void
   onDelete: () => void
 }
 

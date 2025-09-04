@@ -370,8 +370,8 @@ export function useWorkoutStats() {
     totalSessions: sessions.length,
     totalGoals: goals.length,
     completedSessions: sessions.filter(s => s.status === "completed").length,
-    activeGoals: goals.filter(g => !g.isCompleted).length,
-    completedGoals: goals.filter(g => g.isCompleted).length,
+    activeGoals: goals.filter(g => g.status !== "completed").length,
+    completedGoals: goals.filter(g => g.status === "completed").length,
   }
 }
 
@@ -397,7 +397,7 @@ export function useWorkoutSessionsByPlan(planId: number) {
 
 export function useWorkoutGoalsByPlan(planId: number) {
   return useWorkoutStore(state =>
-    state.goals.filter(goal => goal.planId === planId)
+    state.goals.filter(goal => goal.id === planId)
   )
 }
 

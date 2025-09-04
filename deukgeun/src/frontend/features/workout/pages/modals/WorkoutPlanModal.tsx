@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react"
 import { X, Plus, Save, Clock, Target, Edit, Trash2 } from "lucide-react"
-import type { WorkoutPlan } from "../../../../../shared/types"
-import type { WorkoutPlanExerciseDTO } from "../../../../../shared/types/dto/workoutplanexercise.dto"
-import type { Machine } from "@dto/index"
+import type { WorkoutPlan, WorkoutPlanExercise } from "../../types"
+import type { Machine } from "../../types"
 import { useWorkoutPlan } from "../../contexts/WorkoutPlanContext"
 import "./WorkoutPlanModal.css"
 
@@ -77,19 +76,25 @@ export function WorkoutPlanModal({
   // 운동 추가
   const handleAddExercise = useCallback(() => {
     logger.info("Adding exercise")
-    const newExercise: Omit<WorkoutPlanExerciseDTO, "order"> = {
+    const newExercise: Omit<WorkoutPlanExercise, "order"> = {
       id: 0,
       planId: plan?.id || 0,
       exerciseId: 0,
       machineId: 0,
-      exerciseName: "새로운 운동",
+      machine: {
+        id: 0,
+        name: "새로운 운동",
+        imageUrl: "",
+        category: "기타",
+        difficulty: "beginner",
+        muscleGroups: [],
+        gymId: 1,
+      },
       sets: 3,
       reps: 10,
       weight: 0,
-      restTime: 60,
+      restSeconds: 60,
       notes: "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
     }
     addExercise(newExercise)
     setErrors(prev => ({ ...prev, exercises: "" }))
@@ -106,7 +111,7 @@ export function WorkoutPlanModal({
 
   // 운동 정보 업데이트
   const handleUpdateExercise = useCallback(
-    (index: number, field: keyof WorkoutPlanExerciseDTO, value: any) => {
+    (index: number, field: keyof WorkoutPlanExercise, value: any) => {
       logger.debug("Exercise updated", { index, field, value })
       const updatedExercise = { ...currentPlanExercises[index], [field]: value }
       updateExercise(index, updatedExercise)
@@ -139,7 +144,7 @@ export function WorkoutPlanModal({
     logger.debug("Plan data for validation:", {
       name: plan?.name,
       description: plan?.description,
-      estimated_duration_minutes: plan?.estimated_duration_minutes,
+      estimatedDurationMinutes: plan?.estimatedDurationMinutes,
       exercisesCount: currentPlanExercises?.length || 0,
     })
 
@@ -151,8 +156,8 @@ export function WorkoutPlanModal({
       newErrors.description = "계획 설명을 입력해주세요"
     }
 
-    // estimated_duration_minutes 검증 로직 개선
-    const duration = plan?.estimated_duration_minutes
+    // estimatedDurationMinutes 검증 로직 개선
+    const duration = plan?.estimatedDurationMinutes
     logger.debug("Duration validation check:", {
       duration,
       type: typeof duration,
@@ -162,7 +167,7 @@ export function WorkoutPlanModal({
     })
 
     if (!duration || duration <= 0) {
-      newErrors.estimated_duration_minutes = "예상 소요시간을 입력해주세요"
+      newErrors.estimatedDurationMinutes = "예상 소요시간을 입력해주세요"
       logger.warn("Duration validation failed", { duration })
     }
 
@@ -171,7 +176,7 @@ export function WorkoutPlanModal({
     } else {
       // 각 운동의 유효성 검사
       currentPlanExercises.forEach((exercise, index) => {
-        if (!exercise.exerciseName?.trim()) {
+        if (!exercise.machine?.name?.trim()) {
           newErrors[`exercise_${index}_name`] = "운동 이름을 입력해주세요"
         }
         if (exercise.sets <= 0) {
@@ -204,14 +209,19 @@ export function WorkoutPlanModal({
       // 최종 계획 데이터 생성 - 모든 운동 포함
       const finalPlan: WorkoutPlan = {
         ...plan!,
-        exercises: currentPlanExercises || [],
-        estimated_duration_minutes: plan?.estimated_duration_minutes || 60,
+        exercises:
+          currentPlanExercises?.map(exercise => ({
+            ...exercise,
+            machine: exercise.machine,
+            order: exercise.order || 0,
+          })) || [],
+        estimatedDurationMinutes: plan?.estimatedDurationMinutes || 60,
       }
 
       logger.debug("Final plan for submission:", {
         id: finalPlan.id,
         name: finalPlan.name,
-        estimated_duration_minutes: finalPlan.estimated_duration_minutes,
+        estimatedDurationMinutes: finalPlan.estimatedDurationMinutes,
         exercisesCount: finalPlan.exercises?.length || 0,
       })
 
@@ -337,22 +347,22 @@ export function WorkoutPlanModal({
                 <input
                   id="plan-duration"
                   type="number"
-                  value={plan?.estimated_duration_minutes || 60}
+                  value={plan?.estimatedDurationMinutes || 60}
                   onChange={e => {
                     const value = parseInt(e.target.value) || 0
                     logger.debug("Duration input changed", {
                       rawValue: e.target.value,
                       parsedValue: value,
                     })
-                    handleInputChange("estimated_duration_minutes", value)
+                    handleInputChange("estimatedDurationMinutes", value)
                   }}
                   min="1"
                   max="300"
-                  className={errors.estimated_duration_minutes ? "error" : ""}
+                  className={errors.estimatedDurationMinutes ? "error" : ""}
                 />
-                {errors.estimated_duration_minutes && (
+                {errors.estimatedDurationMinutes && (
                   <span className="error-message">
-                    {errors.estimated_duration_minutes}
+                    {errors.estimatedDurationMinutes}
                   </span>
                 )}
               </div>
@@ -401,7 +411,7 @@ export function WorkoutPlanModal({
                     <div className="exercise-summary">
                       <div className="summary-item">
                         <span className="exercise-name">
-                          {exercise.exerciseName}
+                          {exercise.machine.name}
                         </span>
                       </div>
                       <div className="summary-item">
@@ -415,10 +425,10 @@ export function WorkoutPlanModal({
                           <span>{exercise.weight}kg</span>
                         </div>
                       )}
-                      {(exercise.restTime || 0) > 0 && (
+                      {(exercise.restSeconds || 0) > 0 && (
                         <div className="summary-item">
                           <Clock size={14} />
-                          <span>{exercise.restTime}초 휴식</span>
+                          <span>{exercise.restSeconds}초 휴식</span>
                         </div>
                       )}
                       {exercise.notes && (
@@ -437,13 +447,12 @@ export function WorkoutPlanModal({
                           <input
                             id={`exercise-${index}-name`}
                             type="text"
-                            value={exercise.exerciseName}
+                            value={exercise.machine.name}
                             onChange={e =>
-                              handleUpdateExercise(
-                                index,
-                                "exerciseName",
-                                e.target.value
-                              )
+                              handleUpdateExercise(index, "machine", {
+                                ...exercise.machine,
+                                name: e.target.value,
+                              })
                             }
                             placeholder="운동 이름"
                             className={
@@ -566,11 +575,11 @@ export function WorkoutPlanModal({
                           <input
                             id={`exercise-${index}-rest`}
                             type="number"
-                            value={exercise.restTime || 0}
+                            value={exercise.restSeconds || 0}
                             onChange={e =>
                               handleUpdateExercise(
                                 index,
-                                "restTime",
+                                "restSeconds",
                                 parseInt(e.target.value) || 0
                               )
                             }

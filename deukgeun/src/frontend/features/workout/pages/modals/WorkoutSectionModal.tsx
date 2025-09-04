@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { X, Save, Plus, Trash2, Dumbbell, Clock, Repeat } from "lucide-react"
-import type { WorkoutPlanExercise } from "../../../../../shared/types"
-import type { Machine } from "@dto/index"
-import { findMatchingImage } from "../../../../shared/utils/machineImageUtils"
+import type { WorkoutPlanExercise, Machine } from "../../../../types/workout"
+import { findMatchingImage } from "../../../../utils/machineImageUtils"
 import "./WorkoutSectionModal.css"
 
 interface WorkoutSectionModalProps {
@@ -61,7 +60,16 @@ export function WorkoutSectionModal({
   machines,
   planId,
 }: WorkoutSectionModalProps) {
-  const [formData, setFormData] = useState<Partial<WorkoutPlanExercise>>({})
+  const [formData, setFormData] = useState<
+    Partial<WorkoutPlanExercise> & {
+      machineId?: number
+      exerciseName?: string
+      sets?: number
+      reps?: number
+      weight?: number
+      restTime?: number
+    }
+  >({})
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   // 초기화 함수
@@ -132,7 +140,17 @@ export function WorkoutSectionModal({
   }, [isOpen, exercise])
 
   // 입력 필드 변경 핸들러
-  const handleInputChange = (field: keyof WorkoutPlanExercise, value: any) => {
+  const handleInputChange = (
+    field:
+      | keyof WorkoutPlanExercise
+      | "machineId"
+      | "exerciseName"
+      | "sets"
+      | "reps"
+      | "weight"
+      | "restTime",
+    value: any
+  ) => {
     logger.debug("Input field changed", {
       field,
       value,
@@ -185,12 +203,12 @@ export function WorkoutSectionModal({
     })
 
     // 추가 검증
-    if (formData.weight && formData.weight < 0) {
+    if (formData.weight !== undefined && formData.weight < 0) {
       newErrors.weight = "무게는 0 이상이어야 합니다."
       logger.warn("Weight validation failed", { weight: formData.weight })
     }
 
-    if (formData.restTime && formData.restTime < 0) {
+    if (formData.restTime !== undefined && formData.restTime < 0) {
       newErrors.restTime = "휴식 시간은 0 이상이어야 합니다."
       logger.warn("Rest time validation failed", {
         restTime: formData.restTime,
@@ -219,9 +237,9 @@ export function WorkoutSectionModal({
         machineId: formData.machineId,
         exerciseName: formData.exerciseName,
         sets: formData.sets,
-        reps: formData.reps,
-        weight: formData.weight,
-        restTime: formData.restTime,
+        reps: formData.reps || 0,
+        weight: formData.weight || 0,
+        restTime: formData.restTime || 0,
       },
     })
 
@@ -240,8 +258,8 @@ export function WorkoutSectionModal({
     } catch (error) {
       logger.error("Save operation failed", {
         error: error instanceof Error ? error.message : error,
-        exerciseName: formData.exerciseName,
-        machineId: formData.machineId,
+        exerciseName: formData.exerciseName || "",
+        machineId: formData.machineId || 0,
       })
       logger.performance("Save operation (failed)", startTime)
     }
@@ -340,15 +358,11 @@ export function WorkoutSectionModal({
                                 )?.color || "#9E9E9E",
                             }}
                           >
-                            {typeof machine.difficulty === 'string' 
-                              ? machine.difficulty 
-                              : machine.difficulty?.name || '알 수 없음'}
+                            {machine.difficulty || "알 수 없음"}
                           </span>
                         )}
                         <span className="category-badge">
-                          {typeof machine.category === 'string' 
-                            ? machine.category 
-                            : machine.category?.name || '알 수 없음'}
+                          {machine.category || "알 수 없음"}
                         </span>
                       </div>
                     </div>

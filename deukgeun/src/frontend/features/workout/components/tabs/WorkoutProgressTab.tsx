@@ -41,15 +41,15 @@ export function WorkoutProgressTab({
     const totalSessions = sessions.length
     const totalCompletedSets = sessions.reduce(
       (sum, session) =>
-        sum + session.exerciseSets.filter(set => set.repsCompleted > 0).length,
+        sum + session.exercises.filter(set => set.reps > 0).length,
       0
     )
     const totalSets = sessions.reduce(
-      (sum, session) => sum + session.exerciseSets.length,
+      (sum, session) => sum + session.exercises.length,
       0
     )
     const totalDuration = sessions.reduce(
-      (sum, session) => sum + (session.totalDurationMinutes || 0),
+              (sum, session) => sum + (session.totalDuration || 0),
       0
     )
     const completionRate =
@@ -104,14 +104,14 @@ export function WorkoutProgressTab({
         }
       }
 
-      const completedSets = session.exerciseSets.filter(
-        set => set.repsCompleted > 0
+      const completedSets = session.exercises.filter(
+        set => set.reps > 0
       ).length
-      const totalSets = session.exerciseSets.length
+      const totalSets = session.exercises.length
 
       data[periodKey].completedSets += completedSets
       data[periodKey].totalSets += totalSets
-      data[periodKey].durationMinutes += session.totalDurationMinutes || 0
+      data[periodKey].durationMinutes += session.totalDuration || 0
       data[periodKey].sessions += 1
     })
 

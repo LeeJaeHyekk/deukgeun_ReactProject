@@ -10,11 +10,11 @@ import {
   Target,
 } from "lucide-react"
 import { useWorkoutTimer } from "@shared/contexts/WorkoutTimerContext"
-import type { WorkoutSessionDTO } from "../../../../types"
+import type { WorkoutSession } from "../../../../types"
 import "./ActiveSessionContainer.css"
 
 interface ActiveSessionContainerProps {
-  activeSession: WorkoutSessionDTO
+  activeSession: WorkoutSession
   onViewSession: (sessionId: number) => void
   onEditSession: (sessionId: number) => void
   onDeleteSession: (sessionId: number) => void
@@ -81,7 +81,7 @@ export const ActiveSessionContainer: React.FC<ActiveSessionContainerProps> = ({
   }
 
   const handleStart = () => {
-    startTimer(activeSession.id.toString())
+    startTimer()
   }
 
   const handlePause = () => {
@@ -196,7 +196,7 @@ export const ActiveSessionContainer: React.FC<ActiveSessionContainerProps> = ({
             <div className="infoItem">
               <span className="label">운동 세트</span>
               <span className="value">
-                {activeSession.exerciseSets?.length || 0}개
+                {activeSession.exercises?.length || 0}개
               </span>
             </div>
             {activeSession.notes && (

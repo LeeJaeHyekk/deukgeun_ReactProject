@@ -1,55 +1,30 @@
 // ============================================================================
-// DTO 통합 인덱스 파일
-// 모든 DTO 타입을 중앙에서 관리
+// DTO 타입들 export
 // ============================================================================
 
-// Machine DTOs
-export * from "./machine.dto"
-
-// User DTOs
+// 사용자 관련 DTO
 export * from "./user.dto"
 
-// Post DTOs
-export * from "./post.dto"
+// 워크아웃 관련 DTO
+export * from "./workout.dto"
 
-// Comment DTOs
-export * from "./comment.dto"
+// 머신 관련 DTO
+export * from "./machine.dto"
 
-// Gym DTOs
+// 헬스장 관련 DTO
 export * from "./gym.dto"
 
-// WorkoutSession DTOs
-export * from "./workoutsession.dto"
+// 게시글 관련 DTO
+export * from "./post.dto"
 
-// WorkoutPlan DTOs
-export * from "./workoutplan.dto"
+// 댓글 관련 DTO
+export * from "./comment.dto"
 
-// WorkoutPlanExercise DTOs
-export * from "./workoutplanexercise.dto"
-
-// WorkoutGoal DTOs
-export * from "./workoutgoal.dto"
-
-// ExerciseSet DTOs
-export * from "./exerciseset.dto"
-
-// ExpHistory DTOs
-export * from "./exphistory.dto"
-
-// UserLevel DTOs
-export * from "./userlevel.dto"
-
-// UserReward DTOs
-export * from "./userreward.dto"
-
-// UserStreak DTOs
-export * from "./userstreak.dto"
-
-// Milestone DTOs
-export * from "./milestone.dto"
-
-// Like DTOs
+// 좋아요 관련 DTO
 export * from "./like.dto"
+
+// 레벨 시스템 관련 DTO
+export * from "./level.dto"
 
 // ============================================================================
 // 통합된 타입 별칭 (기존 타입과의 호환성을 위해)

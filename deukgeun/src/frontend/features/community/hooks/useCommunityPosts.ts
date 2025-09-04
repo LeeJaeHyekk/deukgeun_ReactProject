@@ -1,10 +1,10 @@
 import { useState, useCallback } from "react"
-import { postsApi } from "@shared/api"
-import { showToast } from "@shared/lib"
-import {
-  Post as CommunityPost,
-  PostCategoryInfo,
-} from "../../../../shared/types"
+import { postsApi } from "../../../api/communityApi"
+import { showToast } from "../../../utils/toast"
+import type {
+  Post,
+  PostCategory,
+} from "../../../types/community"
 
 interface UseCommunityPostsProps {
   limit: number
@@ -18,20 +18,20 @@ interface FetchPostsParams {
 }
 
 export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
-  const [posts, setPosts] = useState<CommunityPost[]>([])
+  const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [availableCategories, setAvailableCategories] = useState<
-    PostCategoryInfo[]
+    PostCategory[]
   >([])
 
   // 카테고리 목록 가져오기
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await postsApi.categories()
-      console.log("Categories API Response:", response.data)
-      const categories = response.data.data as PostCategoryInfo[]
+      const response = await postsApi.getCategories()
+      console.log("Categories API Response:", response)
+      const categories = response as PostCategory[]
       setAvailableCategories(categories || [])
     } catch (error: unknown) {
       console.error("카테고리 로드 실패:", error)
@@ -72,25 +72,12 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
         }
 
         console.log("Fetching posts with params:", params)
-        const res = await postsApi.list(params)
+        const res = await postsApi.getPosts(params)
 
-        console.log("Posts API Response:", res.data)
+        console.log("Posts API Response:", res)
 
         // API 응답 구조 확인 및 처리
-        const apiResponse = res.data as {
-          success: boolean
-          message: string
-          data?: {
-            posts: any[]
-            pagination: {
-              page: number
-              limit: number
-              total: number
-              totalPages: number
-            }
-          }
-          error?: string
-        }
+        const apiResponse = res as any
 
         if (!apiResponse.success || !apiResponse.data) {
           throw new Error(
@@ -158,7 +145,7 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
       updateData: { title: string; content: string; category: string }
     ) => {
       try {
-        await postsApi.update(postId, updateData)
+        await postsApi.update(postId.toString(), updateData)
         showToast("게시글이 성공적으로 수정되었습니다.", "success")
         return true
       } catch (error: unknown) {
@@ -173,7 +160,7 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
   // 게시글 삭제
   const deletePost = useCallback(async (postId: number) => {
     try {
-      await postsApi.remove(postId)
+      await postsApi.remove(postId.toString())
       showToast("게시글이 성공적으로 삭제되었습니다.", "success")
       return true
     } catch (error: unknown) {

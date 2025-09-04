@@ -266,9 +266,9 @@ export function flatten<T>(arr: T[][]): T[] {
 
 // 배열을 깊게 플랫하게 만들기
 export function flattenDeep<T>(arr: unknown[]): T[] {
-  return arr.reduce((flat: T[], item) => {
+  return arr.reduce<T[]>((flat, item) => {
     return flat.concat(Array.isArray(item) ? flattenDeep<T>(item) : (item as T))
-  }, [] as T[])
+  }, [])
 }
 
 // 배열에서 중복 요소들의 개수 세기

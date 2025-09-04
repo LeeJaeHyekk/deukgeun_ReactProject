@@ -1,29 +1,57 @@
 import { config } from "dotenv"
-import path from "path"
-import { fileURLToPath } from "url"
-
-// ESM에서 __dirname 대체
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+import { DataSource } from "typeorm"
+import { databaseConfig } from "../config/database"
 
 // 환경 변수 로드
-config({ path: path.join(__dirname, "../.env") })
+config()
 
-// 전역 테스트 설정
+// Jest 전역 타입 선언
+declare global {
+  var __TEST_DB__: DataSource
+}
+
+// 테스트 데이터베이스 연결
+let testDataSource: DataSource
+
+// Jest 전역 함수들
+declare const beforeAll: (fn: () => Promise<void>) => void
+declare const afterAll: (fn: () => Promise<void>) => void
+declare const beforeEach: (fn: () => Promise<void>) => void
+declare const afterEach: (fn: () => Promise<void>) => void
+
 beforeAll(async () => {
-  // 테스트 환경 초기화
+  // 테스트용 데이터베이스 설정
+  testDataSource = new DataSource({
+    ...databaseConfig,
+    database: "test_db",
+    synchronize: true,
+    dropSchema: true,
+    logging: false,
+  })
+
+  await testDataSource.initialize()
+
+  // 전역 변수에 저장
+  global.__TEST_DB__ = testDataSource
 })
 
 afterAll(async () => {
-  // 테스트 환경 정리
+  if (testDataSource && testDataSource.isInitialized) {
+    await testDataSource.destroy()
+  }
 })
 
-// 각 테스트 전 실행
 beforeEach(async () => {
-  // 개별 테스트 초기화
+  // 각 테스트 전에 데이터베이스 정리
+  if (testDataSource && testDataSource.isInitialized) {
+    const entities = testDataSource.entityMetadatas
+    for (const entity of entities) {
+      const repository = testDataSource.getRepository(entity.name)
+      await repository.clear()
+    }
+  }
 })
 
-// 각 테스트 후 실행
 afterEach(async () => {
-  // 개별 테스트 정리
+  // 각 테스트 후 정리 작업
 })

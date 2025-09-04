@@ -1,7 +1,7 @@
 import React from "react"
 import { useTabState } from "../../../hooks/useWorkoutStore"
 import { useSharedState } from "../../../hooks/useWorkoutStore"
-import type { WorkoutPlan } from "../../../../../../shared/types/common"
+import type { WorkoutPlan } from "../../../types"
 import type { PlansTabState } from "../../../types"
 import { PlansContent } from "./components/PlansContent"
 import { PlansStats } from "./components/PlansStats"

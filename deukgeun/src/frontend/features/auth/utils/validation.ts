@@ -3,16 +3,19 @@ import { validation } from "@shared/lib"
 // 폼 필드별 검증 규칙
 export const AUTH_VALIDATION_RULES = {
   email: {
-    required: (value: string) => validation.required(value),
-    format: (value: string) => validation.email(value),
+    required: (value: string) => validation.isRequired(value),
+    format: (value: string) => validation.isEmail(value),
     message: {
       required: "이메일을 입력해주세요.",
       format: "유효한 이메일 주소를 입력해주세요.",
     },
   },
   password: {
-    required: (value: string) => validation.required(value),
-    minLength: (value: string) => validation.minLength(value, 8),
+    required: (value: string) => validation.isRequired(value),
+    minLength: (value: string) => {
+      // minLength 함수가 없으므로 직접 구현
+      return value.length >= 8
+    },
     complexity: (value: string) => {
       const hasUpperCase = /[A-Z]/.test(value)
       const hasLowerCase = /[a-z]/.test(value)
@@ -26,7 +29,7 @@ export const AUTH_VALIDATION_RULES = {
     },
   },
   confirmPassword: {
-    required: (value: string) => validation.required(value),
+    required: (value: string) => validation.isRequired(value),
     match: (value: string, password: string) => value === password,
     message: {
       required: "비밀번호 확인을 입력해주세요.",
@@ -34,9 +37,15 @@ export const AUTH_VALIDATION_RULES = {
     },
   },
   nickname: {
-    required: (value: string) => validation.required(value),
-    minLength: (value: string) => validation.minLength(value, 2),
-    maxLength: (value: string) => validation.maxLength(value, 20),
+    required: (value: string) => validation.isRequired(value),
+    minLength: (value: string) => {
+      // minLength 함수가 없으므로 직접 구현
+      return value.length >= 2
+    },
+    maxLength: (value: string) => {
+      // maxLength 함수가 없으므로 직접 구현
+      return value.length <= 20
+    },
     format: (value: string) => /^[a-zA-Z0-9가-힣_-]+$/.test(value),
     message: {
       required: "닉네임을 입력해주세요.",
@@ -47,7 +56,7 @@ export const AUTH_VALIDATION_RULES = {
     },
   },
   phone: {
-    required: (value: string) => validation.required(value),
+    required: (value: string) => validation.isRequired(value),
     format: (value: string) => /^01[0-9]-\d{3,4}-\d{4}$/.test(value),
     message: {
       required: "휴대폰 번호를 입력해주세요.",
@@ -55,7 +64,7 @@ export const AUTH_VALIDATION_RULES = {
     },
   },
   name: {
-    required: (value: string) => validation.required(value),
+    required: (value: string) => validation.isRequired(value),
     message: {
       required: "이름을 입력해주세요.",
     },
@@ -100,7 +109,7 @@ export function validateFormField(
     return { isValid: false, message: (rules.message as any).complexity }
   }
 
-  // 일치 검증 (타입 가드 추가)
+  // 매칭 검증 (타입 가드 추가)
   if ("match" in rules && rules.match && additionalData?.password) {
     if (!rules.match(value, additionalData.password)) {
       return { isValid: false, message: (rules.message as any).match }
@@ -110,34 +119,59 @@ export function validateFormField(
   return { isValid: true, message: "" }
 }
 
-// 전체 폼 검증
-export function validateAuthForm(
-  formData: Record<string, any>,
-  fields: (keyof typeof AUTH_VALIDATION_RULES)[]
-): Record<string, string> {
+// 전체 폼 검증 함수
+export function validateForm(
+  formData: Record<string, string>,
+  additionalData?: Record<string, any>
+): { isValid: boolean; errors: Record<string, string> } {
   const errors: Record<string, string> = {}
 
-  fields.forEach(fieldName => {
-    const value = formData[fieldName]
-    const result = validateFormField(fieldName, value, formData)
-
-    if (!result.isValid) {
-      errors[fieldName] = result.message
+  Object.keys(formData).forEach((fieldName) => {
+    if (fieldName in AUTH_VALIDATION_RULES) {
+      const validation = validateFormField(
+        fieldName as keyof typeof AUTH_VALIDATION_RULES,
+        formData[fieldName],
+        additionalData
+      )
+      if (!validation.isValid) {
+        errors[fieldName] = validation.message
+      }
     }
   })
 
-  return errors
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  }
 }
 
-// 실시간 검증을 위한 함수
-export function getFieldValidationState(
+// 특정 필드 검증 함수
+export function validateField(
   fieldName: keyof typeof AUTH_VALIDATION_RULES,
   value: string,
   additionalData?: Record<string, any>
 ): { isValid: boolean; message: string } {
-  if (!value) {
-    return { isValid: true, message: "" } // 빈 값은 실시간 검증에서 허용
-  }
-
   return validateFormField(fieldName, value, additionalData)
+}
+
+// 에러 메시지 포맷팅
+export function formatValidationError(
+  fieldName: string,
+  message: string
+): string {
+  return `${fieldName}: ${message}`
+}
+
+// 검증 규칙 가져오기
+export function getValidationRules(fieldName: keyof typeof AUTH_VALIDATION_RULES) {
+  return AUTH_VALIDATION_RULES[fieldName]
+}
+
+// 검증 메시지 가져오기
+export function getValidationMessage(
+  fieldName: keyof typeof AUTH_VALIDATION_RULES,
+  messageType: keyof typeof AUTH_VALIDATION_RULES[keyof typeof AUTH_VALIDATION_RULES]["message"]
+): string {
+  const rules = AUTH_VALIDATION_RULES[fieldName]
+  return (rules.message as any)[messageType] || ""
 }

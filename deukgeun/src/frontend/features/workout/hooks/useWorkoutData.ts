@@ -1,20 +1,17 @@
 import { useState, useEffect } from "react"
 import {
-  WorkoutPlanDTO,
-  WorkoutGoalDTO,
-  WorkoutSessionDTO,
+  WorkoutPlan,
+  WorkoutGoal,
+  WorkoutSession,
   WorkoutStats,
-  WorkoutStatsDTO,
-  WorkoutReminderDTO,
+  WorkoutReminder,
 } from "../types"
 
 export function useWorkoutData() {
-  const [workoutPlans, setWorkoutPlans] = useState<WorkoutPlanDTO[]>([])
-  const [workoutGoals, setWorkoutGoals] = useState<WorkoutGoalDTO[]>([])
-  const [workoutSessions, setWorkoutSessions] = useState<WorkoutSessionDTO[]>(
-    []
-  )
-  const [workoutStats, setWorkoutStats] = useState<WorkoutStatsDTO>({
+  const [workoutPlans, setWorkoutPlans] = useState<WorkoutPlan[]>([])
+  const [workoutGoals, setWorkoutGoals] = useState<WorkoutGoal[]>([])
+  const [workoutSessions, setWorkoutSessions] = useState<WorkoutSession[]>([])
+  const [workoutStats, setWorkoutStats] = useState<WorkoutStats>({
     totalWorkouts: 0,
     totalSessions: 0,
     totalGoals: 0,
@@ -25,10 +22,15 @@ export function useWorkoutData() {
     workoutStreak: 0,
     favoriteExercises: [],
     monthlyProgress: [],
+    averageMood: 0,
+    averageEnergy: 0,
+    activeGoals: 0,
+    totalExp: 0,
+    level: 1,
   })
-  const [workoutReminders, setWorkoutReminders] = useState<
-    WorkoutReminderDTO[]
-  >([])
+  const [workoutReminders, setWorkoutReminders] = useState<WorkoutReminder[]>(
+    []
+  )
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

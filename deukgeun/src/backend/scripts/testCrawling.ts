@@ -3,7 +3,7 @@ import { Gym } from "../entities/Gym.js"
 import { Machine } from "../entities/Machine.js"
 import { logger } from "../utils/logger.js"
 import { updateGymDetailsWithEnhancedSources } from "../services/enhancedCrawlerService.js"
-import { config } from "../config/env.js"
+import { appConfig } from "../config/env.js"
 
 async function testCrawling() {
   console.log("🧪 Testing Enhanced Crawling Service...\n")
@@ -11,13 +11,13 @@ async function testCrawling() {
   // API 키 확인
   console.log("🔑 API Keys Check:")
   console.log(
-    `- Kakao API Key: ${config.apiKeys.kakao ? "✅ Set" : "❌ Not set"}`
+    `- Kakao API Key: ${appConfig.apiKeys.kakao ? "✅ Set" : "❌ Not set"}`
   )
   console.log(
-    `- Google Places API Key: ${config.apiKeys.googlePlaces ? "✅ Set" : "❌ Not set"}`
+    `- Google Places API Key: ${appConfig.apiKeys.googlePlaces ? "✅ Set" : "❌ Not set"}`
   )
   console.log(
-    `- Seoul OpenAPI Key: ${config.apiKeys.seoulOpenApi ? "✅ Set" : "❌ Not set"}`
+    `- Seoul OpenAPI Key: ${appConfig.apiKeys.seoulOpenApi ? "✅ Set" : "❌ Not set"}`
   )
   console.log()
 

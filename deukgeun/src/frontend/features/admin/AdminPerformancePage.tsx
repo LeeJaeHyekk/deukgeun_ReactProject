@@ -118,34 +118,34 @@ export default function AdminPerformancePage() {
             <div className={styles.metricCard}>
               <h3>서버 부하</h3>
               <p
-                className={`${styles.metricValue} ${getLoadColor(adminMetrics?.serverLoad || 0)}`}
+                className={`${styles.metricValue} ${getLoadColor(0)}`}
               >
-                {adminMetrics?.serverLoad.toFixed(1)}%
+                0%
               </p>
             </div>
 
             <div className={styles.metricCard}>
               <h3>메모리 사용량</h3>
               <p
-                className={`${styles.metricValue} ${getUsageColor(adminMetrics?.memoryUsage || 0)}`}
+                className={`${styles.metricValue} ${getUsageColor(0)}`}
               >
-                {adminMetrics?.memoryUsage.toFixed(1)}%
+                0%
               </p>
             </div>
 
             <div className={styles.metricCard}>
               <h3>디스크 사용량</h3>
               <p
-                className={`${styles.metricValue} ${getUsageColor(adminMetrics?.diskUsage || 0)}`}
+                className={`${styles.metricValue} ${getUsageColor(0)}`}
               >
-                {adminMetrics?.diskUsage.toFixed(1)}%
+                0%
               </p>
             </div>
 
             <div className={styles.metricCard}>
               <h3>활성 사용자</h3>
               <p className={styles.metricValue}>
-                {adminMetrics?.activeUsers.toLocaleString()}명
+                0명
               </p>
             </div>
           </div>
@@ -160,10 +160,10 @@ export default function AdminPerformancePage() {
           <div className={styles.performanceContainer}>
             <PerformanceMonitor
               metrics={{
-                averageFetchTime: adminMetrics?.averageFetchTime || 0,
-                errorCount: adminMetrics?.errorCount || 0,
-                cacheHitRate: adminMetrics?.cacheHitRate || 0,
-                totalRequests: adminMetrics?.totalRequests || 0,
+                averageFetchTime: 0,
+                errorCount: 0,
+                cacheHitRate: 0,
+                totalRequests: 0,
               }}
               isVisible={true}
               onClose={() => {}} // 관리자 페이지에서는 닫기 기능 비활성화

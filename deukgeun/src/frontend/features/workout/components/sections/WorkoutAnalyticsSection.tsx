@@ -4,12 +4,12 @@ import { BarChart } from "../charts/BarChart"
 import { PieChart } from "../charts/PieChart"
 import { StreakDisplay } from "../charts/StreakDisplay"
 import { GoalComparison } from "../charts/GoalComparison"
-import { WorkoutStats, WorkoutGoalDTO, WorkoutSessionDTO } from "../../types"
+import { WorkoutStats, WorkoutGoal, WorkoutSession } from "../../types"
 
 interface WorkoutAnalyticsSectionProps {
   workoutStats: WorkoutStats
-  workoutGoals: WorkoutGoalDTO[]
-  workoutSessions: WorkoutSessionDTO[]
+  workoutGoals: WorkoutGoal[]
+  workoutSessions: WorkoutSession[]
 }
 
 export function WorkoutAnalyticsSection({
@@ -220,7 +220,7 @@ export function WorkoutAnalyticsSection({
               <div className="stat-number">
                 {workoutStats.favoriteMachines &&
                 workoutStats.favoriteMachines.length > 0
-                  ? workoutStats.favoriteMachines[0]
+                  ? workoutStats.favoriteMachines[0]?.name || "없음"
                   : "없음"}
               </div>
               <div className="stat-label">선호 기구</div>

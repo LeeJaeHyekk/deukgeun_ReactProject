@@ -1,5 +1,5 @@
 import { DataSource } from "typeorm"
-import { config } from "../config/env.js"
+import { appConfig } from "../config/env.js"
 import { WorkoutSession } from "../entities/WorkoutSession.js"
 import { ExerciseSet } from "../entities/ExerciseSet.js"
 import { WorkoutGoal } from "../entities/WorkoutGoal.js"
@@ -18,11 +18,11 @@ async function createWorkoutJournalTables() {
 
     const dataSource = new DataSource({
       type: "mysql",
-      host: config.database.host,
-      port: config.database.port,
-      username: config.database.username,
-      password: config.database.password,
-      database: config.database.database,
+        host: appConfig.database.host,
+  port: appConfig.database.port,
+  username: appConfig.database.username,
+  password: appConfig.database.password,
+  database: appConfig.database.database,
       synchronize: false, // 수동으로 테이블 생성
       logging: true,
       entities: [

@@ -22,34 +22,68 @@ export interface SystemStats {
   activeUsers: number
   totalMachines: number
   totalPosts: number
-  systemLoad: number
-  memoryUsage: number
-  diskUsage: number
-  uptime: number
-  systemStatus: "healthy" | "warning" | "error"
+  systemUptime: number
+  memoryUsage: {
+    used: number
+    total: number
+    percentage: number
+  }
+  diskUsage: {
+    used: number
+    total: number
+    percentage: number
+  }
+  cpuUsage: number
+  networkTraffic: {
+    incoming: number
+    outgoing: number
+  }
 }
 
 // 성능 메트릭
 export interface PerformanceMetrics {
-  averageResponseTime: number
-  averageFetchTime: number
-  requestCount: number
-  totalRequests: number
-  errorRate: number
-  errorCount: number
+  responseTime: {
+    average: number
+    min: number
+    max: number
+  }
+  throughput: {
+    requestsPerSecond: number
+    requestsPerMinute: number
+  }
+  errorRate: {
+    percentage: number
+    count: number
+  }
+  databasePerformance: {
+    queryTime: number
+    connectionCount: number
+  }
   cacheHitRate: number
-  memoryUsage: number
-  cpuUsage: number
-  serverLoad: number
-  diskUsage: number
-  activeUsers: number
 }
 
 // 관리자 대시보드 데이터
 export interface AdminDashboardData {
-  stats: SystemStats
-  recentActivities: AdminActivity[]
-  systemHealth: SystemHealth
+  overview: {
+    totalUsers: number
+    activeUsers: number
+    newUsersToday: number
+    totalPosts: number
+    newPostsToday: number
+    totalWorkouts: number
+    workoutsToday: number
+  }
+  recentActivity: {
+    recentUsers: any[]
+    recentPosts: any[]
+    recentWorkouts: any[]
+  }
+  systemHealth: {
+    status: "healthy" | "warning" | "error"
+    uptime: number
+    lastBackup: Date
+    alerts: any[]
+  }
 }
 
 // 관리자 활동
@@ -92,20 +126,34 @@ export interface DatabaseUpdateInfo {
 
 // 관리자 설정
 export interface AdminSettings {
-  performanceMonitoring: {
-    enabled: boolean
-    refreshInterval: number
-    alertThreshold: number
-  }
-  systemNotifications: {
-    email: boolean
-    slack: boolean
-    webhook: string
+  general: {
+    siteName: string
+    siteDescription: string
+    maintenanceMode: boolean
+    registrationEnabled: boolean
   }
   security: {
-    sessionTimeout: number
     maxLoginAttempts: number
-    requireMFA: boolean
+    sessionTimeout: number
+    passwordRequirements: {
+      minLength: number
+      requireUppercase: boolean
+      requireLowercase: boolean
+      requireNumbers: boolean
+      requireSpecialChars: boolean
+    }
+  }
+  features: {
+    workoutTracking: boolean
+    communityPosts: boolean
+    levelSystem: boolean
+    notifications: boolean
+  }
+  limits: {
+    maxWorkoutPlans: number
+    maxWorkoutSessions: number
+    maxPostsPerDay: number
+    maxFileSize: number
   }
 }
 

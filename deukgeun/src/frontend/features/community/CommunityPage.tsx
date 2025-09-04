@@ -1,5 +1,4 @@
 import { useEffect } from "react"
-import { showToast } from "@shared/lib"
 import { Navigation } from "@widgets/Navigation/Navigation"
 import { PostModal } from "./components/PostModal"
 import { PostDetailModal } from "./components/PostDetailModal"
@@ -140,10 +139,10 @@ export default function CommunityPage() {
 
   const handleOpenCreateModal = () => {
     if (availableCategories.length === 0) {
-      showToast(
-        "카테고리를 불러오는 중입니다. 잠시 후 다시 시도해주세요.",
-        "error"
-      )
+      // showToast(
+      //   "카테고리를 불러오는 중입니다. 잠시 후 다시 시도해주세요.",
+      //   "error"
+      // )
       return
     }
     openCreateModal()

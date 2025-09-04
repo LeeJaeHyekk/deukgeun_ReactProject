@@ -51,13 +51,9 @@ export function PlanExercises({
   ): string => {
     switch (field) {
       case "reps":
-        return exercise.repsRange
-          ? `${exercise.repsRange.min}-${exercise.repsRange.max}회`
-          : `${exercise.reps || 0}회`
+        return `${exercise.reps || 0}회`
       case "weight":
-        return exercise.weightRange
-          ? `${exercise.weightRange.min}-${exercise.weightRange.max}kg`
-          : `${exercise.weight || 0}kg`
+        return `${exercise.weight || 0}kg`
       case "restTime":
         return exercise.restSeconds ? `${exercise.restSeconds}초` : "0초"
       default:
@@ -136,13 +132,12 @@ export function PlanExercises({
                   <label className={styles.fieldLabel}>운동명</label>
                   <input
                     type="text"
-                    value={exercise.exerciseName}
+                    value={exercise.machine.name}
                     onChange={e =>
-                      handleExerciseChange(
-                        index,
-                        "exerciseName",
-                        e.target.value
-                      )
+                      handleExerciseChange(index, "machine", {
+                        ...exercise.machine,
+                        name: e.target.value,
+                      })
                     }
                     placeholder="운동명을 입력하세요"
                     className={styles.fieldInput}
@@ -200,10 +195,10 @@ export function PlanExercises({
                     <label className={styles.fieldLabel}>휴식 (초)</label>
                     <input
                       type="number"
-                      value={exercise.restTime || 0}
+                      value={exercise.restSeconds || 0}
                       onChange={e => {
-                        const restTime = parseInt(e.target.value) || 0
-                        handleExerciseChange(index, "restTime", restTime)
+                        const restSeconds = parseInt(e.target.value) || 0
+                        handleExerciseChange(index, "restSeconds", restSeconds)
                       }}
                       min="0"
                       className={styles.fieldInput}
@@ -229,7 +224,7 @@ export function PlanExercises({
               <div className={styles.exerciseDisplay}>
                 <div className={styles.exerciseInfo}>
                   <h5 className={styles.exerciseName}>
-                    {exercise.exerciseName}
+                    {exercise.machine.name}
                   </h5>
                   <div className={styles.exerciseDetails}>
                     <span className={styles.exerciseDetail}>

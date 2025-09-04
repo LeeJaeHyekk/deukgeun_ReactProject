@@ -367,17 +367,16 @@ export const calculateWorkoutStats = (sessions: any[]): WorkoutStats => {
     return {
       totalWorkouts: 0,
       totalSessions: 0,
+      totalGoals: 0,
+      completedGoals: 0,
       totalDuration: 0,
-      totalExercises: 0,
-      averageDuration: 0,
-      completionRate: 0,
+      totalCalories: 0,
+      averageWorkoutDuration: 0,
+      workoutStreak: 0,
       favoriteExercises: [],
-      weeklyProgress: [],
       monthlyProgress: [],
-      currentStreak: 0,
       averageMood: 0,
       averageEnergy: 0,
-      completedGoals: 0,
       activeGoals: 0,
       totalExp: 0,
       level: 1,
@@ -386,29 +385,21 @@ export const calculateWorkoutStats = (sessions: any[]): WorkoutStats => {
 
   const completedSessions = sessions.filter(s => s.status === "completed")
   const totalDuration = sessions.reduce((sum, s) => sum + (s.duration || 0), 0)
-  const totalExercises = sessions.reduce(
-    (sum, s) => sum + (s.exerciseSets?.length || 0),
-    0
-  )
 
   return {
     totalWorkouts: sessions.length,
     totalSessions: sessions.length,
+    totalGoals: 0,
+    completedGoals: 0,
     totalDuration,
-    totalExercises,
-    averageDuration:
-      sessions.length > 0 ? Math.round(totalDuration / sessions.length) : 0,
-    completionRate:
-      sessions.length > 0
-        ? Math.round((completedSessions.length / sessions.length) * 100)
-        : 0,
+    totalCalories: 0,
+    averageWorkoutDuration:
+      sessions.length > 0 ? totalDuration / sessions.length : 0,
+    workoutStreak: 0,
     favoriteExercises: [],
-    weeklyProgress: [],
     monthlyProgress: [],
-    currentStreak: 0,
     averageMood: 0,
     averageEnergy: 0,
-    completedGoals: 0,
     activeGoals: 0,
     totalExp: 0,
     level: 1,

@@ -1,7 +1,7 @@
 // components/PostModal.tsx
 import { useState, useEffect } from "react"
-import { showToast } from "@shared/lib"
-import type { PostCategoryInfo } from "../../../../shared/types"
+import { showToast } from "../../../utils/toast"
+import type { PostCategory } from "../../../types/community"
 import styles from "./PostModal.module.css"
 
 interface PostModalProps {
@@ -11,7 +11,7 @@ interface PostModalProps {
     content: string
     category: string
   }) => Promise<void>
-  categories: PostCategoryInfo[]
+  categories: PostCategory[]
 }
 
 export function PostModal({ onClose, onSubmit, categories }: PostModalProps) {

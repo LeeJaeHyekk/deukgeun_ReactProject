@@ -18,7 +18,7 @@ import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise.js"
 import { WorkoutStats } from "../entities/WorkoutStats.js"
 import { WorkoutProgress } from "../entities/WorkoutProgress.js"
 import { WorkoutReminder } from "../entities/WorkoutReminder.js"
-import { config } from "../config/env.js"
+import { appConfig } from "../config/env.js"
 import bcrypt from "bcrypt"
 
 // 샘플 사용자 데이터
@@ -368,11 +368,11 @@ async function seedAllTestData() {
 
     dataSource = new DataSource({
       type: "mysql",
-      host: config.database.host,
-      port: config.database.port,
-      username: config.database.username,
-      password: config.database.password,
-      database: config.database.database,
+      host: appConfig.database.host,
+      port: appConfig.database.port,
+      username: appConfig.database.username,
+      password: appConfig.database.password,
+      database: appConfig.database.database,
       synchronize: false,
       logging: true,
       entities: [

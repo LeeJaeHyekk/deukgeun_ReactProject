@@ -113,9 +113,11 @@ export const ProgressCharts: React.FC<ProgressChartsProps> = ({
                 {new Date(session.createdAt).toLocaleDateString()}
               </div>
               <div className={styles.activityDetails}>
-                <span className={styles.activityName}>{session.name}</span>
+                <span className={styles.activityName}>
+                  운동 세션 #{session.id}
+                </span>
                 <span className={styles.activityDuration}>
-                  {session.totalDurationMinutes || session.duration || 0}분
+                  {session.totalDuration}분
                 </span>
                 <span
                   className={`${styles.activityStatus} ${styles[`status${session.status}`]}`}

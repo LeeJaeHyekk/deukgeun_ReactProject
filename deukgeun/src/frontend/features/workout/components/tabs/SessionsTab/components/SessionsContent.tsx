@@ -1,11 +1,11 @@
 import React from "react"
 import { Grid3X3, List, Clock, Calendar, TrendingUp } from "lucide-react"
-import type { WorkoutSessionDTO } from "../../../../types"
+import type { WorkoutSession } from "../../../../types"
 import styles from "./SessionsContent.module.css"
 
 interface SessionsContentProps {
-  sessions: WorkoutSessionDTO[]
-  activeSession?: WorkoutSessionDTO
+  sessions: WorkoutSession[]
+  activeSession?: WorkoutSession
   onViewSession: (sessionId: number) => void
   onEditSession: (sessionId: number) => void
   onDeleteSession: (sessionId: number) => void
@@ -192,7 +192,7 @@ export const SessionsContent: React.FC<SessionsContentProps> = ({
                 <div className={styles.detailItem}>
                   <span className={styles.detailLabel}>운동 세트</span>
                   <span className={styles.detailValue}>
-                    {session.exerciseSets?.length || 0}개
+                    {session.exercises?.length || 0}개
                   </span>
                 </div>
                 {session.notes && (

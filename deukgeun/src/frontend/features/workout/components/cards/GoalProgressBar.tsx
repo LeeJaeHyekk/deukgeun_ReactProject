@@ -46,13 +46,15 @@ export function GoalProgressBar({
     if ((e.target as HTMLElement).closest(".action-button")) {
       return
     }
-    onSelect?.() || onClick?.()
+    if (onSelect) onSelect()
+    else if (onClick) onClick()
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault()
-      onSelect?.() || onClick?.()
+      if (onSelect) onSelect()
+      else if (onClick) onClick()
     }
   }
 

@@ -1,12 +1,12 @@
 import React, { useState } from "react"
-import { WorkoutPlanDTO, ExerciseItem } from "../../types"
+import { WorkoutPlan, ExerciseItem } from "../../types"
 import { Button } from "../ui/Button"
 
 interface CreatePlanModalProps {
   isOpen: boolean
   onClose: () => void
   onCreatePlan: (
-    planData: Omit<WorkoutPlanDTO, "id" | "createdAt" | "updatedAt">
+    planData: Omit<WorkoutPlan, "id" | "createdAt" | "updatedAt">
   ) => void
 }
 

@@ -1,6 +1,6 @@
 import React from "react"
 import { GoalProgressBar } from "../../../../components/cards/GoalProgressBar"
-import type { WorkoutGoal } from "@shared/types"
+import type { WorkoutGoal } from "../../../../types"
 
 interface ActiveGoalsSectionProps {
   activeGoals: WorkoutGoal[]

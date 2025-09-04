@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react"
-import type { WorkoutSession } from "@shared/types"
+import type { WorkoutSession } from "../../../../types"
 
 interface SessionData {
   sessionId: number
@@ -7,8 +7,8 @@ interface SessionData {
   startTime: number
   plan?: any
   exercises?: any[]
-  exerciseSets?: any[]
   notes?: string
+  gymId?: number
 }
 
 export function useSessionState() {
@@ -16,20 +16,23 @@ export function useSessionState() {
     useState<SessionData | null>({
       sessionId: Date.now(),
       startTime: Date.now(),
-      exerciseSets: [],
+      exercises: [],
     })
   const [currentSession, setCurrentSession] = useState<WorkoutSession>({
     id: 0,
     userId: 0,
-    name: "",
-    description: "",
+    planId: 0,
+    gymId: 1,
     startTime: new Date(),
     endTime: undefined,
-    duration: undefined,
     notes: "",
     status: "in_progress",
+    exercises: [],
+    plan: {} as any,
+    gym: {} as any,
+    totalDuration: 0,
     isCompleted: false,
-    exerciseSets: [],
+    duration: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
   })
@@ -50,22 +53,24 @@ export function useSessionState() {
         setCurrentSessionData({
           sessionId: session.id || Date.now(),
           startTime: Date.now(),
-          exerciseSets: session.exerciseSets || [],
+          exercises: session.exercises || [],
           plan: plan,
         })
       } else if (plan) {
         const newSession: WorkoutSession = {
           id: 0,
           userId: 0,
-          name: plan.name || "새 운동 세션",
-          description: plan.description || "",
+          planId: plan.id || 0,
+          gymId: 1,
           startTime: new Date(),
-          endTime: undefined,
-          duration: undefined,
           notes: "",
           status: "in_progress",
+          exercises: [],
+          plan: plan,
+          gym: {} as any,
+          totalDuration: 0,
           isCompleted: false,
-          exerciseSets: [],
+          duration: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
         }
@@ -76,21 +81,23 @@ export function useSessionState() {
           planId: plan.id,
           startTime: Date.now(),
           plan: plan,
-          exerciseSets: plan.exercises || [],
+          exercises: plan.exercises || [],
         })
       } else {
         const emptySession: WorkoutSession = {
           id: 0,
           userId: 0,
-          name: "자유 운동",
-          description: "",
+          planId: 0,
+          gymId: 1,
           startTime: new Date(),
-          endTime: undefined,
-          duration: undefined,
           notes: "",
           status: "in_progress",
+          exercises: [],
+          plan: {} as any,
+          gym: {} as any,
+          totalDuration: 0,
           isCompleted: false,
-          exerciseSets: [],
+          duration: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
         }
@@ -99,7 +106,7 @@ export function useSessionState() {
         setCurrentSessionData({
           sessionId: Date.now(),
           startTime: Date.now(),
-          exerciseSets: [],
+          exercises: [],
         })
       }
 

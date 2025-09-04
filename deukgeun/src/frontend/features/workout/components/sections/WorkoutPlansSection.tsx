@@ -1,10 +1,10 @@
 import React from "react"
 import { WorkoutPlanCard } from "../cards/WorkoutPlanCard"
 import { Button } from "../ui/Button"
-import { WorkoutPlanDTO } from "../../types"
+import { WorkoutPlan } from "../../types"
 
 interface WorkoutPlansSectionProps {
-  plans: WorkoutPlanDTO[]
+  plans: WorkoutPlan[]
   onCreatePlan: () => void
   onAddExercise: () => void
 }

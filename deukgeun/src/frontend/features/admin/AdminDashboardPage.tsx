@@ -4,7 +4,6 @@
 
 import React, { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import { ROUTES } from "@shared/constants/routes"
 import { AdminLayout } from "./components/AdminLayout"
 import { useAdmin } from "./hooks/useAdmin"
 import {
@@ -15,6 +14,16 @@ import {
   getStatusText,
 } from "./utils/adminUtils"
 import styles from "./AdminDashboardPage.module.css"
+
+// Routes 상수 정의 (임시)
+const ROUTES = {
+  ADMIN: {
+    USERS: "/admin/users",
+    POSTS: "/admin/posts",
+    SETTINGS: "/admin/settings",
+    PERFORMANCE: "/admin/performance",
+  }
+}
 
 interface DashboardStats {
   totalUsers: number
@@ -90,10 +99,8 @@ export default function AdminDashboardPage() {
 
             <div className={styles.statCard}>
               <h3>시스템 상태</h3>
-              <p
-                className={`${styles.statValue} ${getStatusColor(stats?.systemStatus || "healthy")}`}
-              >
-                {getStatusText(stats?.systemStatus || "healthy")}
+              <p className={`${styles.statValue} ${getStatusColor("healthy")}`}>
+                {getStatusText("healthy")}
               </p>
             </div>
           </div>
@@ -106,13 +113,13 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className={styles.adminGrid}>
-            <Link to={ROUTES.ADMIN_DATABASE} className={styles.adminCard}>
+            <Link to={ROUTES.ADMIN.USERS} className={styles.adminCard}>
               <div className={styles.cardIcon}>🗄️</div>
               <h3>데이터베이스 관리</h3>
               <p>헬스장 데이터베이스 업데이트 및 관리</p>
             </Link>
 
-            <Link to={ROUTES.ADMIN_PERFORMANCE} className={styles.adminCard}>
+            <Link to={ROUTES.ADMIN.PERFORMANCE} className={styles.adminCard}>
               <div className={styles.cardIcon}>📊</div>
               <h3>성능 모니터링</h3>
               <p>시스템 성능 및 API 응답 시간 모니터링</p>

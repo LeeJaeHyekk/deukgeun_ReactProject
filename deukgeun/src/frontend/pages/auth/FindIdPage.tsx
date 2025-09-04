@@ -383,6 +383,7 @@ export default function FindIdPage() {
 
         <div className={styles.recaptchaContainer}>
           <RecaptchaWidget
+            onVerify={handleRecaptchaChange}
             onChange={handleRecaptchaChange}
             className={styles.recaptchaWidget}
             aria-describedby={errors.recaptcha ? "recaptcha-error" : undefined}

@@ -1,6 +1,6 @@
 import React from "react"
 import { Target, Calendar } from "lucide-react"
-import type { WorkoutGoal } from "../../../../../../shared/types"
+import type { WorkoutGoal } from "../../../../types"
 import { GoalTypeSelector } from "./GoalTypeSelector"
 
 const GOAL_TYPES = [

@@ -7,7 +7,7 @@ import { Request, Response, NextFunction } from "express"
 import { performance } from "perf_hooks"
 import { setTimeout } from "timers/promises"
 import { randomBytes } from "crypto"
-import { extendedLogger } from "../utils/logger.js"
+import { logger } from "../utils/logger.js"
 
 // 성능 메트릭 인터페이스
 interface PerformanceMetrics {
@@ -54,11 +54,11 @@ export const performanceMonitor = (
     }
 
     // 성능 로깅
-    extendedLogger.logRequest(req, res, responseTime)
+    logger.info(`Request completed: ${req.method} ${req.url} - ${responseTime.toFixed(2)}ms`)
 
     // 느린 응답 경고 (1초 이상)
     if (responseTime > 1000) {
-      extendedLogger.warn("Slow Response Detected", {
+      logger.warn("Slow Response Detected", {
         url: req.url,
         method: req.method,
         responseTime: `${responseTime.toFixed(2)}ms`,
@@ -71,7 +71,7 @@ export const performanceMonitor = (
     // 메모리 사용량 경고 (100MB 이상 증가)
     const memoryIncreaseMB = metrics.memoryUsage.rss / 1024 / 1024
     if (memoryIncreaseMB > 100) {
-      extendedLogger.warn("High Memory Usage Detected", {
+      logger.warn("High Memory Usage Detected", {
         url: req.url,
         method: req.method,
         memoryIncreaseMB: memoryIncreaseMB.toFixed(2),
@@ -83,7 +83,7 @@ export const performanceMonitor = (
     const totalCpuUsage = metrics.cpuUsage.user + metrics.cpuUsage.system
     if (totalCpuUsage > 100000) {
       // 100ms in microseconds
-      extendedLogger.warn("High CPU Usage Detected", {
+      logger.warn("High CPU Usage Detected", {
         url: req.url,
         method: req.method,
         cpuUsageUser: `${(metrics.cpuUsage.user / 1000).toFixed(2)}ms`,
@@ -93,7 +93,7 @@ export const performanceMonitor = (
 
     // 정기적인 성능 메트릭 로깅 (10% 확률)
     if (Math.random() < 0.1) {
-      extendedLogger.logMetrics({
+      logger.info("Performance metrics", {
         type: "request_performance",
         ...metrics,
         url: req.url,
@@ -117,7 +117,7 @@ export const memoryLeakDetector = (
   // 메모리 사용량이 1GB를 초과하는 경우 경고
   if (currentMemory.heapUsed > 1024 * 1024 * 1024) {
     // 1GB
-    extendedLogger.error("Memory Leak Warning", {
+    logger.error("Memory Leak Warning", {
       heapUsed: `${(currentMemory.heapUsed / 1024 / 1024).toFixed(2)}MB`,
       heapTotal: `${(currentMemory.heapTotal / 1024 / 1024).toFixed(2)}MB`,
       rss: `${(currentMemory.rss / 1024 / 1024).toFixed(2)}MB`,
@@ -135,7 +135,7 @@ export const connectionPoolMonitor = () => {
     const currentMemory = process.memoryUsage()
     const currentCpu = process.cpuUsage()
 
-    extendedLogger.logMetrics({
+    logger.info("System performance metrics", {
       type: "system_performance",
       memory: {
         heapUsed: `${(currentMemory.heapUsed / 1024 / 1024).toFixed(2)}MB`,
@@ -160,7 +160,7 @@ export const garbageCollectionMonitor = () => {
     const gcStats = (global as any).gc.stats()
 
     setInterval(() => {
-      extendedLogger.logMetrics({
+      logger.info("Garbage collection metrics", {
         type: "garbage_collection",
         ...gcStats,
         timestamp: Date.now(),
@@ -177,5 +177,5 @@ export const initializePerformanceMonitoring = () => {
   // 가비지 컬렉션 모니터링 시작
   garbageCollectionMonitor()
 
-  extendedLogger.info("Performance monitoring initialized")
+  logger.info("Performance monitoring initialized")
 }

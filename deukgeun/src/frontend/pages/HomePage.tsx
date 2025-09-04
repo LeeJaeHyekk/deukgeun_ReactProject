@@ -1,11 +1,11 @@
 import { useState } from "react"
 import styles from "./HomePage.module.css"
 import { Navigation } from "@widgets/Navigation/Navigation"
-import { LoadingOverlay } from "@shared/ui/LoadingOverlay/LoadingOverlay"
+import { LoadingOverlay } from "../ui/LoadingOverlay"
 import { useUserStore } from "@shared/store/userStore"
 import { useAuthContext } from "@shared/contexts/AuthContext"
-import { useLevel } from "@shared/hooks/useLevel"
-import { useStats } from "@shared/hooks/useStats"
+import { useLevel } from "../hooks/useLevel"
+import { useStats } from "../hooks/useStats"
 import { useNavigate } from "react-router-dom"
 import {
   MapPin,

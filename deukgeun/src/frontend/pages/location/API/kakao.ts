@@ -1,7 +1,8 @@
 import { Gym } from "../types"
-import { KAKAO_CONFIG } from "@shared/lib/env"
 
-const KAKAO_API_KEY = KAKAO_CONFIG.REST_API_KEY
+const KAKAO_API_KEY = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY || ""
+const CENTER_LAT = 37.5665
+const CENTER_LNG = 126.978
 // console.log("🧪 Kakao REST API Key:", KAKAO_API_KEY) // 로그 제거
 
 // 테스트용 더미 데이터 생성

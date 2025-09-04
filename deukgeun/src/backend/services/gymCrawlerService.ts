@@ -1,7 +1,7 @@
 import { Repository } from "typeorm"
 import { Gym } from "../entities/Gym.js"
 import axios from "axios"
-import { config } from "../config/env.js"
+import { appConfig } from "../config/env.js"
 
 // Clean gym name by removing special characters and company prefixes
 function cleanGymName(name: string): string {
@@ -72,7 +72,7 @@ async function searchKakaoMap(query: string): Promise<any> {
           page: 1,
         },
         headers: {
-          Authorization: `KakaoAK ${config.apiKeys.kakao}`,
+          Authorization: `KakaoAK ${appConfig.apiKeys.kakao}`,
         },
       }
     )
@@ -123,7 +123,7 @@ async function getPlaceDetails(placeId: string): Promise<any> {
           size: 1,
         },
         headers: {
-          Authorization: `KakaoAK ${config.apiKeys.kakao}`,
+          Authorization: `KakaoAK ${appConfig.apiKeys.kakao}`,
         },
       }
     )

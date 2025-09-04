@@ -1,11 +1,13 @@
 import React, { useState } from "react"
-import { WorkoutGoalDTO } from "../../types"
+import { WorkoutGoal } from "../../types"
 import { Button } from "../ui/Button"
 
 interface CreateGoalModalProps {
   isOpen: boolean
   onClose: () => void
-  onCreateGoal: (goalData: Omit<WorkoutGoalDTO, "id" | "createdAt" | "updatedAt">) => void
+  onCreateGoal: (
+    goalData: Omit<WorkoutGoal, "id" | "createdAt" | "updatedAt">
+  ) => void
 }
 
 export function CreateGoalModal({
@@ -29,6 +31,8 @@ export function CreateGoalModal({
       ...formData,
       userId: 1, // 임시로 하드코딩
       isCompleted: false,
+      category: "strength" as const,
+      status: "active" as const,
       deadline: formData.deadline ? new Date(formData.deadline) : new Date(),
     })
     onClose()
@@ -52,7 +56,8 @@ export function CreateGoalModal({
       streak: { unit: "일", targetValue: 30 },
     }
 
-    const config = typeConfig[type as keyof typeof typeConfig] || typeConfig.frequency
+    const config =
+      typeConfig[type as keyof typeof typeConfig] || typeConfig.frequency
     setFormData({
       ...formData,
       type: type as any,
@@ -80,7 +85,9 @@ export function CreateGoalModal({
               id="goalTitle"
               type="text"
               value={formData.title}
-              onChange={e => setFormData({ ...formData, title: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, title: e.target.value })
+              }
               required
             />
           </div>
@@ -90,7 +97,9 @@ export function CreateGoalModal({
             <textarea
               id="goalDescription"
               value={formData.description}
-              onChange={e => setFormData({ ...formData, description: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               rows={3}
             />
           </div>
@@ -117,7 +126,12 @@ export function CreateGoalModal({
               type="number"
               min="1"
               value={formData.targetValue}
-              onChange={e => setFormData({ ...formData, targetValue: parseInt(e.target.value) })}
+              onChange={e =>
+                setFormData({
+                  ...formData,
+                  targetValue: parseInt(e.target.value),
+                })
+              }
             />
           </div>
 
@@ -128,7 +142,12 @@ export function CreateGoalModal({
               type="number"
               min="0"
               value={formData.currentValue}
-              onChange={e => setFormData({ ...formData, currentValue: parseInt(e.target.value) })}
+              onChange={e =>
+                setFormData({
+                  ...formData,
+                  currentValue: parseInt(e.target.value),
+                })
+              }
             />
           </div>
 
@@ -138,7 +157,9 @@ export function CreateGoalModal({
               id="deadline"
               type="date"
               value={formData.deadline}
-              onChange={e => setFormData({ ...formData, deadline: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, deadline: e.target.value })
+              }
             />
           </div>
 

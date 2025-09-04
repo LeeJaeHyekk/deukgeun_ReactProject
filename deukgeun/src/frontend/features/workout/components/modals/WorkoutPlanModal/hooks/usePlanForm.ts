@@ -7,24 +7,26 @@ import type {
 
 // 폼에서 사용할 운동 타입 (BaseEntity 속성 제외)
 interface FormExercise {
+  exerciseId?: number // WorkoutPlanExercise와 호환성을 위해 추가
   machineId?: number
-  exerciseName: string
-  exerciseOrder: number
+  machine: { id: number; name: string; imageUrl?: string; category: string; difficulty: "beginner" | "intermediate" | "advanced"; muscleGroups: string[]; gymId: number }
+  order: number
   sets: number
-  repsRange: { min: number; max: number }
-  weightRange?: { min: number; max: number }
+  reps: number
+  weight: number
   restSeconds: number
   notes?: string
 }
 
-// 폼 데이터 타입 (isPublic 제거)
+// 폼 데이터 타입
 interface FormData {
   name: string
-  description?: string
+  description: string
   difficulty: "beginner" | "intermediate" | "advanced"
   estimatedDurationMinutes: number
-  targetMuscleGroups?: string[]
-  isTemplate?: boolean
+  targetMuscleGroups: string[]
+  isTemplate: boolean
+  isPublic: boolean
   exercises: FormExercise[]
 }
 
@@ -36,6 +38,7 @@ export function usePlanForm(currentPlan: WorkoutPlan | null) {
     estimatedDurationMinutes: 60,
     targetMuscleGroups: [],
     isTemplate: false,
+    isPublic: false,
     exercises: [],
   })
 
@@ -47,17 +50,19 @@ export function usePlanForm(currentPlan: WorkoutPlan | null) {
         description: currentPlan.description || "",
         difficulty: currentPlan.difficulty,
         estimatedDurationMinutes: currentPlan.estimatedDurationMinutes,
-        targetMuscleGroups: currentPlan.targetMuscleGroups || [],
-        isTemplate: currentPlan.isTemplate,
+              targetMuscleGroups: currentPlan.targetMuscleGroups || [],
+      isTemplate: currentPlan.isTemplate,
+      isPublic: currentPlan.isPublic,
         exercises: currentPlan.exercises.map(exercise => ({
+          exerciseId: exercise.exerciseId,
           machineId: exercise.machineId,
-          exerciseName: exercise.exerciseName,
-          exerciseOrder: exercise.exerciseOrder,
+          order: exercise.order,
           sets: exercise.sets,
-          repsRange: exercise.repsRange,
-          weightRange: exercise.weightRange,
+          reps: exercise.reps,
+          weight: exercise.weight,
           restSeconds: exercise.restSeconds,
           notes: exercise.notes,
+          machine: exercise.machine,
         })),
       })
     } else {
@@ -69,6 +74,7 @@ export function usePlanForm(currentPlan: WorkoutPlan | null) {
         estimatedDurationMinutes: 60,
         targetMuscleGroups: [],
         isTemplate: false,
+        isPublic: false,
         exercises: [],
       })
     }
@@ -86,18 +92,20 @@ export function usePlanForm(currentPlan: WorkoutPlan | null) {
       estimatedDurationMinutes: 60,
       targetMuscleGroups: [],
       isTemplate: false,
+      isPublic: false,
       exercises: [],
     })
   }, [])
 
   const addExercise = useCallback(() => {
     const newExercise: FormExercise = {
+      exerciseId: undefined,
       machineId: undefined,
-      exerciseName: "",
-      exerciseOrder: formData.exercises.length + 1,
+      machine: { id: 0, name: "", imageUrl: "", category: "기타", difficulty: "beginner", muscleGroups: [], gymId: 1 },
+      order: formData.exercises.length + 1,
       sets: 3,
-      repsRange: { min: 8, max: 12 },
-      weightRange: { min: 0, max: 0 },
+      reps: 10,
+      weight: 0,
       restSeconds: 60,
       notes: "",
     }
@@ -136,8 +144,18 @@ export function usePlanForm(currentPlan: WorkoutPlan | null) {
       estimatedDurationMinutes: formData.estimatedDurationMinutes || 60,
       targetMuscleGroups: formData.targetMuscleGroups || [],
       isTemplate: formData.isTemplate || false,
-      exercises: formData.exercises as WorkoutPlanExercise[], // 타입 캐스팅
-
+      isPublic: formData.isPublic || false,
+      exercises: formData.exercises.map(exercise => ({
+        exerciseId: exercise.exerciseId || 0,
+        machineId: exercise.machineId || 0,
+        order: exercise.order,
+        sets: exercise.sets,
+        reps: exercise.reps,
+        weight: exercise.weight,
+        restSeconds: exercise.restSeconds,
+        notes: exercise.notes,
+        machine: exercise.machine,
+      })),
     }
   }, [formData])
 

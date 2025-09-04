@@ -2,14 +2,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
-    "outDir": "../../dist"
+    "outDir": "../../dist/backend"
   },
-  "include": [
-    "./**/*",
-    "../types/**/*",
-    "../shared/types/**/*",
-    "../shared/validation/**/*"
-  ],
+  "include": ["./**/*", "../types/**/*"],
   "exclude": [
     "node_modules",
     "dist",
@@ -19,11 +14,6 @@
     "**/__tests__/**/*",
     "**/*.test.*",
     "**/*.spec.*",
-    "../shared/api/**/*",
-    "../shared/components/**/*",
-    "../shared/utils/**/*",
-    "../shared/constants/**/*",
-    "../shared/hooks/**/*",
-    "../shared/interfaces/**/*"
+    "../shared/**/*"
   ]
 }

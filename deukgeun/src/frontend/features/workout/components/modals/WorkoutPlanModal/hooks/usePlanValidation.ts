@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react"
-import type { CreatePlanRequest } from "../../../../../../shared/types"
+import type { CreatePlanRequest } from "../../../../types"
 
 export function usePlanValidation() {
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -31,17 +31,13 @@ export function usePlanValidation() {
     } else {
       // 각 운동의 유효성 검사
       formData.exercises.forEach((exercise, index) => {
-        if (!exercise.exerciseName?.trim()) {
+        if (!exercise.machine?.name?.trim()) {
           newErrors[`exercise_${index}_name`] = "운동 이름을 입력해주세요"
         }
         if (!exercise.sets || exercise.sets <= 0) {
           newErrors[`exercise_${index}_sets`] = "세트 수를 입력해주세요"
         }
-        if (
-          !exercise.repsRange ||
-          exercise.repsRange.min <= 0 ||
-          exercise.repsRange.max <= 0
-        ) {
+        if (!exercise.reps || exercise.reps <= 0) {
           newErrors[`exercise_${index}_reps`] = "반복 횟수를 입력해주세요"
         }
       })

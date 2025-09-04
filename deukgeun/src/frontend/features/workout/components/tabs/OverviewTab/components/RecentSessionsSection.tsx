@@ -1,5 +1,5 @@
 import React from "react"
-import type { DashboardData } from "../../../../../../shared/types"
+import type { DashboardData } from "../../../../types"
 import styles from "./RecentSessionsSection.module.css"
 
 interface RecentSessionsSectionProps {

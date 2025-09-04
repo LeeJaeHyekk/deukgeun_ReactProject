@@ -1,4 +1,4 @@
-import { Post as CommunityPost } from "../../../../shared/types"
+import { Post as CommunityPost } from "../../../types/community"
 import { PostGrid } from "./PostGrid"
 import styles from "./CommunityPosts.module.css"
 

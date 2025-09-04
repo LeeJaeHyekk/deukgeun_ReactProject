@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react"
 import {
-  validateAuthForm,
-  getFieldValidationState,
+  validateForm as validateAuthForm,
+  validateField as getFieldValidationState,
   AUTH_VALIDATION_RULES,
 } from "../utils/validation"
 
@@ -67,16 +67,33 @@ export function useAuthForm<T extends Record<string, any>>({
 
   // 전체 폼 검증
   const validateForm = useCallback(() => {
-    const newErrors = validateAuthForm(formData, validationFields)
-    setErrors(newErrors)
-
-    const isValid = Object.keys(newErrors).length === 0
-
-    if (!isValid && onError) {
-      onError(newErrors)
+    const validationResult = validateAuthForm(formData, validationFields)
+    
+    // validateAuthForm이 { isValid, errors } 구조로 반환하는 경우
+    if (typeof validationResult === 'object' && validationResult !== null && 'errors' in validationResult) {
+      const { errors: newErrors } = validationResult as { isValid: boolean; errors: Record<string, string> }
+      setErrors(newErrors)
+      
+      const isValid = Object.keys(newErrors).length === 0
+      
+      if (!isValid && onError) {
+        onError(newErrors)
+      }
+      
+      return isValid
+    } else {
+      // validateAuthForm이 직접 errors 객체를 반환하는 경우
+      const newErrors = validationResult as unknown as Record<string, string>
+      setErrors(newErrors)
+      
+      const isValid = Object.keys(newErrors).length === 0
+      
+      if (!isValid && onError) {
+        onError(newErrors)
+      }
+      
+      return isValid
     }
-
-    return isValid
   }, [formData, validationFields, onError])
 
   // 폼 제출

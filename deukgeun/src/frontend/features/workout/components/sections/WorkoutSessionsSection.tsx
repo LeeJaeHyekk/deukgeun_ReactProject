@@ -1,9 +1,9 @@
 import React from "react"
 import { WorkoutSessionCard } from "../cards/WorkoutSessionCard"
-import { WorkoutSessionDTO } from "../../types"
+import { WorkoutSession } from "../../types"
 
 interface WorkoutSessionsSectionProps {
-  sessions: WorkoutSessionDTO[]
+  sessions: WorkoutSession[]
   onStartSession: (sessionId: number) => void
   onPauseSession: (sessionId: number) => void
   onCompleteSession: (sessionId: number, sessionData?: any) => void

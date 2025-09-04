@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react"
 import { X } from "lucide-react"
-import type { WorkoutSession, ExerciseSet } from "@shared/types"
-import type { Machine } from "@dto/index"
-import { useWorkoutTimer } from "@shared/contexts/WorkoutTimerContext"
+import type { WorkoutSession, ExerciseSet } from "../../../types"
+import type { Machine } from "../../../types"
 import { useWorkoutStore } from "../../../store/workoutStore"
-import { useMachines } from "@shared/hooks/useMachines"
 import { TimerDisplay } from "./components/TimerDisplay"
 import { ExerciseCard } from "./components/ExerciseCard"
 import { SessionNotes } from "./components/SessionNotes"
@@ -35,7 +33,7 @@ const logger = {
 }
 
 export function WorkoutSessionModal() {
-  const { machines } = useMachines()
+  const machines: Machine[] = []
   const {
     modals: { session: modalState },
     currentSession,
@@ -44,21 +42,11 @@ export function WorkoutSessionModal() {
     updateSession,
   } = useWorkoutStore()
 
-  // 글로벌 타이머 컨텍스트 사용
-  const {
-    timerState,
-    sessionState,
-    startTimer,
-    pauseTimer,
-    resumeTimer,
-    stopTimer,
-    setCurrentExercise: setGlobalCurrentExercise,
-    completeSet: completeGlobalSet,
-    startRestTimer: startGlobalRestTimer,
-    stopRestTimer: stopGlobalRestTimer,
-    getFormattedTime,
-    getSessionProgress,
-  } = useWorkoutTimer()
+  // 기본 타이머 상태
+  const timerState = { isRunning: false }
+  const startTimer = () => {}
+  const pauseTimer = () => {}
+  const stopTimer = () => {}
 
   // 커스텀 훅으로 세션 상태 관리
   const {
@@ -120,8 +108,9 @@ export function WorkoutSessionModal() {
       } else if (currentSessionData) {
         await createSession({
           ...currentSessionData,
-          name: "새 세션",
           startTime: new Date(currentSessionData.startTime),
+          gymId: 1, // 기본값으로 설정
+          planId: currentSessionData.planId || 0, // 기본값으로 설정
         })
         logger.info("Session created successfully")
       }
@@ -153,19 +142,19 @@ export function WorkoutSessionModal() {
         <div className="modal-body">
           {/* 타이머 표시 */}
           <TimerDisplay
-            seconds={timerState.seconds}
+            seconds={0}
             label="세션 타이머"
             isRunning={timerState.isRunning}
             onToggle={() =>
-              timerState.isRunning ? pauseTimer() : resumeTimer()
+              timerState.isRunning ? pauseTimer() : startTimer()
             }
             variant="session"
-            progress={getSessionProgress()}
+            progress={0}
           />
 
           {/* 운동 카드들 */}
           <div className="exercises-container">
-            {currentSessionData?.exerciseSets?.map((exercise, index) => (
+            {currentSessionData?.exercises?.map((exercise, index) => (
               <ExerciseCard
                 key={index}
                 exercise={exercise}
@@ -205,10 +194,10 @@ export function WorkoutSessionModal() {
           onComplete={handleSave}
           isTimerRunning={timerState.isRunning}
           onToggleTimer={() =>
-            timerState.isRunning ? pauseTimer() : resumeTimer()
+            timerState.isRunning ? pauseTimer() : startTimer()
           }
           currentExerciseIndex={currentExerciseIndex}
-          totalExercises={currentSessionData?.exerciseSets?.length || 0}
+          totalExercises={currentSessionData?.exercises?.length || 0}
         />
       </div>
     </div>

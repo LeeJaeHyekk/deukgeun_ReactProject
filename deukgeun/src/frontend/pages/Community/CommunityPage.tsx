@@ -1,30 +1,22 @@
 import { useState, useEffect, useCallback } from "react"
-import { postsApi, likesApi } from "@shared/api"
-import { showToast } from "@shared/lib"
+import { postsApi, likesApi } from "../../api/communityApi"
+import { showToast } from "../../utils/toast"
 import { PostGrid } from "../../features/community/components/PostGrid"
 import { PostModal } from "../../features/community/components/PostModal"
 import { PostDetailModal } from "../../features/community/components/PostDetailModal"
 import styles from "./CommunityPage.module.css"
 import { Navigation } from "../../widgets/Navigation/Navigation"
-import type { PostDTO } from "../../../shared/types"
+import type {
+  Post,
+  PostCategory,
+  PostListResponse,
+} from "../../types/community"
 
-// 타입 정의
-interface PostCategory {
-  id: number
-  name: string
-  count: number
-}
-
-interface PostListResponse {
-  posts: PostDTO[]
-  total: number
-  page: number
-  limit: number
-}
+// 타입은 이미 import됨
 
 export default function CommunityPage() {
-  const [posts, setPosts] = useState<PostDTO[]>([])
-  const [selectedPost, setSelectedPost] = useState<PostDTO | null>(null)
+  const [posts, setPosts] = useState<Post[]>([])
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>("")
@@ -40,9 +32,9 @@ export default function CommunityPage() {
   // 카테고리 목록 가져오기
   useEffect(() => {
     postsApi
-      .categories()
+      .getCategories()
       .then(response => {
-        const categories = response.data.data as PostCategory[]
+        const categories = response as PostCategory[]
         setAvailableCategories(categories)
       })
       .catch((error: unknown) => {
@@ -58,13 +50,13 @@ export default function CommunityPage() {
       try {
         const selectedCategoryParam = category || selectedCategory
 
-        const res = await postsApi.list({
+        const res = await postsApi.getPosts({
           category: selectedCategoryParam,
           page,
           limit,
         })
 
-        const postListResponse = res.data.data as PostListResponse
+        const postListResponse = res as PostListResponse
 
         setPosts(postListResponse.posts)
         setTotalPages(Math.ceil(postListResponse.total / limit))
@@ -96,7 +88,7 @@ export default function CommunityPage() {
     category: string
   }) => {
     try {
-      await postsApi.create(postData)
+      await postsApi.create({ ...postData, isAnonymous: false })
       showToast("게시글이 성공적으로 작성되었습니다.", "success")
       setIsModalOpen(false)
       fetchPosts(1) // 첫 페이지로 돌아가서 새 게시글 확인
@@ -110,7 +102,7 @@ export default function CommunityPage() {
   // 게시글 좋아요
   const handleLikePost = async (postId: number) => {
     try {
-      await likesApi.like(postId)
+      await likesApi.like(postId.toString())
       showToast("좋아요를 눌렀습니다.", "success")
       fetchPosts(currentPage) // 목록 새로고침
     } catch (error: unknown) {
@@ -120,7 +112,7 @@ export default function CommunityPage() {
   }
 
   // 게시글 상세 보기
-  const handleOpenPost = (post: PostDTO) => {
+  const handleOpenPost = (post: Post) => {
     setSelectedPost(post)
     setIsDetailModalOpen(true)
   }
@@ -131,7 +123,7 @@ export default function CommunityPage() {
     updateData: { title: string; content: string; category: string }
   ) => {
     try {
-      await postsApi.update(postId, updateData)
+      await postsApi.update(postId.toString(), updateData)
       showToast("게시글이 성공적으로 수정되었습니다.", "success")
       setIsDetailModalOpen(false)
       fetchPosts(currentPage)
@@ -144,7 +136,7 @@ export default function CommunityPage() {
   // 게시글 삭제
   const handleDeletePost = async (postId: number) => {
     try {
-      await postsApi.remove(postId)
+      await postsApi.remove(postId.toString())
       showToast("게시글이 성공적으로 삭제되었습니다.", "success")
       setIsDetailModalOpen(false)
       fetchPosts(currentPage)
@@ -209,7 +201,7 @@ export default function CommunityPage() {
             }}
             onSubmit={handleCreatePost}
             categories={availableCategories.map(category => ({
-              id: String(category.id),
+              id: Number(category.id),
               name: category.name,
               count: category.count || 0,
             }))}

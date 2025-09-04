@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer"
-import { config } from "../config/env.js"
+import { appConfig } from "../config/env.js"
 import { logger } from "../utils/logger.js"
-import { EmailServiceConfig, EmailContent } from "../types/index.js"
+import { EmailServiceConfig, EmailContent } from "../types/backend.types.js"
 
 class EmailService {
   private transporter: nodemailer.Transporter | null = null

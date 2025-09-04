@@ -27,13 +27,13 @@ export function useGet<T = unknown>(
 ): ApiState<T> {
   const [state, setState] = useState<ApiState<T>>({
     isLoading: false,
-    error: undefined,
+    error: null,
     data: null,
     refetch: async () => {},
   })
 
   const fetchData = useCallback(async () => {
-    setState(prev => ({ ...prev, isLoading: true, error: undefined }))
+    setState(prev => ({ ...prev, isLoading: true, error: null }))
 
     try {
       const response = await apiClient.get<T>(endpoint, params)
@@ -86,14 +86,14 @@ export function usePost<T = unknown, D = unknown>(
 ): [ApiState<T>, (data: D) => Promise<void>] {
   const [state, setState] = useState<ApiState<T>>({
     isLoading: false,
-    error: undefined,
+    error: null,
     data: null,
     refetch: async () => {},
   })
 
   const execute = useCallback(
     async (data: D) => {
-      setState(prev => ({ ...prev, isLoading: true, error: undefined }))
+      setState(prev => ({ ...prev, isLoading: true, error: null }))
 
       try {
         const response = await apiClient.post<T>(endpoint, data)
@@ -142,14 +142,14 @@ export function usePut<T = unknown, D = unknown>(
 ): [ApiState<T>, (data: D) => Promise<void>] {
   const [state, setState] = useState<ApiState<T>>({
     isLoading: false,
-    error: undefined,
+    error: null,
     data: null,
     refetch: async () => {},
   })
 
   const execute = useCallback(
     async (data: D) => {
-      setState(prev => ({ ...prev, isLoading: true, error: undefined }))
+      setState(prev => ({ ...prev, isLoading: true, error: null }))
 
       try {
         const response = await apiClient.put<T>(endpoint, data)
@@ -198,13 +198,13 @@ export function useDelete<T = unknown>(
 ): [ApiState<T>, () => Promise<void>] {
   const [state, setState] = useState<ApiState<T>>({
     isLoading: false,
-    error: undefined,
+    error: null,
     data: null,
     refetch: async () => {},
   })
 
   const execute = useCallback(async () => {
-    setState(prev => ({ ...prev, isLoading: true, error: undefined }))
+    setState(prev => ({ ...prev, isLoading: true, error: null }))
 
     try {
       const response = await apiClient.delete<T>(endpoint)
@@ -251,14 +251,14 @@ export function useUpload<T = unknown>(
 ): [ApiState<T>, (file: File) => Promise<void>] {
   const [state, setState] = useState<ApiState<T>>({
     isLoading: false,
-    error: undefined,
+    error: null,
     data: null,
     refetch: async () => {},
   })
 
   const execute = useCallback(
     async (file: File) => {
-      setState(prev => ({ ...prev, isLoading: true, error: undefined }))
+      setState(prev => ({ ...prev, isLoading: true, error: null }))
 
       try {
         const response = await apiClient.upload<T>(endpoint, file)

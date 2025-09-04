@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react"
-import { likesApi } from "@shared/api"
-import { showToast } from "@shared/lib"
-import { Post as CommunityPost } from "../../../../shared/types"
+import { likesApi } from "../../../api/communityApi"
+import { showToast } from "../../../utils/toast"
+import type { Post } from "../../../types/community"
 
 export function usePostLikes() {
   const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set())
@@ -10,8 +10,8 @@ export function usePostLikes() {
   const toggleLike = useCallback(
     async (
       postId: number,
-      posts: CommunityPost[],
-      setPosts: React.Dispatch<React.SetStateAction<CommunityPost[]>>
+      posts: Post[],
+      setPosts: React.Dispatch<React.SetStateAction<Post[]>>
     ) => {
       try {
         console.log("좋아요 요청 시작:", postId)
@@ -24,11 +24,11 @@ export function usePostLikes() {
         }
 
         // 좋아요 토글 API 호출
-        const response = await likesApi.toggle(postId)
+        const response = await likesApi.like(postId.toString())
         console.log("좋아요 응답:", response)
 
         // 응답에서 좋아요 상태와 개수 가져오기
-        const responseData = response.data?.data as
+        const responseData = (response as any) as
           | { isLiked: boolean; likeCount: number }
           | undefined
 
@@ -41,7 +41,7 @@ export function usePostLikes() {
           setPosts(prevPosts =>
             prevPosts.map(post =>
               post.id === postId
-                ? { ...post, like_count: responseData.likeCount }
+                ? { ...post, likeCount: responseData.likeCount }
                 : post
             )
           )

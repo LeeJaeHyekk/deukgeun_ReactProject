@@ -1,10 +1,21 @@
 import React from "react"
-import type { CreatePlanRequest } from "../../../../../../shared/types"
 import styles from "./PlanBasicInfo.module.css"
 
+// FormData 타입 정의 (WorkoutPlanModal과 동일)
+interface FormData {
+  name: string
+  description: string
+  difficulty: "beginner" | "intermediate" | "advanced"
+  estimatedDurationMinutes: number
+  targetMuscleGroups: string[]
+  isTemplate: boolean
+  isPublic: boolean
+  exercises: any[]
+}
+
 interface PlanBasicInfoProps {
-  formData: CreatePlanRequest
-  updateFormData: (data: Partial<CreatePlanRequest>) => void
+  formData: FormData
+  updateFormData: (data: Partial<FormData>) => void
   errors: Record<string, string>
   isViewMode: boolean
 }
@@ -15,7 +26,7 @@ export function PlanBasicInfo({
   errors,
   isViewMode,
 }: PlanBasicInfoProps) {
-  const handleInputChange = (field: keyof CreatePlanRequest, value: any) => {
+  const handleInputChange = (field: keyof FormData, value: any) => {
     if (isViewMode) return
     updateFormData({ [field]: value })
   }

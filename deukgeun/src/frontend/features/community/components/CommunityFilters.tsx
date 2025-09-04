@@ -1,4 +1,4 @@
-import { PostCategoryInfo } from "../../../../shared/types"
+import type { PostCategory } from "../../../types/community"
 import { SortOption } from "../hooks/useCommunityFilters"
 import styles from "./CommunityFilters.module.css"
 
@@ -9,7 +9,7 @@ interface CommunityFiltersProps {
   onSortChange: (sort: SortOption) => void
   selectedCategory: string
   onCategoryChange: (category: string) => void
-  availableCategories: PostCategoryInfo[]
+  availableCategories: PostCategory[]
   onCreatePost: () => void
 }
 

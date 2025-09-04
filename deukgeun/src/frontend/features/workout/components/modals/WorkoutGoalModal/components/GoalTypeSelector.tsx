@@ -1,6 +1,6 @@
 import React from "react"
 import { BarChart3 } from "lucide-react"
-import type { WorkoutGoal } from "../../../../../../shared/types"
+import type { WorkoutGoal } from "../../../../types"
 
 const GOAL_TYPES = [
   { value: "weight", label: "무게", unit: "kg", icon: "🏋️" },

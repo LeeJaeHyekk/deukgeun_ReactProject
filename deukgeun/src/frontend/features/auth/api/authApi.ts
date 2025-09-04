@@ -1,13 +1,10 @@
 // features/auth/api/authApi.ts
 import { api } from "@shared/api"
-import { API_ENDPOINTS } from "@shared/config"
+import { API_ENDPOINTS } from "../../../config/apiEndpoints"
 import axios from "axios"
 import { config } from "@shared/config"
-import {
-  SIGNUP_VALIDATION_MESSAGES,
-  HTTP_ERROR_MESSAGES,
-  ERROR_TOAST_TYPES,
-} from "@shared/constants/validation"
+import { SIGNUP_VALIDATION_MESSAGES } from "../../../constants/validationMessages"
+import { HTTP_ERROR_MESSAGES } from "../../../constants/errorMessages"
 import type {
   LoginRequest,
   LoginResponse,
@@ -15,8 +12,7 @@ import type {
   RegisterResponse,
   RefreshResponse,
   LogoutResponse,
-  AccountRecoveryRequest,
-} from "@shared/types/auth"
+} from "../../../types/auth"
 
 // 백엔드 API 응답과 프론트엔드 타입 간의 호환성을 위한 타입 정의
 export interface ApiLoginResponse {
@@ -150,7 +146,7 @@ export const authApi = {
       nickname: data.nickname,
       phone: data.phone,
       gender: data.gender,
-      birthday: data.birthday,
+      birthDate: data.birthDate,
       recaptchaToken: data.recaptchaToken
         ? data.recaptchaToken.substring(0, 20) + "..."
         : "없음",
@@ -399,7 +395,12 @@ export const authApi = {
         API_ENDPOINTS.AUTH.REFRESH
       )
       console.log("✅ refreshToken API 성공:", response)
-      return response.data.data as RefreshResponse
+      // API 응답 구조에 맞게 처리
+      if ('data' in response && response.data) {
+        return response.data
+      }
+      // 직접 RefreshResponse로 응답하는 경우
+      return response as unknown as RefreshResponse
     } catch (error: unknown) {
       console.error("❌ refreshToken API 실패:", error)
       console.error("❌ 에러 상세:", {
@@ -417,7 +418,12 @@ export const authApi = {
   // Logout
   logout: async (): Promise<LogoutResponse> => {
     const response = await api.post<LogoutResponse>(API_ENDPOINTS.AUTH.LOGOUT)
-    return response.data.data as LogoutResponse
+    // API 응답 구조에 맞게 처리
+    if ('data' in response && response.data) {
+      return response.data
+    }
+    // 직접 LogoutResponse로 응답하는 경우
+    return response as unknown as LogoutResponse
   },
 
   // Check if user is authenticated
@@ -425,6 +431,11 @@ export const authApi = {
     const response = await api.get<{ message: string; authenticated: boolean }>(
       API_ENDPOINTS.AUTH.CHECK
     )
-    return response.data.data as { message: string; authenticated: boolean }
+    // API 응답 구조에 맞게 처리
+    if ('data' in response && response.data) {
+      return response.data
+    }
+    // 직접 응답하는 경우
+    return response as unknown as { message: string; authenticated: boolean }
   },
 }

@@ -1,10 +1,10 @@
 import React, { useState } from "react"
-import { WorkoutSessionDTO } from "../../types"
+import { WorkoutSession } from "../../types"
 import { ProgressBar } from "../ui/ProgressBar"
 import { Button } from "../ui/Button"
 
 interface WorkoutSessionCardProps {
-  session: WorkoutSessionDTO
+  session: WorkoutSession
   onStart: () => void
   onPause: () => void
   onComplete: () => void
@@ -20,10 +20,10 @@ export function WorkoutSessionCard({
 }: WorkoutSessionCardProps) {
   const [showDetails, setShowDetails] = useState(false)
 
-  const completedSets = session.exerciseSets.filter(
+  const completedSets = session.exercises.filter(
     set => set.repsCompleted > 0
   ).length
-  const totalSets = session.exerciseSets.length
+  const totalSets = session.exercises.length
   const isCompleted = session.status === "completed"
   const isInProgress = session.status === "in_progress"
   const isPaused = session.status === "paused"
@@ -175,7 +175,7 @@ export function WorkoutSessionCard({
 
           {showDetails ? (
             <div className="exercise-list-detailed">
-              {session.exerciseSets.map((set, index) => (
+                             {session.exercises.map((set, index) => (
                 <div key={index} className="exercise-item-detailed">
                   <div className="exercise-header">
                     <span className="exercise-name">{set.machineId ? `머신 ${set.machineId}` : "운동"}</span>
@@ -201,7 +201,7 @@ export function WorkoutSessionCard({
             </div>
           ) : (
             <div className="exercise-list">
-              {session.exerciseSets.slice(0, 3).map((set, index) => (
+                             {session.exercises.slice(0, 3).map((set, index) => (
                 <div key={index} className="exercise-item">
                   <span className="exercise-name">{set.machineId ? `머신 ${set.machineId}` : "운동"}</span>
                   <span className="exercise-sets">
@@ -210,11 +210,11 @@ export function WorkoutSessionCard({
                   </span>
                 </div>
               ))}
-              {session.exerciseSets.length > 3 && (
-                <div className="more-exercises">
-                  +{session.exerciseSets.length - 3}개 더
-                </div>
-              )}
+                             {session.exercises.length > 3 && (
+                 <div className="more-exercises">
+                   +{session.exercises.length - 3}개 더
+                 </div>
+               )}
             </div>
           )}
         </div>

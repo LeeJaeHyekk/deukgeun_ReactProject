@@ -106,11 +106,10 @@ export function useProgressData(sessions: WorkoutSession[]) {
         acc[dateKey].value = acc[dateKey].sessions
 
         // 운동 시간 추가
-        acc[dateKey].duration +=
-          session.totalDurationMinutes || session.duration || 0
+        acc[dateKey].duration += session.totalDuration || 0
 
         // 운동 세트 수 추가
-        acc[dateKey].exercises += session.exerciseSets?.length || 0
+        acc[dateKey].exercises += session.exercises?.length || 0
 
         return acc
       },
@@ -141,18 +140,18 @@ export function useProgressData(sessions: WorkoutSession[]) {
 
     const completedSessions = sessions.filter(s => s.status === "completed")
     const totalDuration = sessions.reduce(
-      (sum, s) => sum + (s.totalDurationMinutes || s.duration || 0),
+      (sum, s) => sum + s.totalDuration || 0,
       0
     )
     const totalExercises = sessions.reduce(
-      (sum, s) => sum + (s.exerciseSets?.length || 0),
+      (sum, s) => sum + s.exercises?.length || 0,
       0
     )
 
     // 칼로리 계산 (예시 - 실제 데이터에 따라 조정 필요)
     const totalCalories = sessions.reduce((sum, s) => {
       // 운동 시간 * 평균 칼로리 소모량 (예: 분당 8칼로리)
-      const sessionCalories = (s.totalDurationMinutes || s.duration || 0) * 8
+      const sessionCalories = s.totalDuration * 8
       return sum + sessionCalories
     }, 0)
 

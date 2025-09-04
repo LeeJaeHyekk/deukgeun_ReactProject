@@ -1,9 +1,9 @@
 import React from "react"
-import type { WorkoutReminderDTO } from "../../../../shared/types"
+import type { WorkoutReminder } from "../types"
 import "./ReminderCard.css"
 
 interface ReminderCardProps {
-  reminder: WorkoutReminderDTO
+  reminder: WorkoutReminder
   onEdit: () => void
   onToggle: () => void
   onDelete: () => void

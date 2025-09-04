@@ -291,7 +291,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
           set(state => ({
             loading: {
               ...state.loading,
-              plans: { isLoading: true, error: null },
+              plans: { isLoading: true, error: null, lastUpdated: undefined },
             },
           }))
 
@@ -436,14 +436,15 @@ export const useWorkoutStore = create<WorkoutStore>()(
             isTemplate: plan.isTemplate,
             isPublic: false,
             exercises: plan.exercises.map(exercise => ({
+              exerciseId: exercise.exerciseId,
               machineId: exercise.machineId,
-              exerciseName: exercise.exerciseName,
-              exerciseOrder: exercise.exerciseOrder,
+              order: exercise.order,
               sets: exercise.sets,
-              repsRange: exercise.repsRange,
-              weightRange: exercise.weightRange,
+              reps: exercise.reps,
+              weight: exercise.weight,
               restSeconds: exercise.restSeconds,
-              notes: exercise.notes,
+              notes: exercise.notes || "",
+              machine: exercise.machine,
             })),
           }
 
@@ -611,7 +612,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
         pauseSession: async (sessionId: number) => {
           await get().updateSession(sessionId, {
             id: sessionId,
-            status: "paused",
+            status: "in_progress",
           })
 
           // Pause timer
@@ -633,7 +634,6 @@ export const useWorkoutStore = create<WorkoutStore>()(
             id: sessionId,
             status: "completed",
             endTime,
-            totalDurationMinutes: duration,
           })
 
           // Stop timer
@@ -786,7 +786,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
         completeGoal: async (goalId: number) => {
           await get().updateGoal(goalId, {
             id: goalId,
-            isCompleted: true,
+            status: "completed",
           })
         },
 

@@ -3,13 +3,13 @@ import { SessionTimer } from "../timer/SessionTimer"
 import { SetInput } from "../forms/SetInput"
 import { MachineSelector } from "../forms/MachineSelector"
 import { NotesInput } from "../forms/NotesInput"
-import { WorkoutSessionDTO } from "../../types"
+import { WorkoutSession } from "../../types"
 
 interface SessionTrackingSectionProps {
-  activeSessions: WorkoutSessionDTO[]
+  activeSessions: WorkoutSession[]
   onUpdateSession: (
     sessionId: number,
-    updates: Partial<WorkoutSessionDTO>
+    updates: Partial<WorkoutSession>
   ) => Promise<any>
 }
 

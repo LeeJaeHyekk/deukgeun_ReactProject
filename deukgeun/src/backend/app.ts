@@ -1,23 +1,27 @@
-// Express.js 웹 프레임워크 import
+// ============================================================================
+// Express 애플리케이션 설정 - 타입 오류 수정
+// ============================================================================
+
+// Express 프레임워크 import
 import express from "express"
-// CORS (Cross-Origin Resource Sharing) 미들웨어 import
+// CORS 미들웨어 import
 import cors from "cors"
-// 보안 헤더 설정 미들웨어 import
+// 보안 미들웨어 import
 import helmet from "helmet"
 // HTTP 요청 로깅 미들웨어 import
 import morgan from "morgan"
+// 쿠키 파싱 미들웨어 import
+import cookieParser from "cookie-parser"
+// 파일 경로 처리 유틸리티 import
+import path from "path"
+// 환경 설정 import
+import { appConfig } from "./config/env.js"
 // TypeORM 메타데이터 리플렉션 지원
 import "reflect-metadata"
 // 커스텀 에러 핸들러 미들웨어 import
 import { errorHandler } from "./middlewares/errorHandler.js"
 // API 라우트 설정 import
 import routes from "./routes/index.js"
-// 쿠키 파싱 미들웨어 import
-import cookieParser from "cookie-parser"
-// 파일 경로 처리 유틸리티 import
-import path from "path"
-// 환경 설정 import
-import { config } from "./config/env.js"
 import { fileURLToPath } from "url"
 
 // ESM에서 __dirname 대체
@@ -30,7 +34,7 @@ const app = express()
 // 환경별 CORS 설정
 const corsOptions = {
   origin:
-    config.environment === "production"
+    appConfig.environment === "production"
       ? [
           // 프로덕션 도메인들
           "https://yourdomain.com",
@@ -86,7 +90,7 @@ app.use(
 app.use(cors(corsOptions))
 
 // HTTP 요청 로깅 미들웨어 설정 (프로덕션에서는 간소화)
-const morganFormat = config.environment === "production" ? "combined" : "dev"
+const morganFormat = appConfig.environment === "production" ? "combined" : "dev"
 app.use(morgan(morganFormat))
 
 // 쿠키 파싱 미들웨어 설정
@@ -120,7 +124,7 @@ app.get("/", (req, res) => {
     message: "Deukgeun Backend API",
     version: "1.0.0",
     timestamp: new Date().toISOString(),
-    environment: config.environment,
+    environment: appConfig.environment,
     status: "healthy",
   })
 })

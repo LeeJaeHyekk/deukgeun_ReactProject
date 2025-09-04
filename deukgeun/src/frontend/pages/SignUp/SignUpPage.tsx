@@ -9,12 +9,13 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa"
 import { authApi } from "@features/auth/api/authApi"
-import type { RegisterRequest } from "../../../shared/types"
+import type { RegisterRequest } from "../../types/auth/auth.types"
 import { validation, showToast, storage } from "@shared/lib"
 import { useRecaptchaForRegister } from "@shared/hooks/useRecaptcha"
 import {
   SIGNUP_VALIDATION_MESSAGES,
   ERROR_TOAST_TYPES,
+  SIGNUP_SUCCESS_MESSAGE,
 } from "@shared/constants/validation"
 import { useAuthContext } from "@shared/contexts/AuthContext"
 import styles from "./SignUpPage.module.css"
@@ -28,6 +29,8 @@ interface FormData {
   confirmPassword: string
   nickname: string
   phone: string
+  gender: string
+  birthday: string
 }
 
 interface ValidationState {
@@ -77,6 +80,8 @@ export default function SignUpPage() {
     confirmPassword: "",
     nickname: "",
     phone: "",
+    gender: "",
+    birthday: "",
   })
 
   // UI 상태
@@ -125,7 +130,7 @@ export default function SignUpPage() {
         if (!value) {
           console.log(`❌ 이메일 빈 값`)
           return { isValid: false, message: "이메일을 입력해주세요." }
-        } else if (!validation.email(value)) {
+        } else if (!validation.isEmail(value)) {
           console.log(`❌ 이메일 형식 오류:`, value)
           return {
             isValid: false,
@@ -411,10 +416,10 @@ export default function SignUpPage() {
 
     // 이메일 검증
     console.log("🔍 이메일 검증:", formData.email)
-    if (!validation.required(formData.email)) {
+    if (!validation.isRequired(formData.email)) {
       newErrors.email = "이메일을 입력해주세요."
       console.log("❌ 이메일 필수 입력 오류")
-    } else if (!validation.email(formData.email)) {
+    } else if (!validation.isEmail(formData.email)) {
       newErrors.email =
         "올바른 이메일 형식으로 입력해주세요. (예: user@example.com)"
       console.log("❌ 이메일 형식 오류")
@@ -424,10 +429,10 @@ export default function SignUpPage() {
 
     // 비밀번호 검증
     console.log("🔍 비밀번호 검증:", formData.password ? "입력됨" : "입력안됨")
-    if (!validation.required(formData.password)) {
+    if (!validation.isRequired(formData.password)) {
       newErrors.password = "비밀번호를 입력해주세요."
       console.log("❌ 비밀번호 필수 입력 오류")
-    } else if (!validation.password(formData.password)) {
+    } else if (!validation.isPassword(formData.password)) {
       newErrors.password = "비밀번호는 최소 8자 이상이어야 합니다."
       console.log("❌ 비밀번호 형식 오류")
     } else {
@@ -436,7 +441,7 @@ export default function SignUpPage() {
 
     // 비밀번호 확인 검증
     console.log("🔍 비밀번호 확인 검증")
-    if (!validation.required(formData.confirmPassword)) {
+    if (!validation.isRequired(formData.confirmPassword)) {
       newErrors.confirmPassword = "비밀번호 확인을 입력해주세요."
       console.log("❌ 비밀번호 확인 필수 입력 오류")
     } else if (formData.password !== formData.confirmPassword) {
@@ -448,7 +453,7 @@ export default function SignUpPage() {
 
     // 닉네임 검증
     console.log("🔍 닉네임 검증:", formData.nickname)
-    if (!validation.required(formData.nickname)) {
+    if (!validation.isRequired(formData.nickname)) {
       newErrors.nickname = "닉네임을 입력해주세요."
       console.log("❌ 닉네임 필수 입력 오류")
     } else if (formData.nickname.length < 2 || formData.nickname.length > 20) {
@@ -548,21 +553,20 @@ export default function SignUpPage() {
       const registerData: RegisterRequest = {
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
+        confirmPassword: formData.confirmPassword,
         nickname: formData.nickname.trim(),
-        phone: formData.phone.trim() || undefined,
-        gender: (gender as "male" | "female" | "other") || undefined,
-        birthday: birthdayDate
-          ? birthdayDate.toISOString().split("T")[0]
-          : undefined,
+        name: formData.nickname.trim(),
+        phone: formData.phone.trim(),
+        gender: formData.gender as "male" | "female" | "other",
+        birthDate: birthdayDate ? birthdayDate.toISOString().split("T")[0] : "",
         recaptchaToken,
       }
 
       console.log("📤 회원가입 데이터 준비 완료:", {
         email: registerData.email,
-        nickname: registerData.nickname,
+        name: registerData.name,
         phone: registerData.phone,
-        gender: registerData.gender,
-        birthday: registerData.birthday,
+        birthDate: registerData.birthDate,
         recaptchaToken: registerData.recaptchaToken
           ? registerData.recaptchaToken.substring(0, 20) + "..."
           : "없음",
@@ -575,10 +579,16 @@ export default function SignUpPage() {
       console.log("🔄 토큰 저장 시작")
       // 토큰 저장
       storage.set("accessToken", response.accessToken)
-      storage.set("user", response.user)
+      storage.set(
+        "user",
+        JSON.stringify({
+          ...response.user,
+          id: response.user.id.toString(),
+        })
+      )
       console.log("✅ 토큰 저장 완료")
 
-      showToast(SIGNUP_VALIDATION_MESSAGES.SUCCESS, "success")
+      showToast(SIGNUP_SUCCESS_MESSAGE, "success")
       console.log("🎉 회원가입 완료 - 메인페이지로 이동")
       navigate("/")
     } catch (error: unknown) {

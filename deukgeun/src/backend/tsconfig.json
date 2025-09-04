@@ -6,8 +6,8 @@
 
     "allowImportingTsExtensions": false,
     "noEmit": false,
-    "outDir": "../../dist",
-    "rootDir": "../",
+    "outDir": "../../dist/backend",
+    "rootDir": "../..",
 
     "lib": ["ES2022", "DOM"],
     "strict": false,
@@ -36,43 +36,34 @@
     "allowArbitraryExtensions": true,
 
     // 런타임 경로 alias
-    "baseUrl": "../",
+    "baseUrl": "./",
     "paths": {
-      "@types/*": ["types/*"],
-      "@config/*": ["backend/config/*"],
-      "@controllers/*": ["backend/controllers/*"],
-      "@entities/*": ["backend/entities/*"],
-      "@middlewares/*": ["backend/middlewares/*"],
-      "@routes/*": ["backend/routes/*"],
-      "@services/*": ["backend/services/*"],
-      "@utils/*": ["backend/utils/*"],
-      "@transformers/*": ["backend/transformers/*"],
-      "@transformers": ["backend/transformers/index"],
-      "@dto/*": ["types/dto/*"],
-      "@dto": ["types/dto/index"],
-      "@shared/*": ["shared/*"]
+      "@types/*": ["../types/*"],
+      "@config/*": ["config/*"],
+      "@controllers/*": ["controllers/*"],
+      "@entities/*": ["entities/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@routes/*": ["routes/*"],
+      "@services/*": ["services/*"],
+      "@utils/*": ["utils/*"],
+      "@transformers/*": ["transformers/*"],
+      "@transformers": ["transformers/index"],
+      "@dto/*": ["../types/dto/*"],
+      "@dto": ["../types/dto/index"]
     }
   },
   "ts-node": {
     "esm": true
   },
-  "include": [
-    "./**/*",
-    "../types/**/*",
-    "../shared/types/**/*",
-    "../shared/utils/**/*",
-    "../shared/constants/**/*",
-    "../shared/hooks/**/*",
-    "../shared/interfaces/**/*",
-    "../shared/validation/**/*"
-  ],
+  "include": ["./**/*", "../types/**/*"],
   "exclude": [
     "node_modules",
     "dist",
     "build",
     "**/*.js",
     "**/*.jsx",
-    "../shared/api",
-    "../shared/components"
+    "**/__tests__/**/*",
+    "**/*.test.*",
+    "**/*.spec.*"
   ]
 }

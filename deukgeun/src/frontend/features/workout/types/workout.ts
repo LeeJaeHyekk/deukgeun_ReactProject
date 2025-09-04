@@ -1,87 +1,254 @@
 // ============================================================================
-// Workout Feature Types - Core Data Types
+// Workout Feature Types - 프론트엔드 전용 타입 정의
 // ============================================================================
 
-// 공통 타입들을 import
-import type {
-  WorkoutPlan,
-  WorkoutPlanExercise,
-  WorkoutSession,
-  ExerciseSet,
-  WorkoutGoal,
-  Machine,
-  Gym,
-  DashboardData,
-  CreatePlanRequest,
-  UpdatePlanRequest,
-  CreateSessionRequest,
-  UpdateSessionRequest,
-  CreateGoalRequest,
-  UpdateGoalRequest,
-  CreateExerciseSetRequest,
-  UpdateExerciseSetRequest,
-  PaginationParams,
-  PaginatedResponse,
-  ApiResponse,
-} from "../../../../shared/types/common"
+// 프론트엔드 전용 타입들을 정의
+export interface WorkoutPlan {
+  id: number
+  userId: number
+  name: string
+  description?: string
+  difficulty: "beginner" | "intermediate" | "advanced"
+  estimatedDurationMinutes: number
+  targetMuscleGroups: string[]
+  isTemplate: boolean
+  isPublic: boolean
+  exercises: WorkoutPlanExercise[]
+  status: "active" | "inactive" | "completed"
+  isActive: boolean // 계획 활성화 여부
+  createdAt: Date
+  updatedAt: Date
+}
 
-// 타입들을 다시 export
-export type {
-  WorkoutPlan,
-  WorkoutPlanExercise,
-  WorkoutSession,
-  ExerciseSet,
-  WorkoutGoal,
-  Machine,
-  Gym,
-  DashboardData,
-  CreatePlanRequest,
-  UpdatePlanRequest,
-  CreateSessionRequest,
-  UpdateSessionRequest,
-  CreateGoalRequest,
-  UpdateGoalRequest,
-  CreateExerciseSetRequest,
-  UpdateExerciseSetRequest,
-  PaginationParams,
-  PaginatedResponse,
-  ApiResponse,
+export interface WorkoutPlanExercise {
+  id: number
+  planId: number
+  exerciseId: number
+  machineId: number
+  order: number
+  sets: number
+  reps: number
+  weight: number
+  restSeconds: number
+  notes?: string
+  machine: Machine
+}
+
+export interface WorkoutSession {
+  id: number
+  userId: number
+  planId: number
+  gymId: number
+  name?: string // 세션 이름
+  startTime: Date
+  endTime?: Date
+  status: "planned" | "in_progress" | "completed" | "cancelled" | "paused"
+  notes?: string
+  exercises: ExerciseSet[]
+  plan: WorkoutPlan
+  gym: Gym
+  totalDuration: number // 총 운동 시간 (분)
+  totalDurationMinutes?: number // 총 운동 시간 (분) - 별칭
+  moodRating?: number // 기분 점수 (1-10)
+  energyLevel?: number // 에너지 레벨 (1-10)
+  isCompleted: boolean // 세션 완료 여부
+  duration: number // 세션 지속 시간 (분)
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface ExerciseSet {
+  id: number
+  sessionId: number
+  exerciseId: number
+  machineId: number
+  setNumber: number
+  reps: number
+  repsCompleted?: number // 완료된 횟수
+  weight: number
+  weightKg?: number // 무게 (kg) - 별칭
+  restSeconds: number
+  notes?: string
+  machine: Machine
+  rpeRating?: number // RPE 점수
+}
+
+export interface WorkoutGoal {
+  id: number
+  userId: number
+  title: string
+  description: string
+  targetValue: number
+  currentValue: number
+  unit: string
+  deadline: Date
+  status: "active" | "completed" | "cancelled"
+  category: "strength" | "endurance" | "weight" | "custom"
+  type: "weight" | "reps" | "duration" | "frequency" | "streak" // 목표 타입
+  isCompleted: boolean
+  completedAt?: Date // 목표 달성일
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface Machine {
+  id: number
+  name: string
+  category: string
+  difficulty: "beginner" | "intermediate" | "advanced"
+  muscleGroups: string[]
+  targetMuscleGroups?: string[] // 타겟 근육 그룹 (별칭)
+  instructions?: string
+  imageUrl?: string
+  gymId: number
+}
+
+export interface Gym {
+  id: number
+  name: string
+  address: string
+  phone?: string
+  website?: string
+  hours?: string
+  amenities: string[]
+  machines: Machine[]
+}
+
+export interface DashboardData {
+  totalWorkouts: number
+  totalGoals: number
+  totalDuration: number
+  totalCalories: number
+  currentStreak: number
+  weeklyProgress: any[]
+  monthlyProgress: any[]
+  recentWorkouts: WorkoutSession[]
+  upcomingWorkouts: WorkoutSession[]
+  recentSessions: WorkoutSession[] // 최근 세션들
+  goals: WorkoutGoal[]
+  activeGoals: WorkoutGoal[] // 활성 목표들
+}
+
+// API 요청 타입들
+export interface CreatePlanRequest {
+  name: string
+  description: string
+  difficulty: "beginner" | "intermediate" | "advanced"
+  estimatedDurationMinutes: number
+  targetMuscleGroups: string[]
+  isTemplate: boolean
+  isPublic: boolean
+  exercises: Omit<WorkoutPlanExercise, "id" | "planId">[]
+}
+
+export interface UpdatePlanRequest extends Partial<CreatePlanRequest> {
+  id: number
+}
+
+export interface CreateSessionRequest {
+  planId: number
+  gymId: number
+  startTime: Date
+  notes?: string
+}
+
+export interface UpdateSessionRequest extends Partial<CreateSessionRequest> {
+  id: number
+  endTime?: Date
+  status?: "planned" | "in_progress" | "completed" | "cancelled"
+}
+
+export interface CreateGoalRequest {
+  title: string
+  description: string
+  targetValue: number
+  unit: string
+  deadline: Date
+  category: "strength" | "endurance" | "weight" | "custom"
+}
+
+export interface UpdateGoalRequest extends Partial<CreateGoalRequest> {
+  id: number
+  currentValue?: number
+  status?: "active" | "completed" | "cancelled"
+  type?: "weight" | "reps" | "duration" | "frequency" | "streak"
+}
+
+export interface CreateExerciseSetRequest {
+  sessionId: number
+  exerciseId: number
+  machineId: number
+  setNumber: number
+  reps: number
+  weight: number
+  restSeconds: number
+  notes?: string
+}
+
+export interface UpdateExerciseSetRequest
+  extends Partial<CreateExerciseSetRequest> {
+  id: number
+}
+
+// 페이지네이션 타입들
+export interface PaginationParams {
+  page?: number
+  limit?: number
+  sortBy?: string
+  sortOrder?: "ASC" | "DESC"
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+// API 응답 타입
+export interface ApiResponse<T = any> {
+  success: boolean
+  data: T
+  message?: string
+  error?: string
+  statusCode: number
 }
 
 // ============================================================================
 // Dashboard & Analytics Types
 // ============================================================================
 
-// DashboardData는 공통 타입에서 import됨
-
 export interface WorkoutStats {
   totalSessions: number
-  totalWorkouts?: number // 호환성을 위한 별칭
-  totalExercises?: number // 호환성을 위한 별칭
+  totalWorkouts?: number
+  totalExercises?: number
   totalDuration: number
-  totalDurationMinutes?: number // 호환성을 위한 별칭
-  totalCaloriesBurned?: number // 호환성을 위한 별칭
-  totalCalories?: number // WorkoutStatsDTO 호환성
-  averageDuration?: number // 호환성을 위한 별칭
-  averageWorkoutDuration?: number // WorkoutStatsDTO 호환성
-  completionRate?: number // 호환성을 위한 별칭
-  weeklyProgress?: any[] // 호환성을 위한 별칭
-  monthlyProgress?: any[] // 호환성을 위한 별칭
-  longestStreak?: number // 호환성을 위한 별칭
+  totalDurationMinutes?: number
+  totalCaloriesBurned?: number
+  totalCalories?: number
+  averageDuration?: number
+  averageWorkoutDuration?: number
+  completionRate?: number
+  weeklyProgress?: any[]
+  monthlyProgress?: any[]
+  longestStreak?: number
   currentStreak: number
-  workoutStreak?: number // WorkoutStatsDTO 호환성
-  favoriteMachines?: string[] // 호환성을 위한 별칭
-  favoriteExercises?: Array<{ name: string; count: number }> // WorkoutStatsDTO 호환성
-  startDate?: Date // 호환성을 위한 별칭
+  workoutStreak?: number
+  favoriteMachines?: string[]
+  favoriteExercises?: Array<{ name: string; count: number }>
+  startDate?: Date
   lastWorkoutDate?: Date
-  dailyStats?: DailyStats[] // 호환성을 위한 별칭
-  weeklyStats?: WeeklyStats[] // 호환성을 위한 별칭
-  monthlyStats?: MonthlyStats[] // 호환성을 위한 별칭
+  dailyStats?: DailyStats[]
+  weeklyStats?: WeeklyStats[]
+  monthlyStats?: MonthlyStats[]
   averageMood: number
   averageEnergy: number
   completedGoals: number
   activeGoals: number
-  totalGoals?: number // WorkoutStatsDTO 호환성
+  totalGoals?: number
   totalExp: number
   level: number
 }
@@ -99,7 +266,8 @@ export interface WeeklyStats {
   sessions: number
   duration: number
   calories: number
-  streak: number
+  exercises: number
+  progress: number
 }
 
 export interface MonthlyStats {
@@ -107,7 +275,97 @@ export interface MonthlyStats {
   sessions: number
   duration: number
   calories: number
+  exercises: number
+  progress: number
   goals: number
+}
+
+// ============================================================================
+// Workout Reminder Types
+// ============================================================================
+
+export interface WorkoutReminder {
+  id: number
+  userId: number
+  title: string
+  message: string
+  scheduledTime: Date
+  isActive: boolean
+  repeatDays?: number[]
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface CreateReminderRequest {
+  title: string
+  message: string
+  scheduledTime: Date
+  repeatDays?: number[]
+}
+
+export interface UpdateReminderRequest extends Partial<CreateReminderRequest> {
+  id: number
+  isActive?: boolean
+}
+
+// ============================================================================
+// Progress Tracking Types
+// ============================================================================
+
+export interface ProgressEntry {
+  id: number
+  userId: number
+  exerciseId: number
+  machineId: number
+  date: Date
+  weight: number
+  reps: number
+  sets: number
+  notes?: string
+}
+
+export interface ProgressChart {
+  labels: string[]
+  datasets: {
+    label: string
+    data: number[]
+    borderColor: string
+    backgroundColor: string
+  }[]
+}
+
+// ============================================================================
+// Goal Progress Types
+// ============================================================================
+
+export interface GoalProgressBarProps {
+  current: number
+  target: number
+  label: string
+  unit: string
+  color?: string
+  showPercentage?: boolean
+}
+
+export interface GoalProgress {
+  goalId: number
+  currentValue: number
+  targetValue: number
+  percentage: number
+  remainingDays: number
+  isOnTrack: boolean
+}
+
+// ============================================================================
+// Session Card Types
+// ============================================================================
+
+export interface SessionCardProps {
+  session: WorkoutSession
+  onEdit?: (session: WorkoutSession) => void
+  onDelete?: (sessionId: number) => void
+  onComplete?: (sessionId: number) => void
+  showActions?: boolean
 }
 
 // ============================================================================

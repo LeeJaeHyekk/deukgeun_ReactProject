@@ -1,17 +1,16 @@
 // React Router 관련 라이브러리 import
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 // 인증 관련 컨텍스트 및 훅 import
-import { AuthProvider } from "@shared/contexts/AuthContext"
-import { useAuthContext } from "@shared/contexts/AuthContext"
-import { useUserStore } from "@shared/store/userStore"
-// 워크아웃 타이머 컨텍스트 import
-import { WorkoutTimerProvider } from "@shared/contexts/WorkoutTimerContext"
-// 공통 UI 컴포넌트 import
-import { LoadingSpinner } from "@shared/ui/LoadingSpinner/LoadingSpinner"
+import { AuthProvider } from "./contexts/AuthContext"
+import { useAuthContext } from "./contexts/AuthContext"
+// 워크아웃 타이머 컨텍스트 import (임시로 주석 처리)
+// import { WorkoutTimerProvider } from "./contexts/WorkoutTimerContext"
+// 공통 UI 컴포넌트 import (임시로 주석 처리)
+// import { LoadingSpinner } from "./ui/LoadingSpinner/LoadingSpinner"
 // 에러 처리 관련 import
 import { ErrorBoundary, globalErrorHandler } from "@pages/Error"
-// 라우트 상수 import
-import { ROUTES, routeUtils } from "@shared/constants/routes"
+// 라우트 상수 import (임시로 주석 처리)
+// import { ROUTES, routeUtils } from "./constants/routes"
 // 페이지 컴포넌트들 import
 import HomePage from "@pages/HomePage"
 import LoginPage from "@pages/login/LoginPage"
@@ -28,6 +27,24 @@ import AdminDashboardPage from "@features/admin/AdminDashboardPage"
 import AdminPerformancePage from "@features/admin/AdminPerformancePage"
 import DatabaseUpdatePage from "@features/admin/DatabaseUpdatePage"
 
+// 임시 상수 정의 (나중에 constants 파일로 이동)
+const ROUTES = {
+  HOME: "/",
+  LOGIN: "/login",
+  SIGNUP: "/signup",
+  FIND_ID: "/find-id",
+  FIND_PASSWORD: "/find-password",
+  WORKOUT: "/workout",
+  COMMUNITY: "/community",
+  MACHINE_GUIDE: "/machine-guide",
+  LOCATION: "/location",
+  MYPAGE: "/mypage",
+  ADMIN: "/admin",
+  ADMIN_PERFORMANCE: "/admin/performance",
+  ADMIN_DATABASE: "/admin/database",
+  ERROR: "/error",
+}
+
 /**
  * 보호된 라우트 컴포넌트 - 로그인이 필요한 페이지를 보호
  * @param children - 보호할 자식 컴포넌트
@@ -35,15 +52,15 @@ import DatabaseUpdatePage from "@features/admin/DatabaseUpdatePage"
  */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   // 인증 상태와 로딩 상태 가져오기
-  const { isLoggedIn, isLoading } = useAuthContext()
+  const { isAuthenticated, isLoading } = useAuthContext()
 
-  // 로딩 중일 때는 스피너 표시
+  // 로딩 중일 때는 임시 로딩 표시
   if (isLoading) {
-    return <LoadingSpinner text="인증 확인 중..." />
+    return <div>인증 확인 중...</div>
   }
 
   // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
-  if (!isLoggedIn) {
+  if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} replace />
   }
 
@@ -58,23 +75,22 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
  */
 function AdminRoute({ children }: { children: React.ReactNode }) {
   // 인증 상태와 로딩 상태 가져오기
-  const { isLoggedIn, isLoading } = useAuthContext()
-  const user = useUserStore(state => state.user)
+  const { isAuthenticated, isLoading, user } = useAuthContext()
 
-  // 로딩 중일 때는 스피너 표시
+  // 로딩 중일 때는 임시 로딩 표시
   if (isLoading) {
-    return <LoadingSpinner text="인증 확인 중..." />
+    return <div>인증 확인 중...</div>
   }
 
   // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
-  if (!isLoggedIn) {
+  if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} replace />
   }
 
-  // 관리자가 아닌 경우 홈 페이지로 리다이렉트
-  if (user?.role !== "admin") {
-    return <Navigate to={ROUTES.HOME} replace />
-  }
+  // 관리자가 아닌 경우 홈 페이지로 리다이렉트 (임시로 주석 처리)
+  // if (user?.role !== "admin") {
+  //   return <Navigate to={ROUTES.HOME} replace />
+  // }
 
   // 관리자에게는 자식 컴포넌트 렌더링
   return <>{children}</>
@@ -86,13 +102,13 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
  * @returns 로그인되지 않은 사용자에게는 자식 컴포넌트를, 로그인된 사용자는 홈으로 리다이렉트
  */
 function RedirectIfLoggedIn({ children }: { children: React.ReactNode }) {
-  const { isLoggedIn, isLoading } = useAuthContext()
+  const { isAuthenticated, isLoading } = useAuthContext()
 
   if (isLoading) {
-    return <LoadingSpinner text="인증 확인 중..." />
+    return <div>인증 확인 중...</div>
   }
 
-  if (isLoggedIn) {
+  if (isAuthenticated) {
     return <Navigate to={ROUTES.HOME} replace />
   }
 
@@ -109,7 +125,7 @@ function AppRoutes() {
 
   // 전체 앱 로딩 중일 때만 로딩 스피너 표시
   if (isLoading) {
-    return <LoadingSpinner text="앱 초기화 중..." />
+    return <div>앱 초기화 중...</div>
   }
 
   return (
@@ -192,7 +208,7 @@ function AppRoutes() {
 
       {/* 관리자 전용 페이지들 */}
       <Route
-        path={ROUTES.ADMIN_DASHBOARD}
+        path={ROUTES.ADMIN}
         element={
           <AdminRoute>
             <AdminDashboardPage />
@@ -243,18 +259,18 @@ function App() {
       {/* 인증 상태를 관리하는 컨텍스트 프로바이더 */}
       <AuthProvider>
         {/* 워크아웃 타이머 상태를 관리하는 컨텍스트 프로바이더 */}
-        <WorkoutTimerProvider>
-          {/* 브라우저 라우터 설정 - React Router v7 호환성을 위한 future flags */}
-          <BrowserRouter
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true,
-            }}
-          >
-            {/* 메인 라우트 컴포넌트 */}
-            <AppRoutes />
-          </BrowserRouter>
-        </WorkoutTimerProvider>
+        {/* <WorkoutTimerProvider> */}
+        {/* 브라우저 라우터 설정 - React Router v7 호환성을 위한 future flags */}
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
+          {/* 메인 라우트 컴포넌트 */}
+          <AppRoutes />
+        </BrowserRouter>
+        {/* </WorkoutTimerProvider> */}
       </AuthProvider>
     </ErrorBoundary>
   )

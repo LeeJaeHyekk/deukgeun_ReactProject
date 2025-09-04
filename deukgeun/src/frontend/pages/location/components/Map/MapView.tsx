@@ -1,21 +1,31 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Gym } from "../../types/index"
 import { KAKAO_CONFIG } from "@shared/lib/env"
 
-interface Props {
-  position: { lat: number; lng: number } | null
+interface MapViewProps {
   gyms: Gym[]
+  selectedGym?: Gym | null
+  onGymSelect?: (gym: Gym) => void
+  center?: { lat: number; lng: number }
+  zoom?: number
 }
 
-export const MapView = ({ position, gyms }: Props) => {
+export const MapView = ({ gyms, selectedGym, onGymSelect, center, zoom }: MapViewProps) => {
   const mapRef = useRef<HTMLDivElement>(null)
+  const [map, setMap] = useState<any>(null)
+  const [markers, setMarkers] = useState<any[]>([])
+
+  const KAKAO_API_KEY = KAKAO_CONFIG.API_KEY
+  const CENTER_LAT = KAKAO_CONFIG.CENTER_LAT
+  const CENTER_LNG = KAKAO_CONFIG.CENTER_LNG
+  const DEFAULT_ZOOM = zoom || KAKAO_CONFIG.ZOOM_LEVEL
 
   // ✅ SDK 로딩은 컴포넌트 내부에서 수행
   useEffect(() => {
     if (window.kakao && window.kakao.maps) return
 
     const script = document.createElement("script")
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_CONFIG.JAVASCRIPT_API_KEY}&autoload=false`
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&autoload=false`
     script.async = true
     script.onload = () => {
       window.kakao.maps.load(() => {
@@ -23,16 +33,16 @@ export const MapView = ({ position, gyms }: Props) => {
       })
     }
     document.head.appendChild(script)
-  }, [])
+  }, [KAKAO_API_KEY])
 
   // ✅ 지도 생성 및 마커 렌더링
   useEffect(() => {
-    if (!position || !window.kakao || !mapRef.current || !window.kakao.maps)
+    if (!center || !window.kakao || !mapRef.current || !window.kakao.maps)
       return
 
     const map = new window.kakao.maps.Map(mapRef.current, {
-      center: new window.kakao.maps.LatLng(position.lat, position.lng),
-      level: 4,
+      center: new window.kakao.maps.LatLng(center.lat, center.lng),
+      level: DEFAULT_ZOOM,
     })
 
     gyms.forEach(gym => {
@@ -41,7 +51,7 @@ export const MapView = ({ position, gyms }: Props) => {
       })
       marker.setMap(map)
     })
-  }, [position, gyms])
+  }, [center, gyms, DEFAULT_ZOOM])
 
   return (
     <div id="map" ref={mapRef} style={{ width: "100%", height: "400px" }} />

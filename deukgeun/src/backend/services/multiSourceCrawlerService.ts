@@ -1,7 +1,7 @@
 import { Repository } from "typeorm"
 import { Gym } from "../entities/Gym.js"
 import axios from "axios"
-import { config } from "../config/env.js"
+import { appConfig } from "../config/env.js"
 import * as cheerio from "cheerio"
 
 interface SearchResult {
@@ -26,7 +26,7 @@ async function searchKakaoMap(query: string): Promise<SearchResult[]> {
           page: 1,
         },
         headers: {
-          Authorization: `KakaoAK ${config.apiKeys.kakao}`,
+          Authorization: `KakaoAK ${appConfig.apiKeys.kakao}`,
         },
       }
     )
@@ -107,7 +107,7 @@ async function searchGooglePlaces(query: string): Promise<SearchResult[]> {
       {
         params: {
           query: query + " 헬스장",
-          key: config.apiKeys.googlePlaces,
+          key: appConfig.apiKeys.googlePlaces,
           language: "ko",
           region: "kr",
         },

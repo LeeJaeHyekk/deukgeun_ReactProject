@@ -1,5 +1,5 @@
 import { DataSource } from "typeorm"
-import { config } from "../config/env.js"
+import { appConfig } from "../config/env.js"
 import { Gym } from "../entities/Gym.js"
 import fs from "fs"
 import path from "path"
@@ -106,13 +106,13 @@ async function seedGyms() {
   try {
     dataSource = new DataSource({
       type: "mysql",
-      host: config.database.host,
-      port: config.database.port,
-      username: config.database.username,
-      password: config.database.password,
-      database: config.database.database,
-      synchronize: config.environment === "development",
-      logging: config.environment === "development",
+      host: appConfig.database.host,
+      port: appConfig.database.port,
+      username: appConfig.database.username,
+      password: appConfig.database.password,
+      database: appConfig.database.database,
+      synchronize: appConfig.environment === "development",
+      logging: appConfig.environment === "development",
       entities: [Gym],
       subscribers: [],
       migrations: [],

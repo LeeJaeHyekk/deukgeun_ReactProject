@@ -88,7 +88,7 @@ export function useWorkoutGoals() {
         } as any
         const updatedGoal = await workoutApi.updateGoal(goalId, updateData)
         setGoals(prev =>
-          prev.map(goal => (goal.goal_id === goalId ? updatedGoal : goal))
+          prev.map(goal => (goal.id === goalId ? updatedGoal : goal))
         )
         return updatedGoal
       } catch (err) {
@@ -117,12 +117,12 @@ export function useWorkoutGoals() {
         (goalId === 1 || goalId === 2)
       ) {
         console.log(`🔧 개발 환경 - 더미 목표 삭제 처리: ${goalId}`)
-        setGoals(prev => prev.filter(goal => goal.goal_id !== goalId))
+        setGoals(prev => prev.filter(goal => goal.id !== goalId))
         return
       }
 
       await workoutApi.deleteGoal(goalId)
-      setGoals(prev => prev.filter(goal => goal.goal_id !== goalId))
+      setGoals(prev => prev.filter(goal => goal.id !== goalId))
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "운동 목표 삭제에 실패했습니다."

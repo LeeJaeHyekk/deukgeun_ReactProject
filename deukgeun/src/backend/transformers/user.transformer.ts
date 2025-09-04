@@ -2,7 +2,7 @@
 // User Transformer
 // ============================================================================
 
-import { UserDTO } from "../../shared/types/dto/user.dto.js"
+import { UserDTO } from "../types/backend.types.js"
 import { User } from "../entities/User.js"
 
 export class UserTransformer {
@@ -10,21 +10,21 @@ export class UserTransformer {
     return {
       id: entity.id,
       email: entity.email,
+      username: entity.username || entity.nickname,
       nickname: entity.nickname,
       phone: entity.phone,
       gender: entity.gender,
-      birthDate: entity.birthday,
-      profileImage: entity.profileImage,
+      birthday: entity.birthday,
       role: entity.role,
-      isActive: entity.isActive,
-      isEmailVerified: entity.isEmailVerified,
-      isPhoneVerified: entity.isPhoneVerified,
-      name: entity.name,
-      username: entity.username,
-      lastLoginAt: entity.lastLoginAt,
-      lastActivityAt: entity.lastActivityAt,
+      profileImage: entity.profileImage,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      lastLoginAt: entity.lastLoginAt,
+      isActive: entity.isActive,
+      isVerified: entity.isEmailVerified,
+      level: undefined,
+      experience: undefined,
+      streak: undefined,
     }
   }
 
@@ -35,16 +35,13 @@ export class UserTransformer {
       nickname: dto.nickname,
       phone: dto.phone,
       gender: dto.gender,
-      birthday: dto.birthDate as Date | null,
+      birthday: dto.birthday,
       profileImage: dto.profileImage,
       role: dto.role,
       isActive: dto.isActive,
-      isEmailVerified: dto.isEmailVerified,
-      isPhoneVerified: dto.isPhoneVerified,
-      name: dto.name,
+      isEmailVerified: dto.isVerified,
       username: dto.username,
       lastLoginAt: dto.lastLoginAt,
-      lastActivityAt: dto.lastActivityAt,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,
     }

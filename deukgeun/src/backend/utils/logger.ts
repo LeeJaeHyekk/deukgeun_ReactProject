@@ -4,171 +4,48 @@
 
 import winston from "winston"
 import DailyRotateFile from "winston-daily-rotate-file"
-import path from "path"
-import { fileURLToPath } from "url"
-import { config } from "../config/env.js"
-import fs from "fs"
+import { appConfig } from "../config/env.js"
 
-// 로그 레벨 정의
-const logLevels = {
-  error: 0,
-  warn: 1,
-  info: 2,
-  http: 3,
-  debug: 4,
-}
+// 로그 레벨 설정
+const logLevel = appConfig.environment === "production" ? "info" : "debug"
 
-// 로그 색상 정의
-const logColors = {
-  error: "red",
-  warn: "yellow",
-  info: "green",
-  http: "magenta",
-  debug: "white",
-}
-
-// 로그 포맷 정의
+// 로그 포맷 설정
 const logFormat = winston.format.combine(
-  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss:ms" }),
-  winston.format.colorize({ all: true }),
-  winston.format.printf(
-    info => `${info.timestamp} ${info.level}: ${info.message}`
-  )
-)
-
-// 프로덕션용 JSON 포맷
-const productionFormat = winston.format.combine(
-  winston.format.timestamp(),
+  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   winston.format.errors({ stack: true }),
   winston.format.json()
 )
 
-// 로그 파일 경로 설정
-const logDir = config.environment === "production" ? "/app/logs" : "./logs"
-const errorLogPath = path.join(logDir, "error.log")
-const combinedLogPath = path.join(logDir, "combined.log")
-const accessLogPath = path.join(logDir, "access.log")
+// 콘솔 출력 설정
+const consoleTransport = new winston.transports.Console({
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.simple()
+  ),
+})
 
-// 로거 설정
-const logger = winston.createLogger({
-  levels: logLevels,
-  level: config.environment === "production" ? "info" : "debug",
-  format: config.environment === "production" ? productionFormat : logFormat,
-  transports: [
-    // 에러 로그 파일 (DailyRotateFile 사용)
-    new DailyRotateFile({
-      filename: path.join(logDir, "error-%DATE%.log"),
-      datePattern: "YYYY-MM-DD",
-      level: "error",
-      maxSize: "5m",
-      maxFiles: "14d", // 14일간 보관
-      zippedArchive: true,
-    }),
-    // 통합 로그 파일 (DailyRotateFile 사용)
-    new DailyRotateFile({
-      filename: path.join(logDir, "combined-%DATE%.log"),
-      datePattern: "YYYY-MM-DD",
-      maxSize: "5m",
-      maxFiles: "14d", // 14일간 보관
-      zippedArchive: true,
-    }),
-    // HTTP 액세스 로그 (프로덕션에서만)
-    ...(config.environment === "production"
-      ? [
-          new DailyRotateFile({
-            filename: path.join(logDir, "access-%DATE%.log"),
-            datePattern: "YYYY-MM-DD",
-            level: "http",
-            maxSize: "5m",
-            maxFiles: "14d", // 14일간 보관
-            zippedArchive: true,
-          }),
-        ]
-      : []),
-  ],
-  // 예외 처리
-  exceptionHandlers: [
-    new DailyRotateFile({
-      filename: path.join(logDir, "exceptions-%DATE%.log"),
-      datePattern: "YYYY-MM-DD",
-      maxSize: "5m",
-      maxFiles: "14d", // 14일간 보관
-      zippedArchive: true,
-    }),
-  ],
-  // 프로세스 종료 시 로그 처리
+// 파일 출력 설정
+const fileTransport = new DailyRotateFile({
+  filename: "logs/application-%DATE%.log",
+  datePattern: "YYYY-MM-DD",
+  zippedArchive: true,
+  maxSize: "20m",
+  maxFiles: "14d",
+})
+
+// Winston 로거 생성
+export const logger = winston.createLogger({
+  level: logLevel,
+  format: logFormat,
+  transports: [consoleTransport, fileTransport],
   exitOnError: false,
 })
 
-// 개발 환경에서는 콘솔 출력 추가
-if (config.environment !== "production") {
-  logger.add(
-    new winston.transports.Console({
-      format: logFormat,
-    })
-  )
-}
-
-// 로그 메서드 확장
-export const extendedLogger = {
-  ...logger,
-
-  // HTTP 요청 로깅
-  logRequest: (req: any, res: any, responseTime: number) => {
-    const logData = {
-      method: req.method,
-      url: req.url,
-      status: res.statusCode,
-      responseTime: `${responseTime}ms`,
-      userAgent: req.get("User-Agent"),
-      ip: req.ip || req.connection.remoteAddress,
-      timestamp: new Date().toISOString(),
-    }
-
-    if (res.statusCode >= 400) {
-      logger.warn("HTTP Request", logData)
-    } else {
-      logger.http("HTTP Request", logData)
-    }
-  },
-
-  // 데이터베이스 쿼리 로깅
-  logQuery: (query: string, parameters: any[], executionTime: number) => {
-    if (executionTime > 1000) {
-      // 1초 이상 걸리는 쿼리
-      logger.warn("Slow Query", {
-        query,
-        parameters,
-        executionTime: `${executionTime}ms`,
-        timestamp: new Date().toISOString(),
-      })
-    } else if (config.environment === "development") {
-      logger.debug("Database Query", {
-        query,
-        parameters,
-        executionTime: `${executionTime}ms`,
-      })
-    }
-  },
-
-  // 에러 로깅 (스택 트레이스 포함)
-  logError: (error: Error, context?: any) => {
-    logger.error("Application Error", {
-      message: error.message,
-      stack: error.stack,
-      context,
-      timestamp: new Date().toISOString(),
-    })
-  },
-
-  // 성능 메트릭 로깅
-  logMetrics: (metrics: any) => {
-    logger.info("Performance Metrics", {
-      ...metrics,
-      timestamp: new Date().toISOString(),
-    })
+// 스트림 설정 (Morgan과 함께 사용)
+export const stream = {
+  write: (message: string) => {
+    logger.info(message.trim())
   },
 }
 
-export { logger }
 export default logger

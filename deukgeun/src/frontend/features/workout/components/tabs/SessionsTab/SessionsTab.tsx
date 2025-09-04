@@ -5,11 +5,11 @@ import { useWorkoutSessions } from "../../../hooks/useWorkoutSessions"
 import { ActiveSessionContainer } from "./components/ActiveSessionContainer"
 import { SessionsContent } from "./components/SessionsContent"
 import { useSessionsActions } from "./hooks/useSessionsActions"
-import type { WorkoutSessionDTO } from "../../../types"
+import type { WorkoutSession } from "../../../types"
 import styles from "./SessionsTab.module.css"
 
 interface SessionsTabProps {
-  sessions: WorkoutSessionDTO[]
+  sessions: WorkoutSession[]
   isLoading: boolean
   onEditSession: (sessionId: number) => void
   onViewSession: (sessionId: number) => void

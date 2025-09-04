@@ -4,10 +4,10 @@
 
 import React from "react"
 import { Link, useLocation } from "react-router-dom"
-import { ROUTES } from "@shared/constants/routes"
-import { useUserStore } from "@shared/store/userStore"
-import { validateAdminAccess } from "../utils/adminUtils"
-import type { AdminRole } from "../types"
+import { useAuth } from "../../../hooks/useAuth"
+import { validateAdminAccess } from "../../../utils/adminUtils"
+import { ROUTES } from "../../../constants/routes"
+import type { AdminRole } from "../../../types/admin/admin.types"
 import "./AdminLayout.css"
 
 interface AdminLayoutProps {
@@ -22,7 +22,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   description,
 }) => {
   const location = useLocation()
-  const user = useUserStore(state => state.user)
+  const { user } = useAuth()
 
   // 관리자 권한 확인
   if (!user || !validateAdminAccess(user.role as AdminRole, "admin")) {

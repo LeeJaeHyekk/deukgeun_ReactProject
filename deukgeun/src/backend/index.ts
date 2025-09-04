@@ -1,46 +1,42 @@
-import "reflect-metadata"
-import { AppDataSource } from "./config/database.js"
+// ============================================================================
+// 백엔드 서버 시작점 - 타입 오류 수정
+// ============================================================================
+
+import { appConfig } from "./config/env.js"
 import app from "./app.js"
-import { logger } from "./utils/logger.js"
-import { getAvailablePort } from "./utils/getAvailablePort.js"
-import { config } from "./config/env.js"
-import { autoInitializeScheduler } from "./services/autoUpdateScheduler.js"
+import { createConnection } from "typeorm"
+import { databaseConfig } from "./config/database.js"
 
-const environment = process.env.NODE_ENV || "development"
-
+// 서버 시작 함수
 async function startServer() {
   try {
-    console.log("🔄 Initializing database connection...")
-    await AppDataSource.initialize()
-    console.log("✅ Database connected successfully")
+    // 데이터베이스 연결
+    await createConnection(databaseConfig)
+    console.log("✅ 데이터베이스 연결 성공")
 
-    // Initialize auto-update scheduler
-    autoInitializeScheduler()
-    logger.info("Auto-update scheduler initialized")
-
-    const availablePort = await getAvailablePort(config.port || 5000)
-
-    app.listen(availablePort, () => {
-      logger.info(`🚀 Server is running on port ${availablePort}`)
-
-      if (environment === "development") {
-        console.log(
-          `🌐 Backend server is accessible at http://localhost:${availablePort}`
-        )
-        console.log(
-          `📊 Database: ${process.env.DB_NAME || "deukgeun_db"} on ${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || "3306"}`
-        )
-      } else {
-        console.log(`🚀 Production server is running on port ${availablePort}`)
-        console.log(
-          `📊 Database: ${process.env.DB_NAME || "deukgeun_db"} on ${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || "3306"}`
-        )
-      }
+    // 서버 시작
+    const port = appConfig.port
+    app.listen(port, () => {
+      console.log(`🚀 서버가 포트 ${port}에서 실행 중입니다`)
+      console.log(`🌍 환경: ${appConfig.environment}`)
+      console.log(`📅 시작 시간: ${new Date().toISOString()}`)
     })
   } catch (error) {
-    console.error("❌ Database connection failed:", error)
+    console.error("❌ 서버 시작 실패:", error)
     process.exit(1)
   }
 }
 
+// 서버 시작
 startServer()
+
+// 프로세스 종료 시 정리 작업
+process.on("SIGTERM", () => {
+  console.log("🛑 SIGTERM 신호 수신, 서버 종료 중...")
+  process.exit(0)
+})
+
+process.on("SIGINT", () => {
+  console.log("🛑 SIGINT 신호 수신, 서버 종료 중...")
+  process.exit(0)
+})

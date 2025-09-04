@@ -10,9 +10,8 @@ import {
   Check,
   Timer,
 } from "lucide-react"
-import type { WorkoutSession, ExerciseSet } from "../../../../../shared/types"
-import type { Machine } from "@dto/index"
-import { useWorkoutTimer } from "../../../../shared/contexts/WorkoutTimerContext"
+import type { WorkoutSession, ExerciseSet, Machine } from "../../types"
+import { useWorkoutTimer } from "../../../../contexts/WorkoutTimerContext"
 import WorkoutSessionService from "../../services/WorkoutSessionService"
 import "./WorkoutSessionModal.css"
 
@@ -341,17 +340,21 @@ export function WorkoutSessionModal({
   const [currentSession, setCurrentSession] = useState<WorkoutSession>({
     id: 0,
     userId: 0,
+    planId: 0,
+    gymId: 0,
     name: "",
-    description: "",
+    notes: "",
     startTime: new Date(),
     endTime: undefined,
-    duration: undefined,
-    notes: "",
+    totalDuration: 0,
     status: "in_progress" as const,
-    exerciseSets: [],
-    isCompleted: false,
+    exercises: [] as ExerciseSet[],
+    plan: {} as any,
+    gym: {} as any,
     createdAt: new Date(),
     updatedAt: new Date(),
+    isCompleted: false,
+    duration: 0,
   })
 
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
@@ -378,24 +381,28 @@ export function WorkoutSessionModal({
       logger.debug("Session initialized from existing session", {
         sessionId: session.id,
         sessionName: session.name,
-        isCompleted: session.isCompleted,
+        status: session.status,
       })
     } else if (plan) {
       // 계획 기반 세션 초기화
       const newSession: WorkoutSession = {
         id: 0,
         userId: 0,
+        planId: plan.id || 0,
+        gymId: 0,
         name: plan.name || "새 운동 세션",
-        description: plan.description || "",
+        notes: plan.description || "",
         startTime: new Date(),
         endTime: undefined,
-        duration: undefined,
-        notes: "",
+        totalDuration: 0,
         status: "in_progress" as const,
-        exerciseSets: [],
-        isCompleted: false,
+        exercises: [] as ExerciseSet[],
+        plan: plan,
+        gym: {} as any,
         createdAt: new Date(),
         updatedAt: new Date(),
+        isCompleted: false,
+        duration: 0,
       }
       setCurrentSession(newSession)
       logger.debug("Session initialized from plan", {
@@ -414,17 +421,21 @@ export function WorkoutSessionModal({
       const emptySession: WorkoutSession = {
         id: 0,
         userId: 0,
+        planId: 0,
+        gymId: 0,
         name: "자유 운동",
-        description: "",
+        notes: "",
         startTime: new Date(),
         endTime: undefined,
-        duration: undefined,
-        notes: "",
+        totalDuration: 0,
         status: "in_progress" as const,
-        exerciseSets: [],
-        isCompleted: false,
+        exercises: [] as ExerciseSet[],
+        plan: {} as any,
+        gym: {} as any,
         createdAt: new Date(),
         updatedAt: new Date(),
+        isCompleted: false,
+        duration: 0,
       }
       setCurrentSession(emptySession)
       logger.debug("Session initialized as free workout session")
@@ -515,12 +526,12 @@ export function WorkoutSessionModal({
         })
         const sessionData = sessionService.startSessionWithPlan(plan)
         logger.info("Session started with plan", { sessionData })
-        startTimer(sessionData.sessionId.toString(), plan.id)
+        startTimer()
       } else {
         logger.info("Starting free session")
         const sessionData = sessionService.startFreeSession()
         logger.info("Free session started", { sessionData })
-        startTimer(sessionData.sessionId.toString())
+        startTimer()
       }
     }
   }
@@ -546,7 +557,7 @@ export function WorkoutSessionModal({
     })
 
     // 글로벌 컨텍스트에 세트 완료 알림
-    completeGlobalSet(currentExerciseIndex, currentSetIndex)
+    completeGlobalSet()
 
     // 완료된 세트 수 업데이트
     setCompletedSets(prev => ({

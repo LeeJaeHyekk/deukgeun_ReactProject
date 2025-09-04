@@ -60,7 +60,8 @@ export function WorkoutPlanModal() {
 
   // 폼 제출 핸들러
   const handleSubmit = useCallback(async () => {
-    if (!validateForm(formData)) {
+    const createPlanRequest = getCreatePlanRequest()
+    if (!validateForm(createPlanRequest)) {
       return
     }
 
@@ -71,7 +72,6 @@ export function WorkoutPlanModal() {
         await updatePlan(currentPlan.id, formData as any)
       } else {
         // 생성 모드에서는 CreatePlanRequest로 변환
-        const createPlanRequest = getCreatePlanRequest()
         await createPlan(createPlanRequest)
       }
       closePlanModal()

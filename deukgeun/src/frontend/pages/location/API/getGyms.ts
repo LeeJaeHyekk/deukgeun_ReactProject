@@ -1,7 +1,6 @@
 import { Gym } from "../types"
-import { GYM_CONFIG } from "@shared/lib/env"
 
-const API_KEY = GYM_CONFIG.API_KEY
+const API_KEY = process.env.NEXT_PUBLIC_SEOUL_API_KEY || ""
 const SERVICE_NAME = "LOCALDATA_104201"
 const DATA_TYPE = "json"
 const START_INDEX = 1

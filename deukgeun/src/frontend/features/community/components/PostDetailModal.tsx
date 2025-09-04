@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react"
-import { commentsApi } from "@shared/api"
-import { showToast } from "@shared/lib"
-import { useAuthContext } from "@shared/contexts/AuthContext"
-import {
-  PostDTO as CommunityPost,
-  Comment as PostComment,
-} from "../../../../shared/types"
+import { commentsApi } from "../../../api/communityApi"
+import { showToast } from "../../../utils/toast"
+import { useAuthContext } from "../../../contexts/AuthContext"
+import type {
+  Post,
+  Comment,
+} from "../../../types/community"
 import styles from "./PostDetailModal.module.css"
 
 interface PostDetailModalProps {
-  post: CommunityPost
+  post: Post
   onClose: () => void
   onUpdate?: (
     postId: number,
@@ -25,7 +25,7 @@ export function PostDetailModal({
   onDelete,
 }: PostDetailModalProps) {
   const { user } = useAuthContext()
-  const [comments, setComments] = useState<PostComment[]>([])
+  const [comments, setComments] = useState<Comment[]>([])
   const [newComment, setNewComment] = useState("")
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState({
@@ -37,7 +37,7 @@ export function PostDetailModal({
   const [commentsLoading, setCommentsLoading] = useState(false)
 
   // 현재 사용자가 게시글 작성자인지 확인
-  const isAuthor = user?.id === post.author.id
+  const isAuthor = user?.id === post.author?.id?.toString()
 
   // 댓글 목록 가져오기
   useEffect(() => {
@@ -45,27 +45,22 @@ export function PostDetailModal({
       setCommentsLoading(true)
       try {
         console.log("댓글 요청 post.id:", post.id) // 디버깅용 로그
-        const response = await commentsApi.list(post.id)
-        console.log("댓글 API 응답:", response.data) // 디버깅용 로그
+        const response = await commentsApi.getComments(post.id.toString())
+        console.log("댓글 API 응답:", response) // 디버깅용 로그
 
         // API 응답 구조 확인 및 안전한 매핑
-        let commentData: PostComment[] = []
+        let commentData: Comment[] = []
 
-        if (response.data.success && response.data.data) {
-          const rawComments = response.data.data
-          console.log("원본 댓글 데이터:", rawComments) // 디버깅용 로그
-
-          if (Array.isArray(rawComments)) {
-            commentData = rawComments.map((comment: any) => ({
-              id: comment.id || 0,
-              postId: comment.postId || post.id,
-              userId: comment.userId || comment.author_id || 0,
-              author: comment.author?.nickname || comment.author_name || "익명",
-              content: comment.content || "",
-              createdAt: new Date(comment.createdAt || comment.created_at || Date.now()),
-              updatedAt: new Date(comment.updatedAt || comment.updated_at || Date.now()),
-            }))
-          }
+        if (Array.isArray(response)) {
+          commentData = response.map((comment: any) => ({
+            id: comment.id || 0,
+            postId: comment.postId || post.id,
+            userId: comment.userId || comment.author_id || 0,
+            content: comment.content || "",
+            isAnonymous: comment.isAnonymous || false,
+            createdAt: new Date(comment.createdAt || comment.created_at || Date.now()),
+            updatedAt: new Date(comment.updatedAt || comment.updated_at || Date.now()),
+          }))
         }
 
         console.log("매핑된 댓글 데이터:", commentData) // 디버깅용 로그
@@ -73,13 +68,13 @@ export function PostDetailModal({
       } catch (error: unknown) {
         console.error("댓글 로드 실패:", error)
         // 댓글 API 에러 시 더미 데이터 사용 (테스트용)
-        const dummyComments: PostComment[] = [
+        const dummyComments: Comment[] = [
           {
             id: 1,
             postId: post.id,
             userId: 1,
-            author: "테스트 사용자",
             content: "이 게시글 정말 좋네요! 👍",
+            isAnonymous: false,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -87,8 +82,8 @@ export function PostDetailModal({
             id: 2,
             postId: post.id,
             userId: 2,
-            author: "운동러버",
             content: "저도 비슷한 경험이 있어요. 공감합니다!",
+            isAnonymous: false,
             createdAt: new Date(Date.now() - 3600000),
             updatedAt: new Date(Date.now() - 3600000),
           },
@@ -116,33 +111,27 @@ export function PostDetailModal({
 
     try {
       console.log("댓글 API 호출 시작")
-      const createResponse = await commentsApi.create(post.id, {
-        content: newComment.trim(),
-      })
+      const createResponse = await commentsApi.createComment(post.id.toString(), newComment.trim())
       console.log("댓글 API 응답:", createResponse)
       showToast("댓글이 작성되었습니다.", "success")
       setNewComment("")
 
       // 댓글 목록 새로고침
-      const listResponse = await commentsApi.list(post.id)
-      console.log("댓글 작성 후 새로고침 응답:", listResponse.data) // 디버깅용 로그
+      const listResponse = await commentsApi.getComments(post.id.toString())
+      console.log("댓글 작성 후 새로고침 응답:", listResponse) // 디버깅용 로그
 
-      let commentData: PostComment[] = []
+      let commentData: Comment[] = []
 
-      if (listResponse.data.success && listResponse.data.data) {
-        const rawComments = listResponse.data.data
-
-        if (Array.isArray(rawComments)) {
-          commentData = rawComments.map(comment => ({
-            id: comment.id || 0,
-            postId: comment.postId || post.id,
-            userId: comment.userId || comment.author_id || 0,
-            author: comment.author?.nickname || comment.author_name || "익명",
-            content: comment.content || "",
-            createdAt: new Date(comment.createdAt || comment.created_at || Date.now()),
-            updatedAt: new Date(comment.updatedAt || comment.updated_at || Date.now()),
-          })) as any
-        }
+      if (Array.isArray(listResponse)) {
+        commentData = listResponse.map(comment => ({
+          id: comment.id || 0,
+          postId: comment.postId || post.id,
+          userId: comment.userId || comment.author_id || 0,
+          content: comment.content || "",
+          isAnonymous: comment.isAnonymous || false,
+          createdAt: new Date(comment.createdAt || comment.created_at || Date.now()),
+          updatedAt: new Date(comment.updatedAt || comment.updated_at || Date.now()),
+        }))
       }
 
       setComments(commentData)
@@ -371,7 +360,7 @@ export function PostDetailModal({
                   <div key={comment.id} className={styles.comment}>
                     <div className={styles.commentHeader}>
                       <span className={styles.commentAuthor}>
-                        {(comment.author as any).nickname}
+                        {comment.user?.nickname || "익명"}
                       </span>
                       <span className={styles.commentDate}>
                         {new Date(comment.createdAt).toLocaleDateString()}

@@ -1,0 +1,100 @@
+{
+    "project": {
+      "name": "deukgeun",
+      "description": "React + Express + MySQL 헬스케어/헬스장 관리 프로젝트",
+      "root_directory": "./"
+    },
+    "backend": {
+      "source_directory": "./src/backend",
+      "dockerfile_path": "./src/backend/Dockerfile",
+      "port": 5000,
+      "node_version": "18-alpine",
+      "env_variables": {
+        "DB_HOST": "mysql",
+        "DB_PORT": 3306,
+        "DB_USERNAME": "deukgeun_user",
+        "DB_PASSWORD": "your_secure_password_here",
+        "DB_NAME": "deukgeun_production_db",
+        "JWT_SECRET": "your_production_jwt_secret_key_here_make_it_long_and_random",
+        "JWT_ACCESS_SECRET": "your_production_access_secret_key_here_make_it_long_and_random",
+        "JWT_REFRESH_SECRET": "your_production_refresh_secret_key_here_make_it_long_and_random"
+      },
+      "build_command": "npm run build:backend",
+      "start_command": "node dist/index.js",
+      "logs_directory": "./src/backend/logs",
+      "uploads_directory": "./src/backend/uploads",
+      "healthcheck_endpoint": "/health",
+      "tsconfig_outDir": "dist/backend",
+      "wait_for_dependencies_script": "./scripts/wait-for-it.sh",
+      "log_rotation_policy": {
+        "enabled": true,
+        "max_size": "50M",
+        "max_files": 5
+      }
+    },
+    "frontend": {
+      "source_directory": "./src/frontend",
+      "dockerfile_path": "./Dockerfile",
+      "port": 80,
+      "node_version": "18-alpine",
+      "build_command": "npm run build:production",
+      "dist_directory": "./dist/frontend",
+      "vite_build_output": "dist",
+      "healthcheck_endpoint": "/",
+      "gzip_enabled": true,
+      "cache_headers": {
+        "enabled": true,
+        "max_age": 31536000
+      }
+    },
+    "database": {
+      "type": "mysql",
+      "version": "8.0",
+      "root_password": "6204",
+      "database_name": "deukgeun_production_db",
+      "username": "deukgeun_user",
+      "password": "your_secure_password_here",
+      "init_script_path": "./src/backend/scripts/database/init.sql",
+      "port": 3306,
+      "idempotent_init": true
+    },
+    "optional_services": {
+      "redis": {
+        "enabled": true,
+        "version": "7-alpine",
+        "port": 6379,
+        "volume": "./data/redis",
+        "usage_type": "cache"
+      },
+      "nginx_proxy": {
+        "enabled": true,
+        "ssl_cert_path": "./ssl",
+        "config_path": "./nginx.conf",
+        "ports": [80, 443],
+        "gzip_enabled": true,
+        "cache_headers": true
+      }
+    },
+    "optimization_preferences": {
+      "use_multi_stage_build": true,
+      "minimize_image_size": true,
+      "use_caching": true,
+      "use_healthchecks": true,
+      "use_restart_policy": true,
+      "use_wait_for_dependencies": true,
+      "network_driver": "bridge",
+      "custom_subnet": "172.20.0.0/16",
+      "prioritize_performance": "balanced",
+      "docker_layer_cache": true
+    },
+    "env_variable_management": {
+      "method": "env_file",
+      "secure_store": "aws_secrets_manager"
+    },
+    "build_and_deploy": {
+      "rebuild_on_change": true,
+      "ci_cd_pipeline": false,
+      "log_retention_days": 7
+    }
+  }
+  

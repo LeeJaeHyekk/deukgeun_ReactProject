@@ -1,0 +1,71 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": false,
+    "noEmit": false,
+    "outDir": "../../dist/backend",
+    "rootDir": "./",
+
+    "lib": ["ES2022", "DOM"],
+    "strict": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "noEmitOnError": false,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+
+    // TypeORM + TS5 안정화 핵심
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false,
+
+    // 타입 체크 완화
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "ignoreDeprecations": "5.0",
+
+    // ESM 모듈 해결 (TypeScript 5.0+ 지원)
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": false,
+    "isolatedModules": true,
+
+    // 런타임 경로 alias
+    "baseUrl": "./",
+    "paths": {
+      "@types/*": ["../types/*"],
+      "@config/*": ["shared/config/*"],
+      "@controllers/*": ["controllers/*"],
+      "@entities/*": ["entities/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@routes/*": ["routes/*"],
+      "@services/*": ["services/*"],
+      "@utils/*": ["utils/*"],
+      "@transformers/*": ["transformers/*"],
+      "@transformers": ["transformers/index"],
+      "@dto/*": ["../types/dto/*"],
+      "@dto": ["../types/dto/index"],
+      "@shared/*": ["shared/*"]
+    }
+  },
+  "ts-node": {
+    "esm": true
+  },
+  "include": ["./**/*", "../types/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "**/*.js",
+    "**/*.jsx",
+    "**/__tests__/**/*",
+    "**/*.test.*",
+    "**/*.spec.*",
+    "**/*.d.ts"
+  ]
+}

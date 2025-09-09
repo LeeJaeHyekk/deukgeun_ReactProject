@@ -1,0 +1,59 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["frontend/*"],
+      "@shared/*": ["frontend/shared/*"],
+      "@features/*": ["frontend/features/*"],
+      "@pages/*": ["frontend/pages/*"],
+      "@widgets/*": ["frontend/widgets/*"],
+      "@entities/*": ["frontend/entities/*"],
+      "@assets/*": ["frontend/assets/*"],
+      "@backend/*": ["backend/*"],
+      "@types/*": ["types/*"],
+      "@dto/*": ["shared/types/dto/*"],
+      "@entities-backend/*": ["backend/entities/*"],
+      "@transformers/*": ["backend/transformers/*"],
+      "@services/*": ["backend/services/*"],
+      "@controllers/*": ["backend/controllers/*"]
+    },
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/frontend/node_modules/@types"
+    ],
+    "target": "ES2022",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "noEmit": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowJs": false,
+    "checkJs": false,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"]
+  },
+  "include": ["src/frontend/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "**/*.js",
+    "**/*.jsx",
+    "src/backend/**/*"
+  ]
+}

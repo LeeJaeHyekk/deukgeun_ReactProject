@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./src/frontend",
+    "paths": {
+      "@/*": ["./*"],
+      "@features/*": ["./features/*"],
+      "@pages/*": ["./pages/*"],
+      "@widgets/*": ["./widgets/*"],
+      "@entities/*": ["./entities/*"],
+      "@assets/*": ["./assets/*"],
+      "@shared/*": ["./shared/*"],
+      "@types/*": ["../types/*"],
+      "@dto/*": ["./types/dto/*"]
+    },
+    "typeRoots": ["./node_modules/@types"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": false,
+    "exactOptionalPropertyTypes": false,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "noEmit": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "allowJs": false,
+    "checkJs": false,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"]
+  },
+  "include": ["src/frontend/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "**/*.js",
+    "**/*.jsx",
+    "src/backend/**/*"
+  ]
+}

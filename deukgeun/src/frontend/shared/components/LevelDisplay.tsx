@@ -12,7 +12,7 @@ interface LevelDisplayProps {
   className?: string
 }
 
-export function LevelDisplay({
+function LevelDisplay({
   userLevel,
   showProgress = true,
   showRewards = false,
@@ -137,3 +137,6 @@ export function LevelDisplay({
     </div>
   )
 }
+
+export default LevelDisplay
+export { LevelDisplay }

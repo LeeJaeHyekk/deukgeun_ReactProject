@@ -37,10 +37,13 @@ export function useThrottle<T extends (...args: any[]) => any>(
         if (lastCallTimer.current) {
           clearTimeout(lastCallTimer.current)
         }
-        lastCallTimer.current = setTimeout(() => {
-          callback(...args)
-          lastCall.current = Date.now()
-        }, delay - (now - lastCall.current))
+        lastCallTimer.current = setTimeout(
+          () => {
+            callback(...args)
+            lastCall.current = Date.now()
+          },
+          delay - (now - lastCall.current)
+        )
       }
     },
     [callback, delay]
@@ -59,15 +62,19 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     }
   })
 
-  const setValue = useCallback((value: T | ((val: T) => T)) => {
-    try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value
-      setStoredValue(valueToStore)
-      window.localStorage.setItem(key, JSON.stringify(valueToStore))
-    } catch (error) {
-      console.error(`Error setting localStorage key "${key}":`, error)
-    }
-  }, [key, storedValue])
+  const setValue = useCallback(
+    (value: T | ((val: T) => T)) => {
+      try {
+        const valueToStore =
+          value instanceof Function ? value(storedValue) : value
+        setStoredValue(valueToStore)
+        window.localStorage.setItem(key, JSON.stringify(valueToStore))
+      } catch (error) {
+        console.error(`Error setting localStorage key "${key}":`, error)
+      }
+    },
+    [key, storedValue]
+  )
 
   return [storedValue, setValue] as const
 }
@@ -84,15 +91,19 @@ export function useSessionStorage<T>(key: string, initialValue: T) {
     }
   })
 
-  const setValue = useCallback((value: T | ((val: T) => T)) => {
-    try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value
-      setStoredValue(valueToStore)
-      window.sessionStorage.setItem(key, JSON.stringify(valueToStore))
-    } catch (error) {
-      console.error(`Error setting sessionStorage key "${key}":`, error)
-    }
-  }, [key, storedValue])
+  const setValue = useCallback(
+    (value: T | ((val: T) => T)) => {
+      try {
+        const valueToStore =
+          value instanceof Function ? value(storedValue) : value
+        setStoredValue(valueToStore)
+        window.sessionStorage.setItem(key, JSON.stringify(valueToStore))
+      } catch (error) {
+        console.error(`Error setting sessionStorage key "${key}":`, error)
+      }
+    },
+    [key, storedValue]
+  )
 
   return [storedValue, setValue] as const
 }
@@ -202,7 +213,9 @@ export function useFocusTrap(enabled: boolean = true) {
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     )
     const firstElement = focusableElements[0] as HTMLElement
-    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement
+    const lastElement = focusableElements[
+      focusableElements.length - 1
+    ] as HTMLElement
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Tab') {
@@ -306,7 +319,7 @@ export function usePerformanceMonitor(componentName: string) {
     const timeSinceLastRender = currentTime - lastRenderTime.current
     lastRenderTime.current = currentTime
 
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       console.log(
         `${componentName} rendered ${renderCount.current} times. Time since last render: ${timeSinceLastRender.toFixed(2)}ms`
       )

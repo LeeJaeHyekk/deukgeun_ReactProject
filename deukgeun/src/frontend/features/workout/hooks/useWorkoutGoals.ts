@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react"
-import { workoutApi } from "../api/workoutApi"
-import type { WorkoutGoal } from "../types"
+import { useState, useEffect, useCallback } from 'react'
+import { workoutApi } from '../api/workoutApi'
+import type { WorkoutGoal } from '../types'
 
 export function useWorkoutGoals() {
   const [goals, setGoals] = useState<WorkoutGoal[]>([])
@@ -21,7 +21,7 @@ export function useWorkoutGoals() {
       const errorMessage =
         err instanceof Error
           ? err.message
-          : "운동 목표를 불러오는데 실패했습니다."
+          : '운동 목표를 불러오는데 실패했습니다.'
       console.error(`❌ [useWorkoutGoals] 운동 목표 조회 실패:`, err)
       setError(errorMessage)
     } finally {
@@ -67,7 +67,7 @@ export function useWorkoutGoals() {
         err
       )
       const errorMessage =
-        err instanceof Error ? err.message : "운동 목표 생성에 실패했습니다."
+        err instanceof Error ? err.message : '운동 목표 생성에 실패했습니다.'
       setError(errorMessage)
       throw err
     } finally {
@@ -95,8 +95,8 @@ export function useWorkoutGoals() {
         const errorMessage =
           err instanceof Error
             ? err.message
-            : "운동 목표 업데이트에 실패했습니다."
-        console.error("운동 목표 업데이트 실패:", err)
+            : '운동 목표 업데이트에 실패했습니다.'
+        console.error('운동 목표 업데이트 실패:', err)
         setError(errorMessage)
         throw err
       } finally {
@@ -113,7 +113,7 @@ export function useWorkoutGoals() {
 
       // 개발 환경에서 더미 데이터 처리
       if (
-        process.env.NODE_ENV === "development" &&
+        import.meta.env.MODE === 'development' &&
         (goalId === 1 || goalId === 2)
       ) {
         console.log(`🔧 개발 환경 - 더미 목표 삭제 처리: ${goalId}`)
@@ -125,8 +125,8 @@ export function useWorkoutGoals() {
       setGoals(prev => prev.filter(goal => goal.goal_id !== goalId))
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "운동 목표 삭제에 실패했습니다."
-      console.error("운동 목표 삭제 실패:", err)
+        err instanceof Error ? err.message : '운동 목표 삭제에 실패했습니다.'
+      console.error('운동 목표 삭제 실패:', err)
       setError(errorMessage)
       throw err
     } finally {

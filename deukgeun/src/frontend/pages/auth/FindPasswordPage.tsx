@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom"
 import { FaArrowLeft } from "react-icons/fa"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
-import { useAuthContext } from "@shared/contexts/AuthContext"
+import { useAuthContext } from "@frontend/shared/contexts/AuthContext"
 import { useAccountRecovery } from "@features/auth/hooks/useAccountRecovery"
-import { RecaptchaWidget } from "@shared/components/RecaptchaWidget"
+import { RecaptchaWidget } from "@frontend/shared/components/RecaptchaWidget"
 import type {
   ResetPasswordStep1Request,
   ResetPasswordStep2Request,
@@ -29,7 +29,7 @@ function formatPhoneNumber(value: string): string {
 
 export default function FindPasswordPage() {
   const navigate = useNavigate()
-  const { isLoggedIn, isLoading } = useAuthContext()
+  const { isAuthenticated, isLoading } = useAuthContext()
   const { state, resetPasswordSimpleStep1, resetPasswordSimpleStep2, reset } =
     useAccountRecovery()
 
@@ -60,10 +60,10 @@ export default function FindPasswordPage() {
 
   // 로그인 상태 확인
   useEffect(() => {
-    if (!isLoading && isLoggedIn) {
+    if (!isLoading && isAuthenticated) {
       navigate("/")
     }
-  }, [isLoggedIn, isLoading, navigate])
+  }, [isAuthenticated, isLoading, navigate])
 
   // DatePicker 네비게이션 아이콘 스타일 직접 적용
   useEffect(() => {

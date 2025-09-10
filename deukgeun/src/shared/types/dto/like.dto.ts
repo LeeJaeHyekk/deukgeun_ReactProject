@@ -9,6 +9,9 @@ export interface LikeDTO {
   createdAt: Date
 }
 
+// Alias for compatibility
+export type Like = LikeDTO
+
 // Create DTO (for creating new Like)
 export interface CreateLikeDTO {
   id: number

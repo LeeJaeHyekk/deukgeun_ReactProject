@@ -20,7 +20,7 @@
     // 런타임 경로 alias
     "baseUrl": "../",
     "paths": {
-      "@types/*": ["types/*"],
+      "@types/*": ["shared/types/*"],
       "@config/*": ["backend/config/*"],
       "@controllers/*": ["backend/controllers/*"],
       "@entities/*": ["backend/entities/*"],
@@ -30,11 +30,16 @@
       "@utils/*": ["backend/utils/*"],
       "@transformers/*": ["backend/transformers/*"],
       "@transformers": ["backend/transformers/index"],
-      "@dto/*": ["types/dto/*"],
-      "@dto": ["types/dto/index"],
-      "@shared/*": ["shared/*"]
+      "@dto/*": ["shared/types/dto/*"],
+      "@dto": ["shared/types/dto/index"],
+      "@shared/*": ["shared/*"],
+      "@domains/*": ["backend/domains/*"],
+      "@infrastructure/*": ["backend/infrastructure/*"],
+      "@constants/*": ["shared/constants/*"],
+      "@validation/*": ["shared/validation/*"],
+      "@api/*": ["shared/api/*"]
     }
   },
-  "include": ["./**/*", "../types/**/*", "../shared/**/*"],
+  "include": ["./**/*", "../shared/**/*"],
   "exclude": ["node_modules", "dist", "build", "**/*.js", "**/*.jsx"]
 }

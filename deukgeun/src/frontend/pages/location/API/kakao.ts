@@ -1,5 +1,5 @@
-import { Gym } from "../types"
-import { KAKAO_CONFIG } from "@shared/lib/env"
+import { Gym } from '../types'
+import { KAKAO_CONFIG } from '@frontend/shared/lib/env'
 
 const KAKAO_API_KEY = KAKAO_CONFIG.REST_API_KEY
 // console.log("🧪 Kakao REST API Key:", KAKAO_API_KEY) // 로그 제거
@@ -8,11 +8,11 @@ const KAKAO_API_KEY = KAKAO_CONFIG.REST_API_KEY
 function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {
   const dummyGyms = [
     {
-      id: "1",
-      name: "강남 피트니스",
-      type: "피트니스" as const,
-      address: "서울특별시 강남구 테헤란로 123",
-      phone: "02-1234-5678",
+      id: '1',
+      name: '강남 피트니스',
+      type: '피트니스' as const,
+      address: '서울특별시 강남구 테헤란로 123',
+      phone: '02-1234-5678',
       latitude: pos.lat + 0.001,
       longitude: pos.lng + 0.001,
       rating: 4.5,
@@ -22,14 +22,14 @@ function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {
       is24Hours: false,
       hasParking: true,
       hasShower: true,
-      price: "15만원",
+      price: '15만원',
     },
     {
-      id: "2",
-      name: "홍대 헬스장",
-      type: "피트니스" as const,
-      address: "서울특별시 마포구 홍대로 456",
-      phone: "02-2345-6789",
+      id: '2',
+      name: '홍대 헬스장',
+      type: '피트니스' as const,
+      address: '서울특별시 마포구 홍대로 456',
+      phone: '02-2345-6789',
       latitude: pos.lat + 0.002,
       longitude: pos.lng + 0.002,
       rating: 4.2,
@@ -39,14 +39,14 @@ function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {
       is24Hours: true,
       hasParking: false,
       hasShower: true,
-      price: "12만원",
+      price: '12만원',
     },
     {
-      id: "3",
-      name: "잠실 스포츠센터",
-      type: "피트니스" as const,
-      address: "서울특별시 송파구 올림픽로 789",
-      phone: "02-3456-7890",
+      id: '3',
+      name: '잠실 스포츠센터',
+      type: '피트니스' as const,
+      address: '서울특별시 송파구 올림픽로 789',
+      phone: '02-3456-7890',
       latitude: pos.lat + 0.003,
       longitude: pos.lng + 0.003,
       rating: 4.8,
@@ -56,14 +56,14 @@ function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {
       is24Hours: true,
       hasParking: true,
       hasShower: true,
-      price: "18만원",
+      price: '18만원',
     },
     {
-      id: "4",
-      name: "강서 피트니스클럽",
-      type: "피트니스" as const,
-      address: "서울특별시 강서구 화곡로 321",
-      phone: "02-4567-8901",
+      id: '4',
+      name: '강서 피트니스클럽',
+      type: '피트니스' as const,
+      address: '서울특별시 강서구 화곡로 321',
+      phone: '02-4567-8901',
       latitude: pos.lat + 0.004,
       longitude: pos.lng + 0.004,
       rating: 4.0,
@@ -73,14 +73,14 @@ function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {
       is24Hours: false,
       hasParking: true,
       hasShower: false,
-      price: "10만원",
+      price: '10만원',
     },
     {
-      id: "5",
-      name: "종로 헬스장",
-      type: "피트니스" as const,
-      address: "서울특별시 종로구 종로 654",
-      phone: "02-5678-9012",
+      id: '5',
+      name: '종로 헬스장',
+      type: '피트니스' as const,
+      address: '서울특별시 종로구 종로 654',
+      phone: '02-5678-9012',
       latitude: pos.lat + 0.005,
       longitude: pos.lng + 0.005,
       rating: 4.3,
@@ -90,26 +90,32 @@ function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {
       is24Hours: false,
       hasParking: false,
       hasShower: true,
-      price: "13만원",
+      price: '13만원',
     },
   ]
 
   return dummyGyms
 }
 
+// 카카오 맵 서비스 객체
+export const kakaoMapService = {
+  fetchGymsByKeyword,
+  // 추가적인 카카오 맵 관련 함수들을 여기에 추가할 수 있습니다
+}
+
 export async function fetchGymsByKeyword(
   query: string,
   pos: { lat: number; lng: number }
 ): Promise<Gym[]> {
-  console.log("🧪 카카오 API 호출 시작:", { query, pos })
+  console.log('🧪 카카오 API 호출 시작:', { query, pos })
 
   if (!KAKAO_API_KEY) {
     console.warn(
-      "🧪 Kakao API Key가 설정되지 않았습니다. 테스트용 더미 데이터를 반환합니다."
+      '🧪 Kakao API Key가 설정되지 않았습니다. 테스트용 더미 데이터를 반환합니다.'
     )
     // API 키가 없으면 테스트용 더미 데이터 반환
     const dummyGyms = generateDummyGyms(pos)
-    console.log("🧪 더미 데이터 생성:", dummyGyms.length, "개")
+    console.log('🧪 더미 데이터 생성:', dummyGyms.length, '개')
     return dummyGyms
   }
 
@@ -118,7 +124,7 @@ export async function fetchGymsByKeyword(
       query
     )}&x=${pos.lng}&y=${pos.lat}&radius=5000`
 
-    console.log("🧪 API URL:", url)
+    console.log('🧪 API URL:', url)
 
     const res = await fetch(url, {
       headers: {
@@ -126,30 +132,30 @@ export async function fetchGymsByKeyword(
       },
     })
 
-    console.log("🧪 API 응답 상태:", res.status)
+    console.log('🧪 API 응답 상태:', res.status)
 
     if (!res.ok) {
       const errorText = await res.text()
-      console.error("🧪 API 오류:", res.status, errorText)
+      console.error('🧪 API 오류:', res.status, errorText)
       throw new Error(`API 오류: ${res.status} - ${errorText}`)
     }
 
     const data = await res.json()
-    console.log("🧪 API 응답 데이터:", data)
+    console.log('🧪 API 응답 데이터:', data)
 
     if (!data.documents) {
-      console.warn("🧪 documents 필드가 없습니다:", data)
+      console.warn('🧪 documents 필드가 없습니다:', data)
       return []
     }
 
-    console.log("🧪 검색 결과:", data.documents.length, "개")
+    console.log('🧪 검색 결과:', data.documents.length, '개')
     return data.documents
   } catch (error) {
-    console.error("🧪 카카오 API 호출 실패:", error)
-    console.warn("🧪 API 호출 실패로 인해 테스트용 더미 데이터를 반환합니다.")
+    console.error('🧪 카카오 API 호출 실패:', error)
+    console.warn('🧪 API 호출 실패로 인해 테스트용 더미 데이터를 반환합니다.')
     // API 호출 실패 시에도 더미 데이터 반환
     const dummyGyms = generateDummyGyms(pos)
-    console.log("🧪 더미 데이터 생성:", dummyGyms.length, "개")
+    console.log('🧪 더미 데이터 생성:', dummyGyms.length, '개')
     return dummyGyms
   }
 }

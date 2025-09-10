@@ -8,10 +8,10 @@ export interface UserDTO {
   nickname: string
   phone?: string
   phoneNumber?: string
-  gender?: "male" | "female" | "other"
+  gender?: 'male' | 'female' | 'other'
   birthDate?: Date | string | null
   profileImage?: string
-  role: "user" | "admin" | "moderator"
+  role: 'user' | 'admin' | 'moderator'
   isActive: boolean
   isEmailVerified: boolean
   isPhoneVerified: boolean
@@ -24,6 +24,9 @@ export interface UserDTO {
   accessToken?: string
 }
 
+// Alias for compatibility
+export type User = UserDTO
+
 // Create DTO (for creating new User)
 export interface CreateUserDTO {
   id: number
@@ -31,10 +34,10 @@ export interface CreateUserDTO {
   nickname: string
   phone?: string
   phoneNumber?: string
-  gender?: "male" | "female" | "other"
+  gender?: 'male' | 'female' | 'other'
   birthDate?: Date
   profileImage?: string
-  role: "user" | "admin" | "moderator"
+  role: 'user' | 'admin' | 'moderator'
   isActive: boolean
   isEmailVerified: boolean
   isPhoneVerified: boolean
@@ -49,10 +52,10 @@ export interface UpdateUserDTO {
   nickname?: string
   phone?: string
   phoneNumber?: string
-  gender?: "male" | "female" | "other"
+  gender?: 'male' | 'female' | 'other'
   birthDate?: Date
   profileImage?: string
-  role?: "user" | "admin" | "moderator"
+  role?: 'user' | 'admin' | 'moderator'
   isActive?: boolean
   isEmailVerified?: boolean
   isPhoneVerified?: boolean

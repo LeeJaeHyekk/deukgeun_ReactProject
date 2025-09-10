@@ -1,10 +1,10 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback } from 'react'
 import {
-  executeRecaptcha,
+  executeRecaptchaV3,
   getDummyRecaptchaToken,
   isRecaptchaAvailable,
-} from "@shared/lib/recaptcha"
-import { config } from "@shared/config"
+} from '@shared/lib/recaptcha'
+import { config } from '@shared/config'
 
 interface UseRecaptchaOptions {
   action?: string
@@ -23,7 +23,7 @@ interface UseRecaptchaReturn {
 export function useRecaptcha(
   options: UseRecaptchaOptions = {}
 ): UseRecaptchaReturn {
-  const { action = "default", onSuccess, onError } = options
+  const { action = 'default', onSuccess, onError } = options
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -35,7 +35,7 @@ export function useRecaptcha(
     try {
       // reCAPTCHA 사용 가능 여부 확인
       if (!isRecaptchaAvailable()) {
-        throw new Error("reCAPTCHA를 사용할 수 없습니다.")
+        throw new Error('reCAPTCHA를 사용할 수 없습니다.')
       }
 
       // 개발 환경에서는 더미 토큰 사용
@@ -46,12 +46,12 @@ export function useRecaptcha(
       }
 
       // 실제 reCAPTCHA 실행
-      const token = await executeRecaptcha(action)
+      const token = await executeRecaptchaV3(action)
       onSuccess?.(token)
       return token
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "reCAPTCHA 실행에 실패했습니다."
+        err instanceof Error ? err.message : 'reCAPTCHA 실행에 실패했습니다.'
       setError(errorMessage)
       onError?.(err instanceof Error ? err : new Error(errorMessage))
       throw err
@@ -76,13 +76,13 @@ export function useRecaptcha(
 
 // 특정 액션별 reCAPTCHA 훅들
 export function useRecaptchaForRegister() {
-  return useRecaptcha({ action: "register" })
+  return useRecaptcha({ action: 'register' })
 }
 
 export function useRecaptchaForLogin() {
-  return useRecaptcha({ action: "login" })
+  return useRecaptcha({ action: 'login' })
 }
 
 export function useRecaptchaForPasswordReset() {
-  return useRecaptcha({ action: "password_reset" })
+  return useRecaptcha({ action: 'password_reset' })
 }

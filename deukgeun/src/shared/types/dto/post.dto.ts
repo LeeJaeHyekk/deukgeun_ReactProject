@@ -2,15 +2,15 @@
 // PostDTO - Data Transfer Object
 // ============================================================================
 
-export type PostCategory = 
-  | "general"
-  | "workout"
-  | "nutrition"
-  | "motivation"
-  | "tips"
-  | "questions"
-  | "achievements"
-  | "challenges"
+export type PostCategory =
+  | 'general'
+  | 'workout'
+  | 'nutrition'
+  | 'motivation'
+  | 'tips'
+  | 'questions'
+  | 'achievements'
+  | 'challenges'
 
 export interface PostCategoryInfo {
   id: string
@@ -43,6 +43,9 @@ export interface PostDTO {
   createdAt: Date
   updatedAt: Date
 }
+
+// Alias for compatibility
+export type Post = PostDTO
 
 // Create DTO (for creating new Post)
 export interface CreatePostDTO {

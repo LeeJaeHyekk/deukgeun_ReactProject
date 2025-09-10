@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react"
-import { commentsApi } from "@shared/api"
-import { showToast } from "@shared/lib"
-import { useAuthContext } from "@shared/contexts/AuthContext"
+import { useState, useEffect } from 'react'
+import { commentsApi } from '@frontend/shared/api'
+import { showToast } from '@shared/lib'
+import { useAuthContext } from '@shared/contexts/AuthContext'
 import {
   PostDTO as CommunityPost,
   Comment as PostComment,
-} from "../../../../shared/types"
-import styles from "./PostDetailModal.module.css"
+} from '../../../../shared/types'
+import styles from './PostDetailModal.module.css'
 
 interface PostDetailModalProps {
   post: CommunityPost
@@ -26,12 +26,15 @@ export function PostDetailModal({
 }: PostDetailModalProps) {
   const { user } = useAuthContext()
   const [comments, setComments] = useState<PostComment[]>([])
-  const [newComment, setNewComment] = useState("")
+  const [newComment, setNewComment] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState({
     title: post.title,
     content: post.content,
-    category: typeof post.category === 'string' ? post.category : post.category.name || 'tips',
+    category:
+      typeof post.category === 'string'
+        ? post.category
+        : post.category.name || 'tips',
   })
   const [loading, setLoading] = useState(false)
   const [commentsLoading, setCommentsLoading] = useState(false)
@@ -44,42 +47,46 @@ export function PostDetailModal({
     const fetchComments = async () => {
       setCommentsLoading(true)
       try {
-        console.log("댓글 요청 post.id:", post.id) // 디버깅용 로그
+        console.log('댓글 요청 post.id:', post.id) // 디버깅용 로그
         const response = await commentsApi.list(post.id)
-        console.log("댓글 API 응답:", response.data) // 디버깅용 로그
+        console.log('댓글 API 응답:', response.data) // 디버깅용 로그
 
         // API 응답 구조 확인 및 안전한 매핑
         let commentData: PostComment[] = []
 
         if (response.data.success && response.data.data) {
           const rawComments = response.data.data
-          console.log("원본 댓글 데이터:", rawComments) // 디버깅용 로그
+          console.log('원본 댓글 데이터:', rawComments) // 디버깅용 로그
 
           if (Array.isArray(rawComments)) {
             commentData = rawComments.map((comment: any) => ({
               id: comment.id || 0,
               postId: comment.postId || post.id,
               userId: comment.userId || comment.author_id || 0,
-              author: comment.author?.nickname || comment.author_name || "익명",
-              content: comment.content || "",
-              createdAt: new Date(comment.createdAt || comment.created_at || Date.now()),
-              updatedAt: new Date(comment.updatedAt || comment.updated_at || Date.now()),
+              author: comment.author?.nickname || comment.author_name || '익명',
+              content: comment.content || '',
+              createdAt: new Date(
+                comment.createdAt || comment.created_at || Date.now()
+              ),
+              updatedAt: new Date(
+                comment.updatedAt || comment.updated_at || Date.now()
+              ),
             }))
           }
         }
 
-        console.log("매핑된 댓글 데이터:", commentData) // 디버깅용 로그
+        console.log('매핑된 댓글 데이터:', commentData) // 디버깅용 로그
         setComments(commentData)
       } catch (error: unknown) {
-        console.error("댓글 로드 실패:", error)
+        console.error('댓글 로드 실패:', error)
         // 댓글 API 에러 시 더미 데이터 사용 (테스트용)
         const dummyComments: PostComment[] = [
           {
             id: 1,
             postId: post.id,
             userId: 1,
-            author: "테스트 사용자",
-            content: "이 게시글 정말 좋네요! 👍",
+            author: '테스트 사용자',
+            content: '이 게시글 정말 좋네요! 👍',
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -87,14 +94,14 @@ export function PostDetailModal({
             id: 2,
             postId: post.id,
             userId: 2,
-            author: "운동러버",
-            content: "저도 비슷한 경험이 있어요. 공감합니다!",
+            author: '운동러버',
+            content: '저도 비슷한 경험이 있어요. 공감합니다!',
             createdAt: new Date(Date.now() - 3600000),
             updatedAt: new Date(Date.now() - 3600000),
           },
         ]
         setComments(dummyComments)
-        console.log("더미 댓글 데이터 사용:", dummyComments) // 디버깅용 로그
+        console.log('더미 댓글 데이터 사용:', dummyComments) // 디버깅용 로그
       } finally {
         setCommentsLoading(false)
       }
@@ -106,26 +113,26 @@ export function PostDetailModal({
   // 댓글 작성
   const handleSubmitComment = async () => {
     if (!newComment.trim()) {
-      showToast("댓글 내용을 입력해주세요.", "error")
+      showToast('댓글 내용을 입력해주세요.', 'error')
       return
     }
 
-    console.log("댓글 작성 시작")
-    console.log("게시글 ID:", post.id)
-    console.log("댓글 내용:", newComment.trim())
+    console.log('댓글 작성 시작')
+    console.log('게시글 ID:', post.id)
+    console.log('댓글 내용:', newComment.trim())
 
     try {
-      console.log("댓글 API 호출 시작")
+      console.log('댓글 API 호출 시작')
       const createResponse = await commentsApi.create(post.id, {
         content: newComment.trim(),
       })
-      console.log("댓글 API 응답:", createResponse)
-      showToast("댓글이 작성되었습니다.", "success")
-      setNewComment("")
+      console.log('댓글 API 응답:', createResponse)
+      showToast('댓글이 작성되었습니다.', 'success')
+      setNewComment('')
 
       // 댓글 목록 새로고침
       const listResponse = await commentsApi.list(post.id)
-      console.log("댓글 작성 후 새로고침 응답:", listResponse.data) // 디버깅용 로그
+      console.log('댓글 작성 후 새로고침 응답:', listResponse.data) // 디버깅용 로그
 
       let commentData: PostComment[] = []
 
@@ -137,38 +144,42 @@ export function PostDetailModal({
             id: comment.id || 0,
             postId: comment.postId || post.id,
             userId: comment.userId || comment.author_id || 0,
-            author: comment.author?.nickname || comment.author_name || "익명",
-            content: comment.content || "",
-            createdAt: new Date(comment.createdAt || comment.created_at || Date.now()),
-            updatedAt: new Date(comment.updatedAt || comment.updated_at || Date.now()),
+            author: comment.author?.nickname || comment.author_name || '익명',
+            content: comment.content || '',
+            createdAt: new Date(
+              comment.createdAt || comment.created_at || Date.now()
+            ),
+            updatedAt: new Date(
+              comment.updatedAt || comment.updated_at || Date.now()
+            ),
           })) as any
         }
       }
 
       setComments(commentData)
     } catch (error: unknown) {
-      console.error("댓글 작성 실패:", error)
+      console.error('댓글 작성 실패:', error)
 
       // Axios 에러인 경우 더 자세한 정보 표시
-      if (error && typeof error === "object" && "response" in error) {
+      if (error && typeof error === 'object' && 'response' in error) {
         const axiosError = error as any
         if (axiosError.response?.status === 401) {
-          showToast("로그인이 필요합니다.", "error")
+          showToast('로그인이 필요합니다.', 'error')
         } else if (axiosError.response?.status === 400) {
           showToast(
-            axiosError.response?.data?.message || "잘못된 요청입니다.",
-            "error"
+            axiosError.response?.data?.message || '잘못된 요청입니다.',
+            'error'
           )
         } else if (axiosError.response?.status === 500) {
           showToast(
-            "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
-            "error"
+            '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+            'error'
           )
         } else {
-          showToast("댓글 작성에 실패했습니다.", "error")
+          showToast('댓글 작성에 실패했습니다.', 'error')
         }
       } else {
-        showToast("댓글 작성에 실패했습니다.", "error")
+        showToast('댓글 작성에 실패했습니다.', 'error')
       }
     }
   }
@@ -178,12 +189,12 @@ export function PostDetailModal({
     if (!onUpdate) return
 
     if (!editData.title.trim()) {
-      showToast("제목을 입력해주세요.", "error")
+      showToast('제목을 입력해주세요.', 'error')
       return
     }
 
     if (!editData.content.trim()) {
-      showToast("내용을 입력해주세요.", "error")
+      showToast('내용을 입력해주세요.', 'error')
       return
     }
 
@@ -192,7 +203,7 @@ export function PostDetailModal({
       await onUpdate(post.id, editData)
       setIsEditing(false)
     } catch (error: unknown) {
-      console.error("게시글 수정 실패:", error)
+      console.error('게시글 수정 실패:', error)
       // 에러 발생 시 수정 모드는 유지
     } finally {
       setLoading(false)
@@ -203,7 +214,7 @@ export function PostDetailModal({
   const handleDeletePost = async () => {
     if (!onDelete) return
 
-    if (!confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+    if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
       return
     }
 
@@ -212,7 +223,7 @@ export function PostDetailModal({
       await onDelete(post.id)
       // 성공 시 모달은 부모 컴포넌트에서 닫힘
     } catch (error: unknown) {
-      console.error("게시글 삭제 실패:", error)
+      console.error('게시글 삭제 실패:', error)
       // 에러 발생 시 모달은 열린 상태로 유지
     } finally {
       setLoading(false)
@@ -229,13 +240,13 @@ export function PostDetailModal({
   // ESC 키로 모달 닫기
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         onClose()
       }
     }
 
-    document.addEventListener("keydown", handleEscape)
-    return () => document.removeEventListener("keydown", handleEscape)
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
   }, [onClose])
 
   return (
@@ -243,7 +254,7 @@ export function PostDetailModal({
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <div className={styles.header}>
           <h2 className={styles.title}>
-            {isEditing ? "게시글 수정" : post.title}
+            {isEditing ? '게시글 수정' : post.title}
           </h2>
           <button className={styles.closeButton} onClick={onClose}>
             ✕
@@ -284,7 +295,7 @@ export function PostDetailModal({
                   className={styles.saveButton}
                   disabled={loading}
                 >
-                  {loading ? "저장 중..." : "저장"}
+                  {loading ? '저장 중...' : '저장'}
                 </button>
               </div>
             </div>
@@ -292,12 +303,16 @@ export function PostDetailModal({
             <>
               <div className={styles.postInfo}>
                 <div className={styles.authorInfo}>
-                  <span className={styles.author}>{(post.author as any)?.nickname || "익명"}</span>
+                  <span className={styles.author}>
+                    {(post.author as any)?.nickname || '익명'}
+                  </span>
                   <span className={styles.date}>
                     {new Date(post.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <div className={styles.category}>{(post.category as any)?.name || post.category}</div>
+                <div className={styles.category}>
+                  {(post.category as any)?.name || post.category}
+                </div>
               </div>
 
               <div className={styles.postContent}>

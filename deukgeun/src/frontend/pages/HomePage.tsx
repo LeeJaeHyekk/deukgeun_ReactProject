@@ -1,12 +1,12 @@
-import { useState } from "react"
-import styles from "./HomePage.module.css"
-import { Navigation } from "@widgets/Navigation/Navigation"
-import { LoadingOverlay } from "@shared/ui/LoadingOverlay/LoadingOverlay"
-import { useUserStore } from "@shared/store/userStore"
-import { useAuthContext } from "@shared/contexts/AuthContext"
-import { useLevel } from "@shared/hooks/useLevel"
-import { useStats } from "@shared/hooks/useStats"
-import { useNavigate } from "react-router-dom"
+import { useState } from 'react'
+import styles from './HomePage.module.css'
+import { Navigation } from '@widgets/Navigation/Navigation'
+import { LoadingOverlay } from '@shared/ui/LoadingOverlay/LoadingOverlay'
+import { useUserStore } from '@frontend/shared/store/userStore'
+import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
+import { useLevel } from '@frontend/shared/hooks/useLevel'
+import { useStats } from '@frontend/shared/hooks/useStats'
+import { useNavigate } from 'react-router-dom'
 import {
   MapPin,
   Dumbbell,
@@ -20,12 +20,12 @@ import {
   Award,
   MessageCircle,
   Trophy,
-} from "lucide-react"
+} from 'lucide-react'
 
 export default function HomePage() {
   const [isLoading] = useState(false)
   const user = useUserStore(state => state.user)
-  const { isLoggedIn } = useAuthContext()
+  const { isAuthenticated } = useAuthContext()
   const { levelProgress, isLoading: levelLoading } = useLevel()
 
   // 레벨 데이터에서 필요한 값들 추출
@@ -71,7 +71,7 @@ export default function HomePage() {
           playsInline
           preload="metadata"
           className={styles.heroVideo}
-          onError={e => console.error("Video loading error:", e)}
+          onError={e => console.error('Video loading error:', e)}
         />
         <div className={styles.heroOverlay}>
           <div className={styles.heroContent}>
@@ -80,13 +80,13 @@ export default function HomePage() {
             <div className={styles.heroButtons}>
               <button
                 className={styles.heroBtnPrimary}
-                onClick={() => navigate("/location")}
+                onClick={() => navigate('/location')}
               >
                 헬스장 찾기
               </button>
               <button
                 className={styles.heroBtnSecondary}
-                onClick={() => navigate("/machine-guide")}
+                onClick={() => navigate('/machine-guide')}
               >
                 머신 가이드
               </button>
@@ -104,7 +104,7 @@ export default function HomePage() {
         <div className={styles.serviceGrid}>
           <div
             className={styles.serviceCard}
-            onClick={() => navigate("/location")}
+            onClick={() => navigate('/location')}
           >
             <div className={styles.serviceIcon}>
               <MapPin size={48} />
@@ -114,7 +114,7 @@ export default function HomePage() {
           </div>
           <div
             className={styles.serviceCard}
-            onClick={() => navigate("/machine-guide")}
+            onClick={() => navigate('/machine-guide')}
           >
             <div className={styles.serviceIcon}>
               <Dumbbell size={48} />
@@ -124,7 +124,7 @@ export default function HomePage() {
           </div>
           <div
             className={styles.serviceCard}
-            onClick={() => navigate("/community")}
+            onClick={() => navigate('/community')}
           >
             <div className={styles.serviceIcon}>
               <Users size={48} />
@@ -134,7 +134,7 @@ export default function HomePage() {
           </div>
           <div
             className={styles.serviceCard}
-            onClick={() => navigate("/workout-journal")}
+            onClick={() => navigate('/workout-journal')}
           >
             <div className={styles.serviceIcon}>
               <BarChart3 size={48} />
@@ -194,7 +194,7 @@ export default function HomePage() {
             </div>
             <div className={styles.statContent}>
               <h3>
-                {statsLoading ? "..." : formatNumber(displayStats.activeUsers)}
+                {statsLoading ? '...' : formatNumber(displayStats.activeUsers)}
               </h3>
               <p>활성 사용자</p>
             </div>
@@ -205,7 +205,7 @@ export default function HomePage() {
             </div>
             <div className={styles.statContent}>
               <h3>
-                {statsLoading ? "..." : formatNumber(displayStats.totalGyms)}
+                {statsLoading ? '...' : formatNumber(displayStats.totalGyms)}
               </h3>
               <p>등록된 헬스장</p>
             </div>
@@ -216,7 +216,7 @@ export default function HomePage() {
             </div>
             <div className={styles.statContent}>
               <h3>
-                {statsLoading ? "..." : formatNumber(displayStats.totalPosts)}
+                {statsLoading ? '...' : formatNumber(displayStats.totalPosts)}
               </h3>
               <p>커뮤니티 게시글</p>
             </div>
@@ -227,7 +227,7 @@ export default function HomePage() {
             </div>
             <div className={styles.statContent}>
               <h3>
-                {statsLoading ? "..." : formatNumber(displayStats.achievements)}
+                {statsLoading ? '...' : formatNumber(displayStats.achievements)}
               </h3>
               <p>달성된 업적</p>
             </div>
@@ -236,7 +236,7 @@ export default function HomePage() {
       </div>
 
       {/* My Info Section - 로그인된 경우에만 표시 */}
-      {isLoggedIn && user && (
+      {isAuthenticated && user && (
         <section className={styles.myInfoSection}>
           <div className={styles.myInfoHeader}>
             <h2>내 정보</h2>
@@ -278,7 +278,7 @@ export default function HomePage() {
               <div className={styles.cardContent}>
                 <div className={styles.levelDisplay}>
                   <div className={styles.levelBadge}>
-                    {levelLoading ? "..." : `Lv.${currentLevel}`}
+                    {levelLoading ? '...' : `Lv.${currentLevel}`}
                   </div>
                   <div className={styles.progressContainer}>
                     <div className={styles.progressBar}>
@@ -291,7 +291,7 @@ export default function HomePage() {
                     </div>
                     <span className={styles.progressText}>
                       {levelLoading
-                        ? "로딩 중..."
+                        ? '로딩 중...'
                         : `${Number(progressPercentage ?? 0).toFixed(0)}% 완료`}
                     </span>
                   </div>
@@ -309,7 +309,7 @@ export default function HomePage() {
               </div>
               <div className={styles.cardContent}>
                 <button
-                  onClick={() => navigate("/mypage")}
+                  onClick={() => navigate('/mypage')}
                   className={styles.mypageBtn}
                 >
                   마이페이지로 이동

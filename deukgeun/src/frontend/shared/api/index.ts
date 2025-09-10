@@ -3,10 +3,10 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
   InternalAxiosRequestConfig,
-} from "axios"
-import { config } from "@shared/config"
-import { storage } from "@shared/lib"
-import { globalErrorHandler } from "@pages/Error"
+} from 'axios'
+import { config } from '@shared/config'
+import { storage } from '@shared/lib'
+import { globalErrorHandler } from '@pages/Error'
 
 // API 응답 타입 정의
 export interface ApiResponse<T = unknown> {
@@ -38,35 +38,35 @@ export interface LikeResponse {
 // API 클라이언트 설정
 const createApiClient = (): AxiosInstance => {
   const instance = axios.create({
-    baseURL: config.API_BASE_URL,
+    baseURL: config.api.baseURL,
     timeout: 10000,
     withCredentials: true, // 쿠키 전송을 위해 필요
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
   })
 
   // 요청 인터셉터 - 토큰 추가
   instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-      const token = storage.get("accessToken")
+      const token = storage.get('accessToken')
       console.log(
-        "API 요청 인터셉터 - 토큰:",
-        token ? `${token.substring(0, 20)}...` : "없음"
+        'API 요청 인터셉터 - 토큰:',
+        token ? `${token.substring(0, 20)}...` : '없음'
       )
-      console.log("요청 URL:", config.url)
-      console.log("요청 메서드:", config.method)
+      console.log('요청 URL:', config.url)
+      console.log('요청 메서드:', config.method)
 
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`
-        console.log("Authorization 헤더 설정됨")
+        console.log('Authorization 헤더 설정됨')
       } else {
-        console.log("토큰이 없거나 헤더를 설정할 수 없음")
+        console.log('토큰이 없거나 헤더를 설정할 수 없음')
       }
       return config
     },
     (error: Error) => {
-      console.error("요청 인터셉터 오류:", error)
+      console.error('요청 인터셉터 오류:', error)
       return Promise.reject(error)
     }
   )
@@ -83,12 +83,13 @@ const createApiClient = (): AxiosInstance => {
       }
 
       // 레벨 API 관련 요청은 특별 처리
-      const isLevelApiRequest = originalRequest.config?.url?.includes('/api/level/')
-      
+      const isLevelApiRequest =
+        originalRequest.config?.url?.includes('/api/level/')
+
       // 전역 에러 핸들러에 에러 보고 (레벨 API 제외)
       if (originalRequest.response?.status && !isLevelApiRequest) {
         globalErrorHandler.manualErrorReport(error, {
-          errorType: "network",
+          errorType: 'network',
           message: `HTTP ${originalRequest.response.status}: ${error.message}`,
         })
       }
@@ -98,32 +99,32 @@ const createApiClient = (): AxiosInstance => {
         (originalRequest.response?.status === 401 ||
           originalRequest.response?.status === 403) &&
         !originalRequest.config?._retry &&
-        originalRequest.config?.url !== "/api/auth/refresh" // refresh 엔드포인트 자체는 제외
+        originalRequest.config?.url !== '/api/auth/refresh' // refresh 엔드포인트 자체는 제외
       ) {
         originalRequest.config = originalRequest.config || {}
         originalRequest.config._retry = true
 
         try {
-          console.log("🔄 토큰 갱신 시도...")
-          const refreshResponse = await instance.post("/api/auth/refresh")
+          console.log('🔄 토큰 갱신 시도...')
+          const refreshResponse = await instance.post('/api/auth/refresh')
           const { accessToken } = refreshResponse.data.data
 
-          console.log("✅ 토큰 갱신 성공, 새 토큰 설정")
-          storage.set("accessToken", accessToken)
+          console.log('✅ 토큰 갱신 성공, 새 토큰 설정')
+          storage.set('accessToken', accessToken)
 
           // 원래 요청의 헤더에 새 토큰 설정
           if (originalRequest.config.headers) {
             originalRequest.config.headers.Authorization = `Bearer ${accessToken}`
           }
 
-          console.log("🔄 원래 요청 재시도")
+          console.log('🔄 원래 요청 재시도')
           return instance(originalRequest.config)
         } catch (refreshError: unknown) {
           // 토큰 갱신 실패 시 로그아웃
-          console.log("❌ 토큰 갱신 실패, 로그아웃 처리")
-          storage.remove("accessToken")
-          storage.remove("user")
-          window.location.href = "/login"
+          console.log('❌ 토큰 갱신 실패, 로그아웃 처리')
+          storage.remove('accessToken')
+          storage.remove('user')
+          window.location.href = '/login'
           return Promise.reject(refreshError)
         }
       }
@@ -184,7 +185,7 @@ export const postsApi = {
   list: (params?: {
     category?: string
     q?: string
-    sort?: "latest" | "popular"
+    sort?: 'latest' | 'popular'
     page?: number
     limit?: number
   }) => api.get(`/api/posts`, { params }),

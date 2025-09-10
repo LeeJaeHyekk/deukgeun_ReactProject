@@ -19,7 +19,7 @@ interface MachineCardProps {
   onDelete?: (machine: Machine) => void
 }
 
-export const MachineCard: React.FC<MachineCardProps> = React.memo(
+const MachineCard: React.FC<MachineCardProps> = React.memo(
   ({ machine, onClick, showActions = false, onEdit, onDelete }) => {
     const handleClick = () => {
       if (onClick) {
@@ -164,3 +164,6 @@ export const MachineCard: React.FC<MachineCardProps> = React.memo(
     )
   }
 )
+
+export default MachineCard
+export { MachineCard }

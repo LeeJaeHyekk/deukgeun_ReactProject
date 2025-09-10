@@ -61,14 +61,14 @@ const logger = {
 }
 
 function WorkoutPageContent() {
-  const { isLoggedIn, user } = useAuthContext()
+  const { isAuthenticated, user } = useAuthContext()
   const [isDataLoading, setIsDataLoading] = useState(true)
   const [selectedGoalId, setSelectedGoalId] = useState<number | undefined>(
     undefined
   )
 
   logger.info("워크아웃 페이지 컴포넌트 렌더링", {
-    isLoggedIn,
+    isAuthenticated,
     userId: user?.id,
     timestamp: new Date().toISOString(),
   })
@@ -257,13 +257,13 @@ function WorkoutPageContent() {
 
   // 데이터 초기화
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       console.log("[WorkoutPage] 로그인되지 않은 상태 - 데이터 초기화 스킵")
       return
     }
 
     console.log("[WorkoutPage] 로그인 상태 확인:", {
-      isLoggedIn,
+      isAuthenticated,
       userId: user?.id,
       userEmail: user?.email,
       timestamp: new Date().toISOString(),
@@ -282,7 +282,7 @@ function WorkoutPageContent() {
       setIsDataLoading(true)
 
       console.log("[WorkoutPage] 데이터 초기화 시작", {
-        isLoggedIn,
+        isAuthenticated,
         userId: user?.id,
         machinesCount: machines.length,
       })
@@ -303,10 +303,10 @@ function WorkoutPageContent() {
       }
     }
 
-    if (isLoggedIn) {
+    if (isAuthenticated) {
       initializeData()
     }
-  }, [isLoggedIn, user?.id]) // initializeWorkoutData 의존성 제거
+  }, [isAuthenticated, user?.id]) // initializeWorkoutData 의존성 제거
 
   // 타이머 업데이트
   useEffect(() => {
@@ -433,10 +433,10 @@ function WorkoutPageContent() {
 }
 
 // 메인 컴포넌트
-export function WorkoutPage() {
-  const { isLoggedIn } = useAuthContext()
+function WorkoutPage() {
+  const { isAuthenticated } = useAuthContext()
 
-  if (!isLoggedIn) {
+  if (!isAuthenticated) {
     return (
       <div className={styles.workoutPage}>
         <Navigation />
@@ -450,3 +450,6 @@ export function WorkoutPage() {
 
   return <WorkoutPageContent />
 }
+
+export default WorkoutPage
+export { WorkoutPage }

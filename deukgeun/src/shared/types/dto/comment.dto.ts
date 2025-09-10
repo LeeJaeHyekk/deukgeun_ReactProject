@@ -12,6 +12,9 @@ export interface CommentDTO {
   updatedAt: Date
 }
 
+// Alias for compatibility
+export type Comment = CommentDTO
+
 // Create DTO (for creating new Comment)
 export interface CreateCommentDTO {
   id: number

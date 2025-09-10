@@ -1,13 +1,13 @@
 // features/auth/api/authApi.ts
-import { api } from "@shared/api"
-import { API_ENDPOINTS } from "@shared/config"
-import axios from "axios"
-import { config } from "@shared/config"
+import { api } from '@shared/api'
+import { API_ENDPOINTS } from '@shared/config'
+import axios from 'axios'
+import { config } from '@shared/config'
 import {
   SIGNUP_VALIDATION_MESSAGES,
   HTTP_ERROR_MESSAGES,
   ERROR_TOAST_TYPES,
-} from "@shared/constants/validation"
+} from '@frontend/shared/constants/validation'
 import type {
   LoginRequest,
   LoginResponse,
@@ -16,7 +16,7 @@ import type {
   RefreshResponse,
   LogoutResponse,
   AccountRecoveryRequest,
-} from "@shared/types/auth"
+} from '@shared/types/auth'
 
 // 백엔드 API 응답과 프론트엔드 타입 간의 호환성을 위한 타입 정의
 export interface ApiLoginResponse {
@@ -104,7 +104,7 @@ export interface ResetPasswordStep1Request {
   username: string
   name: string
   phone: string
-  gender?: "male" | "female" | "other"
+  gender?: 'male' | 'female' | 'other'
   birthday?: string
   recaptchaToken: string
 }
@@ -127,12 +127,12 @@ export interface ResetPasswordStep3Request {
 export const authApi = {
   // Login
   login: async (data: LoginRequest): Promise<ApiLoginResponse> => {
-    console.log("✅ 로그인 요청:", data)
+    console.log('✅ 로그인 요청:', data)
     const response = await axios.post<BackendLoginResponse>(
       `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.LOGIN}`,
       data
     )
-    console.log("✅ 로그인 응답:", response)
+    console.log('✅ 로그인 응답:', response)
     // 백엔드 응답 구조에 맞게 수정 - data 필드 없이 직접 반환
     return {
       message: response.data.message,
@@ -143,17 +143,17 @@ export const authApi = {
 
   // Register
   register: async (data: RegisterRequest): Promise<ApiRegisterResponse> => {
-    console.log("📡 회원가입 API 호출 시작")
-    console.log("📡 요청 URL:", API_ENDPOINTS.AUTH.REGISTER)
-    console.log("📡 요청 데이터:", {
+    console.log('📡 회원가입 API 호출 시작')
+    console.log('📡 요청 URL:', API_ENDPOINTS.AUTH.REGISTER)
+    console.log('📡 요청 데이터:', {
       email: data.email,
       nickname: data.nickname,
       phone: data.phone,
       gender: data.gender,
       birthday: data.birthday,
       recaptchaToken: data.recaptchaToken
-        ? data.recaptchaToken.substring(0, 20) + "..."
-        : "없음",
+        ? data.recaptchaToken.substring(0, 20) + '...'
+        : '없음',
     })
 
     try {
@@ -161,8 +161,8 @@ export const authApi = {
         API_ENDPOINTS.AUTH.REGISTER,
         data
       )
-      console.log("✅ 회원가입 API 응답 성공:", response)
-      console.log("✅ 응답 데이터:", response.data)
+      console.log('✅ 회원가입 API 응답 성공:', response)
+      console.log('✅ 응답 데이터:', response.data)
 
       // 백엔드 응답 구조에 맞게 처리
       const responseData = response.data as BackendRegisterResponse
@@ -173,11 +173,11 @@ export const authApi = {
           user: responseData.user,
         } as ApiRegisterResponse
       } else {
-        throw new Error(responseData.message || "회원가입에 실패했습니다.")
+        throw new Error(responseData.message || '회원가입에 실패했습니다.')
       }
     } catch (error) {
-      console.error("❌ 회원가입 API 실패:", error)
-      console.error("❌ API 에러 상세:", {
+      console.error('❌ 회원가입 API 실패:', error)
+      console.error('❌ API 에러 상세:', {
         status: (error as { response?: { status: number } })?.response?.status,
         statusText: (error as { response?: { statusText: string } })?.response
           ?.statusText,
@@ -194,9 +194,9 @@ export const authApi = {
         throw new Error(axiosError.response.data.error)
       } else if (axiosError?.response?.status === 409) {
         // 409 Conflict 에러 처리
-        if (axiosError.response.data.error === "이메일 중복") {
+        if (axiosError.response.data.error === '이메일 중복') {
           throw new Error(SIGNUP_VALIDATION_MESSAGES.EMAIL_ALREADY_EXISTS)
-        } else if (axiosError.response.data.error === "닉네임 중복") {
+        } else if (axiosError.response.data.error === '닉네임 중복') {
           throw new Error(SIGNUP_VALIDATION_MESSAGES.NICKNAME_ALREADY_EXISTS)
         } else {
           throw new Error(HTTP_ERROR_MESSAGES[409])
@@ -217,11 +217,11 @@ export const authApi = {
   findId: async (
     data: FindIdRequest
   ): Promise<ApiResponseWrapper<{ email: string; nickname: string }>> => {
-    console.log("✅ 아이디 찾기 요청:", data)
+    console.log('✅ 아이디 찾기 요청:', data)
     const response = await axios.post<
       ApiResponseWrapper<{ email: string; nickname: string }>
     >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID}`, data)
-    console.log("✅ 아이디 찾기 응답:", response)
+    console.log('✅ 아이디 찾기 응답:', response)
     return response.data
   },
 
@@ -229,11 +229,11 @@ export const authApi = {
   findPassword: async (
     data: FindPasswordRequest
   ): Promise<ApiResponseWrapper<{ email: string; nickname: string }>> => {
-    console.log("✅ 비밀번호 찾기 요청:", data)
+    console.log('✅ 비밀번호 찾기 요청:', data)
     const response = await axios.post<
       ApiResponseWrapper<{ email: string; nickname: string }>
     >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_PASSWORD}`, data)
-    console.log("✅ 비밀번호 찾기 응답:", response)
+    console.log('✅ 비밀번호 찾기 응답:', response)
     return response.data
   },
 
@@ -243,12 +243,12 @@ export const authApi = {
   findIdSimple: async (
     data: FindIdRequest
   ): Promise<ApiResponseWrapper<{ username: string }>> => {
-    console.log("✅ 단순 아이디 찾기 요청:", data)
+    console.log('✅ 단순 아이디 찾기 요청:', data)
     const response = await axios.post<ApiResponseWrapper<{ username: string }>>(
       `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID_SIMPLE}`,
       data
     )
-    console.log("✅ 단순 아이디 찾기 응답:", response)
+    console.log('✅ 단순 아이디 찾기 응답:', response)
     return response.data
   },
 
@@ -264,7 +264,7 @@ export const authApi = {
       verificationCode: string
     }>
   > => {
-    console.log("✅ 단순 비밀번호 재설정 Step 1 요청:", data)
+    console.log('✅ 단순 비밀번호 재설정 Step 1 요청:', data)
     const response = await axios.post<
       ApiResponseWrapper<{
         email: string
@@ -277,7 +277,7 @@ export const authApi = {
       `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_SIMPLE_STEP1}`,
       data
     )
-    console.log("✅ 단순 비밀번호 재설정 Step 1 응답:", response)
+    console.log('✅ 단순 비밀번호 재설정 Step 1 응답:', response)
     return response.data
   },
 
@@ -285,12 +285,12 @@ export const authApi = {
   resetPasswordSimpleStep2: async (
     data: ResetPasswordStep2Request
   ): Promise<ApiResponseWrapper<{ message: string }>> => {
-    console.log("✅ 단순 비밀번호 재설정 Step 2 요청:", data)
+    console.log('✅ 단순 비밀번호 재설정 Step 2 요청:', data)
     const response = await axios.post<ApiResponseWrapper<{ message: string }>>(
       `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_SIMPLE_STEP2}`,
       data
     )
-    console.log("✅ 단순 비밀번호 재설정 Step 2 응답:", response)
+    console.log('✅ 단순 비밀번호 재설정 Step 2 응답:', response)
     return response.data
   },
 
@@ -305,7 +305,7 @@ export const authApi = {
       maskedPhone: string
     }>
   > => {
-    console.log("✅ 아이디 찾기 Step 1 요청:", data)
+    console.log('✅ 아이디 찾기 Step 1 요청:', data)
     const response = await axios.post<
       ApiResponseWrapper<{
         email: string
@@ -314,7 +314,7 @@ export const authApi = {
         maskedPhone: string
       }>
     >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID_SIMPLE}`, data)
-    console.log("✅ 아이디 찾기 Step 1 응답:", response)
+    console.log('✅ 아이디 찾기 Step 1 응답:', response)
     return response.data
   },
 
@@ -322,11 +322,11 @@ export const authApi = {
   findIdStep2: async (
     data: FindIdStep2Request
   ): Promise<ApiResponseWrapper<{ email: string; nickname: string }>> => {
-    console.log("✅ 아이디 찾기 Step 2 요청:", data)
+    console.log('✅ 아이디 찾기 Step 2 요청:', data)
     const response = await axios.post<
       ApiResponseWrapper<{ email: string; nickname: string }>
     >(`${config.API_BASE_URL}${API_ENDPOINTS.AUTH.FIND_ID_SIMPLE}`, data)
-    console.log("✅ 아이디 찾기 Step 2 응답:", response)
+    console.log('✅ 아이디 찾기 Step 2 응답:', response)
     return response.data
   },
 
@@ -341,7 +341,7 @@ export const authApi = {
       maskedPhone: string
     }>
   > => {
-    console.log("✅ 비밀번호 재설정 Step 1 요청:", data)
+    console.log('✅ 비밀번호 재설정 Step 1 요청:', data)
     const response = await axios.post<
       ApiResponseWrapper<{
         email: string
@@ -353,7 +353,7 @@ export const authApi = {
       `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_SIMPLE_STEP1}`,
       data
     )
-    console.log("✅ 비밀번호 재설정 Step 1 응답:", response)
+    console.log('✅ 비밀번호 재설정 Step 1 응답:', response)
     return response.data
   },
 
@@ -361,14 +361,14 @@ export const authApi = {
   resetPasswordStep2: async (
     data: ResetPasswordStep2Request
   ): Promise<ApiResponseWrapper<{ resetToken: string }>> => {
-    console.log("✅ 비밀번호 재설정 Step 2 요청:", data)
+    console.log('✅ 비밀번호 재설정 Step 2 요청:', data)
     const response = await axios.post<
       ApiResponseWrapper<{ resetToken: string }>
     >(
       `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_VERIFY_CODE}`,
       data
     )
-    console.log("✅ 비밀번호 재설정 Step 2 응답:", response)
+    console.log('✅ 비밀번호 재설정 Step 2 응답:', response)
     return response.data
   },
 
@@ -376,33 +376,33 @@ export const authApi = {
   resetPasswordStep3: async (
     data: ResetPasswordStep3Request
   ): Promise<ApiResponseWrapper<void>> => {
-    console.log("✅ 비밀번호 재설정 Step 3 요청:", data)
+    console.log('✅ 비밀번호 재설정 Step 3 요청:', data)
     const response = await axios.post<ApiResponseWrapper<void>>(
       `${config.API_BASE_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD_COMPLETE}`,
       data
     )
-    console.log("✅ 비밀번호 재설정 Step 3 응답:", response)
+    console.log('✅ 비밀번호 재설정 Step 3 응답:', response)
     return response.data
   },
 
   // Refresh token
   refreshToken: async (): Promise<RefreshResponse> => {
-    console.log("🔄 refreshToken API 호출 시작")
-    console.log("🔄 호출 URL:", API_ENDPOINTS.AUTH.REFRESH)
+    console.log('🔄 refreshToken API 호출 시작')
+    console.log('🔄 호출 URL:', API_ENDPOINTS.AUTH.REFRESH)
     console.log(
-      "🔄 API_BASE_URL:",
-      import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
+      '🔄 API_BASE_URL:',
+      import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
     )
 
     try {
       const response = await api.post<RefreshResponse>(
         API_ENDPOINTS.AUTH.REFRESH
       )
-      console.log("✅ refreshToken API 성공:", response)
+      console.log('✅ refreshToken API 성공:', response)
       return response.data.data as RefreshResponse
     } catch (error: unknown) {
-      console.error("❌ refreshToken API 실패:", error)
-      console.error("❌ 에러 상세:", {
+      console.error('❌ refreshToken API 실패:', error)
+      console.error('❌ 에러 상세:', {
         status: (error as { response?: { status: number } })?.response?.status,
         statusText: (error as { response?: { statusText: string } })?.response
           ?.statusText,

@@ -1,16 +1,16 @@
-import { useAuthContext } from "../contexts/AuthContext"
+import { useAuthContext } from '../contexts/AuthContext'
 
 export function AuthStatus() {
-  const { isLoggedIn, user, isLoading, logout } = useAuthContext()
+  const { isAuthenticated, user, isLoading, logout } = useAuthContext()
 
   if (isLoading) {
     return <div>인증 상태 확인 중...</div>
   }
 
   return (
-    <div style={{ padding: "1rem", border: "1px solid #ccc", margin: "1rem" }}>
+    <div style={{ padding: '1rem', border: '1px solid #ccc', margin: '1rem' }}>
       <h3>인증 상태</h3>
-      {isLoggedIn ? (
+      {isAuthenticated ? (
         <div>
           <p>✅ 로그인됨</p>
           <p>

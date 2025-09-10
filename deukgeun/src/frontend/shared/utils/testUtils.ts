@@ -1,11 +1,54 @@
+// React Testing Library render 함수
+import React from 'react'
+import { render as rtlRender } from '@testing-library/react'
+import { BrowserRouter } from 'react-router-dom'
+
+export const render = (ui: React.ReactElement, options = {}) => {
+  const Wrapper = ({ children }: { children: React.ReactNode }) => {
+    return React.createElement(BrowserRouter, {}, children)
+  }
+  return rtlRender(ui, { wrapper: Wrapper, ...options })
+}
+
+// Mock 토큰
+export const mockToken = 'mock-jwt-token'
+
+// Mock API 응답들
+export const mockApiResponses = {
+  '/api/auth/login': {
+    success: true,
+    data: {
+      accessToken: mockToken,
+      refreshToken: 'mock-refresh-token',
+      user: createMockUser(),
+    },
+  },
+  '/api/user/profile': {
+    success: true,
+    data: createMockUser(),
+  },
+  '/api/workout/plans': {
+    success: true,
+    data: [createMockWorkoutPlan()],
+  },
+  '/api/workout/sessions': {
+    success: true,
+    data: [createMockWorkoutSession()],
+  },
+  '/api/workout/goals': {
+    success: true,
+    data: [createMockWorkoutGoal()],
+  },
+}
+
 // Mock 데이터 생성 함수들
 export const createMockUser = (overrides = {}) => ({
   id: 1,
-  email: "test@example.com",
-  nickname: "테스트 사용자",
-  birthDate: new Date("1990-01-01"),
-  gender: "male",
-  phoneNumber: "010-1234-5678",
+  email: 'test@example.com',
+  nickname: '테스트 사용자',
+  birthDate: new Date('1990-01-01'),
+  gender: 'male',
+  phoneNumber: '010-1234-5678',
   level: 1,
   exp: 0,
   createdAt: new Date(),
@@ -14,8 +57,8 @@ export const createMockUser = (overrides = {}) => ({
 })
 
 export const createMockAuthToken = (overrides = {}) => ({
-  accessToken: "mock-access-token",
-  refreshToken: "mock-refresh-token",
+  accessToken: 'mock-access-token',
+  refreshToken: 'mock-refresh-token',
   expiresIn: 3600,
   ...overrides,
 })
@@ -24,7 +67,7 @@ export const createMockWorkoutSession = (overrides = {}) => ({
   id: 1,
   userId: 1,
   duration: 60,
-  intensity: "medium" as const,
+  intensity: 'medium' as const,
   completedAt: new Date(),
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -34,11 +77,25 @@ export const createMockWorkoutSession = (overrides = {}) => ({
 export const createMockWorkoutGoal = (overrides = {}) => ({
   id: 1,
   userId: 1,
-  type: "frequency" as const,
+  type: 'frequency' as const,
   target: 5,
   current: 3,
-  period: "week" as const,
+  period: 'week' as const,
   isCompleted: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+})
+
+export const createMockWorkoutPlan = (overrides = {}) => ({
+  id: 1,
+  userId: 1,
+  name: '테스트 운동 계획',
+  description: '테스트용 운동 계획입니다',
+  exercises: [],
+  duration: 60,
+  difficulty: 'medium' as const,
+  isActive: true,
   createdAt: new Date(),
   updatedAt: new Date(),
   ...overrides,
@@ -46,9 +103,9 @@ export const createMockWorkoutGoal = (overrides = {}) => ({
 
 export const createMockGym = (overrides = {}) => ({
   id: 1,
-  name: "테스트 헬스장",
-  address: "서울시 강남구 테스트로 123",
-  phone: "02-1234-5678",
+  name: '테스트 헬스장',
+  address: '서울시 강남구 테스트로 123',
+  phone: '02-1234-5678',
   latitude: 37.5665,
   longitude: 126.978,
   rating: 4.5,
@@ -59,19 +116,22 @@ export const createMockGym = (overrides = {}) => ({
 
 export const createMockMachine = (overrides = {}) => ({
   id: 1,
-  name: "벤치프레스",
-  category: "chest",
-  description: "가슴 근육을 발달시키는 운동기구",
-  imageUrl: "/img/machine/chest-press.png",
-  instructions: "벤치에 누워 바벨을 들어올리는 운동",
+  name: '벤치프레스',
+  category: 'chest',
+  description: '가슴 근육을 발달시키는 운동기구',
+  imageUrl: '/img/machine/chest-press.png',
+  instructions: '벤치에 누워 바벨을 들어올리는 운동',
+  difficulty: 'intermediate',
+  tips: ['올바른 자세를 유지하세요', '무게보다는 정확한 동작에 집중하세요'],
+  videoUrl: '/video/bench-press.mp4',
   ...overrides,
 })
 
 export const createMockPost = (overrides = {}) => ({
   id: 1,
   userId: 1,
-  title: "테스트 포스트",
-  content: "테스트 내용입니다.",
+  title: '테스트 포스트',
+  content: '테스트 내용입니다.',
   imageUrl: null,
   likeCount: 5,
   commentCount: 3,
@@ -86,7 +146,7 @@ export const createMockPost = (overrides = {}) => ({
 export const createMockApiResponse = (
   data: any,
   success = true,
-  message = ""
+  message = ''
 ) => ({
   success,
   message,
@@ -109,12 +169,12 @@ export const simulateUserInteraction = {
   type: async (element: HTMLElement, text: string) => {
     element.focus()
     element.textContent = text
-    element.dispatchEvent(new Event("input", { bubbles: true }))
+    element.dispatchEvent(new Event('input', { bubbles: true }))
     await new Promise(resolve => setTimeout(resolve, 0))
   },
 
   submit: async (form: HTMLFormElement) => {
-    form.dispatchEvent(new Event("submit", { bubbles: true }))
+    form.dispatchEvent(new Event('submit', { bubbles: true }))
     await new Promise(resolve => setTimeout(resolve, 0))
   },
 }
@@ -151,11 +211,11 @@ export const validationHelpers = {
 // 테스트용 날짜/시간 유틸리티
 export const dateHelpers = {
   formatDate: (date: Date) => {
-    return date.toISOString().split("T")[0]
+    return date.toISOString().split('T')[0]
   },
 
   formatDateTime: (date: Date) => {
-    return date.toLocaleString("ko-KR")
+    return date.toLocaleString('ko-KR')
   },
 
   getDaysAgo: (days: number) => {
@@ -214,7 +274,7 @@ export const levelHelpers = {
   },
 
   formatLevel: (level: number) => {
-    const titles = ["초보자", "초급자", "중급자", "고급자", "전문가"]
+    const titles = ['초보자', '초급자', '중급자', '고급자', '전문가']
     const titleIndex = Math.min(Math.floor(level / 10), titles.length - 1)
     return `${titles[titleIndex]} Lv.${level}`
   },
@@ -222,7 +282,7 @@ export const levelHelpers = {
 
 // 테스트용 운동 관련 유틸리티
 export const workoutHelpers = {
-  calculateExp: (duration: number, intensity: "low" | "medium" | "high") => {
+  calculateExp: (duration: number, intensity: 'low' | 'medium' | 'high') => {
     const multipliers = { low: 1, medium: 1.5, high: 2 }
     return Math.round(duration * multipliers[intensity])
   },
@@ -237,8 +297,8 @@ export const workoutHelpers = {
     return `${mins}분`
   },
 
-  getIntensityColor: (intensity: "low" | "medium" | "high") => {
-    const colors = { low: "#4CAF50", medium: "#FF9800", high: "#F44336" }
+  getIntensityColor: (intensity: 'low' | 'medium' | 'high') => {
+    const colors = { low: '#4CAF50', medium: '#FF9800', high: '#F44336' }
     return colors[intensity]
   },
 }
@@ -264,7 +324,7 @@ export const createMockStorage = () => {
 // 테스트용 네트워크 요청 Mock
 export const createMockFetch = (mockResponses: Record<string, any>) => {
   return jest.fn((url: string, options?: RequestInit) => {
-    const mockResponse = mockResponses[url] || mockResponses["*"]
+    const mockResponse = mockResponses[url] || mockResponses['*']
 
     if (mockResponse) {
       return Promise.resolve({

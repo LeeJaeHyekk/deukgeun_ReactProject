@@ -4,56 +4,62 @@
 
 export const ROUTES = {
   // 공개 페이지
-  HOME: "/",
-  LOGIN: "/login",
-  SIGNUP: "/signup",
-  FIND_ID: "/find-id",
-  FIND_PASSWORD: "/find-password",
-  COMMUNITY: "/community",
+  HOME: '/',
+  LOGIN: '/login',
+  SIGNUP: '/signup',
+  REGISTER: '/signup', // SIGNUP과 동일한 경로
+  FIND_ID: '/find-id',
+  FIND_PASSWORD: '/find-password',
+  COMMUNITY: '/community',
 
   // 보호된 페이지 (로그인 필요)
-  MACHINE_GUIDE: "/machine-guide",
-  LOCATION: "/location",
-  WORKOUT: "/workout",
-  MYPAGE: "/mypage",
+  MACHINE_GUIDE: '/machine-guide',
+  LOCATION: '/location',
+  GYM_FINDER: '/location', // LOCATION과 동일한 경로
+  WORKOUT: '/workout',
+  MYPAGE: '/mypage',
+  MY_PAGE: '/mypage', // MYPAGE와 동일한 경로 (호환성을 위해)
 
   // 관리자 전용 페이지
-  ADMIN_DASHBOARD: "/admin",
-  ADMIN_DATABASE: "/admin/database",
-  ADMIN_PERFORMANCE: "/admin/performance",
+  ADMIN_DASHBOARD: '/admin',
+  ADMIN_DATABASE: '/admin/database',
+  ADMIN_PERFORMANCE: '/admin/performance',
+  ADMIN_USERS: '/admin/users',
+  ADMIN_MACHINES: '/admin/machines',
 
   // 에러 페이지
-  ERROR: "/error",
+  ERROR: '/error',
+  SERVER_ERROR: '/error', // ERROR와 동일한 경로
 } as const
 
 // 메뉴 아이템 정의
 export const MENU_ITEMS = [
   {
-    label: "헬스장 찾기",
+    label: '헬스장 찾기',
     path: ROUTES.LOCATION,
-    icon: "🏢",
-    description: "주변 헬스장을 찾아보세요",
+    icon: '🏢',
+    description: '주변 헬스장을 찾아보세요',
     requiresAuth: true,
   },
   {
-    label: "기구 가이드",
+    label: '기구 가이드',
     path: ROUTES.MACHINE_GUIDE,
-    icon: "🏋️‍♂️",
-    description: "운동 기구 사용법을 알아보세요",
+    icon: '🏋️‍♂️',
+    description: '운동 기구 사용법을 알아보세요',
     requiresAuth: true,
   },
   {
-    label: "커뮤니티",
+    label: '커뮤니티',
     path: ROUTES.COMMUNITY,
-    icon: "👥",
-    description: "다른 운동인들과 소통하세요",
+    icon: '👥',
+    description: '다른 운동인들과 소통하세요',
     requiresAuth: false,
   },
   {
-    label: "운동 관리",
+    label: '운동 관리',
     path: ROUTES.WORKOUT,
-    icon: "🏋️",
-    description: "운동 계획, 목표, 분석을 한 페이지에서 관리하세요",
+    icon: '🏋️',
+    description: '운동 계획, 목표, 분석을 한 페이지에서 관리하세요',
     requiresAuth: true,
   },
 ] as const

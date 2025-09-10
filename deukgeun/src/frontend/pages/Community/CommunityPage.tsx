@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback } from "react"
-import { postsApi, likesApi } from "@shared/api"
-import { showToast } from "@shared/lib"
-import { PostGrid } from "../../features/community/components/PostGrid"
-import { PostModal } from "../../features/community/components/PostModal"
-import { PostDetailModal } from "../../features/community/components/PostDetailModal"
-import styles from "./CommunityPage.module.css"
-import { Navigation } from "../../widgets/Navigation/Navigation"
-import type { PostDTO } from "../../../shared/types"
+import { useState, useEffect, useCallback } from 'react'
+import { postsApi, likesApi } from '@frontend/shared/api'
+import { showToast } from '@shared/lib'
+import { PostGrid } from '../../features/community/components/PostGrid'
+import { PostModal } from '../../features/community/components/PostModal'
+import { PostDetailModal } from '../../features/community/components/PostDetailModal'
+import styles from './CommunityPage.module.css'
+import { Navigation } from '../../widgets/Navigation/Navigation'
+import type { PostDTO } from '../../../shared/types'
 
 // 타입 정의
 interface PostCategory {
@@ -27,7 +27,7 @@ export default function CommunityPage() {
   const [selectedPost, setSelectedPost] = useState<PostDTO | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<string>("")
+  const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [availableCategories, setAvailableCategories] = useState<
     PostCategory[]
   >([])
@@ -46,8 +46,8 @@ export default function CommunityPage() {
         setAvailableCategories(categories)
       })
       .catch((error: unknown) => {
-        console.error("카테고리 로드 실패:", error)
-        showToast("카테고리를 불러오는데 실패했습니다.", "error")
+        console.error('카테고리 로드 실패:', error)
+        showToast('카테고리를 불러오는데 실패했습니다.', 'error')
       })
   }, [])
 
@@ -70,8 +70,8 @@ export default function CommunityPage() {
         setTotalPages(Math.ceil(postListResponse.total / limit))
         setCurrentPage(page)
       } catch (error: unknown) {
-        console.error("게시글 로드 실패:", error)
-        showToast("게시글을 불러오는데 실패했습니다.", "error")
+        console.error('게시글 로드 실패:', error)
+        showToast('게시글을 불러오는데 실패했습니다.', 'error')
       } finally {
         setLoading(false)
       }
@@ -97,12 +97,12 @@ export default function CommunityPage() {
   }) => {
     try {
       await postsApi.create(postData)
-      showToast("게시글이 성공적으로 작성되었습니다.", "success")
+      showToast('게시글이 성공적으로 작성되었습니다.', 'success')
       setIsModalOpen(false)
       fetchPosts(1) // 첫 페이지로 돌아가서 새 게시글 확인
     } catch (error: unknown) {
-      console.error("게시글 작성 실패:", error)
-      showToast("게시글 작성에 실패했습니다.", "error")
+      console.error('게시글 작성 실패:', error)
+      showToast('게시글 작성에 실패했습니다.', 'error')
       // 에러가 발생해도 모달은 닫지 않음 (사용자가 다시 시도할 수 있도록)
     }
   }
@@ -111,11 +111,11 @@ export default function CommunityPage() {
   const handleLikePost = async (postId: number) => {
     try {
       await likesApi.like(postId)
-      showToast("좋아요를 눌렀습니다.", "success")
+      showToast('좋아요를 눌렀습니다.', 'success')
       fetchPosts(currentPage) // 목록 새로고침
     } catch (error: unknown) {
-      console.error("좋아요 실패:", error)
-      showToast("좋아요 처리에 실패했습니다.", "error")
+      console.error('좋아요 실패:', error)
+      showToast('좋아요 처리에 실패했습니다.', 'error')
     }
   }
 
@@ -132,12 +132,12 @@ export default function CommunityPage() {
   ) => {
     try {
       await postsApi.update(postId, updateData)
-      showToast("게시글이 성공적으로 수정되었습니다.", "success")
+      showToast('게시글이 성공적으로 수정되었습니다.', 'success')
       setIsDetailModalOpen(false)
       fetchPosts(currentPage)
     } catch (error: unknown) {
-      console.error("게시글 수정 실패:", error)
-      showToast("게시글 수정에 실패했습니다.", "error")
+      console.error('게시글 수정 실패:', error)
+      showToast('게시글 수정에 실패했습니다.', 'error')
     }
   }
 
@@ -145,12 +145,12 @@ export default function CommunityPage() {
   const handleDeletePost = async (postId: number) => {
     try {
       await postsApi.remove(postId)
-      showToast("게시글이 성공적으로 삭제되었습니다.", "success")
+      showToast('게시글이 성공적으로 삭제되었습니다.', 'success')
       setIsDetailModalOpen(false)
       fetchPosts(currentPage)
     } catch (error: unknown) {
-      console.error("게시글 삭제 실패:", error)
-      showToast("게시글 삭제에 실패했습니다.", "error")
+      console.error('게시글 삭제 실패:', error)
+      showToast('게시글 삭제에 실패했습니다.', 'error')
     }
   }
 

@@ -2,21 +2,21 @@
 // MachineDTO - Data Transfer Object
 // ============================================================================
 
-export type MachineCategory = 
-  | "chest"
-  | "back"
-  | "shoulders"
-  | "arms"
-  | "legs"
-  | "core"
-  | "cardio"
-  | "fullbody"
+export type MachineCategory =
+  | 'chest'
+  | 'back'
+  | 'shoulders'
+  | 'arms'
+  | 'legs'
+  | 'core'
+  | 'cardio'
+  | 'fullbody'
 
-export type DifficultyLevel = 
-  | "beginner"
-  | "intermediate"
-  | "advanced"
-  | "expert"
+export type DifficultyLevel =
+  | 'beginner'
+  | 'intermediate'
+  | 'advanced'
+  | 'expert'
 
 export interface MachineCategoryDTO {
   id: string
@@ -40,7 +40,7 @@ export interface MachineFilterQuery {
   page?: number
   limit?: number
   sortBy?: string
-  sortOrder?: "asc" | "desc"
+  sortOrder?: 'asc' | 'desc'
 }
 
 export interface MachineDTO {
@@ -63,6 +63,9 @@ export interface MachineDTO {
   createdAt: Date
   updatedAt: Date
 }
+
+// Alias for compatibility
+export type Machine = MachineDTO
 
 // Create DTO (for creating new Machine)
 export interface CreateMachineDTO {

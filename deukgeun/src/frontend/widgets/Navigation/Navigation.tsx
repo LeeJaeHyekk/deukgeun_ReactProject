@@ -1,15 +1,19 @@
-import { Link, useNavigate, useLocation } from "react-router-dom"
-import { useState } from "react"
-import { useUserStore } from "@shared/store/userStore"
-import { useAuthContext } from "@shared/contexts/AuthContext"
-import { MENU_ITEMS, ROUTES, routeUtils } from "@shared/constants/routes"
-import { shouldShowAdminMenu } from "@shared/utils/adminUtils"
-import styles from "./Navigation.module.css"
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useState } from 'react'
+import { useUserStore } from '@frontend/shared/store/userStore'
+import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
+import {
+  MENU_ITEMS,
+  ROUTES,
+  routeUtils,
+} from '@frontend/shared/constants/routes'
+import { shouldShowAdminMenu } from '@frontend/shared/utils/adminUtils'
+import styles from './Navigation.module.css'
 
 export const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const user = useUserStore(state => state.user)
-  const { isLoggedIn, logout } = useAuthContext()
+  const { isAuthenticated, logout } = useAuthContext()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -33,7 +37,7 @@ export const Navigation = () => {
   }
 
   // 사용자 인증 상태에 따라 접근 가능한 메뉴 아이템 필터링
-  const accessibleMenuItems = routeUtils.getAccessibleMenuItems(isLoggedIn)
+  const accessibleMenuItems = routeUtils.getAccessibleMenuItems(isAuthenticated)
 
   // 관리자 메뉴 표시 여부 확인
   const showAdminMenu = shouldShowAdminMenu(user)
@@ -52,7 +56,7 @@ export const Navigation = () => {
           <li key={path}>
             <Link
               to={path}
-              className={`${styles.navMenuItem} ${isActivePage(path) ? styles.active : ""}`}
+              className={`${styles.navMenuItem} ${isActivePage(path) ? styles.active : ''}`}
               onClick={closeMobileMenu}
             >
               <span className={styles.menuIcon}>{icon}</span>
@@ -61,11 +65,11 @@ export const Navigation = () => {
           </li>
         ))}
 
-        {!isLoggedIn || !user ? (
+        {!isAuthenticated || !user ? (
           <li>
             <Link
               to={ROUTES.LOGIN}
-              className={`${styles.navMenuItem} ${isActivePage(ROUTES.LOGIN) ? styles.active : ""}`}
+              className={`${styles.navMenuItem} ${isActivePage(ROUTES.LOGIN) ? styles.active : ''}`}
               onClick={closeMobileMenu}
             >
               로그인
@@ -76,7 +80,7 @@ export const Navigation = () => {
             <li>
               <Link
                 to={ROUTES.MYPAGE}
-                className={`${styles.navMenuItem} ${isActivePage(ROUTES.MYPAGE) ? styles.active : ""}`}
+                className={`${styles.navMenuItem} ${isActivePage(ROUTES.MYPAGE) ? styles.active : ''}`}
                 onClick={closeMobileMenu}
               >
                 마이페이지
@@ -86,7 +90,7 @@ export const Navigation = () => {
               <li>
                 <Link
                   to={ROUTES.ADMIN_DASHBOARD}
-                  className={`${styles.navMenuItem} ${styles.adminMenuItem} ${isActivePage(ROUTES.ADMIN_DASHBOARD) ? styles.active : ""}`}
+                  className={`${styles.navMenuItem} ${styles.adminMenuItem} ${isActivePage(ROUTES.ADMIN_DASHBOARD) ? styles.active : ''}`}
                   onClick={closeMobileMenu}
                 >
                   관리자
@@ -113,7 +117,7 @@ export const Navigation = () => {
       >
         <span
           className={`${styles.hamburger} ${
-            isMobileMenuOpen ? styles.active : ""
+            isMobileMenuOpen ? styles.active : ''
           }`}
         ></span>
       </button>
@@ -121,7 +125,7 @@ export const Navigation = () => {
       {/* 모바일 메뉴 */}
       <div
         className={`${styles.mobileMenu} ${
-          isMobileMenuOpen ? styles.open : ""
+          isMobileMenuOpen ? styles.open : ''
         }`}
       >
         <div className={styles.mobileMenuHeader}>
@@ -140,7 +144,7 @@ export const Navigation = () => {
             <li key={path}>
               <Link
                 to={path}
-                className={`${styles.mobileMenuItem} ${isActivePage(path) ? styles.active : ""}`}
+                className={`${styles.mobileMenuItem} ${isActivePage(path) ? styles.active : ''}`}
                 onClick={closeMobileMenu}
               >
                 <span className={styles.menuIcon}>{icon}</span>
@@ -149,11 +153,11 @@ export const Navigation = () => {
             </li>
           ))}
 
-          {!isLoggedIn || !user ? (
+          {!isAuthenticated || !user ? (
             <li>
               <Link
                 to={ROUTES.LOGIN}
-                className={`${styles.mobileMenuItem} ${isActivePage(ROUTES.LOGIN) ? styles.active : ""}`}
+                className={`${styles.mobileMenuItem} ${isActivePage(ROUTES.LOGIN) ? styles.active : ''}`}
                 onClick={closeMobileMenu}
               >
                 로그인
@@ -164,7 +168,7 @@ export const Navigation = () => {
               <li>
                 <Link
                   to={ROUTES.MYPAGE}
-                  className={`${styles.mobileMenuItem} ${isActivePage(ROUTES.MYPAGE) ? styles.active : ""}`}
+                  className={`${styles.mobileMenuItem} ${isActivePage(ROUTES.MYPAGE) ? styles.active : ''}`}
                   onClick={closeMobileMenu}
                 >
                   마이페이지

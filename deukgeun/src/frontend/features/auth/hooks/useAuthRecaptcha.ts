@@ -1,9 +1,9 @@
-import { useState, useCallback } from "react"
-import { useRecaptcha } from "@shared/hooks/useRecaptcha"
-import { showToast } from "@shared/lib"
+import { useState, useCallback } from 'react'
+import { useRecaptcha } from '../../../shared/hooks/useRecaptcha'
+import { showToast } from '../../../shared/lib'
 
 interface UseAuthRecaptchaOptions {
-  action: "login" | "register" | "find_id" | "find_password"
+  action: 'login' | 'register' | 'find_id' | 'find_password'
   onSuccess?: (token: string) => void
   onError?: (error: Error) => void
 }
@@ -35,8 +35,8 @@ export function useAuthRecaptcha({
       onSuccess?.(token)
     },
     onError: error => {
-      console.error("reCAPTCHA error:", error)
-      showToast("보안 인증에 실패했습니다. 다시 시도해주세요.", "error")
+      console.error('reCAPTCHA error:', error)
+      showToast('보안 인증에 실패했습니다. 다시 시도해주세요.', 'error')
       onError?.(error)
     },
   })
@@ -46,7 +46,7 @@ export function useAuthRecaptcha({
       const token = await execute()
       return token
     } catch (error) {
-      console.error("reCAPTCHA execution failed:", error)
+      console.error('reCAPTCHA execution failed:', error)
       return null
     }
   }, [execute])

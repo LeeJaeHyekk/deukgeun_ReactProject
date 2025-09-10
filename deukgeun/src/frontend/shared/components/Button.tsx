@@ -1,29 +1,33 @@
-import React from "react"
-import "./Button.css"
+import React from 'react'
+import './Button.css'
 
 interface ButtonProps {
   children: React.ReactNode
   onClick?: () => void
-  variant?: "primary" | "secondary" | "danger" | "ghost"
-  size?: "sm" | "md" | "lg"
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'success'
+  size?: 'sm' | 'md' | 'lg' | 'small' | 'medium' | 'large'
   disabled?: boolean
+  loading?: boolean
   className?: string
-  type?: "button" | "submit" | "reset"
+  type?: 'button' | 'submit' | 'reset'
+  style?: React.CSSProperties
 }
 
-export function Button({
+function Button({
   children,
   onClick,
-  variant = "primary",
-  size = "md",
+  variant = 'primary',
+  size = 'md',
   disabled = false,
-  className = "",
-  type = "button",
+  loading = false,
+  className = '',
+  type = 'button',
+  style,
 }: ButtonProps) {
-  const baseClass = "btn"
+  const baseClass = 'btn'
   const variantClass = `btn-${variant}`
   const sizeClass = `btn-${size}`
-  const disabledClass = disabled ? "btn-disabled" : ""
+  const disabledClass = disabled || loading ? 'btn-disabled' : ''
 
   const buttonClass =
     `${baseClass} ${variantClass} ${sizeClass} ${disabledClass} ${className}`.trim()
@@ -33,9 +37,13 @@ export function Button({
       type={type}
       className={buttonClass}
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || loading}
+      style={style}
     >
-      {children}
+      {loading ? '로딩 중...' : children}
     </button>
   )
 }
+
+export default Button
+export { Button }

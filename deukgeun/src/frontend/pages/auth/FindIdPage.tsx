@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { FaArrowLeft } from "react-icons/fa"
-import DatePicker from "react-datepicker"
-import "react-datepicker/dist/react-datepicker.css"
-import { useAccountRecovery } from "@features/auth/hooks/useAccountRecovery"
-import { useAuthContext } from "@shared/contexts/AuthContext"
-import { RecaptchaWidget } from "@shared/components/RecaptchaWidget"
-import { showToast } from "@shared/lib"
-import styles from "./FindIdPage.module.css"
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { FaArrowLeft } from 'react-icons/fa'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { useAccountRecovery } from '@features/auth/hooks/useAccountRecovery'
+import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
+import { RecaptchaWidget } from '@frontend/shared/components/RecaptchaWidget'
+import { showToast } from '@frontend/shared/lib'
+import styles from './FindIdPage.module.css'
 
 // 전화번호 포맷팅 유틸리티 함수
 function formatPhoneNumber(value: string): string {
   // 숫자만 추출
-  const numbers = value.replace(/[^\d]/g, "")
+  const numbers = value.replace(/[^\d]/g, '')
 
   // 길이에 따라 포맷팅
   if (numbers.length <= 3) {
@@ -26,14 +26,14 @@ function formatPhoneNumber(value: string): string {
 
 export default function FindIdPage() {
   const navigate = useNavigate()
-  const { isLoggedIn, isLoading } = useAuthContext()
+  const { isAuthenticated, isLoading } = useAuthContext()
   const { state, findIdSimple, reset } = useAccountRecovery()
 
   const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    gender: "",
-    birthday: "",
+    name: '',
+    phone: '',
+    gender: '',
+    birthday: '',
   })
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null)
   const [errors, setErrors] = useState<{
@@ -44,39 +44,39 @@ export default function FindIdPage() {
 
   // 로그인된 상태에서 접근 시 메인페이지로 리다이렉트
   useEffect(() => {
-    if (isLoggedIn) {
-      console.log("🧪 이미 로그인된 상태 - 메인페이지로 리다이렉트")
-      navigate("/", { replace: true })
+    if (isAuthenticated) {
+      console.log('🧪 이미 로그인된 상태 - 메인페이지로 리다이렉트')
+      navigate('/', { replace: true })
     }
-  }, [isLoggedIn, navigate])
+  }, [isAuthenticated, navigate])
 
   // DatePicker 네비게이션 아이콘 스타일 직접 적용
   useEffect(() => {
     const applyDatePickerStyles = () => {
       const navigationIcons = document.querySelectorAll(
-        ".react-datepicker__navigation-icon"
+        '.react-datepicker__navigation-icon'
       )
       const previousIcons = document.querySelectorAll(
-        ".react-datepicker__navigation-icon--previous"
+        '.react-datepicker__navigation-icon--previous'
       )
       const nextIcons = document.querySelectorAll(
-        ".react-datepicker__navigation-icon--next"
+        '.react-datepicker__navigation-icon--next'
       )
 
       navigationIcons.forEach(icon => {
-        ;(icon as HTMLElement).style.position = "absolute"
-        ;(icon as HTMLElement).style.top = "50%"
-        ;(icon as HTMLElement).style.left = "50%"
+        ;(icon as HTMLElement).style.position = 'absolute'
+        ;(icon as HTMLElement).style.top = '50%'
+        ;(icon as HTMLElement).style.left = '50%'
       })
 
       previousIcons.forEach(icon => {
         ;(icon as HTMLElement).style.transform =
-          "translate(-50%, -50%) rotate(180deg)"
+          'translate(-50%, -50%) rotate(180deg)'
       })
 
       nextIcons.forEach(icon => {
         ;(icon as HTMLElement).style.transform =
-          "translate(-50%, -50%) rotate(0deg)"
+          'translate(-50%, -50%) rotate(0deg)'
       })
     }
 
@@ -86,8 +86,8 @@ export default function FindIdPage() {
     // MutationObserver로 DatePicker가 동적으로 생성될 때마다 스타일 적용
     const observer = new MutationObserver(mutations => {
       mutations.forEach(mutation => {
-        if (mutation.type === "childList") {
-          const datepicker = document.querySelector(".react-datepicker")
+        if (mutation.type === 'childList') {
+          const datepicker = document.querySelector('.react-datepicker')
           if (datepicker) {
             applyDatePickerStyles()
           }
@@ -115,10 +115,10 @@ export default function FindIdPage() {
   // 생년월일 변경 핸들러
   const handleBirthdayChange = (date: Date | null) => {
     if (date) {
-      const formattedDate = date.toISOString().split("T")[0]
+      const formattedDate = date.toISOString().split('T')[0]
       setFormData(prev => ({ ...prev, birthday: formattedDate }))
     } else {
-      setFormData(prev => ({ ...prev, birthday: "" }))
+      setFormData(prev => ({ ...prev, birthday: '' }))
     }
   }
 
@@ -126,7 +126,7 @@ export default function FindIdPage() {
   const handleBirthdayInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    let inputValue = e.target.value.replace(/[^\d]/g, "") // 숫자만 추출
+    let inputValue = e.target.value.replace(/[^\d]/g, '') // 숫자만 추출
 
     // 길이에 따라 포맷팅
     if (inputValue.length <= 4) {
@@ -144,19 +144,19 @@ export default function FindIdPage() {
     const newErrors: { name?: string; phone?: string; recaptcha?: string } = {}
 
     if (!formData.name.trim()) {
-      newErrors.name = "이름을 입력해주세요."
+      newErrors.name = '이름을 입력해주세요.'
     }
 
     if (!formData.phone.trim()) {
-      newErrors.phone = "휴대폰 번호를 입력해주세요."
+      newErrors.phone = '휴대폰 번호를 입력해주세요.'
     } else if (
-      !/^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/.test(formData.phone.replace(/-/g, ""))
+      !/^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/.test(formData.phone.replace(/-/g, ''))
     ) {
-      newErrors.phone = "유효한 휴대폰 번호를 입력해주세요."
+      newErrors.phone = '유효한 휴대폰 번호를 입력해주세요.'
     }
 
     if (!recaptchaToken) {
-      newErrors.recaptcha = "보안 인증을 완료해주세요."
+      newErrors.recaptcha = '보안 인증을 완료해주세요.'
     }
 
     setErrors(newErrors)
@@ -171,12 +171,12 @@ export default function FindIdPage() {
     const submitData = {
       name: formData.name.trim(),
       phone: formData.phone.trim(),
-      gender: (formData.gender as "male" | "female" | "other") || undefined,
+      gender: (formData.gender as 'male' | 'female' | 'other') || undefined,
       birthday: formData.birthday || undefined,
       recaptchaToken: recaptchaToken!,
     }
 
-    console.log("🧪 아이디 찾기 요청:", submitData)
+    console.log('🧪 아이디 찾기 요청:', submitData)
 
     await findIdSimple(submitData)
   }
@@ -184,10 +184,10 @@ export default function FindIdPage() {
   const handleRecaptchaChange = (token: string | null) => {
     // 개발 환경에서는 더미 토큰 사용
     const finalToken = import.meta.env.DEV
-      ? "dummy-token-for-development"
+      ? 'dummy-token-for-development'
       : token
 
-    console.log("🧪 reCAPTCHA 토큰 변경:", {
+    console.log('🧪 reCAPTCHA 토큰 변경:', {
       originalToken: token,
       finalToken,
     })
@@ -203,7 +203,7 @@ export default function FindIdPage() {
     return (
       <div className={styles.pageWrapper}>
         <div className={styles.findIdBox}>
-          <div style={{ textAlign: "center", color: "#f1f3f5" }}>
+          <div style={{ textAlign: 'center', color: '#f1f3f5' }}>
             <p>인증 확인 중...</p>
           </div>
         </div>
@@ -212,11 +212,11 @@ export default function FindIdPage() {
   }
 
   // 이미 로그인된 상태라면 로딩 화면 표시
-  if (isLoggedIn) {
+  if (isAuthenticated) {
     return (
       <div className={styles.pageWrapper}>
         <div className={styles.findIdBox}>
-          <div style={{ textAlign: "center", color: "#f1f3f5" }}>
+          <div style={{ textAlign: 'center', color: '#f1f3f5' }}>
             <p>이미 로그인된 상태입니다.</p>
             <p>메인페이지로 이동 중...</p>
           </div>
@@ -226,12 +226,12 @@ export default function FindIdPage() {
   }
 
   // 결과 화면
-  if (state.step === "result") {
+  if (state.step === 'result') {
     return (
       <div className={styles.pageWrapper}>
         <div className={styles.findIdBox}>
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => navigate('/login')}
             className={styles.backButton}
             aria-label="뒤로 가기"
           >
@@ -248,23 +248,23 @@ export default function FindIdPage() {
               <strong>찾은 아이디:</strong>
               <br />
               <span className={styles.foundId}>
-                {state.data?.username || "아이디를 찾을 수 없습니다."}
+                {state.data?.username || '아이디를 찾을 수 없습니다.'}
               </span>
             </div>
           </div>
 
           <div className={styles.linkRow}>
-            <button onClick={() => reset("find-id")} className={styles.linkBtn}>
+            <button onClick={() => reset('find-id')} className={styles.linkBtn}>
               다시 시도
             </button>
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => navigate('/login')}
               className={styles.linkBtn}
             >
               로그인으로 돌아가기
             </button>
             <button
-              onClick={() => navigate("/find-password")}
+              onClick={() => navigate('/find-password')}
               className={styles.linkBtn}
             >
               비밀번호 찾기
@@ -279,7 +279,7 @@ export default function FindIdPage() {
     <div className={styles.pageWrapper}>
       <div className={styles.findIdBox}>
         <button
-          onClick={() => navigate("/login")}
+          onClick={() => navigate('/login')}
           className={styles.backButton}
           aria-label="뒤로 가기"
         >
@@ -302,14 +302,14 @@ export default function FindIdPage() {
               }
             }}
             onKeyDown={e => {
-              if (e.key === "Enter" && !state.loading) {
+              if (e.key === 'Enter' && !state.loading) {
                 e.preventDefault()
                 handleFindId()
               }
             }}
             placeholder="이름"
             className={`${styles.input} ${
-              errors.name ? styles.inputError : ""
+              errors.name ? styles.inputError : ''
             }`}
           />
           {errors.name && (
@@ -323,14 +323,14 @@ export default function FindIdPage() {
             value={formData.phone}
             onChange={handlePhoneChange}
             onKeyDown={e => {
-              if (e.key === "Enter" && !state.loading) {
+              if (e.key === 'Enter' && !state.loading) {
                 e.preventDefault()
                 handleFindId()
               }
             }}
             placeholder="휴대폰 번호 (010-0000-0000)"
             className={`${styles.input} ${
-              errors.phone ? styles.inputError : ""
+              errors.phone ? styles.inputError : ''
             }`}
             maxLength={13}
           />
@@ -385,7 +385,7 @@ export default function FindIdPage() {
           <RecaptchaWidget
             onChange={handleRecaptchaChange}
             className={styles.recaptchaWidget}
-            aria-describedby={errors.recaptcha ? "recaptcha-error" : undefined}
+            aria-describedby={errors.recaptcha ? 'recaptcha-error' : undefined}
           />
           {errors.recaptcha && (
             <span id="recaptcha-error" className={styles.errorText}>
@@ -402,9 +402,9 @@ export default function FindIdPage() {
           onClick={handleFindId}
           className={styles.findButton}
           disabled={state.loading}
-          aria-describedby={state.loading ? "loading-description" : undefined}
+          aria-describedby={state.loading ? 'loading-description' : undefined}
         >
-          {state.loading ? "처리 중..." : "아이디 찾기"}
+          {state.loading ? '처리 중...' : '아이디 찾기'}
         </button>
         {state.loading && (
           <span id="loading-description" className="sr-only">
@@ -413,11 +413,11 @@ export default function FindIdPage() {
         )}
 
         <div className={styles.linkRow}>
-          <button onClick={() => navigate("/login")} className={styles.linkBtn}>
+          <button onClick={() => navigate('/login')} className={styles.linkBtn}>
             로그인으로 돌아가기
           </button>
           <button
-            onClick={() => navigate("/find-password")}
+            onClick={() => navigate('/find-password')}
             className={styles.linkBtn}
           >
             비밀번호 찾기

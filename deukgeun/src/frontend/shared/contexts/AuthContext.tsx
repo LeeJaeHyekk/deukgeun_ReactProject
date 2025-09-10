@@ -9,7 +9,7 @@ import { useAuth } from "../hooks/useAuth"
 import { User } from "../../../shared/types"
 
 interface AuthContextType {
-  isLoggedIn: boolean
+  isAuthenticated: boolean
   user: User | null
   isLoading: boolean
   login: (user: User, token: string) => void
@@ -30,7 +30,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // useMemo로 context 값 최적화 - 실제 변경사항이 있을 때만 업데이트
   const contextValue = useMemo(() => {
     const newContext = {
-      isLoggedIn: auth.isLoggedIn,
+      isAuthenticated: auth.isLoggedIn,
       user: auth.user,
       isLoading: auth.isLoading,
       login: auth.login,
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const prevContext = prevContextRef.current
     if (
       prevContext &&
-      prevContext.isLoggedIn === newContext.isLoggedIn &&
+      prevContext.isAuthenticated === newContext.isAuthenticated &&
       prevContext.isLoading === newContext.isLoading &&
       prevContext.user?.id === newContext.user?.id &&
       prevContext.user?.email === newContext.user?.email

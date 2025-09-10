@@ -1,122 +1,146 @@
-import "@testing-library/jest-dom"
+import '@testing-library/jest-dom'
+import { vi, beforeEach, afterEach } from 'vitest'
 
-// Frontend 전용 테스트 설정 - jsdom 환경에서만 실행
-if (typeof window !== "undefined") {
-  // MSW 서버 설정 (임시로 비활성화)
-  // beforeAll(() => {
-  //   // MSW 서버 시작
-  //   server.listen({ onUnhandledRequest: 'error' })
-  // })
-
-  // afterEach(() => {
-  //   // 각 테스트 후 MSW 핸들러 리셋
-  //   server.resetHandlers()
-  // })
-
-  // afterAll(() => {
-  //   // 모든 테스트 후 MSW 서버 종료
-  //   server.close()
-  // })
-
-  // 전역 Mock 설정
-  global.ResizeObserver = jest.fn().mockImplementation(() => ({
-    observe: jest.fn(),
-    unobserve: jest.fn(),
-    disconnect: jest.fn(),
-  }))
-
-  global.IntersectionObserver = jest.fn().mockImplementation(() => ({
-    observe: jest.fn(),
-    unobserve: jest.fn(),
-    disconnect: jest.fn(),
-  }))
-
-  // localStorage Mock
-  const localStorageMock = {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-    removeItem: jest.fn(),
-    clear: jest.fn(),
-  }
-  Object.defineProperty(window, "localStorage", {
-    value: localStorageMock,
-  })
-
-  // sessionStorage Mock
-  const sessionStorageMock = {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-    removeItem: jest.fn(),
-    clear: jest.fn(),
-  }
-  Object.defineProperty(window, "sessionStorage", {
-    value: sessionStorageMock,
-  })
-
-  // fetch Mock
-  global.fetch = jest.fn()
-
-  // URL.createObjectURL Mock
-  global.URL.createObjectURL = jest.fn(() => "mocked-url")
-
-  // URL.revokeObjectURL Mock
-  global.URL.revokeObjectURL = jest.fn()
-
-  // matchMedia Mock
-  Object.defineProperty(window, "matchMedia", {
-    writable: true,
-    value: jest.fn().mockImplementation(query => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: jest.fn(), // deprecated
-      removeListener: jest.fn(), // deprecated
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    })),
-  })
-
-  // scrollTo Mock
-  window.scrollTo = jest.fn()
-
-  // getComputedStyle Mock
-  Object.defineProperty(window, "getComputedStyle", {
-    value: () => ({
-      getPropertyValue: jest.fn(),
-    }),
-  })
-}
-
-// console.error 무시 (선택적)
-const originalError = console.error
-beforeAll(() => {
-  console.error = (...args: any[]) => {
-    if (
-      typeof args[0] === "string" &&
-      args[0].includes("Warning: ReactDOM.render is no longer supported")
-    ) {
-      return
-    }
-    originalError.call(console, ...args)
-  }
+// Mock 환경 변수
+Object.defineProperty(import.meta, 'env', {
+  value: {
+    DEV: true,
+    PROD: false,
+    VITE_BACKEND_URL: 'http://localhost:5000',
+    VITE_RECAPTCHA_SITE_KEY: 'test-recaptcha-key',
+    VITE_LOCATION_JAVASCRIPT_MAP_API_KEY: 'test-kakao-key',
+    VITE_LOCATION_REST_MAP_API_KEY: 'test-kakao-rest-key',
+    VITE_GYM_API_KEY: 'test-gym-key',
+  },
+  writable: true,
 })
 
-afterAll(() => {
-  console.error = originalError
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
 })
 
-// 프론트엔드 테스트 환경 변수 설정
-if (typeof window !== "undefined") {
-  // Vite 환경에서는 import.meta.env를 사용하지만, 테스트 환경에서는 process.env를 사용
-  // 이 파일은 테스트 전용 설정이므로 그대로 유지
-  process.env.NODE_ENV = "test"
-  process.env.REACT_APP_API_URL = "http://localhost:5000"
-  process.env.REACT_APP_ENVIRONMENT = "test"
+// Mock IntersectionObserver
+global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}))
+
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}))
+
+// Mock navigator.geolocation
+Object.defineProperty(navigator, 'geolocation', {
+  writable: true,
+  value: {
+    getCurrentPosition: vi.fn(),
+    watchPosition: vi.fn(),
+    clearWatch: vi.fn(),
+  },
+})
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+}
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+})
+
+// Mock sessionStorage
+const sessionStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+}
+Object.defineProperty(window, 'sessionStorage', {
+  value: sessionStorageMock,
+})
+
+// Mock fetch
+global.fetch = vi.fn()
+
+// Mock window.location.reload (will be handled in individual tests)
+
+// Mock console methods for cleaner test output
+const originalConsoleError = console.error
+const originalConsoleWarn = console.warn
+
+beforeEach(() => {
+  // Reset all mocks before each test
+  vi.clearAllMocks()
+
+  // Reset localStorage and sessionStorage
+  localStorageMock.getItem.mockClear()
+  localStorageMock.setItem.mockClear()
+  localStorageMock.removeItem.mockClear()
+  localStorageMock.clear.mockClear()
+
+  sessionStorageMock.getItem.mockClear()
+  sessionStorageMock.setItem.mockClear()
+  sessionStorageMock.removeItem.mockClear()
+  sessionStorageMock.clear.mockClear()
+
+  // Reset fetch mock
+  vi.mocked(fetch).mockClear()
+})
+
+afterEach(() => {
+  // Restore console methods
+  console.error = originalConsoleError
+  console.warn = originalConsoleWarn
+})
+
+// Global test utilities
+export const mockUser = {
+  id: 'test-user-id',
+  email: 'test@example.com',
+  nickname: 'Test User',
+  role: 'user' as const,
+  isActive: true,
+  isEmailVerified: false,
+  isPhoneVerified: false,
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
 }
 
-// 타임아웃 설정
-jest.setTimeout(10000)
+export const mockToken = 'mock-jwt-token'
 
-// 테스트 실패 시 스택 트레이스 개선
-Error.stackTraceLimit = Infinity
+export const mockApiResponse = <T>(data: T, status = 200) => ({
+  data,
+  status,
+  statusText: 'OK',
+  headers: {},
+  config: {},
+})
+
+export const mockApiError = (message: string, status = 500) => {
+  const error = new Error(message)
+  ;(error as any).response = {
+    data: { message },
+    status,
+    statusText: 'Internal Server Error',
+    headers: {},
+    config: {},
+  }
+  return error
+}

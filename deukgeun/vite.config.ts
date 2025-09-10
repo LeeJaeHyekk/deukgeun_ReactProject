@@ -65,14 +65,26 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         // 경로 별칭 설정 (절대 경로 사용 가능)
-        "@": path.resolve(__dirname, "./src/frontend"), // 루트 경로
-        "@app": path.resolve(__dirname, "./src/frontend/app"), // 앱 관련
-        "@pages": path.resolve(__dirname, "./src/frontend/pages"), // 페이지 컴포넌트
-        "@widgets": path.resolve(__dirname, "./src/frontend/widgets"), // 위젯 컴포넌트
-        "@features": path.resolve(__dirname, "./src/frontend/features"), // 기능별 모듈
-        "@entities": path.resolve(__dirname, "./src/frontend/entities"), // 엔티티
-        "@shared": path.resolve(__dirname, "./src/frontend/shared"), // 공통 모듈
-        "@assets": path.resolve(__dirname, "./src/frontend/assets"), // 에셋
+        "@": path.resolve(__dirname, "./src"),
+        "@frontend": path.resolve(__dirname, "./src/frontend"),
+        "@backend": path.resolve(__dirname, "./src/backend"),
+        "@shared": path.resolve(__dirname, "./src/shared"),
+        "@pages": path.resolve(__dirname, "./src/frontend/pages"),
+        "@widgets": path.resolve(__dirname, "./src/frontend/widgets"),
+        "@features": path.resolve(__dirname, "./src/frontend/features"),
+        "@entities": path.resolve(__dirname, "./src/frontend/entities"),
+        "@assets": path.resolve(__dirname, "./src/frontend/assets"),
+        "@components": path.resolve(
+          __dirname,
+          "./src/frontend/shared/components"
+        ),
+        "@hooks": path.resolve(__dirname, "./src/frontend/shared/hooks"),
+        "@utils": path.resolve(__dirname, "./src/frontend/shared/utils"),
+        "@types": path.resolve(__dirname, "./src/shared/types"),
+        "@constants": path.resolve(__dirname, "./src/shared/constants"),
+        "@validation": path.resolve(__dirname, "./src/shared/validation"),
+        "@api": path.resolve(__dirname, "./src/shared/api"),
+        "@dto": path.resolve(__dirname, "./src/shared/types/dto"),
       },
     },
 

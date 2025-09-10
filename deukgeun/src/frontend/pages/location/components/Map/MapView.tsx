@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react"
-import { Gym } from "../../types/index"
-import { KAKAO_CONFIG } from "@shared/lib/env"
+import { useEffect, useRef } from 'react'
+import { Gym } from '../../types/index'
+import { KAKAO_CONFIG } from '@frontend/shared/lib/env'
 
 interface Props {
   position: { lat: number; lng: number } | null
@@ -14,7 +14,7 @@ export const MapView = ({ position, gyms }: Props) => {
   useEffect(() => {
     if (window.kakao && window.kakao.maps) return
 
-    const script = document.createElement("script")
+    const script = document.createElement('script')
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_CONFIG.JAVASCRIPT_API_KEY}&autoload=false`
     script.async = true
     script.onload = () => {
@@ -44,6 +44,6 @@ export const MapView = ({ position, gyms }: Props) => {
   }, [position, gyms])
 
   return (
-    <div id="map" ref={mapRef} style={{ width: "100%", height: "400px" }} />
+    <div id="map" ref={mapRef} style={{ width: '100%', height: '400px' }} />
   )
 }

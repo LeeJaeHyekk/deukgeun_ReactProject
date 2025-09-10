@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only index.ts",
+    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only --notify false index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "jest",

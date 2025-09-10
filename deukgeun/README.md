@@ -128,7 +128,7 @@ cd src/backend && npm install && cd ../..
 
 # 3. 환경 변수 설정
 cp env.example .env
-cp src/backend/env.example src/backend/.env
+cp src/backend/env.sample src/backend/.env
 
 # 4. 데이터베이스 설정
 npm run db:sync
@@ -136,6 +136,30 @@ npm run db:seed
 
 # 5. 개발 서버 실행
 npm run dev:full
+```
+
+### 프로젝트 구조
+
+```
+deukgeun/
+├── src/
+│   ├── frontend/           # React 프론트엔드
+│   │   ├── features/       # 기능별 모듈
+│   │   ├── pages/          # 페이지 컴포넌트
+│   │   ├── shared/         # 공통 컴포넌트, 훅, 유틸
+│   │   └── widgets/        # 위젯 컴포넌트
+│   ├── backend/            # Express 백엔드
+│   │   ├── domains/        # 도메인별 비즈니스 로직
+│   │   ├── infrastructure/ # 외부 서비스 연동
+│   │   ├── config/         # 설정 파일
+│   │   └── shared/         # 공통 타입, 유틸
+│   └── shared/             # 프론트엔드/백엔드 공통
+│       ├── types/          # 공통 타입 정의
+│       ├── constants/      # 상수 정의
+│       ├── validation/     # 유효성 검사 스키마
+│       └── api/            # API 클라이언트
+├── scripts/                # 빌드/배포 스크립트
+└── dist/                   # 빌드 결과물
 ```
 
 ### 접속 정보

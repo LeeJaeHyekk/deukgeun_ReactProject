@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
+import { vi } from 'vitest'
 import { AuthProvider } from '@frontend/shared/contexts/AuthContext'
 import { WorkoutTimerProvider } from '@frontend/shared/contexts/WorkoutTimerContext'
 import { mockUser, mockToken } from './testSetup'

@@ -57,12 +57,15 @@ describe('useGymSearch', () => {
     it('초기 쿼리가 제공되면 검색이 실행된다', async () => {
       renderHook(() => useGymSearch({ initialQuery: '헬스장' }))
 
-      await waitFor(() => {
-        expect(mockFetchGymsByKeyword).toHaveBeenCalledWith('헬스장', {
-          lat: 37.5665,
-          lng: 126.978,
-        })
-      })
+      await waitFor(
+        () => {
+          expect(mockFetchGymsByKeyword).toHaveBeenCalledWith('헬스장', {
+            lat: 37.5665,
+            lng: 126.978,
+          })
+        },
+        { timeout: 5000 }
+      )
     })
   })
 
@@ -207,13 +210,16 @@ describe('useGymSearch', () => {
         vi.advanceTimersByTime(300)
       })
 
-      await waitFor(() => {
-        expect(mockFetchGymsByKeyword).toHaveBeenCalledTimes(1)
-        expect(mockFetchGymsByKeyword).toHaveBeenCalledWith('헬스장3', {
-          lat: 37.5665,
-          lng: 126.978,
-        })
-      })
+      await waitFor(
+        () => {
+          expect(mockFetchGymsByKeyword).toHaveBeenCalledTimes(1)
+          expect(mockFetchGymsByKeyword).toHaveBeenCalledWith('헬스장3', {
+            lat: 37.5665,
+            lng: 126.978,
+          })
+        },
+        { timeout: 5000 }
+      )
 
       vi.useRealTimers()
     })

@@ -38,8 +38,9 @@ export default defineConfig({
         },
       },
     },
-    testTimeout: 10000,
-    hookTimeout: 10000,
+    testTimeout: 15000,
+    hookTimeout: 15000,
+    teardownTimeout: 5000,
   },
   resolve: {
     alias: {

@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   FaEye,
   FaEyeSlash,
-  FaUpload,
-  FaTimes,
   FaCheck,
   FaExclamationTriangle,
 } from 'react-icons/fa'
@@ -62,6 +60,15 @@ export default function SignUpPage() {
     error: recaptchaError,
   } = useRecaptchaForRegister()
 
+  // reCAPTCHA 훅 초기화 (개발 환경에서만 로깅)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 [SignUpPage] reCAPTCHA 훅 초기화:', {
+      executeRecaptcha: typeof executeRecaptcha,
+      recaptchaLoading,
+      recaptchaError,
+    })
+  }
+
   // 로그인된 상태에서 접근 시 메인페이지로 리다이렉트
   useEffect(() => {
     if (isAuthenticated) {
@@ -83,7 +90,6 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [profileImage, setProfileImage] = useState<File | null>(null)
   const [gender, setGender] = useState<string>('')
   const [birthday, setBirthday] = useState({ year: '', month: '', day: '' })
 
@@ -98,6 +104,38 @@ export default function SignUpPage() {
 
   // 에러 상태
   const [errors, setErrors] = useState<FormErrors>({})
+
+  // debounce를 위한 ref
+  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // debounced validation 함수
+  const debouncedValidateField = useCallback(
+    (field: keyof FormData, value: string, currentFormData?: FormData) => {
+      // 기존 타이머가 있으면 취소
+      if (validationTimeoutRef.current) {
+        clearTimeout(validationTimeoutRef.current)
+      }
+
+      // 300ms 후에 검증 실행
+      validationTimeoutRef.current = setTimeout(() => {
+        const validation = validateField(field, value, currentFormData)
+        setValidationStates(prev => ({
+          ...prev,
+          [field]: validation,
+        }))
+      }, 300)
+    },
+    []
+  )
+
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (validationTimeoutRef.current) {
+        clearTimeout(validationTimeoutRef.current)
+      }
+    }
+  }, [])
 
   // 이미 로그인된 상태라면 로딩 화면 표시
   if (isAuthenticated) {
@@ -116,94 +154,141 @@ export default function SignUpPage() {
   // 실시간 검증 함수
   const validateField = (
     field: keyof FormData,
-    value: string
+    value: string,
+    currentFormData?: FormData
   ): ValidationState => {
-    console.log(`🔍 실시간 검증 - ${field}:`, value)
+    // 개발 환경에서만 로깅
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🔍 실시간 검증 - ${field}:`, value)
+    }
+
+    // 현재 폼 데이터 사용 (비밀번호 확인 검증을 위해)
+    const formDataToUse = currentFormData || formData
 
     switch (field) {
       case 'email':
         if (!value) {
-          console.log(`❌ 이메일 빈 값`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`❌ 이메일 빈 값`)
+          }
           return { isValid: false, message: '이메일을 입력해주세요.' }
         } else if (!validation.email(value)) {
-          console.log(`❌ 이메일 형식 오류:`, value)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`❌ 이메일 형식 오류:`, value)
+          }
           return {
             isValid: false,
             message:
               '올바른 이메일 형식으로 입력해주세요. (예: user@example.com)',
           }
         } else {
-          console.log(`✅ 이메일 검증 통과`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`✅ 이메일 검증 통과`)
+          }
           return { isValid: true, message: '사용 가능한 이메일입니다.' }
         }
 
       case 'password':
         if (!value) {
-          console.log(`❌ 비밀번호 빈 값`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`❌ 비밀번호 빈 값`)
+          }
           return { isValid: false, message: '비밀번호를 입력해주세요.' }
         } else if (value.length < 8) {
-          console.log(`❌ 비밀번호 길이 부족:`, value.length, '자')
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`❌ 비밀번호 길이 부족:`, value.length, '자')
+          }
           return {
             isValid: false,
             message: '비밀번호는 최소 8자 이상이어야 합니다.',
           }
         } else if (!/(?=.*[a-zA-Z])(?=.*[0-9])/.test(value)) {
-          console.log(`❌ 비밀번호 복잡도 부족`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`❌ 비밀번호 복잡도 부족`)
+          }
           return { isValid: false, message: '영문과 숫자를 포함해야 합니다.' }
         } else {
-          console.log(`✅ 비밀번호 검증 통과`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`✅ 비밀번호 검증 통과`)
+          }
           return { isValid: true, message: '안전한 비밀번호입니다.' }
         }
 
       case 'confirmPassword':
         if (!value) {
-          console.log(`❌ 비밀번호 확인 빈 값`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`❌ 비밀번호 확인 빈 값`)
+          }
           return { isValid: false, message: '비밀번호 확인을 입력해주세요.' }
-        } else if (value !== formData.password) {
-          console.log(`❌ 비밀번호 불일치`)
+        } else if (value !== formDataToUse.password) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log(
+              `❌ 비밀번호 불일치 - 입력값: "${value}", 기존 비밀번호: "${formDataToUse.password}"`,
+              {
+                formDataToUse,
+                currentFormData: currentFormData ? 'provided' : 'not provided',
+              }
+            )
+          }
           return { isValid: false, message: '비밀번호가 일치하지 않습니다.' }
         } else {
-          console.log(`✅ 비밀번호 확인 검증 통과`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`✅ 비밀번호 확인 검증 통과`)
+          }
           return { isValid: true, message: '비밀번호가 일치합니다.' }
         }
 
       case 'nickname':
         if (!value) {
-          console.log(`❌ 닉네임 빈 값`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`❌ 닉네임 빈 값`)
+          }
           return { isValid: false, message: '닉네임을 입력해주세요.' }
         } else if (value.length < 2 || value.length > 20) {
-          console.log(`❌ 닉네임 길이 오류:`, value.length, '자')
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`❌ 닉네임 길이 오류:`, value.length, '자')
+          }
           return {
             isValid: false,
             message: '닉네임은 2-20자 사이로 입력해주세요.',
           }
         } else if (!/^[a-zA-Z0-9가-힣_-]+$/.test(value)) {
-          console.log(`❌ 닉네임 형식 오류:`, value)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`❌ 닉네임 형식 오류:`, value)
+          }
           return {
             isValid: false,
             message:
               '닉네임에는 영문, 숫자, 한글, 언더스코어(_), 하이픈(-)만 사용 가능합니다.',
           }
         } else {
-          console.log(`✅ 닉네임 검증 통과`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`✅ 닉네임 검증 통과`)
+          }
           return { isValid: true, message: '사용 가능한 닉네임입니다.' }
         }
 
       case 'phone':
         if (!value) {
-          console.log(`✅ 휴대폰 번호 빈 값 (선택사항)`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`✅ 휴대폰 번호 빈 값 (선택사항)`)
+          }
           return { isValid: true, message: '' }
         } else if (
           !/^(010-\d{4}-\d{4}|(011|016|017|018|019)-\d{3}-\d{4})$/.test(value)
         ) {
-          console.log(`❌ 휴대폰 번호 형식 오류:`, value)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`❌ 휴대폰 번호 형식 오류:`, value)
+          }
           return {
             isValid: false,
             message:
               '올바른 형식으로 입력해주세요. (010-xxxx-xxxx 또는 011-xxx-xxxx)',
           }
         } else {
-          console.log(`✅ 휴대폰 번호 검증 통과`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`✅ 휴대폰 번호 검증 통과`)
+          }
           return { isValid: true, message: '올바른 휴대폰 번호입니다.' }
         }
 
@@ -280,28 +365,40 @@ export default function SignUpPage() {
     const formattedValue = formatPhoneNumber(value)
     console.log('📞 형식 변환된 값:', formattedValue)
 
-    setFormData(prev => ({ ...prev, phone: formattedValue }))
+    setFormData(prev => {
+      const newFormData = { ...prev, phone: formattedValue }
 
-    // 실시간 검증
-    console.log('🔍 전화번호 실시간 검증 시작')
-    const validation = validateField('phone', formattedValue)
-    console.log('🔍 전화번호 실시간 검증 결과:', validation)
+      // 실시간 검증
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 전화번호 실시간 검증 시작')
+      }
+      const validation = validateField('phone', formattedValue, newFormData)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 전화번호 실시간 검증 결과:', validation)
+      }
 
-    setValidationStates(prev => ({
-      ...prev,
-      phone: validation,
-    }))
+      setValidationStates(prevStates => ({
+        ...prevStates,
+        phone: validation,
+      }))
+
+      return newFormData
+    })
 
     // 에러 메시지 초기화
     if (errors.phone) {
-      console.log('🧹 전화번호 에러 메시지 초기화')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🧹 전화번호 에러 메시지 초기화')
+      }
       setErrors(prev => ({ ...prev, phone: undefined }))
     }
   }
 
   // 전화번호 키보드 이벤트 핸들러
   const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    console.log('📞 전화번호 키보드 이벤트:', e.key)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📞 전화번호 키보드 이벤트:', e.key)
+    }
 
     // 숫자, 백스페이스, 삭제, 탭, 화살표 키만 허용
     const allowedKeys = [
@@ -332,19 +429,38 @@ export default function SignUpPage() {
 
   // 입력값 변경 핸들러
   const handleInputChange = (field: keyof FormData, value: string) => {
-    console.log(`📝 입력값 변경 - ${field}:`, value)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`📝 입력값 변경 - ${field}:`, value)
+    }
 
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData(prev => {
+      const newFormData = { ...prev, [field]: value }
 
-    // 실시간 검증
-    console.log(`🔍 실시간 검증 시작 - ${field}`)
-    const validation = validateField(field, value)
-    console.log(`🔍 실시간 검증 결과 - ${field}:`, validation)
+      // 비밀번호가 변경되면 비밀번호 확인도 다시 검증
+      if (field === 'password' && prev.confirmPassword) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔄 비밀번호 변경으로 인한 비밀번호 확인 재검증')
+        }
+        // 비밀번호 확인 재검증을 위한 debounced 호출
+        setTimeout(() => {
+          const confirmValidation = validateField(
+            'confirmPassword',
+            prev.confirmPassword,
+            newFormData
+          )
+          setValidationStates(prevStates => ({
+            ...prevStates,
+            confirmPassword: confirmValidation,
+          }))
+        }, 50) // 짧은 지연으로 비밀번호 확인 재검증
+      }
 
-    setValidationStates(prev => ({
-      ...prev,
-      [field]: validation,
-    }))
+      // debounced 실시간 검증 (빠른 타이핑 시 성능 최적화)
+      // 현재 폼 데이터를 전달하여 정확한 검증 수행
+      debouncedValidateField(field, value, newFormData)
+
+      return newFormData
+    })
 
     // 에러 메시지 초기화
     if (errors[field]) {
@@ -353,64 +469,17 @@ export default function SignUpPage() {
     }
   }
 
-  // 이미지 변경 핸들러
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('🖼️ 이미지 변경 핸들러 호출')
-    const file = event.target.files?.[0]
-
-    if (file) {
-      console.log('📁 선택된 파일:', {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-      })
-
-      // 파일 크기 검증 (5MB 이하)
-      if (file.size > 5 * 1024 * 1024) {
-        console.log('❌ 파일 크기 초과:', file.size, 'bytes')
-        showToast('파일 크기는 5MB 이하여야 합니다.', 'error')
-        return
-      }
-      console.log('✅ 파일 크기 검증 통과')
-
-      // 파일 타입 검증
-      if (!file.type.startsWith('image/')) {
-        console.log('❌ 이미지 파일이 아님:', file.type)
-        showToast('이미지 파일만 업로드 가능합니다.', 'error')
-        return
-      }
-      console.log('✅ 파일 타입 검증 통과')
-
-      console.log('✅ 이미지 파일 설정 완료')
-      setProfileImage(file)
-    } else {
-      console.log('📁 파일이 선택되지 않음')
-    }
-  }
-
-  // 이미지 제거 핸들러
-  const handleRemoveImage = () => {
-    console.log('🗑️ 이미지 제거 핸들러 호출')
-    setProfileImage(null)
-    const fileInput = document.getElementById(
-      'profileImage'
-    ) as HTMLInputElement
-    if (fileInput) {
-      fileInput.value = ''
-      console.log('✅ 파일 입력 필드 초기화 완료')
-    } else {
-      console.log('⚠️ 파일 입력 필드를 찾을 수 없음')
-    }
-    console.log('✅ 이미지 제거 완료')
-  }
-
   // 폼 검증 함수
   const validateForm = (): boolean => {
-    console.log('🔍 폼 검증 시작')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 폼 검증 시작')
+    }
     const newErrors: FormErrors = {}
 
     // 이메일 검증
-    console.log('🔍 이메일 검증:', formData.email)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 이메일 검증:', formData.email)
+    }
     if (!validation.required(formData.email)) {
       newErrors.email = '이메일을 입력해주세요.'
       console.log('❌ 이메일 필수 입력 오류')
@@ -423,7 +492,12 @@ export default function SignUpPage() {
     }
 
     // 비밀번호 검증
-    console.log('🔍 비밀번호 검증:', formData.password ? '입력됨' : '입력안됨')
+    if (process.env.NODE_ENV === 'development') {
+      console.log(
+        '🔍 비밀번호 검증:',
+        formData.password ? '입력됨' : '입력안됨'
+      )
+    }
     if (!validation.required(formData.password)) {
       newErrors.password = '비밀번호를 입력해주세요.'
       console.log('❌ 비밀번호 필수 입력 오류')
@@ -435,19 +509,32 @@ export default function SignUpPage() {
     }
 
     // 비밀번호 확인 검증
-    console.log('🔍 비밀번호 확인 검증')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 비밀번호 확인 검증:', {
+        password: formData.password ? '입력됨' : '입력안됨',
+        confirmPassword: formData.confirmPassword ? '입력됨' : '입력안됨',
+        match: formData.password === formData.confirmPassword,
+      })
+    }
     if (!validation.required(formData.confirmPassword)) {
       newErrors.confirmPassword = '비밀번호 확인을 입력해주세요.'
       console.log('❌ 비밀번호 확인 필수 입력 오류')
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = '비밀번호가 일치하지 않습니다.'
-      console.log('❌ 비밀번호 불일치 오류')
+      console.log(
+        '❌ 비밀번호 불일치 오류 - 비밀번호:',
+        formData.password,
+        '확인:',
+        formData.confirmPassword
+      )
     } else {
       console.log('✅ 비밀번호 확인 검증 통과')
     }
 
     // 닉네임 검증
-    console.log('🔍 닉네임 검증:', formData.nickname)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 닉네임 검증:', formData.nickname)
+    }
     if (!validation.required(formData.nickname)) {
       newErrors.nickname = '닉네임을 입력해주세요.'
       console.log('❌ 닉네임 필수 입력 오류')
@@ -463,7 +550,9 @@ export default function SignUpPage() {
     }
 
     // 휴대폰 번호 검증 (선택사항이지만 입력된 경우)
-    console.log('🔍 휴대폰 번호 검증:', formData.phone)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 휴대폰 번호 검증:', formData.phone)
+    }
     if (
       formData.phone &&
       !/^(010-\d{4}-\d{4}|(011|016|017|018|019)-\d{3}-\d{4})$/.test(
@@ -480,7 +569,9 @@ export default function SignUpPage() {
     }
 
     // 성별 검증
-    console.log('🔍 성별 검증:', gender)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 성별 검증:', gender)
+    }
     if (!gender) {
       newErrors.gender = '성별을 선택해주세요.'
       console.log('❌ 성별 선택 오류')
@@ -492,7 +583,9 @@ export default function SignUpPage() {
     }
 
     // 생년월일 검증
-    console.log('🔍 생년월일 검증:', birthday)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 생년월일 검증:', birthday)
+    }
     if (!birthday.year || !birthday.month || !birthday.day) {
       newErrors.birthday = '생년월일을 선택해주세요.'
       console.log('❌ 생년월일 선택 오류')
@@ -507,7 +600,9 @@ export default function SignUpPage() {
 
     setErrors(newErrors)
     const isValid = Object.keys(newErrors).length === 0
-    console.log('🔍 최종 검증 결과:', isValid ? '통과' : '실패')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 최종 검증 결과:', isValid ? '통과' : '실패')
+    }
     return isValid
   }
 
@@ -524,13 +619,29 @@ export default function SignUpPage() {
     setLoading(true)
 
     try {
-      console.log('🔄 reCAPTCHA 토큰 생성 시작')
+      console.log('🔄 [SignUpPage] reCAPTCHA 토큰 생성 시작')
+      console.log('🔍 [SignUpPage] reCAPTCHA 훅 상태:', {
+        recaptchaLoading,
+        recaptchaError,
+        executeRecaptcha: typeof executeRecaptcha,
+      })
+
       // reCAPTCHA 토큰 생성
-      const recaptchaToken = await executeRecaptcha()
-      console.log(
-        '✅ reCAPTCHA 토큰 생성 성공:',
-        recaptchaToken ? recaptchaToken.substring(0, 20) + '...' : '토큰 없음'
-      )
+      let recaptchaToken: string
+      try {
+        recaptchaToken = await executeRecaptcha()
+        console.log(
+          '✅ [SignUpPage] reCAPTCHA 토큰 생성 성공:',
+          recaptchaToken ? recaptchaToken.substring(0, 20) + '...' : '토큰 없음'
+        )
+      } catch (recaptchaError) {
+        console.warn(
+          '⚠️ [SignUpPage] reCAPTCHA 토큰 생성 실패, 더미 토큰 사용:',
+          recaptchaError
+        )
+        // reCAPTCHA 실패 시 더미 토큰 사용 (개발 환경)
+        recaptchaToken = 'dummy_recaptcha_token_for_development'
+      }
 
       console.log('🔄 생년월일 변환 시작')
       // 생년월일을 Date 객체로 변환
@@ -582,8 +693,8 @@ export default function SignUpPage() {
       console.log('🎉 회원가입 완료 - 메인페이지로 이동')
       navigate('/')
     } catch (error: unknown) {
-      console.error('❌ 회원가입 실패:', error)
-      console.error('❌ 에러 상세:', {
+      console.error('❌ [SignUpPage] 회원가입 실패:', error)
+      console.error('❌ [SignUpPage] 에러 상세:', {
         name: error instanceof Error ? error.name : 'Unknown',
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
@@ -591,6 +702,7 @@ export default function SignUpPage() {
 
       let errorMessage = '회원가입에 실패했습니다. 다시 시도해주세요.'
       let errorType: 'error' | 'warning' = 'error'
+      let showDetailedError = true
 
       if (error instanceof Error) {
         errorMessage = error.message
@@ -598,14 +710,33 @@ export default function SignUpPage() {
         // 특정 에러 메시지에 따라 토스트 타입 변경
         if (
           errorMessage.includes('이미 가입된') ||
-          errorMessage.includes('이미 사용 중인')
+          errorMessage.includes('이미 사용 중인') ||
+          errorMessage.includes('중복')
         ) {
           errorType = ERROR_TOAST_TYPES.DUPLICATE
+          errorMessage =
+            '이미 가입된 이메일 또는 닉네임입니다. 다른 정보를 사용해주세요.'
         } else if (
           errorMessage.includes('입력 정보') ||
-          errorMessage.includes('형식')
+          errorMessage.includes('형식') ||
+          errorMessage.includes('유효하지 않은')
         ) {
           errorType = ERROR_TOAST_TYPES.VALIDATION
+          errorMessage = '입력하신 정보를 다시 확인해주세요.'
+        } else if (
+          errorMessage.includes('서버') ||
+          errorMessage.includes('응답을 받지 못했습니다')
+        ) {
+          errorType = 'error'
+          errorMessage =
+            '서버 연결에 문제가 있습니다. 잠시 후 다시 시도해주세요.'
+        } else if (
+          errorMessage.includes('reCAPTCHA') ||
+          errorMessage.includes('보안')
+        ) {
+          errorType = 'warning'
+          errorMessage =
+            '보안 검증에 실패했습니다. 페이지를 새로고침 후 다시 시도해주세요.'
         }
       } else if (
         typeof error === 'object' &&
@@ -622,12 +753,42 @@ export default function SignUpPage() {
         // HTTP 상태 코드에 따라 토스트 타입 변경
         if (axiosError.response?.status === 409) {
           errorType = ERROR_TOAST_TYPES.DUPLICATE
+          errorMessage =
+            '이미 가입된 이메일 또는 닉네임입니다. 다른 정보를 사용해주세요.'
         } else if (axiosError.response?.status === 400) {
           errorType = ERROR_TOAST_TYPES.VALIDATION
+          errorMessage = '입력하신 정보를 다시 확인해주세요.'
+        } else if (axiosError.response?.status >= 500) {
+          errorType = 'error'
+          errorMessage =
+            '서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.'
+        } else if (axiosError.response?.status === 403) {
+          errorType = 'warning'
+          errorMessage =
+            '보안 검증에 실패했습니다. 페이지를 새로고침 후 다시 시도해주세요.'
         }
       }
 
+      // 사용자 친화적 오류 메시지 표시 (5초 후 자동 사라짐)
+      console.log('🍞 [SignUpPage] 토스트 메시지 호출:', {
+        errorMessage,
+        errorType,
+      })
       showToast(errorMessage, errorType)
+
+      // 개발 환경에서만 상세 오류 정보 표시
+      if (process.env.NODE_ENV === 'development' && showDetailedError) {
+        setTimeout(() => {
+          const detailedMessage =
+            error instanceof Error
+              ? `개발자 정보: ${error.message}`
+              : '개발자 정보: 알 수 없는 오류가 발생했습니다.'
+          console.log('🍞 [SignUpPage] 개발자용 상세 토스트 호출:', {
+            detailedMessage,
+          })
+          showToast(detailedMessage, 'warning')
+        }, 1000)
+      }
     } finally {
       console.log('🏁 회원가입 프로세스 종료')
       setLoading(false)
@@ -881,33 +1042,6 @@ export default function SignUpPage() {
             />
             {errors.gender && (
               <span className={styles.errorText}>{errors.gender}</span>
-            )}
-          </div>
-
-          {/* 프로필 이미지 선택 */}
-          <div className={styles.fileWrapper}>
-            <label htmlFor="profileImage" className={styles.fileLabel}>
-              <FaUpload /> 프로필 이미지 선택 (선택사항)
-            </label>
-            <input
-              id="profileImage"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className={styles.hiddenFileInput}
-            />
-            {profileImage && (
-              <div className={styles.fileInfo}>
-                <span>업로드된 이미지: {profileImage.name}</span>
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className={styles.removeButton}
-                  aria-label="이미지 제거"
-                >
-                  <FaTimes />
-                </button>
-              </div>
             )}
           </div>
 

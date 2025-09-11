@@ -2,14 +2,15 @@
 // 공유 API 클라이언트
 // ============================================================================
 
-import type { ApiResponse } from "../types"
+import type { ApiResponse } from '../types'
+import { getBackendUrl } from '../utils/serverDiscovery'
 
 // API 설정
 const API_CONFIG = {
-  baseURL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5001",
+  baseURL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000',
   timeout: 10000,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 }
 
@@ -25,11 +26,39 @@ class ApiClient {
   private baseURL: string
   private timeout: number
   private defaultHeaders: Record<string, string>
+  private dynamicDiscovery: boolean
 
   constructor(config = API_CONFIG) {
     this.baseURL = config.baseURL
     this.timeout = config.timeout
     this.defaultHeaders = config.headers
+    this.dynamicDiscovery = !import.meta.env.VITE_BACKEND_URL // 환경 변수가 없으면 동적 발견 사용
+  }
+
+  // 동적 서버 URL 가져오기
+  private async getServerUrl(): Promise<string> {
+    console.log(
+      '🔍 [ApiClient] getServerUrl called, dynamicDiscovery:',
+      this.dynamicDiscovery
+    )
+
+    if (this.dynamicDiscovery) {
+      try {
+        console.log('🔍 [ApiClient] Starting dynamic server discovery...')
+        const discoveredUrl = await getBackendUrl()
+        console.log('✅ [ApiClient] Server discovered:', discoveredUrl)
+        return discoveredUrl
+      } catch (error) {
+        console.warn(
+          '⚠️ [ApiClient] Failed to discover backend server, using default URL:',
+          error
+        )
+        return this.baseURL
+      }
+    }
+
+    console.log('🔧 [ApiClient] Using static URL:', this.baseURL)
+    return this.baseURL
   }
 
   // 인증 토큰 설정
@@ -52,9 +81,9 @@ class ApiClient {
     endpoint: string,
     params?: Record<string, string | number | boolean>
   ): Promise<ApiResponse<T>> {
-    const url = this.buildUrl(endpoint, params)
+    const url = await this.buildUrl(endpoint, params)
     const response = await this.request<T>(url, {
-      method: "GET",
+      method: 'GET',
     })
     return response
   }
@@ -64,9 +93,9 @@ class ApiClient {
     endpoint: string,
     data?: unknown
   ): Promise<ApiResponse<T>> {
-    const url = this.buildUrl(endpoint)
+    const url = await this.buildUrl(endpoint)
     const response = await this.request<T>(url, {
-      method: "POST",
+      method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
     })
     return response
@@ -77,9 +106,9 @@ class ApiClient {
     endpoint: string,
     data?: unknown
   ): Promise<ApiResponse<T>> {
-    const url = this.buildUrl(endpoint)
+    const url = await this.buildUrl(endpoint)
     const response = await this.request<T>(url, {
-      method: "PUT",
+      method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
     })
     return response
@@ -87,9 +116,9 @@ class ApiClient {
 
   // DELETE 요청
   async delete<T = unknown>(endpoint: string): Promise<ApiResponse<T>> {
-    const url = this.buildUrl(endpoint)
+    const url = await this.buildUrl(endpoint)
     const response = await this.request<T>(url, {
-      method: "DELETE",
+      method: 'DELETE',
     })
     return response
   }
@@ -99,9 +128,9 @@ class ApiClient {
     endpoint: string,
     data?: unknown
   ): Promise<ApiResponse<T>> {
-    const url = this.buildUrl(endpoint)
+    const url = await this.buildUrl(endpoint)
     const response = await this.request<T>(url, {
-      method: "PATCH",
+      method: 'PATCH',
       body: data ? JSON.stringify(data) : undefined,
     })
     return response
@@ -113,12 +142,12 @@ class ApiClient {
     file: File,
     onProgress?: (progress: number) => void
   ): Promise<ApiResponse<T>> {
-    const url = this.buildUrl(endpoint)
+    const url = await this.buildUrl(endpoint)
     const formData = new FormData()
-    formData.append("file", file)
+    formData.append('file', file)
 
     const response = await this.request<T>(url, {
-      method: "POST",
+      method: 'POST',
       body: formData,
       headers: {
         // Content-Type은 브라우저가 자동으로 설정
@@ -128,11 +157,12 @@ class ApiClient {
   }
 
   // URL 빌드
-  private buildUrl(
+  private async buildUrl(
     endpoint: string,
     params?: Record<string, string | number | boolean>
-  ): string {
-    const url = new URL(endpoint, this.baseURL)
+  ): Promise<string> {
+    const serverUrl = await this.getServerUrl()
+    const url = new URL(endpoint, serverUrl)
 
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -166,7 +196,34 @@ class ApiClient {
       clearTimeout(timeoutId)
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        // 에러 응답의 본문을 읽어서 실제 에러 메시지 추출
+        let errorMessage = `HTTP error! status: ${response.status}`
+        let errorData: any = null
+
+        try {
+          const errorText = await response.text()
+          if (errorText) {
+            try {
+              errorData = JSON.parse(errorText)
+              errorMessage =
+                errorData.message || errorData.error || errorMessage
+            } catch {
+              errorMessage = errorText
+            }
+          }
+        } catch (parseError) {
+          console.warn('에러 응답 파싱 실패:', parseError)
+        }
+
+        // 에러 객체에 추가 정보 포함
+        const error = new Error(errorMessage) as any
+        error.status = response.status
+        error.statusText = response.statusText
+        error.data = errorData
+        error.url = url
+        error.method = options.method || 'GET'
+
+        throw error
       }
 
       const data = await response.json()
@@ -175,13 +232,13 @@ class ApiClient {
       clearTimeout(timeoutId)
 
       if (error instanceof Error) {
-        if (error.name === "AbortError") {
-          throw new Error("Request timeout")
+        if (error.name === 'AbortError') {
+          throw new Error('Request timeout')
         }
         throw error
       }
 
-      throw new Error("Unknown error occurred")
+      throw new Error('Unknown error occurred')
     }
   }
 
@@ -190,11 +247,11 @@ class ApiClient {
     customHeaders?: HeadersInit
   ): Promise<HeadersInit> {
     // localStorage에서 토큰 가져오기
-    const token = localStorage.getItem("accessToken")
+    const token = localStorage.getItem('accessToken')
 
-    console.log("🔐 [ApiClient] 토큰 확인:", {
+    console.log('🔐 [ApiClient] 토큰 확인:', {
       hasToken: !!token,
-      tokenPreview: token ? `${token.substring(0, 20)}...` : "없음",
+      tokenPreview: token ? `${token.substring(0, 20)}...` : '없음',
       timestamp: new Date().toISOString(),
     })
 
@@ -204,11 +261,11 @@ class ApiClient {
       ...customHeaders,
     }
 
-    console.log("🔐 [ApiClient] 생성된 헤더:", {
+    console.log('🔐 [ApiClient] 생성된 헤더:', {
       hasAuthorization: !!(headers as any).Authorization,
       authorizationPreview: (headers as any).Authorization
         ? `${String((headers as any).Authorization).substring(0, 30)}...`
-        : "없음",
+        : '없음',
       allHeaders: Object.keys(headers),
     })
 

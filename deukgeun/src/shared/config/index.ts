@@ -2,10 +2,18 @@
 // Application Configuration
 // ============================================================================
 
+// 환경변수 로그 출력 (디버깅용)
+console.log('🔍 [config] 환경변수 확인:', {
+  VITE_RECAPTCHA_SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY,
+  DEV: import.meta.env.DEV,
+  MODE: import.meta.env.MODE,
+  NODE_ENV: import.meta.env.NODE_ENV,
+})
+
 export const config = {
   // API Configuration
   api: {
-    baseURL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001',
+    baseURL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000',
     timeout: 10000,
     retryAttempts: 3,
     retryDelay: 1000,
@@ -79,95 +87,95 @@ export const API_ENDPOINTS = {
   BASE_URL: config.api.baseURL,
   // Auth endpoints
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    LOGOUT: '/auth/logout',
-    REFRESH: '/auth/refresh',
-    FORGOT_PASSWORD: '/auth/forgot-password',
-    RESET_PASSWORD: '/auth/reset-password',
-    VERIFY_EMAIL: '/auth/verify-email',
-    ACCOUNT_RECOVERY: '/auth/account-recovery',
+    LOGIN: '/api/auth/login',
+    REGISTER: '/api/auth/register',
+    LOGOUT: '/api/auth/logout',
+    REFRESH: '/api/auth/refresh',
+    FORGOT_PASSWORD: '/api/auth/forgot-password',
+    RESET_PASSWORD: '/api/auth/reset-password',
+    VERIFY_EMAIL: '/api/auth/verify-email',
+    ACCOUNT_RECOVERY: '/api/auth/account-recovery',
   },
 
   // User endpoints
   USER: {
-    PROFILE: '/user/profile',
-    UPDATE: '/user/update',
-    DELETE: '/user/delete',
-    AVATAR: '/user/avatar',
+    PROFILE: '/api/user/profile',
+    UPDATE: '/api/user/update',
+    DELETE: '/api/user/delete',
+    AVATAR: '/api/user/avatar',
   },
 
   // Machine endpoints
   MACHINES: {
-    LIST: '/machines',
-    GET_BY_ID: '/machines',
-    GET_BY_CATEGORY: '/machines/category',
-    SEARCH: '/machines/search',
-    CREATE: '/machines',
-    UPDATE: '/machines',
-    DELETE: '/machines',
+    LIST: '/api/machines',
+    GET_BY_ID: '/api/machines',
+    GET_BY_CATEGORY: '/api/machines/category',
+    SEARCH: '/api/machines/search',
+    CREATE: '/api/machines',
+    UPDATE: '/api/machines',
+    DELETE: '/api/machines',
   },
 
   // Post endpoints
   POSTS: {
-    LIST: '/community/posts',
-    GET_BY_ID: '/community/posts',
-    CREATE: '/community/posts',
-    UPDATE: '/community/posts',
-    DELETE: '/community/posts',
-    LIKE: '/community/posts/like',
-    UNLIKE: '/community/posts/unlike',
+    LIST: '/api/posts',
+    GET_BY_ID: '/api/posts',
+    CREATE: '/api/posts',
+    UPDATE: '/api/posts',
+    DELETE: '/api/posts',
+    LIKE: '/api/posts/like',
+    UNLIKE: '/api/posts/unlike',
   },
 
   // Comment endpoints
   COMMENTS: {
-    LIST: '/community/comments',
-    GET_BY_ID: '/community/comments',
-    CREATE: '/community/comments',
-    UPDATE: '/community/comments',
-    DELETE: '/community/comments',
-    LIKE: '/community/comments/like',
-    UNLIKE: '/community/comments/unlike',
+    LIST: '/api/comments',
+    GET_BY_ID: '/api/comments',
+    CREATE: '/api/comments',
+    UPDATE: '/api/comments',
+    DELETE: '/api/comments',
+    LIKE: '/api/comments/like',
+    UNLIKE: '/api/comments/unlike',
   },
 
   // Workout endpoints
   WORKOUT: {
-    SESSIONS: '/workout/sessions',
-    PLANS: '/workout/plans',
-    GOALS: '/workout/goals',
-    STATS: '/workout/stats',
+    SESSIONS: '/api/workouts/sessions',
+    PLANS: '/api/workouts/plans',
+    GOALS: '/api/workouts/goals',
+    STATS: '/api/workouts/stats',
   },
 
   // Gym endpoints
   GYMS: {
-    LIST: '/gyms',
-    GET_BY_ID: '/gyms',
-    SEARCH: '/gyms/search',
-    NEARBY: '/gyms/nearby',
+    LIST: '/api/gyms',
+    GET_BY_ID: '/api/gyms',
+    SEARCH: '/api/gyms/search',
+    NEARBY: '/api/gyms/nearby',
   },
 
   // Admin endpoints
   ADMIN: {
-    DASHBOARD: '/admin/dashboard',
-    USERS: '/admin/users',
-    POSTS: '/admin/posts',
-    MACHINES: '/admin/machines',
-    STATS: '/admin/stats',
-    SETTINGS: '/admin/settings',
+    DASHBOARD: '/api/admin/dashboard',
+    USERS: '/api/admin/users',
+    POSTS: '/api/admin/posts',
+    MACHINES: '/api/admin/machines',
+    STATS: '/api/admin/stats',
+    SETTINGS: '/api/admin/settings',
   },
 
   // Level endpoints
   LEVELS: {
-    GET_USER_LEVEL: '/levels/user',
-    GET_LEVELS: '/levels',
-    UPDATE_LEVEL: '/levels/update',
+    GET_USER_LEVEL: '/api/level/user',
+    GET_LEVELS: '/api/level',
+    UPDATE_LEVEL: '/api/level/update',
   },
 }
 
 // Environment Configuration
 export const ENV_CONFIG = {
   // Backend URL
-  BACKEND_URL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001',
+  BACKEND_URL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000',
 
   // Frontend URL
   FRONTEND_URL: import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173',

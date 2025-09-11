@@ -14,7 +14,7 @@
     "type-check": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "setup:env": "node -e \"const fs=require('fs'); fs.copyFileSync('env.example', '.env'); fs.copyFileSync('src/backend/env.sample', 'src/backend/.env'); console.log('환경 변수 파일이 생성되었습니다. .env 파일을 수정하세요.');\"",
-    "dev:backend": "cd src/backend && npm run dev",
+    "dev:backend": "node scripts/start-backend.js",
     "build:backend": "tsc -p src/backend/tsconfig.json",
     "build:backend:production": "set NODE_ENV=production && tsc -p src/backend/tsconfig.json",
     "start:backend": "node dist/backend/index.js",

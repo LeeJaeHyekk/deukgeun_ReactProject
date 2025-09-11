@@ -1,7 +1,7 @@
 // 전역 에러 핸들러
 // 애플리케이션 전체에서 발생하는 에러를 중앙에서 처리
 
-import { errorLogger } from "./ErrorLogger"
+import { errorLogger } from './ErrorLogger'
 
 interface ErrorContext {
   message: string
@@ -12,7 +12,7 @@ interface ErrorContext {
   userId?: string
   sessionId?: string
   componentStack?: string
-  errorType: "javascript" | "network" | "promise" | "resource"
+  errorType: 'javascript' | 'network' | 'promise' | 'resource'
 }
 
 interface ErrorHandlerConfig {
@@ -39,8 +39,8 @@ class ErrorNotification {
       return this.container
     }
 
-    this.container = document.createElement("div")
-    this.container.id = "error-notification-container"
+    this.container = document.createElement('div')
+    this.container.id = 'error-notification-container'
     this.container.style.cssText = `
       position: fixed;
       top: 20px;
@@ -59,34 +59,34 @@ class ErrorNotification {
 
   show(
     message: string,
-    type: "error" | "warning" | "info" = "error",
+    type: 'error' | 'warning' | 'info' = 'error',
     duration: number = 5000
   ) {
     const container = this.createContainer()
-    const notification = document.createElement("div")
+    const notification = document.createElement('div')
 
     const getTypeStyles = () => {
       switch (type) {
-        case "error":
+        case 'error':
           return {
             background:
-              "linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(220, 38, 38, 0.95) 100%)",
-            borderColor: "rgba(239, 68, 68, 0.3)",
-            icon: "❌",
+              'linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(220, 38, 38, 0.95) 100%)',
+            borderColor: 'rgba(239, 68, 68, 0.3)',
+            icon: '❌',
           }
-        case "warning":
+        case 'warning':
           return {
             background:
-              "linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%)",
-            borderColor: "rgba(245, 158, 11, 0.3)",
-            icon: "⚠️",
+              'linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%)',
+            borderColor: 'rgba(245, 158, 11, 0.3)',
+            icon: '⚠️',
           }
-        case "info":
+        case 'info':
           return {
             background:
-              "linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%)",
-            borderColor: "rgba(59, 130, 246, 0.3)",
-            icon: "ℹ️",
+              'linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%)',
+            borderColor: 'rgba(59, 130, 246, 0.3)',
+            icon: 'ℹ️',
           }
       }
     }
@@ -137,16 +137,16 @@ class ErrorNotification {
 
     // 애니메이션 효과
     requestAnimationFrame(() => {
-      notification.style.transform = "translateX(0)"
-      notification.style.opacity = "1"
+      notification.style.transform = 'translateX(0)'
+      notification.style.opacity = '1'
     })
 
     // 자동 제거
     if (duration > 0) {
       setTimeout(() => {
         if (notification.parentElement) {
-          notification.style.transform = "translateX(100%)"
-          notification.style.opacity = "0"
+          notification.style.transform = 'translateX(100%)'
+          notification.style.opacity = '0'
           setTimeout(() => {
             if (notification.parentElement) {
               notification.remove()
@@ -157,18 +157,18 @@ class ErrorNotification {
     }
 
     // 호버 효과
-    notification.addEventListener("mouseenter", () => {
-      notification.style.transform = "translateX(0) scale(1.02)"
+    notification.addEventListener('mouseenter', () => {
+      notification.style.transform = 'translateX(0) scale(1.02)'
     })
 
-    notification.addEventListener("mouseleave", () => {
-      notification.style.transform = "translateX(0) scale(1)"
+    notification.addEventListener('mouseleave', () => {
+      notification.style.transform = 'translateX(0) scale(1)'
     })
   }
 
   clear() {
     if (this.container) {
-      this.container.innerHTML = ""
+      this.container.innerHTML = ''
     }
   }
 }
@@ -191,16 +191,16 @@ class GlobalErrorHandler {
 
   private initialize() {
     // JavaScript 에러 핸들러
-    window.addEventListener("error", this.handleJavaScriptError.bind(this))
+    window.addEventListener('error', this.handleJavaScriptError.bind(this))
 
     // Promise 에러 핸들러
     window.addEventListener(
-      "unhandledrejection",
+      'unhandledrejection',
       this.handlePromiseError.bind(this)
     )
 
     // 리소스 로딩 에러 핸들러
-    window.addEventListener("error", this.handleResourceError.bind(this), true)
+    window.addEventListener('error', this.handleResourceError.bind(this), true)
 
     // 네트워크 에러 핸들러
     this.setupNetworkErrorHandling()
@@ -215,7 +215,7 @@ class GlobalErrorHandler {
       userAgent: navigator.userAgent,
       userId: this.getUserId(),
       sessionId: this.getSessionId(),
-      errorType: "javascript",
+      errorType: 'javascript',
     }
 
     this.processError(errorContext, event.error || new Error(event.message))
@@ -224,14 +224,14 @@ class GlobalErrorHandler {
   private handlePromiseError(event: PromiseRejectionEvent) {
     const error = event.reason
     const errorContext: ErrorContext = {
-      message: error?.message || "Unhandled Promise Rejection",
+      message: error?.message || 'Unhandled Promise Rejection',
       stack: error?.stack,
       timestamp: new Date(),
       url: window.location.href,
       userAgent: navigator.userAgent,
       userId: this.getUserId(),
       sessionId: this.getSessionId(),
-      errorType: "promise",
+      errorType: 'promise',
     }
 
     this.processError(
@@ -251,7 +251,7 @@ class GlobalErrorHandler {
         userAgent: navigator.userAgent,
         userId: this.getUserId(),
         sessionId: this.getSessionId(),
-        errorType: "resource",
+        errorType: 'resource',
       }
 
       this.processError(errorContext, new Error(errorContext.message))
@@ -260,22 +260,22 @@ class GlobalErrorHandler {
 
   private setupNetworkErrorHandling() {
     // 네트워크 상태 모니터링
-    window.addEventListener("online", () => {
-      console.log("Network connection restored")
+    window.addEventListener('online', () => {
+      console.log('Network connection restored')
     })
 
-    window.addEventListener("offline", () => {
+    window.addEventListener('offline', () => {
       const errorContext: ErrorContext = {
-        message: "Network connection lost",
+        message: 'Network connection lost',
         timestamp: new Date(),
         url: window.location.href,
         userAgent: navigator.userAgent,
         userId: this.getUserId(),
         sessionId: this.getSessionId(),
-        errorType: "network",
+        errorType: 'network',
       }
 
-      this.processError(errorContext, new Error("Network connection lost"))
+      this.processError(errorContext, new Error('Network connection lost'))
     })
 
     // fetch 요청 실패 감지
@@ -291,7 +291,7 @@ class GlobalErrorHandler {
             userAgent: navigator.userAgent,
             userId: this.getUserId(),
             sessionId: this.getSessionId(),
-            errorType: "network",
+            errorType: 'network',
           }
 
           this.processError(errorContext, new Error(`HTTP ${response.status}`))
@@ -305,7 +305,7 @@ class GlobalErrorHandler {
           userAgent: navigator.userAgent,
           userId: this.getUserId(),
           sessionId: this.getSessionId(),
-          errorType: "network",
+          errorType: 'network',
         }
 
         this.processError(
@@ -355,32 +355,32 @@ class GlobalErrorHandler {
 
   private getErrorSeverity(
     errorContext: ErrorContext
-  ): "low" | "medium" | "high" | "critical" {
+  ): 'low' | 'medium' | 'high' | 'critical' {
     // 에러 타입과 메시지에 따라 심각도 결정
-    if (errorContext.errorType === "network") {
-      return "high"
+    if (errorContext.errorType === 'network') {
+      return 'high'
     }
-    if (errorContext.errorType === "javascript") {
-      if (errorContext.message.includes("ResizeObserver")) {
-        return "low"
+    if (errorContext.errorType === 'javascript') {
+      if (errorContext.message.includes('ResizeObserver')) {
+        return 'low'
       }
-      return "medium"
+      return 'medium'
     }
-    if (errorContext.errorType === "resource") {
-      return "low"
+    if (errorContext.errorType === 'resource') {
+      return 'low'
     }
-    return "medium"
+    return 'medium'
   }
 
   private logError(errorContext: ErrorContext, error: Error) {
-    console.group("🚨 Global Error Handler")
-    console.error("Error:", error)
-    console.error("Context:", errorContext)
-    console.error("Timestamp:", errorContext.timestamp.toISOString())
-    console.error("URL:", errorContext.url)
-    console.error("User Agent:", errorContext.userAgent)
+    console.group('🚨 Global Error Handler')
+    console.error('Error:', error)
+    console.error('Context:', errorContext)
+    console.error('Timestamp:', errorContext.timestamp.toISOString())
+    console.error('URL:', errorContext.url)
+    console.error('User Agent:', errorContext.userAgent)
     if (errorContext.userId) {
-      console.error("User ID:", errorContext.userId)
+      console.error('User ID:', errorContext.userId)
     }
     console.groupEnd()
   }
@@ -399,9 +399,9 @@ class GlobalErrorHandler {
       //   body: JSON.stringify(reportData),
       // })
 
-      console.log("Error report sent to server:", reportData)
+      console.log('Error report sent to server:', reportData)
     } catch (reportError) {
-      console.error("Failed to report error to server:", reportError)
+      console.error('Failed to report error to server:', reportError)
     }
   }
 
@@ -413,11 +413,22 @@ class GlobalErrorHandler {
   }
 
   private shouldNotifyUser(errorContext: ErrorContext): boolean {
+    // 회원가입 페이지나 회원가입 API 관련 에러에서는 GlobalErrorHandler 토스트를 표시하지 않음
+    if (
+      errorContext.url.includes('/signup') ||
+      errorContext.message.includes('register') ||
+      errorContext.message.includes('회원가입') ||
+      errorContext.message.includes('HTTP 409') ||
+      errorContext.message.includes('HTTP 400')
+    ) {
+      return false
+    }
+
     // 네트워크 에러나 중요한 JavaScript 에러만 사용자에게 알림
     return (
-      errorContext.errorType === "network" ||
-      (errorContext.errorType === "javascript" &&
-        !errorContext.message.includes("ResizeObserver"))
+      errorContext.errorType === 'network' ||
+      (errorContext.errorType === 'javascript' &&
+        !errorContext.message.includes('ResizeObserver'))
     )
   }
 
@@ -430,39 +441,39 @@ class GlobalErrorHandler {
 
   private getNotificationType(
     errorContext: ErrorContext
-  ): "error" | "warning" | "info" {
+  ): 'error' | 'warning' | 'info' {
     switch (errorContext.errorType) {
-      case "network":
-        return "error"
-      case "javascript":
-        return "warning"
-      case "resource":
-        return "info"
-      case "promise":
-        return "warning"
+      case 'network':
+        return 'error'
+      case 'javascript':
+        return 'warning'
+      case 'resource':
+        return 'info'
+      case 'promise':
+        return 'warning'
       default:
-        return "error"
+        return 'error'
     }
   }
 
   private getUserFriendlyMessage(errorContext: ErrorContext): string {
     switch (errorContext.errorType) {
-      case "network":
-        return "네트워크 연결에 문제가 있습니다. 인터넷 연결을 확인해주세요."
-      case "resource":
-        return "일부 리소스를 불러오는데 실패했습니다."
-      case "javascript":
-        return "애플리케이션에서 오류가 발생했습니다. 페이지를 새로고침해주세요."
-      case "promise":
-        return "작업 처리 중 오류가 발생했습니다. 다시 시도해주세요."
+      case 'network':
+        return '네트워크 연결에 문제가 있습니다. 인터넷 연결을 확인해주세요.'
+      case 'resource':
+        return '일부 리소스를 불러오는데 실패했습니다.'
+      case 'javascript':
+        return '애플리케이션에서 오류가 발생했습니다. 페이지를 새로고침해주세요.'
+      case 'promise':
+        return '작업 처리 중 오류가 발생했습니다. 다시 시도해주세요.'
       default:
-        return "예상치 못한 오류가 발생했습니다."
+        return '예상치 못한 오류가 발생했습니다.'
     }
   }
 
   private getUserId(): string | undefined {
     try {
-      const user = localStorage.getItem("user")
+      const user = localStorage.getItem('user')
       if (user) {
         const userData = JSON.parse(user)
         return userData.id || userData.email
@@ -474,7 +485,7 @@ class GlobalErrorHandler {
   }
 
   private getSessionId(): string | undefined {
-    return sessionStorage.getItem("sessionId") || undefined
+    return sessionStorage.getItem('sessionId') || undefined
   }
 
   // 공개 메서드들
@@ -502,7 +513,7 @@ class GlobalErrorHandler {
       userAgent: navigator.userAgent,
       userId: this.getUserId(),
       sessionId: this.getSessionId(),
-      errorType: "javascript",
+      errorType: 'javascript',
       ...context,
     }
 
@@ -511,7 +522,7 @@ class GlobalErrorHandler {
 
   public showNotification(
     message: string,
-    type?: "error" | "warning" | "info",
+    type?: 'error' | 'warning' | 'info',
     duration?: number
   ) {
     this.notification.show(message, type, duration)
@@ -536,7 +547,7 @@ export const clearErrorHistory = () => globalErrorHandler.clearErrorHistory()
 
 export const showErrorNotification = (
   message: string,
-  type?: "error" | "warning" | "info",
+  type?: 'error' | 'warning' | 'info',
   duration?: number
 ) => {
   globalErrorHandler.showNotification(message, type, duration)

@@ -1,4 +1,4 @@
-import { config } from "../config"
+import { config } from '../config'
 
 // Validation Functions
 export const validation = {
@@ -48,59 +48,116 @@ export const handleApiError = (error: any): string => {
     return error.message
   }
 
-  return "알 수 없는 오류가 발생했습니다."
+  return '알 수 없는 오류가 발생했습니다.'
 }
 
 // Toast Message (Simple implementation)
+let activeToasts: Set<HTMLElement> = new Set()
+
 export const showToast = (
   message: string,
-  type: "success" | "error" | "info" | "warning" = "info"
+  type: 'success' | 'error' | 'info' | 'warning' = 'info'
 ) => {
+  console.log('🍞 [showToast] 토스트 메시지 표시 시작:', { message, type })
+
+  // 기존 토스트 정리
+  activeToasts.forEach(toast => {
+    if (document.body.contains(toast)) {
+      document.body.removeChild(toast)
+    }
+  })
+  activeToasts.clear()
+
   // Create toast element
-  const toast = document.createElement("div")
+  const toast = document.createElement('div')
   toast.className = `toast toast-${type}`
   toast.textContent = message
 
+  console.log('🍞 [showToast] 토스트 엘리먼트 생성됨:', toast)
+
   // Style the toast
   Object.assign(toast.style, {
-    position: "fixed",
-    top: "20px",
-    right: "20px",
-    padding: "12px 20px",
-    borderRadius: "8px",
-    color: "white",
-    fontWeight: "500",
-    zIndex: "9999",
-    transform: "translateX(100%)",
-    transition: "transform 0.3s ease",
-    maxWidth: "300px",
-    wordBreak: "break-word",
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    padding: '16px 24px',
+    borderRadius: '12px',
+    color: 'white',
+    fontWeight: '600',
+    zIndex: '99999',
+    transform: 'translateX(100%) scale(0.9)',
+    opacity: '0',
+    transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+    maxWidth: '400px',
+    minWidth: '300px',
+    wordBreak: 'break-word',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    fontSize: '15px',
+    lineHeight: '1.5',
+    display: 'block',
+    visibility: 'visible',
+    backdropFilter: 'blur(10px)',
+    cursor: 'pointer',
   })
 
   // Set background color based on type
   const colors = {
-    success: "#4CAF50",
-    error: "#F44336",
-    info: "#2196F3",
-    warning: "#FF9800",
+    success: '#4CAF50',
+    error: '#F44336',
+    info: '#2196F3',
+    warning: '#FF9800',
   }
   toast.style.backgroundColor = colors[type]
 
+  // 클릭으로 토스트 닫기 기능
+  toast.addEventListener('click', () => {
+    console.log('🍞 [showToast] 사용자가 토스트를 클릭하여 닫음')
+    toast.style.transform = 'translateX(100%) scale(0.9)'
+    toast.style.opacity = '0'
+    setTimeout(() => {
+      if (document.body.contains(toast)) {
+        document.body.removeChild(toast)
+      }
+      activeToasts.delete(toast)
+    }, 500)
+  })
+
   // Add to DOM
+  console.log('🍞 [showToast] DOM에 토스트 추가 중...')
   document.body.appendChild(toast)
+  activeToasts.add(toast)
+  console.log('🍞 [showToast] DOM에 토스트 추가 완료')
 
   // Animate in
   setTimeout(() => {
-    toast.style.transform = "translateX(0)"
+    console.log('🍞 [showToast] 토스트 애니메이션 시작')
+    console.log('🍞 [showToast] 애니메이션 전 위치:', {
+      transform: toast.style.transform,
+      opacity: toast.style.opacity,
+    })
+    toast.style.transform = 'translateX(0) scale(1)'
+    toast.style.opacity = '1'
+    console.log('🍞 [showToast] 애니메이션 후 위치:', {
+      transform: toast.style.transform,
+      opacity: toast.style.opacity,
+    })
   }, 100)
 
-  // Remove after delay
+  // Remove after delay (7초로 연장)
+  const displayDuration = 7000 // 7초
   setTimeout(() => {
-    toast.style.transform = "translateX(100%)"
+    console.log('🍞 [showToast] 토스트 제거 시작')
+    toast.style.transform = 'translateX(100%) scale(0.9)'
+    toast.style.opacity = '0'
     setTimeout(() => {
-      document.body.removeChild(toast)
-    }, 300)
-  }, config.UI.TOAST_DURATION)
+      console.log('🍞 [showToast] 토스트 DOM에서 제거')
+      if (document.body.contains(toast)) {
+        document.body.removeChild(toast)
+      }
+      activeToasts.delete(toast)
+    }, 500)
+  }, displayDuration)
 }
 
 // Local Storage Utilities
@@ -162,6 +219,6 @@ export const format = {
   },
 
   nickname: (nickname: string): string => {
-    return nickname.trim().replace(/\s+/g, " ")
+    return nickname.trim().replace(/\s+/g, ' ')
   },
 }

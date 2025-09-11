@@ -1,12 +1,13 @@
-import { useState, useCallback } from "react"
-import { useNavigate } from "react-router-dom"
-import { showToast } from "@shared/lib"
-import { authApi } from "../api/authApi"
+import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { showToast } from '@shared/lib'
+import { authApi } from '../api/authApi'
 import type {
   FindIdStep1Request,
   FindIdStep2Request,
   ResetPasswordStep3Request,
-} from "../api/authApi"
+  FindIdSimpleRequest,
+} from '../api/authApi'
 import type {
   RecoveryState,
   RecoveryType,
@@ -16,11 +17,11 @@ import type {
   EmailBasedFindIdRequest,
   EmailBasedFindPasswordRequest,
   FindIdRequest,
-} from "../types/accountRecovery"
+} from '../types/accountRecovery'
 
 const initialState: RecoveryState = {
-  step: "initial",
-  type: "find-id",
+  step: 'initial',
+  type: 'find-id',
   loading: false,
   error: null,
   verificationId: null,
@@ -41,13 +42,13 @@ export function useAccountRecovery() {
     (error: any, defaultMessage: string) => {
       const errorMessage = error.response?.data?.message || defaultMessage
       updateState({ error: errorMessage, loading: false })
-      showToast(errorMessage, "error")
+      ;(showToast as any as any)(errorMessage, 'error')
     },
     [updateState]
   )
 
   // 초기화
-  const reset = useCallback((type: RecoveryType = "find-id") => {
+  const reset = useCallback((type: RecoveryType = 'find-id') => {
     setState({ ...initialState, type })
   }, [])
 
@@ -60,13 +61,13 @@ export function useAccountRecovery() {
         const response = await authApi.findId(data)
 
         if (response.success) {
-          showToast(response.message, "success")
-          navigate("/login")
+          ;(showToast as any)(response.message, 'success')
+          navigate('/login')
         } else {
-          handleError(response, "아이디 찾기에 실패했습니다.")
+          handleError(response, '아이디 찾기에 실패했습니다.')
         }
       } catch (error) {
-        handleError(error, "아이디 찾기에 실패했습니다.")
+        handleError(error, '아이디 찾기에 실패했습니다.')
       }
     },
     [updateState, navigate, handleError]
@@ -81,13 +82,13 @@ export function useAccountRecovery() {
         const response = await authApi.findPassword(data)
 
         if (response.success) {
-          showToast(response.message, "success")
-          navigate("/login")
+          ;(showToast as any)(response.message, 'success')
+          navigate('/login')
         } else {
-          handleError(response, "비밀번호 찾기에 실패했습니다.")
+          handleError(response, '비밀번호 찾기에 실패했습니다.')
         }
       } catch (error) {
-        handleError(error, "비밀번호 찾기에 실패했습니다.")
+        handleError(error, '비밀번호 찾기에 실패했습니다.')
       }
     },
     [updateState, navigate, handleError]
@@ -103,19 +104,19 @@ export function useAccountRecovery() {
 
         if (response.success && response.data) {
           updateState({
-            step: "code-input",
-            verificationId: "temp-verification-id",
+            step: 'code-input',
+            verificationId: 'temp-verification-id',
             loading: false,
           })
-          showToast("인증 코드를 발송했습니다.", "success")
+          ;(showToast as any)('인증 코드를 발송했습니다.', 'success')
         } else {
           handleError(
             response,
-            response.error || "인증 코드 발송에 실패했습니다."
+            response.error || '인증 코드 발송에 실패했습니다.'
           )
         }
       } catch (error) {
-        handleError(error, "인증 코드 발송에 실패했습니다.")
+        handleError(error, '인증 코드 발송에 실패했습니다.')
       }
     },
     [updateState, handleError]
@@ -130,18 +131,18 @@ export function useAccountRecovery() {
 
         if (response.success && response.data) {
           updateState({
-            step: "result",
+            step: 'result',
             loading: false,
           })
-          showToast("아이디 찾기가 완료되었습니다.", "success")
+          ;(showToast as any)('아이디 찾기가 완료되었습니다.', 'success')
         } else {
           handleError(
             response,
-            response.error || "인증 코드 검증에 실패했습니다."
+            response.error || '인증 코드 검증에 실패했습니다.'
           )
         }
       } catch (error) {
-        handleError(error, "인증 코드 검증에 실패했습니다.")
+        handleError(error, '인증 코드 검증에 실패했습니다.')
       }
     },
     [updateState, handleError]
@@ -157,19 +158,19 @@ export function useAccountRecovery() {
 
         if (response.success && response.data) {
           updateState({
-            step: "code-input",
-            verificationId: "temp-verification-id",
+            step: 'code-input',
+            verificationId: 'temp-verification-id',
             loading: false,
           })
-          showToast("인증 코드를 발송했습니다.", "success")
+          ;(showToast as any)('인증 코드를 발송했습니다.', 'success')
         } else {
           handleError(
             response,
-            response.error || "인증 코드 발송에 실패했습니다."
+            response.error || '인증 코드 발송에 실패했습니다.'
           )
         }
       } catch (error) {
-        handleError(error, "인증 코드 발송에 실패했습니다.")
+        handleError(error, '인증 코드 발송에 실패했습니다.')
       }
     },
     [updateState, handleError]
@@ -186,22 +187,22 @@ export function useAccountRecovery() {
 
         if (response.success && response.data) {
           updateState({
-            step: "password-reset",
+            step: 'password-reset',
             resetToken: response.data.resetToken,
             loading: false,
           })
-          showToast(
-            "인증이 완료되었습니다. 새 비밀번호를 입력해주세요.",
-            "success"
+          ;(showToast as any)(
+            '인증이 완료되었습니다. 새 비밀번호를 입력해주세요.',
+            'success'
           )
         } else {
           handleError(
             response,
-            response.error || "인증 코드 검증에 실패했습니다."
+            response.error || '인증 코드 검증에 실패했습니다.'
           )
         }
       } catch (error) {
-        handleError(error, "인증 코드 검증에 실패했습니다.")
+        handleError(error, '인증 코드 검증에 실패했습니다.')
       }
     },
     [updateState, handleError]
@@ -216,16 +217,19 @@ export function useAccountRecovery() {
 
         if (response.success) {
           updateState({ loading: false })
-          showToast("비밀번호가 성공적으로 변경되었습니다.", "success")
-          navigate("/login")
+          ;(showToast as any)(
+            '비밀번호가 성공적으로 변경되었습니다.',
+            'success'
+          )
+          navigate('/login')
         } else {
           handleError(
             response,
-            response.error || "비밀번호 변경에 실패했습니다."
+            response.error || '비밀번호 변경에 실패했습니다.'
           )
         }
       } catch (error) {
-        handleError(error, "비밀번호 변경에 실패했습니다.")
+        handleError(error, '비밀번호 변경에 실패했습니다.')
       }
     },
     [updateState, navigate, handleError]
@@ -233,27 +237,24 @@ export function useAccountRecovery() {
 
   // JSON 구조 기반 단순 아이디 찾기 (새로운 구현)
   const findIdSimple = useCallback(
-    async (data: FindIdRequest) => {
+    async (data: FindIdSimpleRequest) => {
       updateState({ loading: true, error: null })
 
       try {
-        const response = await authApi.findIdSimple({
-          ...data,
-          email: data.name, // name을 email로 매핑
-        })
+        const response = await authApi.findIdSimple(data)
 
         if (response.success && response.data) {
           updateState({
-            step: "result",
+            step: 'result',
             loading: false,
             data: response.data,
           })
-          showToast("아이디 찾기가 완료되었습니다.", "success")
+          ;(showToast as any)('아이디 찾기가 완료되었습니다.', 'success')
         } else {
-          handleError(response, response.error || "아이디 찾기에 실패했습니다.")
+          handleError(response, response.error || '아이디 찾기에 실패했습니다.')
         }
       } catch (error) {
-        handleError(error, "아이디 찾기에 실패했습니다.")
+        handleError(error, '아이디 찾기에 실패했습니다.')
       }
     },
     [updateState, handleError]
@@ -269,19 +270,19 @@ export function useAccountRecovery() {
 
         if (response.success && response.data) {
           updateState({
-            step: "verification",
+            step: 'verification',
             loading: false,
             data: response.data,
           })
-          showToast(
-            "사용자 인증이 완료되었습니다. 인증 코드를 확인하세요.",
-            "success"
+          ;(showToast as any)(
+            '사용자 인증이 완료되었습니다. 인증 코드를 확인하세요.',
+            'success'
           )
         } else {
-          handleError(response, response.error || "사용자 인증에 실패했습니다.")
+          handleError(response, response.error || '사용자 인증에 실패했습니다.')
         }
       } catch (error) {
-        handleError(error, "사용자 인증에 실패했습니다.")
+        handleError(error, '사용자 인증에 실패했습니다.')
       }
     },
     [updateState, handleError]
@@ -299,19 +300,22 @@ export function useAccountRecovery() {
 
         if (response.success && response.data) {
           updateState({
-            step: "result",
+            step: 'result',
             loading: false,
             data: response.data,
           })
-          showToast("비밀번호가 성공적으로 재설정되었습니다.", "success")
+          ;(showToast as any)(
+            '비밀번호가 성공적으로 재설정되었습니다.',
+            'success'
+          )
         } else {
           handleError(
             response,
-            response.error || "비밀번호 재설정에 실패했습니다."
+            response.error || '비밀번호 재설정에 실패했습니다.'
           )
         }
       } catch (error) {
-        handleError(error, "비밀번호 재설정에 실패했습니다.")
+        handleError(error, '비밀번호 재설정에 실패했습니다.')
       }
     },
     [updateState, handleError]
@@ -327,11 +331,11 @@ export function useAccountRecovery() {
 
   const goBack = useCallback(() => {
     const stepOrder: RecoveryStep[] = [
-      "initial",
-      "verification",
-      "code-input",
-      "result",
-      "password-reset",
+      'initial',
+      'verification',
+      'code-input',
+      'result',
+      'password-reset',
     ]
     const currentIndex = stepOrder.indexOf(state.step)
 

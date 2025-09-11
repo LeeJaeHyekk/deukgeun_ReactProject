@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styles from './HomePage.module.css'
 import { Navigation } from '@widgets/Navigation/Navigation'
-import { LoadingOverlay } from '@shared/ui/LoadingOverlay/LoadingOverlay'
+import { LoadingOverlay } from '@frontend/shared/ui/LoadingOverlay/LoadingOverlay'
 import { useUserStore } from '@frontend/shared/store/userStore'
 import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
 import { useLevel } from '@frontend/shared/hooks/useLevel'

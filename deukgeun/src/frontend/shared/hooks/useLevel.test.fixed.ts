@@ -80,9 +80,6 @@ describe('useLevel', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    // Date.now 모킹으로 쿨다운 우회
-    vi.spyOn(Date, 'now').mockReturnValue(0)
-
     mockUseAuth.mockReturnValue({
       user: mockUser,
       isLoggedIn: true,
@@ -107,12 +104,9 @@ describe('useLevel', () => {
       const { result } = renderHook(() => useLevel())
 
       // 초기 로딩이 완료될 때까지 대기
-      await waitFor(
-        () => {
-          expect(result.current.isLoading).toBe(false)
-        },
-        { timeout: 5000 }
-      )
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
 
       expect(result.current.levelProgress).toEqual({
         level: 1,
@@ -206,14 +200,6 @@ describe('useLevel', () => {
 
       const { result } = renderHook(() => useLevel())
 
-      // 초기 로딩 완료 대기
-      await waitFor(
-        () => {
-          expect(result.current.isLoading).toBe(false)
-        },
-        { timeout: 5000 }
-      )
-
       await act(async () => {
         await result.current.fetchRewards()
       })
@@ -233,14 +219,6 @@ describe('useLevel', () => {
       )
 
       const { result } = renderHook(() => useLevel())
-
-      // 초기 로딩 완료 대기
-      await waitFor(
-        () => {
-          expect(result.current.isLoading).toBe(false)
-        },
-        { timeout: 5000 }
-      )
 
       await act(async () => {
         await result.current.fetchRewards()
@@ -372,12 +350,9 @@ describe('useLevel', () => {
       const { result } = renderHook(() => useLevel())
 
       // 초기 로딩 완료 대기
-      await waitFor(
-        () => {
-          expect(result.current.isLoading).toBe(false)
-        },
-        { timeout: 5000 }
-      )
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
 
       // fetchLevelProgress 로딩 테스트
       let fetchPromise: Promise<void>
@@ -402,14 +377,6 @@ describe('useLevel', () => {
       )
 
       const { result } = renderHook(() => useLevel())
-
-      // 초기 로딩 완료 대기
-      await waitFor(
-        () => {
-          expect(result.current.isLoading).toBe(false)
-        },
-        { timeout: 5000 }
-      )
 
       await act(async () => {
         await result.current.fetchLevelProgress()

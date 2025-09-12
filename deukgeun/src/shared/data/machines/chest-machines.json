@@ -1,0 +1,67 @@
+{
+  "category": "chest",
+  "machines": [
+    {
+      "id": 1,
+      "machineKey": "chest_press_001",
+      "name": "체스트 프레스",
+      "nameKo": "체스트 프레스",
+      "nameEn": "Chest Press",
+      "imageUrl": "/img/machine/chest-press.png",
+      "shortDesc": "가슴 근육을 강화하는 대표적인 운동 기구입니다.",
+      "category": "chest",
+      "difficulty": "beginner",
+      "isActive": true,
+
+      "anatomy": {
+        "primaryMuscles": ["가슴(대흉근)"],
+        "secondaryMuscles": ["팔 앞쪽(삼두근)", "어깨(삼각근 전면)"],
+        "antagonistMuscles": ["등(광배근)", "어깨 뒤쪽(후면 삼각근)"],
+        "easyExplanation": "가슴 앞쪽 근육을 주로 사용하는 운동입니다. 팔과 어깨도 함께 움직여요."
+      },
+
+      "guide": {
+        "setup": "머신에 앉아서 등받이를 조절하고, 손잡이를 잡습니다. 어깨를 내리고 가슴을 펴세요.",
+        "execution": [
+          "숨을 내쉬며 손잡이를 앞으로 밀어냅니다.",
+          "가슴 근육이 수축되는 것을 느끼며 천천히 밀어내세요.",
+          "숨을 들이마시며 원래 자세로 돌아옵니다."
+        ],
+        "movementDirection": "앞으로 밀어내는 동작",
+        "idealStimulus": "가슴 앞쪽이 조여지고 뻗어지는 느낌",
+        "commonMistakes": [
+          "어깨를 으쓱하며 올리는 것",
+          "너무 빠르게 움직이는 것",
+          "등을 과도하게 아치로 만드는 것"
+        ],
+        "breathing": "밀어낼 때 내쉬고, 돌아올 때 들이마십니다.",
+        "safetyTips": [
+          "어깨 통증이 있으면 무게를 줄이세요.",
+          "등을 기대고 안정적으로 앉으세요."
+        ]
+      },
+
+      "training": {
+        "recommendedReps": "8~15회",
+        "recommendedSets": "3~4세트",
+        "restTime": "60~90초",
+        "variations": [
+          "인클라인 체스트 프레스",
+          "디클라인 체스트 프레스",
+          "덤벨 체스트 프레스"
+        ],
+        "levelUpOptions": ["무게 증가", "느린 속도로 수행", "일시정지 추가"],
+        "beginnerTips": [
+          "처음에는 가벼운 무게로 시작하세요.",
+          "가슴 근육의 수축을 느끼며 운동하세요.",
+          "어깨보다는 가슴에 집중하세요."
+        ]
+      },
+
+      "extraInfo": {
+        "dailyUseCase": "가슴 근육이 강화되면 자세가 좋아지고, 팔을 앞으로 밀어내는 힘이 늘어납니다.",
+        "searchKeywords": ["체스트프레스", "가슴운동", "대흉근", "상체운동"]
+      }
+    }
+  ]
+}

@@ -1,5 +1,5 @@
-import { Gym, FilterOption, SortOption, SortDirection } from "../types"
-import { calculateDistanceFromCurrent } from "./distanceUtils"
+import { Gym, FilterOption, SortOption, SortDirection } from '../types'
+import { calculateDistanceFromCurrent } from './distanceUtils'
 
 /**
  * 헬스장 필터링 및 정렬 유틸리티
@@ -24,15 +24,15 @@ export function filterGyms(
     // 각 필터 조건 확인
     return activeFilters.every(filter => {
       switch (filter) {
-        case "PT":
+        case 'PT':
           return gym.hasPT === true
-        case "GX":
+        case 'GX':
           return gym.hasGX === true
-        case "24시간":
+        case '24시간':
           return gym.is24Hours === true
-        case "주차":
+        case '주차':
           return gym.hasParking === true
-        case "샤워":
+        case '샤워':
           return gym.hasShower === true
         default:
           return true
@@ -45,7 +45,7 @@ export function filterGyms(
 export function sortGyms(
   gyms: Gym[],
   sortBy: SortOption,
-  direction: SortDirection = "asc"
+  direction: SortDirection = 'asc'
 ): Gym[] {
   const sortedGyms = [...gyms]
 
@@ -54,23 +54,23 @@ export function sortGyms(
     let bValue: any
 
     switch (sortBy) {
-      case "distance":
+      case 'distance':
         aValue = a.distance || Infinity
         bValue = b.distance || Infinity
         break
-      case "name":
+      case 'name':
         aValue = a.name.toLowerCase()
         bValue = b.name.toLowerCase()
         break
-      case "rating":
+      case 'rating':
         aValue = a.rating || 0
         bValue = b.rating || 0
         break
-      case "reviewCount":
+      case 'reviewCount':
         aValue = a.reviewCount || 0
         bValue = b.reviewCount || 0
         break
-      case "price":
+      case 'price':
         aValue = parsePrice(a.price)
         bValue = parsePrice(b.price)
         break
@@ -78,7 +78,7 @@ export function sortGyms(
         return 0
     }
 
-    if (direction === "asc") {
+    if (direction === 'asc') {
       return aValue > bValue ? 1 : aValue < bValue ? -1 : 0
     } else {
       return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
@@ -97,9 +97,9 @@ function parsePrice(price?: string): number {
 
   const number = parseFloat(match[1])
 
-  if (price.includes("만원")) {
+  if (price.includes('만원')) {
     return number * 10000
-  } else if (price.includes("천원")) {
+  } else if (price.includes('천원')) {
     return number * 1000
   }
 
@@ -130,6 +130,10 @@ export function processGyms(
   }
 ): Gym[] {
   let processedGyms = [...gyms]
+  console.log('🔍 processGyms 시작:', {
+    inputCount: gyms.length,
+    maxDistance: options.maxDistance,
+  })
 
   // 1. 거리 계산 추가
   if (options.currentPosition) {
@@ -137,26 +141,54 @@ export function processGyms(
       ...gym,
       distance: calculateDistanceFromCurrent(options.currentPosition!, gym),
     }))
+    console.log('🔍 거리 계산 후:', {
+      count: processedGyms.length,
+      distances: processedGyms.map(g => ({
+        name: g.name,
+        distance: g.distance,
+      })),
+    })
   }
 
-  // 2. 거리 기반 필터링
-  if (options.maxDistance && options.currentPosition) {
+  // 2. 거리 기반 필터링 (임시 비활성화 - 백엔드에서 이미 거리 필터링됨)
+  if (false && options.maxDistance && options.currentPosition) {
+    const beforeCount = processedGyms.length
     processedGyms = filterGymsByDistance(
       processedGyms,
-      options.maxDistance,
-      options.currentPosition
+      options.maxDistance!,
+      options.currentPosition!
     )
+    console.log('🔍 거리 필터링 후:', {
+      beforeCount,
+      afterCount: processedGyms.length,
+      maxDistance: options.maxDistance,
+      filtered: processedGyms.map(g => ({
+        name: g.name,
+        distance: g.distance,
+      })),
+    })
   }
 
   // 3. 필터링
+  const beforeFilterCount = processedGyms.length
   processedGyms = filterGyms(
     processedGyms,
     options.activeFilters,
     options.currentPosition
   )
+  console.log('🔍 필터링 후:', {
+    beforeCount: beforeFilterCount,
+    afterCount: processedGyms.length,
+    activeFilters: options.activeFilters,
+  })
 
   // 4. 정렬
   processedGyms = sortGyms(processedGyms, options.sortBy, options.sortDirection)
+  console.log('🔍 정렬 후:', {
+    count: processedGyms.length,
+    sortBy: options.sortBy,
+    sortDirection: options.sortDirection,
+  })
 
   return processedGyms
 }

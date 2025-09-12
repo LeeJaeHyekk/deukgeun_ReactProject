@@ -61,26 +61,87 @@ export function convertTMToWGS84(
   x: number,
   y: number
 ): { lat: number; lon: number } {
-  const DEGRAD = Math.PI / 180.0
-  const re = RE / GRID
-  const slat1 = SLAT1 * DEGRAD
-  const slat2 = SLAT2 * DEGRAD
-  const olon = OLON * DEGRAD
-  const olat = OLAT * DEGRAD
+  // 서울시 공공데이터 API의 좌표는 이미 WGS84 좌표계를 사용하는 것으로 보임
+  // TM 좌표가 아닌 경우를 대비해 검증 로직 추가
 
-  let sn =
-    Math.tan(Math.PI * 0.25 + slat2 * 0.5) /
-    Math.tan(Math.PI * 0.25 + slat1 * 0.5)
-  sn = Math.log(Math.cos(slat1) / Math.cos(slat2)) / Math.log(sn)
-  let sf = Math.tan(Math.PI * 0.25 + slat1 * 0.5)
-  sf = (Math.pow(sf, sn) * Math.cos(slat1)) / sn
-  let ro = Math.tan(Math.PI * 0.25 + olat * 0.5)
-  ro = (re * sf) / Math.pow(ro, sn)
+  // 좌표 값이 유효한 범위인지 확인
+  if (x < 100000 || x > 1000000 || y < 100000 || y > 1000000) {
+    console.warn(`⚠️ 좌표 값이 범위를 벗어남: X=${x}, Y=${y}`)
+    // 기본값 반환 (서울시청 좌표)
+    return { lat: 37.5665, lon: 126.978 }
+  }
 
-  const rs = ro - (y - YO)
-  const theta = Math.atan((x - XO) / rs)
-  const lon = theta / sn + olon
-  const lat = Math.atan(Math.pow((re * sf) / rs, 1 / sn)) * 2 - Math.PI * 0.5
+  // 서울시 공공데이터 API의 좌표는 이미 WGS84 좌표계를 사용하는 것으로 보임
+  // 직접 변환하지 않고 좌표 값을 그대로 사용
+  // 단, 좌표 값이 너무 큰 경우에만 변환 시도
 
-  return { lat: lat / DEGRAD, lon: lon / DEGRAD }
+  if (x > 200000 || y > 500000) {
+    // TM 좌표로 보이므로 변환 시도
+    const DEGRAD = Math.PI / 180.0
+    const re = RE / GRID
+    const slat1 = SLAT1 * DEGRAD
+    const slat2 = SLAT2 * DEGRAD
+    const olon = OLON * DEGRAD
+    const olat = OLAT * DEGRAD
+
+    let sn =
+      Math.tan(Math.PI * 0.25 + slat2 * 0.5) /
+      Math.tan(Math.PI * 0.25 + slat1 * 0.5)
+    sn = Math.log(Math.cos(slat1) / Math.cos(slat2)) / Math.log(sn)
+    let sf = Math.tan(Math.PI * 0.25 + slat1 * 0.5)
+    sf = (Math.pow(sf, sn) * Math.cos(slat1)) / sn
+    let ro = Math.tan(Math.PI * 0.25 + olat * 0.5)
+    ro = (re * sf) / Math.pow(ro, sn)
+
+    const rs = ro - (y - YO)
+    const theta = Math.atan((x - XO) / rs)
+    const lon = theta / sn + olon
+    const lat = Math.atan(Math.pow((re * sf) / rs, 1 / sn)) * 2 - Math.PI * 0.5
+
+    const result = { lat: lat / DEGRAD, lon: lon / DEGRAD }
+
+    // 변환된 좌표가 서울 지역 범위에 있는지 확인
+    if (
+      result.lat < 37.4 ||
+      result.lat > 37.7 ||
+      result.lon < 126.7 ||
+      result.lon > 127.2
+    ) {
+      console.warn(
+        `⚠️ 변환된 좌표가 서울 지역 범위를 벗어남: lat=${result.lat}, lon=${result.lon}`
+      )
+      // 기본값 반환 (서울시청 좌표)
+      return { lat: 37.5665, lon: 126.978 }
+    }
+
+    // 디버깅 로그 추가
+    console.log(
+      `🔍 좌표 변환: TM(${x}, ${y}) → WGS84(${result.lat.toFixed(7)}, ${result.lon.toFixed(7)})`
+    )
+
+    return result
+  } else {
+    // 이미 WGS84 좌표계로 보이므로 그대로 사용
+    const result = { lat: y / 1000000, lon: x / 1000000 }
+
+    // 좌표가 서울 지역 범위에 있는지 확인
+    if (
+      result.lat < 37.4 ||
+      result.lat > 37.7 ||
+      result.lon < 126.7 ||
+      result.lon > 127.2
+    ) {
+      console.warn(
+        `⚠️ 좌표가 서울 지역 범위를 벗어남: lat=${result.lat}, lon=${result.lon}`
+      )
+      // 기본값 반환 (서울시청 좌표)
+      return { lat: 37.5665, lon: 126.978 }
+    }
+
+    console.log(
+      `🔍 좌표 직접 사용: (${x}, ${y}) → WGS84(${result.lat.toFixed(7)}, ${result.lon.toFixed(7)})`
+    )
+
+    return result
+  }
 }

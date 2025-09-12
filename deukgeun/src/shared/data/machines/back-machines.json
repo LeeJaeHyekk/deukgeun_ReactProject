@@ -1,0 +1,77 @@
+{
+  "category": "back",
+  "machines": [
+    {
+      "id": 2,
+      "machineKey": "chinup_dip_station_001",
+      "name": "친업 앤 딥 스테이션",
+      "nameKo": "친업 앤 딥 스테이션",
+      "nameEn": "Chin-up & Dip Station",
+      "imageUrl": "/img/machine/chinup-dip-station.png",
+      "shortDesc": "등(광배근)과 가슴(대흉근)을 동시에 단련할 수 있는 복합 기구입니다.",
+      "category": "back",
+      "difficulty": "intermediate",
+      "isActive": true,
+
+      "anatomy": {
+        "primaryMuscles": ["등(광배근)", "가슴(대흉근)"],
+        "secondaryMuscles": [
+          "팔 앞쪽(이두근)",
+          "팔 뒤쪽(삼두근)",
+          "어깨(삼각근 전면/측면)"
+        ],
+        "antagonistMuscles": [
+          "어깨 뒤쪽(후면 삼각근)",
+          "등 세로근(척추기립근)"
+        ],
+        "easyExplanation": "친업은 등 근육을, 딥스는 가슴 근육을 주로 사용합니다. 팔과 어깨도 함께 쓰여요."
+      },
+
+      "guide": {
+        "setup": "손잡이를 잡고 체중을 지탱할 준비를 합니다. 턱걸이는 손바닥이 자신을 향하도록, 딥스는 평행봉을 잡고 팔꿈치를 펴세요.",
+        "execution": [
+          "친업: 숨을 내쉬며 턱이 바 위로 올라올 때까지 몸을 당깁니다.",
+          "딥스: 숨을 내쉬며 팔꿈치를 굽혀 몸을 천천히 내렸다가 팔꿈치를 펴며 올라옵니다."
+        ],
+        "movementDirection": "친업은 위로 당기는 동작, 딥스는 아래로 밀어내는 동작",
+        "idealStimulus": "친업은 등과 이두근이 땡기듯 수축, 딥스는 가슴 앞쪽이 조여지는 느낌",
+        "commonMistakes": [
+          "허리를 젖히거나 반동으로 올라가는 것",
+          "팔꿈치를 과도하게 벌리는 것",
+          "목을 앞으로 내미는 것"
+        ],
+        "breathing": "힘을 쓸 때 내쉬고, 돌아올 때 들이마십니다.",
+        "safetyTips": [
+          "무게가 버거우면 보조 밴드나 머신을 사용하세요.",
+          "어깨 통증이 있으면 범위를 줄이세요."
+        ]
+      },
+
+      "training": {
+        "recommendedReps": "6~12회",
+        "recommendedSets": "3세트",
+        "restTime": "90초",
+        "variations": [
+          "밴드 보조 친업",
+          "가슴 앞으로 당기는 친업",
+          "딥스 깊이 조절"
+        ],
+        "levelUpOptions": [
+          "무게 추가(벨트 사용)",
+          "느린 속도로 수행",
+          "한쪽 팔 집중 보조"
+        ],
+        "beginnerTips": [
+          "처음에는 2~3회만 해도 괜찮습니다.",
+          "도움 밴드를 이용하면 쉽게 시작할 수 있어요.",
+          "어깨를 으쓱하지 말고 내린 상태로 당기세요."
+        ]
+      },
+
+      "extraInfo": {
+        "dailyUseCase": "등과 가슴이 강화되면 자세가 곧아지고, 팔힘도 늘어나서 생활 속에서 힘을 더 쉽게 씁니다.",
+        "searchKeywords": ["친업", "딥스", "턱걸이", "푸쉬딥", "상체 운동"]
+      }
+    }
+  ]
+}

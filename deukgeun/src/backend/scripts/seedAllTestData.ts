@@ -450,36 +450,16 @@ async function seedAllTestData() {
     const gymRepository = connection.getRepository(Gym)
     const createdGyms = []
 
-    for (const gymData of sampleGyms) {
-      try {
-        // 기존 헬스장 확인
-        const existingGym = await gymRepository.findOne({
-          where: { name: gymData.name, address: gymData.address },
-        })
-
-        if (existingGym) {
-          createdGyms.push(existingGym)
-          console.log(`ℹ️ 헬스장 이미 존재: ${existingGym.name}`)
-        } else {
-          const gym = gymRepository.create(gymData)
-          const savedGym = await gymRepository.save(gym)
-          createdGyms.push(savedGym)
-          console.log(`✅ 헬스장 생성: ${savedGym.name}`)
-        }
-      } catch (error) {
-        console.log(
-          `⚠️ 헬스장 생성 중 오류: ${gymData.name}`,
-          (error as Error).message
-        )
-        // 기존 헬스장 조회 시도
-        const existingGym = await gymRepository.findOne({
-          where: { name: gymData.name, address: gymData.address },
-        })
-        if (existingGym) {
-          createdGyms.push(existingGym)
-        }
-      }
+    // 데이터베이스에서 기존 헬스장 데이터 가져오기
+    const existingGyms = await gymRepository.find()
+    
+    if (existingGyms.length === 0) {
+      console.log("⚠️ 데이터베이스에 헬스장 데이터가 없습니다. seedGyms.ts를 먼저 실행해주세요.")
+      return
     }
+    
+    console.log(`✅ 기존 헬스장 데이터 ${existingGyms.length}개를 가져왔습니다.`)
+    const createdGyms = existingGyms
 
     // 3. 운동 기구 데이터 생성
     console.log("\n💪 운동 기구 데이터 생성 중...")

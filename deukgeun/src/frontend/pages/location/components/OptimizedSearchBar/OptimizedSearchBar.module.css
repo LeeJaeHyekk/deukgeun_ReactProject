@@ -1,0 +1,204 @@
+/* 최적화된 검색바 스타일 */
+.searchContainer {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.searchInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.searchInputWrapper:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.searchInput {
+  flex: 1;
+  padding: 16px 20px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  background: transparent;
+  color: #374151;
+}
+
+.searchInput::placeholder {
+  color: #9ca3af;
+}
+
+.searchButton {
+  padding: 16px 20px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0 10px 10px 0;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+}
+
+.searchButton:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.searchButton:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* 자동완성 드롭다운 */
+.suggestionsDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+.suggestionItem {
+  padding: 12px 20px;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.15s ease;
+  display: flex;
+  align-items: center;
+}
+
+.suggestionItem:last-child {
+  border-bottom: none;
+}
+
+.suggestionItem:hover,
+.suggestionItem.selected {
+  background: #f8fafc;
+}
+
+.suggestionText {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.loadingText {
+  color: #6b7280;
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* 검색 힌트 */
+.searchHint {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 20px;
+  margin-top: 4px;
+  z-index: 999;
+}
+
+.searchHint span {
+  color: #6b7280;
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .searchContainer {
+    max-width: 100%;
+  }
+
+  .searchInput {
+    padding: 14px 16px;
+    font-size: 16px; /* iOS 줌 방지 */
+  }
+
+  .searchButton {
+    padding: 14px 16px;
+    font-size: 16px;
+  }
+
+  .suggestionItem {
+    padding: 10px 16px;
+  }
+
+  .suggestionText {
+    font-size: 14px;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .searchInputWrapper {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .searchInputWrapper:focus-within {
+    border-color: #60a5fa;
+    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.15);
+  }
+
+  .searchInput {
+    color: #f9fafb;
+  }
+
+  .searchInput::placeholder {
+    color: #9ca3af;
+  }
+
+  .suggestionsDropdown {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .suggestionItem {
+    border-bottom-color: #374151;
+  }
+
+  .suggestionItem:hover,
+  .suggestionItem.selected {
+    background: #374151;
+  }
+
+  .suggestionText {
+    color: #f9fafb;
+  }
+
+  .loadingText {
+    color: #9ca3af;
+  }
+
+  .searchHint {
+    background: #374151;
+    border-color: #4b5563;
+  }
+
+  .searchHint span {
+    color: #9ca3af;
+  }
+}

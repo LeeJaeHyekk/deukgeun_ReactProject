@@ -43,6 +43,41 @@ export interface MachineFilterQuery {
   sortOrder?: 'asc' | 'desc'
 }
 
+// 해부학적 정보
+export interface MachineAnatomy {
+  primaryMuscles: string[]
+  secondaryMuscles: string[]
+  antagonistMuscles: string[]
+  easyExplanation: string
+}
+
+// 운동 가이드
+export interface MachineGuide {
+  setup: string
+  execution: string[]
+  movementDirection: string
+  idealStimulus: string
+  commonMistakes: string[]
+  breathing: string
+  safetyTips: string[]
+}
+
+// 훈련 정보
+export interface MachineTraining {
+  recommendedReps: string
+  recommendedSets: string
+  restTime: string
+  variations: string[]
+  levelUpOptions: string[]
+  beginnerTips: string[]
+}
+
+// 추가 정보
+export interface MachineExtraInfo {
+  dailyUseCase: string
+  searchKeywords: string[]
+}
+
 export interface MachineDTO {
   id: number
   machineKey: string
@@ -60,6 +95,11 @@ export interface MachineDTO {
   difficulty: DifficultyLevel | DifficultyLevelDTO
   videoUrl?: string
   isActive: boolean
+  // 새로운 JSON 필드들
+  anatomy: MachineAnatomy
+  guide: MachineGuide
+  training: MachineTraining
+  extraInfo: MachineExtraInfo
   createdAt: Date
   updatedAt: Date
 }
@@ -85,6 +125,11 @@ export interface CreateMachineDTO {
   difficulty: DifficultyLevel | DifficultyLevelDTO
   videoUrl?: string
   isActive: boolean
+  // 새로운 JSON 필드들
+  anatomy: MachineAnatomy
+  guide: MachineGuide
+  training: MachineTraining
+  extraInfo: MachineExtraInfo
 }
 
 // Update DTO (for updating existing Machine)
@@ -105,6 +150,11 @@ export interface UpdateMachineDTO {
   difficulty?: DifficultyLevel | DifficultyLevelDTO
   videoUrl?: string
   isActive?: boolean
+  // 새로운 JSON 필드들
+  anatomy?: Partial<MachineAnatomy>
+  guide?: Partial<MachineGuide>
+  training?: Partial<MachineTraining>
+  extraInfo?: Partial<MachineExtraInfo>
 }
 
 // Response DTO (for API responses)

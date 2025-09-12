@@ -191,6 +191,7 @@ class ApiClient {
         ...options,
         headers,
         signal: controller.signal,
+        credentials: 'include', // 쿠키 포함하여 전송
       })
 
       clearTimeout(timeoutId)

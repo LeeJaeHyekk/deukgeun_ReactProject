@@ -3,11 +3,10 @@
     "id": 1,
     "machineKey": "chin_dip_station_001",
     "name": "친업 앤 딥 스테이션",
-    "nameKo": "친업 앤 딥 스테이션",
     "nameEn": "Chin-up & Dip Station",
-    "imageUrl": "/img/machine/chin-dip-station.png",
+    "imageUrl": "/img/machine/chin-up-and-dip-station.png",
     "shortDesc": "팔과 가슴, 등을 강화하는 대표적인 맨몸 운동 기구입니다.",
-    "category": "upper_body",
+    "category": "back",
     "difficulty": "intermediate",
     "isActive": true,
     "anatomy": {
@@ -53,7 +52,6 @@
     "id": 2,
     "machineKey": "chest_press_001",
     "name": "체스트 프레스",
-    "nameKo": "체스트 프레스",
     "nameEn": "Chest Press",
     "imageUrl": "/img/machine/chest-press.png",
     "shortDesc": "가슴 앞쪽(대흉근)을 강화하는 대표적인 기구입니다.",
@@ -95,7 +93,6 @@
     "id": 3,
     "machineKey": "leg_press_001",
     "name": "레그 프레스",
-    "nameKo": "레그 프레스",
     "nameEn": "Leg Press",
     "imageUrl": "/img/machine/leg-press.png",
     "shortDesc": "허벅지 앞쪽(대퇴사두근)을 중심으로 다리 전체를 강화하는 운동입니다.",
@@ -137,9 +134,8 @@
     "id": 4,
     "machineKey": "treadmill_001",
     "name": "트레드밀",
-    "nameKo": "트레드밀",
     "nameEn": "Treadmill",
-    "imageUrl": "/img/machine/treadmill.png",
+    "imageUrl": "/img/machine/treadmill-running.gif",
     "shortDesc": "걷기와 달리기를 할 수 있는 대표적인 유산소 기구입니다.",
     "category": "cardio",
     "difficulty": "beginner",
@@ -174,744 +170,683 @@
       "dailyUseCase": "비 오는 날에도 실내에서 걷기/달리기를 할 수 있습니다.",
       "searchKeywords": ["트레드밀", "런닝머신", "유산소"]
     }
+  },
+  {
+    "id": 5,
+    "machineKey": "bench_press_001",
+    "name": "벤치 프레스",
+    "nameEn": "Bench Press",
+    "imageUrl": "/img/machine/bench-press.png",
+    "shortDesc": "가슴 앞쪽(대흉근)을 강화하는 대표적인 웨이트 트레이닝 운동입니다.",
+    "category": "chest",
+    "difficulty": "intermediate",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["가슴 근육(대흉근)"],
+      "secondaryMuscles": ["팔 뒤쪽(삼두근)", "어깨 앞쪽(전면 삼각근)"],
+      "antagonistMuscles": ["등 근육(광배근, 승모근)"],
+      "easyExplanation": "누워서 바벨을 밀어 올리며 가슴을 단련하는 운동이에요."
+    },
+    "guide": {
+      "setup": "벤치에 누워 어깨너비보다 약간 넓게 바벨을 잡습니다.",
+      "execution": [
+        "바벨을 가슴 중앙까지 천천히 내립니다.",
+        "숨을 내쉬며 바벨을 위로 밀어 올립니다."
+      ],
+      "movementDirection": "가슴 위에서 수직으로 바벨을 밀어 올리는 동작",
+      "idealStimulus": "가슴 앞쪽이 펴지면서 타이트한 느낌",
+      "commonMistakes": ["팔꿈치를 완전히 잠그기", "허리를 과도하게 젖힘"],
+      "breathing": "내릴 때 들이마시고, 올릴 때 내쉽니다.",
+      "safetyTips": ["보조자(스팟터)와 함께 하거나 안전바를 설치하세요."]
+    },
+    "training": {
+      "recommendedReps": "6~12회",
+      "recommendedSets": "3~5세트",
+      "restTime": "90~120초",
+      "variations": ["덤벨 벤치프레스", "인클라인 벤치프레스"],
+      "levelUpOptions": ["중량 추가", "천천히 내리며 자극 유지"],
+      "beginnerTips": ["무게보다 정확한 자세를 먼저 익히세요."]
+    },
+    "extraInfo": {
+      "dailyUseCase": "무거운 물건을 가슴에서 밀어낼 때 유사한 동작입니다.",
+      "searchKeywords": ["벤치프레스", "가슴운동", "바벨운동"]
+    }
+  },
+  {
+    "id": 6,
+    "machineKey": "squat_rack_001",
+    "name": "스쿼트 랙",
+    "nameEn": "Squat Rack",
+    "imageUrl": "/img/machine/squat-rack.png",
+    "shortDesc": "하체 전체를 강화하는 대표적인 웨이트 기구입니다.",
+    "category": "legs",
+    "difficulty": "intermediate",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": [
+        "허벅지 앞쪽(대퇴사두근)",
+        "허벅지 뒤쪽(햄스트링)",
+        "엉덩이 근육(둔근)"
+      ],
+      "secondaryMuscles": ["코어", "종아리"],
+      "antagonistMuscles": ["허리 폄근(척추기립근)"],
+      "easyExplanation": "어깨에 바벨을 짊어지고 앉았다 일어나는 기본 하체 운동이에요."
+    },
+    "guide": {
+      "setup": "바벨을 어깨 위에 올리고 양발을 어깨너비로 벌립니다.",
+      "execution": [
+        "숨을 들이마시며 무릎을 굽혀 앉습니다.",
+        "허벅지가 바닥과 평행할 때까지 내려갑니다.",
+        "숨을 내쉬며 다리를 펴 일어납니다."
+      ],
+      "movementDirection": "앉았다가 위로 일어나는 동작",
+      "idealStimulus": "허벅지와 엉덩이에 뻐근한 자극",
+      "commonMistakes": ["무릎이 안쪽으로 모이기", "허리를 둥글게 말기"],
+      "breathing": "내릴 때 들이마시고, 올릴 때 내쉽니다.",
+      "safetyTips": ["안전바를 설치하고 무리하지 마세요."]
+    },
+    "training": {
+      "recommendedReps": "8~12회",
+      "recommendedSets": "3~4세트",
+      "restTime": "90초",
+      "variations": ["프론트 스쿼트", "하프 스쿼트"],
+      "levelUpOptions": ["중량 증가", "천천히 내려가기"],
+      "beginnerTips": ["처음에는 맨몸 스쿼트로 연습하세요."]
+    },
+    "extraInfo": {
+      "dailyUseCase": "의자에 앉고 일어나는 기본 동작과 유사합니다.",
+      "searchKeywords": ["스쿼트", "하체운동", "스쿼트랙"]
+    }
+  },
+  {
+    "id": 7,
+    "machineKey": "shoulder_press_001",
+    "name": "숄더 프레스",
+    "nameEn": "Shoulder Press",
+    "imageUrl": "/img/machine/shoulder-press.png",
+    "shortDesc": "어깨 근육(삼각근)을 강화하는 대표적인 운동입니다.",
+    "category": "shoulders",
+    "difficulty": "beginner",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["어깨 근육(삼각근)"],
+      "secondaryMuscles": ["팔 뒤쪽(삼두근)", "상부 가슴(쇄골 부위 대흉근)"],
+      "antagonistMuscles": ["광배근(등 근육)"],
+      "easyExplanation": "머리 위로 무게를 밀어 올리며 어깨를 단련하는 운동이에요."
+    },
+    "guide": {
+      "setup": "등을 고정하고 손잡이를 잡습니다.",
+      "execution": [
+        "숨을 내쉬며 손잡이를 머리 위로 밀어 올립니다.",
+        "숨을 들이마시며 천천히 원위치로 돌아옵니다."
+      ],
+      "movementDirection": "위로 밀기",
+      "idealStimulus": "어깨 앞·옆이 뻐근한 느낌",
+      "commonMistakes": ["허리를 과도하게 젖힘", "팔꿈치를 완전히 잠금"],
+      "breathing": "밀 때 내쉬고, 내릴 때 들이마십니다.",
+      "safetyTips": ["무게를 욕심내지 말고 천천히 늘리세요."]
+    },
+    "training": {
+      "recommendedReps": "8~12회",
+      "recommendedSets": "2~3세트",
+      "restTime": "60~90초",
+      "variations": ["덤벨 숄더 프레스", "한쪽씩 밀기"],
+      "levelUpOptions": ["중량 증가", "느리게 내리기"],
+      "beginnerTips": ["어깨가 뻐근하면 바로 쉬어주세요."]
+    },
+    "extraInfo": {
+      "dailyUseCase": "물건을 위쪽 선반에 올릴 때와 유사한 동작입니다.",
+      "searchKeywords": ["숄더프레스", "어깨운동"]
+    }
+  },
+  {
+    "id": 8,
+    "machineKey": "bicep_curl_001",
+    "name": "바이셉 컬",
+    "nameEn": "Bicep Curl",
+    "imageUrl": "/img/machine/bicep-curl.png",
+    "shortDesc": "팔 앞쪽(이두근)을 집중적으로 강화하는 운동입니다.",
+    "category": "arms",
+    "difficulty": "beginner",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["팔 앞쪽 근육(이두근)"],
+      "secondaryMuscles": ["전완근(팔뚝)"],
+      "antagonistMuscles": ["팔 뒤쪽 근육(삼두근)"],
+      "easyExplanation": "팔꿈치를 굽혀 무게를 들어 올리는 팔 운동이에요."
+    },
+    "guide": {
+      "setup": "시트에 앉아 팔꿈치를 패드 위에 고정합니다.",
+      "execution": [
+        "숨을 내쉬며 손잡이를 천천히 들어 올립니다.",
+        "숨을 들이마시며 원위치로 내립니다."
+      ],
+      "movementDirection": "아래에서 위로 들어 올리기",
+      "idealStimulus": "팔 앞쪽이 조여지는 느낌",
+      "commonMistakes": ["어깨를 같이 움직임", "반동 사용"],
+      "breathing": "올릴 때 내쉬고, 내릴 때 들이마십니다.",
+      "safetyTips": ["무게는 가볍게 시작하세요."]
+    },
+    "training": {
+      "recommendedReps": "10~15회",
+      "recommendedSets": "2~3세트",
+      "restTime": "60초",
+      "variations": ["덤벨 컬", "한쪽씩 번갈아"],
+      "levelUpOptions": ["무게 증가", "수축 지점에서 정지"],
+      "beginnerTips": ["팔꿈치를 고정하는 게 중요합니다."]
+    },
+    "extraInfo": {
+      "dailyUseCase": "물건을 들어 올릴 때와 비슷한 동작입니다.",
+      "searchKeywords": ["이두운동", "바이셉컬"]
+    }
+  },
+  {
+    "id": 9,
+    "machineKey": "leg_extension_001",
+    "name": "레그 익스텐션",
+    "nameEn": "Leg Extension",
+    "imageUrl": "/img/machine/leg-extension.png",
+    "shortDesc": "허벅지 앞쪽(대퇴사두근)을 집중적으로 강화하는 대표적인 하체 운동입니다.",
+    "category": "legs",
+    "difficulty": "beginner",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["허벅지 앞쪽 근육(대퇴사두근)"],
+      "secondaryMuscles": ["엉덩이 근육(둔근)"],
+      "antagonistMuscles": ["허벅지 뒤쪽 근육(햄스트링)"],
+      "easyExplanation": "앉아서 다리를 쭉 뻗어 허벅지 앞쪽을 강화하는 운동이에요."
+    },
+    "guide": {
+      "setup": "기구에 앉아 무릎과 발목 패드 위치를 조절해 맞춥니다.",
+      "execution": [
+        "숨을 내쉬며 다리를 천천히 펴 올립니다.",
+        "허벅지가 완전히 펴지면 1초간 유지합니다.",
+        "숨을 들이마시며 천천히 다리를 내립니다."
+      ],
+      "movementDirection": "아래에서 위로 다리를 펴 올리는 동작",
+      "idealStimulus": "허벅지 앞쪽이 타이트하게 조여지는 느낌",
+      "commonMistakes": ["무릎을 완전히 잠그기", "반동으로 빠르게 움직이기"],
+      "breathing": "올릴 때 내쉬고, 내릴 때 들이마십니다.",
+      "safetyTips": ["무릎 통증이 있다면 가볍게 시작하세요."]
+    },
+    "training": {
+      "recommendedReps": "10~15회",
+      "recommendedSets": "2~4세트",
+      "restTime": "60~90초",
+      "variations": ["한쪽 다리씩 번갈아 수행", "가벼운 무게로 천천히"],
+      "levelUpOptions": ["중량 추가", "수축 지점에서 멈추기"],
+      "beginnerTips": ["허벅지 앞쪽이 자극되는지 확인하세요."]
+    },
+    "extraInfo": {
+      "dailyUseCase": "계단 오르기나 의자에서 일어날 때 쓰이는 근육을 강화합니다.",
+      "searchKeywords": ["레그익스텐션", "허벅지앞운동", "대퇴사두근"]
+    }
+  },
+  {
+    "id": 10,
+    "machineKey": "leg_curl_001",
+    "name": "레그 컬",
+    "nameEn": "Leg Curl",
+    "imageUrl": "/img/machine/kneeling-leg-curl.png",
+    "shortDesc": "허벅지 뒤쪽(햄스트링)을 집중적으로 강화하는 운동입니다.",
+    "category": "legs",
+    "difficulty": "beginner",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["허벅지 뒤쪽 근육(햄스트링)"],
+      "secondaryMuscles": ["엉덩이 근육(둔근)", "종아리 근육(비복근)"],
+      "antagonistMuscles": ["허벅지 앞쪽 근육(대퇴사두근)"],
+      "easyExplanation": "다리를 접어 올려 허벅지 뒤쪽을 강화하는 운동이에요."
+    },
+    "guide": {
+      "setup": "기구에 엎드려 발목 패드를 종아리 뒤에 맞춥니다.",
+      "execution": [
+        "숨을 내쉬며 발뒤꿈치를 엉덩이 쪽으로 당깁니다.",
+        "최대 수축 지점에서 1초간 유지합니다.",
+        "숨을 들이마시며 천천히 다리를 펴 원위치로 돌아갑니다."
+      ],
+      "movementDirection": "발을 뒤로 접어 올리는 동작",
+      "idealStimulus": "허벅지 뒤쪽이 당기듯 조여지는 느낌",
+      "commonMistakes": ["허리가 들리는 것", "빠른 반동 사용"],
+      "breathing": "올릴 때 내쉬고, 내릴 때 들이마십니다.",
+      "safetyTips": ["무게는 가볍게 시작하고 무릎이 아프면 중단하세요."]
+    },
+    "training": {
+      "recommendedReps": "10~15회",
+      "recommendedSets": "2~3세트",
+      "restTime": "60초",
+      "variations": ["시티드 레그 컬(앉아서)", "니잉 레그 컬(무릎 세워서)"],
+      "levelUpOptions": ["무게 증가", "수축 지점에서 멈추기"],
+      "beginnerTips": ["허벅지 뒤쪽이 쓰이는지 집중해보세요."]
+    },
+    "extraInfo": {
+      "dailyUseCase": "달리거나 계단을 오를 때 허벅지 뒤쪽 힘을 길러줍니다.",
+      "searchKeywords": ["레그컬", "햄스트링운동", "허벅지뒤강화"]
+    }
+  },
+  {
+    "id": 11,
+    "machineKey": "hip_abduction_001",
+    "name": "힙 어브덕션",
+    "nameEn": "Hip Abduction",
+    "imageUrl": "/img/machine/hip-abduction.png",
+    "shortDesc": "엉덩이 옆쪽(중둔근·소둔근)을 강화하는 운동입니다.",
+    "category": "legs",
+    "difficulty": "beginner",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["엉덩이 옆쪽 근육(중둔근, 소둔근)"],
+      "secondaryMuscles": ["허벅지 바깥쪽 근육"],
+      "antagonistMuscles": ["허벅지 안쪽 근육(내전근)"],
+      "easyExplanation": "앉아서 다리를 바깥으로 벌려 엉덩이 옆을 강화하는 운동이에요."
+    },
+    "guide": {
+      "setup": "기구에 앉아 허벅지를 패드에 고정합니다.",
+      "execution": [
+        "숨을 내쉬며 다리를 바깥으로 천천히 벌립니다.",
+        "끝 지점에서 1초간 멈춥니다.",
+        "숨을 들이마시며 다리를 모아 원위치로 돌아옵니다."
+      ],
+      "movementDirection": "다리를 바깥쪽으로 벌리는 동작",
+      "idealStimulus": "엉덩이 옆쪽이 당기듯 자극",
+      "commonMistakes": ["반동으로 빠르게 벌리기", "허리를 움직이기"],
+      "breathing": "벌릴 때 내쉬고, 모을 때 들이마십니다.",
+      "safetyTips": ["허리에 부담이 가지 않도록 등을 고정하세요."]
+    },
+    "training": {
+      "recommendedReps": "12~15회",
+      "recommendedSets": "2~4세트",
+      "restTime": "60초",
+      "variations": ["밴드 힙 어브덕션", "한쪽씩 따로 수행"],
+      "levelUpOptions": ["중량 증가", "천천히 벌리며 자극 유지"],
+      "beginnerTips": ["엉덩이 옆쪽 근육을 쓰는 느낌을 기억하세요."]
+    },
+    "extraInfo": {
+      "dailyUseCase": "걷거나 달릴 때 골반 안정성을 높여줍니다.",
+      "searchKeywords": ["힙운동", "엉덩이운동", "중둔근강화"]
+    }
+  },
+  {
+    "id": 12,
+    "machineKey": "selectorized_lat_pulldown_001",
+    "name": "셀렉터라이즈드 랫 풀다운",
+    "nameEn": "Selectorized Lat Pulldown",
+    "imageUrl": "/img/machine/Selectorized Lat Pulldown.png",
+    "shortDesc": "등 넓은 근육(광배근)을 강화하는 대표적인 풀다운 머신 운동입니다.",
+    "category": "back",
+    "difficulty": "beginner",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["등 근육(광배근)"],
+      "secondaryMuscles": ["어깨 뒤쪽(후면 삼각근)", "팔 앞쪽(이두근)"],
+      "antagonistMuscles": ["가슴 근육(대흉근)"],
+      "easyExplanation": "위에서 손잡이를 잡아 당겨 등 넓이를 키우는 운동이에요."
+    },
+    "guide": {
+      "setup": "기구에 앉아 무릎 패드로 다리를 고정합니다.",
+      "execution": [
+        "숨을 내쉬며 손잡이를 가슴 쪽으로 당깁니다.",
+        "등이 수축되면 1초간 유지합니다.",
+        "숨을 들이마시며 천천히 손잡이를 올려 원위치로 돌아옵니다."
+      ],
+      "movementDirection": "위에서 아래로 당기는 동작",
+      "idealStimulus": "등이 넓게 퍼지듯이 자극",
+      "commonMistakes": ["허리를 젖히며 당기기", "반동 사용"],
+      "breathing": "당길 때 내쉬고, 올릴 때 들이마십니다.",
+      "safetyTips": ["등 근육을 집중해서 사용하세요."]
+    },
+    "training": {
+      "recommendedReps": "8~12회",
+      "recommendedSets": "2~4세트",
+      "restTime": "60~90초",
+      "variations": ["와이드 그립 풀다운", "리버스 그립 풀다운"],
+      "levelUpOptions": ["중량 증가", "정점에서 1~2초 버티기"],
+      "beginnerTips": ["어깨가 아닌 등으로 당긴다는 느낌을 가지세요."]
+    },
+    "extraInfo": {
+      "dailyUseCase": "위에서 물건을 잡아당기는 동작과 비슷합니다.",
+      "searchKeywords": ["랫풀다운", "등운동", "광배근"]
+    }
+  },
+  {
+    "id": 13,
+    "machineKey": "kneeling_leg_curl_001",
+    "name": "니잉 레그 컬",
+    "nameEn": "Kneeling Leg Curl",
+    "imageUrl": "/img/machine/kneeling-leg-curl.png",
+    "shortDesc": "허벅지 뒤쪽(햄스트링)을 강화하는 대표적인 기구입니다.",
+    "category": "legs",
+    "difficulty": "beginner",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["햄스트링(허벅지 뒤쪽)"],
+      "secondaryMuscles": ["엉덩이 근육", "종아리 근육"],
+      "antagonistMuscles": ["대퇴사두근(허벅지 앞쪽)"],
+      "easyExplanation": "허벅지 뒤쪽을 집중적으로 쓰는 운동이에요. 엉덩이와 종아리도 함께 도와줍니다."
+    },
+    "guide": {
+      "setup": "무릎을 패드 위에 올리고 발목을 패드 뒤에 고정하세요.",
+      "execution": [
+        "숨을 내쉬며 발뒤꿈치를 천천히 엉덩이 쪽으로 당깁니다.",
+        "끝까지 당겼다면 1초 멈춥니다.",
+        "숨을 들이마시며 다리를 원래 위치로 되돌립니다."
+      ],
+      "movementDirection": "발을 뒤로 당겨 올리는 동작",
+      "idealStimulus": "허벅지 뒤쪽이 땡기듯 조여지는 느낌",
+      "commonMistakes": [
+        "허리를 젖히는 것",
+        "무게를 과하게 잡아 반동을 쓰는 것",
+        "무릎이 패드에서 떨어지는 것"
+      ],
+      "breathing": "올릴 때 내쉬고, 내릴 때 들이마십니다.",
+      "safetyTips": [
+        "처음에는 가벼운 무게로 시작하세요.",
+        "무릎이 불편하다면 기구 세팅을 조정하세요."
+      ]
+    },
+    "training": {
+      "recommendedReps": "8~12회",
+      "recommendedSets": "2~3세트",
+      "restTime": "세트 사이 60초 정도 쉬세요.",
+      "variations": ["가벼운 무게로 천천히", "한쪽 다리씩 번갈아 수행"],
+      "levelUpOptions": ["무게를 조금씩 늘리기", "수축 지점에서 2~3초 버티기"],
+      "beginnerTips": [
+        "운동 전 허벅지 뒤 스트레칭을 하세요.",
+        "운동 후 종아리와 허벅지를 풀어주세요.",
+        "‘햄스트링’ 위치를 검색해보면 도움이 됩니다."
+      ]
+    },
+    "extraInfo": {
+      "dailyUseCase": "허벅지 뒤가 약하면 계단 오르기나 달리기에서 쉽게 피로가 옵니다.",
+      "searchKeywords": ["햄스트링 운동", "허벅지 뒤 강화", "무릎 안정성"]
+    }
+  },
+  {
+    "id": 14,
+    "machineKey": "plate_loaded_leg_press_001",
+    "name": "플레이트 로디드 레그 프레스",
+    "nameEn": "Plate Loaded Leg Press",
+    "imageUrl": "/img/machine/plate-loaded-leg-press.png",
+    "shortDesc": "허벅지 앞쪽(대퇴사두근)과 뒤쪽(햄스트링)을 함께 강화하는 하체 운동입니다.",
+    "category": "legs",
+    "difficulty": "intermediate",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["대퇴사두근(허벅지 앞쪽)", "햄스트링(허벅지 뒤쪽)"],
+      "secondaryMuscles": ["엉덩이 근육(둔근)", "종아리 근육(비복근)"],
+      "antagonistMuscles": ["엉덩이 굴곡근"],
+      "easyExplanation": "허벅지 앞뒤와 엉덩이를 동시에 강화하는 대표적인 하체 운동이에요."
+    },
+    "guide": {
+      "setup": "기구에 앉아 발을 어깨너비로 발판에 올리세요.",
+      "execution": [
+        "무릎을 천천히 굽혀 발판을 내립니다.",
+        "허벅지가 복부에 닿기 전까지 내려갑니다.",
+        "숨을 내쉬며 다리를 밀어 원래 위치로 돌아갑니다."
+      ],
+      "movementDirection": "발로 앞을 밀어내는 동작",
+      "idealStimulus": "허벅지 앞과 엉덩이에 강한 자극",
+      "commonMistakes": [
+        "무릎을 완전히 펴 잠그는 것",
+        "허리가 뜨는 것",
+        "너무 무겁게 시작하는 것"
+      ],
+      "breathing": "밀어낼 때 내쉬고, 내릴 때 들이마십니다.",
+      "safetyTips": [
+        "허리가 뜨지 않게 등을 밀착하세요.",
+        "무릎이 안쪽/바깥쪽으로 꺾이지 않게 주의하세요."
+      ]
+    },
+    "training": {
+      "recommendedReps": "10~15회",
+      "recommendedSets": "3~4세트",
+      "restTime": "90초",
+      "variations": ["발 간격 좁히기/넓히기", "한쪽 다리씩 실시"],
+      "levelUpOptions": ["무게를 점진적으로 늘리기", "하강 구간을 느리게 하기"],
+      "beginnerTips": [
+        "허벅지가 살짝 떨리는 정도로 무게를 설정하세요.",
+        "처음에는 가벼운 무게로 동작을 익히는 게 중요합니다."
+      ]
+    },
+    "extraInfo": {
+      "dailyUseCase": "걷기, 계단 오르기 같은 일상 활동이 더 편해집니다.",
+      "searchKeywords": ["레그프레스 운동", "하체 강화", "대퇴사두근 운동"]
+    }
+  },
+  {
+    "id": 15,
+    "machineKey": "plate_loaded_squat_001",
+    "name": "플레이트 로디드 스쿼트",
+    "nameEn": "Plate Loaded Squat",
+    "imageUrl": "/img/machine/plate-loaded-squat.png",
+    "shortDesc": "스쿼트를 보조해주는 기구로, 하체와 엉덩이를 강화합니다.",
+    "category": "legs",
+    "difficulty": "intermediate",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["대퇴사두근", "햄스트링", "둔근(엉덩이)"],
+      "secondaryMuscles": ["코어 근육", "종아리"],
+      "antagonistMuscles": ["엉덩이 굴곡근"],
+      "easyExplanation": "하체 전체를 쓰는 스쿼트를 더 안전하게 할 수 있는 기구예요."
+    },
+    "guide": {
+      "setup": "어깨 패드에 어깨를 대고 발을 어깨너비로 벌리세요.",
+      "execution": [
+        "숨을 들이마시며 무릎을 굽혀 앉습니다.",
+        "허벅지가 지면과 평행이 되면 멈춥니다.",
+        "숨을 내쉬며 다리를 펴 원래 자세로 돌아갑니다."
+      ],
+      "movementDirection": "앉았다가 일어나는 동작",
+      "idealStimulus": "허벅지 앞, 뒤, 엉덩이에 고르게 자극",
+      "commonMistakes": [
+        "무릎이 발끝 앞으로 나가는 것",
+        "허리가 말리는 것",
+        "너무 얕게 앉는 것"
+      ],
+      "breathing": "내릴 때 들이마시고, 올라올 때 내쉽니다.",
+      "safetyTips": ["허리를 곧게 유지하세요.", "무게는 천천히 늘리세요."]
+    },
+    "training": {
+      "recommendedReps": "8~12회",
+      "recommendedSets": "3세트",
+      "restTime": "90초",
+      "variations": ["발 간격 넓히기(내전근 자극)", "발끝 각도 바꾸기"],
+      "levelUpOptions": [
+        "무게를 조금씩 추가하기",
+        "하강 시 더 천천히 내려가기"
+      ],
+      "beginnerTips": [
+        "처음엔 바른 자세에 집중하세요.",
+        "허벅지가 땡기는 느낌이 오면 정상입니다."
+      ]
+    },
+    "extraInfo": {
+      "dailyUseCase": "앉았다 일어나기 같은 기본 동작이 쉬워집니다.",
+      "searchKeywords": ["스쿼트 기구", "하체 근육 강화", "엉덩이 운동"]
+    }
+  },
+  {
+    "id": 16,
+    "machineKey": "plate_loaded_wide_pulldown_001",
+    "name": "플레이트 로디드 와이드 풀다운",
+    "nameEn": "Plate Loaded Wide Pulldown",
+    "imageUrl": "/img/machine/plate-loaded-wide-pulldown.png",
+    "shortDesc": "등 근육(광배근)을 집중적으로 강화하는 기구입니다.",
+    "category": "back",
+    "difficulty": "intermediate",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["광배근(등 옆쪽)"],
+      "secondaryMuscles": ["승모근", "이두근"],
+      "antagonistMuscles": ["가슴 근육(대흉근)"],
+      "easyExplanation": "등을 넓고 탄탄하게 만드는 대표 운동이에요."
+    },
+    "guide": {
+      "setup": "기구에 앉아 손잡이를 어깨보다 넓게 잡으세요.",
+      "execution": [
+        "숨을 내쉬며 손잡이를 가슴 쪽으로 당깁니다.",
+        "팔꿈치를 옆구리 쪽으로 당기며 등을 조입니다.",
+        "숨을 들이마시며 천천히 원위치로 돌아갑니다."
+      ],
+      "movementDirection": "위에서 아래로 당기는 동작",
+      "idealStimulus": "등이 수축되는 느낌",
+      "commonMistakes": [
+        "허리를 과도하게 젖히는 것",
+        "반동으로 당기는 것",
+        "팔힘만 쓰는 것"
+      ],
+      "breathing": "당길 때 내쉬고, 풀 때 들이마십니다.",
+      "safetyTips": [
+        "허리는 곧게 유지하세요.",
+        "처음에는 가벼운 무게로 자세를 익히세요."
+      ]
+    },
+    "training": {
+      "recommendedReps": "8~12회",
+      "recommendedSets": "3세트",
+      "restTime": "60~90초",
+      "variations": ["그립을 좁게 잡기", "한쪽씩 번갈아 당기기"],
+      "levelUpOptions": ["무게를 점진적으로 추가", "수축 지점에서 2~3초 유지"],
+      "beginnerTips": [
+        "팔이 아닌 등을 쓰는 느낌에 집중하세요.",
+        "거울로 자세를 체크하면 좋아요."
+      ]
+    },
+    "extraInfo": {
+      "dailyUseCase": "자세가 구부정해지는 것을 방지하고, 어깨 균형에 도움을 줍니다.",
+      "searchKeywords": ["풀다운 운동", "등 넓히기", "광배근 강화"]
+    }
+  },
+  {
+    "id": 17,
+    "machineKey": "selectorized_leg_curl_001",
+    "name": "셀렉터라이즈드 레그 컬",
+    "nameEn": "Selectorized Leg Curl",
+    "imageUrl": "/img/machine/Selectorized leg curl.png",
+    "shortDesc": "허벅지 뒤쪽(햄스트링)을 집중적으로 강화하는 기구입니다.",
+    "category": "legs",
+    "difficulty": "beginner",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["햄스트링(허벅지 뒤쪽)"],
+      "secondaryMuscles": ["둔근(엉덩이 근육)"],
+      "antagonistMuscles": ["대퇴사두근(허벅지 앞쪽)"],
+      "easyExplanation": "허벅지 뒤를 강화하는 대표적인 기구 운동이에요."
+    },
+    "guide": {
+      "setup": "기구에 앉아 발목을 패드에 맞추고 무릎을 패드 뒤에 고정하세요.",
+      "execution": [
+        "숨을 내쉬며 발 뒤꿈치를 천천히 엉덩이 쪽으로 당깁니다.",
+        "최대 수축 지점에서 1초 정지합니다.",
+        "숨을 들이마시며 다리를 천천히 원위치로 돌립니다."
+      ],
+      "movementDirection": "발을 뒤로 당겨 올리는 동작",
+      "idealStimulus": "허벅지 뒤쪽이 조여지는 느낌",
+      "commonMistakes": [
+        "허리 젖힘",
+        "반동으로 당기는 것",
+        "무릎이 패드에서 떨어지는 것"
+      ],
+      "breathing": "올릴 때 내쉬고, 내릴 때 들이마십니다.",
+      "safetyTips": [
+        "처음에는 가벼운 무게로 시작하세요.",
+        "무릎 통증 시 중단하거나 세팅 조정"
+      ]
+    },
+    "training": {
+      "recommendedReps": "8~12회",
+      "recommendedSets": "2~3세트",
+      "restTime": "60초",
+      "variations": ["한쪽 다리씩 수행", "느리게 올리고 내리기"],
+      "levelUpOptions": ["중량 증가", "수축 지점 2~3초 버티기"],
+      "beginnerTips": ["허벅지 뒤 스트레칭 후 시작", "‘햄스트링’ 위치를 확인"]
+    },
+    "extraInfo": {
+      "dailyUseCase": "계단 오르기, 달리기 시 피로 감소",
+      "searchKeywords": ["레그컬", "햄스트링 강화"]
+    }
+  },
+  {
+    "id": 18,
+    "machineKey": "ground_base_combo_incline_001",
+    "name": "그라운드 베이스 컴보 인클라인",
+    "nameEn": "Ground Base Combo Incline",
+    "imageUrl": "/img/machine/Ground-Base-Combo-Incline.png",
+    "shortDesc": "가슴 위쪽(상부 대흉근)과 어깨를 동시에 강화하는 기구입니다.",
+    "category": "chest",
+    "difficulty": "intermediate",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["상부 대흉근(가슴 위쪽)", "삼각근 전면(어깨 앞쪽)"],
+      "secondaryMuscles": ["삼두근(팔 뒤쪽)"],
+      "antagonistMuscles": ["광배근(등 근육)"],
+      "easyExplanation": "가슴 위쪽과 어깨를 동시에 단련할 수 있는 기구 운동이에요."
+    },
+    "guide": {
+      "setup": "시트에 앉아 등과 머리를 지지대에 고정하고 손잡이를 잡습니다.",
+      "execution": [
+        "숨을 내쉬며 손잡이를 가슴 위쪽으로 당기거나 밀어 올립니다.",
+        "잠시 멈췄다가 숨을 들이마시며 원위치로 돌아옵니다."
+      ],
+      "movementDirection": "가슴 위쪽 방향으로 밀고 당기는 동작",
+      "idealStimulus": "가슴 위쪽과 어깨 앞쪽 자극",
+      "commonMistakes": ["허리 젖힘", "팔꿈치 완전 잠금"],
+      "breathing": "밀 때 내쉬고, 돌아올 때 들이마십니다.",
+      "safetyTips": ["무게를 욕심내지 말고 천천히", "자세 유지에 집중"]
+    },
+    "training": {
+      "recommendedReps": "8~12회",
+      "recommendedSets": "3세트",
+      "restTime": "60~90초",
+      "variations": ["한쪽씩 번갈아 수행", "그립 넓이 조절"],
+      "levelUpOptions": ["중량 증가", "느리게 동작 수행"],
+      "beginnerTips": ["무게보다 정확한 자세에 집중하세요."]
+    },
+    "extraInfo": {
+      "dailyUseCase": "위쪽 가슴과 어깨 근력 향상으로 물건 들어 올릴 때 도움",
+      "searchKeywords": ["인클라인 기구", "상부 대흉근", "어깨 강화"]
+    }
+  },
+  {
+    "id": 19,
+    "machineKey": "chinup_001",
+    "name": "친업",
+    "nameEn": "Chin-up",
+    "imageUrl": "/img/machine/chin-up.png",
+    "shortDesc": "등과 팔 근육(이두근)을 강화하는 맨몸 운동입니다.",
+    "category": "back",
+    "difficulty": "beginner",
+    "isActive": true,
+    "anatomy": {
+      "primaryMuscles": ["광배근(등 옆쪽)", "이두근(팔 앞쪽)"],
+      "secondaryMuscles": ["승모근(등 위쪽)", "삼각근 후면(어깨 뒤쪽)"],
+      "antagonistMuscles": ["대흉근(가슴 근육)"],
+      "easyExplanation": "자기 몸을 당겨 등과 팔을 단련하는 기본 맨몸 운동이에요."
+    },
+    "guide": {
+      "setup": "철봉을 어깨 너비보다 살짝 좁게 잡습니다.",
+      "execution": [
+        "숨을 내쉬며 몸을 위로 끌어올립니다.",
+        "턱이 철봉 위로 오면 잠시 멈춥니다.",
+        "숨을 들이마시며 천천히 내려옵니다."
+      ],
+      "movementDirection": "몸을 위로 당기는 동작",
+      "idealStimulus": "등과 팔 앞쪽 근육이 조여지는 느낌",
+      "commonMistakes": ["팔만 쓰고 등 사용하지 않음", "반동으로 몸 흔들기"],
+      "breathing": "올릴 때 내쉬고, 내릴 때 들이마십니다.",
+      "safetyTips": ["처음에는 보조 밴드 사용 가능", "어깨 부상 주의"]
+    },
+    "training": {
+      "recommendedReps": "6~10회",
+      "recommendedSets": "2~3세트",
+      "restTime": "60~90초",
+      "variations": ["너비 조절", "팔꿈치 안쪽/바깥쪽 회전"],
+      "levelUpOptions": ["보조 밴드 제거 후 실시", "느리게 동작 수행"],
+      "beginnerTips": ["처음엔 밴드로 보조하거나 턱걸이 머신 사용"]
+    },
+    "extraInfo": {
+      "dailyUseCase": "등과 팔 힘 향상, 일상에서 물건 당길 때 도움",
+      "searchKeywords": ["턱걸이", "친업", "광배근 강화"]
+    }
   }
 ]
-[
-    {
-      "id": 5,
-      "machineKey": "bench_press_001",
-      "name": "벤치 프레스",
-      "nameKo": "벤치 프레스",
-      "nameEn": "Bench Press",
-      "imageUrl": "/img/machine/bench-press.png",
-      "shortDesc": "가슴 앞쪽(대흉근)을 강화하는 대표적인 웨이트 트레이닝 운동입니다.",
-      "category": "chest",
-      "difficulty": "intermediate",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["가슴 근육(대흉근)"],
-        "secondaryMuscles": ["팔 뒤쪽(삼두근)", "어깨 앞쪽(전면 삼각근)"],
-        "antagonistMuscles": ["등 근육(광배근, 승모근)"],
-        "easyExplanation": "누워서 바벨을 밀어 올리며 가슴을 단련하는 운동이에요."
-      },
-      "guide": {
-        "setup": "벤치에 누워 어깨너비보다 약간 넓게 바벨을 잡습니다.",
-        "execution": [
-          "바벨을 가슴 중앙까지 천천히 내립니다.",
-          "숨을 내쉬며 바벨을 위로 밀어 올립니다."
-        ],
-        "movementDirection": "가슴 위에서 수직으로 바벨을 밀어 올리는 동작",
-        "idealStimulus": "가슴 앞쪽이 펴지면서 타이트한 느낌",
-        "commonMistakes": ["팔꿈치를 완전히 잠그기", "허리를 과도하게 젖힘"],
-        "breathing": "내릴 때 들이마시고, 올릴 때 내쉽니다.",
-        "safetyTips": ["보조자(스팟터)와 함께 하거나 안전바를 설치하세요."]
-      },
-      "training": {
-        "recommendedReps": "6~12회",
-        "recommendedSets": "3~5세트",
-        "restTime": "90~120초",
-        "variations": ["덤벨 벤치프레스", "인클라인 벤치프레스"],
-        "levelUpOptions": ["중량 추가", "천천히 내리며 자극 유지"],
-        "beginnerTips": ["무게보다 정확한 자세를 먼저 익히세요."]
-      },
-      "extraInfo": {
-        "dailyUseCase": "무거운 물건을 가슴에서 밀어낼 때 유사한 동작입니다.",
-        "searchKeywords": ["벤치프레스", "가슴운동", "바벨운동"]
-      }
-    },
-    {
-      "id": 6,
-      "machineKey": "squat_rack_001",
-      "name": "스쿼트 랙",
-      "nameKo": "스쿼트 랙",
-      "nameEn": "Squat Rack",
-      "imageUrl": "/img/machine/squat-rack.png",
-      "shortDesc": "하체 전체를 강화하는 대표적인 웨이트 기구입니다.",
-      "category": "legs",
-      "difficulty": "intermediate",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["허벅지 앞쪽(대퇴사두근)", "허벅지 뒤쪽(햄스트링)", "엉덩이 근육(둔근)"],
-        "secondaryMuscles": ["코어", "종아리"],
-        "antagonistMuscles": ["허리 폄근(척추기립근)"],
-        "easyExplanation": "어깨에 바벨을 짊어지고 앉았다 일어나는 기본 하체 운동이에요."
-      },
-      "guide": {
-        "setup": "바벨을 어깨 위에 올리고 양발을 어깨너비로 벌립니다.",
-        "execution": [
-          "숨을 들이마시며 무릎을 굽혀 앉습니다.",
-          "허벅지가 바닥과 평행할 때까지 내려갑니다.",
-          "숨을 내쉬며 다리를 펴 일어납니다."
-        ],
-        "movementDirection": "앉았다가 위로 일어나는 동작",
-        "idealStimulus": "허벅지와 엉덩이에 뻐근한 자극",
-        "commonMistakes": ["무릎이 안쪽으로 모이기", "허리를 둥글게 말기"],
-        "breathing": "내릴 때 들이마시고, 올릴 때 내쉽니다.",
-        "safetyTips": ["안전바를 설치하고 무리하지 마세요."]
-      },
-      "training": {
-        "recommendedReps": "8~12회",
-        "recommendedSets": "3~4세트",
-        "restTime": "90초",
-        "variations": ["프론트 스쿼트", "하프 스쿼트"],
-        "levelUpOptions": ["중량 증가", "천천히 내려가기"],
-        "beginnerTips": ["처음에는 맨몸 스쿼트로 연습하세요."]
-      },
-      "extraInfo": {
-        "dailyUseCase": "의자에 앉고 일어나는 기본 동작과 유사합니다.",
-        "searchKeywords": ["스쿼트", "하체운동", "스쿼트랙"]
-      }
-    },
-    {
-      "id": 7,
-      "machineKey": "shoulder_press_001",
-      "name": "숄더 프레스",
-      "nameKo": "숄더 프레스",
-      "nameEn": "Shoulder Press",
-      "imageUrl": "/img/machine/shoulder-press.png",
-      "shortDesc": "어깨 근육(삼각근)을 강화하는 대표적인 운동입니다.",
-      "category": "shoulders",
-      "difficulty": "beginner",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["어깨 근육(삼각근)"],
-        "secondaryMuscles": ["팔 뒤쪽(삼두근)", "상부 가슴(쇄골 부위 대흉근)"],
-        "antagonistMuscles": ["광배근(등 근육)"],
-        "easyExplanation": "머리 위로 무게를 밀어 올리며 어깨를 단련하는 운동이에요."
-      },
-      "guide": {
-        "setup": "등을 고정하고 손잡이를 잡습니다.",
-        "execution": [
-          "숨을 내쉬며 손잡이를 머리 위로 밀어 올립니다.",
-          "숨을 들이마시며 천천히 원위치로 돌아옵니다."
-        ],
-        "movementDirection": "위로 밀기",
-        "idealStimulus": "어깨 앞·옆이 뻐근한 느낌",
-        "commonMistakes": ["허리를 과도하게 젖힘", "팔꿈치를 완전히 잠금"],
-        "breathing": "밀 때 내쉬고, 내릴 때 들이마십니다.",
-        "safetyTips": ["무게를 욕심내지 말고 천천히 늘리세요."]
-      },
-      "training": {
-        "recommendedReps": "8~12회",
-        "recommendedSets": "2~3세트",
-        "restTime": "60~90초",
-        "variations": ["덤벨 숄더 프레스", "한쪽씩 밀기"],
-        "levelUpOptions": ["중량 증가", "느리게 내리기"],
-        "beginnerTips": ["어깨가 뻐근하면 바로 쉬어주세요."]
-      },
-      "extraInfo": {
-        "dailyUseCase": "물건을 위쪽 선반에 올릴 때와 유사한 동작입니다.",
-        "searchKeywords": ["숄더프레스", "어깨운동"]
-      }
-    },
-    {
-      "id": 8,
-      "machineKey": "bicep_curl_001",
-      "name": "바이셉 컬",
-      "nameKo": "바이셉 컬",
-      "nameEn": "Bicep Curl",
-      "imageUrl": "/img/machine/bicep-curl.png",
-      "shortDesc": "팔 앞쪽(이두근)을 집중적으로 강화하는 운동입니다.",
-      "category": "arms",
-      "difficulty": "beginner",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["팔 앞쪽 근육(이두근)"],
-        "secondaryMuscles": ["전완근(팔뚝)"],
-        "antagonistMuscles": ["팔 뒤쪽 근육(삼두근)"],
-        "easyExplanation": "팔꿈치를 굽혀 무게를 들어 올리는 팔 운동이에요."
-      },
-      "guide": {
-        "setup": "시트에 앉아 팔꿈치를 패드 위에 고정합니다.",
-        "execution": [
-          "숨을 내쉬며 손잡이를 천천히 들어 올립니다.",
-          "숨을 들이마시며 원위치로 내립니다."
-        ],
-        "movementDirection": "아래에서 위로 들어 올리기",
-        "idealStimulus": "팔 앞쪽이 조여지는 느낌",
-        "commonMistakes": ["어깨를 같이 움직임", "반동 사용"],
-        "breathing": "올릴 때 내쉬고, 내릴 때 들이마십니다.",
-        "safetyTips": ["무게는 가볍게 시작하세요."]
-      },
-      "training": {
-        "recommendedReps": "10~15회",
-        "recommendedSets": "2~3세트",
-        "restTime": "60초",
-        "variations": ["덤벨 컬", "한쪽씩 번갈아"],
-        "levelUpOptions": ["무게 증가", "수축 지점에서 정지"],
-        "beginnerTips": ["팔꿈치를 고정하는 게 중요합니다."]
-      },
-      "extraInfo": {
-        "dailyUseCase": "물건을 들어 올릴 때와 비슷한 동작입니다.",
-        "searchKeywords": ["이두운동", "바이셉컬"]
-      }
-    }
-  ]
-  [
-    {
-      "id": 9,
-      "machineKey": "leg_extension_001",
-      "name": "레그 익스텐션",
-      "nameKo": "레그 익스텐션",
-      "nameEn": "Leg Extension",
-      "imageUrl": "/img/machine/leg-extension.png",
-      "shortDesc": "허벅지 앞쪽(대퇴사두근)을 집중적으로 강화하는 대표적인 하체 운동입니다.",
-      "category": "legs",
-      "difficulty": "beginner",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["허벅지 앞쪽 근육(대퇴사두근)"],
-        "secondaryMuscles": ["엉덩이 근육(둔근)"],
-        "antagonistMuscles": ["허벅지 뒤쪽 근육(햄스트링)"],
-        "easyExplanation": "앉아서 다리를 쭉 뻗어 허벅지 앞쪽을 강화하는 운동이에요."
-      },
-      "guide": {
-        "setup": "기구에 앉아 무릎과 발목 패드 위치를 조절해 맞춥니다.",
-        "execution": [
-          "숨을 내쉬며 다리를 천천히 펴 올립니다.",
-          "허벅지가 완전히 펴지면 1초간 유지합니다.",
-          "숨을 들이마시며 천천히 다리를 내립니다."
-        ],
-        "movementDirection": "아래에서 위로 다리를 펴 올리는 동작",
-        "idealStimulus": "허벅지 앞쪽이 타이트하게 조여지는 느낌",
-        "commonMistakes": ["무릎을 완전히 잠그기", "반동으로 빠르게 움직이기"],
-        "breathing": "올릴 때 내쉬고, 내릴 때 들이마십니다.",
-        "safetyTips": ["무릎 통증이 있다면 가볍게 시작하세요."]
-      },
-      "training": {
-        "recommendedReps": "10~15회",
-        "recommendedSets": "2~4세트",
-        "restTime": "60~90초",
-        "variations": ["한쪽 다리씩 번갈아 수행", "가벼운 무게로 천천히"],
-        "levelUpOptions": ["중량 추가", "수축 지점에서 멈추기"],
-        "beginnerTips": ["허벅지 앞쪽이 자극되는지 확인하세요."]
-      },
-      "extraInfo": {
-        "dailyUseCase": "계단 오르기나 의자에서 일어날 때 쓰이는 근육을 강화합니다.",
-        "searchKeywords": ["레그익스텐션", "허벅지앞운동", "대퇴사두근"]
-      }
-    },
-    {
-      "id": 10,
-      "machineKey": "leg_curl_001",
-      "name": "레그 컬",
-      "nameKo": "레그 컬",
-      "nameEn": "Leg Curl",
-      "imageUrl": "/img/machine/leg-curl.png",
-      "shortDesc": "허벅지 뒤쪽(햄스트링)을 집중적으로 강화하는 운동입니다.",
-      "category": "legs",
-      "difficulty": "beginner",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["허벅지 뒤쪽 근육(햄스트링)"],
-        "secondaryMuscles": ["엉덩이 근육(둔근)", "종아리 근육(비복근)"],
-        "antagonistMuscles": ["허벅지 앞쪽 근육(대퇴사두근)"],
-        "easyExplanation": "다리를 접어 올려 허벅지 뒤쪽을 강화하는 운동이에요."
-      },
-      "guide": {
-        "setup": "기구에 엎드려 발목 패드를 종아리 뒤에 맞춥니다.",
-        "execution": [
-          "숨을 내쉬며 발뒤꿈치를 엉덩이 쪽으로 당깁니다.",
-          "최대 수축 지점에서 1초간 유지합니다.",
-          "숨을 들이마시며 천천히 다리를 펴 원위치로 돌아갑니다."
-        ],
-        "movementDirection": "발을 뒤로 접어 올리는 동작",
-        "idealStimulus": "허벅지 뒤쪽이 당기듯 조여지는 느낌",
-        "commonMistakes": ["허리가 들리는 것", "빠른 반동 사용"],
-        "breathing": "올릴 때 내쉬고, 내릴 때 들이마십니다.",
-        "safetyTips": ["무게는 가볍게 시작하고 무릎이 아프면 중단하세요."]
-      },
-      "training": {
-        "recommendedReps": "10~15회",
-        "recommendedSets": "2~3세트",
-        "restTime": "60초",
-        "variations": ["시티드 레그 컬(앉아서)", "니잉 레그 컬(무릎 세워서)"],
-        "levelUpOptions": ["무게 증가", "수축 지점에서 멈추기"],
-        "beginnerTips": ["허벅지 뒤쪽이 쓰이는지 집중해보세요."]
-      },
-      "extraInfo": {
-        "dailyUseCase": "달리거나 계단을 오를 때 허벅지 뒤쪽 힘을 길러줍니다.",
-        "searchKeywords": ["레그컬", "햄스트링운동", "허벅지뒤강화"]
-      }
-    },
-    {
-      "id": 11,
-      "machineKey": "hip_abduction_001",
-      "name": "힙 어브덕션",
-      "nameKo": "힙 어브덕션",
-      "nameEn": "Hip Abduction",
-      "imageUrl": "/img/machine/hip-abduction.png",
-      "shortDesc": "엉덩이 옆쪽(중둔근·소둔근)을 강화하는 운동입니다.",
-      "category": "legs",
-      "difficulty": "beginner",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["엉덩이 옆쪽 근육(중둔근, 소둔근)"],
-        "secondaryMuscles": ["허벅지 바깥쪽 근육"],
-        "antagonistMuscles": ["허벅지 안쪽 근육(내전근)"],
-        "easyExplanation": "앉아서 다리를 바깥으로 벌려 엉덩이 옆을 강화하는 운동이에요."
-      },
-      "guide": {
-        "setup": "기구에 앉아 허벅지를 패드에 고정합니다.",
-        "execution": [
-          "숨을 내쉬며 다리를 바깥으로 천천히 벌립니다.",
-          "끝 지점에서 1초간 멈춥니다.",
-          "숨을 들이마시며 다리를 모아 원위치로 돌아옵니다."
-        ],
-        "movementDirection": "다리를 바깥쪽으로 벌리는 동작",
-        "idealStimulus": "엉덩이 옆쪽이 당기듯 자극",
-        "commonMistakes": ["반동으로 빠르게 벌리기", "허리를 움직이기"],
-        "breathing": "벌릴 때 내쉬고, 모을 때 들이마십니다.",
-        "safetyTips": ["허리에 부담이 가지 않도록 등을 고정하세요."]
-      },
-      "training": {
-        "recommendedReps": "12~15회",
-        "recommendedSets": "2~4세트",
-        "restTime": "60초",
-        "variations": ["밴드 힙 어브덕션", "한쪽씩 따로 수행"],
-        "levelUpOptions": ["중량 증가", "천천히 벌리며 자극 유지"],
-        "beginnerTips": ["엉덩이 옆쪽 근육을 쓰는 느낌을 기억하세요."]
-      },
-      "extraInfo": {
-        "dailyUseCase": "걷거나 달릴 때 골반 안정성을 높여줍니다.",
-        "searchKeywords": ["힙운동", "엉덩이운동", "중둔근강화"]
-      }
-    },
-    {
-      "id": 12,
-      "machineKey": "chest_press_001",
-      "name": "체스트 프레스",
-      "nameKo": "체스트 프레스",
-      "nameEn": "Chest Press",
-      "imageUrl": "/img/machine/chest-press.png",
-      "shortDesc": "가슴 근육(대흉근)을 강화하는 대표적인 머신 운동입니다.",
-      "category": "chest",
-      "difficulty": "beginner",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["가슴 근육(대흉근)"],
-        "secondaryMuscles": ["어깨 앞쪽(전면 삼각근)", "팔 뒤쪽(삼두근)"],
-        "antagonistMuscles": ["등 근육(광배근)"],
-        "easyExplanation": "앉아서 손잡이를 밀어 올리며 가슴을 강화하는 운동이에요."
-      },
-      "guide": {
-        "setup": "등을 패드에 붙이고 손잡이를 잡습니다.",
-        "execution": [
-          "숨을 내쉬며 손잡이를 앞으로 밀어 올립니다.",
-          "가슴이 수축되면 1초간 멈춥니다.",
-          "숨을 들이마시며 천천히 원위치로 돌아옵니다."
-        ],
-        "movementDirection": "앞으로 밀기",
-        "idealStimulus": "가슴 중앙과 앞쪽이 조여지는 느낌",
-        "commonMistakes": ["팔꿈치를 과도하게 벌리기", "허리를 젖힘"],
-        "breathing": "밀 때 내쉬고, 돌아올 때 들이마십니다.",
-        "safetyTips": ["처음에는 가볍게 연습하세요."]
-      },
-      "training": {
-        "recommendedReps": "8~12회",
-        "recommendedSets": "2~4세트",
-        "restTime": "60~90초",
-        "variations": ["인클라인 체스트 프레스", "덤벨 체스트 프레스"],
-        "levelUpOptions": ["중량 증가", "느리게 내리기"],
-        "beginnerTips": ["어깨에 부담이 가지 않게 올바른 자세로 하세요."]
-      },
-      "extraInfo": {
-        "dailyUseCase": "문을 세게 밀 때와 유사한 동작입니다.",
-        "searchKeywords": ["체스트프레스", "가슴운동", "머신운동"]
-      }
-    },
-    {
-      "id": 13,
-      "machineKey": "selectorized_lat_pulldown_001",
-      "name": "셀렉터라이즈드 랫 풀다운",
-      "nameKo": "셀렉터라이즈드 랫 풀다운",
-      "nameEn": "Selectorized Lat Pulldown",
-      "imageUrl": "/img/machine/selectorized-lat-pulldown.png",
-      "shortDesc": "등 넓은 근육(광배근)을 강화하는 대표적인 풀다운 머신 운동입니다.",
-      "category": "back",
-      "difficulty": "beginner",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["등 근육(광배근)"],
-        "secondaryMuscles": ["어깨 뒤쪽(후면 삼각근)", "팔 앞쪽(이두근)"],
-        "antagonistMuscles": ["가슴 근육(대흉근)"],
-        "easyExplanation": "위에서 손잡이를 잡아 당겨 등 넓이를 키우는 운동이에요."
-      },
-      "guide": {
-        "setup": "기구에 앉아 무릎 패드로 다리를 고정합니다.",
-        "execution": [
-          "숨을 내쉬며 손잡이를 가슴 쪽으로 당깁니다.",
-          "등이 수축되면 1초간 유지합니다.",
-          "숨을 들이마시며 천천히 손잡이를 올려 원위치로 돌아옵니다."
-        ],
-        "movementDirection": "위에서 아래로 당기는 동작",
-        "idealStimulus": "등이 넓게 퍼지듯이 자극",
-        "commonMistakes": ["허리를 젖히며 당기기", "반동 사용"],
-        "breathing": "당길 때 내쉬고, 올릴 때 들이마십니다.",
-        "safetyTips": ["등 근육을 집중해서 사용하세요."]
-      },
-      "training": {
-        "recommendedReps": "8~12회",
-        "recommendedSets": "2~4세트",
-        "restTime": "60~90초",
-        "variations": ["와이드 그립 풀다운", "리버스 그립 풀다운"],
-        "levelUpOptions": ["중량 증가", "정점에서 1~2초 버티기"],
-        "beginnerTips": ["어깨가 아닌 등으로 당긴다는 느낌을 가지세요."]
-      },
-      "extraInfo": {
-        "dailyUseCase": "위에서 물건을 잡아당기는 동작과 비슷합니다.",
-        "searchKeywords": ["랫풀다운", "등운동", "광배근"]
-      }
-    }
-  ]
-  
-  [
-    {
-      "id": 11,
-      "machineKey": "kneeling_leg_curl_001",
-      "name": "니잉 레그 컬",
-      "nameKo": "니잉 레그 컬",
-      "nameEn": "Kneeling Leg Curl",
-      "imageUrl": "/img/machine/kneeling-leg-curl.png",
-      "shortDesc": "허벅지 뒤쪽(햄스트링)을 강화하는 대표적인 기구입니다.",
-      "category": "legs",
-      "difficulty": "beginner",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["햄스트링(허벅지 뒤쪽)"],
-        "secondaryMuscles": ["엉덩이 근육", "종아리 근육"],
-        "antagonistMuscles": ["대퇴사두근(허벅지 앞쪽)"],
-        "easyExplanation": "허벅지 뒤쪽을 집중적으로 쓰는 운동이에요. 엉덩이와 종아리도 함께 도와줍니다."
-      },
-      "guide": {
-        "setup": "무릎을 패드 위에 올리고 발목을 패드 뒤에 고정하세요.",
-        "execution": [
-          "숨을 내쉬며 발뒤꿈치를 천천히 엉덩이 쪽으로 당깁니다.",
-          "끝까지 당겼다면 1초 멈춥니다.",
-          "숨을 들이마시며 다리를 원래 위치로 되돌립니다."
-        ],
-        "movementDirection": "발을 뒤로 당겨 올리는 동작",
-        "idealStimulus": "허벅지 뒤쪽이 땡기듯 조여지는 느낌",
-        "commonMistakes": [
-          "허리를 젖히는 것",
-          "무게를 과하게 잡아 반동을 쓰는 것",
-          "무릎이 패드에서 떨어지는 것"
-        ],
-        "breathing": "올릴 때 내쉬고, 내릴 때 들이마십니다.",
-        "safetyTips": [
-          "처음에는 가벼운 무게로 시작하세요.",
-          "무릎이 불편하다면 기구 세팅을 조정하세요."
-        ]
-      },
-      "training": {
-        "recommendedReps": "8~12회",
-        "recommendedSets": "2~3세트",
-        "restTime": "세트 사이 60초 정도 쉬세요.",
-        "variations": ["가벼운 무게로 천천히", "한쪽 다리씩 번갈아 수행"],
-        "levelUpOptions": ["무게를 조금씩 늘리기", "수축 지점에서 2~3초 버티기"],
-        "beginnerTips": [
-          "운동 전 허벅지 뒤 스트레칭을 하세요.",
-          "운동 후 종아리와 허벅지를 풀어주세요.",
-          "‘햄스트링’ 위치를 검색해보면 도움이 됩니다."
-        ]
-      },
-      "extraInfo": {
-        "dailyUseCase": "허벅지 뒤가 약하면 계단 오르기나 달리기에서 쉽게 피로가 옵니다.",
-        "searchKeywords": ["햄스트링 운동", "허벅지 뒤 강화", "무릎 안정성"]
-      }
-    },
-    {
-      "id": 12,
-      "machineKey": "plate_loaded_leg_press_001",
-      "name": "플레이트 로디드 레그 프레스",
-      "nameKo": "플레이트 로디드 레그 프레스",
-      "nameEn": "Plate Loaded Leg Press",
-      "imageUrl": "/img/machine/plate-loaded-leg-press.png",
-      "shortDesc": "허벅지 앞쪽(대퇴사두근)과 뒤쪽(햄스트링)을 함께 강화하는 하체 운동입니다.",
-      "category": "legs",
-      "difficulty": "intermediate",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["대퇴사두근(허벅지 앞쪽)", "햄스트링(허벅지 뒤쪽)"],
-        "secondaryMuscles": ["엉덩이 근육(둔근)", "종아리 근육(비복근)"],
-        "antagonistMuscles": ["엉덩이 굴곡근"],
-        "easyExplanation": "허벅지 앞뒤와 엉덩이를 동시에 강화하는 대표적인 하체 운동이에요."
-      },
-      "guide": {
-        "setup": "기구에 앉아 발을 어깨너비로 발판에 올리세요.",
-        "execution": [
-          "무릎을 천천히 굽혀 발판을 내립니다.",
-          "허벅지가 복부에 닿기 전까지 내려갑니다.",
-          "숨을 내쉬며 다리를 밀어 원래 위치로 돌아갑니다."
-        ],
-        "movementDirection": "발로 앞을 밀어내는 동작",
-        "idealStimulus": "허벅지 앞과 엉덩이에 강한 자극",
-        "commonMistakes": [
-          "무릎을 완전히 펴 잠그는 것",
-          "허리가 뜨는 것",
-          "너무 무겁게 시작하는 것"
-        ],
-        "breathing": "밀어낼 때 내쉬고, 내릴 때 들이마십니다.",
-        "safetyTips": [
-          "허리가 뜨지 않게 등을 밀착하세요.",
-          "무릎이 안쪽/바깥쪽으로 꺾이지 않게 주의하세요."
-        ]
-      },
-      "training": {
-        "recommendedReps": "10~15회",
-        "recommendedSets": "3~4세트",
-        "restTime": "90초",
-        "variations": ["발 간격 좁히기/넓히기", "한쪽 다리씩 실시"],
-        "levelUpOptions": ["무게를 점진적으로 늘리기", "하강 구간을 느리게 하기"],
-        "beginnerTips": [
-          "허벅지가 살짝 떨리는 정도로 무게를 설정하세요.",
-          "처음에는 가벼운 무게로 동작을 익히는 게 중요합니다."
-        ]
-      },
-      "extraInfo": {
-        "dailyUseCase": "걷기, 계단 오르기 같은 일상 활동이 더 편해집니다.",
-        "searchKeywords": ["레그프레스 운동", "하체 강화", "대퇴사두근 운동"]
-      }
-    },
-    {
-      "id": 13,
-      "machineKey": "plate_loaded_squat_001",
-      "name": "플레이트 로디드 스쿼트",
-      "nameKo": "플레이트 로디드 스쿼트",
-      "nameEn": "Plate Loaded Squat",
-      "imageUrl": "/img/machine/plate-loaded-squat.png",
-      "shortDesc": "스쿼트를 보조해주는 기구로, 하체와 엉덩이를 강화합니다.",
-      "category": "legs",
-      "difficulty": "intermediate",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["대퇴사두근", "햄스트링", "둔근(엉덩이)"],
-        "secondaryMuscles": ["코어 근육", "종아리"],
-        "antagonistMuscles": ["엉덩이 굴곡근"],
-        "easyExplanation": "하체 전체를 쓰는 스쿼트를 더 안전하게 할 수 있는 기구예요."
-      },
-      "guide": {
-        "setup": "어깨 패드에 어깨를 대고 발을 어깨너비로 벌리세요.",
-        "execution": [
-          "숨을 들이마시며 무릎을 굽혀 앉습니다.",
-          "허벅지가 지면과 평행이 되면 멈춥니다.",
-          "숨을 내쉬며 다리를 펴 원래 자세로 돌아갑니다."
-        ],
-        "movementDirection": "앉았다가 일어나는 동작",
-        "idealStimulus": "허벅지 앞, 뒤, 엉덩이에 고르게 자극",
-        "commonMistakes": [
-          "무릎이 발끝 앞으로 나가는 것",
-          "허리가 말리는 것",
-          "너무 얕게 앉는 것"
-        ],
-        "breathing": "내릴 때 들이마시고, 올라올 때 내쉽니다.",
-        "safetyTips": [
-          "허리를 곧게 유지하세요.",
-          "무게는 천천히 늘리세요."
-        ]
-      },
-      "training": {
-        "recommendedReps": "8~12회",
-        "recommendedSets": "3세트",
-        "restTime": "90초",
-        "variations": ["발 간격 넓히기(내전근 자극)", "발끝 각도 바꾸기"],
-        "levelUpOptions": ["무게를 조금씩 추가하기", "하강 시 더 천천히 내려가기"],
-        "beginnerTips": [
-          "처음엔 바른 자세에 집중하세요.",
-          "허벅지가 땡기는 느낌이 오면 정상입니다."
-        ]
-      },
-      "extraInfo": {
-        "dailyUseCase": "앉았다 일어나기 같은 기본 동작이 쉬워집니다.",
-        "searchKeywords": ["스쿼트 기구", "하체 근육 강화", "엉덩이 운동"]
-      }
-    },
-    {
-      "id": 14,
-      "machineKey": "plate_loaded_wide_pulldown_001",
-      "name": "플레이트 로디드 와이드 풀다운",
-      "nameKo": "플레이트 로디드 와이드 풀다운",
-      "nameEn": "Plate Loaded Wide Pulldown",
-      "imageUrl": "/img/machine/plate-loaded-wide-pulldown.png",
-      "shortDesc": "등 근육(광배근)을 집중적으로 강화하는 기구입니다.",
-      "category": "back",
-      "difficulty": "intermediate",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["광배근(등 옆쪽)"],
-        "secondaryMuscles": ["승모근", "이두근"],
-        "antagonistMuscles": ["가슴 근육(대흉근)"],
-        "easyExplanation": "등을 넓고 탄탄하게 만드는 대표 운동이에요."
-      },
-      "guide": {
-        "setup": "기구에 앉아 손잡이를 어깨보다 넓게 잡으세요.",
-        "execution": [
-          "숨을 내쉬며 손잡이를 가슴 쪽으로 당깁니다.",
-          "팔꿈치를 옆구리 쪽으로 당기며 등을 조입니다.",
-          "숨을 들이마시며 천천히 원위치로 돌아갑니다."
-        ],
-        "movementDirection": "위에서 아래로 당기는 동작",
-        "idealStimulus": "등이 수축되는 느낌",
-        "commonMistakes": [
-          "허리를 과도하게 젖히는 것",
-          "반동으로 당기는 것",
-          "팔힘만 쓰는 것"
-        ],
-        "breathing": "당길 때 내쉬고, 풀 때 들이마십니다.",
-        "safetyTips": [
-          "허리는 곧게 유지하세요.",
-          "처음에는 가벼운 무게로 자세를 익히세요."
-        ]
-      },
-      "training": {
-        "recommendedReps": "8~12회",
-        "recommendedSets": "3세트",
-        "restTime": "60~90초",
-        "variations": ["그립을 좁게 잡기", "한쪽씩 번갈아 당기기"],
-        "levelUpOptions": ["무게를 점진적으로 추가", "수축 지점에서 2~3초 유지"],
-        "beginnerTips": [
-          "팔이 아닌 등을 쓰는 느낌에 집중하세요.",
-          "거울로 자세를 체크하면 좋아요."
-        ]
-      },
-      "extraInfo": {
-        "dailyUseCase": "자세가 구부정해지는 것을 방지하고, 어깨 균형에 도움을 줍니다.",
-        "searchKeywords": ["풀다운 운동", "등 넓히기", "광배근 강화"]
-      }
-    }
-  ]
-  [
-    {
-      "id": 15,
-      "machineKey": "selectorized_leg_curl_001",
-      "name": "셀렉터라이즈드 레그 컬",
-      "nameKo": "셀렉터라이즈드 레그 컬",
-      "nameEn": "Selectorized Leg Curl",
-      "imageUrl": "/img/machine/selectorized-leg-curl.png",
-      "shortDesc": "허벅지 뒤쪽(햄스트링)을 집중적으로 강화하는 기구입니다.",
-      "category": "legs",
-      "difficulty": "beginner",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["햄스트링(허벅지 뒤쪽)"],
-        "secondaryMuscles": ["둔근(엉덩이 근육)"],
-        "antagonistMuscles": ["대퇴사두근(허벅지 앞쪽)"],
-        "easyExplanation": "허벅지 뒤를 강화하는 대표적인 기구 운동이에요."
-      },
-      "guide": {
-        "setup": "기구에 앉아 발목을 패드에 맞추고 무릎을 패드 뒤에 고정하세요.",
-        "execution": [
-          "숨을 내쉬며 발 뒤꿈치를 천천히 엉덩이 쪽으로 당깁니다.",
-          "최대 수축 지점에서 1초 정지합니다.",
-          "숨을 들이마시며 다리를 천천히 원위치로 돌립니다."
-        ],
-        "movementDirection": "발을 뒤로 당겨 올리는 동작",
-        "idealStimulus": "허벅지 뒤쪽이 조여지는 느낌",
-        "commonMistakes": [
-          "허리 젖힘",
-          "반동으로 당기는 것",
-          "무릎이 패드에서 떨어지는 것"
-        ],
-        "breathing": "올릴 때 내쉬고, 내릴 때 들이마십니다.",
-        "safetyTips": ["처음에는 가벼운 무게로 시작하세요.", "무릎 통증 시 중단하거나 세팅 조정"]
-      },
-      "training": {
-        "recommendedReps": "8~12회",
-        "recommendedSets": "2~3세트",
-        "restTime": "60초",
-        "variations": ["한쪽 다리씩 수행", "느리게 올리고 내리기"],
-        "levelUpOptions": ["중량 증가", "수축 지점 2~3초 버티기"],
-        "beginnerTips": ["허벅지 뒤 스트레칭 후 시작", "‘햄스트링’ 위치를 확인"]
-      },
-      "extraInfo": {
-        "dailyUseCase": "계단 오르기, 달리기 시 피로 감소",
-        "searchKeywords": ["레그컬", "햄스트링 강화"]
-      }
-    },
-    {
-      "id": 16,
-      "machineKey": "ground_base_combo_incline_001",
-      "name": "그라운드 베이스 컴보 인클라인",
-      "nameKo": "그라운드 베이스 컴보 인클라인",
-      "nameEn": "Ground Base Combo Incline",
-      "imageUrl": "/img/machine/ground-base-combo-incline.png",
-      "shortDesc": "가슴 위쪽(상부 대흉근)과 어깨를 동시에 강화하는 기구입니다.",
-      "category": "chest",
-      "difficulty": "intermediate",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["상부 대흉근(가슴 위쪽)", "삼각근 전면(어깨 앞쪽)"],
-        "secondaryMuscles": ["삼두근(팔 뒤쪽)"],
-        "antagonistMuscles": ["광배근(등 근육)"],
-        "easyExplanation": "가슴 위쪽과 어깨를 동시에 단련할 수 있는 기구 운동이에요."
-      },
-      "guide": {
-        "setup": "시트에 앉아 등과 머리를 지지대에 고정하고 손잡이를 잡습니다.",
-        "execution": [
-          "숨을 내쉬며 손잡이를 가슴 위쪽으로 당기거나 밀어 올립니다.",
-          "잠시 멈췄다가 숨을 들이마시며 원위치로 돌아옵니다."
-        ],
-        "movementDirection": "가슴 위쪽 방향으로 밀고 당기는 동작",
-        "idealStimulus": "가슴 위쪽과 어깨 앞쪽 자극",
-        "commonMistakes": ["허리 젖힘", "팔꿈치 완전 잠금"],
-        "breathing": "밀 때 내쉬고, 돌아올 때 들이마십니다.",
-        "safetyTips": ["무게를 욕심내지 말고 천천히", "자세 유지에 집중"]
-      },
-      "training": {
-        "recommendedReps": "8~12회",
-        "recommendedSets": "3세트",
-        "restTime": "60~90초",
-        "variations": ["한쪽씩 번갈아 수행", "그립 넓이 조절"],
-        "levelUpOptions": ["중량 증가", "느리게 동작 수행"],
-        "beginnerTips": ["무게보다 정확한 자세에 집중하세요."]
-      },
-      "extraInfo": {
-        "dailyUseCase": "위쪽 가슴과 어깨 근력 향상으로 물건 들어 올릴 때 도움",
-        "searchKeywords": ["인클라인 기구", "상부 대흉근", "어깨 강화"]
-      }
-    },
-    {
-      "id": 17,
-      "machineKey": "chinup_001",
-      "name": "친업",
-      "nameKo": "친업",
-      "nameEn": "Chin-up",
-      "imageUrl": "/img/machine/chinup.png",
-      "shortDesc": "등과 팔 근육(이두근)을 강화하는 맨몸 운동입니다.",
-      "category": "back",
-      "difficulty": "beginner",
-      "isActive": true,
-      "anatomy": {
-        "primaryMuscles": ["광배근(등 옆쪽)", "이두근(팔 앞쪽)"],
-        "secondaryMuscles": ["승모근(등 위쪽)", "삼각근 후면(어깨 뒤쪽)"],
-        "antagonistMuscles": ["대흉근(가슴 근육)"],
-        "easyExplanation": "자기 몸을 당겨 등과 팔을 단련하는 기본 맨몸 운동이에요."
-      },
-      "guide": {
-        "setup": "철봉을 어깨 너비보다 살짝 좁게 잡습니다.",
-        "execution": [
-          "숨을 내쉬며 몸을 위로 끌어올립니다.",
-          "턱이 철봉 위로 오면 잠시 멈춥니다.",
-          "숨을 들이마시며 천천히 내려옵니다."
-        ],
-        "movementDirection": "몸을 위로 당기는 동작",
-        "idealStimulus": "등과 팔 앞쪽 근육이 조여지는 느낌",
-        "commonMistakes": ["팔만 쓰고 등 사용하지 않음", "반동으로 몸 흔들기"],
-        "breathing": "올릴 때 내쉬고, 내릴 때 들이마십니다.",
-        "safetyTips": ["처음에는 보조 밴드 사용 가능", "어깨 부상 주의"]
-      },
-      "training": {
-        "recommendedReps": "6~10회",
-        "recommendedSets": "2~3세트",
-        "restTime": "60~90초",
-        "variations": ["너비 조절", "팔꿈치 안쪽/바깥쪽 회전"],
-        "levelUpOptions": ["보조 밴드 제거 후 실시", "느리게 동작 수행"],
-        "beginnerTips": ["처음엔 밴드로 보조하거나 턱걸이 머신 사용"]
-      },
-      "extraInfo": {
-        "dailyUseCase": "등과 팔 힘 향상, 일상에서 물건 당길 때 도움",
-        "searchKeywords": ["턱걸이", "친업", "광배근 강화"]
-      }
-    }
-  ]
-  

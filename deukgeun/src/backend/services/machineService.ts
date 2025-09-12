@@ -1,12 +1,12 @@
-import { AppDataSource } from "../config/database"
-import { Machine } from "../entities/Machine"
+import { AppDataSource } from '../config/database'
+import { Machine } from '../entities/Machine'
 import type {
   CreateMachineRequest,
   UpdateMachineRequest,
   MachineFilterQuery,
   MachineCategory,
   DifficultyLevel,
-} from "../types/machine"
+} from '../types/machine'
 
 /**
  * Machine 관련 비즈니스 로직을 처리하는 서비스 클래스
@@ -36,10 +36,10 @@ export class MachineService {
   async getAllMachines(): Promise<Machine[]> {
     try {
       return await this.machineRepository.find({
-        order: { name: "ASC" },
+        order: { name: 'ASC' },
       })
     } catch (error) {
-      console.error("기구 조회 오류:", error)
+      console.error('기구 조회 오류:', error)
       return []
     }
   }
@@ -53,7 +53,7 @@ export class MachineService {
     try {
       return await this.machineRepository.findOne({ where: { id } })
     } catch (error) {
-      console.error("기구 조회 오류:", error)
+      console.error('기구 조회 오류:', error)
       return null
     }
   }
@@ -86,7 +86,7 @@ export class MachineService {
       Object.assign(machine, updateData)
       return await this.machineRepository.save(machine)
     } catch (error) {
-      console.error("기구 수정 오류:", error)
+      console.error('기구 수정 오류:', error)
       return null
     }
   }
@@ -104,7 +104,7 @@ export class MachineService {
       await this.machineRepository.remove(machine)
       return true
     } catch (error) {
-      console.error("기구 삭제 오류:", error)
+      console.error('기구 삭제 오류:', error)
       return false
     }
   }
@@ -115,24 +115,28 @@ export class MachineService {
    * @returns {Promise<Machine[]>} 필터링된 Machine 목록
    */
   async filterMachines(filters: MachineFilterQuery): Promise<Machine[]> {
-    const query = this.machineRepository.createQueryBuilder("machine")
+    const query = this.machineRepository.createQueryBuilder('machine')
 
     if (filters.category) {
-      query.andWhere("machine.category = :category", {
+      query.andWhere('machine.category = :category', {
         category: filters.category,
       })
     }
 
     if (filters.difficulty) {
-      query.andWhere("machine.difficulty_level = :difficulty", {
+      query.andWhere('machine.difficulty = :difficulty', {
         difficulty: filters.difficulty,
       })
     }
 
     if (filters.target) {
-      query.andWhere("JSON_CONTAINS(machine.target_muscle, :target)", {
-        target: `"${filters.target}"`,
-      })
+      // 부분 문자열 매칭을 위해 JSON_SEARCH 사용
+      query.andWhere(
+        '(JSON_SEARCH(machine.anatomy->"$.primaryMuscles", "one", :targetPattern) IS NOT NULL OR JSON_SEARCH(machine.anatomy->"$.secondaryMuscles", "one", :targetPattern) IS NOT NULL)',
+        {
+          targetPattern: `%${filters.target}%`,
+        }
+      )
     }
 
     return await query.getMany()
@@ -147,10 +151,10 @@ export class MachineService {
     try {
       return await this.machineRepository.find({
         where: { category: category as any },
-        order: { name: "ASC" },
+        order: { name: 'ASC' },
       })
     } catch (error) {
-      console.error("카테고리별 기구 조회 오류:", error)
+      console.error('카테고리별 기구 조회 오류:', error)
       return []
     }
   }
@@ -164,10 +168,10 @@ export class MachineService {
     try {
       return await this.machineRepository.find({
         where: { difficulty: difficulty as any },
-        order: { name: "ASC" },
+        order: { name: 'ASC' },
       })
     } catch (error) {
-      console.error("난이도별 기구 조회 오류:", error)
+      console.error('난이도별 기구 조회 오류:', error)
       return []
     }
   }
@@ -180,14 +184,17 @@ export class MachineService {
   async getMachinesByTarget(target: string): Promise<Machine[]> {
     try {
       return await this.machineRepository
-        .createQueryBuilder("machine")
-        .where("JSON_CONTAINS(machine.target_muscle, :target)", {
-          target: `"${target}"`,
-        })
-        .orderBy("machine.name", "ASC")
+        .createQueryBuilder('machine')
+        .where(
+          '(JSON_SEARCH(machine.anatomy->"$.primaryMuscles", "one", :targetPattern) IS NOT NULL OR JSON_SEARCH(machine.anatomy->"$.secondaryMuscles", "one", :targetPattern) IS NOT NULL)',
+          {
+            targetPattern: `%${target}%`,
+          }
+        )
+        .orderBy('machine.name', 'ASC')
         .getMany()
     } catch (error) {
-      console.error("타겟별 기구 조회 오류:", error)
+      console.error('타겟별 기구 조회 오류:', error)
       return []
     }
   }
@@ -207,7 +214,7 @@ export class MachineService {
       nameEn: data.nameEn ? this.sanitizeString(data.nameEn) : undefined,
       imageUrl: this.sanitizeString(data.imageUrl),
       shortDesc: this.sanitizeString(data.shortDesc),
-      detailDesc: this.sanitizeString(data.detailDesc),
+      detailDesc: data.detailDesc ? this.sanitizeString(data.detailDesc) : '',
       positiveEffect: data.positiveEffect
         ? this.sanitizeString(data.positiveEffect)
         : undefined,
@@ -215,6 +222,11 @@ export class MachineService {
       targetMuscles: data.targetMuscles
         ? data.targetMuscles.map(muscle => this.sanitizeString(muscle))
         : undefined,
+      // JSON 필드들은 별도 처리
+      anatomy: data.anatomy,
+      guide: data.guide,
+      training: data.training,
+      extraInfo: data.extraInfo,
     }
   }
 
@@ -224,10 +236,13 @@ export class MachineService {
    * @returns {string} 정제된 문자열
    */
   private sanitizeString(str: string): string {
+    if (!str || typeof str !== 'string') {
+      return ''
+    }
     return str
-      .replace(/[<>]/g, "") // HTML 태그 제거
-      .replace(/javascript:/gi, "") // JavaScript 프로토콜 제거
-      .replace(/on\w+=/gi, "") // 이벤트 핸들러 제거
+      .replace(/[<>]/g, '') // HTML 태그 제거
+      .replace(/javascript:/gi, '') // JavaScript 프로토콜 제거
+      .replace(/on\w+=/gi, '') // 이벤트 핸들러 제거
       .trim()
   }
 }

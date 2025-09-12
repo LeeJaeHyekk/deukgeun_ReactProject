@@ -5,7 +5,7 @@ import { authApi } from '@features/auth/api/authApi'
 import type { LoginRequest } from '../../../shared/types'
 import { validation, showToast } from '@frontend/shared/lib'
 import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
-import { RecaptchaWidget } from '@frontend/shared/components/RecaptchaWidget'
+import RecaptchaWidget from '@frontend/shared/components/RecaptchaWidget'
 import { useAuthErrorHandler } from '@pages/Error'
 
 import styles from './LoginPage.module.css'

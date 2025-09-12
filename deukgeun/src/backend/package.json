@@ -28,6 +28,10 @@
     "check:schema": "ts-node scripts/checkDatabaseSchema.ts",
     "seed:optimized": "ts-node scripts/seedOptimizedData.ts",
     "seed:clear": "ts-node scripts/clearAndSeedData.ts",
+    "seed:without-machines": "ts-node scripts/seedDataWithoutMachines.ts",
+    "seed:machines": "ts-node scripts/seedMachinesData.ts",
+    "seed:machines:unified": "ts-node scripts/seedMachinesUnified.ts",
+    "seed:machines:api": "ts-node scripts/insertMachinesViaAPI.ts",
     "db:reset": "ts-node scripts/safeDatabaseReset.ts",
     "db:sync": "ts-node scripts/syncDatabase.ts"
   },

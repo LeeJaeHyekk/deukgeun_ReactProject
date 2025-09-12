@@ -4,26 +4,21 @@
 
 // 기계 카테고리
 export type MachineCategory =
-  | "cardio"
-  | "strength"
-  | "flexibility"
-  | "balance"
-  | "functional"
-  | "rehabilitation"
-  | "상체"
-  | "하체"
-  | "전신"
-  | "기타"
+  | 'chest'
+  | 'back'
+  | 'legs'
+  | 'shoulders'
+  | 'arms'
+  | 'cardio'
+  | 'core'
+  | 'fullbody'
 
 // 난이도 레벨
 export type DifficultyLevel =
-  | "beginner"
-  | "intermediate"
-  | "advanced"
-  | "expert"
-  | "초급"
-  | "중급"
-  | "고급"
+  | 'beginner'
+  | 'intermediate'
+  | 'advanced'
+  | 'expert'
 
 export interface Machine {
   id: number
@@ -88,14 +83,23 @@ export interface MachineResponse {
 }
 
 export type TargetMuscle =
-  | "가슴"
-  | "등"
-  | "어깨"
-  | "팔"
-  | "복근"
-  | "허리"
-  | "엉덩이"
-  | "다리"
+  | '가슴'
+  | '등'
+  | '어깨'
+  | '팔'
+  | '복근'
+  | '허리'
+  | '엉덩이'
+  | '다리'
+  | '허벅지'
+  | '대퇴사두근'
+  | '햄스트링'
+  | '둔근'
+  | '삼각근'
+  | '대흉근'
+  | '광배근'
+  | '이두근'
+  | '삼두근'
 
 // Filter Types
 export interface MachineFilterQuery {
@@ -150,42 +154,46 @@ export interface UseMachinesReturn {
 
 // Constants
 export const MACHINE_CATEGORIES: MachineCategory[] = [
-  "상체",
-  "하체",
-  "전신",
-  "기타",
-  "cardio",
-  "strength",
-  "flexibility",
-  "balance",
-  "functional",
-  "rehabilitation",
+  'chest',
+  'back',
+  'legs',
+  'shoulders',
+  'arms',
+  'cardio',
+  'core',
+  'fullbody',
 ]
 
 export const DIFFICULTY_LEVELS: DifficultyLevel[] = [
-  "초급",
-  "중급",
-  "고급",
-  "beginner",
-  "intermediate",
-  "advanced",
-  "expert",
+  'beginner',
+  'intermediate',
+  'advanced',
+  'expert',
 ]
 
 export const TARGET_MUSCLES: TargetMuscle[] = [
-  "가슴",
-  "등",
-  "어깨",
-  "팔",
-  "복근",
-  "허리",
-  "엉덩이",
-  "다리",
+  '가슴',
+  '등',
+  '어깨',
+  '팔',
+  '복근',
+  '허리',
+  '엉덩이',
+  '다리',
+  '허벅지',
+  '대퇴사두근',
+  '햄스트링',
+  '둔근',
+  '삼각근',
+  '대흉근',
+  '광배근',
+  '이두근',
+  '삼두근',
 ]
 // Utility Types
-export type MachineSortOption = "name" | "category" | "difficulty" | "createdAt"
+export type MachineSortOption = 'name' | 'category' | 'difficulty' | 'createdAt'
 
 export interface MachineSortConfig {
   field: MachineSortOption
-  direction: "asc" | "desc"
+  direction: 'asc' | 'desc'
 }

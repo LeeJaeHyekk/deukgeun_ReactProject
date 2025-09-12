@@ -2,13 +2,9 @@
 // Machine Filter Component
 // ============================================================================
 
-import React, { useState, useCallback } from "react"
-import {
-  MACHINE_CATEGORIES,
-  DIFFICULTY_LEVELS,
-  TARGET_MUSCLES,
-} from "../types"
-import "./MachineFilter.css"
+import React, { useState, useCallback } from 'react'
+import { MACHINE_CATEGORIES, DIFFICULTY_LEVELS, TARGET_MUSCLES } from '../types'
+import './MachineFilter.css'
 
 interface MachineFilterProps {
   selectedCategory: string
@@ -78,7 +74,7 @@ export const MachineFilter: React.FC<MachineFilterProps> = ({
           {searchTerm && (
             <button
               className="search-clear"
-              onClick={() => onSearchChange("")}
+              onClick={() => onSearchChange('')}
               aria-label="검색어 지우기"
             >
               ✕
@@ -89,7 +85,7 @@ export const MachineFilter: React.FC<MachineFilterProps> = ({
         {/* 필터 토글 버튼 */}
         <div className="filter-controls">
           <button
-            className={`filter-toggle ${isExpanded ? "expanded" : ""}`}
+            className={`filter-toggle ${isExpanded ? 'expanded' : ''}`}
             onClick={handleToggleFilters}
             aria-label="필터 토글"
           >
@@ -98,7 +94,7 @@ export const MachineFilter: React.FC<MachineFilterProps> = ({
             {activeFiltersCount > 0 && (
               <span className="filter-badge">{activeFiltersCount}</span>
             )}
-            <span className="toggle-arrow">{isExpanded ? "▲" : "▼"}</span>
+            <span className="toggle-arrow">{isExpanded ? '▲' : '▼'}</span>
           </button>
 
           {activeFiltersCount > 0 && (
@@ -118,23 +114,35 @@ export const MachineFilter: React.FC<MachineFilterProps> = ({
             <div className="filter-buttons">
               <button
                 className={`filter-button ${
-                  selectedCategory === "" ? "active" : ""
+                  selectedCategory === '' ? 'active' : ''
                 }`}
-                onClick={() => onCategoryChange("")}
+                onClick={() => onCategoryChange('')}
               >
                 전체
               </button>
-              {MACHINE_CATEGORIES.map(category => (
-                <button
-                  key={category}
-                  className={`filter-button ${
-                    selectedCategory === category ? "active" : ""
-                  }`}
-                  onClick={() => onCategoryChange(category)}
-                >
-                  {category}
-                </button>
-              ))}
+              {MACHINE_CATEGORIES.map(category => {
+                const categoryNames: Record<string, string> = {
+                  chest: '가슴',
+                  back: '등',
+                  legs: '하체',
+                  shoulders: '어깨',
+                  arms: '팔',
+                  cardio: '유산소',
+                  core: '코어',
+                  fullbody: '전신',
+                }
+                return (
+                  <button
+                    key={category}
+                    className={`filter-button ${
+                      selectedCategory === category ? 'active' : ''
+                    }`}
+                    onClick={() => onCategoryChange(category)}
+                  >
+                    {categoryNames[category] || category}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -144,23 +152,31 @@ export const MachineFilter: React.FC<MachineFilterProps> = ({
             <div className="filter-buttons">
               <button
                 className={`filter-button ${
-                  selectedDifficulty === "" ? "active" : ""
+                  selectedDifficulty === '' ? 'active' : ''
                 }`}
-                onClick={() => onDifficultyChange("")}
+                onClick={() => onDifficultyChange('')}
               >
                 전체
               </button>
-              {DIFFICULTY_LEVELS.map(difficulty => (
-                <button
-                  key={difficulty}
-                  className={`filter-button difficulty-${difficulty.toLowerCase()} ${
-                    selectedDifficulty === difficulty ? "active" : ""
-                  }`}
-                  onClick={() => onDifficultyChange(difficulty)}
-                >
-                  {difficulty}
-                </button>
-              ))}
+              {DIFFICULTY_LEVELS.map(difficulty => {
+                const difficultyNames: Record<string, string> = {
+                  beginner: '초급',
+                  intermediate: '중급',
+                  advanced: '고급',
+                  expert: '전문가',
+                }
+                return (
+                  <button
+                    key={difficulty}
+                    className={`filter-button difficulty-${difficulty.toLowerCase()} ${
+                      selectedDifficulty === difficulty ? 'active' : ''
+                    }`}
+                    onClick={() => onDifficultyChange(difficulty)}
+                  >
+                    {difficultyNames[difficulty] || difficulty}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -170,9 +186,9 @@ export const MachineFilter: React.FC<MachineFilterProps> = ({
             <div className="filter-buttons">
               <button
                 className={`filter-button ${
-                  selectedTarget === "" ? "active" : ""
+                  selectedTarget === '' ? 'active' : ''
                 }`}
-                onClick={() => onTargetChange("")}
+                onClick={() => onTargetChange('')}
               >
                 전체
               </button>
@@ -180,7 +196,7 @@ export const MachineFilter: React.FC<MachineFilterProps> = ({
                 <button
                   key={target}
                   className={`filter-button ${
-                    selectedTarget === target ? "active" : ""
+                    selectedTarget === target ? 'active' : ''
                   }`}
                   onClick={() => onTargetChange(target)}
                 >

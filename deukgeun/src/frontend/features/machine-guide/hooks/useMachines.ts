@@ -2,10 +2,13 @@
 // Machine Guide Hook
 // ============================================================================
 
-import { useState, useCallback, useRef, useMemo } from "react"
-import { MachineApiService } from "../services/machineApi"
-import type { Machine, MachineDTO } from "@dto/index"
-import type { MachineFilterQuery } from "../types"
+import { useState, useCallback, useRef, useMemo } from 'react'
+import { MachineApiService } from '../services/machineApi'
+import type {
+  EnhancedMachine,
+  MachineFilterQuery,
+} from '@shared/types/machineGuide.types'
+import type { Machine } from '@shared/types/dto/machine.dto'
 
 const FETCH_COOLDOWN = 500 // 0.5초로 단축
 const CACHE_DURATION = 5 * 60 * 1000 // 5분 캐시
@@ -13,16 +16,16 @@ const MAX_RETRY_ATTEMPTS = 3
 const RETRY_DELAY = 1000
 
 export const useMachines = () => {
-  const [machines, setMachines] = useState<MachineDTO[]>([])
+  const [machines, setMachines] = useState<EnhancedMachine[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [currentFilter, setCurrentFilter] = useState<string>("")
+  const [currentFilter, setCurrentFilter] = useState<string>('')
   const [lastFetchTime, setLastFetchTime] = useState<number>(0)
   const [retryCount, setRetryCount] = useState(0)
 
   // 캐시 시스템
   const machinesCache = useRef<
-    Map<string, { data: MachineDTO[]; timestamp: number }>
+    Map<string, { data: EnhancedMachine[]; timestamp: number }>
   >(new Map())
 
   // API 서비스 인스턴스
@@ -37,7 +40,7 @@ export const useMachines = () => {
     return null
   }, [])
 
-  const setCachedData = useCallback((key: string, data: MachineDTO[]) => {
+  const setCachedData = useCallback((key: string, data: EnhancedMachine[]) => {
     machinesCache.current.set(key, {
       data,
       timestamp: Date.now(),
@@ -64,7 +67,7 @@ export const useMachines = () => {
         return result
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다"
+          err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다'
         setError(errorMessage)
         throw err
       } finally {
@@ -113,24 +116,86 @@ export const useMachines = () => {
     return true
   }, [lastFetchTime])
 
+  // Machine을 EnhancedMachine으로 변환하는 헬퍼 함수
+  const convertToEnhancedMachine = useCallback(
+    (machine: Machine): EnhancedMachine => {
+      console.log('🔄 Machine을 EnhancedMachine으로 변환:', {
+        id: machine.id,
+        name: machine.name,
+        hasImageUrl: !!machine.imageUrl,
+        hasDetailDesc: !!machine.detailDesc,
+        hasPositiveEffect: !!machine.positiveEffect,
+        hasTrainingData: !!machine.training,
+        hasAnatomyData: !!machine.anatomy,
+        hasGuideData: !!machine.guide,
+      })
+
+      return {
+        id: machine.id,
+        machineKey: machine.machineKey,
+        name: machine.name,
+        nameEn: machine.nameEn || machine.name,
+        imageUrl: machine.imageUrl,
+        shortDesc: machine.shortDesc,
+        category: machine.category as any, // 타입 캐스팅
+        difficulty: machine.difficulty as any, // 타입 캐스팅
+        isActive: machine.isActive,
+        // 데이터베이스에서 가져온 실제 데이터 사용
+        anatomy: machine.anatomy || {
+          primaryMuscles: machine.targetMuscles || [],
+          secondaryMuscles: [],
+          antagonistMuscles: [],
+          easyExplanation: machine.shortDesc,
+        },
+        guide: machine.guide || {
+          setup: machine.detailDesc || '',
+          execution: machine.detailDesc ? [machine.detailDesc] : [],
+          movementDirection: '',
+          idealStimulus: machine.positiveEffect || '',
+          commonMistakes: [],
+          breathing: '',
+          safetyTips: [],
+        },
+        training: machine.training || {
+          recommendedReps: '',
+          recommendedSets: '',
+          restTime: '',
+          variations: [],
+          levelUpOptions: [],
+          beginnerTips: [],
+        },
+        extraInfo: machine.extraInfo || {
+          dailyUseCase: machine.shortDesc,
+          searchKeywords: [
+            machine.name,
+            machine.nameEn || '',
+            machine.category,
+          ].filter(Boolean), // 빈 값 제거
+        },
+      }
+    },
+    []
+  )
+
   // 모든 머신 조회
   const fetchMachines = useCallback(async () => {
     if (!checkCooldown()) return
 
-    const cacheKey = "all-machines"
+    const cacheKey = 'all-machines'
     const cachedData = getCachedData(cacheKey)
 
     if (cachedData) {
       setMachines(cachedData)
-      setCurrentFilter("")
+      setCurrentFilter('')
       return
     }
 
     await withLoading(async () => {
       const result = await withRetry(() => apiService.getMachines())
-      setMachines(result.machines as MachineDTO[])
-      setCachedData(cacheKey, result.machines as MachineDTO[])
-      setCurrentFilter("")
+      const enhancedMachines = result.machines.map(convertToEnhancedMachine)
+      setMachines(enhancedMachines)
+      setCachedData(cacheKey, enhancedMachines)
+      setCurrentFilter('')
       setLastFetchTime(Date.now())
     })
   }, [
@@ -140,6 +205,7 @@ export const useMachines = () => {
     setCachedData,
     withLoading,
     withRetry,
+    convertToEnhancedMachine,
   ])
 
   // 카테고리별 머신 조회
@@ -160,8 +226,9 @@ export const useMachines = () => {
         const result = await withRetry(() =>
           apiService.getMachinesByCategory(category)
         )
-        setMachines(result.machines as MachineDTO[])
-        setCachedData(cacheKey, result.machines as MachineDTO[])
+        const enhancedMachines = result.machines.map(convertToEnhancedMachine)
+        setMachines(enhancedMachines)
+        setCachedData(cacheKey, enhancedMachines)
         setCurrentFilter(`카테고리: ${category}`)
         setLastFetchTime(Date.now())
       })
@@ -173,6 +240,7 @@ export const useMachines = () => {
       setCachedData,
       withLoading,
       withRetry,
+      convertToEnhancedMachine,
     ]
   )
 
@@ -194,8 +262,9 @@ export const useMachines = () => {
         const result = await withRetry(() =>
           apiService.getMachinesByDifficulty(difficulty)
         )
-        setMachines(result.machines as MachineDTO[])
-        setCachedData(cacheKey, result.machines as MachineDTO[])
+        const enhancedMachines = result.machines.map(convertToEnhancedMachine)
+        setMachines(enhancedMachines)
+        setCachedData(cacheKey, enhancedMachines)
         setCurrentFilter(`난이도: ${difficulty}`)
         setLastFetchTime(Date.now())
       })
@@ -207,6 +276,7 @@ export const useMachines = () => {
       setCachedData,
       withLoading,
       withRetry,
+      convertToEnhancedMachine,
     ]
   )
 
@@ -228,8 +298,9 @@ export const useMachines = () => {
         const result = await withRetry(() =>
           apiService.getMachinesByTarget(target)
         )
-        setMachines(result.machines as MachineDTO[])
-        setCachedData(cacheKey, result.machines as MachineDTO[])
+        const enhancedMachines = result.machines.map(convertToEnhancedMachine)
+        setMachines(enhancedMachines)
+        setCachedData(cacheKey, enhancedMachines)
         setCurrentFilter(`타겟: ${target}`)
         setLastFetchTime(Date.now())
       })
@@ -241,6 +312,7 @@ export const useMachines = () => {
       setCachedData,
       withLoading,
       withRetry,
+      convertToEnhancedMachine,
     ]
   )
 
@@ -254,15 +326,16 @@ export const useMachines = () => {
 
       if (cachedData) {
         setMachines(cachedData)
-        setCurrentFilter("필터 적용됨")
+        setCurrentFilter('필터 적용됨')
         return
       }
 
       await withLoading(async () => {
         const result = await withRetry(() => apiService.filterMachines(filters))
-        setMachines(result.machines as MachineDTO[])
-        setCachedData(cacheKey, result.machines as MachineDTO[])
-        setCurrentFilter("필터 적용됨")
+        const enhancedMachines = result.machines.map(convertToEnhancedMachine)
+        setMachines(enhancedMachines)
+        setCachedData(cacheKey, enhancedMachines)
+        setCurrentFilter('필터 적용됨')
         setLastFetchTime(Date.now())
       })
     },
@@ -273,6 +346,7 @@ export const useMachines = () => {
       setCachedData,
       withLoading,
       withRetry,
+      convertToEnhancedMachine,
     ]
   )
 
@@ -286,12 +360,13 @@ export const useMachines = () => {
         // 캐시 무효화
         machinesCache.current.clear()
         // 새로 생성된 머신을 목록에 추가
-        setMachines(prev => [...prev, result.machine as MachineDTO])
+        const enhancedMachine = convertToEnhancedMachine(result.machine)
+        setMachines(prev => [...prev, enhancedMachine])
         setLastFetchTime(Date.now())
         return result
       })
     },
-    [apiService, withLoading, withRetry]
+    [apiService, withLoading, withRetry, convertToEnhancedMachine]
   )
 
   // 머신 수정
@@ -304,14 +379,15 @@ export const useMachines = () => {
         // 캐시 무효화
         machinesCache.current.clear()
         // 수정된 머신을 목록에서 업데이트
+        const enhancedMachine = convertToEnhancedMachine(result.machine)
         setMachines(prev =>
-          prev.map(machine => (machine.id === id ? result.machine as MachineDTO : machine))
+          prev.map(machine => (machine.id === id ? enhancedMachine : machine))
         )
         setLastFetchTime(Date.now())
         return result
       })
     },
-    [apiService, withLoading, withRetry]
+    [apiService, withLoading, withRetry, convertToEnhancedMachine]
   )
 
   // 머신 삭제
@@ -337,7 +413,7 @@ export const useMachines = () => {
   // 캐시 초기화
   const clearCache = useCallback(() => {
     machinesCache.current.clear()
-    console.log("🗑️ 캐시가 초기화되었습니다")
+    console.log('🗑️ 캐시가 초기화되었습니다')
   }, [])
 
   // 메모이제이션된 값들

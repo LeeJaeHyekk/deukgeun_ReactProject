@@ -58,7 +58,6 @@ export interface Machine {
   id: number
   machineKey: string
   name: string
-  nameKo: string
   nameEn: string
   imageUrl: string
   shortDesc: string
@@ -91,11 +90,16 @@ export interface DifficultyInfo {
   color: string
 }
 
-// 머신 가이드 데이터
+// 머신 가이드 데이터 (JSON 구조)
 export interface MachineGuideData {
   machines: EnhancedMachine[]
   categories: Record<MachineCategory, MachineCategoryInfo>
   difficulties: Record<DifficultyLevel, DifficultyInfo>
+}
+
+// machinesData.json에서 직접 import할 수 있는 타입
+export interface MachinesDataJson {
+  machines: EnhancedMachine[]
 }
 
 // 필터 쿼리
@@ -195,7 +199,6 @@ export interface MachineSearchOptions {
 export interface MachineCreateRequest {
   machineKey: string
   name: string
-  nameKo: string
   nameEn: string
   imageUrl: string
   shortDesc: string
@@ -210,7 +213,6 @@ export interface MachineCreateRequest {
 export interface MachineUpdateRequest {
   id: number
   name?: string
-  nameKo?: string
   nameEn?: string
   imageUrl?: string
   shortDesc?: string

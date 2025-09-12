@@ -2,14 +2,15 @@
 // Machine Guide Page
 // ============================================================================
 
-import React, { useEffect, useState, useCallback } from "react"
-import { useMachines } from "./hooks/useMachines"
-import { MachineFilter } from "./components/MachineFilter"
-import { MachineCard } from "./components/MachineCard"
-import { MachineModal } from "./components/MachineModal"
-import type { Machine } from "@dto/index"
-import { Navigation } from "@widgets/Navigation/Navigation"
-import "./MachineGuidePage.css"
+import React, { useEffect, useState, useCallback } from 'react'
+import { useMachines } from './hooks/useMachines'
+import { MachineFilter } from './components/MachineFilter'
+import { MachineCard } from './components/MachineCard'
+import { MachineModal } from './components/MachineModal'
+import { preloadImages } from './utils/machineImageUtils'
+import type { EnhancedMachine } from '@shared/types/machineGuide.types'
+import { Navigation } from '@widgets/Navigation/Navigation'
+import './MachineGuidePage.css'
 
 export default function MachineGuidePage() {
   const {
@@ -25,20 +26,44 @@ export default function MachineGuidePage() {
     clearError,
   } = useMachines()
 
-  const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null)
+  const [selectedMachine, setSelectedMachine] =
+    useState<EnhancedMachine | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState("")
-  const [selectedDifficulty, setSelectedDifficulty] = useState("")
-  const [selectedTarget, setSelectedTarget] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedDifficulty, setSelectedDifficulty] = useState('')
+  const [selectedTarget, setSelectedTarget] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
 
   // 초기 데이터 로드
   useEffect(() => {
     fetchMachines()
   }, [fetchMachines])
 
+  // 머신 이미지 프리로딩
+  useEffect(() => {
+    if (machines.length > 0) {
+      const imageUrls = machines.map(machine => {
+        // DB에 저장된 이미지 URL이 있으면 사용, 그렇지 않으면 기본 이미지
+        return machine.imageUrl || '/img/machine/default.png'
+      })
+
+      // 기본 이미지도 함께 프리로딩
+      imageUrls.push('/img/machine/default.png')
+
+      preloadImages(imageUrls).then(results => {
+        const failedImages = Array.from(results.entries())
+          .filter(([_, success]) => !success)
+          .map(([src, _]) => src)
+
+        if (failedImages.length > 0) {
+          console.warn('⚠️ 프리로드 실패한 이미지들:', failedImages)
+        }
+      })
+    }
+  }, [machines])
+
   // 머신 카드 클릭 핸들러
-  const handleMachineClick = useCallback((machine: Machine) => {
+  const handleMachineClick = useCallback((machine: EnhancedMachine) => {
     setSelectedMachine(machine)
     setIsModalOpen(true)
   }, [])
@@ -53,9 +78,9 @@ export default function MachineGuidePage() {
   const handleCategoryChange = useCallback(
     async (category: string) => {
       setSelectedCategory(category)
-      setSelectedDifficulty("")
-      setSelectedTarget("")
-      setSearchTerm("")
+      setSelectedDifficulty('')
+      setSelectedTarget('')
+      setSearchTerm('')
 
       if (category) {
         await getMachinesByCategory(category)
@@ -70,9 +95,9 @@ export default function MachineGuidePage() {
   const handleDifficultyChange = useCallback(
     async (difficulty: string) => {
       setSelectedDifficulty(difficulty)
-      setSelectedCategory("")
-      setSelectedTarget("")
-      setSearchTerm("")
+      setSelectedCategory('')
+      setSelectedTarget('')
+      setSearchTerm('')
 
       if (difficulty) {
         await getMachinesByDifficulty(difficulty)
@@ -87,9 +112,9 @@ export default function MachineGuidePage() {
   const handleTargetChange = useCallback(
     async (target: string) => {
       setSelectedTarget(target)
-      setSelectedCategory("")
-      setSelectedDifficulty("")
-      setSearchTerm("")
+      setSelectedCategory('')
+      setSelectedDifficulty('')
+      setSearchTerm('')
 
       if (target) {
         await getMachinesByTarget(target)
@@ -107,17 +132,17 @@ export default function MachineGuidePage() {
 
   // 필터 초기화 핸들러
   const handleReset = useCallback(async () => {
-    setSelectedCategory("")
-    setSelectedDifficulty("")
-    setSelectedTarget("")
-    setSearchTerm("")
+    setSelectedCategory('')
+    setSelectedDifficulty('')
+    setSelectedTarget('')
+    setSearchTerm('')
     await fetchMachines()
   }, [fetchMachines])
 
   // 에러 처리
   useEffect(() => {
     if (error) {
-      console.error("MachineGuide 에러:", error)
+      console.error('MachineGuide 에러:', error)
       // 에러가 5초 후 자동으로 사라지도록 설정
       const timer = setTimeout(() => {
         clearError()
@@ -131,28 +156,24 @@ export default function MachineGuidePage() {
     if (!searchTerm.trim()) return machines
 
     const searchLower = searchTerm.toLowerCase()
-    return machines.filter(
-      machine => {
-        const categoryStr = typeof machine.category === 'string' 
-          ? machine.category 
-          : machine.category?.name || ''
-        const difficultyStr = typeof machine.difficulty === 'string' 
-          ? machine.difficulty 
-          : machine.difficulty?.name || ''
-        
-        return (
-          machine.name.toLowerCase().includes(searchLower) ||
-          machine.nameKo?.toLowerCase().includes(searchLower) ||
-          machine.nameEn?.toLowerCase().includes(searchLower) ||
-          machine.shortDesc.toLowerCase().includes(searchLower) ||
-          categoryStr.toLowerCase().includes(searchLower) ||
-          difficultyStr.toLowerCase().includes(searchLower) ||
-          machine.targetMuscles?.some(muscle =>
-            muscle.toLowerCase().includes(searchLower)
-          )
+    return machines.filter(machine => {
+      return (
+        machine.name.toLowerCase().includes(searchLower) ||
+        machine.nameEn.toLowerCase().includes(searchLower) ||
+        machine.shortDesc.toLowerCase().includes(searchLower) ||
+        machine.category.toLowerCase().includes(searchLower) ||
+        machine.difficulty.toLowerCase().includes(searchLower) ||
+        machine.anatomy.primaryMuscles.some(muscle =>
+          muscle.toLowerCase().includes(searchLower)
+        ) ||
+        machine.anatomy.secondaryMuscles.some(muscle =>
+          muscle.toLowerCase().includes(searchLower)
+        ) ||
+        machine.extraInfo.searchKeywords.some(keyword =>
+          keyword.toLowerCase().includes(searchLower)
         )
-      }
-    )
+      )
+    })
   }, [machines, searchTerm])
 
   return (

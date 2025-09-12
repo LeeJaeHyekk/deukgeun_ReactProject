@@ -30,6 +30,7 @@
     "db:sync": "cd src/backend && npx ts-node scripts/syncDatabase.ts",
     "db:safe-reset": "cd src/backend && npx ts-node scripts/safeDatabaseReset.ts",
     "db:direct-reset": "cd src/backend && npx ts-node scripts/directDatabaseReset.ts",
+    "update:machines": "cd src/backend && npx ts-node scripts/updateMachinesFromJson.ts",
     "dev:full": "concurrently \"npm run backend:dev\" \"wait-on http://localhost:5000 && npm run dev\" --kill-others-on-fail",
     "build:full:production": "npm run build:backend:production && npm run build:production",
     "pm2:start": "pm2 start ecosystem.config.js",

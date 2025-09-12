@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect } from 'react'
 import {
   Clock,
   Play,
@@ -8,10 +8,10 @@ import {
   Trash2,
   Timer,
   Target,
-} from "lucide-react"
-import { useWorkoutTimer } from "@shared/contexts/WorkoutTimerContext"
-import type { WorkoutSessionDTO } from "../../../../types"
-import "./ActiveSessionContainer.css"
+} from 'lucide-react'
+import { useWorkoutTimer } from '@frontend/shared/contexts/WorkoutTimerContext'
+import type { WorkoutSessionDTO } from '../../../../types'
+import './ActiveSessionContainer.css'
 
 interface ActiveSessionContainerProps {
   activeSession: WorkoutSessionDTO
@@ -29,8 +29,8 @@ export const ActiveSessionContainer: React.FC<ActiveSessionContainerProps> = ({
   const { startTimer, pauseTimer, stopTimer, timerState } = useWorkoutTimer()
   const [localElapsedTime, setLocalElapsedTime] = useState(0)
 
-  const isInProgress = activeSession.status === "in_progress"
-  const isPaused = activeSession.status === "paused"
+  const isInProgress = activeSession.status === 'in_progress'
+  const isPaused = activeSession.status === 'paused'
   const isTimerRunning = timerState.isRunning
 
   // 로컬 타이머 관리
@@ -57,26 +57,26 @@ export const ActiveSessionContainer: React.FC<ActiveSessionContainerProps> = ({
     const secs = seconds % 60
 
     if (hours > 0) {
-      return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
     }
-    return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
+    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
   const formatDuration = (minutes?: number) => {
-    if (!minutes) return "0분"
+    if (!minutes) return '0분'
     const hours = Math.floor(minutes / 60)
     const mins = minutes % 60
     return hours > 0 ? `${hours}시간 ${mins}분` : `${mins}분`
   }
 
   const formatDate = (date: Date | string | undefined) => {
-    if (!date) return "미정"
+    if (!date) return '미정'
     const d = new Date(date)
-    return d.toLocaleDateString("ko-KR", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    return d.toLocaleDateString('ko-KR', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     })
   }
 
@@ -144,7 +144,7 @@ export const ActiveSessionContainer: React.FC<ActiveSessionContainerProps> = ({
               )}
             </div>
             <div className="timerLabel">
-              {isTimerRunning ? "운동 중" : isPaused ? "일시정지" : "준비"}
+              {isTimerRunning ? '운동 중' : isPaused ? '일시정지' : '준비'}
             </div>
           </div>
 
@@ -157,7 +157,7 @@ export const ActiveSessionContainer: React.FC<ActiveSessionContainerProps> = ({
             ) : (
               <button className="timerBtn startBtn" onClick={handleStart}>
                 <Play size={16} />
-                {isPaused ? "재개" : "시작"}
+                {isPaused ? '재개' : '시작'}
               </button>
             )}
             <button className="timerBtn resetBtn" onClick={handleReset}>
@@ -190,7 +190,7 @@ export const ActiveSessionContainer: React.FC<ActiveSessionContainerProps> = ({
             <div className="infoItem">
               <span className="label">상태</span>
               <span className="value">
-                {isInProgress ? "운동 중" : isPaused ? "일시정지" : "준비"}
+                {isInProgress ? '운동 중' : isPaused ? '일시정지' : '준비'}
               </span>
             </div>
             <div className="infoItem">

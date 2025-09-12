@@ -2,11 +2,14 @@
 // Post Transformer
 // ============================================================================
 
-import { PostDTO } from "../../shared/types/dto/post.dto"
-import { Post } from "../entities/Post"
+import { PostDTO } from '../../shared/types/dto/post.dto'
+import { Post } from '../entities/Post'
 
 export class PostTransformer {
   static toDTO(entity: Post): PostDTO {
+    // 사용자가 좋아요를 눌렀는지 확인
+    const isLiked = entity.likes && entity.likes.length > 0
+
     return {
       id: entity.id,
       title: entity.title,
@@ -24,6 +27,7 @@ export class PostTransformer {
       images: entity.images,
       likeCount: entity.like_count,
       commentCount: entity.comment_count,
+      isLiked: isLiked,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     }
@@ -34,9 +38,12 @@ export class PostTransformer {
       id: dto.id,
       title: dto.title,
       content: dto.content,
-      author: typeof dto.author === "string" ? dto.author : dto.author.nickname,
+      author: typeof dto.author === 'string' ? dto.author : dto.author.nickname,
       userId: dto.userId,
-      category: typeof dto.category === "string" ? dto.category as any : dto.category.name as any,
+      category:
+        typeof dto.category === 'string'
+          ? (dto.category as any)
+          : (dto.category.name as any),
       tags: dto.tags,
       thumbnail_url: dto.thumbnailUrl,
       images: dto.images,

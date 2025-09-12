@@ -153,6 +153,42 @@
   transform: translateY(-1px);
 }
 
+.likeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.likeButton:disabled:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: none;
+}
+
+.likeButton.liked {
+  background: rgba(248, 113, 113, 0.2);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: #f87171;
+}
+
+.likeButton.liked:hover {
+  background: rgba(248, 113, 113, 0.3);
+  border-color: rgba(248, 113, 113, 0.5);
+}
+
+.likeButton.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.likeButton.disabled:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: none;
+  box-shadow: none;
+}
+
 .editButton {
   background: rgba(59, 130, 246, 0.2);
   border-color: rgba(59, 130, 246, 0.3);

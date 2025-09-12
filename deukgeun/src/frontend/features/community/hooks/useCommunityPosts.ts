@@ -102,16 +102,26 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
 
         // API 응답 데이터를 안전하게 매핑
         const mappedPosts = (rawPosts || []).map(post => {
-          console.log('Individual post:', post)
+          console.log('📝 개별 게시글 데이터:', {
+            id: post.id,
+            title: post.title,
+            isLiked: post.isLiked,
+            likeCount: post.likeCount || post.like_count,
+            author: post.author,
+          })
           return {
             id: post.id,
             userId: post.user?.id || post.userId || 0,
             title: post.title || '',
             content: post.content || '',
-            author: post.user?.nickname || post.author || '익명',
+            author: {
+              id: post.user?.id || post.userId || 0,
+              nickname: post.user?.nickname || post.author || '익명',
+            },
             category: post.category || '',
-            likeCount: post.like_count || post.likes || 0,
-            commentCount: post.comment_count || post.comments || 0,
+            likeCount: post.likeCount || post.like_count || 0,
+            commentCount: post.commentCount || post.comment_count || 0,
+            isLiked: post.isLiked || false, // 좋아요 상태 포함
             createdAt:
               post.createdAt || post.created_at || new Date().toISOString(),
             updatedAt:

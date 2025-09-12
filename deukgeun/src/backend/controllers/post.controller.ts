@@ -1,10 +1,10 @@
-import { Request, Response, NextFunction } from "express"
-import { PostService } from "../services/post.service"
-import { User } from "../entities/User"
-import { LevelService } from "../services/levelService"
-import { AppDataSource } from "../config/database"
-import { ApiResponse, ErrorResponse } from "../types"
-import { toPostDTO, toPostDTOList } from "@transformers/index"
+import { Request, Response, NextFunction } from 'express'
+import { PostService } from '../services/post.service'
+import { User } from '../entities/User'
+import { LevelService } from '../services/levelService'
+import { AppDataSource } from '../config/database'
+import { ApiResponse, ErrorResponse } from '../types'
+import { toPostDTO, toPostDTOList } from '@transformers/index'
 
 /**
  * 포스트 관련 HTTP 요청을 처리하는 컨트롤러 클래스
@@ -29,13 +29,18 @@ export class PostController {
   getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { category, q, sort, page, limit } = req.query as any
-      const result = await this.postService.getAllPosts({
-        category,
-        q,
-        sort,
-        page: page ? parseInt(page) : undefined,
-        limit: limit ? parseInt(limit) : undefined,
-      })
+      const userId = (req.user as any)?.userId // JWT에서 사용자 ID 추출
+
+      const result = await this.postService.getAllPosts(
+        {
+          category,
+          q,
+          sort,
+          page: page ? parseInt(page) : undefined,
+          limit: limit ? parseInt(limit) : undefined,
+        },
+        userId
+      )
 
       // 서비스에서 반환된 데이터가 엔티티인 경우 DTO 변환
       if (result.data && Array.isArray(result.data)) {
@@ -59,7 +64,7 @@ export class PostController {
     try {
       // JWT 토큰에서 추출한 사용자 정보 확인
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        return res.status(401).json({ message: '인증이 필요합니다.' })
       }
 
       const posts = await this.postService.getPostsByUserId(req.user.userId)
@@ -85,7 +90,7 @@ export class PostController {
       const { id } = req.params
       const post = await this.postService.getPostById(parseInt(id))
       if (!post) {
-        return res.status(404).json({ message: "Post not found" })
+        return res.status(404).json({ message: 'Post not found' })
       }
 
       // DTO 변환 적용
@@ -108,13 +113,13 @@ export class PostController {
     try {
       // JWT 토큰에서 추출한 사용자 정보 확인
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        return res.status(401).json({ message: '인증이 필요합니다.' })
       }
 
       // 최소 필드 검증
       const { title, content } = req.body || {}
       if (!title || !content) {
-        return res.status(400).json({ message: "제목과 내용을 입력해주세요." })
+        return res.status(400).json({ message: '제목과 내용을 입력해주세요.' })
       }
 
       // 작성자 이름은 서버에서 보장 (클라이언트 입력 무시)
@@ -122,7 +127,7 @@ export class PostController {
       const authorUser = await userRepo.findOne({
         where: { id: req.user.userId },
       })
-      const safeAuthor = authorUser?.nickname || authorUser?.email || "user"
+      const safeAuthor = authorUser?.nickname || authorUser?.email || 'user'
 
       const postData = {
         ...req.body,
@@ -141,20 +146,20 @@ export class PostController {
       )
 
       if (!newPost) {
-        return res.status(500).json({ message: "게시글 생성에 실패했습니다." })
+        return res.status(500).json({ message: '게시글 생성에 실패했습니다.' })
       }
 
       // 게시글 작성 경험치 부여
       try {
         await this.levelService.grantExp(
           req.user.userId,
-          "post",
-          "post_creation",
+          'post',
+          'post_creation',
           { postId: newPost.id, title: newPost.title }
         )
       } catch (levelError) {
         // 경험치 부여 실패는 게시글 생성에 영향을 주지 않음
-        console.error("경험치 부여 실패:", levelError)
+        console.error('경험치 부여 실패:', levelError)
       }
 
       res.status(201).json(newPost)
@@ -174,7 +179,7 @@ export class PostController {
     try {
       // JWT 토큰에서 추출한 사용자 정보 확인
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        return res.status(401).json({ message: '인증이 필요합니다.' })
       }
 
       const { id } = req.params
@@ -183,11 +188,11 @@ export class PostController {
       // 사용자 권한 확인 (자신의 포스트만 수정 가능)
       const post = await this.postService.getPostById(parseInt(id))
       if (!post) {
-        return res.status(404).json({ message: "Post not found" })
+        return res.status(404).json({ message: 'Post not found' })
       }
 
       if (post.userId !== req.user.userId) {
-        return res.status(403).json({ message: "권한이 없습니다." })
+        return res.status(403).json({ message: '권한이 없습니다.' })
       }
 
       const updatedPost = await this.postService.updatePost(
@@ -212,7 +217,7 @@ export class PostController {
     try {
       // JWT 토큰에서 추출한 사용자 정보 확인
       if (!req.user?.userId) {
-        return res.status(401).json({ message: "인증이 필요합니다." })
+        return res.status(401).json({ message: '인증이 필요합니다.' })
       }
 
       const { id } = req.params
@@ -220,11 +225,11 @@ export class PostController {
       // 사용자 권한 확인 (자신의 포스트만 삭제 가능)
       const post = await this.postService.getPostById(parseInt(id))
       if (!post) {
-        return res.status(404).json({ message: "Post not found" })
+        return res.status(404).json({ message: 'Post not found' })
       }
 
       if (post.userId !== req.user.userId) {
-        return res.status(403).json({ message: "권한이 없습니다." })
+        return res.status(403).json({ message: '권한이 없습니다.' })
       }
 
       const deleted = await this.postService.deletePost(
@@ -244,18 +249,18 @@ export class PostController {
   getCategories = async (_req: Request, res: Response) => {
     try {
       const categories = [
-        "general",
-        "workout",
-        "nutrition",
-        "motivation",
-        "tips",
-        "questions",
-        "achievements",
-        "challenges",
+        'general',
+        'workout',
+        'nutrition',
+        'motivation',
+        'tips',
+        'questions',
+        'achievements',
+        'challenges',
       ] as const
 
       // 각 카테고리별 포스트 수를 조회
-      const { Post } = await import("../entities/Post")
+      const { Post } = await import('../entities/Post')
       const repo = AppDataSource.getRepository(Post)
 
       const categoryCounts = await Promise.all(
@@ -271,14 +276,14 @@ export class PostController {
 
       return res.status(200).json({
         success: true,
-        message: "Categories retrieved successfully",
+        message: 'Categories retrieved successfully',
         data: categoryCounts,
       })
     } catch (error) {
-      console.error("카테고리 조회 실패:", error)
+      console.error('카테고리 조회 실패:', error)
       return res.status(500).json({
         success: false,
-        message: "카테고리 조회에 실패했습니다.",
+        message: '카테고리 조회에 실패했습니다.',
       })
     }
   }
@@ -294,22 +299,22 @@ export class PostController {
   ) => {
     try {
       // TypeORM Repository를 통해 raw query 실행
-      const { Post } = await import("../entities/Post")
+      const { Post } = await import('../entities/Post')
       const repo = AppDataSource.getRepository(Post)
 
       // MySQL에서 enum 값 추출
       const result = await repo.query("SHOW COLUMNS FROM posts LIKE 'category'")
       const type = result?.[0]?.Type as string | undefined // e.g., "enum('A','B')"
 
-      if (!type || !type.startsWith("enum")) {
-        return res.status(200).json(["기타"])
+      if (!type || !type.startsWith('enum')) {
+        return res.status(200).json(['기타'])
       }
 
-      const inner = type.substring(type.indexOf("(") + 1, type.lastIndexOf(")"))
+      const inner = type.substring(type.indexOf('(') + 1, type.lastIndexOf(')'))
       const values = inner
-        .split(",")
+        .split(',')
         .map((s: string) => s.trim())
-        .map((s: string) => s.replace(/^'/, "").replace(/'$/, ""))
+        .map((s: string) => s.replace(/^'/, '').replace(/'$/, ''))
 
       return res.status(200).json(values)
     } catch (error) {

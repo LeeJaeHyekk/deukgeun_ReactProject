@@ -165,7 +165,14 @@ export const storage = {
   get: (key: string) => {
     try {
       const item = localStorage.getItem(key)
-      return item ? JSON.parse(item) : null
+      if (!item) return null
+
+      // 토큰의 경우 JSON 파싱하지 않고 그대로 반환
+      if (key === 'accessToken' || key === 'refreshToken') {
+        return item
+      }
+
+      return JSON.parse(item)
     } catch {
       return null
     }
@@ -173,7 +180,12 @@ export const storage = {
 
   set: (key: string, value: any) => {
     try {
-      localStorage.setItem(key, JSON.stringify(value))
+      // 토큰의 경우 JSON 직렬화하지 않고 그대로 저장
+      if (key === 'accessToken' || key === 'refreshToken') {
+        localStorage.setItem(key, value)
+      } else {
+        localStorage.setItem(key, JSON.stringify(value))
+      }
       return true
     } catch {
       return false
@@ -189,6 +201,32 @@ export const storage = {
     }
   },
 
+  // 토큰 관련 특별 함수들
+  getToken: (key: string = 'accessToken') => {
+    try {
+      const item = localStorage.getItem(key)
+      if (!item) return null
+
+      // 따옴표가 포함된 경우 제거
+      if (item.startsWith('"') && item.endsWith('"')) {
+        return item.slice(1, -1)
+      }
+
+      return item
+    } catch {
+      return null
+    }
+  },
+
+  setToken: (key: string, token: string) => {
+    try {
+      localStorage.setItem(key, token)
+      return true
+    } catch {
+      return false
+    }
+  },
+
   clear: () => {
     try {
       localStorage.clear()
@@ -197,6 +235,13 @@ export const storage = {
       return false
     }
   },
+} as {
+  get: (key: string) => any
+  set: (key: string, value: any) => boolean
+  remove: (key: string) => boolean
+  getToken: (key?: string) => string | null
+  setToken: (key: string, token: string) => boolean
+  clear: () => boolean
 }
 
 // Debounce Function

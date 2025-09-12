@@ -1,6 +1,7 @@
-import { PostCategoryInfo } from "../../../../shared/types"
-import { SortOption } from "../hooks/useCommunityFilters"
-import styles from "./CommunityFilters.module.css"
+import { PostCategoryInfo } from '../../../../shared/types'
+import { SortOption } from '../hooks/useCommunityFilters'
+import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
+import styles from './CommunityFilters.module.css'
 
 interface CommunityFiltersProps {
   searchTerm: string
@@ -23,12 +24,16 @@ export function CommunityFilters({
   availableCategories,
   onCreatePost,
 }: CommunityFiltersProps) {
+  const { isAuthenticated } = useAuthContext()
   // 카테고리 데이터 준비
   const categories = [
     {
-      id: "all",
-      label: "전체",
-      count: availableCategories.reduce((sum, cat) => sum + (cat.count || 0), 0),
+      id: 'all',
+      label: '전체',
+      count: availableCategories.reduce(
+        (sum, cat) => sum + (cat.count || 0),
+        0
+      ),
     },
     ...availableCategories.map(cat => ({
       id: cat.name,
@@ -70,7 +75,7 @@ export function CommunityFilters({
             <button
               key={category.id}
               className={`${styles.categoryBtn} ${
-                selectedCategory === category.id ? styles.active : ""
+                selectedCategory === category.id ? styles.active : ''
               }`}
               onClick={() => onCategoryChange(category.id)}
             >
@@ -79,9 +84,15 @@ export function CommunityFilters({
           ))}
         </div>
 
-        <button className={styles.createPostBtn} onClick={onCreatePost}>
-          ✏️ 글쓰기
-        </button>
+        {isAuthenticated ? (
+          <button className={styles.createPostBtn} onClick={onCreatePost}>
+            ✏️ 글쓰기
+          </button>
+        ) : (
+          <button className={styles.createPostBtn} disabled>
+            ✏️ 로그인 필요
+          </button>
+        )}
       </div>
     </section>
   )

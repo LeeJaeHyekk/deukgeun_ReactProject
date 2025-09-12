@@ -1,5 +1,6 @@
-import { Post as CommunityPost } from "../../../../shared/types"
-import styles from "./PostCard.module.css"
+import { Post as CommunityPost } from '../../../../shared/types'
+import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
+import styles from './PostCard.module.css'
 
 interface PostCardProps {
   post: CommunityPost
@@ -14,9 +15,23 @@ export function PostCard({
   onLikeClick,
   isLiked = false,
 }: PostCardProps) {
+  const currentLikeCount =
+    (post as any).likeCount || (post as any).like_count || 0
+  const currentCommentCount =
+    (post as any).commentCount || (post as any).comment_count || 0
+  console.log('🎨 PostCard 렌더링:', {
+    id: post.id,
+    title: post.title,
+    isLiked,
+    likeCount: currentLikeCount,
+    commentCount: currentCommentCount,
+    rawPost: post,
+  })
+  const { isAuthenticated } = useAuthContext()
+
   const truncateContent = (content: string, maxLength: number = 100) => {
     if (content.length <= maxLength) return content
-    return content.substring(0, maxLength) + "..."
+    return content.substring(0, maxLength) + '...'
   }
 
   const formatDate = (dateString: string) => {
@@ -25,7 +40,7 @@ export function PostCard({
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60)
 
     if (diffInHours < 1) {
-      return "방금 전"
+      return '방금 전'
     } else if (diffInHours < 24) {
       return `${Math.floor(diffInHours)}시간 전`
     } else if (diffInHours < 24 * 7) {
@@ -40,7 +55,7 @@ export function PostCard({
       <div className={styles.header}>
         <div className={styles.authorInfo}>
           <span className={styles.author}>
-            {(post.author as any)?.nickname || "익명"}
+            {isAuthenticated ? post.author?.nickname || '익명' : '익명'}
           </span>
           <span className={styles.date}>
             {formatDate(post.createdAt.toString())}
@@ -58,18 +73,26 @@ export function PostCard({
 
       <div className={styles.footer}>
         <div className={styles.stats}>
-          <button
-            className={`${styles.likeButton} ${isLiked ? styles.liked : ""}`}
-            onClick={e => {
-              e.stopPropagation()
-              onLikeClick()
-            }}
-          >
-            {isLiked ? "❤️" : "🤍"} {(post as any).likeCount || 0}
-          </button>
-          <span className={styles.commentCount}>
-            💬 {(post as any).commentCount || 0}
-          </span>
+          {isAuthenticated ? (
+            <button
+              className={`${styles.likeButton} ${isLiked ? styles.liked : ''}`}
+              onClick={e => {
+                e.stopPropagation()
+                onLikeClick()
+              }}
+            >
+              {isLiked ? '❤️' : '🤍'} {currentLikeCount}
+            </button>
+          ) : (
+            <button
+              className={`${styles.likeButton} ${styles.disabled}`}
+              disabled
+              title="로그인 후 좋아요를 누를 수 있습니다"
+            >
+              🤍 {currentLikeCount}
+            </button>
+          )}
+          <span className={styles.commentCount}>💬 {currentCommentCount}</span>
         </div>
       </div>
     </div>

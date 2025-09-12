@@ -49,7 +49,13 @@ const createApiClient = (): AxiosInstance => {
   // 요청 인터셉터 - 토큰 추가
   instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-      const token = storage.get('accessToken')
+      const rawToken = storage.get('accessToken')
+      const token =
+        rawToken && typeof rawToken === 'string'
+          ? rawToken.startsWith('"') && rawToken.endsWith('"')
+            ? rawToken.slice(1, -1)
+            : rawToken
+          : null
       console.log(
         'API 요청 인터셉터 - 토큰:',
         token ? `${token.substring(0, 20)}...` : '없음'

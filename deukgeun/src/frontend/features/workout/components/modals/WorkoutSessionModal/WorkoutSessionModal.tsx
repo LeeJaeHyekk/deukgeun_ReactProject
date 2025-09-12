@@ -1,30 +1,30 @@
-import React, { useState, useEffect } from "react"
-import { X } from "lucide-react"
-import type { WorkoutSession, ExerciseSet } from "@shared/types"
-import type { Machine } from "@dto/index"
-import { useWorkoutTimer } from "@shared/contexts/WorkoutTimerContext"
-import { useWorkoutStore } from "../../../store/workoutStore"
-import { useMachines } from "@shared/hooks/useMachines"
-import { TimerDisplay } from "./components/TimerDisplay"
-import { ExerciseCard } from "./components/ExerciseCard"
-import { SessionNotes } from "./components/SessionNotes"
-import { ModalFooter } from "./components/ModalFooter"
-import { useSessionState } from "./hooks/useSessionState"
-import "./WorkoutSessionModal.css"
+import React, { useState, useEffect } from 'react'
+import { X } from 'lucide-react'
+import type { WorkoutSession, ExerciseSet } from '@shared/types'
+import type { Machine } from '@dto/index'
+import { useWorkoutTimer } from '@frontend/shared/contexts/WorkoutTimerContext'
+import { useWorkoutStore } from '../../../store/workoutStore'
+import { useMachines } from '@shared/hooks/useMachines'
+import { TimerDisplay } from './components/TimerDisplay'
+import { ExerciseCard } from './components/ExerciseCard'
+import { SessionNotes } from './components/SessionNotes'
+import { ModalFooter } from './components/ModalFooter'
+import { useSessionState } from './hooks/useSessionState'
+import './WorkoutSessionModal.css'
 
 // 로깅 유틸리티
 const logger = {
   info: (message: string, data?: any) => {
-    console.log(`[WorkoutSessionModal] ${message}`, data || "")
+    console.log(`[WorkoutSessionModal] ${message}`, data || '')
   },
   debug: (message: string, data?: any) => {
-    console.debug(`[WorkoutSessionModal] ${message}`, data || "")
+    console.debug(`[WorkoutSessionModal] ${message}`, data || '')
   },
   warn: (message: string, data?: any) => {
-    console.warn(`[WorkoutSessionModal] ${message}`, data || "")
+    console.warn(`[WorkoutSessionModal] ${message}`, data || '')
   },
   error: (message: string, data?: any) => {
-    console.error(`[WorkoutSessionModal] ${message}`, data || "")
+    console.error(`[WorkoutSessionModal] ${message}`, data || '')
   },
   performance: (operation: string, startTime: number) => {
     const duration = performance.now() - startTime
@@ -79,14 +79,14 @@ export function WorkoutSessionModal() {
   } = useSessionState()
 
   const isOpen = modalState.isOpen
-  const isEditMode = modalState.mode === "edit"
-  const isViewMode = modalState.mode === "view"
+  const isEditMode = modalState.mode === 'edit'
+  const isViewMode = modalState.mode === 'view'
   const session = currentSession
 
   // 모달 열릴 때 초기화
   useEffect(() => {
     if (isOpen) {
-      logger.info("Modal opened, initializing session", {
+      logger.info('Modal opened, initializing session', {
         hasSession: !!session,
         mode: modalState.mode,
         machinesCount: machines.length,
@@ -100,14 +100,14 @@ export function WorkoutSessionModal() {
 
   // 모달 닫기 핸들러
   const handleClose = () => {
-    logger.info("Modal closing")
+    logger.info('Modal closing')
     closeSessionModal()
   }
 
   // 세션 저장 핸들러
   const handleSave = async () => {
     const startTime = performance.now()
-    logger.info("Saving session", { sessionData: currentSessionData })
+    logger.info('Saving session', { sessionData: currentSessionData })
 
     try {
       if (isEditMode && session && currentSessionData) {
@@ -116,19 +116,19 @@ export function WorkoutSessionModal() {
           id: session.id,
           startTime: new Date(currentSessionData.startTime),
         })
-        logger.info("Session updated successfully")
+        logger.info('Session updated successfully')
       } else if (currentSessionData) {
         await createSession({
           ...currentSessionData,
-          name: "새 세션",
+          name: '새 세션',
           startTime: new Date(currentSessionData.startTime),
         })
-        logger.info("Session created successfully")
+        logger.info('Session created successfully')
       }
       handleClose()
-      logger.performance("Session save", startTime)
+      logger.performance('Session save', startTime)
     } catch (error) {
-      logger.error("Session save failed", error)
+      logger.error('Session save failed', error)
     }
   }
 
@@ -142,7 +142,7 @@ export function WorkoutSessionModal() {
         {/* 헤더 */}
         <div className="modal-header">
           <h2>
-            {isViewMode ? "세션 보기" : isEditMode ? "세션 편집" : "새 세션"}
+            {isViewMode ? '세션 보기' : isEditMode ? '세션 편집' : '새 세션'}
           </h2>
           <button className="close-button" onClick={handleClose}>
             <X size={24} />
@@ -187,7 +187,7 @@ export function WorkoutSessionModal() {
 
           {/* 세션 노트 */}
           <SessionNotes
-            notes={currentSessionData?.notes || ""}
+            notes={currentSessionData?.notes || ''}
             onChange={notes => {
               if (currentSessionData) {
                 setCurrentSessionData({

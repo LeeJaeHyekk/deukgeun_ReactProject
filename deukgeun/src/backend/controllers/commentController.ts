@@ -3,6 +3,7 @@ import { Comment } from '../entities/Comment'
 import { User } from '../entities/User'
 import { AppDataSource } from '../config/database'
 import { toCommentDTO, toCommentDTOList } from '../transformers'
+import { PostService } from '../services/post.service'
 
 export class CommentController {
   // 댓글 생성
@@ -52,6 +53,12 @@ export class CommentController {
 
       const savedComment = await repo.save(comment)
       console.log('댓글 저장 성공:', savedComment)
+
+      // 게시글의 댓글 개수 업데이트
+      console.log('게시글 댓글 개수 업데이트 시작:', postId)
+      const postService = new PostService()
+      await postService.adjustCommentCount(parseInt(postId), 1)
+      console.log('게시글 댓글 개수 업데이트 완료')
 
       // DTO 변환 적용
       const commentDTO = toCommentDTO(savedComment)
@@ -158,7 +165,14 @@ export class CommentController {
         return res.status(404).json({ message: '댓글을 찾을 수 없습니다.' })
       }
 
+      const postId = comment.postId
       await repo.remove(comment)
+
+      // 게시글의 댓글 개수 업데이트
+      console.log('댓글 삭제 후 게시글 댓글 개수 업데이트 시작:', postId)
+      const postService = new PostService()
+      await postService.adjustCommentCount(postId, -1)
+      console.log('댓글 삭제 후 게시글 댓글 개수 업데이트 완료')
 
       res.json({ message: '댓글이 성공적으로 삭제되었습니다.' })
     } catch (error) {

@@ -1,12 +1,12 @@
-import React from "react"
-import { useWorkoutTimer } from "@shared/contexts/WorkoutTimerContext"
+import React from 'react'
+import { useWorkoutTimer } from '@frontend/shared/contexts/WorkoutTimerContext'
 
 interface GlobalWorkoutTimerProps {
   className?: string
 }
 
 export function GlobalWorkoutTimer({
-  className = "",
+  className = '',
 }: GlobalWorkoutTimerProps) {
   const {
     timerState,
@@ -47,9 +47,9 @@ export function GlobalWorkoutTimer({
         <button
           type="button"
           onClick={handleStartPause}
-          className={`timer-btn ${timerState.isRunning ? "pause" : "start"}`}
+          className={`timer-btn ${timerState.isRunning ? 'pause' : 'start'}`}
         >
-          {timerState.isRunning ? "일시정지" : "시작"}
+          {timerState.isRunning ? '일시정지' : '시작'}
         </button>
 
         <button type="button" onClick={handleReset} className="timer-btn reset">
@@ -59,7 +59,7 @@ export function GlobalWorkoutTimer({
 
       <div className="timer-info">
         <span className="timer-status">
-          {timerState.isRunning ? "운동 중" : "대기 중"}
+          {timerState.isRunning ? '운동 중' : '대기 중'}
         </span>
         <span className="timer-progress-text">
           {Math.round(progress)}% 완료

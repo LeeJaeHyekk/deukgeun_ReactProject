@@ -1,17 +1,17 @@
-import { useEffect } from "react"
-import { showToast } from "@shared/lib"
-import { Navigation } from "@widgets/Navigation/Navigation"
-import { PostModal } from "./components/PostModal"
-import { PostDetailModal } from "./components/PostDetailModal"
-import { CommunityFilters } from "./components/CommunityFilters"
-import { CommunityPosts } from "./components/CommunityPosts"
+import { useEffect } from 'react'
+import { showToast } from '@shared/lib'
+import { Navigation } from '@widgets/Navigation/Navigation'
+import { PostModal } from './components/PostModal'
+import { PostDetailModal } from './components/PostDetailModal'
+import { CommunityFilters } from './components/CommunityFilters'
+import { CommunityPosts } from './components/CommunityPosts'
 import {
   useCommunityPosts,
   usePostLikes,
   useCommunityFilters,
   useCommunityModals,
-} from "./hooks"
-import styles from "./CommunityPage.module.css"
+} from './hooks'
+import styles from './CommunityPage.module.css'
 
 const POSTS_PER_PAGE = 12
 
@@ -32,7 +32,7 @@ export default function CommunityPage() {
     setCurrentPage,
   } = useCommunityPosts({ limit: POSTS_PER_PAGE })
 
-  const { likedPosts, toggleLike, isLiked } = usePostLikes()
+  const { likedPosts, toggleLike, isLiked, initializeLikes } = usePostLikes()
 
   const {
     selectedCategory,
@@ -75,6 +75,24 @@ export default function CommunityPage() {
       sortBy,
     })
   }, [currentPage, fetchPosts])
+
+  // 게시글 목록이 변경될 때마다 좋아요 상태 초기화
+  useEffect(() => {
+    if (posts.length > 0) {
+      console.log(
+        '🔄 CommunityPage: 게시글 목록 변경 감지, 좋아요 상태 초기화 시작'
+      )
+      console.log(
+        '📋 게시글 목록:',
+        posts.map(p => ({
+          id: p.id,
+          title: p.title,
+          isLiked: (p as any).isLiked,
+        }))
+      )
+      initializeLikes(posts)
+    }
+  }, [posts, initializeLikes])
 
   // 이벤트 핸들러들
   const handleCreatePost = async (postData: {
@@ -126,8 +144,15 @@ export default function CommunityPage() {
   }
 
   const handleLikePost = async (postId: number) => {
+    console.log('🎯 CommunityPage: 좋아요 클릭됨', postId)
+    console.log('📊 현재 좋아요 상태:', isLiked(postId))
+    console.log('📋 현재 게시글 목록:', posts.length, '개')
+
     const success = await toggleLike(postId, posts, setPosts)
+    console.log('✅ 좋아요 처리 결과:', success)
+
     if (!success) {
+      console.log('🔄 좋아요 실패, 전체 목록 새로고침')
       // 좋아요 실패 시 전체 목록 새로고침
       fetchPosts({
         page: currentPage,
@@ -138,11 +163,29 @@ export default function CommunityPage() {
     }
   }
 
+  const handleCommentCountUpdate = (postId: number, commentCount: number) => {
+    console.log('💬 CommunityPage: 댓글 개수 업데이트', {
+      postId,
+      commentCount,
+    })
+    setPosts(prevPosts =>
+      prevPosts.map(post =>
+        post.id === postId
+          ? {
+              ...post,
+              commentCount: commentCount,
+              comment_count: commentCount, // 호환성을 위해 둘 다 설정
+            }
+          : post
+      )
+    )
+  }
+
   const handleOpenCreateModal = () => {
     if (availableCategories.length === 0) {
       showToast(
-        "카테고리를 불러오는 중입니다. 잠시 후 다시 시도해주세요.",
-        "error"
+        '카테고리를 불러오는 중입니다. 잠시 후 다시 시도해주세요.',
+        'error'
       )
       return
     }
@@ -203,6 +246,9 @@ export default function CommunityPage() {
             onClose={closeDetailModal}
             onUpdate={handleUpdatePost}
             onDelete={handleDeletePost}
+            onLikeClick={handleLikePost}
+            isLiked={isLiked(selectedPost.id)}
+            onCommentCountUpdate={handleCommentCountUpdate}
           />
         )}
       </div>

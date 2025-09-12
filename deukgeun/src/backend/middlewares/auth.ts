@@ -32,7 +32,13 @@ export const authMiddleware = (
       authHeader ? `${authHeader.substring(0, 30)}...` : "없음"
     )
 
-    const token = authHeader && authHeader.split(" ")[1] // Bearer TOKEN
+    let token = authHeader && authHeader.split(" ")[1] // Bearer TOKEN
+    
+    // 토큰에서 따옴표 제거 (JSON 파싱 오류 방지)
+    if (token && (token.startsWith('"') && token.endsWith('"'))) {
+      token = token.slice(1, -1)
+    }
+    
     console.log(
       `🔐 [AuthMiddleware:${requestId}] 추출된 토큰:`,
       token ? `${token.substring(0, 20)}...` : "없음"
@@ -117,7 +123,12 @@ export const authMiddleware = (
 export function optionalAuth(req: Request, res: Response, next: NextFunction) {
   try {
     const authHeader = req.headers["authorization"]
-    const token = authHeader && authHeader.split(" ")[1]
+    let token = authHeader && authHeader.split(" ")[1]
+    
+    // 토큰에서 따옴표 제거 (JSON 파싱 오류 방지)
+    if (token && (token.startsWith('"') && token.endsWith('"'))) {
+      token = token.slice(1, -1)
+    }
 
     if (token) {
       const payload = verifyAccessToken(token)

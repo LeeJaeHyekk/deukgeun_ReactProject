@@ -1,6 +1,7 @@
-import { Post as CommunityPost } from "../../../../shared/types"
-import { PostGrid } from "./PostGrid"
-import styles from "./CommunityPosts.module.css"
+import { Post as CommunityPost } from '../../../../shared/types'
+import { PostGrid } from './PostGrid'
+import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
+import styles from './CommunityPosts.module.css'
 
 interface CommunityPostsProps {
   posts: CommunityPost[]
@@ -25,6 +26,7 @@ export function CommunityPosts({
   likedPosts,
   onCreatePost,
 }: CommunityPostsProps) {
+  const { isAuthenticated } = useAuthContext()
   if (loading) {
     return (
       <section className={styles.postsSection}>
@@ -42,9 +44,18 @@ export function CommunityPosts({
         <div className={styles.emptyState}>
           <h3>게시글이 없습니다</h3>
           <p>첫 번째 게시글을 작성해보세요!</p>
-          <button className={styles.createFirstPostBtn} onClick={onCreatePost}>
-            ✏️ 첫 게시글 작성하기
-          </button>
+          {isAuthenticated ? (
+            <button
+              className={styles.createFirstPostBtn}
+              onClick={onCreatePost}
+            >
+              ✏️ 첫 게시글 작성하기
+            </button>
+          ) : (
+            <button className={styles.createFirstPostBtn} disabled>
+              ✏️ 로그인 필요
+            </button>
+          )}
         </div>
       </section>
     )

@@ -40,6 +40,7 @@ export interface PostDTO {
   likeCount: number
   commentCount: number
   viewCount?: number
+  isLiked?: boolean
   createdAt: Date
   updatedAt: Date
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { commentsApi } from '@frontend/shared/api'
-import { showToast } from '@shared/lib'
-import { useAuthContext } from '@shared/contexts/AuthContext'
+import { showToast } from '@frontend/shared/lib'
+import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
 import {
   PostDTO as CommunityPost,
   Comment as PostComment,
@@ -16,6 +16,9 @@ interface PostDetailModalProps {
     updateData: { title: string; content: string; category: string }
   ) => Promise<void>
   onDelete?: (postId: number) => Promise<void>
+  onLikeClick?: (postId: number) => void
+  isLiked?: boolean
+  onCommentCountUpdate?: (postId: number, commentCount: number) => void
 }
 
 export function PostDetailModal({
@@ -23,8 +26,13 @@ export function PostDetailModal({
   onClose,
   onUpdate,
   onDelete,
+  onLikeClick,
+  isLiked = false,
+  onCommentCountUpdate,
 }: PostDetailModalProps) {
-  const { user } = useAuthContext()
+  const { user, isAuthenticated } = useAuthContext()
+  const currentLikeCount =
+    (post as any).likeCount || (post as any).like_count || 0
   const [comments, setComments] = useState<PostComment[]>([])
   const [newComment, setNewComment] = useState('')
   const [isEditing, setIsEditing] = useState(false)
@@ -63,7 +71,11 @@ export function PostDetailModal({
               id: comment.id || 0,
               postId: comment.postId || post.id,
               userId: comment.userId || comment.author_id || 0,
-              author: comment.author?.nickname || comment.author_name || '익명',
+              author: {
+                id: comment.userId || comment.author_id || 0,
+                nickname:
+                  comment.author?.nickname || comment.author_name || '익명',
+              },
               content: comment.content || '',
               createdAt: new Date(
                 comment.createdAt || comment.created_at || Date.now()
@@ -79,29 +91,8 @@ export function PostDetailModal({
         setComments(commentData)
       } catch (error: unknown) {
         console.error('댓글 로드 실패:', error)
-        // 댓글 API 에러 시 더미 데이터 사용 (테스트용)
-        const dummyComments: PostComment[] = [
-          {
-            id: 1,
-            postId: post.id,
-            userId: 1,
-            author: '테스트 사용자',
-            content: '이 게시글 정말 좋네요! 👍',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-          {
-            id: 2,
-            postId: post.id,
-            userId: 2,
-            author: '운동러버',
-            content: '저도 비슷한 경험이 있어요. 공감합니다!',
-            createdAt: new Date(Date.now() - 3600000),
-            updatedAt: new Date(Date.now() - 3600000),
-          },
-        ]
-        setComments(dummyComments)
-        console.log('더미 댓글 데이터 사용:', dummyComments) // 디버깅용 로그
+        showToast('댓글을 불러오는데 실패했습니다.', 'error')
+        setComments([])
       } finally {
         setCommentsLoading(false)
       }
@@ -144,7 +135,11 @@ export function PostDetailModal({
             id: comment.id || 0,
             postId: comment.postId || post.id,
             userId: comment.userId || comment.author_id || 0,
-            author: comment.author?.nickname || comment.author_name || '익명',
+            author: {
+              id: comment.userId || comment.author_id || 0,
+              nickname:
+                comment.author?.nickname || comment.author_name || '익명',
+            },
             content: comment.content || '',
             createdAt: new Date(
               comment.createdAt || comment.created_at || Date.now()
@@ -157,6 +152,10 @@ export function PostDetailModal({
       }
 
       setComments(commentData)
+
+      // 댓글 개수 업데이트 알림
+      console.log('📊 댓글 개수 업데이트:', commentData.length)
+      onCommentCountUpdate?.(post.id, commentData.length)
     } catch (error: unknown) {
       console.error('댓글 작성 실패:', error)
 
@@ -304,7 +303,7 @@ export function PostDetailModal({
               <div className={styles.postInfo}>
                 <div className={styles.authorInfo}>
                   <span className={styles.author}>
-                    {(post.author as any)?.nickname || '익명'}
+                    {isAuthenticated ? post.author?.nickname || '익명' : '익명'}
                   </span>
                   <span className={styles.date}>
                     {new Date(post.createdAt).toLocaleDateString()}
@@ -320,14 +319,27 @@ export function PostDetailModal({
               </div>
 
               <div className={styles.postActions}>
-                <button className={styles.likeButton}>
-                  ❤️ {(post as any).likeCount || 0}
-                </button>
+                {isAuthenticated ? (
+                  <button
+                    className={`${styles.likeButton} ${isLiked ? styles.liked : ''}`}
+                    onClick={() => onLikeClick?.(post.id)}
+                  >
+                    {isLiked ? '❤️' : '🤍'} {currentLikeCount}
+                  </button>
+                ) : (
+                  <button
+                    className={`${styles.likeButton} ${styles.disabled}`}
+                    disabled
+                    title="로그인 후 좋아요를 누를 수 있습니다"
+                  >
+                    🤍 {currentLikeCount}
+                  </button>
+                )}
                 <button className={styles.commentButton}>
                   💬 {(post as any).commentCount || 0}
                 </button>
-                {/* 자신의 게시물에만 수정/삭제 버튼 표시 */}
-                {isAuthor && onUpdate && (
+                {/* 로그인한 사용자이고 자신의 게시물에만 수정/삭제 버튼 표시 */}
+                {isAuthenticated && isAuthor && onUpdate && (
                   <button
                     onClick={() => setIsEditing(true)}
                     className={styles.editButton}
@@ -335,7 +347,7 @@ export function PostDetailModal({
                     수정
                   </button>
                 )}
-                {isAuthor && onDelete && (
+                {isAuthenticated && isAuthor && onDelete && (
                   <button
                     onClick={handleDeletePost}
                     className={styles.deleteButton}
@@ -352,24 +364,40 @@ export function PostDetailModal({
           <div className={styles.commentsSection}>
             <h3>댓글 ({comments.length})</h3>
 
-            <div className={styles.commentForm}>
-              <textarea
-                value={newComment}
-                onChange={e => setNewComment(e.target.value)}
-                placeholder="댓글을 입력하세요..."
-                className={styles.commentInput}
-                rows={3}
-              />
-              <div className={styles.commentSubmitWrapper}>
-                <button
-                  onClick={handleSubmitComment}
-                  className={styles.commentSubmitButton}
-                  disabled={!newComment.trim()}
-                >
-                  댓글 작성
-                </button>
+            {isAuthenticated ? (
+              <div className={styles.commentForm}>
+                <textarea
+                  value={newComment}
+                  onChange={e => setNewComment(e.target.value)}
+                  placeholder="댓글을 입력하세요..."
+                  className={styles.commentInput}
+                  rows={3}
+                />
+                <div className={styles.commentSubmitWrapper}>
+                  <button
+                    onClick={handleSubmitComment}
+                    className={styles.commentSubmitButton}
+                    disabled={!newComment.trim()}
+                  >
+                    댓글 작성
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className={styles.commentForm}>
+                <textarea
+                  placeholder="로그인 후 댓글을 작성할 수 있습니다..."
+                  className={styles.commentInput}
+                  rows={3}
+                  disabled
+                />
+                <div className={styles.commentSubmitWrapper}>
+                  <button className={styles.commentSubmitButton} disabled>
+                    로그인 필요
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className={styles.commentsList}>
               {commentsLoading ? (
@@ -386,7 +414,9 @@ export function PostDetailModal({
                   <div key={comment.id} className={styles.comment}>
                     <div className={styles.commentHeader}>
                       <span className={styles.commentAuthor}>
-                        {(comment.author as any).nickname}
+                        {isAuthenticated
+                          ? comment.author?.nickname || '익명'
+                          : '익명'}
                       </span>
                       <span className={styles.commentDate}>
                         {new Date(comment.createdAt).toLocaleDateString()}

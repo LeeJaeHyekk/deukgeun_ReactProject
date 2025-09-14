@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react"
-import { useAuthContext } from "../../shared/contexts/AuthContext"
-import { useMachines } from "../../shared/hooks/useMachines"
-import { Navigation } from "../../widgets/Navigation/Navigation"
-import { TabNavigation } from "./components/navigation/TabNavigation"
-import { TabContent } from "./components/navigation/TabContent"
-import { TAB_CONFIG } from "./constants"
-import { WorkoutPlanModal } from "./components/modals/WorkoutPlanModal/WorkoutPlanModal"
-import { WorkoutSessionModal } from "./components/modals/WorkoutSessionModal/WorkoutSessionModal"
-import { WorkoutGoalModal } from "./components/modals/WorkoutGoalModal/WorkoutGoalModal"
+import React, { useState, useEffect } from 'react'
+import { useAuthContext } from '../../shared/contexts/AuthContext'
+import { useMachines } from '../../shared/hooks/useMachines'
+import { Navigation } from '../../widgets/Navigation/Navigation'
+import { TabNavigation } from './components/navigation/TabNavigation'
+import { TabContent } from './components/navigation/TabContent'
+import { TAB_CONFIG } from './constants'
+import { WorkoutPlanModal } from './components/modals/WorkoutPlanModal/WorkoutPlanModal'
+import { WorkoutSessionModal } from './components/modals/WorkoutSessionModal/WorkoutSessionModal'
+import { WorkoutGoalModal } from './components/modals/WorkoutGoalModal/WorkoutGoalModal'
 import {
   useWorkoutStoreData,
   useWorkoutPlansActions,
@@ -19,38 +19,38 @@ import {
   useWorkoutNotifications,
   useWorkoutErrors,
   useWorkoutTimer,
-} from "./hooks/useWorkoutStore"
-import { USE_MOCK_DATA } from "./data/mockData"
-import type { TabType } from "./types"
+} from './hooks/useWorkoutStore'
+import { USE_MOCK_DATA } from './data/mockData'
+import type { TabType } from './types'
 import type {
   WorkoutPlan,
   WorkoutSession,
   WorkoutGoal,
   DashboardData,
-} from "./types"
-import styles from "./WorkoutPage.module.css"
+} from './types'
+import styles from './WorkoutPage.module.css'
 
 // 로깅 유틸리티
 const logger = {
   info: (message: string, data?: any) => {
     if (import.meta.env.DEV) {
-      console.log(`[WorkoutPage] ${message}`, data || "")
+      console.log(`[WorkoutPage] ${message}`, data || '')
     }
   },
   debug: (message: string, data?: any) => {
     if (import.meta.env.DEV) {
-      console.debug(`[WorkoutPage] ${message}`, data || "")
+      console.debug(`[WorkoutPage] ${message}`, data || '')
     }
   },
   warn: (message: string, data?: any) => {
-    console.warn(`[WorkoutPage] ${message}`, data || "")
+    console.warn(`[WorkoutPage] ${message}`, data || '')
   },
   error: (message: string, data?: any) => {
-    console.error(`[WorkoutPage] ${message}`, data || "")
+    console.error(`[WorkoutPage] ${message}`, data || '')
   },
   modalOperation: (operation: string, modalType: string, data?: any) => {
     if (import.meta.env.DEV) {
-      console.log(`[WorkoutPage] ${operation} ${modalType} Modal`, data || "")
+      console.log(`[WorkoutPage] ${operation} ${modalType} Modal`, data || '')
     }
   },
   performance: (operation: string, duration: number) => {
@@ -67,7 +67,7 @@ function WorkoutPageContent() {
     undefined
   )
 
-  logger.info("워크아웃 페이지 컴포넌트 렌더링", {
+  logger.info('워크아웃 페이지 컴포넌트 렌더링', {
     isAuthenticated,
     userId: user?.id,
     timestamp: new Date().toISOString(),
@@ -105,7 +105,8 @@ function WorkoutPageContent() {
     closeGoalModal,
   } = useWorkoutUI()
 
-  const { initializeWorkoutData } = useWorkoutInitialization()
+  const { initializeWorkoutData, isInitializing, hasInitialized } =
+    useWorkoutInitialization()
 
   // 공유 상태 훅
   const { removeNotification } = useWorkoutNotifications()
@@ -120,54 +121,55 @@ function WorkoutPageContent() {
     loading.plans.isLoading ||
     loading.sessions.isLoading ||
     loading.goals.isLoading ||
-    isDataLoading
+    isDataLoading ||
+    isInitializing
 
   // 탭 변경 핸들러
   const handleTabChange = (tab: TabType) => {
-    logger.info("탭 변경", { from: activeTab, to: tab })
+    logger.info('탭 변경', { from: activeTab, to: tab })
     setActiveTab(tab)
 
     // 목표 탭이 아닌 다른 탭으로 이동할 때 selectedGoalId 초기화
-    if (tab !== "goals") {
+    if (tab !== 'goals') {
       setSelectedGoalId(undefined)
     }
   }
 
   // 계획 관련 핸들러
   const handleCreatePlan = () => {
-    logger.modalOperation("Opening", "Plan Create", {})
-    openPlanModal("create")
+    logger.modalOperation('Opening', 'Plan Create', {})
+    openPlanModal('create')
   }
 
   const handleEditPlan = (planId: number) => {
     const plan = plans.find(p => p.id === planId)
     if (plan) {
-      logger.modalOperation("Opening", "Plan Edit", {
+      logger.modalOperation('Opening', 'Plan Edit', {
         planId,
         planName: plan.name,
       })
-      openPlanModal("edit", plan)
+      openPlanModal('edit', plan)
     }
   }
 
   const handleDeletePlan = async (planId: number) => {
     try {
       await deletePlan(planId)
-      logger.info("Plan deleted successfully", { planId })
+      logger.info('Plan deleted successfully', { planId })
     } catch (error) {
-      logger.error("Failed to delete plan", error)
-      setGlobalError("계획을 삭제하는데 실패했습니다.")
+      logger.error('Failed to delete plan', error)
+      setGlobalError('계획을 삭제하는데 실패했습니다.')
     }
   }
 
   const handleStartSession = (planId: number) => {
     const plan = plans.find(p => p.id === planId)
     if (plan) {
-      logger.modalOperation("Opening", "Session Create from Plan", {
+      logger.modalOperation('Opening', 'Session Create from Plan', {
         planId,
         planName: plan.name,
       })
-      openSessionModal("create", undefined)
+      openSessionModal('create', undefined)
     }
   }
 
@@ -181,99 +183,107 @@ function WorkoutPageContent() {
   const handleEditSession = (sessionId: number) => {
     const session = sessions.find(s => s.id === sessionId)
     if (session) {
-      logger.modalOperation("Opening", "Session Edit", {
+      logger.modalOperation('Opening', 'Session Edit', {
         sessionId,
         sessionName: session.name,
       })
-      openSessionModal("edit", session)
+      openSessionModal('edit', session)
     }
   }
 
   const handleViewSession = (sessionId: number) => {
     const session = sessions.find(s => s.id === sessionId)
     if (session) {
-      logger.modalOperation("Opening", "Session View", {
+      logger.modalOperation('Opening', 'Session View', {
         sessionId,
         sessionName: session.name,
       })
-      openSessionModal("view", session)
+      openSessionModal('view', session)
     }
   }
 
   const handleDeleteSession = async (sessionId: number) => {
     try {
       await deleteSession(sessionId)
-      logger.info("Session deleted successfully", { sessionId })
+      logger.info('Session deleted successfully', { sessionId })
     } catch (error) {
-      logger.error("Failed to delete session", error)
-      setGlobalError("세션을 삭제하는데 실패했습니다.")
+      logger.error('Failed to delete session', error)
+      setGlobalError('세션을 삭제하는데 실패했습니다.')
     }
   }
 
   // 목표 관련 핸들러
   const handleCreateGoal = () => {
-    logger.modalOperation("Opening", "Goal Create", {})
-    openGoalModal("create")
+    logger.modalOperation('Opening', 'Goal Create', {})
+    openGoalModal('create')
   }
 
   const handleEditGoal = (goalId: number) => {
     const goal = goals.find(g => g.id === goalId)
     if (goal) {
-      logger.modalOperation("Opening", "Goal Edit", {
+      logger.modalOperation('Opening', 'Goal Edit', {
         goalId,
         goalTitle: goal.title,
       })
-      openGoalModal("edit", goal)
+      openGoalModal('edit', goal)
     }
   }
 
   const handleDeleteGoal = async (goalId: number) => {
     try {
       await deleteGoal(goalId)
-      logger.info("Goal deleted successfully", { goalId })
+      logger.info('Goal deleted successfully', { goalId })
     } catch (error) {
-      logger.error("Failed to delete goal", error)
-      setGlobalError("목표를 삭제하는데 실패했습니다.")
+      logger.error('Failed to delete goal', error)
+      setGlobalError('목표를 삭제하는데 실패했습니다.')
     }
   }
 
   // 클릭 핸들러
   const handlePlanClick = (planId: number) => {
-    logger.debug("Plan clicked", { planId })
+    logger.debug('Plan clicked', { planId })
     handleEditPlan(planId)
   }
 
   const handleSessionClick = (sessionId: number) => {
-    logger.debug("Session clicked", { sessionId })
+    logger.debug('Session clicked', { sessionId })
     handleViewSession(sessionId)
   }
 
   const handleGoalClick = (goalId: number) => {
-    logger.debug("Goal clicked", { goalId })
+    logger.debug('Goal clicked', { goalId })
     // 목표 탭으로 이동하고 해당 목표 선택
     setSelectedGoalId(goalId)
-    handleTabChange("goals")
+    handleTabChange('goals')
   }
 
   // 데이터 초기화
   useEffect(() => {
     if (!isAuthenticated) {
-      console.log("[WorkoutPage] 로그인되지 않은 상태 - 데이터 초기화 스킵")
+      console.log('[WorkoutPage] 로그인되지 않은 상태 - 데이터 초기화 스킵')
       return
     }
 
-    console.log("[WorkoutPage] 로그인 상태 확인:", {
+    // 이미 초기화된 경우 스킵
+    if (hasInitialized) {
+      console.log('[WorkoutPage] 이미 초기화됨 - 스킵')
+      return
+    }
+
+    console.log('[WorkoutPage] 로그인 상태 확인:', {
       isAuthenticated,
       userId: user?.id,
       userEmail: user?.email,
+      hasInitialized,
+      isInitializing,
       timestamp: new Date().toISOString(),
     })
 
     // 토큰 상태 확인
-    const token = localStorage.getItem("accessToken")
-    console.log("[WorkoutPage] 토큰 상태 확인:", {
+    const token = localStorage.getItem('accessToken')
+    console.log('[WorkoutPage] 토큰 상태 확인:', {
       hasToken: !!token,
-      tokenPreview: token ? `${token.substring(0, 20)}...` : "없음",
+      tokenPreview: token ? `${token.substring(0, 20)}...` : '없음',
       timestamp: new Date().toISOString(),
     })
 
@@ -281,7 +291,7 @@ function WorkoutPageContent() {
       const startTime = performance.now()
       setIsDataLoading(true)
 
-      console.log("[WorkoutPage] 데이터 초기화 시작", {
+      console.log('[WorkoutPage] 데이터 초기화 시작', {
         isAuthenticated,
         userId: user?.id,
         machinesCount: machines.length,
@@ -289,24 +299,24 @@ function WorkoutPageContent() {
 
       try {
         await initializeWorkoutData()
-        logger.performance("데이터 초기화", performance.now() - startTime)
-        logger.info("데이터 초기화 완료", {
+        logger.performance('데이터 초기화', performance.now() - startTime)
+        logger.info('데이터 초기화 완료', {
           plansCount: plans.length,
           sessionsCount: sessions.length,
           goalsCount: goals.length,
         })
       } catch (error) {
-        logger.error("데이터 초기화 실패", error)
-        setGlobalError("데이터를 불러오는 중 오류가 발생했습니다.")
+        logger.error('데이터 초기화 실패', error)
+        setGlobalError('데이터를 불러오는 중 오류가 발생했습니다.')
       } finally {
         setIsDataLoading(false)
       }
     }
 
-    if (isAuthenticated) {
+    if (isAuthenticated && !hasInitialized && !isInitializing) {
       initializeData()
     }
-  }, [isAuthenticated, user?.id]) // initializeWorkoutData 의존성 제거
+  }, [isAuthenticated, user?.id, hasInitialized, isInitializing]) // 의존성 추가
 
   // 타이머 업데이트
   useEffect(() => {

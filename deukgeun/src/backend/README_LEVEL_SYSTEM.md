@@ -165,14 +165,14 @@ npm run dev
 ### 백엔드에서 경험치 부여
 
 ```typescript
-import { LevelService } from "../services/levelService"
+import { LevelService } from '../services/levelService'
 
 const levelService = new LevelService()
 
 // 게시글 작성 시 경험치 부여
-await levelService.grantExp(userId, "post", "post_creation", {
+await levelService.grantExp(userId, 'post_created', 'post_creation', {
   postId: 123,
-  title: "게시글 제목",
+  title: '게시글 제목',
 })
 ```
 

@@ -1,10 +1,10 @@
-import { AppDataSource } from "../config/database"
-import { WorkoutPlan } from "../entities/WorkoutPlan"
-import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
-import { WorkoutSession } from "../entities/WorkoutSession"
-import { ExerciseSet } from "../entities/ExerciseSet"
-import { WorkoutGoal } from "../entities/WorkoutGoal"
-import { In } from "typeorm"
+import { AppDataSource } from '../config/database'
+import { WorkoutPlan } from '../entities/WorkoutPlan'
+import { WorkoutPlanExercise } from '../entities/WorkoutPlanExercise'
+import { WorkoutSession } from '../entities/WorkoutSession'
+import { ExerciseSet } from '../entities/ExerciseSet'
+import { WorkoutGoal } from '../entities/WorkoutGoal'
+import { In } from 'typeorm'
 
 export class WorkoutService {
   // 워크아웃 플랜 생성
@@ -16,7 +16,7 @@ export class WorkoutService {
       const plan = workoutPlanRepo.create(planData)
       return await workoutPlanRepo.save(plan)
     } catch (error) {
-      console.error("워크아웃 플랜 생성 오류:", error)
+      console.error('워크아웃 플랜 생성 오류:', error)
       return null
     }
   }
@@ -27,10 +27,10 @@ export class WorkoutService {
       const workoutPlanRepo = AppDataSource.getRepository(WorkoutPlan)
       return await workoutPlanRepo.find({
         where: { userId: userId },
-        order: { createdAt: "DESC" },
+        order: { createdAt: 'DESC' },
       })
     } catch (error) {
-      console.error("워크아웃 플랜 조회 오류:", error)
+      console.error('워크아웃 플랜 조회 오류:', error)
       return []
     }
   }
@@ -43,10 +43,10 @@ export class WorkoutService {
       const workoutPlanRepo = AppDataSource.getRepository(WorkoutPlan)
       return await workoutPlanRepo.findOne({
         where: { id: planId },
-        relations: ["exercises"],
+        relations: ['exercises'],
       })
     } catch (error) {
-      console.error("워크아웃 플랜 상세 조회 오류:", error)
+      console.error('워크아웃 플랜 상세 조회 오류:', error)
       return null
     }
   }
@@ -64,7 +64,7 @@ export class WorkoutService {
       Object.assign(plan, updateData)
       return await workoutPlanRepo.save(plan)
     } catch (error) {
-      console.error("워크아웃 플랜 수정 오류:", error)
+      console.error('워크아웃 플랜 수정 오류:', error)
       return null
     }
   }
@@ -79,7 +79,7 @@ export class WorkoutService {
       await workoutPlanRepo.remove(plan)
       return true
     } catch (error) {
-      console.error("워크아웃 플랜 삭제 오류:", error)
+      console.error('워크아웃 플랜 삭제 오류:', error)
       return false
     }
   }
@@ -93,11 +93,11 @@ export class WorkoutService {
       const session = workoutSessionRepo.create({
         ...sessionData,
         startTime: new Date(),
-        status: "in_progress",
+        status: 'in_progress',
       })
       return await workoutSessionRepo.save(session)
     } catch (error) {
-      console.error("워크아웃 세션 시작 오류:", error)
+      console.error('워크아웃 세션 시작 오류:', error)
       return null
     }
   }
@@ -112,14 +112,14 @@ export class WorkoutService {
       if (!session) return null
 
       session.endTime = new Date()
-      session.status = "completed"
+      session.status = 'completed'
       session.totalDurationMinutes = Math.round(
         (session.endTime.getTime() - session.startTime.getTime()) / (1000 * 60)
       )
 
       return await workoutSessionRepo.save(session)
     } catch (error) {
-      console.error("워크아웃 세션 종료 오류:", error)
+      console.error('워크아웃 세션 종료 오류:', error)
       return null
     }
   }
@@ -137,14 +137,14 @@ export class WorkoutService {
       if (!session) return null
 
       session.endTime = new Date()
-      session.status = "completed"
+      session.status = 'completed'
       session.totalDurationMinutes = Math.round(
         (session.endTime.getTime() - session.startTime.getTime()) / (1000 * 60)
       )
 
       return await workoutSessionRepo.save(session)
     } catch (error) {
-      console.error("워크아웃 세션 완료 오류:", error)
+      console.error('워크아웃 세션 완료 오류:', error)
       return null
     }
   }
@@ -158,11 +158,11 @@ export class WorkoutService {
       const workoutSessionRepo = AppDataSource.getRepository(WorkoutSession)
       return await workoutSessionRepo.find({
         where: { userId: userId },
-        order: { startTime: "DESC" },
+        order: { startTime: 'DESC' },
         take: limit,
       })
     } catch (error) {
-      console.error("워크아웃 세션 조회 오류:", error)
+      console.error('워크아웃 세션 조회 오류:', error)
       return []
     }
   }
@@ -176,7 +176,7 @@ export class WorkoutService {
       const set = exerciseSetRepo.create(setData)
       return await exerciseSetRepo.save(set)
     } catch (error) {
-      console.error("운동 세트 추가 오류:", error)
+      console.error('운동 세트 추가 오류:', error)
       return null
     }
   }
@@ -187,10 +187,10 @@ export class WorkoutService {
       const exerciseSetRepo = AppDataSource.getRepository(ExerciseSet)
       return await exerciseSetRepo.find({
         where: { sessionId: sessionId },
-        order: { createdAt: "ASC" },
+        order: { createdAt: 'ASC' },
       })
     } catch (error) {
-      console.error("운동 세트 조회 오류:", error)
+      console.error('운동 세트 조회 오류:', error)
       return []
     }
   }
@@ -204,7 +204,7 @@ export class WorkoutService {
       const goal = workoutGoalRepo.create(goalData)
       return await workoutGoalRepo.save(goal)
     } catch (error) {
-      console.error("워크아웃 목표 생성 오류:", error)
+      console.error('워크아웃 목표 생성 오류:', error)
       return null
     }
   }
@@ -215,10 +215,10 @@ export class WorkoutService {
       const workoutGoalRepo = AppDataSource.getRepository(WorkoutGoal)
       return await workoutGoalRepo.find({
         where: { userId: userId },
-        order: { createdAt: "DESC" },
+        order: { createdAt: 'DESC' },
       })
     } catch (error) {
-      console.error("워크아웃 목표 조회 오류:", error)
+      console.error('워크아웃 목표 조회 오류:', error)
       return []
     }
   }
@@ -236,7 +236,7 @@ export class WorkoutService {
       Object.assign(goal, updateData)
       return await workoutGoalRepo.save(goal)
     } catch (error) {
-      console.error("워크아웃 목표 수정 오류:", error)
+      console.error('워크아웃 목표 수정 오류:', error)
       return null
     }
   }
@@ -251,7 +251,7 @@ export class WorkoutService {
       await workoutGoalRepo.remove(goal)
       return true
     } catch (error) {
-      console.error("워크아웃 목표 삭제 오류:", error)
+      console.error('워크아웃 목표 삭제 오류:', error)
       return false
     }
   }
@@ -263,7 +263,7 @@ export class WorkoutService {
       const exerciseSetRepo = AppDataSource.getRepository(ExerciseSet)
 
       // 기본 쿼리 조건
-      const sessionWhere: any = { userId: userId, status: "completed" }
+      const sessionWhere: any = { userId: userId, status: 'completed' }
       const setWhere: any = {}
 
       if (machineId) {
@@ -273,7 +273,7 @@ export class WorkoutService {
       // 완료된 세션 조회
       const sessions = await workoutSessionRepo.find({
         where: sessionWhere,
-        order: { endTime: "DESC" },
+        order: { endTime: 'DESC' },
         take: 10,
       })
 
@@ -285,7 +285,7 @@ export class WorkoutService {
               where: machineId
                 ? { sessionId: In(sessionIds), machineId: machineId }
                 : { sessionId: In(sessionIds) },
-              order: { createdAt: "DESC" },
+              order: { createdAt: 'DESC' },
             })
           : []
 
@@ -296,7 +296,7 @@ export class WorkoutService {
         totalSets: sets.length,
       }
     } catch (error) {
-      console.error("운동 진행 상황 조회 오류:", error)
+      console.error('운동 진행 상황 조회 오류:', error)
       return {
         sessions: [],
         sets: [],
@@ -316,8 +316,77 @@ export class WorkoutService {
       await exerciseSetRepo.remove(set)
       return true
     } catch (error) {
-      console.error("운동 세트 삭제 오류:", error)
+      console.error('운동 세트 삭제 오류:', error)
       return false
+    }
+  }
+
+  // 대시보드 데이터 조회
+  async getDashboardData(userId: number): Promise<any> {
+    try {
+      const workoutPlanRepo = AppDataSource.getRepository(WorkoutPlan)
+      const workoutSessionRepo = AppDataSource.getRepository(WorkoutSession)
+      const workoutGoalRepo = AppDataSource.getRepository(WorkoutGoal)
+
+      // 사용자의 운동 계획, 세션, 목표 개수 조회
+      const [plans, sessions, goals] = await Promise.all([
+        workoutPlanRepo.count({ where: { userId } }),
+        workoutSessionRepo.count({ where: { userId } }),
+        workoutGoalRepo.count({ where: { userId } }),
+      ])
+
+      // 최근 활동 조회
+      const recentSessions = await workoutSessionRepo.find({
+        where: { userId },
+        order: { createdAt: 'DESC' },
+        take: 5,
+        relations: ['exerciseSets'],
+      })
+
+      // 통계 데이터
+      const totalWorkoutTime = sessions > 0 ? sessions * 60 : 0 // 임시로 세션당 60분으로 계산
+      const completedGoals = await workoutGoalRepo.count({
+        where: { userId, isCompleted: true },
+      })
+
+      return {
+        stats: {
+          totalPlans: plans,
+          totalSessions: sessions,
+          totalGoals: goals,
+          completedGoals,
+          totalWorkoutTime,
+        },
+        recentActivity: recentSessions.map(session => ({
+          id: session.id,
+          name: session.name || '운동 세션',
+          date: session.createdAt,
+          duration: session.totalDurationMinutes || 0,
+          exerciseCount: session.exerciseSets?.length || 0,
+        })),
+        summary: {
+          thisWeekSessions: sessions, // 임시 데이터
+          thisMonthSessions: sessions,
+          averageSessionTime: totalWorkoutTime / Math.max(sessions, 1),
+        },
+      }
+    } catch (error) {
+      console.error('대시보드 데이터 조회 오류:', error)
+      return {
+        stats: {
+          totalPlans: 0,
+          totalSessions: 0,
+          totalGoals: 0,
+          completedGoals: 0,
+          totalWorkoutTime: 0,
+        },
+        recentActivity: [],
+        summary: {
+          thisWeekSessions: 0,
+          thisMonthSessions: 0,
+          averageSessionTime: 0,
+        },
+      }
     }
   }
 }

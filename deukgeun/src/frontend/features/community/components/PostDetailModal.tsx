@@ -71,11 +71,7 @@ export function PostDetailModal({
               id: comment.id || 0,
               postId: comment.postId || post.id,
               userId: comment.userId || comment.author_id || 0,
-              author: {
-                id: comment.userId || comment.author_id || 0,
-                nickname:
-                  comment.author?.nickname || comment.author_name || '익명',
-              },
+              author: comment.author || '익명',
               content: comment.content || '',
               createdAt: new Date(
                 comment.createdAt || comment.created_at || Date.now()
@@ -135,11 +131,7 @@ export function PostDetailModal({
             id: comment.id || 0,
             postId: comment.postId || post.id,
             userId: comment.userId || comment.author_id || 0,
-            author: {
-              id: comment.userId || comment.author_id || 0,
-              nickname:
-                comment.author?.nickname || comment.author_name || '익명',
-            },
+            author: comment.author || '익명',
             content: comment.content || '',
             createdAt: new Date(
               comment.createdAt || comment.created_at || Date.now()
@@ -414,9 +406,7 @@ export function PostDetailModal({
                   <div key={comment.id} className={styles.comment}>
                     <div className={styles.commentHeader}>
                       <span className={styles.commentAuthor}>
-                        {isAuthenticated
-                          ? comment.author?.nickname || '익명'
-                          : '익명'}
+                        {isAuthenticated ? comment.author || '익명' : '익명'}
                       </span>
                       <span className={styles.commentDate}>
                         {new Date(comment.createdAt).toLocaleDateString()}

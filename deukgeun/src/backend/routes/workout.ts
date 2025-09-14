@@ -1,7 +1,7 @@
-import { Router } from "express"
-import { WorkoutController } from "../controllers/workoutController"
-import { authMiddleware } from "../middlewares/auth"
-import { rateLimiter } from "../middlewares/rateLimiter"
+import { Router } from 'express'
+import { WorkoutController } from '../controllers/workoutController'
+import { authMiddleware } from '../middlewares/auth'
+import { rateLimiter, workoutRateLimiter } from '../middlewares/rateLimiter'
 
 const router = Router()
 const workoutController = new WorkoutController()
@@ -32,82 +32,90 @@ const workoutController = new WorkoutController()
 
 // 운동 계획 라우트
 router.get(
-  "/plans",
+  '/plans',
   authMiddleware,
-  rateLimiter(60000, 30),
-  workoutController.getUserPlans
+  workoutRateLimiter, // 1분에 200회
+  workoutController.getUserPlans.bind(workoutController)
 )
 router.post(
-  "/plans",
+  '/plans',
   authMiddleware,
   rateLimiter(60000, 10),
-  workoutController.createPlan
+  workoutController.createPlan.bind(workoutController)
 )
 router.put(
-  "/plans/:id",
+  '/plans/:id',
   authMiddleware,
   rateLimiter(60000, 10),
-  workoutController.updatePlan
+  workoutController.updatePlan.bind(workoutController)
 )
 router.delete(
-  "/plans/:id",
+  '/plans/:id',
   authMiddleware,
   rateLimiter(60000, 10),
-  workoutController.deletePlan
+  workoutController.deletePlan.bind(workoutController)
 )
 
 // 운동 세션 라우트
 router.get(
-  "/sessions",
+  '/sessions',
   authMiddleware,
-  rateLimiter(60000, 30),
-  workoutController.getUserSessions
+  workoutRateLimiter, // 1분에 200회
+  workoutController.getUserSessions.bind(workoutController)
 )
 router.post(
-  "/sessions",
+  '/sessions',
   authMiddleware,
   rateLimiter(60000, 10),
-  workoutController.startSession
+  workoutController.startSession.bind(workoutController)
 )
 router.post(
-  "/sessions/:id/complete",
+  '/sessions/:id/complete',
   authMiddleware,
   rateLimiter(60000, 10),
-  workoutController.completeSession
+  workoutController.completeSession.bind(workoutController)
 )
 
 // 운동 목표 라우트
 router.get(
-  "/goals",
+  '/goals',
   authMiddleware,
-  rateLimiter(60000, 30),
-  workoutController.getUserGoals
+  workoutRateLimiter, // 1분에 200회
+  workoutController.getUserGoals.bind(workoutController)
 )
 router.post(
-  "/goals",
+  '/goals',
   authMiddleware,
   rateLimiter(60000, 10),
-  workoutController.createGoal
+  workoutController.createGoal.bind(workoutController)
 )
 router.put(
-  "/goals/:id",
+  '/goals/:id',
   authMiddleware,
   rateLimiter(60000, 10),
-  workoutController.updateGoal
+  workoutController.updateGoal.bind(workoutController)
 )
 router.delete(
-  "/goals/:id",
+  '/goals/:id',
   authMiddleware,
   rateLimiter(60000, 10),
-  workoutController.deleteGoal
+  workoutController.deleteGoal.bind(workoutController)
 )
 
 // 운동 진행 상황 라우트
 router.get(
-  "/progress",
+  '/progress',
   authMiddleware,
-  rateLimiter(60000, 30),
-  workoutController.getProgress
+  workoutRateLimiter, // 1분에 200회
+  workoutController.getProgress.bind(workoutController)
+)
+
+// 대시보드 라우트
+router.get(
+  '/dashboard',
+  authMiddleware,
+  workoutRateLimiter, // 1분에 200회
+  workoutController.getDashboard.bind(workoutController)
 )
 
 export default router

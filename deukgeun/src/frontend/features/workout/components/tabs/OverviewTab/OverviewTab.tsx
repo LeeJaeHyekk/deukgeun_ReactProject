@@ -1,40 +1,40 @@
-import React, { useEffect } from "react"
+import React, { useEffect } from 'react'
 import {
   useTabState,
   useDashboardData,
   useSharedState,
   useWorkoutStoreData,
-} from "../../../hooks/useWorkoutStore"
-import type { DashboardData } from "../../../types/workout"
-import { StatsSection } from "./components/StatsSection"
-import { RecentSessionsSection } from "./components/RecentSessionsSection"
-import { GoalsProgressSection } from "./components/GoalsProgressSection"
-import { ChartsSection } from "./components/ChartsSection"
-import styles from "./OverviewTab.module.css"
+} from '../../../hooks/useWorkoutStore'
+import type { DashboardData } from '../../../types/workout'
+import { StatsSection } from './components/StatsSection'
+import { RecentSessionsSection } from './components/RecentSessionsSection'
+import { GoalsProgressSection } from './components/GoalsProgressSection'
+import { ChartsSection } from './components/ChartsSection'
+import styles from './OverviewTab.module.css'
 
 // 로깅 유틸리티
 const logger = {
   info: (message: string, data?: any) => {
     if (import.meta.env.DEV) {
-      console.log(`[OverviewTab] ${message}`, data || "")
+      console.log(`[OverviewTab] ${message}`, data || '')
     }
   },
   debug: (message: string, data?: any) => {
     if (import.meta.env.DEV) {
-      console.debug(`[OverviewTab] ${message}`, data || "")
+      console.debug(`[OverviewTab] ${message}`, data || '')
     }
   },
   warn: (message: string, data?: any) => {
-    console.warn(`[OverviewTab] ${message}`, data || "")
+    console.warn(`[OverviewTab] ${message}`, data || '')
   },
   error: (message: string, data?: any) => {
-    console.error(`[OverviewTab] ${message}`, data || "")
+    console.error(`[OverviewTab] ${message}`, data || '')
   },
   grid: (message: string, data?: any) => {
     const gridEl = document.querySelector(`.${styles.overviewGrid}`)
-    console.log("overviewGrid element:", gridEl)
+    console.log('overviewGrid element:', gridEl)
     if (gridEl) {
-      console.log("Computed style:", window.getComputedStyle(gridEl).display)
+      console.log('Computed style:', window.getComputedStyle(gridEl).display)
     }
   },
 }
@@ -54,7 +54,7 @@ export function OverviewTab({
   onSessionClick,
   onGoalClick,
 }: OverviewTabProps) {
-  const { tabState, updateTabState } = useTabState("overview")
+  const { tabState, updateTabState } = useTabState('overview')
 
   // 대시보드 데이터 훅
   const { dashboardData: storeDashboardData, isLoading: storeIsLoading } =
@@ -66,7 +66,7 @@ export function OverviewTab({
   // 공유 상태 훅
   const { sharedState } = useSharedState()
 
-  logger.info("OverviewTab 렌더링", {
+  logger.info('OverviewTab 렌더링', {
     hasPropsData: !!dashboardData,
     hasStoreData: !!storeDashboardData,
     isLoading,
@@ -82,12 +82,12 @@ export function OverviewTab({
   // 최근 업데이트된 항목들 표시 (최대 2개만)
   const recentUpdates = [
     sharedState.lastUpdatedPlan && {
-      type: "plan" as const,
+      type: 'plan' as const,
       item: sharedState.lastUpdatedPlan,
       onClick: () => onPlanClick(sharedState.lastUpdatedPlan!.id),
     },
     sharedState.lastUpdatedSession && {
-      type: "session" as const,
+      type: 'session' as const,
       item: sharedState.lastUpdatedSession,
       onClick: () => onSessionClick(sharedState.lastUpdatedSession!.id),
     },
@@ -110,8 +110,7 @@ export function OverviewTab({
     return (
       <div className={styles.overviewTab}>
         <div className={styles.overviewNoDataContainer}>
-          <h3>운동 데이터가 없습니다</h3>
-          <p>첫 번째 운동 계획을 만들어보세요!</p>
+          <h3>내용을 현재 준비 중에 있습니다.</h3>
         </div>
       </div>
     )
@@ -135,18 +134,18 @@ export function OverviewTab({
 
               const displayName = (() => {
                 if (
-                  "name" in update.item &&
-                  typeof update.item.name === "string"
+                  'name' in update.item &&
+                  typeof update.item.name === 'string'
                 ) {
                   return update.item.name
                 }
                 if (
-                  "title" in update.item &&
-                  typeof update.item.title === "string"
+                  'title' in update.item &&
+                  typeof update.item.title === 'string'
                 ) {
                   return update.item.title
                 }
-                return "Unknown"
+                return 'Unknown'
               })()
 
               return (

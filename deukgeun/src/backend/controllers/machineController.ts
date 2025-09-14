@@ -300,13 +300,17 @@ export const getMachinesByDifficulty = async (req: Request, res: Response) => {
 export const getMachinesByTarget = async (req: Request, res: Response) => {
   try {
     const { target } = req.params
+    const decodedTarget = decodeURIComponent(target)
 
-    const machines = await getMachineService().getMachinesByTarget(target)
+    const machines =
+      await getMachineService().getMachinesByTarget(decodedTarget)
 
     // DTO 변환 적용
     const machineDTOs = toMachineDTOList(machines)
 
-    logger.info(`Retrieved ${machineDTOs.length} machines by target: ${target}`)
+    logger.info(
+      `Retrieved ${machineDTOs.length} machines by target: ${decodedTarget}`
+    )
 
     res.status(200).json({
       message: 'Machines retrieved successfully by target',

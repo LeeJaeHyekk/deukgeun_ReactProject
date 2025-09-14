@@ -153,7 +153,7 @@ export class PostController {
       try {
         await this.levelService.grantExp(
           req.user.userId,
-          'post',
+          'post_created',
           'post_creation',
           { postId: newPost.id, title: newPost.title }
         )

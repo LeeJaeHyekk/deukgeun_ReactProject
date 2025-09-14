@@ -2,7 +2,8 @@
 // Workout Store Hooks - Zustand Store Integration
 // ============================================================================
 
-import { useWorkoutStore } from "../store/workoutStore"
+import { useState } from 'react'
+import { useWorkoutStore } from '../store/workoutStore'
 import type {
   WorkoutPlan,
   WorkoutSession,
@@ -20,7 +21,7 @@ import type {
   GoalsTabState,
   ProgressTabState,
   Notification,
-} from "../types"
+} from '../types'
 
 // ============================================================================
 // Data Hooks
@@ -39,7 +40,7 @@ export function useWorkoutStoreData() {
     sharedState: state.sharedState,
   }))
 
-  console.log("[useWorkoutStoreData] 훅 실행됨", {
+  console.log('[useWorkoutStoreData] 훅 실행됨', {
     timestamp: new Date().toISOString(),
     plansCount: data.plans.length,
     sessionsCount: data.sessions.length,
@@ -62,7 +63,7 @@ export function useWorkoutPlansActions() {
     duplicatePlan: state.duplicatePlan,
   }))
 
-  console.log("[useWorkoutPlansActions] 훅 실행됨", {
+  console.log('[useWorkoutPlansActions] 훅 실행됨', {
     timestamp: new Date().toISOString(),
     fetchPlansRef: actions.fetchPlans.toString().slice(0, 50),
   })
@@ -194,19 +195,19 @@ export function useTabState(tabType: TabType) {
       >
     ) => {
       switch (tabType) {
-        case "overview":
+        case 'overview':
           return state.updateOverviewTabState(
             updates as Partial<OverviewTabState>
           )
-        case "plans":
+        case 'plans':
           return state.updatePlansTabState(updates as Partial<PlansTabState>)
-        case "sessions":
+        case 'sessions':
           return state.updateSessionsTabState(
             updates as Partial<SessionsTabState>
           )
-        case "goals":
+        case 'goals':
           return state.updateGoalsTabState(updates as Partial<GoalsTabState>)
-        case "workoutProgress":
+        case 'workoutProgress':
           return state.updateProgressTabState(
             updates as Partial<ProgressTabState>
           )
@@ -294,34 +295,63 @@ export function useWorkoutInitialization() {
   const { fetchGoals } = useWorkoutGoalsActions()
   const { fetchDashboardData } = useWorkoutDashboardActions()
 
+  // 초기화 상태를 추적하여 중복 요청 방지
+  const [isInitializing, setIsInitializing] = useState(false)
+  const [hasInitialized, setHasInitialized] = useState(false)
+
   const initializeWorkoutData = async () => {
-    console.log("[useWorkoutInitialization] initializeWorkoutData 호출됨", {
+    // 이미 초기화 중이거나 완료된 경우 스킵
+    if (isInitializing || hasInitialized) {
+      console.log(
+        '[useWorkoutInitialization] 초기화 스킵 - 이미 진행 중이거나 완료됨',
+        {
+          isInitializing,
+          hasInitialized,
+          timestamp: new Date().toISOString(),
+        }
+      )
+      return
+    }
+
+    console.log('[useWorkoutInitialization] initializeWorkoutData 호출됨', {
       timestamp: new Date().toISOString(),
       stack: new Error().stack,
     })
 
+    setIsInitializing(true)
+
     // 인증 토큰 확인
-    const token = localStorage.getItem("accessToken")
-    console.log("[useWorkoutInitialization] 인증 토큰 확인:", {
+    const token = localStorage.getItem('accessToken')
+    console.log('[useWorkoutInitialization] 인증 토큰 확인:', {
       hasToken: !!token,
-      tokenPreview: token ? `${token.substring(0, 20)}...` : "없음",
+      tokenPreview: token ? `${token.substring(0, 20)}...` : '없음',
       timestamp: new Date().toISOString(),
     })
 
     try {
-      await Promise.all([
-        fetchPlans(),
-        fetchSessions(),
-        fetchGoals(),
-        fetchDashboardData(),
-      ])
-      console.log("[useWorkoutInitialization] 데이터 초기화 완료")
+      // 순차적으로 실행하여 Rate Limit 방지
+      console.log('[useWorkoutInitialization] 대시보드 데이터 로드 시작')
+      await fetchDashboardData()
+
+      console.log('[useWorkoutInitialization] 계획 데이터 로드 시작')
+      await fetchPlans()
+
+      console.log('[useWorkoutInitialization] 세션 데이터 로드 시작')
+      await fetchSessions()
+
+      console.log('[useWorkoutInitialization] 목표 데이터 로드 시작')
+      await fetchGoals()
+
+      setHasInitialized(true)
+      console.log('[useWorkoutInitialization] 데이터 초기화 완료')
     } catch (error) {
-      console.error("Failed to initialize workout data:", error)
+      console.error('Failed to initialize workout data:', error)
+    } finally {
+      setIsInitializing(false)
     }
   }
 
-  return { initializeWorkoutData }
+  return { initializeWorkoutData, isInitializing, hasInitialized }
 }
 
 // ============================================================================
@@ -369,7 +399,7 @@ export function useWorkoutStats() {
     totalPlans: plans.length,
     totalSessions: sessions.length,
     totalGoals: goals.length,
-    completedSessions: sessions.filter(s => s.status === "completed").length,
+    completedSessions: sessions.filter(s => s.status === 'completed').length,
     activeGoals: goals.filter(g => !g.isCompleted).length,
     completedGoals: goals.filter(g => g.isCompleted).length,
   }
@@ -406,7 +436,7 @@ export function useWorkoutGoalsByPlan(planId: number) {
 // ============================================================================
 
 export function useWorkoutLoadingState(
-  tab: "overview" | "plans" | "sessions" | "goals" | "progress"
+  tab: 'overview' | 'plans' | 'sessions' | 'goals' | 'progress'
 ) {
   return useWorkoutStore(state => state.loading[tab])
 }

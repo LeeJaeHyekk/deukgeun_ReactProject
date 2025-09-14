@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from "express"
-import { WorkoutService } from "../services/workoutService"
-import { authMiddleware } from "../middlewares/auth"
-import { logger } from "../utils/logger"
-import { toWorkoutSessionDTO, toWorkoutSessionDTOList } from "../transformers"
+import { Request, Response, NextFunction } from 'express'
+import { WorkoutService } from '../services/workoutService'
+import { authMiddleware } from '../middlewares/auth'
+import { logger } from '../utils/logger'
+import { toWorkoutSessionDTO, toWorkoutSessionDTOList } from '../transformers'
 
 export class WorkoutController {
   private workoutService: WorkoutService
@@ -19,7 +19,7 @@ export class WorkoutController {
   ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: '인증이 필요합니다.' })
         return
       }
 
@@ -30,7 +30,7 @@ export class WorkoutController {
       // DTO 변환 적용 (서비스에서 반환된 데이터가 엔티티인 경우)
       const planDTOs = Array.isArray(plans)
         ? plans.map(plan =>
-            typeof plan === "object" && plan !== null ? plan : plan
+            typeof plan === 'object' && plan !== null ? plan : plan
           )
         : plans
 
@@ -48,7 +48,7 @@ export class WorkoutController {
   ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: '인증이 필요합니다.' })
         return
       }
 
@@ -60,7 +60,7 @@ export class WorkoutController {
       const plan = await this.workoutService.createWorkoutPlan(planData)
 
       // DTO 변환 적용
-      const planDTO = typeof plan === "object" && plan !== null ? plan : plan
+      const planDTO = typeof plan === 'object' && plan !== null ? plan : plan
 
       res.status(201).json(planDTO)
     } catch (error) {
@@ -76,18 +76,18 @@ export class WorkoutController {
   ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: '인증이 필요합니다.' })
         return
       }
 
       const { id } = req.params
       const plan = await this.workoutService.updateWorkoutPlan(
-        parseInt(id || ""),
+        parseInt(id || ''),
         req.body
       )
 
       // DTO 변환 적용
-      const planDTO = typeof plan === "object" && plan !== null ? plan : plan
+      const planDTO = typeof plan === 'object' && plan !== null ? plan : plan
 
       res.json(planDTO)
     } catch (error) {
@@ -103,12 +103,12 @@ export class WorkoutController {
   ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: '인증이 필요합니다.' })
         return
       }
 
       const { id } = req.params
-      await this.workoutService.deleteWorkoutPlan(parseInt(id || ""))
+      await this.workoutService.deleteWorkoutPlan(parseInt(id || ''))
       res.status(204).send()
     } catch (error) {
       logger.error(`운동 계획 삭제 실패: ${error}`)
@@ -124,7 +124,7 @@ export class WorkoutController {
   ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: '인증이 필요합니다.' })
         return
       }
 
@@ -145,7 +145,7 @@ export class WorkoutController {
   ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: '인증이 필요합니다.' })
         return
       }
 
@@ -170,13 +170,13 @@ export class WorkoutController {
   ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: '인증이 필요합니다.' })
         return
       }
 
       const { id } = req.params
       const session = await this.workoutService.completeWorkoutSession(
-        parseInt(id || ""),
+        parseInt(id || ''),
         req.user.userId
       )
       res.json(session)
@@ -194,7 +194,7 @@ export class WorkoutController {
   ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: '인증이 필요합니다.' })
         return
       }
 
@@ -215,7 +215,7 @@ export class WorkoutController {
   ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: '인증이 필요합니다.' })
         return
       }
 
@@ -239,13 +239,13 @@ export class WorkoutController {
   ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: '인증이 필요합니다.' })
         return
       }
 
       const { id } = req.params
       const goal = await this.workoutService.updateWorkoutGoal(
-        parseInt(id || ""),
+        parseInt(id || ''),
         req.body
       )
       res.json(goal)
@@ -262,12 +262,12 @@ export class WorkoutController {
   ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: '인증이 필요합니다.' })
         return
       }
 
       const { id } = req.params
-      await this.workoutService.deleteWorkoutGoal(parseInt(id || ""))
+      await this.workoutService.deleteWorkoutGoal(parseInt(id || ''))
       res.status(204).send()
     } catch (error) {
       logger.error(`운동 목표 삭제 실패: ${error}`)
@@ -283,7 +283,7 @@ export class WorkoutController {
   ): Promise<void> {
     try {
       if (!req.user?.userId) {
-        res.status(401).json({ message: "인증이 필요합니다." })
+        res.status(401).json({ message: '인증이 필요합니다.' })
         return
       }
 
@@ -295,6 +295,28 @@ export class WorkoutController {
       res.json(progress)
     } catch (error) {
       logger.error(`운동 진행 상황 조회 실패: ${error}`)
+      next(error)
+    }
+  }
+
+  // 대시보드 데이터
+  async getDashboard(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      if (!req.user?.userId) {
+        res.status(401).json({ message: '인증이 필요합니다.' })
+        return
+      }
+
+      const dashboardData = await this.workoutService.getDashboardData(
+        req.user.userId
+      )
+      res.json(dashboardData)
+    } catch (error) {
+      logger.error(`대시보드 데이터 조회 실패: ${error}`)
       next(error)
     }
   }

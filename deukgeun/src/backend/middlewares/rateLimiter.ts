@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express"
+import { Request, Response, NextFunction } from 'express'
 
 // 간단한 메모리 기반 Rate Limiter
 interface RateLimitInfo {
@@ -18,7 +18,7 @@ export const rateLimiter = (
   maxRequests: number = 100
 ) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const clientId = req.ip || req.connection.remoteAddress || "unknown"
+    const clientId = req.ip || req.connection.remoteAddress || 'unknown'
     const now = Date.now()
 
     // 기존 정보 가져오기
@@ -36,7 +36,7 @@ export const rateLimiter = (
 
       if (existing.count > maxRequests) {
         return res.status(429).json({
-          message: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.",
+          message: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.',
           retryAfter: Math.ceil((existing.resetTime - now) / 1000),
         })
       }
@@ -45,12 +45,12 @@ export const rateLimiter = (
     // Rate limit 헤더 추가
     const current = rateLimitStore.get(clientId)!
     res.set({
-      "X-RateLimit-Limit": maxRequests.toString(),
-      "X-RateLimit-Remaining": Math.max(
+      'X-RateLimit-Limit': maxRequests.toString(),
+      'X-RateLimit-Remaining': Math.max(
         0,
         maxRequests - current.count
       ).toString(),
-      "X-RateLimit-Reset": new Date(current.resetTime).toISOString(),
+      'X-RateLimit-Reset': new Date(current.resetTime).toISOString(),
     })
 
     next()
@@ -66,3 +66,13 @@ export const machineRateLimiter = rateLimiter(15 * 60 * 1000, 1000) // 15분에 
  * Admin API 전용 Rate Limiter (개발 환경에서는 관대하게)
  */
 export const adminRateLimiter = rateLimiter(15 * 60 * 1000, 500) // 15분에 500회
+
+/**
+ * Workout API 전용 Rate Limiter (개발 환경에서는 관대하게)
+ */
+export const workoutRateLimiter = rateLimiter(60 * 1000, 200) // 1분에 200회
+
+/**
+ * 개발 환경용 관대한 Rate Limiter
+ */
+export const devRateLimiter = rateLimiter(60 * 1000, 1000) // 1분에 1000회

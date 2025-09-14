@@ -1,4 +1,4 @@
-import { Router } from "express"
+import { Router } from 'express'
 import {
   createMachine,
   getAllMachines,
@@ -9,13 +9,13 @@ import {
   getMachinesByCategory,
   getMachinesByDifficulty,
   getMachinesByTarget,
-} from "../controllers/machineController"
+} from '../controllers/machineController'
 // import {
 //   validateMachine,
 //   validateMachineUpdate,
 //   validateId,
 // } from "../middlewares/mixValidation"
-import { machineRateLimiter } from "../middlewares/rateLimiter"
+import { machineRateLimiter } from '../middlewares/rateLimiter'
 
 const router = Router()
 
@@ -34,24 +34,25 @@ const router = Router()
  */
 
 // 조회 라우트 (GET)
-router.get("/", machineRateLimiter, getAllMachines)
-router.get("/filter", machineRateLimiter, filterMachines)
-router.get("/category/:category", machineRateLimiter, getMachinesByCategory)
+router.get('/', machineRateLimiter, getAllMachines)
+router.get('/filter', machineRateLimiter, filterMachines)
+router.get('/search', machineRateLimiter, filterMachines) // search는 filter와 동일하게 처리
+router.get('/category/:category', machineRateLimiter, getMachinesByCategory)
 router.get(
-  "/difficulty/:difficulty",
+  '/difficulty/:difficulty',
   machineRateLimiter,
   getMachinesByDifficulty
 )
-router.get("/target/:target", machineRateLimiter, getMachinesByTarget)
-router.get("/:id", machineRateLimiter, getMachineById)
+router.get('/target/:target', machineRateLimiter, getMachinesByTarget)
+router.get('/:id', machineRateLimiter, getMachineById)
 
 // 생성 라우트 (POST)
-router.post("/", machineRateLimiter, createMachine)
+router.post('/', machineRateLimiter, createMachine)
 
 // 수정 라우트 (PUT)
-router.put("/:id", machineRateLimiter, updateMachine)
+router.put('/:id', machineRateLimiter, updateMachine)
 
 // 삭제 라우트 (DELETE)
-router.delete("/:id", machineRateLimiter, deleteMachine)
+router.delete('/:id', machineRateLimiter, deleteMachine)
 
 export default router

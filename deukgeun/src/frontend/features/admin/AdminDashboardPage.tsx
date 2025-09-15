@@ -2,25 +2,25 @@
 // 관리자 대시보드 페이지
 // ============================================================================
 
-import React, { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import { ROUTES } from "@shared/constants/routes"
-import { AdminLayout } from "./components/AdminLayout"
-import { useAdmin } from "./hooks/useAdmin"
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+// import { ROUTES } from "@shared/constants/routes"
+import { AdminLayout } from './components/AdminLayout'
+import { useAdmin } from './hooks/useAdmin'
 import {
   formatUptime,
   formatBytes,
   formatPercentage,
   getStatusColor,
   getStatusText,
-} from "./utils/adminUtils"
-import styles from "./AdminDashboardPage.module.css"
+} from './utils/adminUtils'
+import styles from './AdminDashboardPage.module.css'
 
 interface DashboardStats {
   totalUsers: number
   totalMachines: number
   totalPosts: number
-  systemStatus: "healthy" | "warning" | "error"
+  systemStatus: 'healthy' | 'warning' | 'error'
 }
 
 export default function AdminDashboardPage() {
@@ -91,9 +91,9 @@ export default function AdminDashboardPage() {
             <div className={styles.statCard}>
               <h3>시스템 상태</h3>
               <p
-                className={`${styles.statValue} ${getStatusColor(stats?.systemStatus || "healthy")}`}
+                className={`${styles.statValue} ${getStatusColor(stats?.systemStatus || 'healthy')}`}
               >
-                {getStatusText(stats?.systemStatus || "healthy")}
+                {getStatusText(stats?.systemStatus || 'healthy')}
               </p>
             </div>
           </div>
@@ -106,13 +106,13 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className={styles.adminGrid}>
-            <Link to={ROUTES.ADMIN_DATABASE} className={styles.adminCard}>
+            <Link to="/admin/database" className={styles.adminCard}>
               <div className={styles.cardIcon}>🗄️</div>
               <h3>데이터베이스 관리</h3>
               <p>헬스장 데이터베이스 업데이트 및 관리</p>
             </Link>
 
-            <Link to={ROUTES.ADMIN_PERFORMANCE} className={styles.adminCard}>
+            <Link to="/admin/performance" className={styles.adminCard}>
               <div className={styles.cardIcon}>📊</div>
               <h3>성능 모니터링</h3>
               <p>시스템 성능 및 API 응답 시간 모니터링</p>

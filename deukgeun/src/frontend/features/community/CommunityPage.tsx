@@ -183,10 +183,9 @@ export default function CommunityPage() {
 
   const handleOpenCreateModal = () => {
     if (availableCategories.length === 0) {
-      showToast(
-        '카테고리를 불러오는 중입니다. 잠시 후 다시 시도해주세요.',
-        'error'
-      )
+      showToast('카테고리를 불러오는 중입니다. 잠시 후 다시 시도해주세요.', {
+        type: 'error',
+      })
       return
     }
     openCreateModal()

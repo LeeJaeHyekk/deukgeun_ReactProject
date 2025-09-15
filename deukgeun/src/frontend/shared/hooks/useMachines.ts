@@ -5,11 +5,12 @@
 // 이 파일은 하위 호환성을 위해 유지됩니다.
 // 새로운 MachineGuide 기능에서는 @features/machine-guide/hooks/useMachines를 사용하세요.
 
-import { useState, useEffect, useCallback, useRef } from "react"
-import { machineApi } from "@shared/api/machineApi"
-import { showToast } from "@shared/lib"
-import type { Machine } from "@dto/index"
-import type { CreateMachineRequest, UpdateMachineRequest } from "@dto/index"
+import { useState, useEffect, useCallback, useRef } from 'react'
+// import { machineApi } from '../../../shared/api/machineApi'
+import axios from 'axios'
+import { showToast } from '@shared/lib'
+import type { Machine } from '@dto/index'
+import type { CreateMachineRequest, UpdateMachineRequest } from '@dto/index'
 
 export const useMachines = () => {
   const [machines, setMachines] = useState<Machine[]>([])
@@ -25,7 +26,7 @@ export const useMachines = () => {
     // API 호출 제한 확인
     const now = Date.now()
     if (now - lastFetchTime.current < FETCH_COOLDOWN) {
-      console.log("API 호출 제한: 머신 목록 조회 스킵")
+      console.log('API 호출 제한: 머신 목록 조회 스킵')
       return machines
     }
 
@@ -33,19 +34,22 @@ export const useMachines = () => {
     setError(null)
     try {
       lastFetchTime.current = now
-      const response = await machineApi.getMachines()
-      console.log("머신 응답:", response)
-      const newMachines = response?.machines || []
-      console.log("머신 목록:", newMachines)
+      const response = await axios.get('/api/machines')
+      console.log('머신 응답:', response)
+      // axios 응답 구조에 맞게 처리
+      const newMachines = Array.isArray(response.data)
+        ? response.data
+        : (response.data as any)?.machines || []
+      console.log('머신 목록:', newMachines)
       setMachines(newMachines)
       return newMachines
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error
           ? err.message
-          : "머신 목록을 불러오는데 실패했습니다."
+          : '머신 목록을 불러오는데 실패했습니다.'
       setError(errorMessage)
-      showToast(errorMessage, "error")
+      showToast(errorMessage, { type: 'error' })
       setMachines([]) // 오류 시 빈 배열로 설정
       throw err
     } finally {
@@ -58,15 +62,15 @@ export const useMachines = () => {
     setLoading(true)
     setError(null)
     try {
-      const response = await machineApi.getMachine(id)
-      return response.machine
+      const response = await axios.get(`/api/machines/${id}`)
+      return response.data
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error
           ? err.message
-          : "머신 정보를 불러오는데 실패했습니다."
+          : '머신 정보를 불러오는데 실패했습니다.'
       setError(errorMessage)
-      showToast(errorMessage, "error")
+      showToast(errorMessage, { type: 'error' })
       throw err
     } finally {
       setLoading(false)
@@ -79,16 +83,16 @@ export const useMachines = () => {
       setLoading(true)
       setError(null)
       try {
-        const response = await machineApi.createMachine(machineData)
-        const newMachine = response.machine
+        const response = await axios.post('/api/machines', machineData)
+        const newMachine = response.data
         setMachines(prev => [newMachine, ...prev])
-        showToast("머신이 성공적으로 생성되었습니다.", "success")
+        showToast('머신이 성공적으로 생성되었습니다.', { type: 'success' })
         return newMachine
       } catch (err: unknown) {
         const errorMessage =
-          err instanceof Error ? err.message : "머신 생성에 실패했습니다."
+          err instanceof Error ? err.message : '머신 생성에 실패했습니다.'
         setError(errorMessage)
-        showToast(errorMessage, "error")
+        showToast(errorMessage, { type: 'error' })
         throw err
       } finally {
         setLoading(false)
@@ -103,18 +107,18 @@ export const useMachines = () => {
       setLoading(true)
       setError(null)
       try {
-        const response = await machineApi.updateMachine(id, machineData)
-        const updatedMachine = response.machine
+        const response = await axios.put(`/api/machines/${id}`, machineData)
+        const updatedMachine = response.data
         setMachines(prev =>
           prev.map(machine => (machine.id === id ? updatedMachine : machine))
         )
-        showToast("머신이 성공적으로 수정되었습니다.", "success")
+        showToast('머신이 성공적으로 수정되었습니다.', { type: 'success' })
         return updatedMachine
       } catch (err: unknown) {
         const errorMessage =
-          err instanceof Error ? err.message : "머신 수정에 실패했습니다."
+          err instanceof Error ? err.message : '머신 수정에 실패했습니다.'
         setError(errorMessage)
-        showToast(errorMessage, "error")
+        showToast(errorMessage, { type: 'error' })
         throw err
       } finally {
         setLoading(false)
@@ -128,14 +132,14 @@ export const useMachines = () => {
     setLoading(true)
     setError(null)
     try {
-      await machineApi.deleteMachine(id)
+      await axios.delete(`/api/machines/${id}`)
       setMachines(prev => prev.filter(machine => machine.id !== id))
-      showToast("머신이 성공적으로 삭제되었습니다.", "success")
+      showToast('머신이 성공적으로 삭제되었습니다.', { type: 'success' })
     } catch (err: unknown) {
       const errorMessage =
-        err instanceof Error ? err.message : "머신 삭제에 실패했습니다."
+        err instanceof Error ? err.message : '머신 삭제에 실패했습니다.'
       setError(errorMessage)
-      showToast(errorMessage, "error")
+      showToast(errorMessage, { type: 'error' })
       throw err
     } finally {
       setLoading(false)
@@ -147,7 +151,7 @@ export const useMachines = () => {
     async (category: string) => {
       const now = Date.now()
       if (now - lastFetchTime.current < FETCH_COOLDOWN) {
-        console.log("API 호출 제한: 카테고리별 머신 조회 스킵")
+        console.log('API 호출 제한: 카테고리별 머신 조회 스킵')
         return machines
       }
 
@@ -155,17 +159,19 @@ export const useMachines = () => {
       setError(null)
       try {
         lastFetchTime.current = now
-        const response = await machineApi.getMachinesByCategory(category)
-        const newMachines = response?.machines || []
+        const response = await axios.get(`/api/machines/category/${category}`)
+        const newMachines = Array.isArray(response.data)
+          ? response.data
+          : (response.data as any)?.machines || []
         setMachines(newMachines)
         return newMachines
       } catch (err: unknown) {
         const errorMessage =
           err instanceof Error
             ? err.message
-            : "카테고리별 머신 조회에 실패했습니다."
+            : '카테고리별 머신 조회에 실패했습니다.'
         setError(errorMessage)
-        showToast(errorMessage, "error")
+        showToast(errorMessage, { type: 'error' })
         setMachines([])
         throw err
       } finally {
@@ -175,12 +181,12 @@ export const useMachines = () => {
     [machines]
   )
 
-  // 난이도별 머신 조회
+  // 난이도별 머신 조회 (검색으로 대체)
   const getMachinesByDifficulty = useCallback(
     async (difficulty: string) => {
       const now = Date.now()
       if (now - lastFetchTime.current < FETCH_COOLDOWN) {
-        console.log("API 호출 제한: 난이도별 머신 조회 스킵")
+        console.log('API 호출 제한: 난이도별 머신 조회 스킵')
         return machines
       }
 
@@ -188,17 +194,21 @@ export const useMachines = () => {
       setError(null)
       try {
         lastFetchTime.current = now
-        const response = await machineApi.getMachinesByDifficulty(difficulty)
-        const newMachines = response?.machines || []
+        const response = await axios.get(
+          `/api/machines/search?q=${encodeURIComponent(difficulty)}`
+        )
+        const newMachines = Array.isArray(response.data)
+          ? response.data
+          : (response.data as any)?.machines || []
         setMachines(newMachines)
         return newMachines
       } catch (err: unknown) {
         const errorMessage =
           err instanceof Error
             ? err.message
-            : "난이도별 머신 조회에 실패했습니다."
+            : '난이도별 머신 조회에 실패했습니다.'
         setError(errorMessage)
-        showToast(errorMessage, "error")
+        showToast(errorMessage, { type: 'error' })
         setMachines([])
         throw err
       } finally {
@@ -208,12 +218,12 @@ export const useMachines = () => {
     [machines]
   )
 
-  // 타겟별 머신 조회
+  // 타겟별 머신 조회 (검색으로 대체)
   const getMachinesByTarget = useCallback(
     async (target: string) => {
       const now = Date.now()
       if (now - lastFetchTime.current < FETCH_COOLDOWN) {
-        console.log("API 호출 제한: 타겟별 머신 조회 스킵")
+        console.log('API 호출 제한: 타겟별 머신 조회 스킵')
         return machines
       }
 
@@ -221,17 +231,21 @@ export const useMachines = () => {
       setError(null)
       try {
         lastFetchTime.current = now
-        const response = await machineApi.getMachinesByTarget(target)
-        const newMachines = response?.machines || []
+        const response = await axios.get(
+          `/api/machines/search?q=${encodeURIComponent(target)}`
+        )
+        const newMachines = Array.isArray(response.data)
+          ? response.data
+          : (response.data as any)?.machines || []
         setMachines(newMachines)
         return newMachines
       } catch (err: unknown) {
         const errorMessage =
           err instanceof Error
             ? err.message
-            : "타겟별 머신 조회에 실패했습니다."
+            : '타겟별 머신 조회에 실패했습니다.'
         setError(errorMessage)
-        showToast(errorMessage, "error")
+        showToast(errorMessage, { type: 'error' })
         setMachines([])
         throw err
       } finally {

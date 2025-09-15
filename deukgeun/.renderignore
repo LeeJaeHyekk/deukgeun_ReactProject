@@ -1,0 +1,18 @@
+# Node.js 프로젝트에서 Render 배포 시 제외할 파일들
+node_modules/
+dist/
+*.log
+.env
+.env.local
+.env.production
+.env.development
+.git/
+.gitignore
+README.md
+*.md
+.vscode/
+.idea/
+coverage/
+.nyc_output/
+.DS_Store
+Thumbs.db

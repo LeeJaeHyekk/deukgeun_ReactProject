@@ -5,26 +5,26 @@ import type {
   UserLevel,
   WorkoutGoal,
   Gym,
-} from "../../../shared/types"
+} from '../../../shared/types'
 
 // Mock 데이터 생성 함수들
 export const createMockUser = (overrides: Partial<User> = {}): User => ({
   id: 1,
-  email: "test@example.com",
-  nickname: "테스트 사용자",
-  phone: "010-1234-5678",
-  phoneNumber: "010-1234-5678",
-  gender: "male",
-  birthDate: new Date("1990-01-01"),
-  profileImage: "https://example.com/avatar.jpg",
-  role: "user",
+  email: 'test@example.com',
+  nickname: '테스트 사용자',
+  phone: '010-1234-5678',
+  phoneNumber: '010-1234-5678',
+  gender: 'male',
+  birthDate: new Date('1990-01-01'),
+  profileImage: 'https://example.com/avatar.jpg',
+  role: 'user',
   isActive: true,
   isEmailVerified: true,
   isPhoneVerified: false,
-  name: "테스트",
-  username: "testuser",
-  createdAt: new Date("2024-01-01"),
-  updatedAt: new Date("2024-01-01"),
+  name: '테스트',
+  username: 'testuser',
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
   ...overrides,
 })
 
@@ -32,23 +32,44 @@ export const createMockMachine = (
   overrides: Partial<Machine> = {}
 ): Machine => ({
   id: 1,
-  machineKey: "machine_001",
-  name: "테스트 머신",
-  nameKo: "테스트 머신",
-  nameEn: "Test Machine",
-  imageUrl: "/test-image.jpg",
-  shortDesc: "테스트 머신 간단 설명",
-  detailDesc: "테스트 머신 상세 설명",
-  description: "테스트 머신 설명",
-  instructions: "테스트 머신 사용법",
-  positiveEffect: "근력 향상",
-  category: "chest",
-  targetMuscles: ["삼두근", "이두근"],
-  difficulty: "beginner",
-  videoUrl: "/test-video.mp4",
+  machineKey: 'machine_001',
+  name: '테스트 머신',
+  nameEn: 'Test Machine',
+  imageUrl: '/test-image.jpg',
+  shortDesc: '테스트 머신 간단 설명',
+  detailDesc: '테스트 머신 상세 설명',
+  category: 'chest',
+  difficulty: 'beginner',
   isActive: true,
-  createdAt: new Date("2024-01-01"),
-  updatedAt: new Date("2024-01-01"),
+  anatomy: {
+    primaryMuscles: ['가슴'],
+    secondaryMuscles: ['삼각근'],
+    antagonistMuscles: ['등근육'],
+    easyExplanation: '가슴 근육을 발달시키는 운동입니다.',
+  },
+  guide: {
+    setup: '벤치에 누워 바벨을 잡습니다.',
+    execution: ['바벨을 가슴까지 내립니다.', '가슴을 수축시키며 올립니다.'],
+    movementDirection: '수직',
+    idealStimulus: '가슴 근육의 수축',
+    commonMistakes: ['과도한 무게 사용'],
+    breathing: '내릴 때 숨을 들이마시고, 올릴 때 내쉽니다.',
+    safetyTips: ['스포터를 사용하세요.'],
+  },
+  training: {
+    recommendedReps: '8-12회',
+    recommendedSets: '3-4세트',
+    restTime: '2-3분',
+    variations: ['인클라인 벤치프레스'],
+    levelUpOptions: ['무게 증가'],
+    beginnerTips: ['올바른 자세를 먼저 익히세요.'],
+  },
+  extraInfo: {
+    dailyUseCase: '가슴 근육 발달',
+    searchKeywords: ['벤치프레스', '가슴운동'],
+  },
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
   ...overrides,
 })
 
@@ -57,40 +78,38 @@ export const createMockWorkoutGoal = (
 ): WorkoutGoal => ({
   id: 1,
   userId: 1,
-  title: "테스트 목표",
-  description: "테스트 목표 설명",
-  type: "weight",
+  title: '테스트 목표',
+  description: '테스트 목표 설명',
+  type: 'weight',
   targetValue: 100,
   currentValue: 50,
-  unit: "kg",
-  deadline: new Date("2024-12-31"),
+  unit: 'kg',
+  deadline: new Date('2024-12-31'),
   isCompleted: false,
-  createdAt: new Date("2024-01-01"),
-  updatedAt: new Date("2024-01-01"),
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
   ...overrides,
 })
 
-export const createMockPost = (
-  overrides: Partial<Post> = {}
-): Post => ({
+export const createMockPost = (overrides: Partial<Post> = {}): Post => ({
   id: 1,
-  title: "테스트 포스트",
-  content: "테스트 포스트 내용",
+  title: '테스트 포스트',
+  content: '테스트 포스트 내용',
   author: {
     id: 1,
-    nickname: "테스트 작성자",
-    avatarUrl: "/test-avatar.jpg",
+    nickname: '테스트 작성자',
+    avatarUrl: '/test-avatar.jpg',
   },
   userId: 1,
-  category: "tips",
-  tags: ["운동", "팁"],
-  thumbnailUrl: "/test-thumbnail.jpg",
-  images: ["/test-image1.jpg"],
+  category: 'tips',
+  tags: ['운동', '팁'],
+  thumbnailUrl: '/test-thumbnail.jpg',
+  images: ['/test-image1.jpg'],
   viewCount: 100,
   likeCount: 10,
   commentCount: 5,
-  createdAt: new Date("2024-01-01"),
-  updatedAt: new Date("2024-01-01"),
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
   ...overrides,
 })
 
@@ -105,28 +124,28 @@ export const createMockUserLevel = (
   seasonExp: 1500,
   totalLevelUps: 4,
   currentSeason: 1,
-  createdAt: new Date("2024-01-01"),
-  updatedAt: new Date("2024-01-01"),
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
   ...overrides,
 })
 
 export const createMockGym = (overrides: Partial<Gym> = {}): Gym => ({
   id: 1,
-  name: "테스트 헬스장",
-  address: "서울시 강남구 테스트로 123",
-  phone: "02-1234-5678",
+  name: '테스트 헬스장',
+  address: '서울시 강남구 테스트로 123',
+  phone: '02-1234-5678',
   latitude: 37.5665,
   longitude: 126.978,
 
-  facilities: "헬스장, 수영장, 사우나",
+  facilities: '헬스장, 수영장, 사우나',
   is24Hours: true,
   hasGX: true,
   hasPT: true,
   hasGroupPT: false,
   hasParking: true,
   hasShower: true,
-  createdAt: new Date("2024-01-01"),
-  updatedAt: new Date("2024-01-01"),
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
   ...overrides,
 })
 
@@ -143,15 +162,15 @@ export const createMockUsers = (count: number = 3): User[] => {
 
 export const createMockMachines = (count: number = 5): Machine[] => {
   const categories = [
-    "chest",
-    "back",
-    "legs",
-    "shoulders",
-    "arms",
-    "core",
-    "cardio",
+    'chest',
+    'back',
+    'legs',
+    'shoulders',
+    'arms',
+    'core',
+    'cardio',
   ] as const
-  const difficulties = ["beginner", "intermediate", "advanced"] as const
+  const difficulties = ['beginner', 'intermediate', 'advanced'] as const
 
   return Array.from({ length: count }, (_, index) =>
     createMockMachine({
@@ -164,7 +183,7 @@ export const createMockMachines = (count: number = 5): Machine[] => {
 }
 
 export const createMockPosts = (count: number = 10): Post[] => {
-  const categories = ["tips", "motivation", "general"] as const
+  const categories = ['tips', 'motivation', 'general'] as const
 
   return Array.from({ length: count }, (_, index) =>
     createMockPost({
@@ -195,7 +214,7 @@ export const createMockGyms = (count: number = 5): Gym[] => {
 // Mock API 응답 데이터
 export const createMockApiResponse = <T>(
   data: T,
-  message = "성공",
+  message = '성공',
   success = true
 ) => ({
   success,
@@ -204,7 +223,7 @@ export const createMockApiResponse = <T>(
 })
 
 export const createMockApiError = (
-  message = "오류가 발생했습니다.",
+  message = '오류가 발생했습니다.',
   status = 500
 ) => ({
   success: false,

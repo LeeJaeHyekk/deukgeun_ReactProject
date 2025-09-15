@@ -1,5 +1,5 @@
 // features/auth/api/authApi.ts
-import { api } from '@shared/api'
+// import { apiClient } from '@shared/api/client'
 import { API_ENDPOINTS } from '@frontend/shared/config'
 import axios from 'axios'
 import { config } from '@shared/config'
@@ -179,7 +179,7 @@ export const authApi = {
     })
 
     try {
-      const response = await api.post<BackendRegisterResponse>(
+      const response = await axios.post<BackendRegisterResponse>(
         API_ENDPOINTS.AUTH.REGISTER,
         data
       )
@@ -198,7 +198,7 @@ export const authApi = {
       // 백엔드 응답 구조에 맞게 처리
       // 🔧 [변경사항] response.data 대신 response 자체를 BackendRegisterResponse로 캐스팅
       console.log('🔧 [변경사항] response.data 사용 중단, response 직접 사용')
-      const responseData = response as BackendRegisterResponse
+      const responseData = response.data as BackendRegisterResponse
 
       console.log('🔍 응답 데이터 구조 확인:', {
         hasSuccess: 'success' in responseData,
@@ -487,7 +487,7 @@ export const authApi = {
     )
 
     try {
-      const response = await api.post<RefreshResponse>(
+      const response = await axios.post<RefreshResponse>(
         API_ENDPOINTS.AUTH.REFRESH
       )
       console.log('✅ refreshToken API 성공:', response)
@@ -508,15 +508,16 @@ export const authApi = {
 
   // Logout
   logout: async (): Promise<LogoutResponse> => {
-    const response = await api.post<LogoutResponse>(API_ENDPOINTS.AUTH.LOGOUT)
+    const response = await axios.post<LogoutResponse>(API_ENDPOINTS.AUTH.LOGOUT)
     return response.data as LogoutResponse
   },
 
   // Check if user is authenticated
   checkAuth: async (): Promise<{ message: string; authenticated: boolean }> => {
-    const response = await api.get<{ message: string; authenticated: boolean }>(
-      API_ENDPOINTS.AUTH.CHECK
-    )
+    const response = await axios.get<{
+      message: string
+      authenticated: boolean
+    }>(API_ENDPOINTS.AUTH.CHECK)
     return response.data as { message: string; authenticated: boolean }
   },
 }

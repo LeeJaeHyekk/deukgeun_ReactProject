@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Machine } from '@shared/types/dto/machine.dto'
-import { machineApi } from '@shared/api/machineApi'
+import axios from 'axios'
 
 export function useMachines() {
   const [machines, setMachines] = useState<Machine[]>([])
@@ -11,7 +11,8 @@ export function useMachines() {
     try {
       setIsLoading(true)
       setError(null)
-      const data = await machineApi.getMachines()
+      const response = await axios.get('/api/machines')
+      const data = response.data
       setMachines(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch machines')
@@ -24,7 +25,8 @@ export function useMachines() {
     try {
       setIsLoading(true)
       setError(null)
-      const machine = await machineApi.getMachineById(id)
+      const response = await axios.get(`/api/machines/${id}`)
+      const machine = response.data
       return machine
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch machine')

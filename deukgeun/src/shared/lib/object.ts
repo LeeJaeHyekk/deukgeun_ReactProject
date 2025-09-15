@@ -7,7 +7,8 @@ export const object = {
   clone: <T>(obj: T): T => {
     if (obj === null || typeof obj !== 'object') return obj
     if (obj instanceof Date) return new Date(obj.getTime()) as unknown as T
-    if (obj instanceof Array) return obj.map(item => object.clone(item)) as unknown as T
+    if (obj instanceof Array)
+      return obj.map(item => object.clone(item)) as unknown as T
     if (typeof obj === 'object') {
       const cloned = {} as T
       for (const key in obj) {
@@ -21,21 +22,24 @@ export const object = {
   },
 
   // Deep merge objects
-  merge: <T extends Record<string, any>>(target: T, ...sources: Partial<T>[]): T => {
+  merge: <T extends Record<string, any>>(
+    target: T,
+    ...sources: Partial<T>[]
+  ): T => {
     if (!sources.length) return target
     const source = sources.shift()
-    
+
     if (object.isObject(target) && object.isObject(source)) {
       for (const key in source) {
         if (object.isObject(source[key])) {
           if (!target[key]) Object.assign(target, { [key]: {} })
-          object.merge(target[key], source[key])
+          object.merge(target[key] as any, source[key] as any)
         } else {
           Object.assign(target, { [key]: source[key] })
         }
       }
     }
-    
+
     return object.merge(target, ...sources)
   },
 
@@ -45,25 +49,29 @@ export const object = {
   },
 
   // Get nested property value
-  get: <T>(obj: Record<string, any>, path: string, defaultValue?: T): T | undefined => {
+  get: <T>(
+    obj: Record<string, any>,
+    path: string,
+    defaultValue?: T
+  ): T | undefined => {
     const keys = path.split('.')
     let result = obj
-    
+
     for (const key of keys) {
       if (result === null || result === undefined || !object.isObject(result)) {
         return defaultValue
       }
       result = result[key]
     }
-    
-    return result !== undefined ? result : defaultValue
+
+    return result !== undefined ? (result as T) : defaultValue
   },
 
   // Set nested property value
   set: <T>(obj: Record<string, any>, path: string, value: T): void => {
     const keys = path.split('.')
     let current = obj
-    
+
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i]
       if (!object.isObject(current[key])) {
@@ -71,12 +79,15 @@ export const object = {
       }
       current = current[key]
     }
-    
+
     current[keys[keys.length - 1]] = value
   },
 
   // Pick specific properties from object
-  pick: <T extends Record<string, any>, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> => {
+  pick: <T extends Record<string, any>, K extends keyof T>(
+    obj: T,
+    keys: K[]
+  ): Pick<T, K> => {
     const result = {} as Pick<T, K>
     for (const key of keys) {
       if (key in obj) {
@@ -87,7 +98,10 @@ export const object = {
   },
 
   // Omit specific properties from object
-  omit: <T extends Record<string, any>, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => {
+  omit: <T extends Record<string, any>, K extends keyof T>(
+    obj: T,
+    keys: K[]
+  ): Omit<T, K> => {
     const result = { ...obj }
     for (const key of keys) {
       delete result[key]
@@ -129,14 +143,14 @@ export const object = {
   hasPath: (obj: Record<string, any>, path: string): boolean => {
     const keys = path.split('.')
     let current = obj
-    
+
     for (const key of keys) {
       if (!object.isObject(current) || !object.has(current, key)) {
         return false
       }
       current = current[key]
     }
-    
+
     return true
   },
 
@@ -240,13 +254,13 @@ export const object = {
   isEqual: (obj1: Record<string, any>, obj2: Record<string, any>): boolean => {
     const keys1 = Object.keys(obj1)
     const keys2 = Object.keys(obj2)
-    
+
     if (keys1.length !== keys2.length) return false
-    
+
     for (const key of keys1) {
       if (obj1[key] !== obj2[key]) return false
     }
-    
+
     return true
   },
 
@@ -255,20 +269,20 @@ export const object = {
     if (obj1 === obj2) return true
     if (obj1 == null || obj2 == null) return false
     if (typeof obj1 !== typeof obj2) return false
-    
+
     if (object.isObject(obj1) && object.isObject(obj2)) {
       const keys1 = Object.keys(obj1)
       const keys2 = Object.keys(obj2)
-      
+
       if (keys1.length !== keys2.length) return false
-      
+
       for (const key of keys1) {
         if (!object.isDeepEqual(obj1[key], obj2[key])) return false
       }
-      
+
       return true
     }
-    
+
     return false
   },
 }

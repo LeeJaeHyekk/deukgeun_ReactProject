@@ -1,8 +1,8 @@
 // components/PostModal.tsx
-import { useState, useEffect } from "react"
-import { showToast } from "@shared/lib"
-import type { PostCategoryInfo } from "../../../../shared/types"
-import styles from "./PostModal.module.css"
+import { useState, useEffect } from 'react'
+import { showToast } from '@shared/lib'
+import type { PostCategoryInfo } from '../../../../shared/types'
+import styles from './PostModal.module.css'
 
 interface PostModalProps {
   onClose: () => void
@@ -16,9 +16,9 @@ interface PostModalProps {
 
 export function PostModal({ onClose, onSubmit, categories }: PostModalProps) {
   const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    category: categories && categories.length > 0 ? categories[0].name : "",
+    title: '',
+    content: '',
+    category: categories && categories.length > 0 ? categories[0].name : '',
   })
   const [loading, setLoading] = useState(false)
 
@@ -36,17 +36,17 @@ export function PostModal({ onClose, onSubmit, categories }: PostModalProps) {
     e.preventDefault()
 
     if (!formData.title.trim()) {
-      showToast("제목을 입력해주세요.", "error")
+      showToast('제목을 입력해주세요.', { type: 'error' })
       return
     }
 
     if (!formData.content.trim()) {
-      showToast("내용을 입력해주세요.", "error")
+      showToast('내용을 입력해주세요.', { type: 'error' })
       return
     }
 
     if (!formData.category) {
-      showToast("카테고리를 선택해주세요.", "error")
+      showToast('카테고리를 선택해주세요.', { type: 'error' })
       return
     }
 
@@ -56,7 +56,7 @@ export function PostModal({ onClose, onSubmit, categories }: PostModalProps) {
       // 성공 시에만 모달 닫기
       onClose()
     } catch (error: unknown) {
-      console.error("게시글 작성 실패:", error)
+      console.error('게시글 작성 실패:', error)
       // 에러 발생 시 모달은 열린 상태로 유지
     } finally {
       setLoading(false)
@@ -138,7 +138,7 @@ export function PostModal({ onClose, onSubmit, categories }: PostModalProps) {
               className={styles.submitButton}
               disabled={loading}
             >
-              {loading ? "작성 중..." : "작성하기"}
+              {loading ? '작성 중...' : '작성하기'}
             </button>
           </div>
         </form>

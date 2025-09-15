@@ -2,7 +2,7 @@
 // Workout Feature API Client - Unified API Interface
 // ============================================================================
 
-import { apiClient } from '../../../../shared/api/client'
+import axios from 'axios'
 import type {
   WorkoutPlan,
   WorkoutSession,
@@ -120,9 +120,9 @@ export const workoutApi = {
             ...(params.sortOrder && { sortOrder: params.sortOrder }),
           }
         : undefined
-      const response = await apiClient.get<ApiResponse<WorkoutPlan[]>>(
+      const response = await axios.get<ApiResponse<WorkoutPlan[]>>(
         API_ENDPOINTS.PLANS,
-        queryParams
+        { params: queryParams }
       )
       const data = response.data as unknown as WorkoutPlan[]
       console.log('✅ [workoutApi] getPlans 성공', {
@@ -145,11 +145,11 @@ export const workoutApi = {
   async getPlan(planId: number): Promise<WorkoutPlan> {
     try {
       console.log('📡 [workoutApi] getPlan 호출', { planId })
-      const response = await apiClient.get<ApiResponse<WorkoutPlan>>(
+      const response = await axios.get<ApiResponse<WorkoutPlan>>(
         API_ENDPOINTS.PLAN(planId)
       )
       console.log('✅ [workoutApi] getPlan 성공', { planId })
-      const data = response.data?.data || response.data
+      const data = (response.data as any)?.data || response.data
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
       }
@@ -167,11 +167,11 @@ export const workoutApi = {
   async createPlan(planData: CreatePlanRequest): Promise<WorkoutPlan> {
     try {
       console.log('📡 [workoutApi] createPlan 호출', { planData })
-      const response = await apiClient.post<ApiResponse<WorkoutPlan>>(
+      const response = await axios.post<ApiResponse<WorkoutPlan>>(
         API_ENDPOINTS.PLANS,
         planData
       )
-      const data = response.data?.data || response.data
+      const data = (response.data as any)?.data || response.data
       console.log('✅ [workoutApi] createPlan 성공', {
         planId: (data as any)?.id,
       })
@@ -195,11 +195,11 @@ export const workoutApi = {
   ): Promise<WorkoutPlan> {
     try {
       console.log('📡 [workoutApi] updatePlan 호출', { planId, planData })
-      const response = await apiClient.put<ApiResponse<WorkoutPlan>>(
+      const response = await axios.put<ApiResponse<WorkoutPlan>>(
         API_ENDPOINTS.PLAN(planId),
         planData
       )
-      const data = response.data?.data || response.data
+      const data = (response.data as any)?.data || response.data
       console.log('✅ [workoutApi] updatePlan 성공', { planId })
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
@@ -222,7 +222,7 @@ export const workoutApi = {
   async deletePlan(planId: number): Promise<void> {
     try {
       console.log('📡 [workoutApi] deletePlan 호출', { planId })
-      await apiClient.delete(API_ENDPOINTS.PLAN(planId))
+      await axios.delete(API_ENDPOINTS.PLAN(planId))
       console.log('✅ [workoutApi] deletePlan 성공', { planId })
     } catch (error) {
       console.error('❌ [workoutApi] deletePlan 실패', { planId, error })
@@ -243,15 +243,15 @@ export const workoutApi = {
         planId,
         exerciseData,
       })
-      const response = await apiClient.post<ApiResponse<WorkoutPlanExercise>>(
+      const response = await axios.post<ApiResponse<WorkoutPlanExercise>>(
         API_ENDPOINTS.PLAN_EXERCISES(planId),
         exerciseData
       )
       console.log('✅ [workoutApi] addPlanExercise 성공', {
         planId,
-        exerciseId: response.data?.data?.id,
+        exerciseId: (response.data as any)?.data?.id,
       })
-      const data = response.data?.data
+      const data = (response.data as any)?.data
       if (!data) {
         throw new Error('응답 데이터가 없습니다')
       }
@@ -281,7 +281,7 @@ export const workoutApi = {
         exerciseId,
         exerciseData,
       })
-      const response = await apiClient.put<ApiResponse<WorkoutPlanExercise>>(
+      const response = await axios.put<ApiResponse<WorkoutPlanExercise>>(
         API_ENDPOINTS.PLAN_EXERCISE(planId, exerciseId),
         exerciseData
       )
@@ -289,7 +289,7 @@ export const workoutApi = {
         planId,
         exerciseId,
       })
-      const data = response.data?.data
+      const data = (response.data as any)?.data
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
       }
@@ -315,7 +315,7 @@ export const workoutApi = {
         planId,
         exerciseId,
       })
-      await apiClient.delete(API_ENDPOINTS.PLAN_EXERCISE(planId, exerciseId))
+      await axios.delete(API_ENDPOINTS.PLAN_EXERCISE(planId, exerciseId))
       console.log('✅ [workoutApi] deletePlanExercise 성공', {
         planId,
         exerciseId,
@@ -350,14 +350,14 @@ export const workoutApi = {
             ...(params.sortOrder && { sortOrder: params.sortOrder }),
           }
         : undefined
-      const response = await apiClient.get<ApiResponse<WorkoutSession[]>>(
+      const response = await axios.get<ApiResponse<WorkoutSession[]>>(
         API_ENDPOINTS.SESSIONS,
-        queryParams
+        { params: queryParams }
       )
       console.log('✅ [workoutApi] getSessions 성공', {
-        count: response.data?.data?.length,
+        count: (response.data as any)?.data?.length,
       })
-      return response.data?.data || []
+      return (response.data as any)?.data || []
     } catch (error) {
       console.error('❌ [workoutApi] getSessions 실패', error)
       handleApiError(error)
@@ -371,11 +371,11 @@ export const workoutApi = {
   async getSession(sessionId: number): Promise<WorkoutSession> {
     try {
       console.log('📡 [workoutApi] getSession 호출', { sessionId })
-      const response = await apiClient.get<ApiResponse<WorkoutSession>>(
+      const response = await axios.get<ApiResponse<WorkoutSession>>(
         API_ENDPOINTS.SESSION(sessionId)
       )
       console.log('✅ [workoutApi] getSession 성공', { sessionId })
-      const data = response.data?.data
+      const data = (response.data as any)?.data
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
       }
@@ -395,14 +395,14 @@ export const workoutApi = {
   ): Promise<WorkoutSession> {
     try {
       console.log('📡 [workoutApi] createSession 호출', { sessionData })
-      const response = await apiClient.post<ApiResponse<WorkoutSession>>(
+      const response = await axios.post<ApiResponse<WorkoutSession>>(
         API_ENDPOINTS.SESSIONS,
         sessionData
       )
       console.log('✅ [workoutApi] createSession 성공', {
-        sessionId: response.data?.data?.id,
+        sessionId: (response.data as any)?.data?.id,
       })
-      const data = response.data?.data
+      const data = (response.data as any)?.data
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
       }
@@ -429,12 +429,12 @@ export const workoutApi = {
         sessionId,
         sessionData,
       })
-      const response = await apiClient.put<ApiResponse<WorkoutSession>>(
+      const response = await axios.put<ApiResponse<WorkoutSession>>(
         API_ENDPOINTS.SESSION(sessionId),
         sessionData
       )
       console.log('✅ [workoutApi] updateSession 성공', { sessionId })
-      const data = response.data?.data
+      const data = (response.data as any)?.data
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
       }
@@ -456,7 +456,7 @@ export const workoutApi = {
   async deleteSession(sessionId: number): Promise<void> {
     try {
       console.log('📡 [workoutApi] deleteSession 호출', { sessionId })
-      await apiClient.delete(API_ENDPOINTS.SESSION(sessionId))
+      await axios.delete(API_ENDPOINTS.SESSION(sessionId))
       console.log('✅ [workoutApi] deleteSession 성공', { sessionId })
     } catch (error) {
       console.error('❌ [workoutApi] deleteSession 실패', { sessionId, error })
@@ -471,11 +471,11 @@ export const workoutApi = {
   async startSession(sessionId: number): Promise<WorkoutSession> {
     try {
       console.log('📡 [workoutApi] startSession 호출', { sessionId })
-      const response = await apiClient.post<ApiResponse<WorkoutSession>>(
+      const response = await axios.post<ApiResponse<WorkoutSession>>(
         API_ENDPOINTS.SESSION_START(sessionId)
       )
       console.log('✅ [workoutApi] startSession 성공', { sessionId })
-      const data = response.data?.data
+      const data = (response.data as any)?.data
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
       }
@@ -493,11 +493,11 @@ export const workoutApi = {
   async pauseSession(sessionId: number): Promise<WorkoutSession> {
     try {
       console.log('📡 [workoutApi] pauseSession 호출', { sessionId })
-      const response = await apiClient.post<ApiResponse<WorkoutSession>>(
+      const response = await axios.post<ApiResponse<WorkoutSession>>(
         API_ENDPOINTS.SESSION_PAUSE(sessionId)
       )
       console.log('✅ [workoutApi] pauseSession 성공', { sessionId })
-      const data = response.data?.data
+      const data = (response.data as any)?.data
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
       }
@@ -515,11 +515,11 @@ export const workoutApi = {
   async resumeSession(sessionId: number): Promise<WorkoutSession> {
     try {
       console.log('📡 [workoutApi] resumeSession 호출', { sessionId })
-      const response = await apiClient.post<ApiResponse<WorkoutSession>>(
+      const response = await axios.post<ApiResponse<WorkoutSession>>(
         API_ENDPOINTS.SESSION_RESUME(sessionId)
       )
       console.log('✅ [workoutApi] resumeSession 성공', { sessionId })
-      const data = response.data?.data
+      const data = (response.data as any)?.data
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
       }
@@ -537,11 +537,11 @@ export const workoutApi = {
   async completeSession(sessionId: number): Promise<WorkoutSession> {
     try {
       console.log('📡 [workoutApi] completeSession 호출', { sessionId })
-      const response = await apiClient.post<ApiResponse<WorkoutSession>>(
+      const response = await axios.post<ApiResponse<WorkoutSession>>(
         API_ENDPOINTS.SESSION_COMPLETE(sessionId)
       )
       console.log('✅ [workoutApi] completeSession 성공', { sessionId })
-      const data = response.data?.data
+      const data = (response.data as any)?.data
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
       }
@@ -562,11 +562,11 @@ export const workoutApi = {
   async getSessionExercises(sessionId: number): Promise<ExerciseSet[]> {
     try {
       console.log('📡 [workoutApi] getSessionExercises 호출', { sessionId })
-      const response = await apiClient.get<ApiResponse<ExerciseSet[]>>(
+      const response = await axios.get<ApiResponse<ExerciseSet[]>>(
         API_ENDPOINTS.SESSION_EXERCISES(sessionId)
       )
       console.log('✅ [workoutApi] getSessionExercises 성공', { sessionId })
-      return response.data?.data || []
+      return (response.data as any)?.data || []
     } catch (error) {
       console.error('❌ [workoutApi] getSessionExercises 실패', {
         sessionId,
@@ -589,12 +589,12 @@ export const workoutApi = {
         sessionId,
         exerciseData,
       })
-      const response = await apiClient.post<ApiResponse<ExerciseSet>>(
+      const response = await axios.post<ApiResponse<ExerciseSet>>(
         API_ENDPOINTS.SESSION_EXERCISES(sessionId),
         exerciseData
       )
       console.log('✅ [workoutApi] addSessionExercise 성공', { sessionId })
-      const data = response.data?.data
+      const data = (response.data as any)?.data
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
       }
@@ -624,7 +624,7 @@ export const workoutApi = {
         exerciseId,
         exerciseData,
       })
-      const response = await apiClient.put<ApiResponse<ExerciseSet>>(
+      const response = await axios.put<ApiResponse<ExerciseSet>>(
         API_ENDPOINTS.SESSION_EXERCISE(sessionId, exerciseId),
         exerciseData
       )
@@ -632,7 +632,7 @@ export const workoutApi = {
         sessionId,
         exerciseId,
       })
-      const data = response.data?.data
+      const data = (response.data as any)?.data
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
       }
@@ -661,9 +661,7 @@ export const workoutApi = {
         sessionId,
         exerciseId,
       })
-      await apiClient.delete(
-        API_ENDPOINTS.SESSION_EXERCISE(sessionId, exerciseId)
-      )
+      await axios.delete(API_ENDPOINTS.SESSION_EXERCISE(sessionId, exerciseId))
       console.log('✅ [workoutApi] deleteSessionExercise 성공', {
         sessionId,
         exerciseId,
@@ -695,27 +693,30 @@ export const workoutApi = {
             ...(params.limit && { limit: params.limit.toString() }),
           }
         : undefined
-      const response = await apiClient.get<ApiResponse<WorkoutGoal[]>>(
+      const response = await axios.get<ApiResponse<WorkoutGoal[]>>(
         API_ENDPOINTS.GOALS,
-        queryParams
+        { params: queryParams }
       )
 
       console.log('📡 [workoutApi] getGoals 응답 전체:', response)
       console.log('📡 [workoutApi] getGoals response.data:', response.data)
       console.log(
-        '📡 [workoutApi] getGoals response.data?.data:',
-        response.data?.data
+        '📡 [workoutApi] getGoals (response.data as any)?.data:',
+        (response.data as any)?.data
       )
 
       // 응답 구조 확인 및 데이터 추출
       let goals: WorkoutGoal[] = []
 
-      if (response.data?.data) {
-        goals = response.data.data
+      if ((response.data as any)?.data) {
+        goals = (response.data as any).data || []
       } else if (Array.isArray(response.data)) {
         goals = response.data
-      } else if (response.data?.success && Array.isArray(response.data.data)) {
-        goals = response.data.data
+      } else if (
+        (response.data as any)?.success &&
+        Array.isArray((response.data as any).data)
+      ) {
+        goals = (response.data as any).data || []
       }
 
       console.log('✅ [workoutApi] getGoals 성공', {
@@ -736,11 +737,11 @@ export const workoutApi = {
   async getGoal(goalId: number): Promise<WorkoutGoal> {
     try {
       console.log('📡 [workoutApi] getGoal 호출', { goalId })
-      const response = await apiClient.get<ApiResponse<WorkoutGoal>>(
+      const response = await axios.get<ApiResponse<WorkoutGoal>>(
         API_ENDPOINTS.GOAL(goalId)
       )
       console.log('✅ [workoutApi] getGoal 성공', { goalId })
-      const data = response.data?.data
+      const data = (response.data as any)?.data
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
       }
@@ -758,11 +759,11 @@ export const workoutApi = {
   async createGoal(goalData: CreateGoalRequest): Promise<WorkoutGoal> {
     try {
       console.log('📡 [workoutApi] createGoal 호출', { goalData })
-      const response = await apiClient.post<ApiResponse<WorkoutGoal>>(
+      const response = await axios.post<ApiResponse<WorkoutGoal>>(
         API_ENDPOINTS.GOALS,
         goalData
       )
-      const data = response.data?.data || response.data
+      const data = (response.data as any)?.data || response.data
       console.log('✅ [workoutApi] createGoal 성공', {
         goalId: (data as any)?.id,
       })
@@ -786,11 +787,11 @@ export const workoutApi = {
   ): Promise<WorkoutGoal> {
     try {
       console.log('📡 [workoutApi] updateGoal 호출', { goalId, goalData })
-      const response = await apiClient.put<ApiResponse<WorkoutGoal>>(
+      const response = await axios.put<ApiResponse<WorkoutGoal>>(
         API_ENDPOINTS.GOAL(goalId),
         goalData
       )
-      const data = response.data?.data || response.data
+      const data = (response.data as any)?.data || response.data
       console.log('✅ [workoutApi] updateGoal 성공', { goalId })
       if (!data) {
         throw new WorkoutApiError('응답 데이터가 없습니다', 500, 'NO_DATA')
@@ -813,7 +814,7 @@ export const workoutApi = {
   async deleteGoal(goalId: number): Promise<void> {
     try {
       console.log('📡 [workoutApi] deleteGoal 호출', { goalId })
-      await apiClient.delete(API_ENDPOINTS.GOAL(goalId))
+      await axios.delete(API_ENDPOINTS.GOAL(goalId))
       console.log('✅ [workoutApi] deleteGoal 성공', { goalId })
     } catch (error) {
       console.error('❌ [workoutApi] deleteGoal 실패', { goalId, error })
@@ -832,7 +833,7 @@ export const workoutApi = {
   async getDashboardData(): Promise<DashboardData> {
     try {
       console.log('📡 [workoutApi] getDashboardData 호출')
-      const response = await apiClient.get<ApiResponse<DashboardData>>(
+      const response = await axios.get<ApiResponse<DashboardData>>(
         API_ENDPOINTS.DASHBOARD
       )
 
@@ -841,11 +842,11 @@ export const workoutApi = {
       // 응답 구조 확인 및 데이터 추출
       let data: DashboardData | null = null
 
-      if (response.data?.data) {
-        data = response.data.data
+      if ((response.data as any)?.data) {
+        data = (response.data as any).data || null
       } else if (response.data && !response.data.data) {
         // data 필드가 없는 경우 전체 응답을 사용
-        data = response.data as DashboardData
+        data = response.data as unknown as DashboardData
       }
 
       console.log('✅ [workoutApi] getDashboardData 성공', { data })

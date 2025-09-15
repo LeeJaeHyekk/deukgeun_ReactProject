@@ -5,15 +5,15 @@
 // 이 파일은 하위 호환성을 위해 유지됩니다.
 // 새로운 MachineGuide 기능에서는 @features/machine-guide/services/machineApi를 사용하세요.
 
-import { api } from "./index"
-import { API_ENDPOINTS } from "@shared/config"
+import { api } from './index'
+import { API_ENDPOINTS } from '@shared/config'
 import type {
   Machine,
   CreateMachineRequest,
   UpdateMachineRequest,
   MachineListResponse as DTOMachineListResponse,
   MachineResponse as DTOMachineResponse,
-} from "@dto/index"
+} from '@dto/index'
 
 // 타입 정의 (DTO 기반으로 통합)
 export interface MachineListResponse {
@@ -32,7 +32,7 @@ export const machineApi = {
     const response = await api.get<DTOMachineListResponse>(
       API_ENDPOINTS.MACHINES.LIST
     )
-    console.log("머신 API 응답:", response)
+    console.log('머신 API 응답:', response)
     return {
       machines: Array.isArray(response.data.data) ? response.data.data : [],
       count: (response.data as any).count || 0,
@@ -42,7 +42,7 @@ export const machineApi = {
   // Get machine by ID
   getMachine: async (id: number): Promise<MachineResponse> => {
     const response = await api.get<DTOMachineResponse>(
-      API_ENDPOINTS.MACHINES.DETAIL(id)
+      API_ENDPOINTS.MACHINES.GET_BY_ID(id)
     )
     return {
       machine: (response.data.data || response.data) as unknown as Machine,
@@ -88,9 +88,9 @@ export const machineApi = {
     search?: string
   }): Promise<MachineListResponse> => {
     const params = new URLSearchParams()
-    if (filters.category) params.append("category", filters.category)
-    if (filters.difficulty) params.append("difficulty", filters.difficulty)
-    if (filters.search) params.append("target", filters.search)
+    if (filters.category) params.append('category', filters.category)
+    if (filters.difficulty) params.append('difficulty', filters.difficulty)
+    if (filters.search) params.append('target', filters.search)
 
     const response = await api.get<DTOMachineListResponse>(
       `${API_ENDPOINTS.MACHINES.FILTER}?${params.toString()}`

@@ -150,11 +150,11 @@ export interface UpdateMachineDTO {
   difficulty?: DifficultyLevel | DifficultyLevelDTO
   videoUrl?: string
   isActive?: boolean
-  // 새로운 JSON 필드들
-  anatomy?: Partial<MachineAnatomy>
-  guide?: Partial<MachineGuide>
-  training?: Partial<MachineTraining>
-  extraInfo?: Partial<MachineExtraInfo>
+  // 새로운 JSON 필드들 - Partial을 사용하되 필수 필드는 유지
+  anatomy?: MachineAnatomy
+  guide?: MachineGuide
+  training?: MachineTraining
+  extraInfo?: MachineExtraInfo
 }
 
 // Response DTO (for API responses)

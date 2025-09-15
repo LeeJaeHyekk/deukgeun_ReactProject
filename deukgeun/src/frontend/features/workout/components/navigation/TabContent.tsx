@@ -1,19 +1,19 @@
-import React from "react"
-import { LoadingSpinner } from "@shared/ui/LoadingSpinner"
-import { OverviewTab } from "../tabs/OverviewTab"
-import { PlansTab } from "../tabs/PlansTab"
-import { SessionsTab } from "../tabs/SessionsTab"
-import { GoalsTab } from "../tabs/GoalsTab"
-import { ProgressTab } from "../tabs/ProgressTab/ProgressTab"
-import type { TabType } from "../../types"
+import React from 'react'
+import { LoadingSpinner } from '../../../../shared/ui/LoadingSpinner/LoadingSpinner'
+import { OverviewTab } from '../tabs/OverviewTab'
+import { PlansTab } from '../tabs/PlansTab'
+import { SessionsTab } from '../tabs/SessionsTab'
+import { GoalsTab } from '../tabs/GoalsTab'
+import { ProgressTab } from '../tabs/ProgressTab/ProgressTab'
+import type { TabType } from '../../types'
 import type {
   WorkoutPlan,
   WorkoutSession,
   WorkoutGoal,
   Machine,
-} from "@shared/types"
-import type { DashboardData, WorkoutStats } from "../../types"
-import styles from "./TabContent.module.css"
+} from '@shared/types'
+import type { DashboardData, WorkoutStats } from '../../types'
+import styles from './TabContent.module.css'
 
 interface TabContentProps {
   activeTab: TabType
@@ -85,7 +85,7 @@ export function TabContent({
 
   return (
     <div className={styles.tabContent}>
-      {activeTab === "overview" && (
+      {activeTab === 'overview' && (
         <OverviewTab
           dashboardData={dashboardData}
           isLoading={isLoading}
@@ -95,7 +95,7 @@ export function TabContent({
         />
       )}
 
-      {activeTab === "goals" && (
+      {activeTab === 'goals' && (
         <div className={styles.developmentMessage}>
           <h3>🚧 개발 중인 기능입니다</h3>
           <p>운동 목표 관리 기능은 현재 개발 중입니다.</p>
@@ -103,7 +103,7 @@ export function TabContent({
         </div>
       )}
 
-      {activeTab === "plans" && (
+      {activeTab === 'plans' && (
         <div className={styles.developmentMessage}>
           <h3>🚧 개발 중인 기능입니다</h3>
           <p>운동 계획 관리 기능은 현재 개발 중입니다.</p>
@@ -111,7 +111,7 @@ export function TabContent({
         </div>
       )}
 
-      {activeTab === "sessions" && (
+      {activeTab === 'sessions' && (
         <div className={styles.developmentMessage}>
           <h3>🚧 개발 중인 기능입니다</h3>
           <p>운동 세션 관리 기능은 현재 개발 중입니다.</p>
@@ -119,7 +119,7 @@ export function TabContent({
         </div>
       )}
 
-      {activeTab === "workoutProgress" && (
+      {activeTab === 'workoutProgress' && (
         <div className={styles.developmentMessage}>
           <h3>🚧 개발 중인 기능입니다</h3>
           <p>운동 진행상황 시각화 기능은 현재 개발 중입니다.</p>

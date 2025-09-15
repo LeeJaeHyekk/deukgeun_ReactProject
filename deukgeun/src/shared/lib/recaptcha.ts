@@ -140,28 +140,31 @@ export async function executeRecaptchaV3(
         reject(new Error('reCAPTCHA 실행 시간 초과'))
       }, 10000) // 10초 타임아웃
 
-      window.grecaptcha.ready(async () => {
-        try {
-          const token = await window.grecaptcha.execute(
-            import.meta.env.VITE_RECAPTCHA_SITE_KEY || '',
-            {
-              action: action,
+      if (window.grecaptcha && (window.grecaptcha as any).ready) {
+        ;(window.grecaptcha as any).ready(async () => {
+          try {
+            const token = await (window.grecaptcha as any).execute(
+              import.meta.env.VITE_RECAPTCHA_SITE_KEY || '',
+              { action }
+            )
+            clearTimeout(timeout)
+
+            if (!token) {
+              throw new Error('reCAPTCHA 토큰이 생성되지 않았습니다.')
             }
-          )
-          clearTimeout(timeout)
 
-          if (!token) {
-            throw new Error('reCAPTCHA 토큰이 생성되지 않았습니다.')
+            console.log('✅ reCAPTCHA 토큰 생성 성공')
+            resolve(token)
+          } catch (error) {
+            clearTimeout(timeout)
+            console.error('❌ reCAPTCHA 실행 실패:', error)
+            reject(error)
           }
-
-          console.log('✅ reCAPTCHA 토큰 생성 성공')
-          resolve(token)
-        } catch (error) {
-          clearTimeout(timeout)
-          console.error('❌ reCAPTCHA 실행 실패:', error)
-          reject(error)
-        }
-      })
+        })
+      } else {
+        clearTimeout(timeout)
+        reject(new Error('reCAPTCHA가 로드되지 않았습니다.'))
+      }
     })
   } catch (error) {
     console.error('❌ reCAPTCHA 실행 중 오류:', error)

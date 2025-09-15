@@ -3,7 +3,7 @@
 // ============================================================================
 
 // 중앙 타입 시스템 재사용 (명시적 export로 중복 방지)
-export {
+export type {
   // 공통 타입들
   ApiResponse,
   PaginatedResponse,
@@ -107,10 +107,10 @@ export {
 
   // 기타 타입들
   PostCategoryInfo,
-} from "../../../shared/types"
+} from '../../../shared/types'
 
 // Mix.json 기반 자동 생성 타입들
-export * from "./mix-generated"
+export * from './mix-generated'
 
 // ============================================================================
 // 프론트엔드 전용 타입 (중앙 타입과 중복되지 않는 것들만)
@@ -121,7 +121,7 @@ export interface FrontendConfig {
   apiBaseUrl: string
   kakaoApiKey: string
   recaptchaSiteKey: string
-  environment: "development" | "production" | "test"
+  environment: 'development' | 'production' | 'test'
 }
 
 // UI 상태 타입
@@ -152,7 +152,7 @@ export interface ModalState {
 // 알림 관련 타입
 export interface Notification {
   id: string
-  type: "success" | "error" | "warning" | "info"
+  type: 'success' | 'error' | 'warning' | 'info'
   title: string
   message: string
   duration?: number
@@ -164,7 +164,7 @@ export interface Notification {
 
 // 테마 관련 타입
 export interface Theme {
-  mode: "light" | "dark"
+  mode: 'light' | 'dark'
   primaryColor: string
   secondaryColor: string
   backgroundColor: string
@@ -181,8 +181,8 @@ export interface UserSettings {
     sms: boolean
   }
   privacy: {
-    profileVisibility: "public" | "private" | "friends"
-    workoutVisibility: "public" | "private" | "friends"
+    profileVisibility: 'public' | 'private' | 'friends'
+    workoutVisibility: 'public' | 'private' | 'friends'
   }
 }
 
@@ -222,7 +222,7 @@ export interface WebSocketState {
 export interface FileUpload {
   file: File
   progress: number
-  status: "pending" | "uploading" | "completed" | "error"
+  status: 'pending' | 'uploading' | 'completed' | 'error'
   url?: string
   error?: string
 }
@@ -235,7 +235,7 @@ export interface SearchFilters {
   priceRange?: [number, number]
   rating?: number
   sortBy?: string
-  sortOrder?: "asc" | "desc"
+  sortOrder?: 'asc' | 'desc'
 }
 
 // 필터 관련 타입
@@ -271,7 +271,7 @@ export interface CalendarEvent {
   start: Date
   end: Date
   color?: string
-  type: "workout" | "goal" | "reminder" | "milestone"
+  type: 'workout' | 'goal' | 'reminder' | 'milestone'
 }
 
 // 드래그 앤 드롭 관련 타입
@@ -354,7 +354,7 @@ export interface Locale {
   code: string
   name: string
   flag?: string
-  direction: "ltr" | "rtl"
+  direction: 'ltr' | 'rtl'
 }
 
 export interface Translation {

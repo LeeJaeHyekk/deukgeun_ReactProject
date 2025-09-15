@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { Gym } from '../entities/Gym'
 import { AppDataSource } from '../config/database'
 import { ApiResponse, ErrorResponse } from '../types'
-import { toGymDTO, toGymDTOList } from '@transformers/index'
+import { toGymDTO, toGymDTOList } from '../transformers/index'
 import {
   optimizedGymSearchService,
   SearchFilters,

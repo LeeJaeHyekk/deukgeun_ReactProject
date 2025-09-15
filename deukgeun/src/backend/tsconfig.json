@@ -11,6 +11,9 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": false,
+    "sourceMap": false,
 
     // TypeORM + TS5 안정화 핵심
     "experimentalDecorators": true,
@@ -40,6 +43,15 @@
       "@api/*": ["shared/api/*"]
     }
   },
-  "include": ["./**/*", "../shared/**/*"],
-  "exclude": ["node_modules", "dist", "build", "**/*.js", "**/*.jsx"]
+  "include": ["./**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.tsx",
+    "../shared/**/*",
+    "../frontend/**/*"
+  ]
 }

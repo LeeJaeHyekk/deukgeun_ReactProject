@@ -66,29 +66,15 @@ export function filterMachines(
       return false
     }
 
-    // 타겟 근육 필터
-    if (
-      filter.targetMuscle &&
-      !machine.targetMuscles.includes(filter.targetMuscle)
-    ) {
-      return false
-    }
-
     // 검색어 필터
     if (filter.searchTerm) {
       const searchLower = filter.searchTerm.toLowerCase()
       const matchesName =
         machine.name.toLowerCase().includes(searchLower) ||
-        machine.nameKo.toLowerCase().includes(searchLower) ||
         machine.nameEn.toLowerCase().includes(searchLower)
-      const matchesDesc =
-        machine.shortDesc.toLowerCase().includes(searchLower) ||
-        machine.detailDesc.toLowerCase().includes(searchLower)
-      const matchesMuscles = machine.targetMuscles.some(muscle =>
-        muscle.toLowerCase().includes(searchLower)
-      )
+      const matchesDesc = machine.shortDesc.toLowerCase().includes(searchLower)
 
-      if (!matchesName && !matchesDesc && !matchesMuscles) {
+      if (!matchesName && !matchesDesc) {
         return false
       }
     }
@@ -117,18 +103,30 @@ export function calculateMachineStats(machines: Machine[]): MachineStats {
     {} as Record<DifficultyLevel, number>
   )
 
-  const mostPopularCategory = Object.entries(categoryCounts).reduce(
-    (max, [category, count]) =>
-      count > (categoryCounts[max as MachineCategory] || 0) ? category : max
-  ) as MachineCategory
+  // 가장 인기 있는 카테고리 찾기
+  let mostPopularCategory: MachineCategory = 'chest'
+  let maxCategoryCount = 0
+  for (const [category, count] of Object.entries(categoryCounts)) {
+    if (count > maxCategoryCount) {
+      maxCategoryCount = count
+      mostPopularCategory = category as MachineCategory
+    }
+  }
 
-  const mostPopularDifficulty = Object.entries(difficultyCounts).reduce(
-    (max, [difficulty, count]) =>
-      count > (difficultyCounts[max as DifficultyLevel] || 0) ? difficulty : max
-  ) as DifficultyLevel
+  // 가장 인기 있는 난이도 찾기
+  let mostPopularDifficulty: DifficultyLevel = 'beginner'
+  let maxDifficultyCount = 0
+  for (const [difficulty, count] of Object.entries(difficultyCounts)) {
+    if (count > maxDifficultyCount) {
+      maxDifficultyCount = count
+      mostPopularDifficulty = difficulty as DifficultyLevel
+    }
+  }
 
   return {
     totalMachines: machines.length,
+    activeMachines: machines.filter(m => m.isActive).length,
+    inactiveMachines: machines.filter(m => !m.isActive).length,
     categoryCounts,
     difficultyCounts,
     mostPopularCategory,
@@ -143,7 +141,11 @@ export function searchMachines(
   machines: Machine[],
   searchTerm: string,
   options: MachineSearchOptions = {}
-): MachineSearchResult[] {
+): Array<{
+  machine: Machine
+  relevanceScore: number
+  matchedFields: string[]
+}> {
   if (!searchTerm.trim()) {
     return machines.map(machine => ({
       machine,
@@ -153,7 +155,11 @@ export function searchMachines(
   }
 
   const searchLower = searchTerm.toLowerCase()
-  const results: MachineSearchResult[] = []
+  const results: Array<{
+    machine: Machine
+    relevanceScore: number
+    matchedFields: string[]
+  }> = []
 
   for (const machine of machines) {
     if (!options.includeInactive && !machine.isActive) {
@@ -168,10 +174,6 @@ export function searchMachines(
       matchedFields.push('name')
       relevanceScore += 10
     }
-    if (machine.nameKo.toLowerCase().includes(searchLower)) {
-      matchedFields.push('nameKo')
-      relevanceScore += 10
-    }
     if (machine.nameEn.toLowerCase().includes(searchLower)) {
       matchedFields.push('nameEn')
       relevanceScore += 10
@@ -181,19 +183,6 @@ export function searchMachines(
     if (machine.shortDesc.toLowerCase().includes(searchLower)) {
       matchedFields.push('shortDesc')
       relevanceScore += 5
-    }
-    if (machine.detailDesc.toLowerCase().includes(searchLower)) {
-      matchedFields.push('detailDesc')
-      relevanceScore += 3
-    }
-
-    // 타겟 근육 매칭
-    const muscleMatches = machine.targetMuscles.filter(muscle =>
-      muscle.toLowerCase().includes(searchLower)
-    )
-    if (muscleMatches.length > 0) {
-      matchedFields.push('targetMuscles')
-      relevanceScore += muscleMatches.length * 2
     }
 
     // 카테고리 매칭
@@ -315,8 +304,8 @@ export function sortMachines(
 
     switch (sortBy) {
       case 'name':
-        aValue = a.nameKo
-        bValue = b.nameKo
+        aValue = a.name
+        bValue = b.name
         break
       case 'category':
         aValue = a.category
@@ -337,8 +326,8 @@ export function sortMachines(
         bValue = b.id
         break
       default:
-        aValue = a.nameKo
-        bValue = b.nameKo
+        aValue = a.name
+        bValue = b.name
     }
 
     if (typeof aValue === 'string' && typeof bValue === 'string') {

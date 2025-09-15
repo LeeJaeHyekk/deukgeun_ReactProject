@@ -2,8 +2,8 @@
 // Machine Guide API Service
 // ============================================================================
 
-import { api } from '@shared/api'
-import { API_ENDPOINTS } from '@shared/constants/api'
+import axios from 'axios'
+import { API_ENDPOINTS } from '@shared/config'
 import type {
   Machine,
   CreateMachineDTO,
@@ -101,7 +101,7 @@ export class MachineApiService {
    * 모든 머신 조회
    */
   async getMachines(): Promise<{ machines: Machine[]; count: number }> {
-    const response = await api.get(API_ENDPOINTS.MACHINE.LIST)
+    const response = await axios.get(API_ENDPOINTS.MACHINES.LIST)
     console.log('머신 API 응답:', response)
 
     // ApiResponse 래핑된 데이터에서 실제 백엔드 응답 추출
@@ -113,9 +113,7 @@ export class MachineApiService {
    * ID로 특정 머신 조회
    */
   async getMachine(id: number): Promise<{ machine: Machine }> {
-    const response = await api.get(
-      API_ENDPOINTS.MACHINE.DETAIL.replace(':id', id.toString())
-    )
+    const response = await axios.get(API_ENDPOINTS.MACHINES.GET_BY_ID(id))
 
     const responseData = (response.data as any).data || response.data
     const machine = extractMachineData(responseData)
@@ -131,7 +129,7 @@ export class MachineApiService {
    * 새 머신 생성
    */
   async createMachine(data: CreateMachineDTO): Promise<{ machine: Machine }> {
-    const response = await api.post(API_ENDPOINTS.MACHINE.LIST, data)
+    const response = await axios.post(API_ENDPOINTS.MACHINES.LIST, data)
 
     const responseData = (response.data as any).data || response.data
     const machine = extractMachineData(responseData)
@@ -150,10 +148,7 @@ export class MachineApiService {
     id: number,
     data: UpdateMachineDTO
   ): Promise<{ machine: Machine }> {
-    const response = await api.put(
-      API_ENDPOINTS.MACHINE.DETAIL.replace(':id', id.toString()),
-      data
-    )
+    const response = await axios.put(API_ENDPOINTS.MACHINES.GET_BY_ID(id), data)
 
     const responseData = (response.data as any).data || response.data
     const machine = extractMachineData(responseData)
@@ -169,7 +164,7 @@ export class MachineApiService {
    * 머신 삭제
    */
   async deleteMachine(id: number): Promise<void> {
-    await api.delete(API_ENDPOINTS.MACHINE.DETAIL.replace(':id', id.toString()))
+    await axios.delete(API_ENDPOINTS.MACHINES.GET_BY_ID(id))
   }
 
   /**
@@ -184,8 +179,8 @@ export class MachineApiService {
     if (filters.target) params.append('target', filters.target)
     if (filters.search) params.append('search', filters.search)
 
-    const response = await api.get(
-      `${API_ENDPOINTS.MACHINE.FILTER}?${params.toString()}`
+    const response = await axios.get(
+      `${API_ENDPOINTS.MACHINES.FILTER}?${params.toString()}`
     )
 
     const responseData = (response.data as any).data || response.data
@@ -198,8 +193,8 @@ export class MachineApiService {
   async getMachinesByCategory(
     category: string
   ): Promise<{ machines: Machine[]; count: number }> {
-    const response = await api.get(
-      `${API_ENDPOINTS.MACHINE.LIST}/category/${category}`
+    const response = await axios.get(
+      `${API_ENDPOINTS.MACHINES.LIST}/category/${category}`
     )
 
     const responseData = (response.data as any).data || response.data
@@ -212,8 +207,8 @@ export class MachineApiService {
   async getMachinesByDifficulty(
     difficulty: string
   ): Promise<{ machines: Machine[]; count: number }> {
-    const response = await api.get(
-      `${API_ENDPOINTS.MACHINE.LIST}/difficulty/${difficulty}`
+    const response = await axios.get(
+      `${API_ENDPOINTS.MACHINES.LIST}/difficulty/${difficulty}`
     )
 
     const responseData = (response.data as any).data || response.data
@@ -226,8 +221,8 @@ export class MachineApiService {
   async getMachinesByTarget(
     target: string
   ): Promise<{ machines: Machine[]; count: number }> {
-    const response = await api.get(
-      `${API_ENDPOINTS.MACHINE.LIST}/target/${target}`
+    const response = await axios.get(
+      `${API_ENDPOINTS.MACHINES.LIST}/target/${target}`
     )
 
     const responseData = (response.data as any).data || response.data

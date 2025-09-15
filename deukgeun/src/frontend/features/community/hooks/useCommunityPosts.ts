@@ -35,7 +35,7 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
       setAvailableCategories(categories || [])
     } catch (error: unknown) {
       console.error('카테고리 로드 실패:', error)
-      showToast('카테고리를 불러오는데 실패했습니다.', 'error')
+      showToast('카테고리를 불러오는데 실패했습니다.', { type: 'error' })
     }
   }, [])
 
@@ -136,7 +136,7 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
         setCurrentPage(page)
       } catch (error: unknown) {
         console.error('게시글 로드 실패:', error)
-        showToast('게시글을 불러오는데 실패했습니다.', 'error')
+        showToast('게시글을 불러오는데 실패했습니다.', { type: 'error' })
         setPosts([])
       } finally {
         setLoading(false)
@@ -150,11 +150,11 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
     async (postData: { title: string; content: string; category: string }) => {
       try {
         await postsApi.create(postData)
-        showToast('게시글이 성공적으로 작성되었습니다.', 'success')
+        showToast('게시글이 성공적으로 작성되었습니다.', { type: 'success' })
         return true
       } catch (error: unknown) {
         console.error('게시글 작성 실패:', error)
-        showToast('게시글 작성에 실패했습니다.', 'error')
+        showToast('게시글 작성에 실패했습니다.', { type: 'error' })
         return false
       }
     },
@@ -169,11 +169,11 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
     ) => {
       try {
         await postsApi.update(postId, updateData)
-        showToast('게시글이 성공적으로 수정되었습니다.', 'success')
+        showToast('게시글이 성공적으로 수정되었습니다.', { type: 'success' })
         return true
       } catch (error: unknown) {
         console.error('게시글 수정 실패:', error)
-        showToast('게시글 수정에 실패했습니다.', 'error')
+        showToast('게시글 수정에 실패했습니다.', { type: 'error' })
         return false
       }
     },
@@ -184,11 +184,11 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
   const deletePost = useCallback(async (postId: number) => {
     try {
       await postsApi.remove(postId)
-      showToast('게시글이 성공적으로 삭제되었습니다.', 'success')
+      showToast('게시글이 성공적으로 삭제되었습니다.', { type: 'success' })
       return true
     } catch (error: unknown) {
       console.error('게시글 삭제 실패:', error)
-      showToast('게시글 삭제에 실패했습니다.', 'error')
+      showToast('게시글 삭제에 실패했습니다.', { type: 'error' })
       return false
     }
   }, [])

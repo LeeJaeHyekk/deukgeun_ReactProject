@@ -21,12 +21,12 @@ export interface AuthResponse {
 export const authApi = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await apiClient.post('/auth/login', credentials)
-    return response.data
+    return response.data as unknown as AuthResponse
   },
 
   async register(userData: RegisterRequest): Promise<AuthResponse> {
     const response = await apiClient.post('/auth/register', userData)
-    return response.data
+    return response.data as unknown as AuthResponse
   },
 
   async logout(): Promise<void> {
@@ -35,17 +35,17 @@ export const authApi = {
 
   async refreshToken(): Promise<AuthResponse> {
     const response = await apiClient.post('/auth/refresh')
-    return response.data
+    return response.data as unknown as AuthResponse
   },
 
   async findId(email: string): Promise<{ message: string }> {
     const response = await apiClient.post('/auth/find-id', { email })
-    return response.data
+    return response.data as { message: string } as { message: string }
   },
 
   async findPassword(email: string): Promise<{ message: string }> {
     const response = await apiClient.post('/auth/find-password', { email })
-    return response.data
+    return response.data as { message: string } as { message: string }
   },
 
   async resetPassword(
@@ -56,11 +56,11 @@ export const authApi = {
       token,
       newPassword,
     })
-    return response.data
+    return response.data as { message: string }
   },
 
   async verifyEmail(token: string): Promise<{ message: string }> {
     const response = await apiClient.post('/auth/verify-email', { token })
-    return response.data
+    return response.data as { message: string }
   },
 }

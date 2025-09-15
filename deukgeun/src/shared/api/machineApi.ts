@@ -4,29 +4,36 @@ import { Machine } from '@shared/types/dto/machine.dto'
 export const machineApi = {
   async getMachines(): Promise<Machine[]> {
     const response = await apiClient.get('/api/machines')
-    return response.data as Machine[]
+    // API 응답이 { data: Machine[] } 형태인 경우 처리
+    return Array.isArray(response.data)
+      ? response.data
+      : (response.data as any)?.data || []
   },
 
   async getMachineById(id: number): Promise<Machine> {
     const response = await apiClient.get(`/api/machines/${id}`)
-    return response.data as Machine
+    return (response.data as any)?.data || response.data
   },
 
   async getMachinesByCategory(category: string): Promise<Machine[]> {
     const response = await apiClient.get(`/api/machines/category/${category}`)
-    return response.data as Machine[]
+    return Array.isArray(response.data)
+      ? response.data
+      : (response.data as any)?.data || []
   },
 
   async searchMachines(query: string): Promise<Machine[]> {
     const response = await apiClient.get(
       `/api/machines/search?q=${encodeURIComponent(query)}`
     )
-    return response.data as Machine[]
+    return Array.isArray(response.data)
+      ? response.data
+      : (response.data as any)?.data || []
   },
 
   async createMachine(machineData: Partial<Machine>): Promise<Machine> {
     const response = await apiClient.post('/api/machines', machineData)
-    return response.data as Machine
+    return (response.data as any)?.data || response.data
   },
 
   async updateMachine(
@@ -34,7 +41,7 @@ export const machineApi = {
     machineData: Partial<Machine>
   ): Promise<Machine> {
     const response = await apiClient.put(`/api/machines/${id}`, machineData)
-    return response.data as Machine
+    return (response.data as any)?.data || response.data
   },
 
   async deleteMachine(id: number): Promise<void> {

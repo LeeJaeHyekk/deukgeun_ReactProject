@@ -18,38 +18,34 @@
       "@constants/*": ["shared/constants/*"],
       "@validation/*": ["shared/validation/*"],
       "@api/*": ["shared/api/*"],
-      "@dto/*": ["shared/types/dto/*"],
-      "@entities-backend/*": ["backend/entities/*"],
-      "@transformers/*": ["backend/transformers/*"],
-      "@services/*": ["backend/services/*"],
-      "@controllers/*": ["backend/controllers/*"],
-      "@domains/*": ["backend/domains/*"],
-      "@infrastructure/*": ["backend/infrastructure/*"],
-      "@config/*": ["backend/config/*"],
-      "@middlewares/*": ["backend/middlewares/*"],
-      "@routes/*": ["backend/routes/*"]
+      "@dto/*": ["shared/types/dto/*"]
     },
     "typeRoots": ["./node_modules/@types"],
     "target": "ESNext",
     "module": "ESNext",
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "isolatedModules": false,
+    "isolatedModules": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "exactOptionalPropertyTypes": false,
     "skipLibCheck": true,
     "noEmit": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "allowJs": false,
     "checkJs": false,
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "types": ["node"]
+    "types": ["vite/client"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "build", "**/*.js", "**/*.jsx"]
+  "include": ["src/frontend/**/*", "src/shared/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "src/backend/**/*",
+    "**/*.js",
+    "**/*.jsx"
+  ]
 }

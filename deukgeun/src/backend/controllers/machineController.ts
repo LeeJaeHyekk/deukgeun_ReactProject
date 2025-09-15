@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { MachineService } from '../services/machineService'
-import { toMachineDTO, toMachineDTOList } from '@transformers/index'
+import { toMachineDTO, toMachineDTOList } from '../transformers/index'
 import type {
   CreateMachineRequest,
   UpdateMachineRequest,

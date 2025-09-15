@@ -4,7 +4,7 @@ import { User } from '../entities/User'
 import { LevelService } from '../services/levelService'
 import { AppDataSource } from '../config/database'
 import { ApiResponse, ErrorResponse } from '../types'
-import { toPostDTO, toPostDTOList } from '@transformers/index'
+import { toPostDTO, toPostDTOList } from '../transformers/index'
 
 /**
  * 포스트 관련 HTTP 요청을 처리하는 컨트롤러 클래스

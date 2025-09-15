@@ -108,34 +108,38 @@ export const API_ENDPOINTS = {
   // Machine endpoints
   MACHINES: {
     LIST: '/api/machines',
-    GET_BY_ID: '/api/machines',
-    GET_BY_CATEGORY: '/api/machines/category',
+    GET_BY_ID: (id: number) => `/api/machines/${id}`,
+    GET_BY_CATEGORY: (category: string) => `/api/machines/category/${category}`,
+    GET_BY_DIFFICULTY: (difficulty: string) =>
+      `/api/machines/difficulty/${difficulty}`,
+    GET_BY_TARGET: (target: string) => `/api/machines/target/${target}`,
     SEARCH: '/api/machines/search',
+    FILTER: '/api/machines/filter',
     CREATE: '/api/machines',
-    UPDATE: '/api/machines',
-    DELETE: '/api/machines',
+    UPDATE: (id: number) => `/api/machines/${id}`,
+    DELETE: (id: number) => `/api/machines/${id}`,
   },
 
   // Post endpoints
   POSTS: {
     LIST: '/api/posts',
-    GET_BY_ID: '/api/posts',
+    GET_BY_ID: (id: number) => `/api/posts/${id}`,
     CREATE: '/api/posts',
-    UPDATE: '/api/posts',
-    DELETE: '/api/posts',
-    LIKE: '/api/posts/like',
-    UNLIKE: '/api/posts/unlike',
+    UPDATE: (id: number) => `/api/posts/${id}`,
+    DELETE: (id: number) => `/api/posts/${id}`,
+    LIKE: (id: number) => `/api/posts/${id}/like`,
+    UNLIKE: (id: number) => `/api/posts/${id}/unlike`,
   },
 
   // Comment endpoints
   COMMENTS: {
     LIST: '/api/comments',
-    GET_BY_ID: '/api/comments',
+    GET_BY_ID: (id: number) => `/api/comments/${id}`,
     CREATE: '/api/comments',
-    UPDATE: '/api/comments',
-    DELETE: '/api/comments',
-    LIKE: '/api/comments/like',
-    UNLIKE: '/api/comments/unlike',
+    UPDATE: (id: number) => `/api/comments/${id}`,
+    DELETE: (id: number) => `/api/comments/${id}`,
+    LIKE: (id: number) => `/api/comments/${id}/like`,
+    UNLIKE: (id: number) => `/api/comments/${id}/unlike`,
   },
 
   // Workout endpoints
@@ -146,10 +150,18 @@ export const API_ENDPOINTS = {
     STATS: '/api/workouts/stats',
   },
 
+  // Workout Goals endpoints
+  WORKOUT_GOALS: {
+    GET_ALL: '/api/workout-goals',
+    CREATE: '/api/workout-goals',
+    UPDATE: (id: number) => `/api/workout-goals/${id}`,
+    DELETE: (id: number) => `/api/workout-goals/${id}`,
+  },
+
   // Gym endpoints
   GYMS: {
     LIST: '/api/gyms',
-    GET_BY_ID: '/api/gyms',
+    GET_BY_ID: (id: number) => `/api/gyms/${id}`,
     SEARCH: '/api/gyms/search',
     NEARBY: '/api/gyms/nearby',
   },
@@ -169,6 +181,7 @@ export const API_ENDPOINTS = {
     GET_USER_LEVEL: '/api/level/user',
     GET_LEVELS: '/api/level',
     UPDATE_LEVEL: '/api/level/update',
+    GRANT_EXP: '/api/level/grant-exp',
   },
 }
 

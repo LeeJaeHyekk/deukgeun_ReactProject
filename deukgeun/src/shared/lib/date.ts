@@ -135,7 +135,7 @@ export const date = {
     const day = result.getDay()
     const diff = result.getDate() - day
     result.setDate(diff)
-    return date.startOfDay(result)
+    return result
   },
 
   // Get end of week
@@ -144,6 +144,6 @@ export const date = {
     const day = result.getDay()
     const diff = result.getDate() + (6 - day)
     result.setDate(diff)
-    return date.endOfDay(result)
+    return result
   },
 }

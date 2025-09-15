@@ -21,7 +21,7 @@ export function usePostLikes() {
         const currentPost = posts.find(post => post.id === postId)
         if (!currentPost) {
           console.error('❌ 게시글을 찾을 수 없음:', postId)
-          showToast('게시글을 찾을 수 없습니다.', 'error')
+          showToast('게시글을 찾을 수 없습니다.', { type: 'error' })
           return false
         }
 
@@ -95,7 +95,7 @@ export function usePostLikes() {
           const message = responseData.isLiked
             ? '좋아요를 눌렀습니다.'
             : '좋아요를 취소했습니다.'
-          showToast(message, 'success')
+          showToast(message, { type: 'success' })
           console.log('🎉 좋아요 처리 완료:', message)
           return true
         } else {
@@ -116,16 +116,16 @@ export function usePostLikes() {
         if (error && typeof error === 'object' && 'response' in error) {
           const axiosError = error as any
           if (axiosError.response?.status === 401) {
-            showToast('로그인이 필요합니다.', 'error')
+            showToast('로그인이 필요합니다.', { type: 'error' })
           } else if (axiosError.response?.status === 400) {
-            showToast('이미 좋아요를 누른 게시글입니다.', 'error')
+            showToast('이미 좋아요를 누른 게시글입니다.', { type: 'error' })
           } else if (axiosError.response?.status === 404) {
-            showToast('게시글을 찾을 수 없습니다.', 'error')
+            showToast('게시글을 찾을 수 없습니다.', { type: 'error' })
           } else {
-            showToast('좋아요 처리에 실패했습니다.', 'error')
+            showToast('좋아요 처리에 실패했습니다.', { type: 'error' })
           }
         } else {
-          showToast('좋아요 처리에 실패했습니다.', 'error')
+          showToast('좋아요 처리에 실패했습니다.', { type: 'error' })
         }
         return false
       }

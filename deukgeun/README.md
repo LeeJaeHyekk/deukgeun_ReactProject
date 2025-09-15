@@ -171,21 +171,218 @@ deukgeun/
 
 ## 📖 상세 문서
 
-프로젝트의 상세한 설정, API 문서, 배포 가이드 등은 다음 문서를 참조하세요:
+### 🚀 개발 환경 설정
 
-**[📋 PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md)**
+#### 환경 변수 설정
 
-이 문서에는 다음 내용이 포함되어 있습니다:
+```bash
+# 백엔드 환경 변수 파일 생성
+cp src/backend/env.sample src/backend/.env
 
-- 상세한 환경 설정 가이드
-- 데이터베이스 설정 및 마이그레이션
-- API 엔드포인트 문서
-- 테스트 실행 방법
-- 배포 가이드
-- 레벨 시스템 상세 설명
-- 보안 설정 가이드
-- 자동 업데이트 스케줄러 사용법
-- 환경 변수 보안 가이드
+# 프론트엔드 환경 변수 파일 생성
+cp env.example .env
+```
+
+#### 필수 환경 변수
+
+**백엔드 (.env)**
+
+```env
+NODE_ENV=development
+PORT=5000
+DB_HOST=localhost
+DB_PORT=3306
+DB_USERNAME=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=deukgeun_db
+JWT_SECRET=your-jwt-secret-key
+JWT_ACCESS_SECRET=your-jwt-access-secret
+JWT_REFRESH_SECRET=your-jwt-refresh-secret
+```
+
+**프론트엔드 (.env)**
+
+```env
+VITE_BACKEND_URL=http://localhost:5000
+VITE_FRONTEND_PORT=5173
+```
+
+#### 데이터베이스 설정
+
+```sql
+CREATE DATABASE deukgeun_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+```bash
+# 데이터베이스 동기화
+npm run db:sync
+
+# 초기 데이터 시드
+npm run db:seed
+```
+
+### 🔐 보안 설정
+
+#### 보안 체크리스트
+
+- [ ] 모든 `CHANGE_ME_` 접두사 값들을 실제 값으로 변경
+- [ ] 데이터베이스 비밀번호가 강력한가? (최소 12자, 특수문자 포함)
+- [ ] JWT 시크릿 키가 충분히 긴가? (최소 32자)
+- [ ] 이메일 비밀번호가 앱 비밀번호인가?
+- [ ] API 키들이 유효한가?
+- [ ] CORS_ORIGIN이 실제 도메인으로 설정되었는가?
+
+#### 보안 검사 실행
+
+```bash
+# 보안 검사 실행
+node scripts/security-check.js
+```
+
+### 🌱 시드 스크립트 시스템
+
+#### 초기 데이터 설정
+
+```bash
+# 전체 초기 데이터 설정
+npm run seed:master
+
+# 특정 데이터만 제외하고 설정
+npm run seed:master -- --skip-users
+npm run seed:master -- --skip-gyms
+npm run seed:master -- --skip-machines
+```
+
+#### API 데이터 업데이트
+
+```bash
+# 수동으로 API 데이터 업데이트
+npm run update:api-data
+
+# 스케줄러 등록 (3일마다 자동 실행)
+npm run schedule:api-update
+```
+
+#### 환경 변수 설정 (시드용)
+
+```env
+# 관리자 계정
+ADMIN_EMAIL=admin@deukgeun.com
+ADMIN_PASSWORD=secure_admin_password_2024
+ADMIN_NICKNAME=시스템관리자
+
+# API 키
+VITE_GYM_API_KEY=your_seoul_openapi_key
+```
+
+### 🔧 환경 변수 최적화
+
+#### 자동 보안 값 생성
+
+```bash
+# 보안 환경 변수 자동 생성
+node scripts/generate-secure-env.js
+```
+
+#### 환경 변수 검증
+
+```bash
+# 환경 변수 검증 실행
+node src/backend/config/envValidation.js
+```
+
+#### 성능 최적화 설정
+
+```env
+# 데이터베이스 연결 풀
+DB_POOL_MIN=2
+DB_POOL_MAX=10
+DB_POOL_IDLE=10000
+
+# 메모리 및 CPU 최적화
+NODE_OPTIONS=--max-old-space-size=2048
+UV_THREADPOOL_SIZE=16
+```
+
+### 🛠 개발 도구
+
+#### 코드 품질 관리
+
+```bash
+# 코드 포맷팅
+npm run format
+
+# 린트 검사
+npm run lint
+npm run lint:fix
+
+# 타입 검사
+npm run type-check
+```
+
+#### 테스트 실행
+
+```bash
+# 백엔드 테스트
+cd src/backend && npm test
+
+# 프론트엔드 테스트
+npm run test
+```
+
+### 🚨 문제 해결
+
+#### 포트 충돌 시
+
+```bash
+# 포트 사용 중인 프로세스 확인
+netstat -ano | findstr :5000
+netstat -ano | findstr :5173
+
+# 프로세스 종료
+taskkill /PID <PID번호> /F
+```
+
+#### 의존성 문제 시
+
+```bash
+# 루트 의존성 재설치
+npm install
+
+# 백엔드 의존성 재설치
+cd src/backend && npm install
+```
+
+### 🔄 배포 가이드
+
+#### 안전한 배포 절차
+
+```bash
+# 1. 보안 템플릿 복사
+cp env.production.secure .env
+
+# 2. 모든 CHANGE_ME_ 값들을 실제 값으로 변경
+nano .env
+
+# 3. 보안 검사 실행
+node scripts/security-check.js
+
+# 4. Docker 배포 (자동으로 시드 실행)
+./docker-deploy.sh deploy
+
+# 5. 스케줄러 등록
+npm run schedule:api-update
+```
+
+#### 모니터링
+
+```bash
+# 애플리케이션 로그 확인
+./docker-deploy.sh logs
+
+# 보안 관련 로그 필터링
+docker-compose logs | grep -i "security\|auth\|error"
+```
 
 ## 🤝 기여하기
 

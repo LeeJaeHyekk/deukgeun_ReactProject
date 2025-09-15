@@ -98,28 +98,54 @@ export default defineConfig(({ mode }) => {
         },
         output: {
           // 청크 분할 최적화 - 번들 크기 최적화를 위한 코드 분할
-          manualChunks: {
-            // React 관련 라이브러리들을 하나의 청크로 묶음
-            vendor: ['react', 'react-dom', 'react-router-dom'],
-            // UI 라이브러리들을 하나의 청크로 묶음
-            ui: [
-              'lucide-react',
-              '@radix-ui/react-dialog',
-              '@radix-ui/react-dropdown-menu',
-              '@radix-ui/react-select',
-              '@radix-ui/react-tabs',
-              '@radix-ui/react-toast',
-            ],
-            // 유틸리티 라이브러리들을 하나의 청크로 묶음
-            utils: ['axios', 'date-fns', 'clsx', 'tailwind-merge'],
+          manualChunks: id => {
+            // node_modules에서 라이브러리별 청크 분할
+            if (id.includes('node_modules')) {
+              // React 관련 라이브러리들
+              if (
+                id.includes('react') ||
+                id.includes('react-dom') ||
+                id.includes('react-router')
+              ) {
+                return 'vendor-react'
+              }
+              // UI 라이브러리들
+              if (id.includes('@radix-ui') || id.includes('lucide-react')) {
+                return 'vendor-ui'
+              }
+              // 유틸리티 라이브러리들
+              if (
+                id.includes('axios') ||
+                id.includes('date-fns') ||
+                id.includes('clsx') ||
+                id.includes('tailwind-merge')
+              ) {
+                return 'vendor-utils'
+              }
+              // 기타 라이브러리들
+              return 'vendor-other'
+            }
+
+            // 프로젝트 내부 모듈 청크 분할
+            if (id.includes('/src/frontend/features/')) {
+              const featureName = id
+                .split('/src/frontend/features/')[1]
+                .split('/')[0]
+              return `feature-${featureName}`
+            }
+
+            if (id.includes('/src/frontend/pages/')) {
+              return 'pages'
+            }
+
+            if (id.includes('/src/shared/')) {
+              return 'shared'
+            }
           },
 
           // 청크 파일명 최적화 - 캐싱을 위한 해시 포함
           chunkFileNames: chunkInfo => {
-            const facadeModuleId = chunkInfo.facadeModuleId
-              ? chunkInfo.facadeModuleId.split('/').pop() // 파일명 추출
-              : 'chunk'
-            return `js/[name]-[hash].js` // 해시가 포함된 파일명
+            return `js/[name]-[hash].js`
           },
 
           // 에셋 파일명 최적화 - 파일 타입별로 다른 디렉토리에 저장
@@ -148,29 +174,53 @@ export default defineConfig(({ mode }) => {
               return `fonts/[name]-[hash].[ext]`
             }
 
+            // CSS 파일
+            if (/\.css$/i.test(assetInfo.name)) {
+              return `css/[name]-[hash].[ext]`
+            }
+
             // 기타 에셋
             return `assets/[name]-[hash].[ext]`
           },
         },
       },
 
-      outDir: 'dist', // 빌드 출력 디렉토리
+      outDir: 'dist/frontend', // 프론트엔드 전용 출력 디렉토리
       emptyOutDir: true, // 빌드 전 출력 디렉토리 비우기
 
       // 번들 크기 최적화 설정
-      minify: 'terser', // Terser를 사용한 코드 압축
-      terserOptions: {
-        compress: {
-          drop_console: mode === 'production', // 프로덕션에서 console.log 제거
-          drop_debugger: mode === 'production', // 프로덕션에서 debugger 제거
-        },
-      },
+      minify: mode === 'production' ? 'terser' : false, // 개발에서는 압축 비활성화
+      terserOptions:
+        mode === 'production'
+          ? {
+              compress: {
+                drop_console: true, // 프로덕션에서 console.log 제거
+                drop_debugger: true, // 프로덕션에서 debugger 제거
+                pure_funcs: ['console.log', 'console.info', 'console.debug'], // 특정 함수 제거
+              },
+              mangle: {
+                safari10: true, // Safari 10 호환성
+              },
+              format: {
+                comments: false, // 주석 제거
+              },
+            }
+          : undefined,
 
-      // 소스맵 설정 - 프로덕션에서는 비활성화
-      sourcemap: false,
+      // 소스맵 설정 - 개발에서는 활성화, 프로덕션에서는 비활성화
+      sourcemap: mode === 'development',
 
       // 청크 크기 경고 임계값 (KB 단위)
       chunkSizeWarningLimit: 1000,
+
+      // 빌드 타겟 설정
+      target: 'esnext',
+
+      // CSS 코드 분할
+      cssCodeSplit: true,
+
+      // 에셋 인라인 임계값 (4KB 미만은 인라인)
+      assetsInlineLimit: 4096,
     },
 
     // ESBuild 설정

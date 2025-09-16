@@ -2,11 +2,12 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
+  "type": "commonjs",
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only --notify false index.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node ../../dist/backend/index.js",
+    "start": "node ../../dist/backend/index.cjs",
     "ts-node": "ts-node",
     "createWorkoutJournalTables": "ts-node scripts/createWorkoutJournalTables.ts",
     "seedWorkoutJournalData": "ts-node scripts/seedWorkoutJournalData.ts",

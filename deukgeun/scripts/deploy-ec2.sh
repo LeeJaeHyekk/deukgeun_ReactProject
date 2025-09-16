@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# Deukgeun AWS EC2 배포 스크립트
+# Deukgeun EC2 배포 스크립트 (프로덕션용)
 # ============================================================================
 
 set -e  # 에러 발생 시 스크립트 중단
@@ -30,250 +30,271 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# 환경 변수 로드
-if [ -f ".env.production" ]; then
-    log_info "프로덕션 환경 변수 로드 중..."
-    export $(cat .env.production | grep -v '^#' | xargs)
-else
-    log_error ".env.production 파일을 찾을 수 없습니다."
-    log_info "샘플 환경 변수 파일을 생성합니다..."
-    cat > .env.production << EOF
-# Database Configuration
-DB_HOST=localhost
-DB_PORT=3306
-DB_USERNAME=deukgeun_user
-DB_PASSWORD=your_secure_password_here
-DB_NAME=deukgeun_production
-DB_ROOT_PASSWORD=your_root_password_here
-
-# JWT Configuration
-JWT_SECRET=your_jwt_secret_here_production
-JWT_ACCESS_SECRET=your_access_secret_here_production
-JWT_REFRESH_SECRET=your_refresh_secret_here_production
-
-# Server Configuration
-NODE_ENV=production
-PORT=5000
-FRONTEND_PORT=80
-EOF
-    log_warning ".env.production 파일을 생성했습니다. 환경 변수를 설정한 후 다시 실행하세요."
-    exit 1
-fi
-
-# 전역 변수
-PROJECT_NAME="deukgeun"
-VERSION=$(git rev-parse --short HEAD)
-
-# 함수: 의존성 확인
-check_dependencies() {
-    log_info "의존성 확인 중..."
+# 함수: 시스템 업데이트
+update_system() {
+    log_info "시스템 업데이트 중..."
     
-    # Node.js 확인
+    if command -v apt-get &> /dev/null; then
+        sudo apt-get update
+        sudo apt-get upgrade -y
+    elif command -v yum &> /dev/null; then
+        sudo yum update -y
+    else
+        log_warning "패키지 매니저를 찾을 수 없습니다. 시스템 업데이트를 건너뜁니다."
+    fi
+    
+    log_success "시스템 업데이트가 완료되었습니다."
+}
+
+# 함수: Node.js 설치 확인
+check_nodejs() {
+    log_info "Node.js 설치 확인 중..."
+    
     if ! command -v node &> /dev/null; then
-        log_error "Node.js가 설치되지 않았습니다."
+        log_info "Node.js를 설치합니다..."
+        
+        if command -v apt-get &> /dev/null; then
+            # Ubuntu/Debian
+            curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+        elif command -v yum &> /dev/null; then
+            # CentOS/RHEL
+            curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+            sudo yum install -y nodejs
+        else
+            log_error "지원되지 않는 운영체제입니다."
+            exit 1
+        fi
+    fi
+    
+    # Node.js 버전 확인
+    NODE_VERSION=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
+    if [ "$NODE_VERSION" -lt 18 ]; then
+        log_error "Node.js 18 이상이 필요합니다. 현재 버전: $(node --version)"
         exit 1
     fi
     
-    # npm 확인
-    if ! command -v npm &> /dev/null; then
-        log_error "npm이 설치되지 않았습니다."
-        exit 1
-    fi
-    
-    # PM2 확인
-    if ! command -v pm2 &> /dev/null; then
-        log_info "PM2 설치 중..."
-        npm install -g pm2
-    fi
-    
-    # serve 확인 (프론트엔드 정적 파일 서빙용)
-    if ! command -v serve &> /dev/null; then
-        log_info "serve 설치 중..."
-        npm install -g serve
-    fi
-    
-    log_success "모든 의존성이 확인되었습니다."
-}
-
-# 함수: 빌드
-build_project() {
-    log_info "프로젝트 빌드 중..."
-    
-    # 의존성 설치
-    log_info "의존성 설치 중..."
-    npm install
-    
-    # 백엔드 빌드
-    log_info "백엔드 빌드 중..."
-    npm run build:backend:production
-    
-    # 프론트엔드 빌드
-    log_info "프론트엔드 빌드 중..."
-    npm run build:production
-    
-    log_success "프로젝트 빌드가 완료되었습니다."
-}
-
-# 함수: PM2로 서비스 시작
-start_services() {
-    log_info "PM2로 서비스 시작 중..."
-    
-    # 기존 서비스 중지
-    pm2 delete all 2>/dev/null || true
-    
-    # 백엔드 서비스 시작
-    log_info "백엔드 서비스 시작 중..."
-    pm2 start ecosystem.config.js --env production
-    
-    # 서비스 상태 확인
-    pm2 status
-    
-    log_success "서비스가 시작되었습니다."
-}
-
-# 함수: 서비스 상태 확인
-check_services() {
-    log_info "서비스 상태 확인 중..."
-    
-    # PM2 상태 확인
-    pm2 status
-    
-    # 백엔드 헬스체크
-    log_info "백엔드 헬스체크 중..."
-    if curl -f http://localhost:5000/health > /dev/null 2>&1; then
-        log_success "백엔드 서비스가 정상적으로 실행 중입니다."
-    else
-        log_error "백엔드 서비스에 연결할 수 없습니다."
-        pm2 logs
-        exit 1
-    fi
-    
-    # 프론트엔드 헬스체크
-    log_info "프론트엔드 헬스체크 중..."
-    if curl -f http://localhost:80/ > /dev/null 2>&1; then
-        log_success "프론트엔드 서비스가 정상적으로 실행 중입니다."
-    else
-        log_error "프론트엔드 서비스에 연결할 수 없습니다."
-        pm2 logs
-        exit 1
-    fi
+    log_success "Node.js $(node --version)이 설치되어 있습니다."
 }
 
 # 함수: 방화벽 설정
 setup_firewall() {
     log_info "방화벽 설정 중..."
     
-    # Ubuntu/Debian
     if command -v ufw &> /dev/null; then
+        # Ubuntu UFW
         sudo ufw allow 22/tcp    # SSH
-        sudo ufw allow 80/tcp    # HTTP
-        sudo ufw allow 443/tcp   # HTTPS
-        sudo ufw allow 5000/tcp  # Backend API
+        sudo ufw allow 3000/tcp  # Frontend
+        sudo ufw allow 5000/tcp  # Backend
         sudo ufw --force enable
-        log_success "UFW 방화벽이 설정되었습니다."
-    # CentOS/RHEL/Amazon Linux
     elif command -v firewall-cmd &> /dev/null; then
-        sudo firewall-cmd --permanent --add-service=ssh
-        sudo firewall-cmd --permanent --add-service=http
-        sudo firewall-cmd --permanent --add-service=https
+        # CentOS/RHEL firewalld
+        sudo firewall-cmd --permanent --add-port=22/tcp
+        sudo firewall-cmd --permanent --add-port=3000/tcp
         sudo firewall-cmd --permanent --add-port=5000/tcp
         sudo firewall-cmd --reload
-        log_success "firewalld가 설정되었습니다."
     else
-        log_warning "방화벽 도구를 찾을 수 없습니다. 수동으로 포트를 열어주세요."
+        log_warning "방화벽 설정을 건너뜁니다."
     fi
+    
+    log_success "방화벽 설정이 완료되었습니다."
 }
 
-# 함수: 시스템 서비스 등록
-setup_systemd() {
-    log_info "시스템 서비스 등록 중..."
+# 함수: PM2 부팅시 자동시작 설정
+setup_pm2_startup() {
+    log_info "PM2 부팅시 자동시작 설정 중..."
     
     # PM2 startup 스크립트 생성
     pm2 startup
     
-    # PM2 save
+    # 현재 PM2 프로세스 저장
     pm2 save
     
-    log_success "시스템 서비스가 등록되었습니다."
+    log_success "PM2 자동시작 설정이 완료되었습니다."
 }
 
-# 함수: 로그 디렉토리 생성
-create_log_directories() {
-    log_info "로그 디렉토리 생성 중..."
-    
-    mkdir -p logs
-    mkdir -p src/backend/logs
-    mkdir -p src/backend/uploads
-    
-    log_success "로그 디렉토리가 생성되었습니다."
-}
-
-# 함수: 데이터베이스 초기화
-setup_database() {
-    log_info "데이터베이스 설정 중..."
-    
-    # MySQL 설치 확인
-    if ! command -v mysql &> /dev/null; then
-        log_info "MySQL 설치 중..."
-        sudo apt-get update
-        sudo apt-get install -y mysql-server
+# 함수: Nginx 설정 (선택사항)
+setup_nginx() {
+    if [ "$1" = "--nginx" ]; then
+        log_info "Nginx 설정 중..."
         
-        # MySQL 서비스 시작
-        sudo systemctl start mysql
-        sudo systemctl enable mysql
+        if command -v apt-get &> /dev/null; then
+            sudo apt-get install -y nginx
+        elif command -v yum &> /dev/null; then
+            sudo yum install -y nginx
+        fi
+        
+        # Nginx 설정 파일 생성
+        sudo tee /etc/nginx/sites-available/deukgeun > /dev/null <<EOF
+server {
+    listen 80;
+    server_name _;
+    
+    # Frontend
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+    }
+    
+    # Backend API
+    location /api/ {
+        proxy_pass http://localhost:5000/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+    }
+}
+EOF
+        
+        # Nginx 사이트 활성화
+        sudo ln -sf /etc/nginx/sites-available/deukgeun /etc/nginx/sites-enabled/
+        sudo rm -f /etc/nginx/sites-enabled/default
+        
+        # Nginx 설정 테스트 및 재시작
+        sudo nginx -t
+        sudo systemctl restart nginx
+        sudo systemctl enable nginx
+        
+        log_success "Nginx 설정이 완료되었습니다."
     fi
-    
-    # 데이터베이스 및 사용자 생성
-    log_info "데이터베이스 및 사용자 생성 중..."
-    sudo mysql -e "
-        CREATE DATABASE IF NOT EXISTS ${DB_NAME};
-        CREATE USER IF NOT EXISTS '${DB_USERNAME}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
-        GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USERNAME}'@'localhost';
-        FLUSH PRIVILEGES;
-    "
-    
-    log_success "데이터베이스 설정이 완료되었습니다."
 }
 
 # 메인 실행 함수
 main() {
-    log_info "Deukgeun AWS EC2 배포를 시작합니다..."
+    log_info "Deukgeun EC2 배포를 시작합니다..."
     
-    # 의존성 확인
-    check_dependencies
+    # 시스템 업데이트
+    update_system
     
-    # 로그 디렉토리 생성
-    create_log_directories
-    
-    # 데이터베이스 설정
-    setup_database
+    # Node.js 설치 확인
+    check_nodejs
     
     # 방화벽 설정
     setup_firewall
     
-    # 프로젝트 빌드
-    build_project
+    # 프로젝트 의존성 설치
+    log_info "프로젝트 의존성 설치 중..."
+    npm install
     
-    # 서비스 시작
-    start_services
+    # 백엔드 의존성 설치
+    if [ -d "src/backend" ]; then
+        cd src/backend && npm install && cd ../..
+    fi
+    
+    # 프로덕션 빌드
+    log_info "프로덕션 빌드 중..."
+    npm run build:full:production
+    
+    # 빌드 검증
+    log_info "빌드 결과 검증 중..."
+    
+    # 백엔드 빌드 검증
+    if [ ! -f "dist/backend/index.cjs" ]; then
+        log_error "백엔드 빌드 파일이 없습니다: dist/backend/index.cjs"
+        exit 1
+    fi
+    
+    if [ ! -f "dist/backend/routes/index.cjs" ]; then
+        log_error "라우트 파일이 없습니다: dist/backend/routes/index.cjs"
+        exit 1
+    fi
+    
+    if [ ! -d "dist/backend/node_modules" ]; then
+        log_error "백엔드 의존성이 없습니다: dist/backend/node_modules"
+        exit 1
+    fi
+    
+    # 프론트엔드 빌드 검증
+    if [ ! -d "dist/frontend" ]; then
+        log_error "프론트엔드 빌드 디렉토리가 없습니다: dist/frontend"
+        exit 1
+    fi
+    
+    if [ ! -f "dist/frontend/index.html" ]; then
+        log_error "프론트엔드 index.html이 없습니다: dist/frontend/index.html"
+        exit 1
+    fi
+    
+    if [ ! -d "dist/frontend/assets" ]; then
+        log_error "프론트엔드 assets 디렉토리가 없습니다: dist/frontend/assets"
+        exit 1
+    fi
+    
+    log_success "빌드 검증 완료"
+    
+    # 기존 PM2 프로세스 정리
+    log_info "기존 PM2 프로세스 정리 중..."
+    pm2 delete all 2>/dev/null || true
+    
+    # PM2로 서비스 시작
+    log_info "PM2로 서비스 시작 중..."
+    pm2 start ecosystem.config.js --env production
+    
+    # PM2 부팅시 자동시작 설정
+    setup_pm2_startup
+    
+    # Nginx 설정 (선택사항)
+    setup_nginx "$1"
     
     # 서비스 상태 확인
-    check_services
+    log_info "서비스 상태 확인 중..."
+    pm2 status
     
-    # 시스템 서비스 등록
-    setup_systemd
-    
-    log_success "배포가 성공적으로 완료되었습니다!"
-    log_info "프론트엔드: http://$(curl -s ifconfig.me):80"
+    log_success "EC2 배포가 완료되었습니다!"
+    echo ""
+    log_info "=== 서비스 정보 ==="
+    log_info "프론트엔드: http://$(curl -s ifconfig.me):3000"
     log_info "백엔드 API: http://$(curl -s ifconfig.me):5000"
-    log_info "헬스체크: http://$(curl -s ifconfig.me):5000/health"
-    log_info ""
-    log_info "PM2 명령어:"
-    log_info "  상태 확인: pm2 status"
-    log_info "  로그 확인: pm2 logs"
-    log_info "  재시작: pm2 restart all"
-    log_info "  중지: pm2 stop all"
+    if [ "$1" = "--nginx" ]; then
+        log_info "Nginx 프록시: http://$(curl -s ifconfig.me)"
+    fi
+    echo ""
+    log_info "=== 유용한 명령어들 ==="
+    log_info "PM2 상태: pm2 status"
+    log_info "PM2 로그: pm2 logs"
+    log_info "서비스 재시작: pm2 restart all"
+    log_info "서비스 중지: pm2 stop all"
+    echo ""
+    log_info "=== 보안 설정 ==="
+    log_info "SSH 키 설정을 권장합니다."
+    log_info "데이터베이스 보안 그룹을 확인하세요."
+    log_info "환경 변수 파일(.env)을 안전하게 설정하세요."
 }
 
 # 스크립트 실행
-main "$@"
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    echo "Deukgeun EC2 배포 스크립트"
+    echo ""
+    echo "사용법:"
+    echo "  $0                 # 기본 배포"
+    echo "  $0 --nginx         # Nginx 프록시와 함께 배포"
+    echo "  $0 --help          # 도움말 표시"
+    echo ""
+    echo "기능:"
+    echo "  - 시스템 업데이트"
+    echo "  - Node.js 설치/확인"
+    echo "  - 방화벽 설정"
+    echo "  - 프로덕션 빌드"
+    echo "  - PM2 서비스 시작"
+    echo "  - 부팅시 자동시작 설정"
+    echo "  - Nginx 프록시 설정 (선택사항)"
+    echo ""
+    echo "요구사항:"
+    echo "  - Ubuntu 20.04+ 또는 CentOS 7+"
+    echo "  - sudo 권한"
+    echo "  - 인터넷 연결"
+else
+    main "$@"
+fi

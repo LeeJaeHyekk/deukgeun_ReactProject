@@ -21,7 +21,8 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "types": ["vite/client", "node"]
   },
   "include": ["src/frontend/**/*", "src/shared/**/*"],
   "exclude": ["src/backend/**/*", "node_modules", "dist", "build"]

@@ -1,7 +1,0 @@
-# Node.js 백엔드 프로젝트이므로 Python requirements.txt는 필요하지 않습니다.
-# 이 프로젝트는 TypeScript/Node.js 백엔드입니다.
-# 
-# Render에서 Node.js 프로젝트로 배포하려면:
-# 1. Build Command: npm install && npm run build:backend
-# 2. Start Command: npm run start:backend
-# 3. Environment: Node.js

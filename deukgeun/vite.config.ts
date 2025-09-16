@@ -17,6 +17,11 @@ export default defineConfig(({ mode }) => {
   // 환경 변수 병합 (frontend가 우선순위를 가짐)
   const mergedEnv = { ...env, ...frontendEnv }
 
+  // NODE_ENV를 Vite 설정에서 직접 설정하여 경고 방지
+  if (mode === 'production') {
+    process.env.NODE_ENV = 'production'
+  }
+
   return {
     // Vite 플러그인 설정
     plugins: [react()], // React SWC 플러그인 활성화

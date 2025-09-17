@@ -6,8 +6,16 @@ import { getAvailablePort } from './utils/getAvailablePort'
 import { config } from './config/env'
 import { autoInitializeScheduler } from './services/autoUpdateScheduler'
 import { checkBeforeStart, getBackendServerInfo } from './utils/serverStatus'
+import { validateEnvironment } from './config/envValidation'
 
 const environment = process.env.NODE_ENV || 'development'
+
+// production 환경에서 환경 변수 검증
+if (environment === 'production') {
+  console.log('🔍 Validating production environment variables...')
+  validateEnvironment()
+  console.log('✅ Production environment validation passed')
+}
 
 async function startServer() {
   try {

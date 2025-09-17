@@ -4,7 +4,15 @@
 
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-// import { ROUTES } from "@shared/constants/routes"
+// import { ROUTES } from '@shared/constants/routes.js'
+const ROUTES = {
+  ADMIN_DASHBOARD: '/admin/dashboard',
+  ADMIN_USERS: '/admin/users',
+  ADMIN_POSTS: '/admin/posts',
+  ADMIN_MACHINES: '/admin/machines',
+  ADMIN_PERFORMANCE: '/admin/performance',
+  ADMIN_DATABASE: '/admin/database',
+}
 import { AdminLayout } from './components/AdminLayout'
 import { useAdmin } from './hooks/useAdmin'
 import {
@@ -106,13 +114,13 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className={styles.adminGrid}>
-            <Link to="/admin/database" className={styles.adminCard}>
+            <Link to={ROUTES.ADMIN_DATABASE} className={styles.adminCard}>
               <div className={styles.cardIcon}>🗄️</div>
               <h3>데이터베이스 관리</h3>
               <p>헬스장 데이터베이스 업데이트 및 관리</p>
             </Link>
 
-            <Link to="/admin/performance" className={styles.adminCard}>
+            <Link to={ROUTES.ADMIN_PERFORMANCE} className={styles.adminCard}>
               <div className={styles.cardIcon}>📊</div>
               <h3>성능 모니터링</h3>
               <p>시스템 성능 및 API 응답 시간 모니터링</p>

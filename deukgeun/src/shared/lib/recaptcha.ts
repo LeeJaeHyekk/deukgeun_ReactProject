@@ -27,7 +27,7 @@ declare global {
   }
 }
 
-// Load ReCAPTCHA script
+// Load ReCAPTCHA v3 script
 export function loadRecaptchaScript(siteKey: string): Promise<void> {
   return new Promise((resolve, reject) => {
     // Check if already loaded
@@ -50,9 +50,9 @@ export function loadRecaptchaScript(siteKey: string): Promise<void> {
       return
     }
 
-    // Create script element
+    // Create script element for v3
     const script = document.createElement('script')
-    script.src = `https://www.google.com/recaptcha/api.js?render=explicit&onload=onRecaptchaLoad`
+    script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`
     script.async = true
     script.defer = true
 
@@ -123,51 +123,94 @@ export async function executeRecaptchaV3(
   action: string = 'login'
 ): Promise<string> {
   try {
-    // Development environment - return dummy token
-    if (import.meta.env.DEV) {
-      console.log('🔧 개발 환경: 더미 reCAPTCHA 토큰 사용')
+    const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || ''
+
+    console.log('🚀 [executeRecaptchaV3] 시작:', {
+      action,
+      siteKey: siteKey ? '설정됨' : '없음',
+    })
+
+    // Site key가 없거나 테스트 키인 경우 더미 토큰 반환
+    if (
+      !siteKey ||
+      siteKey === 'your_production_recaptcha_site_key' ||
+      siteKey === 'your_recaptcha_site_key_here' ||
+      siteKey === '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+    ) {
+      // Google 테스트 키
+      console.warn(
+        '⚠️ [executeRecaptchaV3] Site key가 설정되지 않거나 테스트 키, 더미 토큰 사용'
+      )
       return getDummyRecaptchaToken()
     }
 
-    await loadRecaptchaScript(import.meta.env.VITE_RECAPTCHA_SITE_KEY || '')
+    // Development environment - return dummy token
+    if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+      console.log('🔧 [executeRecaptchaV3] 개발 환경: 더미 reCAPTCHA 토큰 사용')
+      return getDummyRecaptchaToken()
+    }
+
+    // Load reCAPTCHA script
+    console.log('📥 [executeRecaptchaV3] reCAPTCHA 스크립트 로딩 중...')
+    await loadRecaptchaScript(siteKey)
 
     if (!window.grecaptcha) {
       throw new Error('reCAPTCHA가 로드되지 않았습니다.')
     }
 
+    console.log('✅ [executeRecaptchaV3] reCAPTCHA 스크립트 로드 완료')
+
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
+        console.error('⏰ [executeRecaptchaV3] 타임아웃 발생')
         reject(new Error('reCAPTCHA 실행 시간 초과'))
       }, 10000) // 10초 타임아웃
 
-      if (window.grecaptcha && (window.grecaptcha as any).ready) {
+      // Check if grecaptcha.ready is available
+      if (
+        window.grecaptcha &&
+        typeof (window.grecaptcha as any).ready === 'function'
+      ) {
+        console.log('🔄 [executeRecaptchaV3] grecaptcha.ready 호출 중...')
         ;(window.grecaptcha as any).ready(async () => {
           try {
-            const token = await (window.grecaptcha as any).execute(
-              import.meta.env.VITE_RECAPTCHA_SITE_KEY || '',
-              { action }
-            )
+            console.log('🔄 [executeRecaptchaV3] grecaptcha.execute 호출 중...')
+            const token = await (window.grecaptcha as any).execute(siteKey, {
+              action,
+            })
             clearTimeout(timeout)
 
             if (!token) {
               throw new Error('reCAPTCHA 토큰이 생성되지 않았습니다.')
             }
 
-            console.log('✅ reCAPTCHA 토큰 생성 성공')
+            console.log(
+              '✅ [executeRecaptchaV3] reCAPTCHA 토큰 생성 성공:',
+              token.substring(0, 20) + '...'
+            )
             resolve(token)
           } catch (error) {
             clearTimeout(timeout)
-            console.error('❌ reCAPTCHA 실행 실패:', error)
+            console.error(
+              '❌ [executeRecaptchaV3] grecaptcha.execute 실패:',
+              error
+            )
             reject(error)
           }
         })
       } else {
         clearTimeout(timeout)
+        console.error('❌ [executeRecaptchaV3] grecaptcha.ready 사용 불가')
         reject(new Error('reCAPTCHA가 로드되지 않았습니다.'))
       }
     })
   } catch (error) {
-    console.error('❌ reCAPTCHA 실행 중 오류:', error)
+    console.error('❌ [executeRecaptchaV3] 실행 중 오류:', error)
+    // 에러 발생 시 더미 토큰 반환 (개발 환경에서만)
+    if (import.meta.env.DEV) {
+      console.warn('⚠️ [executeRecaptchaV3] 에러 발생, 더미 토큰 반환')
+      return getDummyRecaptchaToken()
+    }
     throw new Error('reCAPTCHA 실행에 실패했습니다. 다시 시도해주세요.')
   }
 }

@@ -61,13 +61,13 @@ export default function SignUpPage() {
   } = useRecaptchaForRegister()
 
   // reCAPTCHA 훅 초기화 (개발 환경에서만 로깅)
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔍 [SignUpPage] reCAPTCHA 훅 초기화:', {
-      executeRecaptcha: typeof executeRecaptcha,
-      recaptchaLoading,
-      recaptchaError,
-    })
-  }
+  console.log('🔍 [SignUpPage] reCAPTCHA 훅 초기화:', {
+    executeRecaptcha: typeof executeRecaptcha,
+    recaptchaLoading,
+    recaptchaError,
+    isDevelopment: process.env.NODE_ENV === 'development',
+    mode: import.meta.env.MODE,
+  })
 
   // 로그인된 상태에서 접근 시 메인페이지로 리다이렉트
   useEffect(() => {
@@ -151,7 +151,7 @@ export default function SignUpPage() {
     )
   }
 
-  // 실시간 검증 함수
+  // 실시간 검증 함수 - trim된 값으로 검증
   const validateField = (
     field: keyof FormData,
     value: string,
@@ -159,22 +159,26 @@ export default function SignUpPage() {
   ): ValidationState => {
     // 개발 환경에서만 로깅
     if (process.env.NODE_ENV === 'development') {
-      console.log(`🔍 실시간 검증 - ${field}:`, value)
+      console.log(`🔍 실시간 검증 - ${field}:`, {
+        original: value,
+        trimmed: value.trim(),
+      })
     }
 
     // 현재 폼 데이터 사용 (비밀번호 확인 검증을 위해)
     const formDataToUse = currentFormData || formData
+    const trimmedValue = value.trim()
 
     switch (field) {
       case 'email':
-        if (!value) {
+        if (!trimmedValue) {
           if (process.env.NODE_ENV === 'development') {
             console.log(`❌ 이메일 빈 값`)
           }
           return { isValid: false, message: '이메일을 입력해주세요.' }
-        } else if (!validation.email(value)) {
+        } else if (!validation.email(trimmedValue)) {
           if (process.env.NODE_ENV === 'development') {
-            console.log(`❌ 이메일 형식 오류:`, value)
+            console.log(`❌ 이메일 형식 오류:`, trimmedValue)
           }
           return {
             isValid: false,
@@ -189,20 +193,20 @@ export default function SignUpPage() {
         }
 
       case 'password':
-        if (!value) {
+        if (!trimmedValue) {
           if (process.env.NODE_ENV === 'development') {
             console.log(`❌ 비밀번호 빈 값`)
           }
           return { isValid: false, message: '비밀번호를 입력해주세요.' }
-        } else if (value.length < 8) {
+        } else if (trimmedValue.length < 8) {
           if (process.env.NODE_ENV === 'development') {
-            console.log(`❌ 비밀번호 길이 부족:`, value.length, '자')
+            console.log(`❌ 비밀번호 길이 부족:`, trimmedValue.length, '자')
           }
           return {
             isValid: false,
             message: '비밀번호는 최소 8자 이상이어야 합니다.',
           }
-        } else if (!/(?=.*[a-zA-Z])(?=.*[0-9])/.test(value)) {
+        } else if (!/(?=.*[a-zA-Z])(?=.*[0-9])/.test(trimmedValue)) {
           if (process.env.NODE_ENV === 'development') {
             console.log(`❌ 비밀번호 복잡도 부족`)
           }
@@ -215,15 +219,15 @@ export default function SignUpPage() {
         }
 
       case 'confirmPassword':
-        if (!value) {
+        if (!trimmedValue) {
           if (process.env.NODE_ENV === 'development') {
             console.log(`❌ 비밀번호 확인 빈 값`)
           }
           return { isValid: false, message: '비밀번호 확인을 입력해주세요.' }
-        } else if (value !== formDataToUse.password) {
+        } else if (trimmedValue !== formDataToUse.password.trim()) {
           if (process.env.NODE_ENV === 'development') {
             console.log(
-              `❌ 비밀번호 불일치 - 입력값: "${value}", 기존 비밀번호: "${formDataToUse.password}"`,
+              `❌ 비밀번호 불일치 - 입력값: "${trimmedValue}", 기존 비밀번호: "${formDataToUse.password.trim()}"`,
               {
                 formDataToUse,
                 currentFormData: currentFormData ? 'provided' : 'not provided',
@@ -239,22 +243,22 @@ export default function SignUpPage() {
         }
 
       case 'nickname':
-        if (!value) {
+        if (!trimmedValue) {
           if (process.env.NODE_ENV === 'development') {
             console.log(`❌ 닉네임 빈 값`)
           }
           return { isValid: false, message: '닉네임을 입력해주세요.' }
-        } else if (value.length < 2 || value.length > 20) {
+        } else if (trimmedValue.length < 2 || trimmedValue.length > 20) {
           if (process.env.NODE_ENV === 'development') {
-            console.log(`❌ 닉네임 길이 오류:`, value.length, '자')
+            console.log(`❌ 닉네임 길이 오류:`, trimmedValue.length, '자')
           }
           return {
             isValid: false,
             message: '닉네임은 2-20자 사이로 입력해주세요.',
           }
-        } else if (!/^[a-zA-Z0-9가-힣_-]+$/.test(value)) {
+        } else if (!/^[a-zA-Z0-9가-힣_-]+$/.test(trimmedValue)) {
           if (process.env.NODE_ENV === 'development') {
-            console.log(`❌ 닉네임 형식 오류:`, value)
+            console.log(`❌ 닉네임 형식 오류:`, trimmedValue)
           }
           return {
             isValid: false,
@@ -269,16 +273,18 @@ export default function SignUpPage() {
         }
 
       case 'phone':
-        if (!value) {
+        if (!trimmedValue) {
           if (process.env.NODE_ENV === 'development') {
             console.log(`✅ 휴대폰 번호 빈 값 (선택사항)`)
           }
           return { isValid: true, message: '' }
         } else if (
-          !/^(010-\d{4}-\d{4}|(011|016|017|018|019)-\d{3}-\d{4})$/.test(value)
+          !/^(010-\d{4}-\d{4}|(011|016|017|018|019)-\d{3}-\d{4})$/.test(
+            trimmedValue
+          )
         ) {
           if (process.env.NODE_ENV === 'development') {
-            console.log(`❌ 휴대폰 번호 형식 오류:`, value)
+            console.log(`❌ 휴대폰 번호 형식 오류:`, trimmedValue)
           }
           return {
             isValid: false,
@@ -469,21 +475,25 @@ export default function SignUpPage() {
     }
   }
 
-  // 폼 검증 함수
+  // 폼 검증 함수 - reCAPTCHA v3와 함께 엄격한 검증
   const validateForm = (): boolean => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 폼 검증 시작')
+      console.log('🔍 폼 검증 시작 (reCAPTCHA v3 포함)')
     }
     const newErrors: FormErrors = {}
 
-    // 이메일 검증
+    // 이메일 검증 - 빈칸 및 공백 제거 후 검증
+    const trimmedEmail = formData.email.trim()
     if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 이메일 검증:', formData.email)
+      console.log('🔍 이메일 검증:', {
+        original: formData.email,
+        trimmed: trimmedEmail,
+      })
     }
-    if (!validation.required(formData.email)) {
+    if (!trimmedEmail) {
       newErrors.email = '이메일을 입력해주세요.'
       console.log('❌ 이메일 필수 입력 오류')
-    } else if (!validation.email(formData.email)) {
+    } else if (!validation.email(trimmedEmail)) {
       newErrors.email =
         '올바른 이메일 형식으로 입력해주세요. (예: user@example.com)'
       console.log('❌ 이메일 형식 오류')
@@ -491,57 +501,66 @@ export default function SignUpPage() {
       console.log('✅ 이메일 검증 통과')
     }
 
-    // 비밀번호 검증
+    // 비밀번호 검증 - 빈칸 및 공백 제거 후 검증
+    const trimmedPassword = formData.password.trim()
     if (process.env.NODE_ENV === 'development') {
-      console.log(
-        '🔍 비밀번호 검증:',
-        formData.password ? '입력됨' : '입력안됨'
-      )
+      console.log('🔍 비밀번호 검증:', {
+        original: formData.password ? '입력됨' : '입력안됨',
+        trimmed: trimmedPassword ? '입력됨' : '입력안됨',
+      })
     }
-    if (!validation.required(formData.password)) {
+    if (!trimmedPassword) {
       newErrors.password = '비밀번호를 입력해주세요.'
       console.log('❌ 비밀번호 필수 입력 오류')
-    } else if (!validation.password(formData.password)) {
+    } else if (trimmedPassword.length < 8) {
       newErrors.password = '비밀번호는 최소 8자 이상이어야 합니다.'
-      console.log('❌ 비밀번호 형식 오류')
+      console.log('❌ 비밀번호 길이 오류')
+    } else if (!/(?=.*[a-zA-Z])(?=.*[0-9])/.test(trimmedPassword)) {
+      newErrors.password = '비밀번호는 영문과 숫자를 포함해야 합니다.'
+      console.log('❌ 비밀번호 복잡도 오류')
     } else {
       console.log('✅ 비밀번호 검증 통과')
     }
 
-    // 비밀번호 확인 검증
+    // 비밀번호 확인 검증 - 빈칸 및 공백 제거 후 검증
+    const trimmedConfirmPassword = formData.confirmPassword.trim()
     if (process.env.NODE_ENV === 'development') {
       console.log('🔍 비밀번호 확인 검증:', {
-        password: formData.password ? '입력됨' : '입력안됨',
-        confirmPassword: formData.confirmPassword ? '입력됨' : '입력안됨',
-        match: formData.password === formData.confirmPassword,
+        password: trimmedPassword ? '입력됨' : '입력안됨',
+        confirmPassword: trimmedConfirmPassword ? '입력됨' : '입력안됨',
+        match: trimmedPassword === trimmedConfirmPassword,
       })
     }
-    if (!validation.required(formData.confirmPassword)) {
+    if (!trimmedConfirmPassword) {
       newErrors.confirmPassword = '비밀번호 확인을 입력해주세요.'
       console.log('❌ 비밀번호 확인 필수 입력 오류')
-    } else if (formData.password !== formData.confirmPassword) {
+    } else if (trimmedPassword !== trimmedConfirmPassword) {
       newErrors.confirmPassword = '비밀번호가 일치하지 않습니다.'
       console.log(
         '❌ 비밀번호 불일치 오류 - 비밀번호:',
-        formData.password,
+        trimmedPassword,
         '확인:',
-        formData.confirmPassword
+        trimmedConfirmPassword
       )
     } else {
       console.log('✅ 비밀번호 확인 검증 통과')
     }
 
-    // 닉네임 검증
+    // 닉네임 검증 - 빈칸 및 공백 제거 후 검증
+    const trimmedNickname = formData.nickname.trim()
     if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 닉네임 검증:', formData.nickname)
+      console.log('🔍 닉네임 검증:', {
+        original: formData.nickname,
+        trimmed: trimmedNickname,
+      })
     }
-    if (!validation.required(formData.nickname)) {
+    if (!trimmedNickname) {
       newErrors.nickname = '닉네임을 입력해주세요.'
       console.log('❌ 닉네임 필수 입력 오류')
-    } else if (formData.nickname.length < 2 || formData.nickname.length > 20) {
+    } else if (trimmedNickname.length < 2 || trimmedNickname.length > 20) {
       newErrors.nickname = '닉네임은 2-20자 사이로 입력해주세요.'
-      console.log('❌ 닉네임 길이 오류:', formData.nickname.length, '자')
-    } else if (!/^[a-zA-Z0-9가-힣_-]+$/.test(formData.nickname)) {
+      console.log('❌ 닉네임 길이 오류:', trimmedNickname.length, '자')
+    } else if (!/^[a-zA-Z0-9가-힣_-]+$/.test(trimmedNickname)) {
       newErrors.nickname =
         '닉네임에는 영문, 숫자, 한글, 언더스코어(_), 하이픈(-)만 사용 가능합니다.'
       console.log('❌ 닉네임 형식 오류')
@@ -549,44 +568,61 @@ export default function SignUpPage() {
       console.log('✅ 닉네임 검증 통과')
     }
 
-    // 휴대폰 번호 검증 (선택사항이지만 입력된 경우)
+    // 휴대폰 번호 검증 (선택사항이지만 입력된 경우) - 빈칸 및 공백 제거 후 검증
+    const trimmedPhone = formData.phone.trim()
     if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 휴대폰 번호 검증:', formData.phone)
+      console.log('🔍 휴대폰 번호 검증:', {
+        original: formData.phone,
+        trimmed: trimmedPhone,
+      })
     }
     if (
-      formData.phone &&
+      trimmedPhone &&
       !/^(010-\d{4}-\d{4}|(011|016|017|018|019)-\d{3}-\d{4})$/.test(
-        formData.phone
+        trimmedPhone
       )
     ) {
       newErrors.phone =
         '올바른 휴대폰 번호 형식을 입력해주세요. (010-xxxx-xxxx 또는 011-xxx-xxxx)'
       console.log('❌ 휴대폰 번호 형식 오류')
-    } else if (formData.phone) {
+    } else if (trimmedPhone) {
       console.log('✅ 휴대폰 번호 검증 통과')
     } else {
       console.log('✅ 휴대폰 번호 빈 값 (선택사항)')
     }
 
-    // 성별 검증
+    // 성별 검증 - 빈칸 및 공백 제거 후 검증
+    const trimmedGender = gender.trim()
     if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 성별 검증:', gender)
+      console.log('🔍 성별 검증:', { original: gender, trimmed: trimmedGender })
     }
-    if (!gender) {
+    if (!trimmedGender) {
       newErrors.gender = '성별을 선택해주세요.'
       console.log('❌ 성별 선택 오류')
-    } else if (!['male', 'female', 'other'].includes(gender)) {
+    } else if (!['male', 'female', 'other'].includes(trimmedGender)) {
       newErrors.gender = '유효한 성별을 선택해주세요.'
-      console.log('❌ 성별 값 오류:', gender)
+      console.log('❌ 성별 값 오류:', trimmedGender)
     } else {
       console.log('✅ 성별 검증 통과')
     }
 
-    // 생년월일 검증
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 생년월일 검증:', birthday)
+    // 생년월일 검증 - 빈칸 및 공백 제거 후 검증
+    const trimmedBirthday = {
+      year: birthday.year.trim(),
+      month: birthday.month.trim(),
+      day: birthday.day.trim(),
     }
-    if (!birthday.year || !birthday.month || !birthday.day) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 생년월일 검증:', {
+        original: birthday,
+        trimmed: trimmedBirthday,
+      })
+    }
+    if (
+      !trimmedBirthday.year ||
+      !trimmedBirthday.month ||
+      !trimmedBirthday.day
+    ) {
       newErrors.birthday = '생년월일을 선택해주세요.'
       console.log('❌ 생년월일 선택 오류')
     } else {
@@ -606,41 +642,66 @@ export default function SignUpPage() {
     return isValid
   }
 
-  // 회원가입 처리 함수
+  // 회원가입 처리 함수 - reCAPTCHA v3와 엄격한 검증
   const handleSignUp = async () => {
-    console.log('🚀 회원가입 시작')
+    console.log('🚀 [SignUpPage] 회원가입 시작 (reCAPTCHA v3 포함)')
+    console.log('🔍 [SignUpPage] 현재 폼 데이터:', {
+      email: formData.email,
+      password: formData.password ? '***' : '없음',
+      nickname: formData.nickname,
+      phone: formData.phone,
+      gender: gender,
+      birthday: birthday,
+    })
 
+    // 1단계: 폼 검증
     if (!validateForm()) {
-      console.log('❌ 폼 검증 실패')
+      console.log('❌ [SignUpPage] 폼 검증 실패')
+      showToast('입력 정보를 다시 확인해주세요.', 'error')
       return
     }
 
-    console.log('✅ 폼 검증 통과')
+    console.log('✅ [SignUpPage] 폼 검증 통과')
     setLoading(true)
 
     try {
-      console.log('🔄 [SignUpPage] reCAPTCHA 토큰 생성 시작')
+      // 2단계: reCAPTCHA v3 토큰 생성 및 검증
+      console.log('🔄 [SignUpPage] reCAPTCHA v3 토큰 생성 시작')
       console.log('🔍 [SignUpPage] reCAPTCHA 훅 상태:', {
         recaptchaLoading,
         recaptchaError,
         executeRecaptcha: typeof executeRecaptcha,
       })
 
-      // reCAPTCHA 토큰 생성
       let recaptchaToken: string
       try {
+        // reCAPTCHA v3 실행 - 사용자 행동 분석
         recaptchaToken = await executeRecaptcha()
         console.log(
-          '✅ [SignUpPage] reCAPTCHA 토큰 생성 성공:',
+          '✅ [SignUpPage] reCAPTCHA v3 토큰 생성 성공:',
           recaptchaToken ? recaptchaToken.substring(0, 20) + '...' : '토큰 없음'
         )
+
+        // reCAPTCHA 토큰 유효성 검증
+        if (!recaptchaToken || recaptchaToken.length < 10) {
+          throw new Error('reCAPTCHA 토큰이 유효하지 않습니다.')
+        }
       } catch (recaptchaError) {
-        console.warn(
-          '⚠️ [SignUpPage] reCAPTCHA 토큰 생성 실패, 더미 토큰 사용:',
+        console.error(
+          '❌ [SignUpPage] reCAPTCHA v3 토큰 생성 실패:',
           recaptchaError
         )
-        // reCAPTCHA 실패 시 더미 토큰 사용 (개발 환경)
-        recaptchaToken = 'dummy_recaptcha_token_for_development'
+
+        // 개발 환경에서만 더미 토큰 허용
+        if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+          console.warn('⚠️ [SignUpPage] 개발 환경: 더미 토큰 사용')
+          recaptchaToken = 'dummy_recaptcha_token_for_development'
+        } else {
+          // 프로덕션 환경에서는 reCAPTCHA 실패 시 에러
+          throw new Error(
+            '보안 검증에 실패했습니다. 페이지를 새로고침 후 다시 시도해주세요.'
+          )
+        }
       }
 
       console.log('🔄 생년월일 변환 시작')
@@ -658,10 +719,10 @@ export default function SignUpPage() {
 
       const registerData: RegisterRequest = {
         email: formData.email.trim().toLowerCase(),
-        password: formData.password,
+        password: formData.password.trim(),
         nickname: formData.nickname.trim(),
         phone: formData.phone.trim() || undefined,
-        gender: (gender as 'male' | 'female' | 'other') || undefined,
+        gender: (gender.trim() as 'male' | 'female' | 'other') || undefined,
         birthday: birthdayDate
           ? birthdayDate.toISOString().split('T')[0]
           : undefined,

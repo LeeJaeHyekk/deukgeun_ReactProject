@@ -14,6 +14,14 @@ const API_CONFIG = {
   },
 }
 
+// production 환경에서 localhost 사용 시 경고
+if (
+  import.meta.env.MODE === 'production' &&
+  API_CONFIG.baseURL.includes('localhost')
+) {
+  console.warn('⚠️ Production mode detected but using localhost backend URL')
+}
+
 // API 에러 타입
 export interface ApiError {
   message: string

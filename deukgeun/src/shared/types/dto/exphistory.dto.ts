@@ -2,7 +2,20 @@
 // ExpHistoryDTO - Data Transfer Object
 // ============================================================================
 
-import type { ExpActionType } from "../../../backend/types"
+// 순환 import 방지를 위해 shared 타입 사용
+// import type { ExpActionType } from "../../../backend/types"
+
+// ExpActionType을 직접 정의하여 순환 import 방지 (백엔드 타입과 일치)
+export type ExpActionType =
+  | 'workout_complete'
+  | 'workout_streak'
+  | 'goal_achieved'
+  | 'post_created'
+  | 'comment_created'
+  | 'like_received'
+  | 'daily_login'
+  | 'weekly_challenge'
+  | 'monthly_milestone'
 
 export interface ExpHistoryDTO {
   id: number

@@ -1,11 +1,11 @@
-import React, { useState, useEffect, memo, useMemo, useCallback } from "react"
-import { useNavigate } from "react-router-dom"
-import { useAuthContext } from "@frontend/shared/contexts/AuthContext"
-import { useUserStore } from "@frontend/shared/store/userStore"
-import { LevelDisplay } from "@frontend/shared/components/LevelDisplay"
-import { Navigation } from "@widgets/Navigation/Navigation"
-import type { User } from "../../../shared/types"
-import styles from "./myPage.module.css"
+import React, { useState, useEffect, memo, useMemo, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
+import { useUserStore } from '@frontend/shared/store/userStore'
+import { LevelDisplay } from '@frontend/shared/components/LevelDisplay'
+import { Navigation } from '@widgets/Navigation/Navigation'
+import type { User } from '../../../shared/types'
+import styles from './MyPage.module.css'
 
 // 타입 정의
 interface UserInfo {
@@ -26,13 +26,21 @@ const selectUser = (state: { user: User | null }) => state.user
 
 // 메모이제이션된 컴포넌트들
 const InfoItem = memo(
-  ({ label, value, icon }: { label: string; value: string | undefined; icon?: string }) => (
+  ({
+    label,
+    value,
+    icon,
+  }: {
+    label: string
+    value: string | undefined
+    icon?: string
+  }) => (
     <div className={styles.infoItem}>
       <div className={styles.infoHeader}>
         {icon && <span className={styles.infoIcon}>{icon}</span>}
         <p className={styles.label}>{label}</p>
       </div>
-      <p className={styles.value}>{value || "미등록"}</p>
+      <p className={styles.value}>{value || '미등록'}</p>
     </div>
   )
 )
@@ -41,12 +49,12 @@ const ActionButton = memo(
   ({
     children,
     onClick,
-    variant = "primary",
+    variant = 'primary',
     icon,
   }: {
     children: React.ReactNode
     onClick?: () => void
-    variant?: "primary" | "secondary" | "danger"
+    variant?: 'primary' | 'secondary' | 'danger'
     icon?: string
   }) => (
     <button
@@ -90,21 +98,21 @@ function MyPage({ className }: MyPageProps) {
   // 사용자 정보 메모이제이션 (성능 최적화)
   const userInfo = useMemo((): UserInfo => {
     return {
-      nickname: user?.nickname || "사용자",
-      email: user?.email || "이메일 없음",
-      phone: user?.phone || "미등록",
+      nickname: user?.nickname || '사용자',
+      email: user?.email || '이메일 없음',
+      phone: user?.phone || '미등록',
       gender:
-        user?.gender === "male"
-          ? "남성"
-          : user?.gender === "female"
-            ? "여성"
-            : "미등록",
+        user?.gender === 'male'
+          ? '남성'
+          : user?.gender === 'female'
+            ? '여성'
+            : '미등록',
       birthday: user?.birthDate
         ? new Date(user.birthDate).toLocaleDateString()
-        : "미등록",
+        : '미등록',
       createdAt: user?.createdAt
         ? new Date(user.createdAt).toLocaleDateString()
-        : "미등록",
+        : '미등록',
     }
   }, [user])
 
@@ -112,48 +120,48 @@ function MyPage({ className }: MyPageProps) {
   const handleLogout = useCallback(async () => {
     try {
       await logout()
-      console.log("로그아웃 성공")
+      console.log('로그아웃 성공')
     } catch (error) {
-      console.error("로그아웃 실패:", error)
+      console.error('로그아웃 실패:', error)
     }
   }, [logout])
 
   // 회원정보 수정 핸들러
   const handleEditProfile = useCallback(() => {
-    navigate("/profile/edit")
+    navigate('/profile/edit')
   }, [navigate])
 
   // 운동 기록 보기 핸들러
   const handleViewWorkoutHistory = useCallback(() => {
-    navigate("/workout/history")
+    navigate('/workout/history')
   }, [navigate])
 
   // 운동 진행상황 보기 핸들러
   const handleViewProgress = useCallback(() => {
-    navigate("/workout/progress")
+    navigate('/workout/progress')
   }, [navigate])
 
   // 설정 페이지 핸들러
   const handleSettings = useCallback(() => {
-    navigate("/settings")
+    navigate('/settings')
   }, [navigate])
 
   // 계정 삭제 핸들러
   const handleDeleteAccount = useCallback(() => {
     if (
       window.confirm(
-        "정말로 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+        '정말로 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.'
       )
     ) {
       // TODO: 계정 삭제 API 호출
-      console.log("계정 삭제 요청")
+      console.log('계정 삭제 요청')
     }
   }, [])
 
   return (
     <div className={styles.pageWrapper}>
       <Navigation />
-      <div className={`${styles.wrapper} ${className || ""}`}>
+      <div className={`${styles.wrapper} ${className || ''}`}>
         {/* Header Section */}
         <div className={styles.headerSection}>
           <div className={styles.profile}>

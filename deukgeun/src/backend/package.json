@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only --notify false index.ts",
     "build": "tsc -p tsconfig.json",
+    "build:production": "cross-env NODE_ENV=production tsc -p tsconfig.json",
     "start": "node ../../dist/backend/index.cjs",
     "ts-node": "ts-node",
     "createWorkoutJournalTables": "ts-node scripts/createWorkoutJournalTables.ts",
@@ -63,6 +64,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/node": "^18.19.122",
+    "cross-env": "^7.0.3",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",

@@ -10,7 +10,7 @@ try {
 
   // 1. 백엔드 빌드
   console.log('\n📦 Step 1: Building backend...')
-  execSync('node scripts/build-backend.js', {
+  execSync('node scripts/build-backend.cjs', {
     cwd: projectRoot,
     stdio: 'inherit',
   })

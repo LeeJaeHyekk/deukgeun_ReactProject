@@ -48,11 +48,13 @@ export function useRecaptcha(
         return dummyToken
       }
 
-      // 개발 환경에서는 더미 토큰 사용
+      // 환경 확인 및 더미 토큰 사용 조건
       console.log('🔍 [useRecaptcha] 환경 확인:', {
         DEV: import.meta.env.DEV,
         MODE: import.meta.env.MODE,
+        PROD: import.meta.env.PROD,
         IS_DEVELOPMENT: config.RECAPTCHA.IS_DEVELOPMENT,
+        IS_PRODUCTION: config.RECAPTCHA.IS_PRODUCTION,
         IS_TEST_KEY: config.RECAPTCHA.IS_TEST_KEY,
         SITE_KEY: config.RECAPTCHA.SITE_KEY,
         hostname: window.location.hostname,
@@ -60,23 +62,20 @@ export function useRecaptcha(
         config: config.RECAPTCHA,
       })
 
-      const isDevEnvironment =
-        import.meta.env.DEV ||
-        import.meta.env.MODE === 'development' ||
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1' ||
-        window.location.port === '5173' ||
+      // Site key가 없거나 테스트 키인 경우 더미 토큰 사용
+      const shouldUseDummyToken =
         config.RECAPTCHA.IS_DEVELOPMENT ||
-        config.RECAPTCHA.IS_TEST_KEY
+        config.RECAPTCHA.IS_TEST_KEY ||
+        !config.RECAPTCHA.SITE_KEY ||
+        config.RECAPTCHA.SITE_KEY === 'your_recaptcha_site_key_here' ||
+        config.RECAPTCHA.SITE_KEY === 'your_production_recaptcha_site_key' ||
+        config.RECAPTCHA.SITE_KEY === '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' // Google 테스트 키
 
-      console.log('🔍 [useRecaptcha] 개발 환경 여부:', isDevEnvironment)
+      console.log('🔍 [useRecaptcha] 더미 토큰 사용 여부:', shouldUseDummyToken)
 
-      if (isDevEnvironment) {
+      if (shouldUseDummyToken) {
         const dummyToken = getDummyRecaptchaToken()
-        console.log(
-          '🔧 [useRecaptcha] 개발 환경: 더미 reCAPTCHA 토큰 사용',
-          dummyToken
-        )
+        console.log('🔧 [useRecaptcha] 더미 reCAPTCHA 토큰 사용', dummyToken)
         onSuccess?.(dummyToken)
         return dummyToken
       }

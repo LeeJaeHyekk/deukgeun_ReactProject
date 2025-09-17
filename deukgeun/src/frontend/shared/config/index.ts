@@ -7,10 +7,13 @@ export const config = {
   RECAPTCHA: {
     SITE_KEY:
       import.meta.env.VITE_RECAPTCHA_SITE_KEY || 'your_recaptcha_site_key_here', // 환경 변수에서 설정
-    IS_DEVELOPMENT: import.meta.env.DEV || false,
+    IS_DEVELOPMENT:
+      import.meta.env.DEV || import.meta.env.MODE === 'development' || false,
     IS_TEST_KEY: (import.meta.env.VITE_RECAPTCHA_SITE_KEY || '').includes(
       'test'
     ),
+    IS_PRODUCTION:
+      import.meta.env.MODE === 'production' || import.meta.env.PROD || false,
     VERSION: 'v3', // v3 사용
   },
 

@@ -24,6 +24,7 @@ export const env = {
   NODE_ENV: import.meta.env.MODE || 'development',
   IS_DEVELOPMENT: (import.meta.env.MODE || 'development') === 'development',
   IS_PRODUCTION: (import.meta.env.MODE || 'development') === 'production',
+  IS_PROD: import.meta.env.PROD || false,
 } as const
 
 // Kakao Maps Configuration

@@ -7,82 +7,83 @@ import {
   Index,
   OneToOne,
   OneToMany,
-} from "typeorm"
-import type { UserRole, Gender } from "../types"
-import { UserLevel } from "./UserLevel"
-import { ExpHistory } from "./ExpHistory"
-import { UserReward } from "./UserReward"
-import { Milestone } from "./Milestone"
-import { UserStreak } from "./UserStreak"
-import { Comment } from "./Comment"
-import { NullableDateTransformer } from "../transformers/nullableDate"
+} from 'typeorm'
+import type { UserRole, Gender } from '../types'
+// 순환 import 방지를 위해 문자열 기반 관계 정의 사용
+// import { UserLevel } from "./UserLevel"
+// import { ExpHistory } from "./ExpHistory"
+// import { UserReward } from "./UserReward"
+// import { Milestone } from "./Milestone"
+// import { UserStreak } from "./UserStreak"
+// import { Comment } from "./Comment"
+import { NullableDateTransformer } from '../transformers/nullableDate'
 
-@Entity("users")
+@Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
   id!: number
 
-  @Column({ type: "varchar", unique: true })
+  @Column({ type: 'varchar', unique: true })
   email!: string
 
-  @Column({ type: "varchar" })
+  @Column({ type: 'varchar' })
   password!: string
 
-  @Column({ type: "varchar", unique: true })
+  @Column({ type: 'varchar', unique: true })
   nickname!: string
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   phone?: string
 
-  @Column({ type: "enum", enum: ["male", "female", "other"], nullable: true })
+  @Column({ type: 'enum', enum: ['male', 'female', 'other'], nullable: true })
   gender?: Gender
 
   @Column({
-    type: "date",
+    type: 'date',
     nullable: true,
     transformer: NullableDateTransformer,
   })
   birthday: Date | null = null
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   profileImage?: string
 
   @Column({
-    type: "enum",
-    enum: ["user", "admin", "moderator"],
-    default: "user",
+    type: 'enum',
+    enum: ['user', 'admin', 'moderator'],
+    default: 'user',
   })
   role!: UserRole
 
   // 계정 상태
-  @Column({ type: "boolean", default: true })
+  @Column({ type: 'boolean', default: true })
   isActive!: boolean
 
-  @Column({ type: "boolean", default: false })
+  @Column({ type: 'boolean', default: false })
   isEmailVerified!: boolean
 
-  @Column({ type: "boolean", default: false })
+  @Column({ type: 'boolean', default: false })
   isPhoneVerified!: boolean
 
   // 계정 복구 관련 필드
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   name?: string
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   username?: string
 
   // 마지막 활동 시간
-  @Column({ type: "datetime", nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   lastLoginAt?: Date
 
-  @Column({ type: "datetime", nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   lastActivityAt?: Date
 
   // 로그인 시도 관련
-  @Column({ type: "int", default: 0 })
+  @Column({ type: 'int', default: 0 })
   loginAttempts!: number
 
-  @Column({ type: "datetime", nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   lockedUntil?: Date
 
   @CreateDateColumn()
@@ -91,22 +92,22 @@ export class User {
   @UpdateDateColumn()
   updatedAt!: Date
 
-  // 관계 설정
-  @OneToOne(() => UserLevel, userLevel => userLevel.user, { cascade: true })
-  userLevel!: UserLevel
+  // 관계 설정 - 순환 import 방지를 위해 문자열 기반 관계 정의 사용
+  @OneToOne('UserLevel', 'user', { cascade: true })
+  userLevel!: any
 
-  @OneToMany(() => ExpHistory, expHistory => expHistory.user, { cascade: true })
-  expHistory!: ExpHistory[]
+  @OneToMany('ExpHistory', 'user', { cascade: true })
+  expHistory!: any[]
 
-  @OneToMany(() => UserReward, userReward => userReward.user, { cascade: true })
-  userRewards!: UserReward[]
+  @OneToMany('UserReward', 'user', { cascade: true })
+  userRewards!: any[]
 
-  @OneToMany(() => Milestone, milestone => milestone.user, { cascade: true })
-  milestones!: Milestone[]
+  @OneToMany('Milestone', 'user', { cascade: true })
+  milestones!: any[]
 
-  @OneToMany(() => UserStreak, userStreak => userStreak.user, { cascade: true })
-  userStreaks!: UserStreak[]
+  @OneToMany('UserStreak', 'user', { cascade: true })
+  userStreaks!: any[]
 
-  @OneToMany(() => Comment, comment => comment.user, { cascade: true })
-  comments!: Comment[]
+  @OneToMany('Comment', 'user', { cascade: true })
+  comments!: any[]
 }

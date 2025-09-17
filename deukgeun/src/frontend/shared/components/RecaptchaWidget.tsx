@@ -17,16 +17,25 @@ function RecaptchaWidget({
   onExpired,
   onError,
 }: RecaptchaWidgetProps) {
-  // 개발 환경에서는 더미 토큰 자동 생성
+  // 더미 토큰 사용 조건 확인
+  const shouldUseDummyToken =
+    config.RECAPTCHA.IS_DEVELOPMENT ||
+    config.RECAPTCHA.IS_TEST_KEY ||
+    !config.RECAPTCHA.SITE_KEY ||
+    config.RECAPTCHA.SITE_KEY === 'your_recaptcha_site_key_here' ||
+    config.RECAPTCHA.SITE_KEY === 'your_production_recaptcha_site_key' ||
+    config.RECAPTCHA.SITE_KEY === '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' // Google 테스트 키
+
+  // 더미 토큰 사용 시 자동 생성
   React.useEffect(() => {
-    if (config.RECAPTCHA.IS_DEVELOPMENT || config.RECAPTCHA.IS_TEST_KEY) {
-      console.log('🔧 개발 환경: 자동 더미 토큰 생성')
+    if (shouldUseDummyToken) {
+      console.log('🔧 더미 토큰 환경: 자동 더미 토큰 생성')
       onChange('dummy-token-for-development')
     }
-  }, []) // onChange 의존성 제거로 무한 루프 방지
+  }, [shouldUseDummyToken, onChange])
 
-  // 개발 환경에서는 위젯을 숨김
-  if (config.RECAPTCHA.IS_DEVELOPMENT || config.RECAPTCHA.IS_TEST_KEY) {
+  // 더미 토큰 사용 시 위젯을 숨김
+  if (shouldUseDummyToken) {
     return (
       <div className={className} style={{ display: 'none' }}>
         <p style={{ fontSize: '12px', color: '#666' }}>

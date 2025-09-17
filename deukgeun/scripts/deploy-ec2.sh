@@ -193,9 +193,10 @@ main() {
         cd src/backend && npm install && cd ../..
     fi
     
-    # 프로덕션 빌드
-    log_info "프로덕션 빌드 중..."
-    npm run build:full:production
+    # 프로덕션 빌드 (최적화된 빌드 사용)
+    log_info "프로덕션 빌드 중 (최적화된 빌드 사용)..."
+    export NODE_ENV=production
+    npm run build:full:production:optimized
     
     # 빌드 검증
     log_info "빌드 결과 검증 중..."
@@ -286,7 +287,7 @@ if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
     echo "  - 시스템 업데이트"
     echo "  - Node.js 설치/확인"
     echo "  - 방화벽 설정"
-    echo "  - 프로덕션 빌드"
+    echo "  - 최적화된 프로덕션 빌드 (build-optimized.cjs 사용)"
     echo "  - PM2 서비스 시작"
     echo "  - 부팅시 자동시작 설정"
     echo "  - Nginx 프록시 설정 (선택사항)"

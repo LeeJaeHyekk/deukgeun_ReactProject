@@ -20,6 +20,15 @@ export default defineConfig(({ mode }) => {
   // NODE_ENV를 Vite 설정에서 직접 설정하여 경고 방지
   if (mode === 'production') {
     process.env.NODE_ENV = 'production'
+    // production 환경에서는 .env.production 파일 로드
+    if (
+      mergedEnv.VITE_BACKEND_URL &&
+      mergedEnv.VITE_BACKEND_URL.includes('localhost')
+    ) {
+      console.warn(
+        '⚠️ Production mode detected but using localhost backend URL'
+      )
+    }
   }
 
   return {
@@ -65,6 +74,7 @@ export default defineConfig(({ mode }) => {
         '@radix-ui/react-tabs',
         '@radix-ui/react-toast',
       ],
+      force: true, // 의존성 강제 재번들링
     },
 
     // 모듈 해석 설정
@@ -102,51 +112,8 @@ export default defineConfig(({ mode }) => {
           main: path.resolve(__dirname, 'index.html'), // 진입점 HTML 파일
         },
         output: {
-          // 청크 분할 최적화 - 번들 크기 최적화를 위한 코드 분할
-          manualChunks: id => {
-            // node_modules에서 라이브러리별 청크 분할
-            if (id.includes('node_modules')) {
-              // React 관련 라이브러리들
-              if (
-                id.includes('react') ||
-                id.includes('react-dom') ||
-                id.includes('react-router')
-              ) {
-                return 'vendor-react'
-              }
-              // UI 라이브러리들
-              if (id.includes('@radix-ui') || id.includes('lucide-react')) {
-                return 'vendor-ui'
-              }
-              // 유틸리티 라이브러리들
-              if (
-                id.includes('axios') ||
-                id.includes('date-fns') ||
-                id.includes('clsx') ||
-                id.includes('tailwind-merge')
-              ) {
-                return 'vendor-utils'
-              }
-              // 기타 라이브러리들
-              return 'vendor-other'
-            }
-
-            // 프로젝트 내부 모듈 청크 분할
-            if (id.includes('/src/frontend/features/')) {
-              const featureName = id
-                .split('/src/frontend/features/')[1]
-                .split('/')[0]
-              return `feature-${featureName}`
-            }
-
-            if (id.includes('/src/frontend/pages/')) {
-              return 'pages'
-            }
-
-            if (id.includes('/src/shared/')) {
-              return 'shared'
-            }
-          },
+          // 청크 분할 최적화 - 순환 import 방지를 위해 기본 청킹 사용
+          // manualChunks: undefined, // 기본 Vite 청킹 사용
 
           // 청크 파일명 최적화 - 캐싱을 위한 해시 포함
           chunkFileNames: chunkInfo => {

@@ -42,7 +42,15 @@ try {
 
   // 프론트엔드 빌드
   console.log('🏗️  Building frontend with Vite...')
-  execSync('npm run build', {
+
+  // 환경 변수 확인
+  const nodeEnv = process.env.NODE_ENV || 'development'
+  console.log(`🔧 Building for environment: ${nodeEnv}`)
+
+  // production 환경에서는 production 모드로 빌드
+  const buildCommand =
+    nodeEnv === 'production' ? 'npm run build:production' : 'npm run build'
+  execSync(buildCommand, {
     cwd: projectRoot,
     stdio: 'inherit',
   })

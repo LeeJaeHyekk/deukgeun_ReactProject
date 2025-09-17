@@ -8,42 +8,43 @@ import {
   JoinColumn,
   OneToMany,
   Index,
-} from "typeorm"
-import { User } from "./User"
-import { WorkoutPlanExercise } from "./WorkoutPlanExercise"
+} from 'typeorm'
+// 순환 import 방지를 위해 문자열 기반 관계 정의 사용
+// import { User } from "./User"
+// import { WorkoutPlanExercise } from "./WorkoutPlanExercise"
 
-@Entity("workout_plans")
+@Entity('workout_plans')
 export class WorkoutPlan {
   @PrimaryGeneratedColumn()
   id!: number
 
-  @Column({ type: "int" })
+  @Column({ type: 'int' })
   @Index()
   userId!: number
 
-  @Column({ type: "varchar", length: 100 })
+  @Column({ type: 'varchar', length: 100 })
   name!: string
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: 'text', nullable: true })
   description?: string
 
   @Column({
-    type: "enum",
-    enum: ["beginner", "intermediate", "advanced"],
-    default: "beginner",
+    type: 'enum',
+    enum: ['beginner', 'intermediate', 'advanced'],
+    default: 'beginner',
   })
-  difficulty!: "beginner" | "intermediate" | "advanced"
+  difficulty!: 'beginner' | 'intermediate' | 'advanced'
 
-  @Column({ type: "int" })
+  @Column({ type: 'int' })
   estimatedDurationMinutes!: number
 
-  @Column({ type: "json", nullable: true })
+  @Column({ type: 'json', nullable: true })
   targetMuscleGroups?: string[]
 
-  @Column({ type: "boolean", default: false })
+  @Column({ type: 'boolean', default: false })
   isTemplate!: boolean
 
-  @Column({ type: "boolean", default: false })
+  @Column({ type: 'boolean', default: false })
   isPublic!: boolean
 
   @CreateDateColumn()
@@ -52,11 +53,11 @@ export class WorkoutPlan {
   @UpdateDateColumn()
   updatedAt!: Date
 
-  // 관계 설정
-  @ManyToOne(() => User, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "userId" })
-  user!: User
+  // 관계 설정 - 순환 import 방지를 위해 문자열 기반 관계 정의 사용
+  @ManyToOne('User', { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  user!: any
 
-  @OneToMany(() => WorkoutPlanExercise, exercise => exercise.workoutPlan)
-  exercises!: WorkoutPlanExercise[]
+  @OneToMany('WorkoutPlanExercise', 'workoutPlan')
+  exercises!: any[]
 }

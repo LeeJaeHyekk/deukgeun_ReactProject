@@ -5,10 +5,68 @@
 
 import { config } from 'dotenv'
 import { z } from 'zod'
+import path from 'path'
+import fs from 'fs'
 
-// 환경 변수 로드
-config({ path: '.env.production' })
-config({ path: '.env' })
+// 환경 변수 로드 - 여러 경로에서 시도
+const nodeEnv = process.env.NODE_ENV || 'development'
+
+// 현재 파일의 디렉토리에서 시작하여 프로젝트 루트를 찾음
+const currentDir = __dirname
+const projectRoot = path.resolve(currentDir, '../../..') // src/backend/config에서 프로젝트 루트로
+
+// 환경 변수 로딩 순서: .env.local -> .env.production/.env.development -> .env -> .env.example
+const envPaths = [
+  path.join(projectRoot, '.env.local'),
+  path.join(
+    projectRoot,
+    nodeEnv === 'production' ? 'env.production' : '.env.development'
+  ),
+  path.join(projectRoot, '.env'),
+  path.join(projectRoot, 'env.example'),
+  // 상대 경로도 시도
+  '.env.local',
+  nodeEnv === 'production' ? 'env.production' : '.env.development',
+  '.env',
+  'env.example',
+  '../env.production',
+  '../env.example',
+  '../../env.production',
+  '../../env.example',
+]
+
+// 각 경로에서 환경 변수 로드 시도 (여러 파일을 순차적으로 로드)
+let totalLoaded = 0
+const loadedFiles: string[] = []
+
+for (const envPath of envPaths) {
+  try {
+    // 파일 존재 여부 확인
+    if (fs.existsSync(envPath)) {
+      const result = config({ path: envPath })
+      if (result.parsed && Object.keys(result.parsed).length > 0) {
+        console.log(
+          `✅ Environment variables loaded from ${envPath} (${Object.keys(result.parsed).length} variables)`
+        )
+        totalLoaded += Object.keys(result.parsed).length
+        loadedFiles.push(envPath)
+      }
+    }
+  } catch (error) {
+    // 파일이 없거나 읽기 실패하면 무시하고 다음 경로 시도
+    continue
+  }
+}
+
+if (totalLoaded > 0) {
+  console.log(
+    `📊 Total environment variables loaded: ${totalLoaded} from ${loadedFiles.length} file(s)`
+  )
+} else {
+  console.warn(
+    '⚠️  No environment file found. Using system environment variables only.'
+  )
+}
 
 // 환경 변수 검증 스키마
 const envSchema = z.object({
@@ -20,7 +78,7 @@ const envSchema = z.object({
   DB_HOST: z.string().min(1, 'DB_HOST는 필수입니다'),
   DB_PORT: z.string().transform(Number).pipe(z.number().min(1).max(65535)),
   DB_USERNAME: z.string().min(1, 'DB_USERNAME는 필수입니다'),
-  DB_PASSWORD: z.string().min(8, 'DB_PASSWORD는 최소 8자 이상이어야 합니다'),
+  DB_PASSWORD: z.string().optional().default(''),
   DB_NAME: z.string().min(1, 'DB_NAME는 필수입니다'),
 
   // JWT 설정
@@ -44,15 +102,17 @@ const envSchema = z.object({
   EMAIL_USER: z.string().email('EMAIL_USER는 유효한 이메일 형식이어야 합니다'),
   EMAIL_PASS: z.string().min(1, 'EMAIL_PASS는 필수입니다'),
 
-  // Rate Limiting
+  // Rate Limiting (선택적)
   RATE_LIMIT_WINDOW_MS: z
     .string()
     .transform(Number)
-    .pipe(z.number().positive()),
+    .pipe(z.number().positive())
+    .optional(),
   RATE_LIMIT_MAX_REQUESTS: z
     .string()
     .transform(Number)
-    .pipe(z.number().positive()),
+    .pipe(z.number().positive())
+    .optional(),
 
   // 선택적 설정들
   REDIS_HOST: z.string().optional(),
@@ -110,26 +170,140 @@ const envSchema = z.object({
 // 환경 변수 검증 함수
 export function validateEnvironment() {
   try {
-    const validatedEnv = envSchema.parse(process.env)
+    // 개발 환경에서는 더 유연한 검증 스키마 사용
+    const isDevelopment = process.env.NODE_ENV === 'development'
 
-    // 프로덕션 환경에서 추가 검증
-    if (validatedEnv.NODE_ENV === 'production') {
+    if (isDevelopment) {
+      // 개발 환경용 유연한 스키마
+      const devEnvSchema = envSchema.partial().extend({
+        NODE_ENV: z
+          .enum(['development', 'production', 'test'])
+          .default('development'),
+        PORT: z
+          .string()
+          .default('5000')
+          .transform(Number)
+          .pipe(z.number().min(1000).max(65535)),
+        DB_HOST: z.string().default('localhost'),
+        DB_PORT: z
+          .string()
+          .default('3306')
+          .transform(Number)
+          .pipe(z.number().min(1).max(65535)),
+        DB_USERNAME: z.string().default('root'),
+        DB_PASSWORD: z.string().optional().default(''),
+        DB_NAME: z.string().default('deukgeun_db'),
+        JWT_SECRET: z
+          .string()
+          .default('development-jwt-secret-key-minimum-32-characters'),
+        JWT_ACCESS_SECRET: z
+          .string()
+          .default('development-access-secret-key-minimum-32-characters'),
+        JWT_REFRESH_SECRET: z
+          .string()
+          .default('development-refresh-secret-key-minimum-32-characters'),
+        JWT_EXPIRES_IN: z.string().default('7d'),
+        CORS_ORIGIN: z
+          .string()
+          .default('http://localhost:3000,http://localhost:5173'),
+        EMAIL_HOST: z.string().default('smtp.gmail.com'),
+        EMAIL_PORT: z
+          .string()
+          .default('587')
+          .transform(Number)
+          .pipe(z.number().min(1).max(65535)),
+        EMAIL_USER: z.string().email().optional(),
+        EMAIL_PASS: z.string().optional(),
+      })
+
+      const validatedEnv = devEnvSchema.parse(process.env)
+      validateDevelopmentEnvironment(validatedEnv)
+      console.log('✅ 개발 환경 변수 검증 완료')
+      return validatedEnv
+    } else {
+      // 프로덕션 환경에서는 엄격한 검증
+      const validatedEnv = envSchema.parse(process.env)
       validateProductionEnvironment(validatedEnv)
+      console.log('✅ 프로덕션 환경 변수 검증 완료')
+      return validatedEnv
     }
-
-    console.log('✅ 환경 변수 검증 완료')
-    return validatedEnv
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error('❌ 환경 변수 검증 실패:')
       error.errors.forEach(err => {
         console.error(`  - ${err.path.join('.')}: ${err.message}`)
       })
+
+      // 개발 환경에서는 경고만 출력하고 계속 진행
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('⚠️  개발 환경이므로 기본값으로 계속 진행합니다.')
+        return process.env
+      }
     } else {
       console.error('❌ 환경 변수 검증 중 오류 발생:', error)
     }
-    process.exit(1)
+
+    // 프로덕션 환경에서만 종료
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1)
+    }
+
+    return process.env
   }
+}
+
+// 개발 환경 전용 검증
+function validateDevelopmentEnvironment(env: any) {
+  const warnings: string[] = []
+  const info: string[] = []
+
+  // 개발 환경에서는 비밀번호가 없어도 경고만 출력
+  if (!env.DB_PASSWORD || env.DB_PASSWORD === '') {
+    warnings.push(
+      'DB_PASSWORD가 설정되지 않았습니다. MySQL root 계정에 비밀번호가 설정되어 있다면 연결이 실패할 수 있습니다.'
+    )
+  }
+
+  // JWT 시크릿이 기본값인지 확인
+  if (env.JWT_SECRET === 'development-jwt-secret-key-minimum-32-characters') {
+    info.push('JWT_SECRET이 기본 개발용 값으로 설정되어 있습니다.')
+  }
+
+  // 이메일 설정이 없는 경우
+  if (!env.EMAIL_USER || !env.EMAIL_PASS) {
+    info.push(
+      '이메일 설정이 없습니다. 계정 복구 기능이 작동하지 않을 수 있습니다.'
+    )
+  }
+
+  // API 키 설정 확인
+  const apiKeys = [
+    'KAKAO_API_KEY',
+    'GOOGLE_PLACES_API_KEY',
+    'SEOUL_OPENAPI_KEY',
+    'VITE_GYM_API_KEY',
+  ]
+  const missingApiKeys = apiKeys.filter(
+    key => !env[key] || env[key].includes('CHANGE_ME')
+  )
+
+  if (missingApiKeys.length > 0) {
+    info.push(`API 키가 설정되지 않았습니다: ${missingApiKeys.join(', ')}`)
+  }
+
+  // 정보 출력
+  if (info.length > 0) {
+    console.log('ℹ️  개발 환경 정보:')
+    info.forEach(info => console.log(`  - ${info}`))
+  }
+
+  // 경고 출력
+  if (warnings.length > 0) {
+    console.warn('⚠️  개발 환경 경고:')
+    warnings.forEach(warning => console.warn(`  - ${warning}`))
+  }
+
+  console.log('🔧 개발 환경 설정 완료 - 일부 기능이 제한될 수 있습니다.')
 }
 
 // 프로덕션 환경 전용 검증
@@ -138,7 +312,11 @@ function validateProductionEnvironment(env: any) {
   const errors: string[] = []
 
   // 보안 검증
-  if (env.DB_PASSWORD.includes('CHANGE_ME') || env.DB_PASSWORD.length < 16) {
+  if (
+    !env.DB_PASSWORD ||
+    env.DB_PASSWORD.includes('CHANGE_ME') ||
+    env.DB_PASSWORD.length < 16
+  ) {
     errors.push('DB_PASSWORD는 강력한 비밀번호로 변경해야 합니다')
   }
 
@@ -185,6 +363,21 @@ function validateProductionEnvironment(env: any) {
 
   if (env.EMAIL_PASS?.includes('CHANGE_ME')) {
     errors.push('EMAIL_PASS는 실제 앱 비밀번호로 변경해야 합니다')
+  }
+
+  // reCAPTCHA 설정 검증
+  if (
+    env.RECAPTCHA_SECRET?.includes('your_production_recaptcha_secret_key') ||
+    env.RECAPTCHA_SECRET?.includes('your_recaptcha_secret_key_here')
+  ) {
+    errors.push('RECAPTCHA_SECRET는 실제 production 키로 변경해야 합니다')
+  }
+
+  if (
+    env.RECAPTCHA_SITE_KEY?.includes('your_production_recaptcha_site_key') ||
+    env.RECAPTCHA_SITE_KEY?.includes('your_recaptcha_site_key_here')
+  ) {
+    errors.push('RECAPTCHA_SITE_KEY는 실제 production 키로 변경해야 합니다')
   }
 
   // 에러가 있으면 종료

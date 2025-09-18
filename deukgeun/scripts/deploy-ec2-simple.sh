@@ -184,7 +184,7 @@ check_command() {
     return 0
 }
 
-# 향상된 네트워크 연결 테스트 함수
+# EC2 환경 특화 네트워크 연결 테스트 함수
 test_network_connectivity() {
     local url=$1
     local timeout=${2:-10}
@@ -205,6 +205,118 @@ test_network_connectivity() {
     
     log_error "네트워크 연결 실패: $url (${max_retries}회 시도 후)"
     return 1
+}
+
+# EC2 보안 그룹 및 방화벽 확인 함수
+check_ec2_security_groups() {
+    log_step "EC2 보안 그룹 및 방화벽을 확인합니다..."
+    
+    # UFW 방화벽 상태 확인
+    if command -v ufw &> /dev/null; then
+        local ufw_status=$(sudo ufw status 2>/dev/null | head -1)
+        log_info "UFW 방화벽 상태: $ufw_status"
+        
+        if echo "$ufw_status" | grep -q "active"; then
+            log_info "UFW 방화벽이 활성화되어 있습니다"
+            
+            # 필요한 포트 확인
+            local required_ports=(22 80 443 3000 5000)
+            for port in "${required_ports[@]}"; do
+                if sudo ufw status | grep -q "$port"; then
+                    log_success "포트 $port이 UFW에서 허용되어 있습니다"
+                else
+                    log_warning "포트 $port이 UFW에서 허용되지 않았습니다"
+                    log_info "포트 $port 허용: sudo ufw allow $port"
+                fi
+            done
+        else
+            log_warning "UFW 방화벽이 비활성화되어 있습니다"
+            log_info "보안을 위해 UFW 방화벽 활성화를 권장합니다"
+        fi
+    else
+        log_info "UFW가 설치되지 않았습니다"
+    fi
+    
+    # iptables 확인
+    if command -v iptables &> /dev/null; then
+        local iptables_rules=$(sudo iptables -L 2>/dev/null | wc -l)
+        if [ "$iptables_rules" -gt 3 ]; then
+            log_info "iptables 규칙이 설정되어 있습니다 ($iptables_rules개 규칙)"
+        else
+            log_info "iptables에 기본 규칙만 있습니다"
+        fi
+    fi
+    
+    # 네트워크 인터페이스 확인
+    log_info "네트워크 인터페이스 정보:"
+    ip addr show 2>/dev/null | grep -E "inet |UP" | while read -r line; do
+        log_info "  $line"
+    done
+    
+    # 라우팅 테이블 확인
+    log_info "라우팅 테이블:"
+    ip route show 2>/dev/null | while read -r route; do
+        log_info "  $route"
+    done
+    
+    # DNS 설정 확인
+    log_info "DNS 설정:"
+    if [ -f "/etc/resolv.conf" ]; then
+        cat /etc/resolv.conf | grep -v "^#" | while read -r dns; do
+            if [ -n "$dns" ]; then
+                log_info "  $dns"
+            fi
+        done
+    fi
+    
+    # EC2 메타데이터 서비스 접근 확인
+    if curl -s --connect-timeout 5 http://169.254.169.254/latest/meta-data/instance-id > /dev/null 2>&1; then
+        log_success "EC2 메타데이터 서비스 접근 가능"
+    else
+        log_warning "EC2 메타데이터 서비스 접근 불가 (로컬 환경일 수 있음)"
+    fi
+    
+    log_success "EC2 보안 그룹 및 방화벽 확인 완료"
+}
+
+# EC2 네트워크 성능 테스트 함수
+test_ec2_network_performance() {
+    log_step "EC2 네트워크 성능을 테스트합니다..."
+    
+    # 인터넷 연결 속도 테스트 (간단한 방법)
+    local test_urls=("http://httpbin.org/bytes/1024" "https://www.google.com" "https://www.github.com")
+    
+    for url in "${test_urls[@]}"; do
+        local start_time=$(date +%s.%N)
+        if curl -s -f --connect-timeout 10 --max-time 15 "$url" > /dev/null 2>&1; then
+            local end_time=$(date +%s.%N)
+            local duration=$(echo "$end_time - $start_time" | bc 2>/dev/null || echo "N/A")
+            log_info "네트워크 테스트 성공: $url (응답 시간: ${duration}초)"
+        else
+            log_warning "네트워크 테스트 실패: $url"
+        fi
+    done
+    
+    # 로컬 포트 바인딩 테스트
+    log_info "로컬 포트 바인딩 테스트:"
+    local test_ports=(3000 5000 8080)
+    for port in "${test_ports[@]}"; do
+        if ss -tlnp | grep -q ":$port "; then
+            log_info "  포트 $port: 사용 중"
+        else
+            log_info "  포트 $port: 사용 가능"
+        fi
+    done
+    
+    # 외부 IP 확인
+    local external_ip=$(curl -s --connect-timeout 10 ifconfig.me 2>/dev/null || curl -s --connect-timeout 10 ipinfo.io/ip 2>/dev/null || echo "확인 실패")
+    log_info "외부 IP: $external_ip"
+    
+    # 내부 IP 확인
+    local internal_ip=$(ip route get 8.8.8.8 2>/dev/null | awk '{print $7; exit}' || echo "확인 실패")
+    log_info "내부 IP: $internal_ip"
+    
+    log_success "EC2 네트워크 성능 테스트 완료"
 }
 
 # 향상된 명령어 실행 함수 (재시도 로직 포함)
@@ -233,7 +345,7 @@ execute_with_retry() {
     return 1
 }
 
-# 안전한 파일 복사 함수
+# EC2 환경 특화 안전한 파일 복사 함수
 safe_copy() {
     local source="$1"
     local destination="$2"
@@ -244,22 +356,131 @@ safe_copy() {
         return 1
     fi
     
+    # 대상 디렉토리 생성 (필요한 경우)
+    local dest_dir=$(dirname "$destination")
+    if [ ! -d "$dest_dir" ]; then
+        log_info "대상 디렉토리 생성: $dest_dir"
+        if ! mkdir -p "$dest_dir" 2>/dev/null; then
+            log_error "대상 디렉토리 생성 실패: $dest_dir"
+            return 1
+        fi
+    fi
+    
     # 대상 파일이 존재하면 백업
     if [ -e "$destination" ]; then
         local backup_file="${destination}${backup_suffix}.$(date +%Y%m%d-%H%M%S)"
         if cp "$destination" "$backup_file" 2>/dev/null; then
             log_info "기존 파일 백업: $backup_file"
+            # 백업 파일 권한 설정
+            chmod 644 "$backup_file" 2>/dev/null || true
         fi
     fi
     
     # 파일 복사
     if cp -r "$source" "$destination" 2>/dev/null; then
+        # 복사된 파일 권한 설정
+        if [ -f "$destination" ]; then
+            chmod 644 "$destination" 2>/dev/null || true
+        elif [ -d "$destination" ]; then
+            chmod -R 755 "$destination" 2>/dev/null || true
+        fi
         log_success "파일 복사 완료: $source -> $destination"
         return 0
     else
         log_error "파일 복사 실패: $source -> $destination"
         return 1
     fi
+}
+
+# EC2 환경 파일 권한 설정 함수
+set_ec2_file_permissions() {
+    log_step "EC2 환경 파일 권한을 설정합니다..."
+    
+    # 프로젝트 루트 권한 설정
+    if [ -d "." ]; then
+        chmod 755 . 2>/dev/null || true
+        log_debug "프로젝트 루트 권한 설정 완료"
+    fi
+    
+    # 스크립트 파일 실행 권한 설정
+    if [ -f "scripts/deploy-ec2-simple.sh" ]; then
+        chmod +x scripts/deploy-ec2-simple.sh 2>/dev/null || true
+        log_debug "배포 스크립트 실행 권한 설정 완료"
+    fi
+    
+    # 기타 스크립트 파일들 실행 권한 설정
+    find scripts/ -name "*.sh" -type f 2>/dev/null | while read -r script; do
+        chmod +x "$script" 2>/dev/null || true
+        log_debug "스크립트 실행 권한 설정: $script"
+    done
+    
+    # 환경 변수 파일 권한 설정 (보안)
+    if [ -f ".env" ]; then
+        chmod 600 .env 2>/dev/null || true
+        log_debug "환경 변수 파일 권한 설정 완료 (600)"
+    fi
+    
+    if [ -f "env.ec2" ]; then
+        chmod 600 env.ec2 2>/dev/null || true
+        log_debug "EC2 환경 변수 파일 권한 설정 완료 (600)"
+    fi
+    
+    if [ -f "env.production" ]; then
+        chmod 600 env.production 2>/dev/null || true
+        log_debug "프로덕션 환경 변수 파일 권한 설정 완료 (600)"
+    fi
+    
+    # 로그 디렉토리 권한 설정
+    if [ -d "logs" ]; then
+        chmod 755 logs 2>/dev/null || true
+        find logs/ -type f -name "*.log" 2>/dev/null | while read -r logfile; do
+            chmod 644 "$logfile" 2>/dev/null || true
+        done
+        log_debug "로그 디렉토리 권한 설정 완료"
+    fi
+    
+    # 백업 디렉토리 권한 설정
+    if [ -d "backups" ]; then
+        chmod 755 backups 2>/dev/null || true
+        find backups/ -type d 2>/dev/null | while read -r backupdir; do
+            chmod 755 "$backupdir" 2>/dev/null || true
+        done
+        find backups/ -type f 2>/dev/null | while read -r backupfile; do
+            chmod 644 "$backupfile" 2>/dev/null || true
+        done
+        log_debug "백업 디렉토리 권한 설정 완료"
+    fi
+    
+    # 업로드 디렉토리 권한 설정
+    if [ -d "uploads" ]; then
+        chmod 755 uploads 2>/dev/null || true
+        find uploads/ -type f 2>/dev/null | while read -r uploadfile; do
+            chmod 644 "$uploadfile" 2>/dev/null || true
+        done
+        log_debug "업로드 디렉토리 권한 설정 완료"
+    fi
+    
+    # 빌드 디렉토리 권한 설정
+    if [ -d "dist" ]; then
+        chmod -R 755 dist 2>/dev/null || true
+        find dist/ -type f -name "*.cjs" 2>/dev/null | while read -r cjsfile; do
+            chmod +x "$cjsfile" 2>/dev/null || true
+        done
+        log_debug "빌드 디렉토리 권한 설정 완료"
+    fi
+    
+    # node_modules 권한 설정 (필요한 경우)
+    if [ -d "node_modules" ]; then
+        chmod -R 755 node_modules 2>/dev/null || true
+        log_debug "node_modules 권한 설정 완료"
+    fi
+    
+    if [ -d "src/backend/node_modules" ]; then
+        chmod -R 755 src/backend/node_modules 2>/dev/null || true
+        log_debug "백엔드 node_modules 권한 설정 완료"
+    fi
+    
+    log_success "EC2 환경 파일 권한 설정 완료"
 }
 
 wait_for_service() {
@@ -367,7 +588,7 @@ run_parallel() {
     return 0
 }
 
-# 스마트 의존성 설치 함수
+# EC2 환경 특화 스마트 의존성 설치 함수
 install_dependencies_smart() {
     local package_json_path="$1"
     local install_dir="$2"
@@ -380,16 +601,42 @@ install_dependencies_smart() {
     
     cd "$install_dir" || return 1
     
+    # npm 버전 확인
+    local npm_version=$(npm --version 2>/dev/null || echo "unknown")
+    log_info "npm 버전: $npm_version"
+    
     # 캐시 디렉토리 설정
     if [ -n "$cache_dir" ] && [ -d "$cache_dir" ]; then
         export npm_config_cache="$cache_dir"
         log_info "npm 캐시 사용: $cache_dir"
     fi
     
+    # npm 설정 최적화
+    export npm_config_progress=false
+    export npm_config_audit=false
+    export npm_config_fund=false
+    export npm_config_loglevel=error
+    
+    # 메모리 제한 설정
+    if [ -n "$NODE_OPTIONS" ]; then
+        export NODE_OPTIONS="$NODE_OPTIONS --max-old-space-size=1024"
+    else
+        export NODE_OPTIONS="--max-old-space-size=1024"
+    fi
+    
+    # 기존 node_modules 정리 (필요한 경우)
+    if [ -d "node_modules" ]; then
+        log_info "기존 node_modules 정리 중..."
+        rm -rf node_modules 2>/dev/null || true
+    fi
+    
     # package-lock.json 존재 여부 확인
     if [ -f "package-lock.json" ]; then
         log_info "package-lock.json 기반 설치 (정확한 버전)"
-        if execute_with_retry "npm ci --production=false" 3 5 "의존성 설치"; then
+        
+        # npm ci 실행 (프로덕션 모드)
+        if execute_with_retry "npm ci $NPM_INSTALL_OPTIONS" 3 5 "의존성 설치"; then
+            log_success "npm ci 설치 완료"
             return 0
         else
             log_warning "npm ci 실패, npm install로 재시도"
@@ -397,10 +644,36 @@ install_dependencies_smart() {
     fi
     
     # npm install 실행
-    if execute_with_retry "npm install --production=false" 3 5 "의존성 설치"; then
+    log_info "npm install로 의존성 설치 중..."
+    if execute_with_retry "npm install $NPM_INSTALL_OPTIONS" 3 5 "의존성 설치"; then
+        log_success "npm install 설치 완료"
         return 0
     else
         log_error "의존성 설치 최종 실패"
+        
+        # 실패 원인 분석
+        log_info "의존성 설치 실패 원인을 분석합니다..."
+        
+        # 디스크 공간 확인
+        local available_space=$(df . | tail -1 | awk '{print $4}')
+        if [ "$available_space" -lt 1048576 ]; then  # 1GB 미만
+            log_error "디스크 공간 부족: $(($available_space / 1024))MB"
+            return 1
+        fi
+        
+        # 메모리 확인
+        local available_mem=$(free -m | awk 'NR==2{print $7}')
+        if [ "$available_mem" -lt 512 ]; then  # 512MB 미만
+            log_error "메모리 부족: ${available_mem}MB"
+            return 1
+        fi
+        
+        # 네트워크 연결 확인
+        if ! ping -c 1 registry.npmjs.org &> /dev/null; then
+            log_error "npm 레지스트리 연결 실패"
+            return 1
+        fi
+        
         return 1
     fi
 }
@@ -541,51 +814,167 @@ LOG_DIR="./logs"
 DEPLOYMENT_LOG="$LOG_DIR/deployment-$(date +%Y%m%d-%H%M%S).log"
 ROLLBACK_AVAILABLE=false
 
-# 시스템 요구사항 확인 함수
+# EC2 환경 특화 시스템 요구사항 확인 함수
 check_requirements() {
-    log_step "시스템 요구사항을 확인합니다..."
+    log_step "EC2 환경 시스템 요구사항을 확인합니다..."
+    
+    # EC2 인스턴스 정보 확인
+    log_info "EC2 인스턴스 정보를 확인합니다..."
+    if command -v curl &> /dev/null; then
+        INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null || echo "로컬 환경")
+        INSTANCE_TYPE=$(curl -s http://169.254.169.254/latest/meta-data/instance-type 2>/dev/null || echo "알 수 없음")
+        AVAILABILITY_ZONE=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone 2>/dev/null || echo "알 수 없음")
+        log_info "인스턴스 ID: $INSTANCE_ID"
+        log_info "인스턴스 타입: $INSTANCE_TYPE"
+        log_info "가용 영역: $AVAILABILITY_ZONE"
+    else
+        log_warning "curl이 없어 EC2 메타데이터를 확인할 수 없습니다"
+    fi
+    
+    # 사용자 권한 확인
+    if [ "$EUID" -eq 0 ]; then
+        log_warning "root 사용자로 실행 중입니다. 보안상 권장하지 않습니다"
+        log_info "일반 사용자로 실행하는 것을 권장합니다"
+    else
+        log_success "일반 사용자 권한으로 실행 중"
+    fi
+    
+    # sudo 권한 확인
+    if ! sudo -n true 2>/dev/null; then
+        log_warning "sudo 권한이 없습니다. 일부 시스템 설정이 제한될 수 있습니다"
+    else
+        log_success "sudo 권한 확인 완료"
+    fi
     
     # Node.js 버전 확인
     if ! command -v node &> /dev/null; then
         log_error "Node.js가 설치되지 않았습니다"
+        log_info "Node.js 설치 방법:"
+        log_info "  curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -"
+        log_info "  sudo apt-get install -y nodejs"
         exit 1
     fi
     
     NODE_VERSION=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
     if [ "$NODE_VERSION" -lt 18 ]; then
         log_error "Node.js 18 이상이 필요합니다. 현재 버전: $(node --version)"
+        log_info "Node.js 업그레이드 방법:"
+        log_info "  curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -"
+        log_info "  sudo apt-get install -y nodejs"
         exit 1
     fi
     log_success "Node.js 버전 확인: $(node --version)"
     
+    # npm 버전 확인
+    if ! command -v npm &> /dev/null; then
+        log_error "npm이 설치되지 않았습니다"
+        exit 1
+    fi
+    log_success "npm 버전 확인: $(npm --version)"
+    
     # PM2 확인
     if ! command -v pm2 &> /dev/null; then
         log_error "PM2가 설치되지 않았습니다"
-        log_info "PM2 설치: npm install -g pm2"
+        log_info "PM2 설치: sudo npm install -g pm2"
+        log_info "또는: npm install -g pm2"
         exit 1
     fi
     log_success "PM2 확인: $(pm2 --version)"
     
-    # MySQL 확인
+    # MySQL 클라이언트 확인
     if ! command -v mysql &> /dev/null; then
-        log_error "MySQL이 설치되지 않았습니다"
+        log_error "MySQL 클라이언트가 설치되지 않았습니다"
+        log_info "MySQL 클라이언트 설치: sudo apt-get install mysql-client"
         exit 1
     fi
-    log_success "MySQL 확인 완료"
+    log_success "MySQL 클라이언트 확인 완료"
+    
+    # MySQL 서버 상태 확인
+    if command -v systemctl &> /dev/null; then
+        if systemctl is-active --quiet mysql; then
+            log_success "MySQL 서버가 실행 중입니다"
+        else
+            log_warning "MySQL 서버가 실행되지 않고 있습니다"
+            log_info "MySQL 서버 시작: sudo systemctl start mysql"
+        fi
+    else
+        log_info "systemctl이 없습니다. MySQL 서버 상태를 확인할 수 없습니다"
+    fi
     
     # Nginx 확인
     if ! command -v nginx &> /dev/null; then
         log_warning "Nginx가 설치되지 않았습니다"
+        log_info "Nginx 설치: sudo apt-get install nginx"
     else
         log_success "Nginx 확인 완료"
+        if command -v systemctl &> /dev/null; then
+            if systemctl is-active --quiet nginx; then
+                log_success "Nginx가 실행 중입니다"
+            else
+                log_warning "Nginx가 실행되지 않고 있습니다"
+                log_info "Nginx 시작: sudo systemctl start nginx"
+            fi
+        fi
     fi
     
-    # 디스크 공간 확인
+    # 필수 시스템 도구 확인
+    REQUIRED_TOOLS=("curl" "wget" "git" "unzip" "tar" "gzip")
+    for tool in "${REQUIRED_TOOLS[@]}"; do
+        if ! command -v "$tool" &> /dev/null; then
+            log_warning "$tool이 설치되지 않았습니다"
+            log_info "$tool 설치: sudo apt-get install $tool"
+        else
+            log_debug "$tool 확인 완료"
+        fi
+    done
+    
+    # 디스크 공간 확인 (EC2 환경에 맞게 조정)
     AVAILABLE_SPACE=$(df . | tail -1 | awk '{print $4}')
-    if [ "$AVAILABLE_SPACE" -lt 1048576 ]; then  # 1GB 미만
-        log_warning "디스크 공간이 부족합니다. 사용 가능: $(($AVAILABLE_SPACE / 1024))MB"
+    AVAILABLE_SPACE_GB=$(($AVAILABLE_SPACE / 1024 / 1024))
+    
+    if [ "$AVAILABLE_SPACE" -lt 2097152 ]; then  # 2GB 미만
+        log_error "디스크 공간이 부족합니다. 사용 가능: ${AVAILABLE_SPACE_GB}GB (최소 2GB 필요)"
+        log_info "디스크 정리 명령어:"
+        log_info "  sudo apt-get autoremove -y"
+        log_info "  sudo apt-get autoclean"
+        log_info "  sudo du -sh /var/log/* | sort -hr | head -10"
+        exit 1
+    elif [ "$AVAILABLE_SPACE" -lt 5242880 ]; then  # 5GB 미만
+        log_warning "디스크 공간이 제한적입니다. 사용 가능: ${AVAILABLE_SPACE_GB}GB"
+        log_info "정기적인 디스크 정리를 권장합니다"
     else
-        log_success "디스크 공간 확인: $(($AVAILABLE_SPACE / 1024 / 1024))GB 사용 가능"
+        log_success "디스크 공간 확인: ${AVAILABLE_SPACE_GB}GB 사용 가능"
+    fi
+    
+    # 메모리 확인 (EC2 환경에 맞게 조정)
+    TOTAL_MEM=$(free -m | awk 'NR==2{print $2}')
+    AVAILABLE_MEM=$(free -m | awk 'NR==2{print $7}')
+    
+    if [ "$TOTAL_MEM" -lt 1024 ]; then  # 1GB 미만
+        log_error "메모리가 부족합니다. 총 메모리: ${TOTAL_MEM}MB (최소 1GB 필요)"
+        log_info "더 큰 EC2 인스턴스 타입을 사용하거나 스왑 파일을 생성하세요"
+        log_info "스왑 파일 생성: sudo fallocate -l 1G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile"
+        exit 1
+    elif [ "$TOTAL_MEM" -lt 2048 ]; then  # 2GB 미만
+        log_warning "메모리가 제한적입니다. 총 메모리: ${TOTAL_MEM}MB"
+        log_info "메모리 사용량을 모니터링하세요"
+    else
+        log_success "메모리 확인: 총 ${TOTAL_MEM}MB, 사용 가능 ${AVAILABLE_MEM}MB"
+    fi
+    
+    # 네트워크 연결 확인
+    log_info "네트워크 연결을 확인합니다..."
+    if ! ping -c 1 8.8.8.8 &> /dev/null; then
+        log_error "인터넷 연결에 문제가 있습니다"
+        exit 1
+    fi
+    log_success "인터넷 연결 확인 완료"
+    
+    # DNS 확인
+    if ! nslookup google.com &> /dev/null; then
+        log_warning "DNS 해석에 문제가 있을 수 있습니다"
+    else
+        log_success "DNS 확인 완료"
     fi
 }
 
@@ -890,71 +1279,250 @@ perform_post_rollback_health_check() {
     fi
 }
 
-# 데이터베이스 설정 함수
+# EC2 환경 특화 데이터베이스 설정 함수
 setup_database() {
-    log_step "데이터베이스 설정을 확인합니다..."
+    log_step "EC2 환경 데이터베이스 설정을 확인합니다..."
     
-    # MySQL 서비스 상태 확인 (EC2 시뮬레이션)
+    # MySQL 서비스 상태 확인
     log_info "MySQL 서비스 상태를 확인합니다..."
     if command -v systemctl &> /dev/null; then
         if ! systemctl is-active --quiet mysql; then
-            log_warning "MySQL이 실행되지 않고 있습니다. 데이터베이스 설정을 시작합니다..."
-            if [ -f "scripts/setup-ec2-database.sh" ]; then
-                chmod +x scripts/setup-ec2-database.sh
-                ./scripts/setup-ec2-database.sh
+            log_warning "MySQL이 실행되지 않고 있습니다. MySQL 서비스를 시작합니다..."
+            
+            # MySQL 서비스 시작
+            if sudo systemctl start mysql 2>/dev/null; then
+                log_success "MySQL 서비스 시작 성공"
+                sleep 3  # 서비스 시작 대기
             else
-                log_error "setup-ec2-database.sh 스크립트를 찾을 수 없습니다"
-                exit 1
+                log_error "MySQL 서비스 시작 실패"
+                log_info "MySQL 설치 및 설정을 시도합니다..."
+                
+                # MySQL 설치 확인
+                if ! command -v mysql &> /dev/null; then
+                    log_info "MySQL 서버 설치 중..."
+                    sudo apt-get update 2>/dev/null || true
+                    sudo apt-get install -y mysql-server 2>/dev/null || true
+                fi
+                
+                # MySQL 서비스 재시작
+                sudo systemctl start mysql 2>/dev/null || true
+                sudo systemctl enable mysql 2>/dev/null || true
             fi
         else
             log_success "MySQL이 이미 실행 중입니다"
         fi
+        
+        # MySQL 서비스 활성화
+        sudo systemctl enable mysql 2>/dev/null || true
     else
-        log_info "systemctl이 없습니다. MySQL 서비스 상태를 건너뜁니다 (EC2 환경에서는 정상)"
+        log_info "systemctl이 없습니다. MySQL 서비스 상태를 건너뜁니다"
     fi
     
-    # 데이터베이스 연결 테스트
-    if [ -f ".env" ]; then
-        source .env
-        if mysql -h"$DB_HOST" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT 1;" "$DB_NAME" &>/dev/null; then
-            log_success "데이터베이스 연결 테스트 성공"
+    # MySQL 연결 테스트
+    log_info "MySQL 연결을 테스트합니다..."
+    if mysql -e "SELECT 1;" 2>/dev/null; then
+        log_success "MySQL 로컬 연결 테스트 성공"
+    else
+        log_warning "MySQL 로컬 연결 테스트 실패"
+        
+        # MySQL 설정 확인
+        log_info "MySQL 설정을 확인합니다..."
+        if [ -f "/etc/mysql/mysql.conf.d/mysqld.cnf" ]; then
+            log_info "MySQL 설정 파일이 존재합니다"
         else
-            log_warning "데이터베이스 연결 테스트 실패"
+            log_warning "MySQL 설정 파일을 찾을 수 없습니다"
         fi
     fi
+    
+    # 환경 변수 기반 데이터베이스 연결 테스트
+    if [ -f ".env" ]; then
+        source .env
+        
+        if [ -n "$DB_HOST" ] && [ -n "$DB_USERNAME" ] && [ -n "$DB_PASSWORD" ] && [ -n "$DB_NAME" ]; then
+            log_info "환경 변수를 사용한 데이터베이스 연결 테스트..."
+            
+            # 데이터베이스 연결 테스트
+            if mysql -h"$DB_HOST" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT 1;" "$DB_NAME" 2>/dev/null; then
+                log_success "데이터베이스 연결 테스트 성공"
+                
+                # 데이터베이스 테이블 확인
+                local table_count=$(mysql -h"$DB_HOST" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SHOW TABLES;" "$DB_NAME" 2>/dev/null | wc -l)
+                log_info "데이터베이스 테이블 수: $((table_count - 1))"
+                
+            else
+                log_warning "데이터베이스 연결 테스트 실패"
+                log_info "데이터베이스 설정을 확인하세요:"
+                log_info "  - DB_HOST: $DB_HOST"
+                log_info "  - DB_USERNAME: $DB_USERNAME"
+                log_info "  - DB_NAME: $DB_NAME"
+                
+                # 데이터베이스 생성 시도
+                log_info "데이터베이스 생성을 시도합니다..."
+                if mysql -h"$DB_HOST" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;" 2>/dev/null; then
+                    log_success "데이터베이스 생성 성공: $DB_NAME"
+                else
+                    log_error "데이터베이스 생성 실패"
+                fi
+            fi
+        else
+            log_warning "데이터베이스 연결 정보가 불완전합니다"
+        fi
+    else
+        log_warning ".env 파일이 없습니다"
+    fi
+    
+    # MySQL 성능 설정 확인
+    log_info "MySQL 성능 설정을 확인합니다..."
+    if mysql -e "SHOW VARIABLES LIKE 'max_connections';" 2>/dev/null; then
+        local max_connections=$(mysql -e "SHOW VARIABLES LIKE 'max_connections';" 2>/dev/null | awk 'NR==2{print $2}')
+        log_info "MySQL 최대 연결 수: $max_connections"
+        
+        if [ "$max_connections" -lt 100 ]; then
+            log_warning "MySQL 최대 연결 수가 낮습니다 ($max_connections)"
+            log_info "성능 향상을 위해 max_connections를 늘리는 것을 고려하세요"
+        fi
+    fi
+    
+    log_success "EC2 환경 데이터베이스 설정 확인 완료"
 }
 
-# Nginx 설정 함수
+# EC2 환경 특화 Nginx 설정 함수
 setup_nginx() {
-    log_step "Nginx 설정을 확인합니다..."
+    log_step "EC2 환경 Nginx 설정을 확인합니다..."
     
-    # Nginx 서비스 상태 확인 (EC2 시뮬레이션)
+    # Nginx 설치 확인
+    if ! command -v nginx &> /dev/null; then
+        log_warning "Nginx가 설치되지 않았습니다. Nginx를 설치합니다..."
+        sudo apt-get update 2>/dev/null || true
+        sudo apt-get install -y nginx 2>/dev/null || true
+    fi
+    
+    # Nginx 서비스 상태 확인
     log_info "Nginx 서비스 상태를 확인합니다..."
     if command -v systemctl &> /dev/null; then
         if ! systemctl is-active --quiet nginx; then
-            log_warning "Nginx가 실행되지 않고 있습니다. Nginx 설정을 시작합니다..."
-            if [ -f "scripts/setup-ec2-nginx.sh" ]; then
-                chmod +x scripts/setup-ec2-nginx.sh
-                ./scripts/setup-ec2-nginx.sh
+            log_warning "Nginx가 실행되지 않고 있습니다. Nginx 서비스를 시작합니다..."
+            
+            # Nginx 서비스 시작
+            if sudo systemctl start nginx 2>/dev/null; then
+                log_success "Nginx 서비스 시작 성공"
+                sleep 2  # 서비스 시작 대기
             else
-                log_error "setup-ec2-nginx.sh 스크립트를 찾을 수 없습니다"
-                exit 1
+                log_error "Nginx 서비스 시작 실패"
+                log_info "Nginx 설정을 확인합니다..."
+                
+                # Nginx 설정 파일 검증
+                if nginx -t 2>/dev/null; then
+                    log_info "Nginx 설정 파일은 유효합니다"
+                else
+                    log_error "Nginx 설정 파일에 문제가 있습니다"
+                    nginx -t 2>&1 | while read -r line; do
+                        log_error "  $line"
+                    done
+                fi
             fi
         else
             log_success "Nginx가 이미 실행 중입니다"
         fi
+        
+        # Nginx 서비스 활성화
+        sudo systemctl enable nginx 2>/dev/null || true
     else
-        log_info "systemctl이 없습니다. Nginx 서비스 상태를 건너뜁니다 (EC2 환경에서는 정상)"
+        log_info "systemctl이 없습니다. Nginx 서비스 상태를 건너뜁니다"
     fi
     
     # Nginx 설정 파일 검증
     if command -v nginx &> /dev/null; then
-        if nginx -t &>/dev/null; then
+        log_info "Nginx 설정 파일을 검증합니다..."
+        if nginx -t 2>/dev/null; then
             log_success "Nginx 설정 파일 검증 성공"
         else
             log_warning "Nginx 설정 파일에 문제가 있습니다"
+            nginx -t 2>&1 | while read -r line; do
+                log_warning "  $line"
+            done
         fi
     fi
+    
+    # Nginx 설정 파일 확인
+    if [ -f "nginx.conf" ]; then
+        log_info "프로젝트 Nginx 설정 파일이 존재합니다"
+        
+        # Nginx 설정 파일을 시스템 위치로 복사
+        if sudo cp nginx.conf /etc/nginx/sites-available/deukgeun 2>/dev/null; then
+            log_success "Nginx 설정 파일 복사 완료"
+            
+            # 사이트 활성화
+            if sudo ln -sf /etc/nginx/sites-available/deukgeun /etc/nginx/sites-enabled/ 2>/dev/null; then
+                log_success "Nginx 사이트 활성화 완료"
+                
+                # 기본 사이트 비활성화
+                sudo rm -f /etc/nginx/sites-enabled/default 2>/dev/null || true
+                
+                # Nginx 설정 재로드
+                if sudo nginx -t 2>/dev/null; then
+                    sudo systemctl reload nginx 2>/dev/null || true
+                    log_success "Nginx 설정 재로드 완료"
+                else
+                    log_error "Nginx 설정 재로드 실패"
+                fi
+            else
+                log_error "Nginx 사이트 활성화 실패"
+            fi
+        else
+            log_error "Nginx 설정 파일 복사 실패"
+        fi
+    else
+        log_warning "프로젝트 Nginx 설정 파일이 없습니다"
+        log_info "기본 Nginx 설정을 사용합니다"
+    fi
+    
+    # Nginx 로그 확인
+    log_info "Nginx 로그를 확인합니다..."
+    if [ -f "/var/log/nginx/error.log" ]; then
+        local error_count=$(sudo tail -100 /var/log/nginx/error.log 2>/dev/null | grep -c "error" || echo "0")
+        if [ "$error_count" -gt 0 ]; then
+            log_warning "Nginx 에러 로그에 $error_count개의 에러가 있습니다"
+            log_info "최근 Nginx 에러:"
+            sudo tail -5 /var/log/nginx/error.log 2>/dev/null | while read -r line; do
+                log_warning "  $line"
+            done
+        else
+            log_success "Nginx 에러 로그에 문제가 없습니다"
+        fi
+    fi
+    
+    # Nginx 성능 설정 확인
+    log_info "Nginx 성능 설정을 확인합니다..."
+    if [ -f "/etc/nginx/nginx.conf" ]; then
+        local worker_processes=$(grep "worker_processes" /etc/nginx/nginx.conf | awk '{print $2}' | tr -d ';' || echo "auto")
+        local worker_connections=$(grep "worker_connections" /etc/nginx/nginx.conf | awk '{print $2}' | tr -d ';' || echo "1024")
+        
+        log_info "Nginx Worker 프로세스: $worker_processes"
+        log_info "Nginx Worker 연결: $worker_connections"
+        
+        # 성능 최적화 제안
+        if [ "$worker_processes" = "auto" ] || [ "$worker_processes" = "1" ]; then
+            log_info "Nginx 성능 최적화 제안: worker_processes를 CPU 코어 수로 설정하세요"
+        fi
+        
+        if [ "$worker_connections" -lt 2048 ]; then
+            log_info "Nginx 성능 최적화 제안: worker_connections를 2048 이상으로 설정하세요"
+        fi
+    fi
+    
+    # 방화벽 포트 확인
+    log_info "Nginx 관련 포트를 확인합니다..."
+    local nginx_ports=(80 443)
+    for port in "${nginx_ports[@]}"; do
+        if ss -tlnp | grep -q ":$port "; then
+            log_success "포트 $port이 리스닝 중입니다"
+        else
+            log_warning "포트 $port이 리스닝되지 않고 있습니다"
+        fi
+    done
+    
+    log_success "EC2 환경 Nginx 설정 확인 완료"
 }
 
 # 향상된 환경 변수 검증 함수
@@ -1254,18 +1822,31 @@ check_duplicate_env_vars() {
     return 0
 }
 
-# 성능 최적화 함수
+# EC2 환경 특화 성능 최적화 함수
 optimize_performance() {
     log_step "EC2 인스턴스 성능을 최적화합니다..."
     
-    # 메모리 사용량 확인 (EC2 시뮬레이션)
-    TOTAL_MEM=2048  # 2GB EC2 인스턴스
-    AVAILABLE_MEM=1536  # 1.5GB 사용 가능
-    log_info "총 메모리: ${TOTAL_MEM}MB, 사용 가능: ${AVAILABLE_MEM}MB"
+    # 실제 시스템 리소스 확인
+    TOTAL_MEM=$(free -m | awk 'NR==2{print $2}')
+    AVAILABLE_MEM=$(free -m | awk 'NR==2{print $7}')
+    CPU_CORES=$(nproc 2>/dev/null || echo "2")
     
-    # CPU 코어 수 확인 (EC2 시뮬레이션)
-    CPU_CORES=2  # EC2 t3.micro 시뮬레이션
-    log_info "CPU 코어 수: ${CPU_CORES}"
+    log_info "실제 시스템 리소스:"
+    log_info "  총 메모리: ${TOTAL_MEM}MB"
+    log_info "  사용 가능 메모리: ${AVAILABLE_MEM}MB"
+    log_info "  CPU 코어 수: ${CPU_CORES}"
+    
+    # EC2 인스턴스 타입 감지 (메타데이터에서)
+    if command -v curl &> /dev/null; then
+        INSTANCE_TYPE=$(curl -s http://169.254.169.254/latest/meta-data/instance-type 2>/dev/null || echo "unknown")
+        log_info "EC2 인스턴스 타입: $INSTANCE_TYPE"
+    fi
+    
+    # 메모리 부족 시 스왑 파일 생성
+    if [ "$TOTAL_MEM" -lt 1024 ]; then
+        log_warning "메모리가 부족합니다 (${TOTAL_MEM}MB). 스왑 파일 생성을 시도합니다..."
+        create_swap_file
+    fi
     
     # EC2 인스턴스 타입에 따른 최적화
     if [ "$TOTAL_MEM" -lt 1024 ]; then
@@ -1273,20 +1854,26 @@ optimize_performance() {
         export NODE_OPTIONS="--max-old-space-size=512 --optimize-for-size"
         PM2_MEMORY_LIMIT="400M"
         PM2_INSTANCES=1
+        NPM_INSTALL_OPTIONS="--production --no-optional"
     elif [ "$TOTAL_MEM" -lt 2048 ]; then
         log_info "중형 인스턴스 감지 - 표준 최적화 적용"
         export NODE_OPTIONS="--max-old-space-size=1024"
         PM2_MEMORY_LIMIT="800M"
         PM2_INSTANCES=1
+        NPM_INSTALL_OPTIONS="--production"
     else
         log_info "대형 인스턴스 감지 - 고성능 최적화 적용"
         export NODE_OPTIONS="--max-old-space-size=2048"
         PM2_MEMORY_LIMIT="1.5G"
         PM2_INSTANCES=$((CPU_CORES > 2 ? 2 : 1))
+        NPM_INSTALL_OPTIONS="--production"
     fi
     
     # PM2 메모리 제한 설정
-    pm2 set pm2:max_memory_restart "$PM2_MEMORY_LIMIT"
+    if command -v pm2 &> /dev/null; then
+        pm2 set pm2:max_memory_restart "$PM2_MEMORY_LIMIT" 2>/dev/null || true
+        log_info "PM2 메모리 제한 설정: $PM2_MEMORY_LIMIT"
+    fi
     
     # 시스템 최적화 설정
     if [ "$TOTAL_MEM" -gt 1024 ]; then
@@ -1299,7 +1886,154 @@ optimize_performance() {
     export NODE_ENV=production
     export NODE_OPTIONS="$NODE_OPTIONS --trace-warnings"
     
+    # npm 설정 최적화
+    export npm_config_cache="/tmp/npm-cache-$(date +%Y%m%d)"
+    export npm_config_progress=false
+    export npm_config_audit=false
+    export npm_config_fund=false
+    
+    # 메모리 사용량 모니터링 설정
+    export NODE_OPTIONS="$NODE_OPTIONS --expose-gc"
+    
     log_success "성능 최적화 완료 - 메모리 제한: $PM2_MEMORY_LIMIT, 인스턴스 수: $PM2_INSTANCES"
+}
+
+# 스왑 파일 생성 함수
+create_swap_file() {
+    log_info "스왑 파일 생성을 시도합니다..."
+    
+    # 스왑 파일이 이미 존재하는지 확인
+    if [ -f "/swapfile" ]; then
+        log_info "스왑 파일이 이미 존재합니다"
+        if swapon -s | grep -q "/swapfile"; then
+            log_success "스왑 파일이 이미 활성화되어 있습니다"
+            return 0
+        else
+            log_info "스왑 파일을 활성화합니다"
+            sudo swapon /swapfile 2>/dev/null || true
+        fi
+    else
+        # 스왑 파일 생성
+        local swap_size="1G"
+        if [ "$TOTAL_MEM" -lt 512 ]; then
+            swap_size="2G"
+        fi
+        
+        log_info "스왑 파일 생성 중... (크기: $swap_size)"
+        
+        if sudo fallocate -l "$swap_size" /swapfile 2>/dev/null; then
+            sudo chmod 600 /swapfile 2>/dev/null || true
+            sudo mkswap /swapfile 2>/dev/null || true
+            sudo swapon /swapfile 2>/dev/null || true
+            
+            # 부팅 시 자동 마운트 설정
+            if ! grep -q "/swapfile" /etc/fstab 2>/dev/null; then
+                echo "/swapfile none swap sw 0 0" | sudo tee -a /etc/fstab 2>/dev/null || true
+            fi
+            
+            log_success "스왑 파일 생성 및 활성화 완료"
+        else
+            log_error "스왑 파일 생성 실패"
+            return 1
+        fi
+    fi
+    
+    # 스왑 사용량 확인
+    local swap_usage=$(free -m | awk 'NR==3{print $3}')
+    log_info "현재 스왑 사용량: ${swap_usage}MB"
+}
+
+# EC2 리소스 모니터링 함수
+monitor_ec2_resources() {
+    log_step "EC2 리소스 사용량을 모니터링합니다..."
+    
+    # CPU 사용률 확인
+    local cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)
+    log_info "CPU 사용률: ${cpu_usage}%"
+    
+    # 메모리 사용률 확인
+    local mem_usage=$(free | awk 'NR==2{printf "%.1f", $3*100/$2}')
+    log_info "메모리 사용률: ${mem_usage}%"
+    
+    # 디스크 사용률 확인
+    local disk_usage=$(df -h . | awk 'NR==2{print $5}' | cut -d'%' -f1)
+    log_info "디스크 사용률: ${disk_usage}%"
+    
+    # 로드 평균 확인
+    local load_avg=$(uptime | awk -F'load average:' '{print $2}' | awk '{print $1}' | cut -d',' -f1)
+    log_info "로드 평균: $load_avg"
+    
+    # 네트워크 연결 수 확인
+    local connections=$(ss -tuln | wc -l)
+    log_info "네트워크 연결 수: $connections"
+    
+    # 프로세스 수 확인
+    local processes=$(ps aux | wc -l)
+    log_info "실행 중인 프로세스 수: $processes"
+    
+    # 경고 임계값 확인
+    if [ "${cpu_usage%.*}" -gt 80 ]; then
+        log_warning "CPU 사용률이 높습니다: ${cpu_usage}%"
+    fi
+    
+    if [ "${mem_usage%.*}" -gt 80 ]; then
+        log_warning "메모리 사용률이 높습니다: ${mem_usage}%"
+    fi
+    
+    if [ "$disk_usage" -gt 80 ]; then
+        log_warning "디스크 사용률이 높습니다: ${disk_usage}%"
+    fi
+    
+    log_success "EC2 리소스 모니터링 완료"
+}
+
+# EC2 디스크 정리 함수
+cleanup_ec2_disk() {
+    log_step "EC2 디스크 공간을 정리합니다..."
+    
+    # 패키지 캐시 정리
+    if command -v apt-get &> /dev/null; then
+        log_info "APT 패키지 캐시 정리 중..."
+        sudo apt-get autoremove -y 2>/dev/null || true
+        sudo apt-get autoclean 2>/dev/null || true
+        log_success "APT 패키지 캐시 정리 완료"
+    fi
+    
+    # npm 캐시 정리
+    if command -v npm &> /dev/null; then
+        log_info "npm 캐시 정리 중..."
+        npm cache clean --force 2>/dev/null || true
+        log_success "npm 캐시 정리 완료"
+    fi
+    
+    # 오래된 로그 파일 정리
+    log_info "오래된 로그 파일 정리 중..."
+    find /var/log -name "*.log" -mtime +7 -delete 2>/dev/null || true
+    find /var/log -name "*.gz" -mtime +30 -delete 2>/dev/null || true
+    log_success "로그 파일 정리 완료"
+    
+    # 임시 파일 정리
+    log_info "임시 파일 정리 중..."
+    sudo rm -rf /tmp/* 2>/dev/null || true
+    sudo rm -rf /var/tmp/* 2>/dev/null || true
+    log_success "임시 파일 정리 완료"
+    
+    # 프로젝트 관련 임시 파일 정리
+    if [ -d "node_modules/.cache" ]; then
+        rm -rf node_modules/.cache 2>/dev/null || true
+        log_info "node_modules 캐시 정리 완료"
+    fi
+    
+    if [ -d "dist/.cache" ]; then
+        rm -rf dist/.cache 2>/dev/null || true
+        log_info "빌드 캐시 정리 완료"
+    fi
+    
+    # 정리 후 디스크 사용량 확인
+    local disk_usage_after=$(df -h . | awk 'NR==2{print $5}' | cut -d'%' -f1)
+    log_info "정리 후 디스크 사용률: ${disk_usage_after}%"
+    
+    log_success "EC2 디스크 정리 완료"
 }
 
 # 메인 실행 함수
@@ -1317,23 +2051,40 @@ main() {
     # 시스템 요구사항 확인
     check_requirements
     
+    # EC2 환경 특화 검증
+    check_ec2_security_groups
+    test_ec2_network_performance
+    
     # 시스템 리소스 확인
     check_system_resources
+    
+    # EC2 리소스 모니터링
+    monitor_ec2_resources
     
     # 성능 최적화
     optimize_performance
     
+    # EC2 디스크 정리 (필요한 경우)
+    if [ "$(df . | tail -1 | awk '{print $5}' | sed 's/%//')" -gt 80 ]; then
+        cleanup_ec2_disk
+    fi
+    
     # 현재 배포 백업
     create_backup
+    
+    # EC2 환경 파일 권한 설정
+    set_ec2_file_permissions
     
     # 환경 변수 설정
     log_step "환경 변수를 설정합니다..."
     if [ -f "env.ec2" ]; then
         cp env.ec2 .env
+        chmod 600 .env 2>/dev/null || true
         log_success "EC2 환경 변수 파일이 .env로 복사되었습니다"
     else
         log_warning "env.ec2 파일이 없습니다. 기본 env.production을 사용합니다"
         cp env.production .env
+        chmod 600 .env 2>/dev/null || true
     fi
     
     # 환경 변수 검증
@@ -1646,23 +2397,48 @@ main() {
     fi
     echo ""
     
-    # 문제 해결 가이드
-    log_info "=== 문제 해결 가이드 ==="
+    # EC2 특화 문제 해결 가이드
+    log_info "=== EC2 환경 문제 해결 가이드 ==="
     log_info "서비스가 시작되지 않는 경우:"
     log_info "  1. pm2 logs deukgeun-backend"
     log_info "  2. pm2 logs deukgeun-frontend"
     log_info "  3. sudo systemctl status nginx"
     log_info "  4. sudo systemctl status mysql"
+    log_info "  5. sudo journalctl -u nginx -f (Nginx 로그 실시간 확인)"
+    log_info "  6. sudo journalctl -u mysql -f (MySQL 로그 실시간 확인)"
     log_info ""
     log_info "외부 접근이 안 되는 경우:"
     log_info "  1. sudo ufw status (방화벽 확인)"
     log_info "  2. ss -tlnp | grep -E ':(3000|5000)' (포트 확인)"
     log_info "  3. curl http://localhost:5000/health (로컬 테스트)"
+    log_info "  4. AWS 보안 그룹 설정 확인 (EC2 콘솔)"
+    log_info "  5. sudo iptables -L (iptables 규칙 확인)"
     log_info ""
     log_info "메모리 부족 시:"
     log_info "  1. free -h (메모리 사용량 확인)"
     log_info "  2. pm2 monit (PM2 모니터링)"
     log_info "  3. pm2 restart all (서비스 재시작)"
+    log_info "  4. sudo swapon -s (스왑 파일 확인)"
+    log_info "  5. sudo fallocate -l 1G /swapfile (스왑 파일 생성)"
+    log_info ""
+    log_info "디스크 공간 부족 시:"
+    log_info "  1. df -h (디스크 사용량 확인)"
+    log_info "  2. sudo du -sh /var/log/* (로그 파일 크기 확인)"
+    log_info "  3. sudo apt-get autoremove -y (불필요한 패키지 제거)"
+    log_info "  4. sudo apt-get autoclean (패키지 캐시 정리)"
+    log_info "  5. npm cache clean --force (npm 캐시 정리)"
+    log_info ""
+    log_info "네트워크 문제 시:"
+    log_info "  1. ping 8.8.8.8 (인터넷 연결 확인)"
+    log_info "  2. nslookup google.com (DNS 확인)"
+    log_info "  3. ip route show (라우팅 테이블 확인)"
+    log_info "  4. sudo systemctl restart networking (네트워크 재시작)"
+    log_info ""
+    log_info "EC2 인스턴스 문제 시:"
+    log_info "  1. curl http://169.254.169.254/latest/meta-data/instance-id (메타데이터 확인)"
+    log_info "  2. sudo systemctl status cloud-init (클라우드 초기화 상태)"
+    log_info "  3. sudo journalctl -u cloud-init (클라우드 초기화 로그)"
+    log_info "  4. AWS EC2 콘솔에서 인스턴스 상태 확인"
     echo ""
     
     log_success "배포가 성공적으로 완료되었습니다! 🎉"
@@ -1677,19 +2453,25 @@ if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
     echo "  $0 --help          # 도움말 표시"
     echo ""
     echo "주요 기능:"
-    echo "  ✓ 시스템 요구사항 자동 확인"
+    echo "  ✓ EC2 환경 특화 시스템 요구사항 자동 확인"
+    echo "  ✓ EC2 인스턴스 메타데이터 자동 감지 및 최적화"
     echo "  ✓ 고급 성능 최적화 (메모리, CPU 기반)"
     echo "  ✓ 향상된 자동 백업 및 롤백 기능"
     echo "  ✓ 강화된 환경 변수 검증 및 보안 체크"
-    echo "  ✓ 데이터베이스 및 Nginx 설정 확인"
+    echo "  ✓ EC2 특화 데이터베이스 및 Nginx 설정 확인"
     echo "  ✓ 메모리 효율적인 프로덕션 빌드"
-    echo "  ✓ 스마트 의존성 설치 (캐시 활용)"
+    echo "  ✓ EC2 환경 특화 스마트 의존성 설치"
     echo "  ✓ 병렬 처리 및 재시도 로직"
     echo "  ✓ PM2 서비스 관리 (안전한 종료/재시작)"
     echo "  ✓ 포괄적인 헬스 체크 및 연결 테스트"
     echo "  ✓ 다단계 로깅 시스템 (레벨별 필터링)"
     echo "  ✓ 실시간 성능 메트릭 모니터링"
     echo "  ✓ 응급 상황 대응 및 복구 메커니즘"
+    echo "  ✓ EC2 보안 그룹 및 방화벽 확인"
+    echo "  ✓ 네트워크 성능 테스트 및 최적화"
+    echo "  ✓ 자동 스왑 파일 생성 (메모리 부족 시)"
+    echo "  ✓ EC2 디스크 공간 자동 정리"
+    echo "  ✓ 파일 권한 자동 설정 및 보안 강화"
     echo ""
     echo "시스템 요구사항:"
     echo "  - Node.js 18 이상"

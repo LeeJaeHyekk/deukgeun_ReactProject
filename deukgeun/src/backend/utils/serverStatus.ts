@@ -48,7 +48,8 @@ export async function checkServerStatus(port: number): Promise<ServerStatus> {
       })
     })
 
-    socket.connect(port, 'localhost')
+    // EC2 환경에서는 0.0.0.0으로 바인딩되므로 localhost 대신 127.0.0.1 사용
+    socket.connect(port, '127.0.0.1')
   })
 }
 

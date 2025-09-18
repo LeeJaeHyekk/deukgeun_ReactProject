@@ -32,13 +32,24 @@ async function startServer() {
       return
     }
 
-    console.log('🔄 Initializing database connection...')
-    await AppDataSource.initialize()
-    console.log('✅ Database connected successfully')
+    // 데이터베이스 연결 시도 (실패해도 서버는 시작)
+    try {
+      console.log('🔄 Initializing database connection...')
+      await AppDataSource.initialize()
+      console.log('✅ Database connected successfully')
 
-    // Initialize auto-update scheduler
-    autoInitializeScheduler()
-    logger.info('Auto-update scheduler initialized')
+      // Initialize auto-update scheduler
+      autoInitializeScheduler()
+      logger.info('Auto-update scheduler initialized')
+    } catch (dbError) {
+      const errorMessage =
+        dbError instanceof Error ? dbError.message : String(dbError)
+      console.warn(
+        '⚠️ Database connection failed, but server will start anyway:',
+        errorMessage
+      )
+      console.log('🔄 Server will start without database connection')
+    }
 
     // 서버 시작 전 상태 확인
     const { shouldStart, recommendedPort } = await checkBeforeStart()
@@ -51,8 +62,11 @@ async function startServer() {
     const port =
       recommendedPort || (await getAvailablePort(config.port || 5000))
 
-    app.listen(port, () => {
-      logger.info(`🚀 Server is running on port ${port}`)
+    // 프로덕션 환경에서는 0.0.0.0으로 바인딩, 개발 환경에서는 localhost
+    const host = environment === 'production' ? '0.0.0.0' : 'localhost'
+
+    app.listen(port, host, () => {
+      logger.info(`🚀 Server is running on ${host}:${port}`)
 
       if (environment === 'development') {
         console.log(
@@ -62,14 +76,16 @@ async function startServer() {
           `📊 Database: ${process.env.DB_NAME || 'deukgeun_db'} on ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '3306'}`
         )
       } else {
-        console.log(`🚀 Production server is running on port ${port}`)
+        console.log(`🚀 Production server is running on ${host}:${port}`)
         console.log(
           `📊 Database: ${process.env.DB_NAME || 'deukgeun_db'} on ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '3306'}`
         )
+        console.log(`🌐 Local access: http://localhost:${port}`)
+        console.log(`🌐 External access: http://3.36.230.117:${port}`)
       }
     })
   } catch (error) {
-    console.error('❌ Database connection failed:', error)
+    console.error('❌ Server startup failed:', error)
     process.exit(1)
   }
 }

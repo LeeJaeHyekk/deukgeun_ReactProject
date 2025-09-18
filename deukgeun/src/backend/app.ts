@@ -27,9 +27,11 @@ const corsOptions = {
   origin:
     config.environment === 'production'
       ? [
-          // 프로덕션 도메인들
-          'https://yourdomain.com',
-          'https://www.yourdomain.com',
+          // 프로덕션 도메인들 (EC2 환경)
+          'http://0.0.0.0:80',
+          'https://0.0.0.0:443',
+          // EC2 퍼블릭 IP로 접근하는 경우를 위한 설정
+          /^https?:\/\/\d+\.\d+\.\d+\.\d+(:\d+)?$/,
           // 개발 환경 (필요시)
           'http://localhost:5173',
           'http://localhost:5174',

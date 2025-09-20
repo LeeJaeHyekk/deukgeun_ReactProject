@@ -619,9 +619,9 @@ install_dependencies_smart() {
     
     # 메모리 제한 설정
     if [ -n "$NODE_OPTIONS" ]; then
-        export NODE_OPTIONS="$NODE_OPTIONS --max-old-space-size=1024"
+        export NODE_OPTIONS="$NODE_OPTIONS --max-old-space-size=1024M"
     else
-        export NODE_OPTIONS="--max-old-space-size=1024"
+        export NODE_OPTIONS="--max-old-space-size=1024M"
     fi
     
     # 기존 node_modules 정리 (필요한 경우)
@@ -695,7 +695,7 @@ build_with_memory_optimization() {
     log_info "빌드 시작 시 메모리 사용량: ${initial_memory}MB"
     
     # Node.js 메모리 제한 설정
-    export NODE_OPTIONS="--max-old-space-size=$(echo $memory_limit | sed 's/[^0-9]//g') --optimize-for-size"
+    export NODE_OPTIONS="--max-old-space-size=$(echo $memory_limit | sed 's/[^0-9]//g')M --optimize-for-size"
     
     # 빌드 실행
     local build_start_time=$(date +%s)
@@ -813,6 +813,7 @@ BACKUP_DIR="./backups"
 LOG_DIR="./logs"
 DEPLOYMENT_LOG="$LOG_DIR/deployment-$(date +%Y%m%d-%H%M%S).log"
 ROLLBACK_AVAILABLE=false
+project_root=""
 
 # EC2 환경 특화 시스템 요구사항 확인 함수
 check_requirements() {
@@ -1226,8 +1227,15 @@ restart_services_safely() {
     pm2 kill 2>/dev/null || true
     sleep 2
     
-    # PM2 서비스 시작
-    if pm2 start ecosystem.config.js --env production; then
+    # PM2 서비스 시작 (절대 경로 사용)
+    local ecosystem_path="$project_root/ecosystem.config.js"
+    if [ ! -f "$ecosystem_path" ]; then
+        log_error "ecosystem.config.js 파일을 찾을 수 없습니다: $ecosystem_path"
+        log_info "프로젝트 루트: $project_root"
+        return 1
+    fi
+    
+    if pm2 start "$ecosystem_path" --env production; then
         log_success "PM2 서비스 시작 성공"
         
         # 서비스 시작 대기
@@ -1851,19 +1859,19 @@ optimize_performance() {
     # EC2 인스턴스 타입에 따른 최적화
     if [ "$TOTAL_MEM" -lt 1024 ]; then
         log_info "소형 인스턴스 감지 - 메모리 최적화 적용"
-        export NODE_OPTIONS="--max-old-space-size=512 --optimize-for-size"
+        export NODE_OPTIONS="--max-old-space-size=512M --optimize-for-size"
         PM2_MEMORY_LIMIT="400M"
         PM2_INSTANCES=1
         NPM_INSTALL_OPTIONS="--production --no-optional"
     elif [ "$TOTAL_MEM" -lt 2048 ]; then
         log_info "중형 인스턴스 감지 - 표준 최적화 적용"
-        export NODE_OPTIONS="--max-old-space-size=1024"
+        export NODE_OPTIONS="--max-old-space-size=1024M"
         PM2_MEMORY_LIMIT="800M"
         PM2_INSTANCES=1
         NPM_INSTALL_OPTIONS="--production"
     else
         log_info "대형 인스턴스 감지 - 고성능 최적화 적용"
-        export NODE_OPTIONS="--max-old-space-size=2048"
+        export NODE_OPTIONS="--max-old-space-size=2048M"
         PM2_MEMORY_LIMIT="1.5G"
         PM2_INSTANCES=$((CPU_CORES > 2 ? 2 : 1))
         NPM_INSTALL_OPTIONS="--production"
@@ -2046,7 +2054,21 @@ main() {
     log_info "배포 로그: $DEPLOYMENT_LOG"
     
     # 프로젝트 루트로 이동
-    cd "$(dirname "$0")/.."
+    local script_dir="$(dirname "$0")"
+    project_root="$(cd "$script_dir/.." && pwd)"
+    cd "$project_root"
+    
+    log_info "프로젝트 루트 디렉토리: $project_root"
+    log_info "현재 작업 디렉토리: $(pwd)"
+    
+    # ecosystem.config.js 파일 존재 확인
+    if [ ! -f "ecosystem.config.js" ]; then
+        log_error "ecosystem.config.js 파일이 프로젝트 루트에 없습니다"
+        log_info "현재 디렉토리 내용:"
+        ls -la | head -10
+        exit 1
+    fi
+    log_success "ecosystem.config.js 파일 확인 완료"
     
     # 시스템 요구사항 확인
     check_requirements
@@ -2220,9 +2242,32 @@ main() {
     pm2 kill 2>/dev/null || true
     sleep 2
     
-    # PM2 서비스 시작
-    if ! pm2 start ecosystem.config.js --env production; then
+    # PM2 서비스 시작 (절대 경로 사용)
+    local ecosystem_path="$project_root/ecosystem.config.js"
+    if [ ! -f "$ecosystem_path" ]; then
+        log_error "ecosystem.config.js 파일을 찾을 수 없습니다: $ecosystem_path"
+        log_info "현재 디렉토리: $(pwd)"
+        log_info "파일 목록:"
+        ls -la | grep -E "(ecosystem|config)" || log_info "관련 파일이 없습니다"
+        rollback_deployment
+        exit 1
+    fi
+    log_info "PM2 설정 파일 경로: $ecosystem_path"
+    
+    # PM2 설정 파일 내용 확인 (디버깅용)
+    log_debug "PM2 설정 파일 내용 확인:"
+    head -20 "$ecosystem_path" | while read -r line; do
+        log_debug "  $line"
+    done
+    
+    # PM2 프로세스 정리 확인
+    log_info "기존 PM2 프로세스 정리 상태:"
+    pm2 list 2>/dev/null || log_info "PM2 프로세스가 없습니다"
+    
+    if ! pm2 start "$ecosystem_path" --env production; then
         log_error "PM2 서비스 시작 실패"
+        log_info "PM2 로그 확인:"
+        pm2 logs --lines 10 2>/dev/null || log_info "PM2 로그를 가져올 수 없습니다"
         rollback_deployment
         exit 1
     fi

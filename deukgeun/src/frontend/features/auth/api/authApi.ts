@@ -157,8 +157,8 @@ export const authApi = {
     })
 
     try {
-      const response = await api.post<BackendRegisterResponse>(
-        API_ENDPOINTS.AUTH.REGISTER,
+      const response = await axios.post<BackendRegisterResponse>(
+        `${config.api.baseURL}${API_ENDPOINTS.AUTH.REGISTER}`,
         data
       )
       console.log('✅ 회원가입 API 응답 성공:', response)
@@ -416,15 +416,18 @@ export const authApi = {
 
   // Logout
   logout: async (): Promise<LogoutResponse> => {
-    const response = await api.post<LogoutResponse>(API_ENDPOINTS.AUTH.LOGOUT)
-    return response.data.data as LogoutResponse
+    const response = await axios.post<LogoutResponse>(
+      `${config.api.baseURL}${API_ENDPOINTS.AUTH.LOGOUT}`
+    )
+    return response.data as LogoutResponse
   },
 
   // Check if user is authenticated
   checkAuth: async (): Promise<{ message: string; authenticated: boolean }> => {
-    const response = await api.get<{ message: string; authenticated: boolean }>(
-      API_ENDPOINTS.AUTH.CHECK
-    )
-    return response.data.data as { message: string; authenticated: boolean }
+    const response = await axios.get<{
+      message: string
+      authenticated: boolean
+    }>(`${config.api.baseURL}${API_ENDPOINTS.AUTH.CHECK}`)
+    return response.data as { message: string; authenticated: boolean }
   },
 }

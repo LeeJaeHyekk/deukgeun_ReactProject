@@ -16,9 +16,92 @@ import type {
   SchedulerConfig,
 } from "../types"
 
-// 환경 변수 로드 - 프로덕션 우선
-dotenv.config({ path: ".env.production" })
-dotenv.config({ path: ".env" })
+// 환경 변수 로드 - 여러 경로에서 시도
+import path from 'path'
+import fs from 'fs'
+
+const nodeEnv = process.env.NODE_ENV || 'development'
+
+// 현재 파일의 디렉토리에서 시작하여 프로젝트 루트를 찾음
+const currentDir = __dirname
+const projectRoot = path.resolve(currentDir, '../../..') // src/backend/config에서 프로젝트 루트로
+
+// 환경 변수 로딩 순서: .env.local -> .env.production/.env.development -> .env -> .env.example -> env.ec2
+const envPaths = [
+  path.join(projectRoot, '.env.local'),
+  path.join(
+    projectRoot,
+    nodeEnv === 'production' ? 'env.production' : '.env.development'
+  ),
+  path.join(projectRoot, '.env'),
+  path.join(projectRoot, 'env.example'),
+  path.join(projectRoot, 'env.ec2'), // EC2 환경 변수 파일 추가
+  // 상대 경로도 시도
+  '.env.local',
+  nodeEnv === 'production' ? 'env.production' : '.env.development',
+  '.env',
+  'env.example',
+  'env.ec2', // EC2 환경 변수 파일 추가
+  '../env.production',
+  '../env.example',
+  '../env.ec2', // EC2 환경 변수 파일 추가
+  '../../env.production',
+  '../../env.example',
+  '../../env.ec2', // EC2 환경 변수 파일 추가
+]
+
+// 각 경로에서 환경 변수 로드 시도 (여러 파일을 순차적으로 로드)
+let totalLoaded = 0
+const loadedFiles: string[] = []
+
+// 이미 로드된 환경 변수 추적
+const loadedVars = new Set<string>()
+
+// 환경 변수 로딩 순서: .env.local -> .env.production/.env.development -> .env
+for (const envPath of envPaths) {
+  try {
+    // 파일 존재 여부 확인
+    if (fs.existsSync(envPath)) {
+      const result = dotenv.config({ path: envPath, override: false })
+      if (result.parsed && Object.keys(result.parsed).length > 0) {
+        const newVars = Object.keys(result.parsed).filter(
+          key => !loadedVars.has(key)
+        )
+        if (newVars.length > 0) {
+          console.log(
+            `✅ Environment variables loaded from ${envPath} (${newVars.length} new variables)`
+          )
+          totalLoaded += newVars.length
+          loadedFiles.push(envPath)
+          newVars.forEach(key => loadedVars.add(key))
+        }
+      }
+    }
+  } catch (error) {
+    // 파일이 없거나 읽기 실패하면 무시하고 다음 경로 시도
+    continue
+  }
+}
+
+if (totalLoaded > 0) {
+  console.log(
+    `📊 Total environment variables loaded: ${totalLoaded} from ${loadedFiles.length} file(s)`
+  )
+} else {
+  console.warn(
+    '⚠️  No environment file found. Using system environment variables only.'
+  )
+}
+
+// 환경 변수 로딩 상태 확인
+console.log(`🔧 Environment: ${nodeEnv}`)
+console.log(
+  `📊 Database config: ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '3306'}`
+)
+console.log(`👤 Database user: ${process.env.DB_USERNAME || 'root'}`)
+console.log(
+  `🔑 Database password: ${process.env.DB_PASSWORD ? '***' : 'NOT SET'}`
+)
 
 // 환경 설정
 const environment: Environment =

@@ -1,0 +1,72 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules
+src/backend/node_modules
+
+# Build outputs
+dist
+dist-ssr
+build
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+env.production
+
+# TypeScript build artifacts
+*.tsbuildinfo
+
+# Database files
+src/backend/mysql-data/
+src/backend/logs/
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated files
+*.generated.*
+*.d.ts
+
+# JavaScript files (to prevent duplicates)
+**/*.js
+**/*.jsx
+!node_modules/**/*.js
+!node_modules/**/*.jsx
+!scripts/**/*.js
+!vite.config.ts
+!tailwind.config.js
+!postcss.config.mjs
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini

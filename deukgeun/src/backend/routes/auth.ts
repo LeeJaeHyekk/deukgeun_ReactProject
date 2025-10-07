@@ -17,11 +17,12 @@ import {
   resetPasswordSimpleStep2,
 } from "../controllers/authController"
 import { authMiddleware } from "../middlewares/auth"
+import { recaptchaEnterpriseMiddleware } from "../utils/recaptcha-enterprise"
 
 const router = Router()
 
-router.post("/login", login as any)
-router.post("/register", register as any)
+router.post("/login", recaptchaEnterpriseMiddleware("LOGIN", 0.5), login as any)
+router.post("/register", recaptchaEnterpriseMiddleware("REGISTER", 0.7), register as any)
 router.post("/refresh", refreshToken as any)
 router.post("/logout", logout as any)
 router.get("/check", authMiddleware, checkAuth as any)

@@ -153,7 +153,7 @@ export default defineConfig(({ mode }) => {
         },
       },
 
-      outDir: "dist", // 빌드 출력 디렉토리
+      outDir: "dist/frontend", // 빌드 출력 디렉토리
       emptyOutDir: true, // 빌드 전 출력 디렉토리 비우기
 
       // 번들 크기 최적화 설정

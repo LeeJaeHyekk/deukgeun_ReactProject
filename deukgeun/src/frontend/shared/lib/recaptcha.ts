@@ -1,13 +1,21 @@
 import { config } from "../config"
 
 // reCAPTCHA 타입 정의
+interface RecaptchaInstance {
+  ready: (callback: () => void) => void
+  execute: (siteKey: string, options?: { action: string }) => Promise<string>
+  render: (container: string | HTMLElement, options: any) => number
+  getResponse: (widgetId: number) => string
+  reset: (widgetId: number) => void
+  enterprise?: {
+    ready: (callback: () => void) => void
+    execute: (siteKey: string, options?: { action: string }) => Promise<string>
+  }
+}
+
 declare global {
   interface Window {
-    grecaptcha: {
-      ready: (callback: () => void) => void
-      execute: (siteKey: string, options: { action: string }) => Promise<string>
-      render: (container: string | HTMLElement, options: any) => number
-    }
+    grecaptcha: RecaptchaInstance
   }
 }
 
@@ -111,13 +119,11 @@ export const executeRecaptcha = async (
         try {
           const token = await window.grecaptcha.execute(
             config.RECAPTCHA.SITE_KEY,
-            {
-              action: action,
-            }
+            { action }
           )
           clearTimeout(timeout)
 
-          if (!token) {
+          if (!token || token.length === 0) {
             throw new Error("reCAPTCHA 토큰이 생성되지 않았습니다.")
           }
 

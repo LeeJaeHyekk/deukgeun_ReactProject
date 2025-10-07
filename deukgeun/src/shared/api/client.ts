@@ -6,7 +6,7 @@ import type { ApiResponse } from "../types"
 
 // API 설정
 const API_CONFIG = {
-  baseURL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5001",
+  baseURL: process.env.VITE_BACKEND_URL || "http://localhost:5001",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -18,6 +18,14 @@ export interface ApiError {
   message: string
   statusCode: number
   error?: string
+}
+
+// 타입 안전한 응답 처리 헬퍼
+export function assertApiResponse<T>(data: unknown): T {
+  if (data === null || data === undefined) {
+    throw new Error('API response data is null or undefined')
+  }
+  return data as T
 }
 
 // API 클라이언트 클래스
@@ -220,4 +228,4 @@ class ApiClient {
 export const apiClient = new ApiClient()
 
 // 기본 export
-export default apiClient
+module.exports.default = apiClient

@@ -104,7 +104,7 @@ export class MachineApiService {
     console.log("머신 API 응답:", response)
 
     // ApiResponse 래핑된 데이터에서 실제 백엔드 응답 추출
-    const responseData = response.data.data || response.data
+    const responseData = (response.data as any).data || response.data
     return extractMachineListData(responseData)
   }
 
@@ -114,7 +114,7 @@ export class MachineApiService {
   async getMachine(id: number): Promise<{ machine: Machine }> {
     const response = await api.get(API_ENDPOINTS.MACHINES.DETAIL(id))
 
-    const responseData = response.data.data || response.data
+    const responseData = (response.data as any).data || response.data
     const machine = extractMachineData(responseData)
 
     if (!machine) {
@@ -132,7 +132,7 @@ export class MachineApiService {
   ): Promise<{ machine: Machine }> {
     const response = await api.post(API_ENDPOINTS.MACHINES.CREATE, data)
 
-    const responseData = response.data.data || response.data
+    const responseData = (response.data as any).data || response.data
     const machine = extractMachineData(responseData)
 
     if (!machine) {
@@ -151,7 +151,7 @@ export class MachineApiService {
   ): Promise<{ machine: Machine }> {
     const response = await api.put(API_ENDPOINTS.MACHINES.UPDATE(id), data)
 
-    const responseData = response.data.data || response.data
+    const responseData = (response.data as any).data || response.data
     const machine = extractMachineData(responseData)
 
     if (!machine) {
@@ -184,7 +184,7 @@ export class MachineApiService {
       `${API_ENDPOINTS.MACHINES.FILTER}?${params.toString()}`
     )
 
-    const responseData = response.data.data || response.data
+    const responseData = (response.data as any).data || response.data
     return extractMachineListData(responseData)
   }
 
@@ -198,7 +198,7 @@ export class MachineApiService {
       API_ENDPOINTS.MACHINES.GET_BY_CATEGORY(category)
     )
 
-    const responseData = response.data.data || response.data
+    const responseData = (response.data as any).data || response.data
     return extractMachineListData(responseData)
   }
 
@@ -212,7 +212,7 @@ export class MachineApiService {
       API_ENDPOINTS.MACHINES.GET_BY_DIFFICULTY(difficulty)
     )
 
-    const responseData = response.data.data || response.data
+    const responseData = (response.data as any).data || response.data
     return extractMachineListData(responseData)
   }
 
@@ -224,7 +224,7 @@ export class MachineApiService {
   ): Promise<{ machines: Machine[]; count: number }> {
     const response = await api.get(API_ENDPOINTS.MACHINES.GET_BY_TARGET(target))
 
-    const responseData = response.data.data || response.data
+    const responseData = (response.data as any).data || response.data
     return extractMachineListData(responseData)
   }
 }

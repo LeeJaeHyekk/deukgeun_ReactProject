@@ -1,5 +1,5 @@
 import React from "react"
-import { LoadingSpinner } from "@shared/ui/LoadingSpinner"
+import { LoadingSpinner } from "@frontend/shared/ui/LoadingSpinner"
 import { OverviewTab } from "../tabs/OverviewTab"
 import { PlansTab } from "../tabs/PlansTab"
 import { SessionsTab } from "../tabs/SessionsTab"

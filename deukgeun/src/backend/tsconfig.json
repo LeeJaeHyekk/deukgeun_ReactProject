@@ -5,7 +5,6 @@
     "moduleResolution": "node",
     "lib": ["ES2020"],
     "outDir": "../../dist/backend",
-    "rootDir": "../",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -40,6 +39,30 @@
       "@api/*": ["shared/api/*"]
     }
   },
-  "include": ["./**/*", "../shared/**/*"],
-  "exclude": ["node_modules", "dist", "build", "**/*.js", "**/*.jsx"]
+  "include": [
+    "./**/*", 
+    "../shared/types/**/*",
+    "../shared/constants/**/*",
+    "../shared/validation/**/*"
+  ],
+  "exclude": [
+    "node_modules", 
+    "dist", 
+    "build", 
+    "**/*.js", 
+    "**/*.jsx",
+    "../frontend/**/*",
+    "../shared/contexts/**/*",
+    "../shared/hooks/**/*",
+    "../shared/ui/**/*",
+    "../shared/utils/**/*",
+    "../shared/lib/recaptcha.ts",
+    "../shared/lib/storage.ts",
+    "../shared/lib/string.ts",
+    "../shared/lib/toast.ts",
+    "../shared/lib/date.ts",
+    "../shared/lib/object.ts",
+    "../shared/api/**/*",
+    "../shared/config/imageMatchingConfig.ts"
+  ]
 }

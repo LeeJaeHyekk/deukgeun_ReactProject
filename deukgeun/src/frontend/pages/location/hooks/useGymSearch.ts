@@ -54,13 +54,13 @@ export function useGymSearch(options: UseGymSearchOptions = {}): UseGymSearchRet
     }
   }, [maxResults])
 
-  const debouncedSearchGyms = useCallback((query: string) => {
+  const debouncedSearchGyms = useCallback(async (query: string) => {
     if (debounceTimer) {
       clearTimeout(debounceTimer)
     }
 
-    const timer = setTimeout(() => {
-      searchGyms(query)
+    const timer = setTimeout(async () => {
+      await searchGyms(query)
     }, debounceMs)
 
     setDebounceTimer(timer)

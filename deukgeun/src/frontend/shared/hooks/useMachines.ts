@@ -35,7 +35,7 @@ export const useMachines = () => {
       lastFetchTime.current = now
       const response = await machineApi.getMachines()
       console.log("머신 응답:", response)
-      const newMachines = response?.machines || []
+      const newMachines = Array.isArray(response) ? response : []
       console.log("머신 목록:", newMachines)
       setMachines(newMachines)
       return newMachines
@@ -58,8 +58,8 @@ export const useMachines = () => {
     setLoading(true)
     setError(null)
     try {
-      const response = await machineApi.getMachine(id)
-      return response.machine
+      const response = await machineApi.getMachineById(id)
+      return response
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error
@@ -80,7 +80,7 @@ export const useMachines = () => {
       setError(null)
       try {
         const response = await machineApi.createMachine(machineData)
-        const newMachine = response.machine
+        const newMachine = response
         setMachines(prev => [newMachine, ...prev])
         showToast("머신이 성공적으로 생성되었습니다.", "success")
         return newMachine
@@ -104,7 +104,7 @@ export const useMachines = () => {
       setError(null)
       try {
         const response = await machineApi.updateMachine(id, machineData)
-        const updatedMachine = response.machine
+        const updatedMachine = response
         setMachines(prev =>
           prev.map(machine => (machine.id === id ? updatedMachine : machine))
         )
@@ -156,7 +156,7 @@ export const useMachines = () => {
       try {
         lastFetchTime.current = now
         const response = await machineApi.getMachinesByCategory(category)
-        const newMachines = response?.machines || []
+        const newMachines = Array.isArray(response) ? response : []
         setMachines(newMachines)
         return newMachines
       } catch (err: unknown) {
@@ -188,8 +188,8 @@ export const useMachines = () => {
       setError(null)
       try {
         lastFetchTime.current = now
-        const response = await machineApi.getMachinesByDifficulty(difficulty)
-        const newMachines = response?.machines || []
+        const response = await machineApi.getMachinesByCategory(difficulty)
+        const newMachines = Array.isArray(response) ? response : []
         setMachines(newMachines)
         return newMachines
       } catch (err: unknown) {
@@ -221,8 +221,8 @@ export const useMachines = () => {
       setError(null)
       try {
         lastFetchTime.current = now
-        const response = await machineApi.getMachinesByTarget(target)
-        const newMachines = response?.machines || []
+        const response = await machineApi.getMachinesByCategory(target)
+        const newMachines = Array.isArray(response) ? response : []
         setMachines(newMachines)
         return newMachines
       } catch (err: unknown) {

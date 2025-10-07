@@ -2,6 +2,8 @@
 // ReCAPTCHA utilities
 // ============================================================================
 
+import { useState, useEffect } from 'react'
+
 export interface RecaptchaConfig {
   siteKey: string
   theme?: 'light' | 'dark'
@@ -18,11 +20,15 @@ export interface RecaptchaInstance {
   reset: (widgetId?: number) => void
   getResponse: (widgetId?: number) => string
   execute: (widgetId?: number) => void
+  ready: (callback: () => void) => void
+  enterprise?: {
+    ready: (callback: () => void) => void
+    execute: (siteKey: string, options: { action: string }) => Promise<string>
+  }
 }
 
 declare global {
   interface Window {
-    grecaptcha: RecaptchaInstance
     onRecaptchaLoad: () => void
   }
 }
@@ -97,6 +103,10 @@ export function getRecaptchaResponse(widgetId?: number): string {
     throw new Error('ReCAPTCHA not loaded')
   }
 
+  if (widgetId === undefined) {
+    throw new Error('Widget ID is required')
+  }
+
   return window.grecaptcha.getResponse(widgetId)
 }
 
@@ -104,6 +114,10 @@ export function getRecaptchaResponse(widgetId?: number): string {
 export function resetRecaptcha(widgetId?: number): void {
   if (!window.grecaptcha) {
     throw new Error('ReCAPTCHA not loaded')
+  }
+
+  if (widgetId === undefined) {
+    throw new Error('Widget ID is required')
   }
 
   window.grecaptcha.reset(widgetId)
@@ -115,7 +129,9 @@ export function executeRecaptcha(widgetId?: number): void {
     throw new Error('ReCAPTCHA not loaded')
   }
 
-  window.grecaptcha.execute(widgetId)
+  if (widgetId !== undefined) {
+    window.grecaptcha.execute(widgetId.toString())
+  }
 }
 
 // Execute ReCAPTCHA v3 with action
@@ -124,12 +140,12 @@ export async function executeRecaptchaV3(
 ): Promise<string> {
   try {
     // Development environment - return dummy token
-    if (import.meta.env.DEV) {
+    if (process.env.DEV) {
       console.log('🔧 개발 환경: 더미 reCAPTCHA 토큰 사용')
       return getDummyRecaptchaToken()
     }
 
-    await loadRecaptchaScript(import.meta.env.VITE_RECAPTCHA_SITE_KEY || '')
+    await loadRecaptchaScript(process.env.VITE_RECAPTCHA_SITE_KEY || '')
 
     if (!window.grecaptcha) {
       throw new Error('reCAPTCHA가 로드되지 않았습니다.')
@@ -142,8 +158,8 @@ export async function executeRecaptchaV3(
 
       window.grecaptcha.ready(async () => {
         try {
-          const token = await window.grecaptcha.execute(
-            import.meta.env.VITE_RECAPTCHA_SITE_KEY || '',
+          const token = await (window.grecaptcha as any).enterprise.execute(
+            process.env.VITE_RECAPTCHA_SITE_KEY || '',
             {
               action: action,
             }
@@ -251,8 +267,7 @@ export function useRecaptcha(siteKey: string) {
   }
 }
 
-// Import useState and useEffect for the hook
-import { useState, useEffect } from 'react'
+// useState and useEffect are already imported at the top
 
 // Development dummy token function
 export const getDummyRecaptchaToken = (): string => {

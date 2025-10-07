@@ -149,6 +149,7 @@ describe('LoginPage', () => {
     it('유효한 정보로 로그인 시 성공한다', async () => {
       const mockUser = createMockUser()
       const mockResponse = {
+        message: '로그인 성공',
         user: mockUser,
         accessToken: 'mock-access-token',
       }
@@ -207,7 +208,7 @@ describe('LoginPage', () => {
   describe('로그인 실패', () => {
     it('API 에러 시 에러 메시지를 표시한다', async () => {
       const errorMessage = '로그인에 실패했습니다.'
-      mockLogin.mockRejectedValueOnce(mockApiResponses.error(errorMessage))
+      mockLogin.mockRejectedValueOnce(new Error(errorMessage))
 
       render(<LoginPage />)
 
@@ -271,6 +272,7 @@ describe('LoginPage', () => {
     it('Enter 키로 로그인 폼 제출이 가능하다', async () => {
       const mockUser = createMockUser()
       const mockResponse = {
+        message: '로그인 성공',
         user: mockUser,
         accessToken: 'mock-access-token',
       }

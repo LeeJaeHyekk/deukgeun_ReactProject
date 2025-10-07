@@ -58,7 +58,7 @@ export default function HomePage() {
 
   return (
     <div className={styles.homePage}>
-      <LoadingOverlay show={isLoading} />
+      <LoadingOverlay isLoading={isLoading} />
       <Navigation />
 
       {/* Hero Section */}

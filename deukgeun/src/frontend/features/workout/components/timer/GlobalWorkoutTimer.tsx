@@ -34,7 +34,7 @@ export function GlobalWorkoutTimer({
   return (
     <div className={`global-workout-timer ${className}`}>
       <div className="timer-display">
-        <div className="timer-time">{getFormattedTime()}</div>
+        <div className="timer-time">{getFormattedTime(timerState.elapsedTime)}</div>
         <div className="timer-progress">
           <div
             className="timer-progress-bar"

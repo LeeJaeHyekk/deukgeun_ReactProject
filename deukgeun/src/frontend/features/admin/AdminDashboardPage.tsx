@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import { ROUTES } from "@shared/constants/routes"
+import { ROUTES } from "@frontend/shared/constants/routes"
 import { AdminLayout } from "./components/AdminLayout"
 import { useAdmin } from "./hooks/useAdmin"
 import {

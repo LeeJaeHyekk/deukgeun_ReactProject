@@ -29,7 +29,7 @@ export const object = {
       for (const key in source) {
         if (object.isObject(source[key])) {
           if (!target[key]) Object.assign(target, { [key]: {} })
-          object.merge(target[key], source[key])
+          object.merge(target[key] as any, source[key])
         } else {
           Object.assign(target, { [key]: source[key] })
         }
@@ -56,7 +56,7 @@ export const object = {
       result = result[key]
     }
     
-    return result !== undefined ? result : defaultValue
+    return result !== undefined ? (result as T) : defaultValue
   },
 
   // Set nested property value

@@ -258,7 +258,8 @@ describe('useAuth', () => {
         mockStorage.get.mockReturnValue(mockToken)
         mockAuthApi.refreshToken.mockResolvedValue({
           success: true,
-          data: { accessToken: 'new-token' },
+          message: 'Token refreshed successfully',
+          accessToken: 'new-token',
         })
 
         renderHook(() => useAuth())

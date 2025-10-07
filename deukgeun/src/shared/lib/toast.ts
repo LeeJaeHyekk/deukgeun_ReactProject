@@ -11,12 +11,17 @@ export interface ToastOptions {
 }
 
 // Simple toast implementation
-export const showToast = (message: string, options: ToastOptions = {}): void => {
+export const showToast = (message: string, options?: ToastOptions | ToastType): void => {
+  // Handle both ToastOptions object and ToastType string
+  const toastOptions: ToastOptions = typeof options === 'string' 
+    ? { type: options }
+    : options || {}
+    
   const {
     type = 'info',
     duration = 3000,
     position = 'top'
-  } = options
+  } = toastOptions
 
   // Create toast element
   const toast = document.createElement('div')

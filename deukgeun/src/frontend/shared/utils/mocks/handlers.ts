@@ -114,7 +114,7 @@ export const handlers = [
     })
   }),
 
-  http.get(`${API_ENDPOINTS.MACHINES.GET_BY_ID}/:id`, ({ params }) => {
+  http.get(`${API_ENDPOINTS.MACHINES.GET_BY_ID}/:id`, ({ params }: { params: { id: string } }) => {
     const machine = mockMachines.find(m => m.id === Number(params.id))
     if (!machine) {
       return HttpResponse.json(
@@ -144,7 +144,7 @@ export const handlers = [
     })
   }),
 
-  http.get(`${API_ENDPOINTS.POSTS.GET_BY_ID}/:id`, ({ params }) => {
+  http.get(`${API_ENDPOINTS.POSTS.GET_BY_ID}/:id`, ({ params }: { params: { id: string } }) => {
     const post = mockPosts.find(p => p.id === Number(params.id))
     if (!post) {
       return HttpResponse.json(
@@ -162,7 +162,7 @@ export const handlers = [
     })
   }),
 
-  http.post(API_ENDPOINTS.POSTS.CREATE, async ({ request }) => {
+  http.post(API_ENDPOINTS.POSTS.CREATE, async ({ request }: { request: Request }) => {
     const body = await request.json()
     const newPost = {
       id: mockPosts.length + 1,
@@ -182,7 +182,7 @@ export const handlers = [
   }),
 
   // 레벨 시스템 API
-  http.get(`${API_ENDPOINTS.LEVELS.GET_USER_LEVEL}/:userId`, ({ params }) => {
+  http.get(`${API_ENDPOINTS.LEVELS.GET_USER_LEVEL}/:userId`, ({ params }: { params: { userId: string } }) => {
     return HttpResponse.json({
       success: true,
       message: "사용자 레벨 조회 성공",

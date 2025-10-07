@@ -4,7 +4,7 @@
 
 import React from "react"
 import { Link, useLocation } from "react-router-dom"
-import { ROUTES } from "@shared/constants/routes"
+import { ROUTES } from "@frontend/shared/constants/routes"
 import { useUserStore } from "@shared/store/userStore"
 import { validateAdminAccess } from "../utils/adminUtils"
 import type { AdminRole } from "../types"

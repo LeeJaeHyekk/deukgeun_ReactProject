@@ -1,4 +1,4 @@
-import { apiClient } from './client'
+import { apiClient, assertApiResponse } from './client'
 import { User } from '@shared/types/dto/user.dto'
 
 export interface LoginRequest {
@@ -21,12 +21,12 @@ export interface AuthResponse {
 export const authApi = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await apiClient.post('/auth/login', credentials)
-    return response.data
+    return assertApiResponse<AuthResponse>(response.data)
   },
 
   async register(userData: RegisterRequest): Promise<AuthResponse> {
     const response = await apiClient.post('/auth/register', userData)
-    return response.data
+    return assertApiResponse<AuthResponse>(response.data)
   },
 
   async logout(): Promise<void> {
@@ -35,17 +35,17 @@ export const authApi = {
 
   async refreshToken(): Promise<AuthResponse> {
     const response = await apiClient.post('/auth/refresh')
-    return response.data
+    return assertApiResponse<AuthResponse>(response.data)
   },
 
   async findId(email: string): Promise<{ message: string }> {
     const response = await apiClient.post('/auth/find-id', { email })
-    return response.data
+    return assertApiResponse<{ message: string }>(response.data)
   },
 
   async findPassword(email: string): Promise<{ message: string }> {
     const response = await apiClient.post('/auth/find-password', { email })
-    return response.data
+    return assertApiResponse<{ message: string }>(response.data)
   },
 
   async resetPassword(
@@ -56,11 +56,11 @@ export const authApi = {
       token,
       newPassword,
     })
-    return response.data
+    return assertApiResponse<{ message: string }>(response.data)
   },
 
   async verifyEmail(token: string): Promise<{ message: string }> {
     const response = await apiClient.post('/auth/verify-email', { token })
-    return response.data
+    return assertApiResponse<{ message: string }>(response.data)
   },
 }

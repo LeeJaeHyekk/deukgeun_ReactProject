@@ -1,4 +1,5 @@
 import "reflect-metadata"
+import "./polyfills" // Load browser API polyfills first
 import { AppDataSource } from "./config/database"
 import app from "./app"
 import { logger } from "./utils/logger"

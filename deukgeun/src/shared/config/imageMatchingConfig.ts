@@ -2,7 +2,11 @@
 // Image Matching Configuration
 // ============================================================================
 
-export const IMAGE_MATCHING_CONFIG = {
+export const IMAGE_MATCHING_CONFIG: {
+  MACHINE_IMAGES: { [key: string]: string }
+  DEFAULT_IMAGE: string
+  FALLBACK_IMAGE: string
+} = {
   MACHINE_IMAGES: {
     '벤치프레스': '/img/machine/bench-press.png',
     '스쿼트랙': '/img/machine/squat-rack.png',
@@ -71,7 +75,6 @@ export const IMAGE_MATCHING_CONFIG = {
     '팜컬': '/img/machine/palm-curl.png',
     '지르컬': '/img/machine/zottman-curl.png',
     '드래그컬': '/img/machine/drag-curl.png',
-    '스파이더컬': '/img/machine/spider-curl.png',
     '스탠딩컬': '/img/machine/standing-curl.png',
     '시티드컬': '/img/machine/seated-curl.png',
     '인클라인덤벨컬': '/img/machine/incline-dumbbell-curl.png',
@@ -166,7 +169,7 @@ export function getMachineImage(machineName: string): string {
   }
   
   // Try mapped name
-  const mappedName = MACHINE_NAME_MAPPING[machineName]
+  const mappedName = MACHINE_NAME_MAPPING[machineName as keyof typeof MACHINE_NAME_MAPPING]
   if (mappedName && IMAGE_MATCHING_CONFIG.MACHINE_IMAGES[mappedName]) {
     return IMAGE_MATCHING_CONFIG.MACHINE_IMAGES[mappedName]
   }

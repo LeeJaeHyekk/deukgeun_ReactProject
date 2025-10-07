@@ -30,11 +30,12 @@ class AdminApiService {
         `${API_ENDPOINTS.BASE_URL}/admin/stats`
       )
 
-      if (!response.data.success || !response.data.data) {
-        throw new Error(response.data.message || "Failed to fetch system stats")
+      const responseData = response.data as any
+      if (!responseData.success || !responseData.data) {
+        throw new Error(responseData.message || "Failed to fetch system stats")
       }
 
-      return response.data.data
+      return responseData.data
     } catch (error) {
       console.error("Failed to fetch system stats:", error)
       // 임시 데이터 반환 (실제로는 에러 처리)
@@ -59,13 +60,14 @@ class AdminApiService {
         `${API_ENDPOINTS.BASE_URL}/admin/performance`
       )
 
-      if (!response.data.success || !response.data.data) {
+      const responseData = response.data as any
+      if (!responseData.success || !responseData.data) {
         throw new Error(
-          response.data.message || "Failed to fetch performance metrics"
+          responseData.message || "Failed to fetch performance metrics"
         )
       }
 
-      return response.data.data
+      return responseData.data
     } catch (error) {
       console.error("Failed to fetch performance metrics:", error)
       // 임시 데이터 반환
@@ -93,13 +95,14 @@ class AdminApiService {
         `${API_ENDPOINTS.BASE_URL}/admin/dashboard`
       )
 
-      if (!response.data.success || !response.data.data) {
+      const responseData = response.data as any
+      if (!responseData.success || !responseData.data) {
         throw new Error(
-          response.data.message || "Failed to fetch dashboard data"
+          responseData.message || "Failed to fetch dashboard data"
         )
       }
 
-      return response.data.data
+      return responseData.data
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error)
       // 임시 데이터 반환
@@ -137,13 +140,14 @@ class AdminApiService {
         `${API_ENDPOINTS.BASE_URL}/admin/settings`
       )
 
-      if (!response.data.success || !response.data.data) {
+      const responseData = response.data as any
+      if (!responseData.success || !responseData.data) {
         throw new Error(
-          response.data.message || "Failed to fetch admin settings"
+          responseData.message || "Failed to fetch admin settings"
         )
       }
 
-      return response.data.data
+      return responseData.data
     } catch (error) {
       console.error("Failed to fetch admin settings:", error)
       // 기본 설정 반환
@@ -177,13 +181,14 @@ class AdminApiService {
         settings
       )
 
-      if (!response.data.success || !response.data.data) {
+      const responseData = response.data as any
+      if (!responseData.success || !responseData.data) {
         throw new Error(
-          response.data.message || "Failed to update admin settings"
+          responseData.message || "Failed to update admin settings"
         )
       }
 
-      return response.data.data
+      return responseData.data
     } catch (error) {
       console.error("Failed to update admin settings:", error)
       throw new Error("설정 업데이트에 실패했습니다")
@@ -197,11 +202,12 @@ class AdminApiService {
         `${API_ENDPOINTS.BASE_URL}/admin/logs?limit=${limit}`
       )
 
-      if (!response.data.success || !response.data.data) {
+      const responseData = response.data as any
+      if (!responseData.success || !responseData.data) {
         return []
       }
 
-      return response.data.data as any[]
+      return responseData.data as any[]
     } catch (error) {
       console.error("Failed to fetch system logs:", error)
       return []
@@ -216,13 +222,14 @@ class AdminApiService {
     try {
       const response = await api.post(`${API_ENDPOINTS.BASE_URL}/admin/backup`)
 
-      if (!response.data.success || !response.data.data) {
+      const responseData = response.data as any
+      if (!responseData.success || !responseData.data) {
         throw new Error(
-          response.data.message || "Failed to create database backup"
+          responseData.message || "Failed to create database backup"
         )
       }
 
-      return response.data.data as {
+      return responseData.data as {
         backupId: string
         downloadUrl: string
       }
@@ -259,11 +266,12 @@ class AdminApiService {
         `${API_ENDPOINTS.BASE_URL}/admin/users?page=${page}&limit=${limit}`
       )
 
-      if (!response.data.success || !response.data.data) {
+      const responseData = response.data as any
+      if (!responseData.success || !responseData.data) {
         return { users: [], total: 0, page: 1, limit: 20 }
       }
 
-      return response.data.data
+      return responseData.data
     } catch (error) {
       console.error("Failed to fetch users:", error)
       return { users: [], total: 0, page: 1, limit: 20 }

@@ -1,4 +1,4 @@
-import { apiClient } from './client'
+import { apiClient, assertApiResponse } from './client'
 import { User } from '@shared/types/dto/user.dto'
 import { Machine } from '@shared/types/dto/machine.dto'
 import { Post } from '@shared/types/dto/post.dto'
@@ -22,7 +22,7 @@ export interface UserManagementData {
 export const adminApi = {
   async getStats(): Promise<AdminStats> {
     const response = await apiClient.get('/admin/stats')
-    return response.data
+    return assertApiResponse<AdminStats>(response.data)
   },
 
   async getUsers(
@@ -37,17 +37,17 @@ export const adminApi = {
     if (search) params.append('search', search)
 
     const response = await apiClient.get(`/admin/users?${params}`)
-    return response.data
+    return assertApiResponse<UserManagementData>(response.data)
   },
 
   async getUserById(id: number): Promise<User> {
     const response = await apiClient.get(`/admin/users/${id}`)
-    return response.data
+    return assertApiResponse<User>(response.data)
   },
 
   async updateUser(id: number, userData: Partial<User>): Promise<User> {
     const response = await apiClient.put(`/admin/users/${id}`, userData)
-    return response.data
+    return assertApiResponse<User>(response.data)
   },
 
   async deleteUser(id: number): Promise<void> {
@@ -74,7 +74,7 @@ export const adminApi = {
     if (status) params.append('status', status)
 
     const response = await apiClient.get(`/admin/posts?${params}`)
-    return response.data
+    return assertApiResponse<{ posts: Post[]; total: number }>(response.data)
   },
 
   async deletePost(id: number): Promise<void> {
@@ -91,12 +91,12 @@ export const adminApi = {
     })
 
     const response = await apiClient.get(`/admin/machines?${params}`)
-    return response.data
+    return assertApiResponse<{ machines: Machine[]; total: number }>(response.data)
   },
 
   async createMachine(machineData: Partial<Machine>): Promise<Machine> {
     const response = await apiClient.post('/admin/machines', machineData)
-    return response.data
+    return assertApiResponse<Machine>(response.data)
   },
 
   async updateMachine(
@@ -104,7 +104,7 @@ export const adminApi = {
     machineData: Partial<Machine>
   ): Promise<Machine> {
     const response = await apiClient.put(`/admin/machines/${id}`, machineData)
-    return response.data
+    return assertApiResponse<Machine>(response.data)
   },
 
   async deleteMachine(id: number): Promise<void> {

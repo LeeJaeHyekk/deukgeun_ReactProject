@@ -5,7 +5,7 @@
 export const config = {
   // API Configuration
   api: {
-    baseURL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001',
+    baseURL: process.env.VITE_BACKEND_URL || 'http://localhost:5001',
     timeout: 10000,
     retryAttempts: 3,
     retryDelay: 1000,
@@ -23,23 +23,23 @@ export const config = {
   app: {
     name: 'Deukgeun',
     version: '1.0.0',
-    environment: import.meta.env.MODE || 'development',
-    debug: import.meta.env.DEV,
+    environment: process.env.MODE || 'development',
+    debug: process.env.DEV,
   },
 
   // Feature Flags
   features: {
-    enableRecaptcha: import.meta.env.VITE_ENABLE_RECAPTCHA === 'true',
-    enableAnalytics: import.meta.env.VITE_ENABLE_ANALYTICS === 'true',
-    enableNotifications: import.meta.env.VITE_ENABLE_NOTIFICATIONS === 'true',
+    enableRecaptcha: process.env.VITE_ENABLE_RECAPTCHA === 'true',
+    enableAnalytics: process.env.VITE_ENABLE_ANALYTICS === 'true',
+    enableNotifications: process.env.VITE_ENABLE_NOTIFICATIONS === 'true',
   },
 
   // ReCAPTCHA Configuration
   RECAPTCHA: {
     SITE_KEY:
-      import.meta.env.VITE_RECAPTCHA_SITE_KEY || 'your_recaptcha_site_key_here',
-    IS_DEVELOPMENT: import.meta.env.DEV || false,
-    IS_TEST_KEY: (import.meta.env.VITE_RECAPTCHA_SITE_KEY || '').includes(
+      process.env.VITE_RECAPTCHA_SITE_KEY || 'your_recaptcha_site_key_here',
+    IS_DEVELOPMENT: process.env.DEV || false,
+    IS_TEST_KEY: (process.env.VITE_RECAPTCHA_SITE_KEY || '').includes(
       'test'
     ),
     VERSION: 'v3',
@@ -87,6 +87,14 @@ export const API_ENDPOINTS = {
     RESET_PASSWORD: '/auth/reset-password',
     VERIFY_EMAIL: '/auth/verify-email',
     ACCOUNT_RECOVERY: '/auth/account-recovery',
+    FIND_ID: '/auth/find-id',
+    FIND_PASSWORD: '/auth/find-password',
+    FIND_ID_SIMPLE: '/auth/find-id-simple',
+    RESET_PASSWORD_SIMPLE_STEP1: '/auth/reset-password-simple-step1',
+    RESET_PASSWORD_SIMPLE_STEP2: '/auth/reset-password-simple-step2',
+    RESET_PASSWORD_VERIFY_CODE: '/auth/reset-password-verify-code',
+    RESET_PASSWORD_COMPLETE: '/auth/reset-password-complete',
+    CHECK: '/auth/check',
   },
 
   // User endpoints
@@ -100,21 +108,27 @@ export const API_ENDPOINTS = {
   // Machine endpoints
   MACHINES: {
     LIST: '/machines',
-    GET_BY_ID: '/machines',
-    GET_BY_CATEGORY: '/machines/category',
+    GET_ALL: '/machines',
+    GET_BY_ID: (id: number) => `/machines/${id}`,
+    DETAIL: (id: number) => `/machines/${id}`,
+    GET_BY_CATEGORY: (category: string) => `/machines/category/${category}`,
+    GET_BY_DIFFICULTY: (difficulty: string) => `/machines/difficulty/${difficulty}`,
+    GET_BY_TARGET: (target: string) => `/machines/target/${target}`,
     SEARCH: '/machines/search',
+    FILTER: '/machines/filter',
     CREATE: '/machines',
-    UPDATE: '/machines',
-    DELETE: '/machines',
+    UPDATE: (id: number) => `/machines/${id}`,
+    DELETE: (id: number) => `/machines/${id}`,
   },
 
   // Post endpoints
   POSTS: {
     LIST: '/community/posts',
-    GET_BY_ID: '/community/posts',
+    GET_ALL: '/community/posts',
+    GET_BY_ID: (id: number) => `/community/posts/${id}`,
     CREATE: '/community/posts',
-    UPDATE: '/community/posts',
-    DELETE: '/community/posts',
+    UPDATE: (id: number) => `/community/posts/${id}`,
+    DELETE: (id: number) => `/community/posts/${id}`,
     LIKE: '/community/posts/like',
     UNLIKE: '/community/posts/unlike',
   },
@@ -141,7 +155,8 @@ export const API_ENDPOINTS = {
   // Gym endpoints
   GYMS: {
     LIST: '/gyms',
-    GET_BY_ID: '/gyms',
+    GET_ALL: '/gyms',
+    GET_BY_ID: (id: number) => `/gyms/${id}`,
     SEARCH: '/gyms/search',
     NEARBY: '/gyms/nearby',
   },
@@ -158,64 +173,74 @@ export const API_ENDPOINTS = {
 
   // Level endpoints
   LEVELS: {
-    GET_USER_LEVEL: '/levels/user',
+    GET_USER_LEVEL: (userId: number) => `/levels/user/${userId}`,
     GET_LEVELS: '/levels',
     UPDATE_LEVEL: '/levels/update',
+    GRANT_EXP: '/levels/grant-exp',
+  },
+
+  // Workout Goals endpoints
+  WORKOUT_GOALS: {
+    GET_ALL: '/workout/goals',
+    GET_BY_ID: (id: number) => `/workout/goals/${id}`,
+    CREATE: '/workout/goals',
+    UPDATE: (id: number) => `/workout/goals/${id}`,
+    DELETE: (id: number) => `/workout/goals/${id}`,
   },
 }
 
 // Environment Configuration
 export const ENV_CONFIG = {
   // Backend URL
-  BACKEND_URL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001',
+  BACKEND_URL: process.env.VITE_BACKEND_URL || 'http://localhost:5001',
 
   // Frontend URL
-  FRONTEND_URL: import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173',
+  FRONTEND_URL: process.env.VITE_FRONTEND_URL || 'http://localhost:5173',
 
   // Database URL
   DATABASE_URL:
-    import.meta.env.VITE_DATABASE_URL || 'mysql://localhost:3306/deukgeun',
+    process.env.VITE_DATABASE_URL || 'mysql://localhost:3306/deukgeun',
 
   // Redis URL
-  REDIS_URL: import.meta.env.VITE_REDIS_URL || 'redis://localhost:6379',
+  REDIS_URL: process.env.VITE_REDIS_URL || 'redis://localhost:6379',
 
   // JWT Secret
-  JWT_SECRET: import.meta.env.VITE_JWT_SECRET || 'your-secret-key',
+  JWT_SECRET: process.env.VITE_JWT_SECRET || 'your-secret-key',
 
   // ReCAPTCHA
-  RECAPTCHA_SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY || '',
-  RECAPTCHA_SECRET_KEY: import.meta.env.VITE_RECAPTCHA_SECRET_KEY || '',
+  RECAPTCHA_SITE_KEY: process.env.VITE_RECAPTCHA_SITE_KEY || '',
+  RECAPTCHA_SECRET_KEY: process.env.VITE_RECAPTCHA_SECRET_KEY || '',
 
   // Kakao API
-  KAKAO_API_KEY: import.meta.env.VITE_KAKAO_API_KEY || '',
+  KAKAO_API_KEY: process.env.VITE_KAKAO_API_KEY || '',
 
   // Google API
-  GOOGLE_API_KEY: import.meta.env.VITE_GOOGLE_API_KEY || '',
+  GOOGLE_API_KEY: process.env.VITE_GOOGLE_API_KEY || '',
 
   // Email Configuration
-  SMTP_HOST: import.meta.env.VITE_SMTP_HOST || 'localhost',
-  SMTP_PORT: import.meta.env.VITE_SMTP_PORT || '587',
-  SMTP_USER: import.meta.env.VITE_SMTP_USER || '',
-  SMTP_PASS: import.meta.env.VITE_SMTP_PASS || '',
+  SMTP_HOST: process.env.VITE_SMTP_HOST || 'localhost',
+  SMTP_PORT: process.env.VITE_SMTP_PORT || '587',
+  SMTP_USER: process.env.VITE_SMTP_USER || '',
+  SMTP_PASS: process.env.VITE_SMTP_PASS || '',
 
   // File Storage
-  UPLOAD_PATH: import.meta.env.VITE_UPLOAD_PATH || './uploads',
-  MAX_FILE_SIZE: import.meta.env.VITE_MAX_FILE_SIZE || '10485760', // 10MB
+  UPLOAD_PATH: process.env.VITE_UPLOAD_PATH || './uploads',
+  MAX_FILE_SIZE: process.env.VITE_MAX_FILE_SIZE || '10485760', // 10MB
 
   // Rate Limiting
-  RATE_LIMIT_WINDOW: import.meta.env.VITE_RATE_LIMIT_WINDOW || '900000', // 15 minutes
-  RATE_LIMIT_MAX: import.meta.env.VITE_RATE_LIMIT_MAX || '100',
+  RATE_LIMIT_WINDOW: process.env.VITE_RATE_LIMIT_WINDOW || '900000', // 15 minutes
+  RATE_LIMIT_MAX: process.env.VITE_RATE_LIMIT_MAX || '100',
 
   // CORS
-  CORS_ORIGIN: import.meta.env.VITE_CORS_ORIGIN || 'http://localhost:5173',
+  CORS_ORIGIN: process.env.VITE_CORS_ORIGIN || 'http://localhost:5173',
 
   // Logging
-  LOG_LEVEL: import.meta.env.VITE_LOG_LEVEL || 'info',
-  LOG_FILE: import.meta.env.VITE_LOG_FILE || './logs/app.log',
+  LOG_LEVEL: process.env.VITE_LOG_LEVEL || 'info',
+  LOG_FILE: process.env.VITE_LOG_FILE || './logs/app.log',
 
   // Monitoring
-  ENABLE_MONITORING: import.meta.env.VITE_ENABLE_MONITORING === 'true',
-  MONITORING_PORT: import.meta.env.VITE_MONITORING_PORT || '9090',
+  ENABLE_MONITORING: process.env.VITE_ENABLE_MONITORING === 'true',
+  MONITORING_PORT: process.env.VITE_MONITORING_PORT || '9090',
 }
 
 // Kakao Configuration
@@ -327,4 +352,4 @@ export const routeUtils = {
 }
 
 // Export all configurations
-export default config
+module.exports.default = config

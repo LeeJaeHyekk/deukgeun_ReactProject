@@ -3,6 +3,21 @@ import React from 'react'
 import { render as rtlRender } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 
+// Jest 타입 정의
+declare global {
+  namespace jest {
+    interface Mock<T = any> {
+      (...args: any[]): T
+      mockImplementation: (fn: (...args: any[]) => T) => Mock<T>
+      mockReturnValue: (value: T) => Mock<T>
+      mockResolvedValue: (value: T) => Mock<T>
+      mockRejectedValue: (value: any) => Mock<T>
+    }
+    
+    function fn<T = any>(implementation?: (...args: any[]) => T): Mock<T>
+  }
+}
+
 export const render = (ui: React.ReactElement, options = {}) => {
   const Wrapper = ({ children }: { children: React.ReactNode }) => {
     return React.createElement(BrowserRouter, {}, children)
@@ -12,6 +27,25 @@ export const render = (ui: React.ReactElement, options = {}) => {
 
 // Mock 토큰
 export const mockToken = 'mock-jwt-token'
+
+// Mock 데이터 생성 함수들
+export const createMockUser = (overrides = {}) => ({
+  id: 1,
+  email: 'test@example.com',
+  nickname: '테스트 사용자',
+  birthDate: new Date('1990-01-01'),
+  gender: 'male' as const,
+  phoneNumber: '010-1234-5678',
+  level: 1,
+  exp: 0,
+  role: 'user' as const,
+  isActive: true,
+  isEmailVerified: true,
+  isPhoneVerified: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+})
 
 // Mock API 응답들
 export const mockApiResponses = {
@@ -29,32 +63,17 @@ export const mockApiResponses = {
   },
   '/api/workout/plans': {
     success: true,
-    data: [createMockWorkoutPlan()],
+    data: [],
   },
   '/api/workout/sessions': {
     success: true,
-    data: [createMockWorkoutSession()],
+    data: [],
   },
   '/api/workout/goals': {
     success: true,
-    data: [createMockWorkoutGoal()],
+    data: [],
   },
 }
-
-// Mock 데이터 생성 함수들
-export const createMockUser = (overrides = {}) => ({
-  id: 1,
-  email: 'test@example.com',
-  nickname: '테스트 사용자',
-  birthDate: new Date('1990-01-01'),
-  gender: 'male',
-  phoneNumber: '010-1234-5678',
-  level: 1,
-  exp: 0,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  ...overrides,
-})
 
 export const createMockAuthToken = (overrides = {}) => ({
   accessToken: 'mock-access-token',
@@ -377,8 +396,29 @@ export const createMockGeolocation = () => ({
         altitudeAccuracy: null,
         heading: null,
         speed: null,
+        toJSON: () => ({
+          latitude: 37.5665,
+          longitude: 126.978,
+          accuracy: 10,
+          altitude: null,
+          altitudeAccuracy: null,
+          heading: null,
+          speed: null,
+        }),
       },
       timestamp: Date.now(),
+      toJSON: () => ({
+        coords: {
+          latitude: 37.5665,
+          longitude: 126.978,
+          accuracy: 10,
+          altitude: null,
+          altitudeAccuracy: null,
+          heading: null,
+          speed: null,
+        },
+        timestamp: Date.now(),
+      }),
     }
     success(mockPosition)
   }),

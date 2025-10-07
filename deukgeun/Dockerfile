@@ -18,6 +18,9 @@ RUN npm ci
 # 소스 코드 복사
 COPY . .
 
+# 환경 변수 설정
+RUN npm run setup:env:deploy
+
 # 프로덕션 빌드
 RUN npm run build:production
 

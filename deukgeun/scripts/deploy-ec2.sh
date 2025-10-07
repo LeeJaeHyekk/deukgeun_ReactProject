@@ -103,6 +103,10 @@ build_project() {
     log_info "의존성 설치 중..."
     npm install
     
+    # 환경 변수 설정
+    log_info "환경 변수 설정 중..."
+    npm run setup:env:deploy
+    
     # 백엔드 빌드
     log_info "백엔드 빌드 중..."
     npm run build:backend:production

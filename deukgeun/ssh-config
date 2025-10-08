@@ -1,0 +1,31 @@
+# SSH 설정 파일 - deukgeun 프로젝트
+# 자동 생성: 2025-10-08T03:52:46.646Z
+
+Host deukgeun-ec2
+    HostName 3.36.230.117
+    User ubuntu
+    Port 22
+    IdentityFile "C:\Users\jaehyuok\Documents\GitHub\deukgeun_ReactProject\deukgeun\deukgeun_ReactProject.pem"
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+    ConnectTimeout 30
+    TCPKeepAlive yes
+    Compression yes
+    LogLevel QUIET
+
+# 테스트용 별칭
+Host deukgeun-test
+    HostName 3.36.230.117
+    User ubuntu
+    Port 22
+    IdentityFile "C:\Users\jaehyuok\Documents\GitHub\deukgeun_ReactProject\deukgeun\deukgeun_ReactProject.pem"
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    ServerAliveInterval 30
+    ServerAliveCountMax 2
+    ConnectTimeout 30
+    TCPKeepAlive yes
+    Compression yes
+    LogLevel QUIET

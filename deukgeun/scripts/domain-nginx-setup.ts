@@ -28,7 +28,7 @@ interface DomainConfig {
 const domainConfig: DomainConfig = {
   domain: 'devtrail.net',
   wwwDomain: 'www.devtrail.net',
-  ip: '3.36.230.117',
+  ip: '43.203.30.167',
   frontendPort: 3000,
   backendPort: 5000,
   isProduction: false

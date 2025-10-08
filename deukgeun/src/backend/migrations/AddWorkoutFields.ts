@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm"
 
-export class AddMissingFieldsToWorkoutEntities1703123456789 implements MigrationInterface {
-  name = "AddMissingFieldsToWorkoutEntities1703123456789"
+export class AddMissingFieldsToWorkoutEntities implements MigrationInterface {
+  name = "AddMissingFieldsToWorkoutEntities"
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // WorkoutPlanExercise 테이블에 exerciseId 컬럼 추가

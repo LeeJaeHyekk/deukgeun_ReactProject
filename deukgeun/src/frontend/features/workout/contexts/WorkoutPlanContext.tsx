@@ -216,7 +216,7 @@ function workoutPlanReducer(
       // 편집 모드일 때 기존 운동들을 모두 확정된 상태로 설정
       const initialConfirmedIndices: Set<number> =
         action.payload.mode === "edit"
-          ? new Set(exercises.map((_, index) => index))
+          ? new Set(exercises.map((_: any, index: number) => index))
           : new Set()
 
       return {

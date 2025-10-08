@@ -118,7 +118,7 @@ export function useProgressData(sessions: WorkoutSession[]) {
     )
 
     const result = Object.values(groupedData).sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()
     )
 
     console.log("차트 데이터 결과:", result)

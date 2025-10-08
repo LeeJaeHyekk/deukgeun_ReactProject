@@ -26,7 +26,7 @@
 # WSL에서 실행
 cd /mnt/c/Users/jaehyuok/Documents/GitHub/deukgeun_ReactProject/deukgeun
 chmod 600 deukgeun_ReactProject.pem
-ssh -i deukgeun_ReactProject.pem ubuntu@3.36.230.117
+ssh -i deukgeun_ReactProject.pem ubuntu@43.203.30.167
 ```
 
 ### 방법 2: Git Bash 사용
@@ -35,7 +35,7 @@ ssh -i deukgeun_ReactProject.pem ubuntu@3.36.230.117
 # Git Bash에서 실행
 cd /c/Users/jaehyuok/Documents/GitHub/deukgeun_ReactProject/deukgeun
 chmod 600 deukgeun_ReactProject.pem
-ssh -i deukgeun_ReactProject.pem ubuntu@3.36.230.117
+ssh -i deukgeun_ReactProject.pem ubuntu@43.203.30.167
 ```
 
 ### 방법 3: 배포 스크립트 사용
@@ -60,7 +60,7 @@ ssh -i deukgeun_ReactProject.pem ubuntu@3.36.230.117
 ## 🔍 SSH 설정 정보
 
 - **키 파일**: `./deukgeun_ReactProject.pem`
-- **EC2 호스트**: `3.36.230.117`
+- **EC2 호스트**: `43.203.30.167`
 - **사용자**: `ubuntu`
 - **포트**: `22`
 
@@ -76,7 +76,7 @@ ssh -i deukgeun_ReactProject.pem ubuntu@3.36.230.117
 
 1. **WSL 사용**: `wsl` 명령어로 WSL 환경 진입
 2. **권한 수정**: `chmod 600 deukgeun_ReactProject.pem`
-3. **연결 테스트**: `ssh -i deukgeun_ReactProject.pem ubuntu@3.36.230.117`
+3. **연결 테스트**: `ssh -i deukgeun_ReactProject.pem ubuntu@43.203.30.167`
 
 ### Windows에서 권한 문제 해결
 

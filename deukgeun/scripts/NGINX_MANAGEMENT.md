@@ -277,7 +277,7 @@ tail -f /var/log/nginx/error.log     # Error 로그
 ### 도메인 설정 (devtrail.net)
 - 메인 도메인: http://devtrail.net
 - WWW 도메인: http://www.devtrail.net
-- IP 직접 접속: http://3.36.230.117
+- IP 직접 접속: http://43.203.30.167
 - 백엔드 API: http://devtrail.net/api
 - 헬스체크: http://devtrail.net/health
 

@@ -80,7 +80,7 @@ export function SessionsTab({
             completed: 3,
             cancelled: 4,
           }
-          return statusOrder[a.status] - statusOrder[b.status]
+          return statusOrder[a.status as keyof typeof statusOrder] - statusOrder[b.status as keyof typeof statusOrder]
         default:
           // 기본값: 최신순
           return (

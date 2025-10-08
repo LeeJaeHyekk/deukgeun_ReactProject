@@ -10,15 +10,27 @@
  * - EC2 키 페어 관리: https://docs.aws.amazon.com/ec2/latest/userguide/ec2-key-pairs.html
  */
 
-const fs = require('fs')
-const path = require('path')
-const { execSync } = require('child_process')
+import * as fs from 'fs'
+import * as path from 'path'
+import { execSync } from 'child_process'
 
 // AWS 기반 복구 설정
-const config = {
+interface Config {
+  keyPath: string
+  keyName: string
+  ec2Host: string
+  ec2User: string
+  ec2Port: number
+  projectRoot: string
+  awsRegion: string
+  instanceId: string | null
+  newKeyName: string
+}
+
+const config: Config = {
   keyPath: './deukgeun_ReactProject.pem',
   keyName: 'deukgeun_ReactProject',
-  ec2Host: '3.36.230.117',
+  ec2Host: '43.203.30.167',
   ec2User: 'ubuntu',
   ec2Port: 22,
   projectRoot: process.cwd(),
@@ -28,17 +40,17 @@ const config = {
 }
 
 console.log('🔧 AWS 키 페어 복구를 시작합니다...')
-console.log('=' * 60)
+console.log('='.repeat(60))
 console.log('AWS 공식 문서 기반 복구 방법:')
 console.log(`  - 기존 키: ${config.keyName}`)
 console.log(`  - 새 키: ${config.newKeyName}`)
 console.log(`  - EC2 호스트: ${config.ec2Host}`)
-console.log('=' * 60)
+console.log('='.repeat(60))
 
 /**
  * 1. AWS CLI 및 Systems Manager 확인
  */
-function checkAWSCLI() {
+function checkAWSCLI(): boolean {
   console.log('\n1. AWS CLI 및 Systems Manager 확인 중...')
   
   try {
@@ -56,7 +68,7 @@ function checkAWSCLI() {
     console.log(`✅ AWS Systems Manager 사용 가능: ${ssmVersion}`)
     
     return true
-  } catch (error) {
+  } catch (error: any) {
     console.log('❌ AWS CLI 또는 Systems Manager 확인 실패:')
     console.log(`   ${error.message}`)
     console.log('   해결책: AWS CLI를 설치하고 자격 증명을 설정하세요.')
@@ -67,7 +79,7 @@ function checkAWSCLI() {
 /**
  * 2. EC2 인스턴스 정보 확인
  */
-function checkEC2Instance() {
+function checkEC2Instance(): boolean {
   console.log('\n2. EC2 인스턴스 정보 확인 중...')
   
   try {
@@ -90,7 +102,7 @@ function checkEC2Instance() {
       console.log('❌ 인스턴스 ID를 찾을 수 없습니다.')
       return false
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log('❌ EC2 인스턴스 정보 확인 실패:')
     console.log(`   ${error.message}`)
     return false
@@ -100,7 +112,7 @@ function checkEC2Instance() {
 /**
  * 3. Systems Manager를 통한 인스턴스 접근
  */
-function accessInstanceViaSSM() {
+function accessInstanceViaSSM(): boolean {
   console.log('\n3. Systems Manager를 통한 인스턴스 접근 중...')
   
   try {
@@ -121,11 +133,11 @@ function accessInstanceViaSSM() {
       console.log('   - systemctl status ssh')
       
       return true
-    } catch (error) {
+    } catch (error: any) {
       console.log('   Session Manager 자동 시작 실패, 수동으로 실행하세요.')
       return false
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log('❌ Systems Manager 접근 실패:')
     console.log(`   ${error.message}`)
     return false
@@ -135,7 +147,7 @@ function accessInstanceViaSSM() {
 /**
  * 4. 새 키 페어 생성
  */
-function createNewKeyPair() {
+function createNewKeyPair(): boolean {
   console.log('\n4. 새 키 페어 생성 중...')
   
   try {
@@ -154,7 +166,7 @@ function createNewKeyPair() {
     console.log('✅ 키 파일 권한 설정 완료')
     
     return true
-  } catch (error) {
+  } catch (error: any) {
     console.log('❌ 새 키 페어 생성 실패:')
     console.log(`   ${error.message}`)
     return false
@@ -164,7 +176,7 @@ function createNewKeyPair() {
 /**
  * 5. 인스턴스에 새 공개키 추가
  */
-function addNewPublicKey() {
+function addNewPublicKey(): boolean {
   console.log('\n5. 인스턴스에 새 공개키 추가 중...')
   
   try {
@@ -190,14 +202,14 @@ function addNewPublicKey() {
         const result = execSync(getResultCommand, { encoding: 'utf8' })
         console.log('✅ 공개키 추가 완료')
         console.log('   결과:', result)
-      } catch (error) {
+      } catch (error: any) {
         console.log('❌ 공개키 추가 결과 확인 실패:')
         console.log(`   ${error.message}`)
       }
     }, 5000)
     
     return true
-  } catch (error) {
+  } catch (error: any) {
     console.log('❌ 공개키 추가 실패:')
     console.log(`   ${error.message}`)
     return false
@@ -207,7 +219,7 @@ function addNewPublicKey() {
 /**
  * 6. 새 키로 SSH 연결 테스트
  */
-function testNewSSHConnection() {
+function testNewSSHConnection(): boolean {
   console.log('\n6. 새 키로 SSH 연결 테스트 중...')
   
   try {
@@ -227,7 +239,7 @@ function testNewSSHConnection() {
       console.log('❌ 새 키로 SSH 연결 실패')
       return false
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log('❌ SSH 연결 테스트 실패:')
     console.log(`   ${error.message}`)
     return false
@@ -237,7 +249,7 @@ function testNewSSHConnection() {
 /**
  * 7. 기존 키 파일 교체
  */
-function replaceOldKeyFile() {
+function replaceOldKeyFile(): boolean {
   console.log('\n7. 기존 키 파일 교체 중...')
   
   try {
@@ -258,7 +270,7 @@ function replaceOldKeyFile() {
     console.log('✅ 임시 파일 정리 완료')
     
     return true
-  } catch (error) {
+  } catch (error: any) {
     console.log('❌ 키 파일 교체 실패:')
     console.log(`   ${error.message}`)
     return false
@@ -268,7 +280,7 @@ function replaceOldKeyFile() {
 /**
  * 메인 복구 함수
  */
-async function main() {
+async function main(): Promise<void> {
   try {
     const results = {
       awsCLI: false,
@@ -316,9 +328,9 @@ async function main() {
     }
     
     // 결과 요약
-    console.log('\n' + '=' * 60)
+    console.log('\n' + '='.repeat(60))
     console.log('🎯 AWS 키 페어 복구 결과 요약')
-    console.log('=' * 60)
+    console.log('='.repeat(60))
     
     console.log(`1. AWS CLI 확인: ${results.awsCLI ? '✅' : '❌'}`)
     console.log(`2. EC2 인스턴스 확인: ${results.ec2Instance ? '✅' : '❌'}`)
@@ -336,18 +348,18 @@ async function main() {
       console.log('수동으로 남은 단계를 완료하세요.')
     }
     
-  } catch (error) {
+  } catch (error: any) {
     console.error(`❌ 복구 실패: ${error.message}`)
     process.exit(1)
   }
 }
 
 // 스크립트 실행
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   main()
 }
 
-module.exports = {
+export {
   checkAWSCLI,
   checkEC2Instance,
   accessInstanceViaSSM,

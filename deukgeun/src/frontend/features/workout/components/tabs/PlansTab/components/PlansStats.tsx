@@ -1,5 +1,5 @@
 import React from "react"
-import type { WorkoutPlan } from "../../../../../../shared/types"
+import type { WorkoutPlan } from "../../../../../../../shared/types"
 
 interface PlansStatsProps {
   plans: WorkoutPlan[]

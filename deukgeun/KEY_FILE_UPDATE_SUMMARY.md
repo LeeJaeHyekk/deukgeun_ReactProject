@@ -31,14 +31,14 @@
 ```bash
 cd /c/Users/jaehyuok/Documents/GitHub/deukgeun_ReactProject/deukgeun
 chmod 600 deukgeun_ReactProject.pem
-ssh -i deukgeun_ReactProject.pem ubuntu@3.36.230.117
+ssh -i deukgeun_ReactProject.pem ubuntu@43.203.30.167
 ```
 
 ### WSL에서 연결
 ```bash
 cd /mnt/c/Users/jaehyuok/Documents/GitHub/deukgeun_ReactProject/deukgeun
 chmod 600 deukgeun_ReactProject.pem
-ssh -i deukgeun_ReactProject.pem ubuntu@3.36.230.117
+ssh -i deukgeun_ReactProject.pem ubuntu@43.203.30.167
 ```
 
 ### Windows 배치 파일 사용

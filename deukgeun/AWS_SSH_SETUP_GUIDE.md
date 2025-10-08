@@ -71,7 +71,7 @@ node scripts/aws-key-pair-recovery.cjs
 #### 1-1. AWS EC2 인스턴스 확인
 ```bash
 # AWS CLI로 인스턴스 상태 확인
-aws ec2 describe-instances --filters "Name=ip-address,Values=3.36.230.117"
+aws ec2 describe-instances --filters "Name=ip-address,Values=43.203.30.167"
 ```
 
 **확인 사항:**

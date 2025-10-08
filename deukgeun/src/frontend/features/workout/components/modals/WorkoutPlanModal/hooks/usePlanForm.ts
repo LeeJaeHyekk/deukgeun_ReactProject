@@ -49,7 +49,7 @@ export function usePlanForm(currentPlan: WorkoutPlan | null) {
         estimatedDurationMinutes: currentPlan.estimatedDurationMinutes,
         targetMuscleGroups: currentPlan.targetMuscleGroups || [],
         isTemplate: currentPlan.isTemplate,
-        exercises: currentPlan.exercises.map(exercise => ({
+        exercises: currentPlan.exercises.map((exercise: any) => ({
           machineId: exercise.machineId,
           exerciseName: exercise.exerciseName,
           exerciseOrder: exercise.exerciseOrder,

@@ -2,36 +2,12 @@
 // Admin Utilities
 // ============================================================================
 
-// 타입 정의
-export type AdminRole = "user" | "moderator" | "admin"
-
-export interface AdminMenuItem {
-  id: string
-  label: string
-  path: string
-  icon: string
-  requiredRole: AdminRole
-  children?: AdminMenuItem[]
-}
-
-export interface SystemStats {
-  totalUsers: number
-  activeUsers: number
-  totalMachines: number
-  systemLoad: number
-  memoryUsage: number
-  diskUsage: number
-  uptime: number
-}
-
-export interface PerformanceMetrics {
-  averageResponseTime: number
-  requestCount: number
-  errorRate: number
-  cacheHitRate: number
-  memoryUsage: number
-  cpuUsage: number
-}
+import type {
+  AdminRole,
+  AdminMenuItem,
+  SystemStats,
+  PerformanceMetrics,
+} from "../types"
 
 // 관리자 권한 확인 함수들
 export function isAdmin(role: AdminRole): boolean {
@@ -187,18 +163,8 @@ export function logAdminAction(
   console.log("🔧 Admin Action:", logEntry)
 
   // 실제 프로덕션에서는 서버로 로그를 전송
-  if (typeof window !== 'undefined') {
-    // 브라우저 환경에서만 실행
-    try {
-      // Vite 환경 변수 확인
-      const isProd = (import.meta as any)?.env?.PROD;
-      if (isProd) {
-        // TODO: 서버 로그 API 호출
-      }
-    } catch (error) {
-      // import.meta가 지원되지 않는 환경에서는 무시
-      console.debug('import.meta not supported in this environment');
-    }
+  if (import.meta.env.PROD) {
+    // TODO: 서버 로그 API 호출
   }
 }
 

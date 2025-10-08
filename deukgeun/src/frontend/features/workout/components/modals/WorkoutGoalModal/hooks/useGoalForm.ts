@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react"
-import type { WorkoutGoal } from "../../../../../../shared/types"
+import type { WorkoutGoal } from "../../../../../../../shared/types"
 
 export function useGoalForm(goal?: WorkoutGoal | null) {
   const [formData, setFormData] = useState<Partial<WorkoutGoal>>({

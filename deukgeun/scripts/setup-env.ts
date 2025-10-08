@@ -27,7 +27,7 @@ function setupEnvironment(): void {
     // env.example이 없으면 기본 .env 파일 생성
     const defaultEnvContent = `# Frontend Environment Variables
 VITE_FRONTEND_PORT=5173
-VITE_BACKEND_URL=http://3.36.230.117:5000
+VITE_BACKEND_URL=http://43.203.30.167:5000
 
 # reCAPTCHA Enterprise 설정
 VITE_RECAPTCHA_SITE_KEY=6Lcf8-ArAAAAAEGpQDCsuecM4e9ZzeJ0LE6bgiMG
@@ -65,7 +65,7 @@ RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
 
 # CORS Configuration
-CORS_ORIGIN=http://localhost:5173,http://3.36.230.117:3000,http://3.36.230.117:5000,https://devtrail.net,https://www.devtrail.net`
+CORS_ORIGIN=http://localhost:5173,http://43.203.30.167:3000,http://43.203.30.167:5000,https://devtrail.net,https://www.devtrail.net`
     
     fs.writeFileSync(rootEnvPath, defaultEnvContent)
     console.log('✅ 기본 루트 .env 파일이 생성되었습니다.')
@@ -95,7 +95,7 @@ PORT=5000
 # ============================================================================
 # 🌐 CORS 설정
 # ============================================================================
-CORS_ORIGIN=http://localhost:5173,http://localhost:3000,http://3.36.230.117:3000,http://3.36.230.117:5000,https://devtrail.net,https://www.devtrail.net
+CORS_ORIGIN=http://localhost:5173,http://localhost:3000,http://43.203.30.167:3000,http://43.203.30.167:5000,https://devtrail.net,https://www.devtrail.net
 
 # ============================================================================
 # 🗄️ 데이터베이스 설정 (MySQL)

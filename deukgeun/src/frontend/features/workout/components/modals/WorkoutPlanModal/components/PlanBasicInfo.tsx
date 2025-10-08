@@ -1,5 +1,5 @@
 import React from "react"
-import type { CreatePlanRequest } from "../../../../../../shared/types"
+import type { CreatePlanRequest } from "../../../../../../../shared/types"
 import styles from "./PlanBasicInfo.module.css"
 
 interface PlanBasicInfoProps {

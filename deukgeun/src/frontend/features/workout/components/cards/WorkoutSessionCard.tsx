@@ -175,7 +175,7 @@ export function WorkoutSessionCard({
 
           {showDetails ? (
             <div className="exercise-list-detailed">
-              {session.exerciseSets.map((set, index) => (
+              {session.exerciseSets.map((set: any, index: number) => (
                 <div key={index} className="exercise-item-detailed">
                   <div className="exercise-header">
                     <span className="exercise-name">{set.machineId ? `머신 ${set.machineId}` : "운동"}</span>
@@ -201,7 +201,7 @@ export function WorkoutSessionCard({
             </div>
           ) : (
             <div className="exercise-list">
-              {session.exerciseSets.slice(0, 3).map((set, index) => (
+              {session.exerciseSets.slice(0, 3).map((set: any, index: number) => (
                 <div key={index} className="exercise-item">
                   <span className="exercise-name">{set.machineId ? `머신 ${set.machineId}` : "운동"}</span>
                   <span className="exercise-sets">

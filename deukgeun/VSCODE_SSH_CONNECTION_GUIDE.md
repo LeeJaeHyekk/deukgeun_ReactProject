@@ -7,7 +7,7 @@
 2. **Remote-SSH 확장** 설치
 3. **SSH 키 파일**: `deukgeun_ReactProject.pem`
 4. **EC2 인스턴스 정보**:
-   - IP 주소: `3.36.230.117` (기존)
+   - IP 주소: `43.203.30.167` (기존)
    - 새 IP 주소: `YOUR_NEW_IP_ADDRESS` (새 인스턴스)
    - 사용자: `ubuntu`
    - 포트: `22`
@@ -32,7 +32,7 @@ C:\Users\jaehyuok\.ssh\config
 **현재 설정 내용:**
 ```
 Host deukgeun-ec2
-    HostName 3.36.230.117
+    HostName 43.203.30.167
     User ubuntu
     Port 22
     IdentityFile "C:\Users\jaehyuok\Documents\GitHub\deukgeun_ReactProject\deukgeun\deukgeun_ReactProject.pem"

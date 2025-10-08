@@ -247,7 +247,7 @@ class DomainConfigTest {
     this.logger.log('\n🔗 예상 서비스 URL:', 'cyan')
     this.logger.log('- http://devtrail.net', 'green')
     this.logger.log('- http://www.devtrail.net', 'green')
-    this.logger.log('- http://3.36.230.117', 'green')
+    this.logger.log('- http://43.203.30.167', 'green')
     this.logger.log('- http://devtrail.net/api', 'green')
     this.logger.log('- http://devtrail.net/health', 'green')
   }

@@ -44,7 +44,7 @@ AWS 콘솔 → EC2 → 인스턴스 → deukgeun 인스턴스
 
 **필수 확인 사항:**
 - [ ] **인스턴스 상태**: "running" (중지된 경우 시작 필요)
-- [ ] **공개 IP 주소**: `3.36.230.117` (변경된 경우 새 IP 사용)
+- [ ] **공개 IP 주소**: `43.203.30.167` (변경된 경우 새 IP 사용)
 - [ ] **인스턴스 타입**: t2.micro 이상 (충분한 리소스)
 - [ ] **부팅 상태**: "2/2 checks passed" (시스템 상태 정상)
 
@@ -120,12 +120,12 @@ EC2 → 인스턴스 → 연결 → EC2 Instance Connect
 #### 3-1. 기본 네트워크 연결 테스트
 ```bash
 # 1. Ping 테스트 (ICMP)
-ping 3.36.230.117
+ping 43.203.30.167
 
 # 2. 포트 연결 테스트 (SSH)
-telnet 3.36.230.117 22
+telnet 43.203.30.167 22
 # 또는
-nc -zv 3.36.230.117 22
+nc -zv 43.203.30.167 22
 ```
 
 #### 3-2. Windows 방화벽 및 보안 소프트웨어 확인
@@ -164,26 +164,26 @@ nc -zv 3.36.230.117 22
 ```bash
 # WSL 설치 후
 wsl --install
-wsl ssh -i ~/.ssh/ZEV_AWS_KEY.pem ubuntu@3.36.230.117
+wsl ssh -i ~/.ssh/ZEV_AWS_KEY.pem ubuntu@43.203.30.167
 ```
 
 #### 4-2. Git Bash 사용
 ```bash
 # Git Bash에서 SSH 연결
-ssh -i "./ZEV_AWS_KEY.pem" ubuntu@3.36.230.117
+ssh -i "./ZEV_AWS_KEY.pem" ubuntu@43.203.30.167
 ```
 
 #### 4-3. PowerShell 관리자 권한
 ```bash
 # PowerShell을 관리자 권한으로 실행 후
-ssh -i "./ZEV_AWS_KEY.pem" ubuntu@3.36.230.117
+ssh -i "./ZEV_AWS_KEY.pem" ubuntu@43.203.30.167
 ```
 
 #### 4-4. SSH 클라이언트 대안
 ```bash
 # PuTTY 사용
 puttygen ZEV_AWS_KEY.pem -O private -o ZEV_AWS_KEY.ppk
-putty -i ZEV_AWS_KEY.ppk ubuntu@3.36.230.117
+putty -i ZEV_AWS_KEY.ppk ubuntu@43.203.30.167
 ```
 
 ### 5단계: 인스턴스 내부 authorized_keys 확인
@@ -223,7 +223,7 @@ chmod 600 ~/.ssh/authorized_keys
 #### 6-1. SSH 연결 최종 테스트
 ```bash
 # 상세 로그와 함께 연결 테스트
-ssh -v -i "./ZEV_AWS_KEY.pem" ubuntu@3.36.230.117
+ssh -v -i "./ZEV_AWS_KEY.pem" ubuntu@43.203.30.167
 ```
 
 #### 6-2. 프로젝트 배포 스크립트 실행
@@ -273,7 +273,7 @@ node scripts/simple-ssh-setup.cjs
 ### 1단계: AWS EC2 인스턴스 (최우선)
 - [ ] **인스턴스 상태**: "running" (중지 시 시작)
 - [ ] **시스템 상태**: "2/2 checks passed"
-- [ ] **공개 IP**: `3.36.230.117` (변경 시 새 IP 사용)
+- [ ] **공개 IP**: `43.203.30.167` (변경 시 새 IP 사용)
 - [ ] **보안 그룹**: SSH 포트(22) 열림, 소스 `0.0.0.0/0`
 - [ ] **키 페어**: ZEV_AWS_KEY 연결됨
 
@@ -285,8 +285,8 @@ node scripts/simple-ssh-setup.cjs
 - [ ] **키 매칭**: 로컬 개인키 ↔ AWS 공개키 일치
 
 ### 3단계: 네트워크 연결
-- [ ] **Ping 테스트**: `ping 3.36.230.117` 성공
-- [ ] **포트 테스트**: `telnet 3.36.230.117 22` 성공
+- [ ] **Ping 테스트**: `ping 43.203.30.167` 성공
+- [ ] **포트 테스트**: `telnet 43.203.30.167 22` 성공
 - [ ] **방화벽**: Windows 방화벽 SSH 허용
 - [ ] **VPN/프록시**: EC2 접근 차단 없음
 - [ ] **네트워크 환경**: 회사/학교 제한 없음
@@ -299,7 +299,7 @@ node scripts/simple-ssh-setup.cjs
 - [ ] **SSH 서비스**: `systemctl status ssh` 활성
 
 ### 5단계: 최종 연결 테스트
-- [ ] **SSH 연결**: `ssh -v -i "./ZEV_AWS_KEY.pem" ubuntu@3.36.230.117`
+- [ ] **SSH 연결**: `ssh -v -i "./ZEV_AWS_KEY.pem" ubuntu@43.203.30.167`
 - [ ] **파일 전송**: `scp` 명령어 성공
 - [ ] **배포 스크립트**: `./deploy-ssh-commands.sh test` 성공
 - [ ] **서비스 실행**: 프로젝트 정상 배포
@@ -309,10 +309,10 @@ node scripts/simple-ssh-setup.cjs
 ### 1. 상세 SSH 로그 분석
 ```bash
 # 가장 상세한 로그 (디버깅용)
-ssh -vvv -i "./ZEV_AWS_KEY.pem" ubuntu@3.36.230.117
+ssh -vvv -i "./ZEV_AWS_KEY.pem" ubuntu@43.203.30.167
 
 # 일반적인 상세 로그
-ssh -v -i "./ZEV_AWS_KEY.pem" ubuntu@3.36.230.117
+ssh -v -i "./ZEV_AWS_KEY.pem" ubuntu@43.203.30.167
 ```
 
 **로그에서 확인할 사항:**
@@ -324,15 +324,15 @@ ssh -v -i "./ZEV_AWS_KEY.pem" ubuntu@3.36.230.117
 ### 2. 네트워크 연결 종합 테스트
 ```bash
 # 1. Ping 테스트 (ICMP)
-ping -c 4 3.36.230.117
+ping -c 4 43.203.30.167
 
 # 2. 포트 연결 테스트 (SSH)
-telnet 3.36.230.117 22
+telnet 43.203.30.167 22
 # 또는
-nc -zv 3.36.230.117 22
+nc -zv 43.203.30.167 22
 
 # 3. 라우팅 테스트
-tracert 3.36.230.117
+tracert 43.203.30.167
 ```
 
 ### 3. SSH 설정 파일 최적화
@@ -398,7 +398,7 @@ aws ec2 reboot-instances --instance-ids i-인스턴스ID
 ### 3. 대안 SSH 클라이언트 사용
 ```bash
 # PuTTY (Windows)
-putty -i ZEV_AWS_KEY.ppk ubuntu@3.36.230.117
+putty -i ZEV_AWS_KEY.ppk ubuntu@43.203.30.167
 
 # MobaXterm (Windows)
 # WinSCP (Windows)

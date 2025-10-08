@@ -41,7 +41,7 @@ export function WorkoutProgressTab({
     const totalSessions = sessions.length
     const totalCompletedSets = sessions.reduce(
       (sum, session) =>
-        sum + session.exerciseSets.filter(set => set.repsCompleted > 0).length,
+        sum + session.exerciseSets.filter((set: any) => set.repsCompleted > 0).length,
       0
     )
     const totalSets = sessions.reduce(
@@ -105,7 +105,7 @@ export function WorkoutProgressTab({
       }
 
       const completedSets = session.exerciseSets.filter(
-        set => set.repsCompleted > 0
+        (set: any) => set.repsCompleted > 0
       ).length
       const totalSets = session.exerciseSets.length
 

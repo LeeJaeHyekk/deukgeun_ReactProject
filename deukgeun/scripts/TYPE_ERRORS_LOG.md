@@ -10,7 +10,7 @@
 **해결**: `npm install --save-dev @types/node` 실행
 
 ### 2. 중복된 Export 선언
-**파일**: `build-script.ts`, `deploy-script.ts`
+**파일**: `build.ts`, `deploy.ts`
 **문제**: 같은 함수명을 두 번 export하여 충돌 발생
 ```typescript
 // 문제 코드

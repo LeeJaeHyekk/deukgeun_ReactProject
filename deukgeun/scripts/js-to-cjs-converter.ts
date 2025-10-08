@@ -590,7 +590,7 @@ if (typeof window === 'undefined') {
   }
 
   /**
-   * 파일 변환 (캐시 지원)
+   * 파일 변환 (개선된 버전 - 중복 방지 및 효율성 향상)
    */
   convertFile(filePath: string): string | null {
     try {
@@ -599,50 +599,131 @@ if (typeof window === 'undefined') {
       log(`변환 시작: ${path.relative(process.cwd(), filePath)}`, 'cyan')
       log(`원본 내용 길이: ${content.length}`, 'cyan')
       
-      // 캐시 비활성화 - 항상 변환 실행
-      // if (this.cacheManager.hasValidCache(filePath, content)) {
-      //   log(`캐시에서 로드: ${filePath}`, 'cyan')
-      //   return this.cacheManager.getCachedResult(filePath)
-      // }
+      // 이미 변환된 파일인지 확인 (중복 변환 방지)
+      if (this.isAlreadyConverted(content)) {
+        log(`이미 변환된 파일: ${path.relative(process.cwd(), filePath)}`, 'yellow')
+        return content
+      }
+      
+      // 캐시 확인 (개선된 버전)
+      if (this.cacheManager.hasValidCache(filePath, content)) {
+        log(`캐시에서 로드: ${filePath}`, 'cyan')
+        return this.cacheManager.getCachedResult(filePath)
+      }
       
       let convertedContent = content
+      let hasChanges = false
       
-      // 1단계: import.meta.env 변환 (더 구체적인 패턴부터)
-      log(`변환 전 import.meta.env 개수: ${(convertedContent.match(/import\.meta\.env/g) || []).length}`, 'cyan')
-      
-      // VITE_ 변수들 먼저 처리
-      convertedContent = convertedContent.replace(/import\.meta\.env\.VITE_([A-Z_]+)/g, 'process.env.VITE_$1')
-      
-      // 일반 환경 변수들 처리
-      convertedContent = convertedContent.replace(/import\.meta\.env\.([A-Z_]+)/g, 'process.env.$1')
-      
-      // 특수 변수들 처리
-      convertedContent = convertedContent.replace(/import\.meta\.env\.MODE/g, 'process.env.NODE_ENV')
-      convertedContent = convertedContent.replace(/import\.meta\.env\.DEV/g, 'process.env.NODE_ENV === "development"')
-      convertedContent = convertedContent.replace(/import\.meta\.env\.PROD/g, 'process.env.NODE_ENV === "production"')
-      
-      // 나머지 import.meta.env 처리
-      convertedContent = convertedContent.replace(/import\.meta\.env/g, 'process.env')
-      
-      log(`변환 후 process.env 개수: ${(convertedContent.match(/process\.env/g) || []).length}`, 'cyan')
+      // 1단계: import.meta.env 변환 (순서 중요 - 구체적인 패턴부터)
+      const originalImportMetaCount = (convertedContent.match(/import\.meta\.env/g) || []).length
+      if (originalImportMetaCount > 0) {
+        log(`변환 전 import.meta.env 개수: ${originalImportMetaCount}`, 'cyan')
+        
+        // VITE_ 변수들 먼저 처리 (가장 구체적)
+        convertedContent = convertedContent.replace(/import\.meta\.env\.VITE_([A-Z_]+)/g, 'process.env.VITE_$1')
+        
+        // 특수 변수들 처리
+        convertedContent = convertedContent.replace(/import\.meta\.env\.MODE/g, 'process.env.NODE_ENV')
+        convertedContent = convertedContent.replace(/import\.meta\.env\.DEV/g, 'process.env.NODE_ENV === "development"')
+        convertedContent = convertedContent.replace(/import\.meta\.env\.PROD/g, 'process.env.NODE_ENV === "production"')
+        
+        // 일반 환경 변수들 처리
+        convertedContent = convertedContent.replace(/import\.meta\.env\.([A-Z_]+)/g, 'process.env.$1')
+        
+        // 나머지 import.meta.env 처리
+        convertedContent = convertedContent.replace(/import\.meta\.env/g, 'process.env')
+        
+        const newProcessEnvCount = (convertedContent.match(/process\.env/g) || []).length
+        log(`변환 후 process.env 개수: ${newProcessEnvCount}`, 'cyan')
+        
+        if (convertedContent !== content) {
+          hasChanges = true
+        }
+      }
 
-      // 2단계: import/export 변환
-      convertedContent = convertedContent.replace(/import\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g, 'const $1 = require(\'$2\').default')
-      convertedContent = convertedContent.replace(/import\s*\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]/g, 'const { $1 } = require(\'$2\')')
-      convertedContent = convertedContent.replace(/import\s+\*\s+as\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g, 'const $1 = require(\'$2\')')
-      
-      // 3단계: export 변환
-      convertedContent = convertedContent.replace(/export\s+default\s+([^;]+)/g, 'module.exports.default = $1')
-      convertedContent = convertedContent.replace(/export\s*\{\s*([^}]+)\s*\}/g, (match: string, exports: string) => {
-        return exports.split(',').map(exp => {
-          exp = exp.trim()
-          return `module.exports.${exp} = ${exp}`
-        }).join('\n')
-      })
+      // 2단계: import/export 변환 (필요한 경우에만)
+      if (this.needsImportExportConversion(convertedContent)) {
+        // 기본 import 변환
+        convertedContent = convertedContent.replace(/import\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g, 'const $1 = require(\'$2\').default')
+        
+        // 명명된 import 변환
+        convertedContent = convertedContent.replace(/import\s*\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]/g, 'const { $1 } = require(\'$2\')')
+        
+        // 네임스페이스 import 변환
+        convertedContent = convertedContent.replace(/import\s+\*\s+as\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g, 'const $1 = require(\'$2\')')
+        
+        // 기본 export 변환
+        convertedContent = convertedContent.replace(/export\s+default\s+([^;]+)/g, 'module.exports.default = $1')
+        
+        // 명명된 export 변환
+        convertedContent = convertedContent.replace(/export\s*\{\s*([^}]+)\s*\}/g, (match: string, exports: string) => {
+          return exports.split(',').map(exp => {
+            exp = exp.trim()
+            return `module.exports.${exp} = ${exp}`
+          }).join('\n')
+        })
+        
+        hasChanges = true
+      }
 
-      // 4단계: 브라우저 API polyfill 추가
-      if (convertedContent.includes('window') || convertedContent.includes('document') || convertedContent.includes('localStorage')) {
-        const polyfill = `// Browser API polyfills for Node.js environment
+      // 3단계: 브라우저 API polyfill 추가 (필요한 경우에만)
+      if (this.needsBrowserPolyfill(convertedContent)) {
+        const polyfill = this.generateBrowserPolyfill()
+        convertedContent = polyfill + convertedContent
+        hasChanges = true
+      }
+      
+      // 변환이 실제로 일어났는지 확인
+      if (!hasChanges) {
+        log(`변환이 필요하지 않음: ${path.relative(process.cwd(), filePath)}`, 'yellow')
+        return content
+      }
+      
+      // 캐시에 저장
+      this.cacheManager.setCache(filePath, content, convertedContent)
+      
+      log(`변환 완료: ${path.relative(process.cwd(), filePath)}`, 'green')
+      log(`변환된 내용 길이: ${convertedContent.length}`, 'green')
+      log(`변환 여부: ${content !== convertedContent ? '변환됨' : '변환되지 않음'}`, 'yellow')
+      
+      return convertedContent
+    } catch (error) {
+      logError(`파일 변환 실패: ${filePath} - ${(error as Error).message}`)
+      return null
+    }
+  }
+
+  /**
+   * 이미 변환된 파일인지 확인
+   */
+  private isAlreadyConverted(content: string): boolean {
+    // 이미 process.env를 사용하고 있고 import.meta.env가 없으면 변환됨
+    const hasProcessEnv = content.includes('process.env')
+    const hasImportMeta = content.includes('import.meta.env')
+    
+    return hasProcessEnv && !hasImportMeta
+  }
+
+  /**
+   * import/export 변환이 필요한지 확인
+   */
+  private needsImportExportConversion(content: string): boolean {
+    return content.includes('import ') || content.includes('export ')
+  }
+
+  /**
+   * 브라우저 polyfill이 필요한지 확인
+   */
+  private needsBrowserPolyfill(content: string): boolean {
+    const browserAPIs = ['window', 'document', 'localStorage', 'sessionStorage', 'navigator']
+    return browserAPIs.some(api => content.includes(api))
+  }
+
+  /**
+   * 브라우저 API polyfill 생성
+   */
+  private generateBrowserPolyfill(): string {
+    return `// Browser API polyfills for Node.js environment
 if (typeof window === 'undefined') {
   global.window = global.window || {}
   global.document = global.document || {}
@@ -664,31 +745,26 @@ if (typeof window === 'undefined') {
 }
 
 `
-        convertedContent = polyfill + convertedContent
-      }
-      
-      // 캐시에 저장
-      this.cacheManager.setCache(filePath, content, convertedContent)
-      
-      log(`변환 완료: ${path.relative(process.cwd(), filePath)}`, 'green')
-      log(`변환된 내용 길이: ${convertedContent.length}`, 'green')
-      log(`변환 여부: ${content !== convertedContent ? '변환됨' : '변환되지 않음'}`, 'yellow')
-      
-      return convertedContent
-    } catch (error) {
-      logError(`파일 변환 실패: ${filePath} - ${(error as Error).message}`)
-      return null
-    }
   }
 
   /**
-   * 병렬 파일 변환 (개선된 버전)
+   * 병렬 파일 변환 (개선된 버전 - 중복 제거 및 메모리 최적화)
    */
   async convertFilesParallel(filePaths: string[]): Promise<{ results: Map<string, ConversionResult>, errors: Map<string, Error> }> {
-    const processor = new ParallelProcessor()
+    // 중복 파일 제거
+    const uniqueFilePaths = Array.from(new Set(filePaths))
+    log(`중복 제거: ${filePaths.length} → ${uniqueFilePaths.length}개 파일`, 'cyan')
     
-    return await processor.processFiles(filePaths, async (filePath: string): Promise<ConversionResult> => {
+    const processor = new ParallelProcessor(2) // 워커 수 제한으로 메모리 사용량 조절
+    
+    return await processor.processFiles(uniqueFilePaths, async (filePath: string): Promise<ConversionResult> => {
       try {
+        // 메모리 사용량 체크
+        if (process.memoryUsage().heapUsed > 200 * 1024 * 1024) { // 200MB
+          logWarning('메모리 사용량이 높습니다. 잠시 대기...')
+          await new Promise(resolve => setTimeout(resolve, 100))
+        }
+        
         const result = this.convertFile(filePath)
         if (result) {
           return { filePath, content: result, success: true }
@@ -934,10 +1010,10 @@ class BuildIntegrator {
   }
 
   /**
-   * 빌드된 파일들을 .cjs 확장자로 변경
+   * 빌드된 파일들을 .cjs 확장자로 변경하고 require 경로 수정
    */
   private async renameToCjs(): Promise<void> {
-    logStep('RENAME', '파일 확장자를 .cjs로 변경...')
+    logStep('RENAME', '파일 확장자를 .cjs로 변경하고 require 경로 수정...')
     
     try {
       const distPath = path.join(this.projectRoot, 'dist')
@@ -966,8 +1042,74 @@ class BuildIntegrator {
       
       renameFiles(distPath)
       logSuccess('파일 확장자 변경 완료')
+      
+      // require 경로 수정
+      await this.fixRequirePaths()
+      
     } catch (error) {
       logError(`파일 확장자 변경 실패: ${(error as Error).message}`)
+      throw error
+    }
+  }
+
+  /**
+   * 모든 .cjs 파일의 require 경로를 .cjs 확장자로 수정
+   */
+  private async fixRequirePaths(): Promise<void> {
+    logStep('FIX_REQUIRES', 'require 경로를 .cjs 확장자로 수정...')
+    
+    try {
+      const distPath = path.join(this.projectRoot, 'dist')
+      if (!fs.existsSync(distPath)) {
+        logWarning('dist 폴더가 존재하지 않습니다.')
+        return
+      }
+      
+      const fixRequiresInFile = (filePath: string): void => {
+        const content = fs.readFileSync(filePath, 'utf8')
+        let modifiedContent = content
+        
+        // require("./module") -> require("./module.cjs")
+        modifiedContent = modifiedContent.replace(/require\("\.\/([^"]+)\.js"\)/g, 'require("./$1.cjs")')
+        modifiedContent = modifiedContent.replace(/require\("\.\/([^"]+)"\)/g, 'require("./$1.cjs")')
+        
+        // require("../module") -> require("../module.cjs")
+        modifiedContent = modifiedContent.replace(/require\("\.\.\/([^"]+)\.js"\)/g, 'require("../$1.cjs")')
+        modifiedContent = modifiedContent.replace(/require\("\.\.\/([^"]+)"\)/g, 'require("../$1.cjs")')
+        
+        // require("../../module") -> require("../../module.cjs")
+        modifiedContent = modifiedContent.replace(/require\("\.\.\/\.\.\/([^"]+)\.js"\)/g, 'require("../../$1.cjs")')
+        modifiedContent = modifiedContent.replace(/require\("\.\.\/\.\.\/([^"]+)"\)/g, 'require("../../$1.cjs")')
+        
+        // require("../../../module") -> require("../../../module.cjs")
+        modifiedContent = modifiedContent.replace(/require\("\.\.\/\.\.\/\.\.\/([^"]+)\.js"\)/g, 'require("../../../$1.cjs")')
+        modifiedContent = modifiedContent.replace(/require\("\.\.\/\.\.\/\.\.\/([^"]+)"\)/g, 'require("../../../$1.cjs")')
+        
+        if (modifiedContent !== content) {
+          fs.writeFileSync(filePath, modifiedContent, 'utf8')
+          log(`✅ require 경로 수정됨: ${path.relative(this.projectRoot, filePath)}`, 'green')
+        }
+      }
+      
+      const processFiles = (dir: string): void => {
+        const items = fs.readdirSync(dir)
+        
+        for (const item of items) {
+          const itemPath = path.join(dir, item)
+          const stat = fs.statSync(itemPath)
+          
+          if (stat.isDirectory()) {
+            processFiles(itemPath)
+          } else if (item.endsWith('.cjs')) {
+            fixRequiresInFile(itemPath)
+          }
+        }
+      }
+      
+      processFiles(distPath)
+      logSuccess('require 경로 수정 완료')
+    } catch (error) {
+      logError(`require 경로 수정 실패: ${(error as Error).message}`)
       throw error
     }
   }
@@ -1241,16 +1383,27 @@ async function main(): Promise<void> {
     
     try {
       log('🔍 executeConversion 호출 시작...', 'cyan')
+      
+      // 변환 전 메모리 상태 확인
+      const initialMemory = process.memoryUsage()
+      log(`초기 메모리 사용량: ${Math.round(initialMemory.heapUsed / 1024 / 1024)}MB`, 'blue')
+      
       const { successCount, failCount, results, errors } = await integrator.executeConversion(conversionTargets)
       log(`변환 결과: 성공 ${successCount}개, 실패 ${failCount}개`, 'cyan')
       log(`롤백 스택 크기: ${integrator.getRollbackStackSize()}`, 'blue')
       
+      // 변환 후 메모리 상태 확인
+      const finalMemory = process.memoryUsage()
+      log(`최종 메모리 사용량: ${Math.round(finalMemory.heapUsed / 1024 / 1024)}MB`, 'blue')
+      log(`메모리 증가량: ${Math.round((finalMemory.heapUsed - initialMemory.heapUsed) / 1024 / 1024)}MB`, 'blue')
+      
       if (failCount > 0) {
         logWarning(`${failCount}개 파일 변환 실패`)
         
-        // 에러가 많으면 롤백
-        if (failCount > conversionTargets.length * 0.5) {
-          logError('변환 실패율이 높습니다. 롤백을 실행합니다.')
+        // 에러가 많으면 롤백 (임계값 조정)
+        const failureRate = failCount / conversionTargets.length
+        if (failureRate > 0.3) { // 30% 이상 실패 시 롤백
+          logError(`변환 실패율이 높습니다 (${Math.round(failureRate * 100)}%). 롤백을 실행합니다.`)
           await integrator.rollback()
           process.exit(1)
         }
@@ -1320,7 +1473,7 @@ async function main(): Promise<void> {
 }
 
 // 스크립트 실행
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (require.main === module) {
   main()
 }
 

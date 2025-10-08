@@ -81,7 +81,7 @@ try {
 console.log('\n3. SSH 연결 테스트 중...')
 
 try {
-  const sshCommand = `ssh -i "${keyPath}" -o ConnectTimeout=10 -o StrictHostKeyChecking=no ubuntu@3.36.230.117 "echo 'SSH 연결 성공'"`
+  const sshCommand = `ssh -i "${keyPath}" -o ConnectTimeout=10 -o StrictHostKeyChecking=no ubuntu@43.203.30.167 "echo 'SSH 연결 성공'"`
   console.log(`연결 테스트 명령어: ${sshCommand}`)
   
   const result = execSync(sshCommand, { 
@@ -103,7 +103,7 @@ try {
   console.log('1. WSL (Windows Subsystem for Linux) 사용:')
   console.log('   - WSL에서 SSH 키 파일을 복사')
   console.log('   - chmod 600 ~/.ssh/ZEV_AWS_KEY.pem')
-  console.log('   - ssh -i ~/.ssh/ZEV_AWS_KEY.pem ubuntu@3.36.230.117')
+  console.log('   - ssh -i ~/.ssh/ZEV_AWS_KEY.pem ubuntu@43.203.30.167')
   
   console.log('\n2. Git Bash 사용:')
   console.log('   - Git Bash에서 SSH 명령어 실행')

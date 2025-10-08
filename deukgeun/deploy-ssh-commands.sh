@@ -11,7 +11,7 @@
 
 # SSH 키 경로 (절대 경로 사용)
 SSH_KEY="C:\Users\jaehyuok\Documents\GitHub\deukgeun_ReactProject\deukgeun\deukgeun_ReactProject.pem"
-EC2_HOST="3.36.230.117"
+EC2_HOST="43.203.30.167"
 EC2_USER="ubuntu"
 EC2_PORT="22"
 

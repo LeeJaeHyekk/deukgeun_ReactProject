@@ -54,7 +54,7 @@ echo 2. 다음 명령어들을 순서대로 실행하세요:
 echo.
 echo    cd /c/Users/jaehyuok/Documents/GitHub/deukgeun_ReactProject/deukgeun
 echo    chmod 600 deukgeun_ReactProject.pem
-echo    ssh -i deukgeun_ReactProject.pem ubuntu@3.36.230.117
+echo    ssh -i deukgeun_ReactProject.pem ubuntu@43.203.30.167
 echo.
 echo 3. 연결 성공 시 EC2 환경 설정을 시작하세요.
 echo.
@@ -72,7 +72,7 @@ echo 2. 다음 명령어들을 순서대로 실행하세요:
 echo.
 echo    cd /mnt/c/Users/jaehyuok/Documents/GitHub/deukgeun_ReactProject/deukgeun
 echo    chmod 600 deukgeun_ReactProject.pem
-echo    ssh -i deukgeun_ReactProject.pem ubuntu@3.36.230.117
+echo    ssh -i deukgeun_ReactProject.pem ubuntu@43.203.30.167
 echo.
 echo 3. 연결 성공 시 EC2 환경 설정을 시작하세요.
 echo.

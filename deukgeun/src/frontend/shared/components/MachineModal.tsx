@@ -179,7 +179,7 @@ export const MachineModal: React.FC<MachineModalProps> = React.memo(
                 <div className="machine-modal-section">
                   <h3>타겟 근육</h3>
                   <div className="machine-modal-targets">
-                    {machine.targetMuscles.map((muscle, index) => (
+                    {machine.targetMuscles.map((muscle: any, index: number) => (
                       <span key={index} className="machine-modal-target-tag">
                         {muscle}
                       </span>

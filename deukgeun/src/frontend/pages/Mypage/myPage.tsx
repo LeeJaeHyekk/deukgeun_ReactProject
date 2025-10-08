@@ -5,7 +5,7 @@ import { useUserStore } from "@frontend/shared/store/userStore"
 import { LevelDisplay } from "@frontend/shared/components/LevelDisplay"
 import { Navigation } from "@widgets/Navigation/Navigation"
 import type { User } from "../../../shared/types"
-import styles from "./myPage.module.css"
+import styles from "./MyPage.module.css"
 
 // 타입 정의
 interface UserInfo {

@@ -16,10 +16,10 @@ import {
   setLogLevel,
   setLogPrefix
 } from './modules/logger-functions'
-import { runConvertScript } from './convert-script'
-import { runBuildScript } from './build-script'
-import { runDeployScript } from './deploy-script'
-import { runSafetyScript } from './safety-script'
+import { runConvertScript } from './convert'
+import { runBuildScript } from './build'
+import { runDeployScript } from './deploy'
+import { runSafetyScript } from './safety'
 import { handleError, ErrorType, ErrorSeverity } from './modules/error-recovery-functions'
 import { PerformanceMonitor, ParallelProcessor, performanceUtils } from './modules/performance-functions'
 

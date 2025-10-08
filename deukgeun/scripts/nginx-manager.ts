@@ -414,7 +414,7 @@ class NginxManager {
     this.logger.log('- 프론트엔드 (WWW): http://www.devtrail.net', 'blue')
     this.logger.log('- 백엔드 API: http://devtrail.net/api', 'blue')
     this.logger.log('- 헬스체크: http://devtrail.net/health', 'blue')
-    this.logger.log('- IP 직접 접속: http://3.36.230.117', 'blue')
+    this.logger.log('- IP 직접 접속: http://43.203.30.167', 'blue')
   }
 }
 

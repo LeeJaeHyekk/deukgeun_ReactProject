@@ -435,7 +435,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
             targetMuscleGroups: plan.targetMuscleGroups,
             isTemplate: plan.isTemplate,
             isPublic: false,
-            exercises: plan.exercises.map(exercise => ({
+            exercises: plan.exercises.map((exercise: any) => ({
               machineId: exercise.machineId,
               exerciseName: exercise.exerciseName,
               exerciseOrder: exercise.exerciseOrder,

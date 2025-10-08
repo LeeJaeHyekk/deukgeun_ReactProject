@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { useAuthContext } from "../../shared/contexts/AuthContext"
+import { useAuthContext } from "../../../frontend/shared/contexts/AuthContext"
 import "./UserProfilePage.module.css"
 
 interface UserProfileForm {

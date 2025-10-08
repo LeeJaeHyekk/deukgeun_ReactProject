@@ -93,7 +93,7 @@ function generateEnvFiles(config: EnvConfig): EnvFile[] {
 function generateRootEnvContent(config: EnvConfig): string {
   return `# Frontend Environment Variables
 VITE_FRONTEND_PORT=5173
-VITE_BACKEND_URL=http://3.36.230.117:5000
+VITE_BACKEND_URL=http://43.203.30.167:5000
 
 # reCAPTCHA Enterprise 설정
 VITE_RECAPTCHA_SITE_KEY=6Lcf8-ArAAAAAEGpQDCsuecM4e9ZzeJ0LE6bgiMG
@@ -219,8 +219,8 @@ HOT_RELOAD=true
 function generateFrontendEnvContent(config: EnvConfig): string {
   return `# Frontend Environment Variables
 VITE_FRONTEND_PORT=5173
-VITE_BACKEND_URL=http://3.36.230.117:5000
-VITE_API_URL=http://3.36.230.117:5000/api
+VITE_BACKEND_URL=http://43.203.30.167:5000
+VITE_API_URL=http://43.203.30.167:5000/api
 
 # reCAPTCHA Enterprise 설정
 VITE_RECAPTCHA_SITE_KEY=6Lcf8-ArAAAAAEGpQDCsuecM4e9ZzeJ0LE6bgiMG

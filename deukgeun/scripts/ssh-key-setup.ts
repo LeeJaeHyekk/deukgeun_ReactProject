@@ -39,7 +39,7 @@ interface SSHKeyConfig {
 const defaultConfig: SSHKeyConfig = {
   keyPath: 'C:\\Users\\jaehyuok\\Desktop\\ZEV_AWS_KEY',
   keyName: 'ZEV_AWS_KEY',
-  ec2Host: '3.36.230.117', // 기존 EC2 IP
+  ec2Host: '43.203.30.167', // 기존 EC2 IP
   ec2User: 'ubuntu',
   ec2Port: 22,
   testConnection: true,
@@ -552,7 +552,7 @@ SSH 키 설정 스크립트
 
 예시:
   npx ts-node ssh-key-setup.ts --key-path "C:\\Users\\jaehyuok\\Desktop\\ZEV_AWS_KEY"
-  npx ts-node ssh-key-setup.ts --host 3.36.230.117 --user ubuntu
+  npx ts-node ssh-key-setup.ts --host 43.203.30.167 --user ubuntu
           `)
           process.exit(0)
           break

@@ -105,6 +105,52 @@ export class StatsController {
         .where("post.userId = :userId", { userId })
         .getRawOne()
 
+      // 사용자 운동 통계 (최근 30일)
+      const thirtyDaysAgo = new Date()
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+      const workoutStats = await postRepo
+        .createQueryBuilder("post")
+        .select("COUNT(DISTINCT DATE(post.createdAt))", "workoutDays")
+        .addSelect("COUNT(post.id)", "totalPosts")
+        .where("post.userId = :userId", { userId })
+        .andWhere("post.createdAt >= :thirtyDaysAgo", { thirtyDaysAgo })
+        .getRawOne()
+
+      // 연속 운동일 계산 (최근 7일)
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+
+      const recentPosts = await postRepo
+        .createQueryBuilder("post")
+        .select("DATE(post.createdAt)", "postDate")
+        .where("post.userId = :userId", { userId })
+        .andWhere("post.createdAt >= :sevenDaysAgo", { sevenDaysAgo })
+        .groupBy("DATE(post.createdAt)")
+        .orderBy("DATE(post.createdAt)", "DESC")
+        .getRawMany()
+
+      // 연속 운동일 계산
+      let consecutiveDays = 0
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      for (let i = 0; i < 7; i++) {
+        const checkDate = new Date(today)
+        checkDate.setDate(checkDate.getDate() - i)
+        const dateStr = checkDate.toISOString().split('T')[0]
+
+        const hasPostOnDate = recentPosts.some(post => 
+          post.postDate === dateStr
+        )
+
+        if (hasPostOnDate) {
+          consecutiveDays++
+        } else {
+          break
+        }
+      }
+
       const stats = {
         user: {
           id: user.id,
@@ -123,9 +169,19 @@ export class StatsController {
           count: userPosts,
           totalLikes: parseInt(userPostLikes?.totalLikes || "0"),
         },
+        workout: {
+          totalDays: parseInt(workoutStats?.workoutDays || "0"),
+          consecutiveDays: consecutiveDays,
+          totalPosts: parseInt(workoutStats?.totalPosts || "0"),
+        },
+        achievements: [],
       }
 
-      res.json(stats)
+      res.json({
+        success: true,
+        message: "사용자 통계를 성공적으로 조회했습니다.",
+        data: stats,
+      })
     } catch (error) {
       console.error("사용자 통계 조회 오류:", error)
       res

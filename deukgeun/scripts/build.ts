@@ -208,7 +208,7 @@ function parseArguments(): Partial<BuildScriptOptions> {
  */
 function printHelp(): void {
   console.log(`
-사용법: node build-script.ts [옵션]
+사용법: node build.ts [옵션]
 
 옵션:
   -p, --project-root <path>   프로젝트 루트 경로
@@ -225,9 +225,9 @@ function printHelp(): void {
   -h, --help                  도움말 출력
 
 예시:
-  node build-script.ts --verbose
-  node build-script.ts --parallel --timeout 600
-  node build-script.ts --dry-run
+  node build.ts --verbose
+  node build.ts --parallel --timeout 600
+  node build.ts --dry-run
 `)
 }
 

@@ -2,7 +2,7 @@
 
 ## 📋 현재 상황
 - ✅ SSH 키 파일: `deukgeun_ReactProject.pem` (프로젝트 내부에 있음)
-- ✅ EC2 호스트: `3.36.230.117`
+- ✅ EC2 호스트: `43.203.30.167`
 - ✅ 사용자: `ubuntu`
 - ✅ 자동화 스크립트: 완전 준비됨
 
@@ -19,7 +19,7 @@ cd /c/Users/jaehyuok/Documents/GitHub/deukgeun_ReactProject/deukgeun
 chmod 600 deukgeun_ReactProject.pem
 
 # 4. SSH 연결 테스트
-ssh -i deukgeun_ReactProject.pem ubuntu@3.36.230.117
+ssh -i deukgeun_ReactProject.pem ubuntu@43.203.30.167
 
 # 5. 연결 성공 시 EC2 환경 설정 시작
 ```
@@ -37,7 +37,7 @@ cd /mnt/c/Users/jaehyuok/Documents/GitHub/deukgeun_ReactProject/deukgeun
 chmod 600 deukgeun_ReactProject.pem
 
 # 4. SSH 연결
-ssh -i deukgeun_ReactProject.pem ubuntu@3.36.230.117
+ssh -i deukgeun_ReactProject.pem ubuntu@43.203.30.167
 ```
 
 ### 방법 3: PowerShell + SSH 설정 파일 사용
@@ -159,7 +159,7 @@ sudo nano /etc/nginx/sites-available/deukgeun
 ```nginx
 server {
     listen 80;
-    server_name 3.36.230.117;
+    server_name 43.203.30.167;
 
     location / {
         root /home/ubuntu/deukgeun_ReactProject/deukgeun/src/frontend/dist;
@@ -252,7 +252,7 @@ node scripts/ssh-diagnostic.cjs
 ### Windows 권한 문제 해결
 ```bash
 # 1. WSL 사용
-wsl ssh -i ~/.ssh/deukgeun_ReactProject.pem ubuntu@3.36.230.117
+wsl ssh -i ~/.ssh/deukgeun_ReactProject.pem ubuntu@43.203.30.167
 
 # 2. Git Bash 사용
 # Git Bash에서 SSH 명령어 실행

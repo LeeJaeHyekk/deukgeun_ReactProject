@@ -26,6 +26,7 @@ import { WorkoutProgress } from "../entities/WorkoutProgress" // 운동 진행 �
 import { WorkoutReminder } from "../entities/WorkoutReminder" // 운동 알림 엔티티
 import { VerificationToken } from "../entities/VerificationToken" // 이메일 인증 토큰 엔티티
 import { PasswordResetToken } from "../entities/PasswordResetToken" // 비밀번호 재설정 토큰 엔티티
+import { HomePageConfig } from "../entities/HomePageConfig" // 홈페이지 설정 엔티티
 
 // 환경 변수 로드 (.env 파일에서 환경 변수 읽기)
 config()
@@ -77,6 +78,7 @@ export const AppDataSource = new DataSource({
     WorkoutReminder, // 운동 알림 테이블
     VerificationToken, // 이메일 인증 토큰 테이블
     PasswordResetToken, // 비밀번호 재설정 토큰 테이블
+    HomePageConfig, // 홈페이지 설정 테이블
   ],
 
   // 구독자 목록 (현재 사용하지 않음)

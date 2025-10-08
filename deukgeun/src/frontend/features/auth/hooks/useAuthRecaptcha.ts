@@ -30,11 +30,11 @@ export function useAuthRecaptcha({
     reset: resetRecaptchaState,
   } = useRecaptcha({
     action,
-    onSuccess: token => {
+    onSuccess: (token: string) => {
       setRecaptchaToken(token)
       onSuccess?.(token)
     },
-    onError: error => {
+    onError: (error: Error) => {
       console.error('reCAPTCHA error:', error)
       showToast('보안 인증에 실패했습니다. 다시 시도해주세요.', 'error')
       onError?.(error)

@@ -2,9 +2,9 @@ import { useState, useCallback } from 'react'
 import { postsApi } from '@frontend/shared/api'
 import { showToast } from '@shared/lib'
 import {
-  Post as CommunityPost,
+  PostDTO as CommunityPost,
   PostCategoryInfo,
-} from '../../../../shared/types'
+} from '../../../shared/types'
 
 interface UseCommunityPostsProps {
   limit: number

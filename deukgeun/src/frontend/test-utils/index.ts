@@ -12,11 +12,11 @@ export const createMockStore = (initialState = {}) => ({
 export const waitForNextTick = () => new Promise(resolve => setTimeout(resolve, 0))
 
 export const mockLocalStorage = () => {
-  const store = {}
+  const store: Record<string, string> = {}
   return {
-    getItem: jest.fn((key) => store[key] || null),
-    setItem: jest.fn((key, value) => { store[key] = value }),
-    removeItem: jest.fn((key) => { delete store[key] }),
+    getItem: jest.fn((key: string) => store[key] || null),
+    setItem: jest.fn((key: string, value: string) => { store[key] = value }),
+    removeItem: jest.fn((key: string) => { delete store[key] }),
     clear: jest.fn(() => { Object.keys(store).forEach(key => delete store[key]) }),
   }
 }

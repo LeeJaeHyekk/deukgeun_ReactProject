@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
-import { useAuthContext } from "../../shared/contexts/AuthContext"
-import { useMachines } from "../../shared/hooks/useMachines"
+import { useAuthContext } from "../../../frontend/shared/contexts/AuthContext"
+import { useMachines } from "../../../frontend/shared/hooks/useMachines"
 import { Navigation } from "../../widgets/Navigation/Navigation"
 import { TabNavigation } from "./components/navigation/TabNavigation"
 import { TabContent } from "./components/navigation/TabContent"

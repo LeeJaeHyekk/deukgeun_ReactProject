@@ -2,8 +2,8 @@
 # 자동 생성: 2025-10-08T03:52:46.646Z
 
 Host deukgeun-ec2
-    HostName 3.36.230.117
-    User ubuntu
+    HostName 43.203.30.167
+    User ec2-user
     Port 22
     IdentityFile "C:\Users\jaehyuok\Documents\GitHub\deukgeun_ReactProject\deukgeun\deukgeun_ReactProject.pem"
     StrictHostKeyChecking no
@@ -17,8 +17,8 @@ Host deukgeun-ec2
 
 # 테스트용 별칭
 Host deukgeun-test
-    HostName 3.36.230.117
-    User ubuntu
+    HostName 43.203.30.167
+    User ec2-user
     Port 22
     IdentityFile "C:\Users\jaehyuok\Documents\GitHub\deukgeun_ReactProject\deukgeun\deukgeun_ReactProject.pem"
     StrictHostKeyChecking no

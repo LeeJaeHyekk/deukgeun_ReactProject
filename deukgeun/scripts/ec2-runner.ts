@@ -19,13 +19,13 @@ import {
   setLogLevel,
   setLogPrefix
 } from './modules/logger-functions'
-import { runConvertScript } from './convert-script'
-import { runBuildScript } from './build-script'
-import { runDeployScript } from './deploy-script'
-import { runSafetyScript } from './safety-script'
-import { runEnvScript } from './env-script'
-import { runPM2Script } from './pm2-script'
-import { runHealthScript } from './health-script'
+import { runConvertScript } from './convert'
+import { runBuildScript } from './build'
+import { runDeployScript } from './deploy'
+import { runSafetyScript } from './safety'
+import { runEnvScript } from './env'
+import { runPM2Script } from './pm2'
+import { runHealthScript } from './health'
 import { handleError, ErrorType, ErrorSeverity } from './modules/error-recovery-functions'
 import { PerformanceMonitor, ParallelProcessor, performanceUtils } from './modules/performance-functions'
 

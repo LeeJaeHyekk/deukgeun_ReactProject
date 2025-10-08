@@ -58,7 +58,7 @@ export const GoalsProgressSection: React.FC<GoalsProgressSectionProps> = ({
         "🎯 [GoalsProgressSection] activeGoals found in dashboardData:",
         dashboardData.activeGoals
       )
-      return dashboardData.activeGoals.map(goal => ({
+      return dashboardData.activeGoals.map((goal: any) => ({
         id: goal.id,
         title: goal.title,
         currentValue: goal.currentValue,

@@ -162,9 +162,9 @@ class OptimizedDeployProcess {
         projectRoot: this.projectRoot
       })
       
-      this.results.errors.push(errorResult.errorInfo)
+      this.results.errors.push({ ...errorResult.errorInfo, error: error.message })
       
-      return { success: false, error: error.message, errorInfo: errorResult.errorInfo }
+      return { success: false, error: error.message, errorInfo: { ...errorResult.errorInfo, error: error.message } }
     }
   }
 
@@ -279,11 +279,7 @@ class OptimizedDeployProcess {
     
     try {
       // 전체 빌드 실행
-      const buildResult = await this.buildManager.buildAll({
-        cleanup: true,
-        validate: true,
-        timeout: config.buildTimeout
-      })
+      const buildResult = await this.buildManager.executeBuild()
       
       this.results.build = buildResult
       

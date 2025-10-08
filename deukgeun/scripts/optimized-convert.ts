@@ -80,7 +80,8 @@ class OptimizedConvertProcess {
     this.converter = new CodeConverter({ 
       backup: config.backup, 
       validate: config.validate,
-      polyfill: true 
+      polyfill: true,
+      parallel: true
     })
     this.errorHandler = new ErrorHandler(projectRoot, { autoRecovery: config.autoRecovery })
   }
@@ -128,9 +129,9 @@ class OptimizedConvertProcess {
         projectRoot: this.projectRoot
       })
       
-      this.results.errors.push(errorResult.errorInfo)
+      this.results.errors.push({ ...errorResult.errorInfo, error: error.message })
       
-      return { success: false, error: error.message, errorInfo: errorResult.errorInfo }
+      return { success: false, error: error.message, errorInfo: { ...errorResult.errorInfo, error: error.message } }
     }
   }
 
@@ -227,7 +228,7 @@ class OptimizedConvertProcess {
       
       if (targets.length === 0) {
         this.logger.info('변환이 필요한 파일이 없습니다.')
-        this.results.conversion = { success: true, converted: 0, skipped: true }
+        this.results.conversion = { success: true, converted: 0, failed: 0, total: 0, skipped: true }
         return
       }
       

@@ -1,7 +1,10 @@
 import express from 'express'
 import * as path from 'path'
+// @ts-ignore
 import compression from 'compression'
+// @ts-ignore
 import helmet from 'helmet'
+// @ts-ignore
 import rateLimit from 'express-rate-limit'
 
 const app = express()
@@ -19,17 +22,17 @@ app.use(helmet({
       connectSrc: ["'self'", "https://api.yourdomain.com"]
     }
   }
-}))
+}) as any)
 
 // 압축 미들웨어
-app.use(compression())
+app.use(compression() as any)
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15분
   max: 100 // 최대 100 요청
 })
-app.use(limiter)
+app.use(limiter as any)
 
 // 정적 파일 서빙
 app.use(express.static(DIST_DIR, {

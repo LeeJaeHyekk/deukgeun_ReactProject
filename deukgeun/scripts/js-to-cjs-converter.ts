@@ -17,6 +17,31 @@ import { execSync, spawn } from 'child_process'
 import { Worker, isMainThread, parentPort, workerData } from 'worker_threads'
 import * as crypto from 'crypto'
 
+// 타입 정의
+interface ConversionResult {
+  filePath: string
+  content: string
+  success: boolean
+}
+
+interface ConversionResponse {
+  successCount: number
+  failCount: number
+  results: Map<string, ConversionResult>
+  errors: Map<string, Error>
+}
+
+interface RollbackItem {
+  original: string
+  backup: string
+  temp: string
+}
+
+interface ConversionRule {
+  pattern: RegExp
+  replacement: string | ((match: string, ...args: string[]) => string)
+}
+
 // 색상 출력을 위한 유틸리티
 const colors = {
   reset: '\x1b[0m',
@@ -58,6 +83,13 @@ class CacheManager {
   constructor(projectRoot: string) {
     this.cacheDir = path.join(projectRoot, '.conversion-cache')
     this.ensureCacheDir()
+  }
+
+  /**
+   * 캐시 디렉토리 경로 반환 (public 메서드)
+   */
+  getCacheDir(): string {
+    return this.cacheDir
   }
 
   private ensureCacheDir(): void {
@@ -125,7 +157,7 @@ class CacheManager {
 class ParallelProcessor {
   private maxWorkers: number
   private workers: Worker[]
-  private taskQueue: any[]
+  private taskQueue: Array<() => Promise<any>>
   private results: Map<string, any>
   private errors: Map<string, Error>
 
@@ -184,18 +216,20 @@ class ParallelProcessor {
   }
 }
 
-/**
- * 메모리 관리 클래스
- */
+  /**
+   * 메모리 관리 클래스 (개선된 버전)
+   */
 class MemoryManager {
   private memoryThreshold: number
   private gcInterval: number
   private lastGC: number
+  private gcCount: number
 
   constructor() {
     this.memoryThreshold = 100 * 1024 * 1024 // 100MB
     this.gcInterval = 5000 // 5초
     this.lastGC = Date.now()
+    this.gcCount = 0
   }
 
   checkMemoryUsage(): void {
@@ -211,6 +245,18 @@ class MemoryManager {
     if ((global as any).gc) {
       (global as any).gc()
       this.lastGC = Date.now()
+      this.gcCount++
+      log(`GC 실행됨 (${this.gcCount}번째)`, 'cyan')
+    }
+  }
+
+  /**
+   * GC 통계 반환
+   */
+  getGCStats(): { count: number, lastGC: number } {
+    return {
+      count: this.gcCount,
+      lastGC: this.lastGC
     }
   }
 
@@ -424,10 +470,7 @@ class FileAnalyzer {
  */
 class CodeConverter {
   private cacheManager: CacheManager
-  private conversionRules: Array<{
-    pattern: RegExp
-    replacement: string | ((match: string, ...args: string[]) => string)
-  }>
+  private conversionRules: ConversionRule[]
 
   constructor(cacheManager: CacheManager) {
     this.cacheManager = cacheManager
@@ -639,24 +682,22 @@ if (typeof window === 'undefined') {
   }
 
   /**
-   * 병렬 파일 변환
+   * 병렬 파일 변환 (개선된 버전)
    */
-  async convertFilesParallel(filePaths: string[]): Promise<{ results: Map<string, { filePath: string, content: string, success: boolean }>, errors: Map<string, Error> }> {
+  async convertFilesParallel(filePaths: string[]): Promise<{ results: Map<string, ConversionResult>, errors: Map<string, Error> }> {
     const processor = new ParallelProcessor()
     
-    return await processor.processFiles(filePaths, (filePath: string) => {
-      return new Promise((resolve, reject) => {
-        try {
-          const result = this.convertFile(filePath)
-          if (result) {
-            resolve({ filePath, content: result, success: true })
-          } else {
-            reject(new Error(`변환 실패: ${filePath}`))
-          }
-        } catch (error) {
-          reject(error)
+    return await processor.processFiles(filePaths, async (filePath: string): Promise<ConversionResult> => {
+      try {
+        const result = this.convertFile(filePath)
+        if (result) {
+          return { filePath, content: result, success: true }
+        } else {
+          throw new Error(`변환 실패: ${filePath}`)
         }
-      })
+      } catch (error) {
+        throw error
+      }
     })
   }
 }
@@ -670,11 +711,7 @@ class BuildIntegrator {
   private backupDir: string
   private cacheManager: CacheManager
   private memoryManager: MemoryManager
-  private rollbackStack: Array<{
-    original: string
-    backup: string
-    temp: string
-  }>
+  private rollbackStack: RollbackItem[]
 
   constructor(projectRoot: string) {
     this.projectRoot = projectRoot
@@ -688,12 +725,7 @@ class BuildIntegrator {
   /**
    * 변환 프로세스 실행 (수정된 버전)
    */
-  async executeConversion(conversionTargets: string[]): Promise<{
-    successCount: number
-    failCount: number
-    results: Map<string, { filePath: string, content: string, success: boolean }>
-    errors: Map<string, Error>
-  }> {
+  async executeConversion(conversionTargets: string[]): Promise<ConversionResponse> {
     logStep('CONVERT', '코드 변환 시작...')
     
     try {
@@ -711,7 +743,7 @@ class BuildIntegrator {
       let failCount = 0
       
       // 변환된 파일을 즉시 원본에 적용 (수정된 버전)
-      for (const [filePath, result] of results) {
+      for (const [filePath, result] of Array.from(results.entries())) {
         try {
           const tempPath = this.getTempPath(filePath)
           this.ensureDirectoryExists(path.dirname(tempPath))
@@ -770,7 +802,7 @@ class BuildIntegrator {
       }
       
       // 에러 처리
-      for (const [filePath, error] of errors) {
+      for (const [filePath, error] of Array.from(errors.entries())) {
         logError(`변환 실패: ${filePath} - ${error.message}`)
         failCount++
       }
@@ -1048,7 +1080,40 @@ class BuildIntegrator {
       logSuccess('긴급 롤백 완료')
     } catch (error) {
       logError(`긴급 롤백 실패: ${(error as Error).message}`)
+      // 최후의 수단: 백업 파일들을 직접 복원
+      await this.forceRestoreFromBackups()
     }
+  }
+
+  /**
+   * 백업 파일에서 강제 복원
+   */
+  private async forceRestoreFromBackups(): Promise<void> {
+    logStep('FORCE_RESTORE', '백업 파일에서 강제 복원...')
+    
+    try {
+      const backupFiles = this.getBackupFiles()
+      
+      for (const backupFile of backupFiles) {
+        const originalFile = this.getOriginalPath(backupFile)
+        
+        if (fs.existsSync(backupFile) && fs.existsSync(originalFile)) {
+          fs.copyFileSync(backupFile, originalFile)
+          log(`복원됨: ${path.relative(this.projectRoot, originalFile)}`, 'green')
+        }
+      }
+      
+      logSuccess('강제 복원 완료')
+    } catch (error) {
+      logError(`강제 복원 실패: ${(error as Error).message}`)
+    }
+  }
+
+  /**
+   * 롤백 스택 크기 반환 (public 메서드)
+   */
+  getRollbackStackSize(): number {
+    return this.rollbackStack.length
   }
 
   /**
@@ -1085,7 +1150,7 @@ class BuildIntegrator {
    */
   private shouldCleanCache(): boolean {
     // 24시간 이상 된 캐시는 정리
-    const cacheDir = this.cacheManager.cacheDir
+    const cacheDir = this.cacheManager.getCacheDir()
     if (!fs.existsSync(cacheDir)) return false
     
     try {
@@ -1178,7 +1243,7 @@ async function main(): Promise<void> {
       log('🔍 executeConversion 호출 시작...', 'cyan')
       const { successCount, failCount, results, errors } = await integrator.executeConversion(conversionTargets)
       log(`변환 결과: 성공 ${successCount}개, 실패 ${failCount}개`, 'cyan')
-      log(`롤백 스택 크기: ${integrator.rollbackStack.length}`, 'blue')
+      log(`롤백 스택 크기: ${integrator.getRollbackStackSize()}`, 'blue')
       
       if (failCount > 0) {
         logWarning(`${failCount}개 파일 변환 실패`)
@@ -1193,7 +1258,7 @@ async function main(): Promise<void> {
       
       // 3. 변환된 파일 적용 확인 (이미 executeConversion에서 적용됨)
       logStep('APPLY', '변환된 파일 적용 상태 확인...')
-      log(`롤백 스택 크기: ${integrator.rollbackStack.length}`, 'blue')
+      log(`롤백 스택 크기: ${integrator.getRollbackStackSize()}`, 'blue')
       
       // 변환 결과가 있는지 확인
       if (results && results.size > 0) {
@@ -1235,6 +1300,7 @@ async function main(): Promise<void> {
     
   } catch (error) {
     logError(`변환 프로세스 실패: ${(error as Error).message}`)
+    logError(`에러 스택: ${(error as Error).stack}`)
     
     // 긴급 롤백 시도
     try {
@@ -1242,6 +1308,7 @@ async function main(): Promise<void> {
       await integrator.emergencyRollback()
     } catch (rollbackError) {
       logError(`긴급 롤백도 실패: ${(rollbackError as Error).message}`)
+      logError(`롤백 에러 스택: ${(rollbackError as Error).stack}`)
     }
     
     log('='.repeat(60), 'red')
@@ -1253,7 +1320,7 @@ async function main(): Promise<void> {
 }
 
 // 스크립트 실행
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   main()
 }
 

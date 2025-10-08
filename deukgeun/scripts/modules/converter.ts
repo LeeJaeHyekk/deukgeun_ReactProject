@@ -1,163 +1,302 @@
 /**
  * 코드 변환 모듈
- * ES 모듈을 CommonJS로 변환하는 공통 로직
+ * ES Modules를 CommonJS로 변환하는 공통 기능
  */
 
 import * as fs from 'fs'
 import * as path from 'path'
+import * as crypto from 'crypto'
 import { logError, logWarning, logSuccess, logInfo } from './logger'
+import { FileUtils } from './file-utils'
 
-interface ConversionRule {
-  pattern: RegExp
-  replacement: string | ((match: string, ...args: string[]) => string)
-  description: string
-}
-
-interface ConversionRules {
-  importMeta: ConversionRule[]
-  imports: ConversionRule[]
-  exports: ConversionRule[]
-}
-
-interface ConverterOptions {
-  backup?: boolean
-  validate?: boolean
-  polyfill?: boolean
+interface ConversionOptions {
+  backup: boolean
+  validate: boolean
+  polyfill: boolean
+  parallel: boolean
+  maxWorkers?: number
 }
 
 interface ConversionResult {
   success: boolean
-  converted?: boolean
+  converted: boolean
+  filePath: string
   content?: string
-  originalContent?: string
   error?: string
-  details?: string[]
-  changes?: {
-    importMeta: number
-    imports: number
-    exports: number
-  }
 }
 
-interface ConversionStats {
+interface ConversionReport {
   total: number
-  success: number
-  failed: number
-  converted: number
-  skipped: number
-  changes: {
-    importMeta: number
-    imports: number
-    exports: number
-  }
+  success: ConversionResult[]
+  failed: ConversionResult[]
+}
+
+interface ConversionRule {
+  pattern: RegExp
+  replacement: string | ((match: string, ...args: string[]) => string)
+  priority: number
 }
 
 /**
  * 코드 변환기 클래스
  */
 export class CodeConverter {
-  private options: ConverterOptions
-  private conversionRules: ConversionRules
+  private fileUtils: FileUtils
+  private options: ConversionOptions
+  private conversionRules: ConversionRule[]
+  private cache: Map<string, string> = new Map()
 
-  constructor(options: ConverterOptions = {}) {
+  constructor(options: Partial<ConversionOptions> = {}) {
+    this.fileUtils = new FileUtils(process.cwd())
     this.options = {
       backup: true,
       validate: true,
       polyfill: true,
+      parallel: true,
+      maxWorkers: 4,
       ...options
-    }
-    
+    } as ConversionOptions
     this.conversionRules = this.initializeConversionRules()
   }
 
   /**
    * 변환 규칙 초기화
    */
-  private initializeConversionRules(): ConversionRules {
-    return {
+  private initializeConversionRules(): ConversionRule[] {
+    return [
       // import.meta 변환 (우선순위 높음)
-      importMeta: [
-        {
-          pattern: /import\.meta\.env\.VITE_([A-Z_]+)/g,
-          replacement: 'process.env.VITE_$1',
-          description: 'VITE_ 환경 변수'
-        },
-        {
-          pattern: /import\.meta\.env\.([A-Z_]+)/g,
-          replacement: 'process.env.$1',
-          description: '일반 환경 변수'
-        },
-        {
-          pattern: /import\.meta\.env\.MODE/g,
-          replacement: 'process.env.NODE_ENV',
-          description: 'MODE 환경 변수'
-        },
-        {
-          pattern: /import\.meta\.env\.DEV/g,
-          replacement: 'process.env.NODE_ENV === "development"',
-          description: 'DEV 환경 변수'
-        },
-        {
-          pattern: /import\.meta\.env\.PROD/g,
-          replacement: 'process.env.NODE_ENV === "production"',
-          description: 'PROD 환경 변수'
-        },
-        {
-          pattern: /import\.meta\.env/g,
-          replacement: 'process.env',
-          description: 'import.meta.env'
-        }
-      ],
+      {
+        pattern: /import\.meta\.env\.VITE_([A-Z_]+)/g,
+        replacement: 'process.env.VITE_$1',
+        priority: 1
+      },
+      {
+        pattern: /import\.meta\.env\.([A-Z_]+)/g,
+        replacement: 'process.env.$1',
+        priority: 2
+      },
+      {
+        pattern: /import\.meta\.env\.MODE/g,
+        replacement: 'process.env.NODE_ENV',
+        priority: 3
+      },
+      {
+        pattern: /import\.meta\.env\.DEV/g,
+        replacement: 'process.env.NODE_ENV === "development"',
+        priority: 4
+      },
+      {
+        pattern: /import\.meta\.env\.PROD/g,
+        replacement: 'process.env.NODE_ENV === "production"',
+        priority: 5
+      },
+      {
+        pattern: /import\.meta\.env/g,
+        replacement: 'process.env',
+        priority: 6
+      },
       
-      // ES import 변환
-      imports: [
-        {
-          pattern: /import\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g,
-          replacement: 'const $1 = require(\'$2\').default',
-          description: '기본 import'
-        },
-        {
-          pattern: /import\s*\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]/g,
-          replacement: 'const { $1 } = require(\'$2\')',
-          description: '명명된 import'
-        },
-        {
-          pattern: /import\s+\*\s+as\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g,
-          replacement: 'const $1 = require(\'$2\')',
-          description: '네임스페이스 import'
-        }
-      ],
+      // import 변환
+      {
+        pattern: /import\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g,
+        replacement: 'const $1 = require(\'$2\').default',
+        priority: 10
+      },
+      {
+        pattern: /import\s*\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]/g,
+        replacement: 'const { $1 } = require(\'$2\')',
+        priority: 11
+      },
+      {
+        pattern: /import\s+\*\s+as\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g,
+        replacement: 'const $1 = require(\'$2\')',
+        priority: 12
+      },
       
-      // ES export 변환
-      exports: [
-        {
-          pattern: /export\s+default\s+([^;]+)/g,
-          replacement: 'module.exports.default = $1',
-          description: '기본 export'
+      // export 변환
+      {
+        pattern: /export\s+default\s+([^;]+)/g,
+        replacement: 'module.exports.default = $1',
+        priority: 20
+      },
+      {
+        pattern: /export\s*\{\s*([^}]+)\s*\}/g,
+        replacement: (match: string, exports: string) => {
+          return exports.split(',').map(exp => {
+            exp = exp.trim()
+            if (exp.includes(' as ')) {
+              const [original, alias] = exp.split(' as ').map(s => s.trim())
+              return `module.exports.${alias} = ${original}`
+            }
+            return `module.exports.${exp} = ${exp}`
+          }).join('\n')
         },
-        {
-          pattern: /export\s*\{\s*([^}]+)\s*\}/g,
-          replacement: (match: string, exports: string) => {
-            return exports.split(',').map(exp => {
-              exp = exp.trim()
-              if (exp.includes(' as ')) {
-                const [original, alias] = exp.split(' as ').map(s => s.trim())
-                return `module.exports.${alias} = ${original}`
-              }
-              return `module.exports.${exp} = ${exp}`
-            }).join('\n')
-          },
-          description: '명명된 export'
+        priority: 21
+      }
+    ].sort((a, b) => a.priority - b.priority)
+  }
+
+  /**
+   * 파일이 변환이 필요한지 확인
+   */
+  needsConversion(content: string): boolean {
+    return this.conversionRules.some(rule => rule.pattern.test(content))
+  }
+
+  /**
+   * 단일 파일 변환
+   */
+  convertFile(filePath: string): ConversionResult {
+    try {
+      if (!this.fileUtils.exists(filePath)) {
+        return {
+          success: false,
+          converted: false,
+          filePath,
+          error: '파일이 존재하지 않습니다'
         }
-      ]
+      }
+
+      const content = this.fileUtils.readFile(filePath)
+      if (!content) {
+        return {
+          success: false,
+          converted: false,
+          filePath,
+          error: '파일을 읽을 수 없습니다'
+        }
+      }
+
+      // 변환이 필요한지 확인
+      if (!this.needsConversion(content)) {
+        return {
+          success: true,
+          converted: false,
+          filePath
+        }
+      }
+
+      // 백업 생성
+      if (this.options.backup) {
+        this.createBackup(filePath)
+      }
+
+      // 변환 실행
+      const convertedContent = this.applyConversions(content)
+      
+      // 변환된 내용이 원본과 다른지 확인
+      const wasConverted = content !== convertedContent
+      
+      if (wasConverted) {
+        // 파일에 쓰기
+        if (this.fileUtils.writeFile(filePath, convertedContent)) {
+          return {
+            success: true,
+            converted: true,
+            filePath,
+            content: convertedContent
+          }
+        } else {
+          return {
+            success: false,
+            converted: false,
+            filePath,
+            error: '변환된 내용을 파일에 쓸 수 없습니다'
+          }
+        }
+      } else {
+        return {
+          success: true,
+          converted: false,
+          filePath
+        }
+      }
+
+    } catch (error) {
+      return {
+        success: false,
+        converted: false,
+        filePath,
+        error: (error as Error).message
+      }
     }
   }
 
   /**
-   * 브라우저 API polyfill 생성
+   * 여러 파일 변환
    */
-  private generateBrowserPolyfill(): string {
-    return `// Browser API polyfills for Node.js environment
+  convertFiles(filePaths: string[], options: Partial<ConversionOptions> = {}): ConversionReport {
+    const finalOptions = { ...this.options, ...options }
+    const results: ConversionResult[] = []
+    
+    logInfo(`변환 시작: ${filePaths.length}개 파일`)
+
+    if (finalOptions.parallel && filePaths.length > 1) {
+      // 병렬 처리
+      const batchSize = finalOptions.maxWorkers || 4
+      const batches = this.createBatches(filePaths, batchSize)
+      
+      for (const batch of batches) {
+        const batchResults = batch.map(filePath => this.convertFile(filePath))
+        results.push(...batchResults)
+      }
+    } else {
+      // 순차 처리
+      for (const filePath of filePaths) {
+        const result = this.convertFile(filePath)
+        results.push(result)
+      }
+    }
+
+    const success = results.filter(r => r.success)
+    const failed = results.filter(r => !r.success)
+    const converted = results.filter(r => r.converted)
+
+    logSuccess(`변환 완료: 성공 ${success.length}개, 실패 ${failed.length}개, 실제 변환 ${converted.length}개`)
+
+    return {
+      total: results.length,
+      success,
+      failed
+    }
+  }
+
+  /**
+   * 변환 규칙 적용
+   */
+  private applyConversions(content: string): string {
+    let convertedContent = content
+
+    // 우선순위 순으로 변환 규칙 적용
+    for (const rule of this.conversionRules) {
+      if (typeof rule.replacement === 'function') {
+        convertedContent = convertedContent.replace(rule.pattern, rule.replacement)
+      } else {
+        convertedContent = convertedContent.replace(rule.pattern, rule.replacement)
+      }
+    }
+
+    // 브라우저 API polyfill 추가
+    if (this.options.polyfill && this.needsPolyfill(convertedContent)) {
+      convertedContent = this.addPolyfill(convertedContent)
+    }
+
+    return convertedContent
+  }
+
+  /**
+   * polyfill이 필요한지 확인
+   */
+  private needsPolyfill(content: string): boolean {
+    const browserAPIs = ['window', 'document', 'localStorage', 'sessionStorage', 'navigator']
+    return browserAPIs.some(api => content.includes(api))
+  }
+
+  /**
+   * polyfill 추가
+   */
+  private addPolyfill(content: string): string {
+    const polyfill = `// Browser API polyfills for Node.js environment
 if (typeof window === 'undefined') {
   global.window = global.window || {}
   global.document = global.document || {}
@@ -176,257 +315,58 @@ if (typeof window === 'undefined') {
   global.File = global.File || class File {}
   global.StorageEvent = global.StorageEvent || class StorageEvent {}
   global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
-  global.cancelAnimationFrame = global.cancelAnimationFrame || (id => clearTimeout(id))
-  global.navigator = global.navigator || { userAgent: 'Node.js' }
-  global.location = global.location || { href: 'file://', origin: 'file://' }
 }
 
 `
+    return polyfill + content
   }
 
   /**
-   * 파일 변환
+   * 백업 생성
    */
-  convertFile(filePath: string, options: ConverterOptions = {}): ConversionResult {
-    const mergedOptions = { ...this.options, ...options }
-    
+  private createBackup(filePath: string): void {
     try {
-      const content = fs.readFileSync(filePath, 'utf8')
-      const originalContent = content
-      
-      logInfo(`변환 시작: ${path.relative(process.cwd(), filePath)}`)
-      
-      // 변환 필요성 확인
-      if (!this.needsConversion(content)) {
-        logInfo(`변환 불필요: ${path.relative(process.cwd(), filePath)}`)
-        return { success: true, converted: false, content }
-      }
-      
-      let convertedContent = content
-      let hasChanges = false
-      
-      // 1. import.meta 변환 (우선순위)
-      for (const rule of this.conversionRules.importMeta) {
-        const before = convertedContent
-        convertedContent = convertedContent.replace(rule.pattern, rule.replacement as string)
-        if (before !== convertedContent) {
-          hasChanges = true
-          logInfo(`import.meta 변환: ${rule.description}`)
-        }
-      }
-      
-      // 2. import 변환
-      for (const rule of this.conversionRules.imports) {
-        const before = convertedContent
-        convertedContent = convertedContent.replace(rule.pattern, rule.replacement as string)
-        if (before !== convertedContent) {
-          hasChanges = true
-          logInfo(`import 변환: ${rule.description}`)
-        }
-      }
-      
-      // 3. export 변환
-      for (const rule of this.conversionRules.exports) {
-        const before = convertedContent
-        if (typeof rule.replacement === 'function') {
-          convertedContent = convertedContent.replace(rule.pattern, rule.replacement as any)
-        } else {
-          convertedContent = convertedContent.replace(rule.pattern, rule.replacement)
-        }
-        if (before !== convertedContent) {
-          hasChanges = true
-          logInfo(`export 변환: ${rule.description}`)
-        }
-      }
-      
-      // 4. 브라우저 API polyfill 추가
-      if (mergedOptions.polyfill && this.needsBrowserPolyfill(convertedContent)) {
-        const polyfill = this.generateBrowserPolyfill()
-        convertedContent = polyfill + convertedContent
-        hasChanges = true
-        logInfo('브라우저 API polyfill 추가')
-      }
-      
-      // 5. 변환 검증
-      if (mergedOptions.validate && hasChanges) {
-        const validation = this.validateConversion(convertedContent)
-        if (!validation.valid) {
-          logWarning(`변환 검증 실패: ${validation.errors.join(', ')}`)
-          return { success: false, error: 'validation_failed', details: validation.errors }
-        }
-      }
-      
-      logSuccess(`변환 완료: ${path.relative(process.cwd(), filePath)} (변경: ${hasChanges})`)
-      
-      return { 
-        success: true, 
-        converted: hasChanges, 
-        content: convertedContent,
-        originalContent,
-        changes: {
-          importMeta: this.countMatches(originalContent, /import\.meta/g),
-          imports: this.countMatches(originalContent, /import\s/g),
-          exports: this.countMatches(originalContent, /export\s/g)
-        }
-      }
-      
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+      const backupPath = `${filePath}.backup-${timestamp}`
+      this.fileUtils.copyFile(filePath, backupPath)
     } catch (error) {
-      logError(`파일 변환 실패: ${filePath} - ${(error as Error).message}`)
-      return { success: false, error: (error as Error).message }
+      logWarning(`백업 생성 실패: ${filePath} - ${(error as Error).message}`)
     }
   }
 
   /**
-   * 변환 필요성 확인
+   * 배치 생성
    */
-  private needsConversion(content: string): boolean {
-    const esModuleIndicators = [
-      /import\s+.*\s+from\s+['"]/,
-      /export\s+(default\s+)?/,
-      /import\.meta/,
-      /import\s*\(/
-    ]
-    
-    return esModuleIndicators.some(pattern => pattern.test(content))
+  private createBatches<T>(items: T[], batchSize: number): T[][] {
+    const batches: T[][] = []
+    for (let i = 0; i < items.length; i += batchSize) {
+      batches.push(items.slice(i, i + batchSize))
+    }
+    return batches
   }
 
   /**
-   * 브라우저 API polyfill 필요성 확인
+   * 변환 결과 보고서 출력
    */
-  private needsBrowserPolyfill(content: string): boolean {
-    const browserAPIs = ['window', 'document', 'localStorage', 'sessionStorage', 'navigator', 'location']
-    return browserAPIs.some(api => content.includes(api))
-  }
-
-  /**
-   * 변환 검증
-   */
-  private validateConversion(content: string): { valid: boolean; errors: string[] } {
-    const errors: string[] = []
+  printReport(report: ConversionReport): void {
+    logInfo('\n📊 변환 결과 보고서:')
+    logInfo(`- 총 파일: ${report.total}개`)
+    logInfo(`- 성공: ${report.success.length}개`)
+    logInfo(`- 실패: ${report.failed.length}개`)
     
-    // import.meta가 남아있는지 확인
-    if (content.includes('import.meta')) {
-      errors.push('import.meta가 변환되지 않음')
-    }
-    
-    // ES import가 남아있는지 확인
-    if (/import\s+.*\s+from\s+['"]/.test(content)) {
-      errors.push('ES import가 남아있음')
-    }
-    
-    // ES export가 남아있는지 확인
-    if (/export\s+(default\s+)?/.test(content)) {
-      errors.push('ES export가 남아있음')
-    }
-    
-    // 파일 크기 확인
-    if (content.length < 50) {
-      errors.push('파일 크기가 너무 작음')
-    }
-    
-    return {
-      valid: errors.length === 0,
-      errors
-    }
-  }
-
-  /**
-   * 패턴 매치 개수 계산
-   */
-  private countMatches(content: string, pattern: RegExp): number {
-    const matches = content.match(pattern)
-    return matches ? matches.length : 0
-  }
-
-  /**
-   * 여러 파일 변환
-   */
-  convertFiles(filePaths: string[], options: ConverterOptions = {}): {
-    success: Array<{ file: string; converted: boolean; changes?: any }>
-    failed: Array<{ file: string; error: string; details?: string[] }>
-    total: number
-  } {
-    const results = {
-      success: [] as Array<{ file: string; converted: boolean; changes?: any }>,
-      failed: [] as Array<{ file: string; error: string; details?: string[] }>,
-      total: filePaths.length
-    }
-    
-    for (const filePath of filePaths) {
-      const result = this.convertFile(filePath, options)
-      
-      if (result.success) {
-        results.success.push({
-          file: filePath,
-          converted: result.converted || false,
-          changes: result.changes
-        })
-      } else {
-        results.failed.push({
-          file: filePath,
-          error: result.error || 'unknown_error',
-          details: result.details
-        })
-      }
-    }
-    
-    return results
-  }
-
-  /**
-   * 변환 통계 생성
-   */
-  generateStats(results: ReturnType<CodeConverter['convertFiles']>): ConversionStats {
-    const stats: ConversionStats = {
-      total: results.total,
-      success: results.success.length,
-      failed: results.failed.length,
-      converted: results.success.filter(r => r.converted).length,
-      skipped: results.success.filter(r => !r.converted).length,
-      changes: {
-        importMeta: 0,
-        imports: 0,
-        exports: 0
-      }
-    }
-    
-    // 변경사항 통계
-    results.success.forEach(result => {
-      if (result.changes) {
-        stats.changes.importMeta += result.changes.importMeta || 0
-        stats.changes.imports += result.changes.imports || 0
-        stats.changes.exports += result.changes.exports || 0
-      }
-    })
-    
-    return stats
-  }
-
-  /**
-   * 변환 결과 보고
-   */
-  printReport(results: ReturnType<CodeConverter['convertFiles']>): void {
-    const stats = this.generateStats(results)
-    
-    logInfo(`\n📊 변환 결과:`)
-    logInfo(`- 총 파일: ${stats.total}개`)
-    logInfo(`- 성공: ${stats.success}개`)
-    logInfo(`- 실패: ${stats.failed}개`)
-    logInfo(`- 변환됨: ${stats.converted}개`)
-    logInfo(`- 건너뜀: ${stats.skipped}개`)
-    
-    if (stats.changes.importMeta > 0 || stats.changes.imports > 0 || stats.changes.exports > 0) {
-      logInfo(`\n🔄 변환 내용:`)
-      if (stats.changes.importMeta > 0) logInfo(`- import.meta: ${stats.changes.importMeta}개`)
-      if (stats.changes.imports > 0) logInfo(`- import: ${stats.changes.imports}개`)
-      if (stats.changes.exports > 0) logInfo(`- export: ${stats.changes.exports}개`)
-    }
-    
-    if (results.failed.length > 0) {
-      logWarning(`\n❌ 실패한 파일들:`)
-      results.failed.forEach(failure => {
-        logError(`- ${path.relative(process.cwd(), failure.file)}: ${failure.error}`)
+    if (report.failed.length > 0) {
+      logWarning('\n실패한 파일들:')
+      report.failed.forEach(result => {
+        logError(`- ${result.filePath}: ${result.error}`)
       })
     }
+  }
+
+  /**
+   * 캐시 정리
+   */
+  clearCache(): void {
+    this.cache.clear()
+    logInfo('변환 캐시가 정리되었습니다')
   }
 }

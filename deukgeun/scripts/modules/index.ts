@@ -28,6 +28,7 @@ import * as SafetyFunctions from './safety-functions'
 import * as ErrorRecoveryFunctions from './error-recovery-functions'
 import * as PerformanceFunctions from './performance-functions'
 import * as ValidationFunctions from './validation-functions'
+import * as NginxFunctions from './nginx-functions'
 
 export {
   // 기존 클래스 기반 모듈들
@@ -57,7 +58,8 @@ export {
   // 최적화된 새로운 모듈들
   ErrorRecoveryFunctions,
   PerformanceFunctions,
-  ValidationFunctions
+  ValidationFunctions,
+  NginxFunctions
 }
 
 // 편의 함수들

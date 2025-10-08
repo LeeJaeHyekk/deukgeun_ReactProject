@@ -9,41 +9,38 @@ export * from "./date"
 export * from "./string"
 
 // 배열 관련 유틸리티 (중복 함수들은 명시적으로 export)
-export {
-  isEmpty as arrayIsEmpty,
-  removeDuplicates as arrayRemoveDuplicates,
-  reverse as arrayReverse,
-  every as arrayEvery,
-  filter as arrayFilter,
-  find as arrayFind,
-  findAll as arrayFindAll,
-  flatten as arrayFlatten,
-  forEach as arrayForEach,
-  has as arrayHas,
-  reduce as arrayReduce,
-  some as arraySome,
-  toMap as arrayToMap,
-} from "./array"
+module.exports.arrayIsEmpty = isEmpty
+module.exports.arrayRemoveDuplicates = removeDuplicates
+module.exports.arrayReverse = reverse
+module.exports.arrayEvery = every
+module.exports.arrayFilter = filter
+module.exports.arrayFind = find
+module.exports.arrayFindAll = findAll
+module.exports.arrayFlatten = flatten
+module.exports.arrayForEach = forEach
+module.exports.arrayHas = has
+module.exports.arrayReduce = reduce
+module.exports.arraySome = some
+module.exports.arrayToMap = toMap
+module.exports. =  from "./array"
 
 // 객체 관련 유틸리티 (중복 함수들은 명시적으로 export)
-export {
-  every as objectEvery,
-  filter as objectFilter,
-  find as objectFind,
-  findAll as objectFindAll,
-  flatten as objectFlatten,
-  forEach as objectForEach,
-  has as objectHas,
-  reduce as objectReduce,
-  some as objectSome,
-  toMap as objectToMap,
-} from "./object"
+module.exports.objectEvery = every
+module.exports.objectFilter = filter
+module.exports.objectFind = find
+module.exports.objectFindAll = findAll
+module.exports.objectFlatten = flatten
+module.exports.objectForEach = forEach
+module.exports.objectHas = has
+module.exports.objectReduce = reduce
+module.exports.objectSome = some
+module.exports.objectToMap = toMap
+module.exports. =  from "./object"
 
 // 검증 관련 유틸리티 (중복 함수들은 명시적으로 export)
-export {
-  isValidDate as validationIsValidDate,
-  validateString as validationValidateString,
-} from "./validation"
+module.exports.validationIsValidDate = isValidDate
+module.exports.validationValidateString = validateString
+module.exports. =  from "./validation"
 
 // 스토리지 관련 유틸리티
 export * from "./storage"

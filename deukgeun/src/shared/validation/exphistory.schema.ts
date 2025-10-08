@@ -2,9 +2,9 @@
 // ExpHistory Validation Schema
 // ============================================================================
 
-import { z } from "zod"
+const { z  } = require('zod')
 
-export const ExpHistorySchema = z.object({
+const ExpHistorySchema = z.object({
   id: z.number(),
   userId: z.number(),
   actionType: z.enum([
@@ -27,12 +27,12 @@ export const ExpHistorySchema = z.object({
   createdAt: z.date(),
 })
 
-export const CreateExpHistorySchema = ExpHistorySchema.omit({
+const CreateExpHistorySchema = ExpHistorySchema.omit({
   id: true,
   createdAt: true,
 })
 
-export const UpdateExpHistorySchema = CreateExpHistorySchema.partial()
+const UpdateExpHistorySchema = CreateExpHistorySchema.partial()
 
 export type ExpHistoryInput = z.infer<typeof ExpHistorySchema>
 export type CreateExpHistoryInput = z.infer<typeof CreateExpHistorySchema>

@@ -7,6 +7,7 @@
 
 import * as fs from 'fs'
 import * as path from 'path'
+import { fileURLToPath } from 'url'
 import { execSync, spawn } from 'child_process'
 
 // 색상 출력을 위한 유틸리티
@@ -60,7 +61,7 @@ class AutoCompileRunner {
   /**
    * 스크립트 자동 컴파일 및 실행
    */
-  async runScript(scriptName: string, args: string[] = []): Promise<void> {
+  async runScript(scriptName: string, args: string[] = []): Promise<any> {
     const startTime = Date.now()
     
     try {
@@ -79,15 +80,18 @@ class AutoCompileRunner {
       await this.compileScript(scriptName)
       
       // 4. 컴파일된 스크립트 실행
-      await this.executeCompiledScript(scriptName, args)
+      const result = await this.executeCompiledScript(scriptName, args)
       
       const endTime = Date.now()
       const duration = ((endTime - startTime) / 1000).toFixed(2)
       
       logSuccess(`스크립트 실행 완료! (소요시간: ${duration}초)`)
       
+      return result
+      
     } catch (error) {
       logError(`스크립트 실행 실패: ${(error as Error).message}`)
+      logError(`에러 스택: ${(error as Error).stack}`)
       throw error
     }
   }
@@ -119,18 +123,19 @@ class AutoCompileRunner {
       const scriptPath = path.join(this.scriptsDir, scriptName)
       const outputPath = path.join(this.distScriptsDir, scriptName.replace('.ts', '.js'))
       
-      // TypeScript 컴파일 명령어
+      // TypeScript 컴파일 명령어 (ESM 호환)
       const compileCommand = [
         'npx tsc',
         scriptPath,
         '--outDir', this.distScriptsDir,
-        '--target', 'es2020',
-        '--module', 'commonjs',
+        '--target', 'es2022',
+        '--module', 'esnext',
         '--esModuleInterop',
         '--allowSyntheticDefaultImports',
         '--skipLibCheck',
         '--resolveJsonModule',
-        '--allowJs'
+        '--allowJs',
+        '--moduleResolution', 'node'
       ].join(' ')
       
       log(`컴파일 명령어: ${compileCommand}`, 'blue')
@@ -142,10 +147,13 @@ class AutoCompileRunner {
         timeout: 60000 // 1분
       })
       
-      // .js 파일을 .cjs로 복사
+      // .js 파일을 .cjs로 복사하고 CommonJS로 변환
       const cjsPath = outputPath.replace('.js', '.cjs')
       if (fs.existsSync(outputPath)) {
-        fs.copyFileSync(outputPath, cjsPath)
+        // ESM을 CommonJS로 변환
+        const content = fs.readFileSync(outputPath, 'utf8')
+        const cjsContent = this.convertESMToCommonJS(content)
+        fs.writeFileSync(cjsPath, cjsContent)
         log(`✅ .cjs 파일 생성됨: ${path.relative(this.projectRoot, cjsPath)}`, 'green')
       }
       
@@ -160,7 +168,7 @@ class AutoCompileRunner {
   /**
    * 컴파일된 스크립트 실행
    */
-  private async executeCompiledScript(scriptName: string, args: string[] = []): Promise<void> {
+  private async executeCompiledScript(scriptName: string, args: string[] = []): Promise<any> {
     logStep('EXECUTE', `컴파일된 스크립트 실행 중: ${scriptName}`)
     
     try {
@@ -181,11 +189,11 @@ class AutoCompileRunner {
         shell: true
       })
       
-      // 프로세스 종료 대기
-      await new Promise<void>((resolve, reject) => {
+      // 프로세스 종료 대기 및 결과 반환
+      const result = await new Promise<any>((resolve, reject) => {
         child.on('close', (code) => {
           if (code === 0) {
-            resolve()
+            resolve({ success: true, exitCode: code, scriptName })
           } else {
             reject(new Error(`스크립트 실행 실패 (종료 코드: ${code})`))
           }
@@ -197,9 +205,11 @@ class AutoCompileRunner {
       })
       
       logSuccess(`스크립트 실행 완료: ${scriptName}`)
+      return result
       
     } catch (error) {
       logError(`스크립트 실행 실패: ${(error as Error).message}`)
+      logError(`에러 스택: ${(error as Error).stack}`)
       throw error
     }
   }
@@ -238,6 +248,36 @@ class AutoCompileRunner {
     return fs.readdirSync(this.scriptsDir)
       .filter(file => file.endsWith('.ts'))
       .sort()
+  }
+
+  /**
+   * ESM을 CommonJS로 변환
+   */
+  private convertESMToCommonJS(content: string): string {
+    let converted = content
+    
+    // import.meta.url -> __filename
+    converted = converted.replace(/import\.meta\.url/g, '__filename')
+    
+    // import statements -> require
+    converted = converted.replace(/import\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g, 'const $1 = require(\'$2\')')
+    converted = converted.replace(/import\s*{\s*([^}]+)\s*}\s+from\s+['"]([^'"]+)['"]/g, 'const { $1 } = require(\'$2\')')
+    converted = converted.replace(/import\s+\*\s+as\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g, 'const $1 = require(\'$2\')')
+    
+    // export statements -> module.exports
+    converted = converted.replace(/export\s+default\s+/g, 'module.exports = ')
+    converted = converted.replace(/export\s*{\s*([^}]+)\s*}/g, (match, exports) => {
+      return exports.split(',').map((exp: string) => {
+        exp = exp.trim()
+        if (exp.includes(' as ')) {
+          const [original, alias] = exp.split(' as ').map((s: string) => s.trim())
+          return `module.exports.${alias} = ${original}`
+        }
+        return `module.exports.${exp} = ${exp}`
+      }).join('\n')
+    })
+    
+    return converted
   }
 
   /**
@@ -297,9 +337,36 @@ async function main(): Promise<void> {
   }
 }
 
-// 스크립트 실행
-if (require.main === module) {
-  main()
+// === ESM/CJS 모두에서 "직접 실행"을 감지하는 안전한 진입점 ===
+async function runIfMain() {
+  // ESM: import.meta.url -> 파일 경로
+  try {
+    const __filename = fileURLToPath(import.meta.url)
+    // process.argv[1]은 node 실행시 첫 번째 인자로 넘어온 스크립트 경로
+    if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
+      await main()
+      return
+    }
+  } catch (e) {
+    // import.meta가 없는 CJS 환경에서 무시
+  }
+
+  // CJS 환경에서의 기존 검사 (require가 정의되어 있으면 사용)
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // require가 없는 ESM 환경에서는 ReferenceError가 발생하므로 try/catch로 감싼다
+    // @ts-ignore
+    if (typeof require !== 'undefined' && require.main === module) {
+      await main()
+      return
+    }
+  } catch { /* ignore */ }
 }
+
+// 즉시 실행
+runIfMain().catch(err => {
+  logError(`실행 실패(진입점): ${(err as Error).message}`)
+  process.exit(1)
+})
 
 export { AutoCompileRunner, main }

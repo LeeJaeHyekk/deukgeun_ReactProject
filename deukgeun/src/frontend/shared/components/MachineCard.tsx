@@ -4,12 +4,11 @@ import type {
   MachineCategoryDTO,
   DifficultyLevelDTO,
 } from "@dto/index"
-import {
-  findMatchingImage,
+const { findMatchingImage,
   getFullImageUrl,
   handleImageError,
-} from "../utils/machineImageUtils"
-import "./MachineCard.css"
+ } = require('../utils/machineImageUtils')
+require('./MachineCard.css')
 
 interface MachineCardProps {
   machine: Machine
@@ -165,5 +164,5 @@ const MachineCard: React.FC<MachineCardProps> = React.memo(
   }
 )
 
-export default MachineCard
-export { MachineCard }
+module.exports.default = MachineCard
+module.exports.MachineCard = MachineCard

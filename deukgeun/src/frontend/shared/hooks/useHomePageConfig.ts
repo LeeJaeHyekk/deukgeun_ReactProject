@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react"
-import { homePageApi, HomePageConfig, DEFAULT_HOME_PAGE_CONFIG } from "../api/homePageApi"
+const { useState, useEffect  } = require('react')
+const { homePageApi, HomePageConfig, DEFAULT_HOME_PAGE_CONFIG  } = require('../api/homePageApi')
 
-export const useHomePageConfig = () => {
+const useHomePageConfig = () => {
   const [config, setConfig] = useState<HomePageConfig>(DEFAULT_HOME_PAGE_CONFIG)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

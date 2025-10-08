@@ -1,1 +1,1 @@
-export { LoadingSpinner } from "./LoadingSpinner"
+module.exports.LoadingSpinner = LoadingSpinner from "./LoadingSpinner"

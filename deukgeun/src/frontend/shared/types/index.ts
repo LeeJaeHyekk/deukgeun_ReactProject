@@ -3,111 +3,111 @@
 // ============================================================================
 
 // 중앙 타입 시스템 재사용 (명시적 export로 중복 방지)
-export {
-  // 공통 타입들
-  ApiResponse,
-  PaginatedResponse,
-  ErrorResponse,
-  SuccessResponse,
-
-  // DTO 타입들
-  UserDTO,
-  CreateUserDTO,
-  UpdateUserDTO,
-  UserDTOResponse,
-  UserDTOListResponse,
-  MachineDTO,
-  CreateMachineDTO,
-  UpdateMachineDTO,
-  MachineDTOResponse,
-  MachineDTOListResponse,
-  MachineCategoryDTO,
-  DifficultyLevelDTO,
-  WorkoutPlanDTO,
-  CreateWorkoutPlanDTO,
-  UpdateWorkoutPlanDTO,
-  WorkoutPlanDTOResponse,
-  WorkoutPlanDTOListResponse,
-  WorkoutPlanExerciseDTO,
-  CreateWorkoutPlanExerciseDTO,
-  UpdateWorkoutPlanExerciseDTO,
-  WorkoutPlanExerciseDTOResponse,
-  WorkoutPlanExercise,
-  WorkoutSessionDTO,
-  CreateWorkoutSessionDTO,
-  UpdateWorkoutSessionDTO,
-  WorkoutSessionDTOResponse,
-  WorkoutSessionDTOListResponse,
-  WorkoutGoalDTO,
-  CreateWorkoutGoalDTO,
-  UpdateWorkoutGoalDTO,
-  WorkoutGoalDTOResponse,
-  WorkoutGoalDTOListResponse,
-  ExerciseSetDTO,
-  CreateExerciseSetDTO,
-  UpdateExerciseSetDTO,
-  ExerciseSetDTOResponse,
-  ExerciseSetDTOListResponse,
-  GymDTO,
-  CreateGymDTO,
-  UpdateGymDTO,
-  GymDTOResponse,
-  PostDTO,
-  CreatePostDTO,
-  UpdatePostDTO,
-  PostDTOResponse,
-  CommentDTO,
-  CreateCommentDTO,
-  UpdateCommentDTO,
-  CommentDTOResponse,
-  LikeDTO,
-  CreateLikeDTO,
-  UpdateLikeDTO,
-  LikeDTOResponse,
-  UserRewardDTO,
-  CreateUserRewardDTO,
-  UpdateUserRewardDTO,
-  UserRewardDTOResponse,
-  ExpHistoryDTO,
-  CreateExpHistoryDTO,
-  UpdateExpHistoryDTO,
-  ExpHistoryDTOResponse,
-  UserLevelDTO,
-  CreateUserLevelDTO,
-  UpdateUserLevelDTO,
-  UserLevelDTOResponse,
-  MilestoneDTO,
-  CreateMilestoneDTO,
-  UpdateMilestoneDTO,
-  MilestoneDTOResponse,
-  UserStreakDTO,
-  CreateUserStreakDTO,
-  UpdateUserStreakDTO,
-  UserStreakDTOResponse,
-  DashboardData,
-  WorkoutStatsDTO,
-  WorkoutReminderDTO,
-  GoalProgressBarProps,
-  SessionCardProps,
-  PaginationParams,
-
-  // 타입 별칭들
-  User,
-  Machine,
-  WorkoutPlan,
-  WorkoutSession,
-  WorkoutGoal,
-  ExerciseSet,
-  CreatePlanRequest,
-  UpdatePlanRequest,
-  CreateSessionRequest,
-  UpdateSessionRequest,
-  CreateGoalRequest,
-  UpdateGoalRequest,
-
-  // 기타 타입들
-  PostCategoryInfo,
-} from "../../../shared/types"
+module.exports.// 공통 타입들
+  ApiResponse = // 공통 타입들
+  ApiResponse
+module.exports.PaginatedResponse = PaginatedResponse
+module.exports.ErrorResponse = ErrorResponse
+module.exports.SuccessResponse = SuccessResponse
+module.exports.// DTO 타입들
+  UserDTO = // DTO 타입들
+  UserDTO
+module.exports.CreateUserDTO = CreateUserDTO
+module.exports.UpdateUserDTO = UpdateUserDTO
+module.exports.UserDTOResponse = UserDTOResponse
+module.exports.UserDTOListResponse = UserDTOListResponse
+module.exports.MachineDTO = MachineDTO
+module.exports.CreateMachineDTO = CreateMachineDTO
+module.exports.UpdateMachineDTO = UpdateMachineDTO
+module.exports.MachineDTOResponse = MachineDTOResponse
+module.exports.MachineDTOListResponse = MachineDTOListResponse
+module.exports.MachineCategoryDTO = MachineCategoryDTO
+module.exports.DifficultyLevelDTO = DifficultyLevelDTO
+module.exports.WorkoutPlanDTO = WorkoutPlanDTO
+module.exports.CreateWorkoutPlanDTO = CreateWorkoutPlanDTO
+module.exports.UpdateWorkoutPlanDTO = UpdateWorkoutPlanDTO
+module.exports.WorkoutPlanDTOResponse = WorkoutPlanDTOResponse
+module.exports.WorkoutPlanDTOListResponse = WorkoutPlanDTOListResponse
+module.exports.WorkoutPlanExerciseDTO = WorkoutPlanExerciseDTO
+module.exports.CreateWorkoutPlanExerciseDTO = CreateWorkoutPlanExerciseDTO
+module.exports.UpdateWorkoutPlanExerciseDTO = UpdateWorkoutPlanExerciseDTO
+module.exports.WorkoutPlanExerciseDTOResponse = WorkoutPlanExerciseDTOResponse
+module.exports.WorkoutPlanExercise = WorkoutPlanExercise
+module.exports.WorkoutSessionDTO = WorkoutSessionDTO
+module.exports.CreateWorkoutSessionDTO = CreateWorkoutSessionDTO
+module.exports.UpdateWorkoutSessionDTO = UpdateWorkoutSessionDTO
+module.exports.WorkoutSessionDTOResponse = WorkoutSessionDTOResponse
+module.exports.WorkoutSessionDTOListResponse = WorkoutSessionDTOListResponse
+module.exports.WorkoutGoalDTO = WorkoutGoalDTO
+module.exports.CreateWorkoutGoalDTO = CreateWorkoutGoalDTO
+module.exports.UpdateWorkoutGoalDTO = UpdateWorkoutGoalDTO
+module.exports.WorkoutGoalDTOResponse = WorkoutGoalDTOResponse
+module.exports.WorkoutGoalDTOListResponse = WorkoutGoalDTOListResponse
+module.exports.ExerciseSetDTO = ExerciseSetDTO
+module.exports.CreateExerciseSetDTO = CreateExerciseSetDTO
+module.exports.UpdateExerciseSetDTO = UpdateExerciseSetDTO
+module.exports.ExerciseSetDTOResponse = ExerciseSetDTOResponse
+module.exports.ExerciseSetDTOListResponse = ExerciseSetDTOListResponse
+module.exports.GymDTO = GymDTO
+module.exports.CreateGymDTO = CreateGymDTO
+module.exports.UpdateGymDTO = UpdateGymDTO
+module.exports.GymDTOResponse = GymDTOResponse
+module.exports.PostDTO = PostDTO
+module.exports.CreatePostDTO = CreatePostDTO
+module.exports.UpdatePostDTO = UpdatePostDTO
+module.exports.PostDTOResponse = PostDTOResponse
+module.exports.CommentDTO = CommentDTO
+module.exports.CreateCommentDTO = CreateCommentDTO
+module.exports.UpdateCommentDTO = UpdateCommentDTO
+module.exports.CommentDTOResponse = CommentDTOResponse
+module.exports.LikeDTO = LikeDTO
+module.exports.CreateLikeDTO = CreateLikeDTO
+module.exports.UpdateLikeDTO = UpdateLikeDTO
+module.exports.LikeDTOResponse = LikeDTOResponse
+module.exports.UserRewardDTO = UserRewardDTO
+module.exports.CreateUserRewardDTO = CreateUserRewardDTO
+module.exports.UpdateUserRewardDTO = UpdateUserRewardDTO
+module.exports.UserRewardDTOResponse = UserRewardDTOResponse
+module.exports.ExpHistoryDTO = ExpHistoryDTO
+module.exports.CreateExpHistoryDTO = CreateExpHistoryDTO
+module.exports.UpdateExpHistoryDTO = UpdateExpHistoryDTO
+module.exports.ExpHistoryDTOResponse = ExpHistoryDTOResponse
+module.exports.UserLevelDTO = UserLevelDTO
+module.exports.CreateUserLevelDTO = CreateUserLevelDTO
+module.exports.UpdateUserLevelDTO = UpdateUserLevelDTO
+module.exports.UserLevelDTOResponse = UserLevelDTOResponse
+module.exports.MilestoneDTO = MilestoneDTO
+module.exports.CreateMilestoneDTO = CreateMilestoneDTO
+module.exports.UpdateMilestoneDTO = UpdateMilestoneDTO
+module.exports.MilestoneDTOResponse = MilestoneDTOResponse
+module.exports.UserStreakDTO = UserStreakDTO
+module.exports.CreateUserStreakDTO = CreateUserStreakDTO
+module.exports.UpdateUserStreakDTO = UpdateUserStreakDTO
+module.exports.UserStreakDTOResponse = UserStreakDTOResponse
+module.exports.DashboardData = DashboardData
+module.exports.WorkoutStatsDTO = WorkoutStatsDTO
+module.exports.WorkoutReminderDTO = WorkoutReminderDTO
+module.exports.GoalProgressBarProps = GoalProgressBarProps
+module.exports.SessionCardProps = SessionCardProps
+module.exports.PaginationParams = PaginationParams
+module.exports.// 타입 별칭들
+  User = // 타입 별칭들
+  User
+module.exports.Machine = Machine
+module.exports.WorkoutPlan = WorkoutPlan
+module.exports.WorkoutSession = WorkoutSession
+module.exports.WorkoutGoal = WorkoutGoal
+module.exports.ExerciseSet = ExerciseSet
+module.exports.CreatePlanRequest = CreatePlanRequest
+module.exports.UpdatePlanRequest = UpdatePlanRequest
+module.exports.CreateSessionRequest = CreateSessionRequest
+module.exports.UpdateSessionRequest = UpdateSessionRequest
+module.exports.CreateGoalRequest = CreateGoalRequest
+module.exports.UpdateGoalRequest = UpdateGoalRequest
+module.exports.// 기타 타입들
+  PostCategoryInfo = // 기타 타입들
+  PostCategoryInfo
+module.exports. =  from "../../../shared/types"
 
 // Mix.json 기반 자동 생성 타입들
 export * from "./mix-generated"

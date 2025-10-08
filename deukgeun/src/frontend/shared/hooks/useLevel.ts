@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from "react"
-import { useAuth } from "./useAuth"
-import { levelApiWrapper, levelApiManager } from "../api/levelApiWrapper"
-import { LevelProgress, UserReward } from "../api/levelApi"
-import { showToast } from "../lib"
+const { useState, useEffect, useCallback, useRef  } = require('react')
+const { useAuth  } = require('./useAuth')
+const { levelApiWrapper, levelApiManager  } = require('../api/levelApiWrapper')
+const { LevelProgress, UserReward  } = require('../api/levelApi')
+const { showToast  } = require('../lib')
 
 // ============================================================================
 // Constants
@@ -27,7 +27,7 @@ const DEFAULT_LEVEL_PROGRESS: LevelProgress = {
 // Hook
 // ============================================================================
 
-export function useLevel() {
+function useLevel() {
   const { user, isLoggedIn } = useAuth()
   const [levelProgress, setLevelProgress] = useState<LevelProgress | null>(null)
   const [rewards, setRewards] = useState<UserReward[]>([])

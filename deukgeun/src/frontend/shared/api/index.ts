@@ -1,12 +1,33 @@
+// Browser API polyfills for Node.js environment
+if (typeof window === 'undefined') {
+  global.window = global.window || {}
+  global.document = global.document || {}
+  global.localStorage = global.localStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.sessionStorage = global.sessionStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.File = global.File || class File {}
+  global.StorageEvent = global.StorageEvent || class StorageEvent {}
+  global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
+}
+
 import axios, {
   AxiosInstance,
   AxiosRequestConfig,
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from 'axios'
-import { config } from '@shared/config'
-import { storage } from '@shared/lib'
-import { globalErrorHandler } from '@pages/Error'
+const { config  } = require('@shared/config')
+const { storage  } = require('@shared/lib')
+const { globalErrorHandler  } = require('@pages/Error')
 
 // API 응답 타입 정의
 export interface ApiResponse<T = unknown> {
@@ -140,7 +161,7 @@ const createApiClient = (): AxiosInstance => {
 const apiClient = createApiClient()
 
 // 타입 안전한 API 메서드들
-export const api = {
+const api = {
   get: <T = unknown>(
     url: string,
     config?: AxiosRequestConfig
@@ -181,7 +202,7 @@ export const api = {
 }
 
 // Community specific helpers
-export const postsApi = {
+const postsApi = {
   list: (params?: {
     category?: string
     q?: string
@@ -197,13 +218,13 @@ export const postsApi = {
   remove: (id: number) => api.delete(`/api/posts/${id}`),
 }
 
-export const likesApi = {
+const likesApi = {
   like: (postId: number) => api.post<LikeResponse>(`/api/likes/${postId}`),
   unlike: (postId: number) => api.delete<LikeResponse>(`/api/likes/${postId}`),
   toggle: (postId: number) => api.post<LikeResponse>(`/api/likes/${postId}`), // 토글 방식
 }
 
-export const commentsApi = {
+const commentsApi = {
   list: (postId: number, params?: { page?: number; limit?: number }) =>
     api.get(`/api/comments/${postId}`, { params }),
   create: (postId: number, data: { content: string }) =>
@@ -211,4 +232,4 @@ export const commentsApi = {
   remove: (commentId: number) => api.delete(`/api/comments/${commentId}`),
 }
 
-export default apiClient
+module.exports.default = apiClient

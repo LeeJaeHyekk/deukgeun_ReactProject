@@ -1,0 +1,325 @@
+.section-timer-manager {
+  background: #ffffff;
+  border: 1px solid #e1e5e9;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.section-timer-manager.active {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.section-timer-manager:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* 타이머 헤더 */
+.timer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.exercise-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.section-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.sets-reps {
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.weight {
+  font-size: 12px;
+  font-weight: 600;
+  color: #059669;
+  background: #ecfdf5;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* 타이머 디스플레이 */
+.timer-display {
+  margin-bottom: 16px;
+}
+
+.time-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.elapsed-time {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  font-family: "Courier New", monospace;
+}
+
+.total-time {
+  font-size: 16px;
+  font-weight: 500;
+  color: #64748b;
+  font-family: "Courier New", monospace;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* 타이머 컨트롤 */
+.timer-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+  justify-content: center;
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.start-btn {
+  background: #10b981;
+  color: white;
+}
+
+.start-btn:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.resume-btn {
+  background: #10b981;
+  color: white;
+}
+
+.resume-btn:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.pause-btn {
+  background: #f59e0b;
+  color: white;
+}
+
+.pause-btn:hover:not(:disabled) {
+  background: #d97706;
+  transform: translateY(-1px);
+}
+
+.complete-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.complete-btn:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.reset-btn {
+  background: #6b7280;
+  color: white;
+}
+
+.reset-btn:hover:not(:disabled) {
+  background: #4b5563;
+  transform: translateY(-1px);
+}
+
+/* 섹션 상태 */
+.section-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.status-indicator {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-indicator.in-progress {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-indicator.completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .section-timer-manager {
+    padding: 12px;
+  }
+
+  .timer-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .section-info {
+    align-items: flex-start;
+  }
+
+  .timer-controls {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .control-btn {
+    flex: 1;
+    min-width: 70px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .elapsed-time {
+    font-size: 20px;
+  }
+
+  .total-time {
+    font-size: 14px;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .section-timer-manager {
+    background: #1e293b;
+    border-color: #334155;
+    color: #f1f5f9;
+  }
+
+  .section-timer-manager.active {
+    border-color: #60a5fa;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  }
+
+  .exercise-name {
+    color: #f1f5f9;
+  }
+
+  .sets-reps {
+    background: #334155;
+    color: #cbd5e1;
+  }
+
+  .weight {
+    background: #065f46;
+    color: #6ee7b7;
+  }
+
+  .elapsed-time {
+    color: #f1f5f9;
+  }
+
+  .total-time {
+    color: #94a3b8;
+  }
+
+  .progress-bar {
+    background: #334155;
+  }
+
+  .section-status {
+    border-top-color: #334155;
+  }
+
+  .progress-text {
+    color: #94a3b8;
+  }
+}
+
+/* 애니메이션 */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.section-timer-manager.active .progress-fill {
+  animation: pulse 2s infinite;
+}
+
+/* 접근성 개선 */
+.control-btn:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.section-timer-manager:focus-within {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}

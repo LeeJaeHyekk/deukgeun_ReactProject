@@ -2,9 +2,9 @@
 // ExerciseSet Validation Schema
 // ============================================================================
 
-import { z } from "zod"
+const { z  } = require('zod')
 
-export const ExerciseSetSchema = z.object({
+const ExerciseSetSchema = z.object({
   id: z.number(),
   sessionId: z.number(),
   machineId: z.number(),
@@ -18,12 +18,12 @@ export const ExerciseSetSchema = z.object({
   createdAt: z.date(),
 })
 
-export const CreateExerciseSetSchema = ExerciseSetSchema.omit({
+const CreateExerciseSetSchema = ExerciseSetSchema.omit({
   id: true,
   createdAt: true,
 })
 
-export const UpdateExerciseSetSchema = CreateExerciseSetSchema.partial()
+const UpdateExerciseSetSchema = CreateExerciseSetSchema.partial()
 
 export type ExerciseSetInput = z.infer<typeof ExerciseSetSchema>
 export type CreateExerciseSetInput = z.infer<typeof CreateExerciseSetSchema>

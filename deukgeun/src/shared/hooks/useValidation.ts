@@ -2,7 +2,7 @@
 // 폼 검증 훅
 // ============================================================================
 
-import { useState, useCallback, useMemo } from "react"
+const { useState, useCallback, useMemo  } = require('react')
 
 // 검증 규칙 타입
 export type ValidationRule<T> = {
@@ -54,7 +54,7 @@ export interface UseValidationReturn<T> {
 }
 
 // 검증 훅
-export function useValidation<T extends Record<string, unknown>>(
+function useValidation<T extends Record<string, unknown>>(
   options: UseValidationOptions<T>
 ): UseValidationReturn<T> {
   const {
@@ -243,7 +243,7 @@ export function useValidation<T extends Record<string, unknown>>(
 }
 
 // 간단한 검증 유틸리티 함수들
-export const validationUtils = {
+const validationUtils = {
   // 이메일 검증
   isEmail: (value: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

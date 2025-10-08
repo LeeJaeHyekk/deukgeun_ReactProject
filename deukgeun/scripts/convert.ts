@@ -6,6 +6,7 @@
  */
 
 import * as path from 'path'
+import { fileURLToPath } from 'url'
 import { 
   logStep, 
   logSuccess, 
@@ -36,6 +37,7 @@ interface ConvertOptions {
   maxWorkers: number
   verbose: boolean
   dryRun: boolean
+  testMode: boolean
 }
 
 // 기본 옵션
@@ -47,7 +49,8 @@ const defaultOptions: ConvertOptions = {
   parallel: true,
   maxWorkers: 4,
   verbose: false,
-  dryRun: false
+  dryRun: false,
+  testMode: false
 }
 
 /**
@@ -82,7 +85,15 @@ export async function runConvertScript(options: Partial<ConvertOptions> = {}): P
     }
 
     // 변환 대상 스캔
+    logInfo(`🔍 변환 대상 경로: ${finalOptions.projectRoot}`)
     const conversionTargets = scanConversionTargets(finalOptions.projectRoot)
+    logInfo(`🔍 스캔된 파일 수: ${conversionTargets.length}`)
+    
+    // 테스트 모드: 첫 번째 파일만 변환
+    if (finalOptions.testMode && conversionTargets.length > 0) {
+      logInfo(`🧪 테스트 모드: 첫 번째 파일만 변환합니다 - ${conversionTargets[0]}`)
+      conversionTargets.splice(1) // 첫 번째 파일만 유지
+    }
     
     if (conversionTargets.length === 0) {
       logInfo('변환이 필요한 파일이 없습니다.')
@@ -91,6 +102,16 @@ export async function runConvertScript(options: Partial<ConvertOptions> = {}): P
         duration: Date.now() - startTime,
         results: { converted: 0, total: 0 }
       }
+    }
+    
+    // 변환 대상 파일 목록 출력 (최대 5개)
+    const displayTargets = conversionTargets.slice(0, 5)
+    logInfo(`📋 변환 대상 파일들 (${displayTargets.length}개 표시):`)
+    displayTargets.forEach((target, index) => {
+      logInfo(`  ${index + 1}. ${target}`)
+    })
+    if (conversionTargets.length > 5) {
+      logInfo(`  ... 외 ${conversionTargets.length - 5}개 파일`)
     }
 
     // 변환 실행
@@ -156,6 +177,7 @@ function printExecutionPlan(options: ConvertOptions): void {
   logInfo(`- 최대 워커: ${options.maxWorkers}개`)
   logInfo(`- 상세 로그: ${options.verbose ? '활성화' : '비활성화'}`)
   logInfo(`- 드라이 런: ${options.dryRun ? '활성화' : '비활성화'}`)
+  logInfo(`- 테스트 모드: ${options.testMode ? '활성화' : '비활성화'}`)
 }
 
 /**
@@ -209,6 +231,10 @@ function parseArguments(): Partial<ConvertOptions> {
       case '-d':
         options.dryRun = true
         break
+      case '--test':
+      case '-t':
+        options.testMode = true
+        break
       case '--help':
       case '-h':
         printHelp()
@@ -240,12 +266,14 @@ function printHelp(): void {
   -w, --max-workers <num>     최대 워커 수
   -v, --verbose              상세 로그 활성화
   -d, --dry-run              드라이 런 모드
+  -t, --test                 테스트 모드 (첫 번째 파일만 변환)
   -h, --help                  도움말 출력
 
 예시:
   node convert-script.ts --verbose
   node convert-script.ts --no-backup --parallel --max-workers 8
   node convert-script.ts --dry-run
+  node convert-script.ts --test --verbose
 `)
 }
 
@@ -269,8 +297,9 @@ async function main(): Promise<void> {
   }
 }
 
-// 스크립트 실행
-if (import.meta.url === `file://${process.argv[1]}`) {
+// 스크립트 실행 조건 수정
+const __filename = fileURLToPath(import.meta.url)
+if (process.argv[1] === __filename) {
   main()
 }
 

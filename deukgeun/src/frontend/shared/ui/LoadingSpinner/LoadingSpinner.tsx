@@ -1,12 +1,12 @@
-import React from "react"
-import styles from "./LoadingSpinner.module.css"
+const React = require('react').default
+const styles = require('./LoadingSpinner.module.css').default
 
 interface LoadingSpinnerProps {
   size?: "small" | "medium" | "large"
   text?: string
 }
 
-export function LoadingSpinner({
+function LoadingSpinner({
   size = "medium",
   text = "로딩 중...",
 }: LoadingSpinnerProps) {

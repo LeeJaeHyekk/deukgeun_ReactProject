@@ -1,5 +1,5 @@
-import apiClient from "./index"
-import { config } from "../config"
+const apiClient = require('./index').default
+const { config  } = require('../config')
 
 export interface LevelProgress {
   level: number
@@ -40,7 +40,7 @@ export interface ExpGrantResponse {
   rewards?: UserReward[]
 }
 
-export const levelApi = {
+const levelApi = {
   /**
    * 사용자 레벨 정보 조회
    */

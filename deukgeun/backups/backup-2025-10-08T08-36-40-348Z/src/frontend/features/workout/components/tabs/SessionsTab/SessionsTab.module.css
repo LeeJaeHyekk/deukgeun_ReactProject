@@ -1,0 +1,322 @@
+/* SessionsTab.module.css - 세션 탭 스타일 */
+
+.sessionsTab {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  min-height: 100vh;
+}
+
+.sessionsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.3);
+  background: transparent;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.sessionsHeaderContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sessionsHeaderContent h1 {
+  margin: 0 0 4px 0;
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.sessionsHeaderContent p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+}
+
+.sessionsControls {
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(243, 244, 246, 0.3);
+  background: transparent;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.controlSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.sortButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.sortBtn {
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sortBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.sortBtn.active {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.9) 0%,
+    rgba(217, 119, 6, 0.9) 100%
+  );
+  border: transparent;
+  color: white;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+}
+
+.filterButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.filterBtn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filterBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.filterBtn.active {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.9) 0%,
+    rgba(217, 119, 6, 0.9) 100%
+  );
+  border: transparent;
+  color: white;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.sessionsSection {
+  margin-bottom: 28px;
+  padding: 20px;
+  background: transparent;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.activeSessionSection {
+  margin-bottom: 28px;
+  padding: 20px;
+  background: transparent;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sectionHeader {
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: transparent;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sectionHeader h3 {
+  margin: 0 0 8px 0;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.sectionHeader p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+}
+
+.noSessionsContainer {
+  text-align: center;
+  padding: 60px 20px;
+  background: transparent;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.noSessionsIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.noSessionsTitle {
+  margin: 0 0 8px 0;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.noSessionsText {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 40px;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #f59e0b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .sessionsTab {
+    padding: 16px;
+    gap: 20px;
+  }
+
+  .sessionsHeader {
+    padding: 20px 0;
+  }
+
+  .sessionsControls {
+    padding: 16px 0;
+  }
+
+  .controlSection {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .sortButtons,
+  .filterButtons {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .sortBtn,
+  .filterBtn {
+    flex: 1;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .sessionsSection,
+  .activeSessionSection {
+    padding: 16px;
+  }
+
+  .sectionHeader {
+    padding: 12px 16px;
+  }
+
+  .noSessionsContainer {
+    padding: 40px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sessionsTab {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .sessionsHeader {
+    padding: 16px 0;
+  }
+
+  .sessionsControls {
+    padding: 12px 0;
+  }
+
+  .sortButtons,
+  .filterButtons {
+    gap: 4px;
+  }
+
+  .sortBtn,
+  .filterBtn {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-width: 60px;
+  }
+
+  .sessionsSection,
+  .activeSessionSection {
+    padding: 12px;
+  }
+
+  .sectionHeader {
+    padding: 10px 12px;
+  }
+
+  .noSessionsContainer {
+    padding: 30px 12px;
+  }
+
+  .noSessionsIcon {
+    font-size: 36px;
+  }
+
+  .noSessionsTitle {
+    font-size: 16px;
+  }
+
+  .noSessionsText {
+    font-size: 13px;
+  }
+}

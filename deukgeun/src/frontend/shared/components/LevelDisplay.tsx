@@ -1,6 +1,6 @@
-import React from "react"
-import { useLevel } from "../hooks/useLevel"
-import styles from "./LevelDisplay.module.css"
+const React = require('react').default
+const { useLevel  } = require('../hooks/useLevel')
+const styles = require('./LevelDisplay.module.css').default
 import type { UserLevel } from "../../../shared/types"
 
 interface LevelDisplayProps {
@@ -138,5 +138,5 @@ function LevelDisplay({
   )
 }
 
-export default LevelDisplay
-export { LevelDisplay }
+module.exports.default = LevelDisplay
+module.exports.LevelDisplay = LevelDisplay

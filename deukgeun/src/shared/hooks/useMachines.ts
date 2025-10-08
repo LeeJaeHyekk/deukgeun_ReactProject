@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
-import { Machine } from '@shared/types/dto/machine.dto'
-import { machineApi } from '@shared/api/machineApi'
+const { useState, useEffect  } = require('react')
+const { Machine  } = require('@shared/types/dto/machine.dto')
+const { machineApi  } = require('@shared/api/machineApi')
 
-export function useMachines() {
+function useMachines() {
   const [machines, setMachines] = useState<Machine[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

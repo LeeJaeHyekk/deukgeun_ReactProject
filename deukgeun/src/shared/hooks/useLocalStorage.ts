@@ -1,8 +1,29 @@
+// Browser API polyfills for Node.js environment
+if (typeof window === 'undefined') {
+  global.window = global.window || {}
+  global.document = global.document || {}
+  global.localStorage = global.localStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.sessionStorage = global.sessionStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.File = global.File || class File {}
+  global.StorageEvent = global.StorageEvent || class StorageEvent {}
+  global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
+}
+
 // ============================================================================
 // 로컬 스토리지 관리 훅
 // ============================================================================
 
-import { useState, useEffect, useCallback } from "react"
+const { useState, useEffect, useCallback  } = require('react')
 
 // 로컬 스토리지 훅 옵션
 export interface UseLocalStorageOptions<T> {
@@ -40,7 +61,7 @@ const defaultDeserializer = <T>(value: string): T => {
 }
 
 // 로컬 스토리지 훅
-export function useLocalStorage<T>(
+function useLocalStorage<T>(
   key: string,
   options: UseLocalStorageOptions<T> = {}
 ): UseLocalStorageReturn<T> {
@@ -136,7 +157,7 @@ export function useLocalStorage<T>(
 }
 
 // 로컬 스토리지 유틸리티 함수들
-export const localStorageUtils = {
+const localStorageUtils = {
   // 값 가져오기
   get: <T>(key: string, defaultValue?: T): T | null => {
     if (typeof window === "undefined") {

@@ -1,3 +1,24 @@
+// Browser API polyfills for Node.js environment
+if (typeof window === 'undefined') {
+  global.window = global.window || {}
+  global.document = global.document || {}
+  global.localStorage = global.localStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.sessionStorage = global.sessionStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.File = global.File || class File {}
+  global.StorageEvent = global.StorageEvent || class StorageEvent {}
+  global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
+}
+
 import React, { useMemo } from "react"
 import type {
   Machine,
@@ -6,12 +27,11 @@ import type {
   MachineCategoryDTO,
   DifficultyLevelDTO,
 } from "../../../shared/types"
-import {
-  findMatchingImage,
+const { findMatchingImage,
   getFullImageUrl,
   handleImageError,
-} from "../utils/machineImageUtils"
-import "./MachineModal.css"
+ } = require('../utils/machineImageUtils')
+require('./MachineModal.css')
 
 interface MachineModalProps {
   machine: Machine | null
@@ -19,7 +39,7 @@ interface MachineModalProps {
   onClose: () => void
 }
 
-export const MachineModal: React.FC<MachineModalProps> = React.memo(
+const MachineModal: React.FC<MachineModalProps> = React.memo(
   ({ machine, isOpen, onClose }) => {
     // Union 타입을 처리하는 헬퍼 함수들
     const getCategoryDisplay = (category: string | MachineCategory | MachineCategoryDTO): string => {

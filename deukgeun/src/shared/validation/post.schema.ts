@@ -2,9 +2,9 @@
 // Post Validation Schema
 // ============================================================================
 
-import { z } from "zod"
+const { z  } = require('zod')
 
-export const PostSchema = z.object({
+const PostSchema = z.object({
   id: z.number(),
   title: z.string().max(255),
   content: z.string(),
@@ -20,7 +20,7 @@ export const PostSchema = z.object({
   updatedAt: z.date(),
 })
 
-export const CreatePostSchema = PostSchema.omit({
+const CreatePostSchema = PostSchema.omit({
   id: true,
   likeCount: true,
   commentCount: true,
@@ -28,7 +28,7 @@ export const CreatePostSchema = PostSchema.omit({
   updatedAt: true,
 })
 
-export const UpdatePostSchema = CreatePostSchema.partial()
+const UpdatePostSchema = CreatePostSchema.partial()
 
 export type PostInput = z.infer<typeof PostSchema>
 export type CreatePostInput = z.infer<typeof CreatePostSchema>

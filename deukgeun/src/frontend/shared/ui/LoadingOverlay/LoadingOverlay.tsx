@@ -1,11 +1,11 @@
 // src/shared/ui/LoadingOverlay/LoadingOverlay.tsx
-import styles from "./LoadingOverlay.module.css"
+const styles = require('./LoadingOverlay.module.css').default
 
 interface LoadingOverlayProps {
   show: boolean
 }
 
-export const LoadingOverlay = ({ show }: LoadingOverlayProps) => {
+const LoadingOverlay = ({ show }: LoadingOverlayProps) => {
   if (!show) return null
 
   return (

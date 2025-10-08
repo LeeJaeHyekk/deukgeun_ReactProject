@@ -1,5 +1,5 @@
-import { useAuthContext } from '@shared/contexts/AuthContext'
+const { useAuthContext  } = require('@shared/contexts/AuthContext')
 
-export function useAuth() {
+function useAuth() {
   return useAuthContext()
 }

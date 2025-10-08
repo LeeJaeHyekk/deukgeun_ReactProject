@@ -1,0 +1,782 @@
+{
+  "workout_journal_flow": {
+    "authentication": {
+      "description": "사용자가 운동일지 접근 전 로그인 확인",
+      "steps": [
+        {
+          "action": "사용자 /workout-journal 접근",
+          "condition": "로그인 여부 확인",
+          "next": "페이지 렌더링 or /login 리다이렉트"
+        },
+        {
+          "action": "AuthContext 로딩",
+          "condition": "isLoading=true",
+          "next": "스피너 표시"
+        },
+        {
+          "action": "인증 실패",
+          "next": "로그인 페이지 이동 + 에러 메시지"
+        }
+      ]
+    },
+    "overview_tab": {
+      "description": "전체 운동 진행 상황 확인",
+      "components": ["OverviewTab"],
+      "steps": [
+        {
+          "action": "페이지 진입",
+          "next": "Dashboard API 호출 → 통계 데이터 로드"
+        },
+        {
+          "action": "통계 카드 및 위젯 표시",
+          "sections": [
+            "stats-section",
+            "recent-plans-section",
+            "recent-sessions-section",
+            "goals-progress-section",
+            "charts-section"
+          ]
+        },
+        {
+          "action": "카드 클릭",
+          "next": "해당 탭으로 이동 또는 모달 열기"
+        },
+        {
+          "action": "데이터 없음",
+          "next": "운동 계획 생성 안내 메시지"
+        }
+      ]
+    },
+    "plans_tab": {
+      "description": "운동 계획 생성, 수정, 삭제, 세션 시작",
+      "components": ["PlansTab"],
+      "steps": [
+        {
+          "action": "새 계획 만들기 클릭",
+          "next": "WorkoutPlanModal 열기 → 필수 입력값 입력"
+        },
+        {
+          "action": "계획 생성",
+          "next": "useWorkoutPlans.createPlan() → DB 저장 → 상태 업데이트"
+        },
+        {
+          "action": "계획 카드 표시",
+          "features": ["편집", "삭제", "세션 시작"]
+        },
+        {
+          "action": "계획 수정/운동 추가",
+          "condition": "진행 중 세션 없음",
+          "next": "WorkoutPlanModal 열기 → 수정 가능"
+        },
+        {
+          "action": "세션 시작",
+          "next": "WorkoutSessionModal → 세션 생성 → Timer 시작"
+        },
+        {
+          "exception": "세션 진행 중 계획 수정 시",
+          "next": "경고 모달 표시"
+        }
+      ]
+    },
+    "sessions_tab": {
+      "description": "운동 세션 진행 및 세트 인증",
+      "components": ["SessionsTab", "GlobalWorkoutTimer"],
+      "steps": [
+        {
+          "action": "세션 생성",
+          "state": "in_progress"
+        },
+        {
+          "action": "전역 타이머 시작",
+          "next": "실시간 세트 진행 기록"
+        },
+        {
+          "action": "세트 완료",
+          "next": "ExerciseSet 생성 → DB 저장 → 목표 진행률 업데이트"
+        },
+        {
+          "action": "일시정지",
+          "next": "타이머 일시정지"
+        },
+        {
+          "action": "세션 완료",
+          "next": "상태 변경, 총 시간 계산, 레벨 경험치 부여"
+        },
+        {
+          "exception": "인터넷 끊김",
+          "next": "로컬 스토리지 임시 저장, 세션 복구"
+        },
+        {
+          "exception": "타이머 오작동",
+          "next": "수동 완료 입력 허용"
+        }
+      ]
+    },
+    "goals_tab": {
+      "description": "목표 생성, 수정, 삭제 및 진행률 확인 (자동 섹션 생성 포함)",
+      "components": ["GoalsTab"],
+      "steps": [
+        {
+          "action": "목표 생성",
+          "next": "WorkoutGoalModal → DB 저장 → 자동 섹션 생성 → 상태 업데이트"
+        },
+        {
+          "action": "자동 섹션 생성",
+          "logic": "목표 타입에 따른 운동 섹션 자동 생성",
+          "goal_types": {
+            "weight": "근력 운동 섹션 생성",
+            "reps": "지구력 운동 섹션 생성",
+            "duration": "유산소 운동 섹션 생성",
+            "frequency": "전체 운동 계획 생성"
+          }
+        },
+        {
+          "action": "세트 완료 시 진행률 업데이트",
+          "next": "섹션 진행률 → 목표 진행률 업데이트"
+        },
+        {
+          "action": "목표 달성",
+          "state": "isCompleted=true",
+          "next": "레벨 경험치 부여, 알림 생성"
+        },
+        {
+          "action": "목표 수정/삭제",
+          "condition": "세션 진행 중이면 제한"
+        },
+        {
+          "exception": "목표 삭제 시 진행 중 세션 영향",
+          "next": "확인 모달"
+        }
+      ]
+    },
+    "progress_tab": {
+      "description": "통계 및 히스토리 시각화",
+      "components": ["ProgressTab"],
+      "steps": [
+        {
+          "action": "탭 클릭",
+          "next": "API 호출 → 차트/캘린더 데이터 로드"
+        },
+        {
+          "action": "데이터 시각화",
+          "components": ["ProgressChart", "WorkoutCalendar"],
+          "features": ["주간/월간/연간 차트", "시간 범위 선택", "활동 목록"]
+        },
+        {
+          "exception": "데이터 없음",
+          "next": "안내 메시지 표시"
+        }
+      ]
+    },
+    "modals_and_sync": {
+      "description": "모달 연동 및 실시간 데이터 동기화",
+      "modals": [
+        "WorkoutPlanModal",
+        "WorkoutSessionModal",
+        "WorkoutGoalModal",
+        "WorkoutSectionModal"
+      ],
+      "steps": [
+        {
+          "action": "모달 제출",
+          "next": "API 호출 → DB 저장 → 상태 업데이트 → UI Refresh"
+        },
+        {
+          "action": "실시간 동기화",
+          "methods": ["useEffect", "useCallback"],
+          "targets": ["타이머", "목표 진행률", "세션 상태"]
+        },
+        {
+          "exception": "제출 실패",
+          "next": "롤백 및 에러 메시지"
+        },
+        {
+          "exception": "동시 편집",
+          "next": "경고 메시지, 마지막 입력 우선"
+        }
+      ]
+    },
+    "tab_navigation": {
+      "description": "탭 간 이동 및 상태 관리",
+      "steps": [
+        {
+          "action": "탭 클릭",
+          "next": "activeTab 상태 변경 → 해당 탭 컴포넌트 렌더링"
+        },
+        {
+          "action": "탭별 데이터 로딩",
+          "next": "각 탭별 필요한 데이터만 로드 (최적화)"
+        },
+        {
+          "action": "탭 간 데이터 공유",
+          "next": "공통 상태를 통해 탭 간 데이터 동기화"
+        }
+      ]
+    }
+  },
+  "workout_journal_flowchart": {
+    "nodes": [
+      {
+        "id": "auth_check",
+        "label": "로그인 상태 확인",
+        "type": "decision",
+        "condition": "isLoggedIn",
+        "true": "main_container",
+        "false": "redirect_login"
+      },
+      {
+        "id": "redirect_login",
+        "label": "로그인 페이지로 리다이렉트",
+        "type": "action"
+      },
+      {
+        "id": "main_container",
+        "label": "메인 컨테이너",
+        "type": "container",
+        "components": ["tab_navigation", "tab_content"]
+      },
+      {
+        "id": "tab_navigation",
+        "label": "탭 네비게이션",
+        "type": "component",
+        "tabs": ["overview", "plans", "sessions", "goals", "progress"]
+      },
+      {
+        "id": "overview_tab",
+        "label": "Overview 탭",
+        "type": "tab",
+        "component": "OverviewTab",
+        "actions": ["통계 확인", "최근 활동 확인", "목표 진행률 확인"]
+      },
+      {
+        "id": "plans_tab",
+        "label": "Plans 탭",
+        "type": "tab",
+        "component": "PlansTab",
+        "actions": ["새 계획 생성", "계획 수정", "세션 시작"]
+      },
+      {
+        "id": "sessions_tab",
+        "label": "Sessions 탭",
+        "type": "tab",
+        "component": "SessionsTab",
+        "actions": ["세션 시작", "세트 완료", "세션 일시정지/완료"]
+      },
+      {
+        "id": "goals_tab",
+        "label": "Goals 탭",
+        "type": "tab",
+        "component": "GoalsTab",
+        "actions": ["목표 생성/수정/삭제", "자동 섹션 생성", "진행률 확인"]
+      },
+      {
+        "id": "progress_tab",
+        "label": "Progress 탭",
+        "type": "tab",
+        "component": "ProgressTab",
+        "actions": ["차트 및 캘린더 표시", "통계 확인"]
+      },
+      {
+        "id": "create_plan_modal",
+        "label": "WorkoutPlanModal",
+        "type": "modal",
+        "trigger": "새 계획 생성 버튼 클릭",
+        "next": "plan_created"
+      },
+      {
+        "id": "plan_created",
+        "label": "운동 계획 생성 완료",
+        "type": "action",
+        "next": "plans_tab_refresh"
+      },
+      {
+        "id": "plans_tab_refresh",
+        "label": "Plans 탭 새로고침",
+        "type": "action",
+        "next": "plans_tab"
+      },
+      {
+        "id": "create_session_modal",
+        "label": "WorkoutSessionModal",
+        "type": "modal",
+        "trigger": "세션 시작 버튼 클릭",
+        "next": "session_in_progress"
+      },
+      {
+        "id": "session_in_progress",
+        "label": "세션 진행 중",
+        "type": "state",
+        "actions": ["세트 완료", "타이머 일시정지", "세션 완료"],
+        "next": ["update_goal_progress", "sessions_tab_refresh"]
+      },
+      {
+        "id": "update_goal_progress",
+        "label": "목표 진행률 업데이트",
+        "type": "action",
+        "next": ["goal_achieved_check", "sessions_tab_refresh"]
+      },
+      {
+        "id": "goal_achieved_check",
+        "label": "목표 달성 감지",
+        "type": "decision",
+        "condition": "WorkoutGoal.currentValue >= targetValue",
+        "true": "reward_exp",
+        "false": "sessions_tab_refresh"
+      },
+      {
+        "id": "reward_exp",
+        "label": "경험치 부여 및 알림",
+        "type": "action",
+        "next": "goals_tab_refresh"
+      },
+      {
+        "id": "sessions_tab_refresh",
+        "label": "Sessions 탭 새로고침",
+        "type": "action",
+        "next": "sessions_tab"
+      },
+      {
+        "id": "goals_tab_refresh",
+        "label": "Goals 탭 새로고침",
+        "type": "action",
+        "next": "goals_tab"
+      },
+      {
+        "id": "create_goal_modal",
+        "label": "WorkoutGoalModal",
+        "type": "modal",
+        "trigger": "목표 생성 버튼 클릭",
+        "next": "auto_section_generation"
+      },
+      {
+        "id": "auto_section_generation",
+        "label": "자동 섹션 생성",
+        "type": "action",
+        "next": "goal_created"
+      },
+      {
+        "id": "goal_created",
+        "label": "목표 생성 완료",
+        "type": "action",
+        "next": "goals_tab_refresh"
+      },
+      {
+        "id": "offline_or_error",
+        "label": "인터넷 끊김 / 제출 실패",
+        "type": "exception",
+        "actions": ["로컬 저장", "롤백", "재시도"]
+      }
+    ],
+    "edges": [
+      { "from": "auth_check", "to": "main_container", "condition": "true" },
+      { "from": "auth_check", "to": "redirect_login", "condition": "false" },
+      { "from": "main_container", "to": "tab_navigation" },
+      {
+        "from": "tab_navigation",
+        "to": "overview_tab",
+        "trigger": "overview_tab_click"
+      },
+      {
+        "from": "tab_navigation",
+        "to": "plans_tab",
+        "trigger": "plans_tab_click"
+      },
+      {
+        "from": "tab_navigation",
+        "to": "sessions_tab",
+        "trigger": "sessions_tab_click"
+      },
+      {
+        "from": "tab_navigation",
+        "to": "goals_tab",
+        "trigger": "goals_tab_click"
+      },
+      {
+        "from": "tab_navigation",
+        "to": "progress_tab",
+        "trigger": "progress_tab_click"
+      },
+      {
+        "from": "plans_tab",
+        "to": "create_plan_modal",
+        "trigger": "새 계획 생성 클릭"
+      },
+      { "from": "create_plan_modal", "to": "plan_created" },
+      { "from": "plan_created", "to": "plans_tab_refresh" },
+      { "from": "plans_tab_refresh", "to": "plans_tab" },
+      {
+        "from": "sessions_tab",
+        "to": "create_session_modal",
+        "trigger": "세션 시작 클릭"
+      },
+      { "from": "create_session_modal", "to": "session_in_progress" },
+      {
+        "from": "session_in_progress",
+        "to": "update_goal_progress",
+        "trigger": "세트 완료"
+      },
+      { "from": "update_goal_progress", "to": "goal_achieved_check" },
+      {
+        "from": "goal_achieved_check",
+        "to": "reward_exp",
+        "condition": "true"
+      },
+      {
+        "from": "goal_achieved_check",
+        "to": "sessions_tab_refresh",
+        "condition": "false"
+      },
+      { "from": "reward_exp", "to": "goals_tab_refresh" },
+      { "from": "sessions_tab_refresh", "to": "sessions_tab" },
+      { "from": "goals_tab_refresh", "to": "goals_tab" },
+      {
+        "from": "goals_tab",
+        "to": "create_goal_modal",
+        "trigger": "목표 생성 클릭"
+      },
+      { "from": "create_goal_modal", "to": "auto_section_generation" },
+      { "from": "auto_section_generation", "to": "goal_created" },
+      { "from": "goal_created", "to": "goals_tab_refresh" }
+    ]
+  },
+  "component_structure": {
+    "pages": {
+      "WorkoutJournalPage": {
+        "description": "메인 페이지 컴포넌트",
+        "components": ["Navigation", "tab_navigation", "tab_content"],
+        "state": ["activeTab", "modalState", "isLoading", "globalError"]
+      }
+    },
+    "components": {
+      "cards": {
+        "description": "카드 컴포넌트들",
+        "items": ["WorkoutPlanCard", "SessionCard", "GoalProgressBar"]
+      },
+      "charts": {
+        "description": "차트 컴포넌트들",
+        "items": ["ProgressChart", "WorkoutCalendar"]
+      },
+      "timer": {
+        "description": "타이머 컴포넌트들",
+        "items": [
+          "GlobalWorkoutTimer",
+          "WorkoutSessionTimer",
+          "SectionTimerManager"
+        ]
+      },
+      "navigation": {
+        "description": "네비게이션 컴포넌트들",
+        "items": ["TabNavigation", "TabContent"]
+      },
+      "forms": {
+        "description": "폼 컴포넌트들",
+        "items": ["WorkoutPlanForm", "WorkoutSessionForm", "WorkoutGoalForm"]
+      },
+      "layout": {
+        "description": "레이아웃 컴포넌트들",
+        "items": ["WorkoutLayout", "WorkoutHeader", "WorkoutSidebar"]
+      }
+    },
+    "tabs": {
+      "OverviewTab": {
+        "description": "개요 탭 컴포넌트",
+        "sections": [
+          "stats-section",
+          "recent-plans-section",
+          "recent-sessions-section",
+          "goals-progress-section",
+          "charts-section"
+        ]
+      },
+      "PlansTab": {
+        "description": "계획 탭 컴포넌트",
+        "sections": ["plans-header", "plans-content", "plans-stats"]
+      },
+      "SessionsTab": {
+        "description": "세션 탭 컴포넌트",
+        "sections": [
+          "sessions-header",
+          "active-session-container",
+          "sessions-content",
+          "sessions-stats"
+        ]
+      },
+      "GoalsTab": {
+        "description": "목표 탭 컴포넌트 (자동 섹션 생성 포함)",
+        "sections": [
+          "goals-header",
+          "active-goals-section",
+          "completed-goals-section",
+          "goals-stats",
+          "auto-generated-sections"
+        ],
+        "new_features": [
+          "목표 생성 시 자동 섹션 생성",
+          "섹션별 진행률 표시",
+          "수동 섹션 추가 버튼 제거"
+        ]
+      },
+      "ProgressTab": {
+        "description": "진행상황 탭 컴포넌트",
+        "sections": [
+          "progress-header",
+          "stats-section",
+          "charts-section",
+          "calendar-section",
+          "recent-activity-section"
+        ]
+      }
+    },
+    "modals": {
+      "WorkoutPlanModal": {
+        "description": "운동 계획 모달",
+        "location": "pages/modals/",
+        "features": ["계획 생성", "계획 수정", "운동 추가"]
+      },
+      "WorkoutSessionModal": {
+        "description": "운동 세션 모달",
+        "location": "pages/modals/",
+        "features": ["세션 생성", "세션 수정", "타이머 관리"]
+      },
+      "WorkoutGoalModal": {
+        "description": "운동 목표 모달 (자동 섹션 생성 포함)",
+        "location": "pages/modals/",
+        "features": ["목표 생성", "목표 수정", "자동 섹션 생성"]
+      },
+      "WorkoutSectionModal": {
+        "description": "운동 섹션 모달 (목표 기반 자동 생성)",
+        "location": "pages/modals/",
+        "features": [
+          "목표 기반 섹션 생성",
+          "섹션별 타이머 설정",
+          "진행률 추적"
+        ],
+        "removed_features": ["사용자 직접 섹션 추가"]
+      }
+    }
+  },
+  "workout_section_system": {
+    "structure": {
+      "entry_point": "운동 목표 (goal management)",
+      "section_generation": "운동 목표 기반 자동 생성",
+      "section_display": "데이터가 존재하면 정보 카드로 표시",
+      "section_timer": "각 섹션별 개별 타이머 관리, 중앙 제어 시스템으로 통합 관리"
+    },
+    "features": {
+      "section_add_button": "제거됨 (사용자 직접 추가 기능 삭제)",
+      "multi_section_support": "여러 목표에 따른 다중 섹션 생성 지원",
+      "timer_control": "중앙 타이머 매니저에서 모든 섹션 타이머 동기화 및 제어",
+      "state_management": "전역 상태 관리 도입 (예: Context, Redux, Zustand)"
+    },
+    "optimization_points": {
+      "performance": [
+        "불필요한 렌더링 최소화",
+        "가상화(Virtualization) 적용",
+        "컴포넌트 메모이제이션"
+      ],
+      "timer_system": [
+        "requestAnimationFrame 활용",
+        "Background Worker 적용 가능성 검토",
+        "타이머 동기화 및 우선순위 관리"
+      ],
+      "data_flow": [
+        "단방향 데이터 플로우 유지",
+        "목표 데이터 변경 시 섹션 자동 갱신",
+        "중앙 집중식 상태 업데이트"
+      ]
+    },
+    "removed_elements": {
+      "manual_section_add": "사용자가 임의로 섹션 추가하는 버튼 및 로직"
+    }
+  },
+  "implementation_details": {
+    "goal_based_section_generation": {
+      "description": "운동 목표를 기반으로 자동으로 운동 섹션을 생성하는 시스템",
+      "workflow": [
+        "사용자가 운동 목표 생성",
+        "목표 타입에 따른 운동 섹션 자동 생성",
+        "생성된 섹션을 WorkoutPlan에 자동 추가",
+        "섹션별 타이머 및 진행률 관리"
+      ],
+      "goal_types": {
+        "weight": "무게 증가 목표 - 근력 운동 섹션 생성",
+        "reps": "반복 횟수 목표 - 지구력 운동 섹션 생성",
+        "duration": "운동 시간 목표 - 유산소 운동 섹션 생성",
+        "frequency": "운동 빈도 목표 - 전체 운동 계획 생성"
+      }
+    },
+    "centralized_timer_management": {
+      "description": "모든 운동 섹션의 타이머를 중앙에서 관리하는 시스템",
+      "components": [
+        "WorkoutTimerContext - 전역 타이머 상태 관리",
+        "SectionTimerManager - 개별 섹션 타이머 제어",
+        "TimerSynchronizer - 타이머 간 동기화"
+      ],
+      "features": [
+        "섹션별 개별 타이머",
+        "전체 세션 통합 타이머",
+        "타이머 일시정지/재개 동기화",
+        "백그라운드 타이머 실행"
+      ]
+    },
+    "automatic_section_creation": {
+      "description": "목표 생성 시 자동으로 적절한 운동 섹션을 생성",
+      "logic": {
+        "muscle_group_mapping": "목표 부위에 따른 운동 기구 매핑",
+        "intensity_calculation": "목표 난이도에 따른 세트/반복 수 계산",
+        "rest_time_optimization": "운동 강도에 따른 휴식 시간 최적화"
+      }
+    }
+  },
+  "component_updates": {
+    "GoalsTab": {
+      "new_features": [
+        "목표 생성 시 자동 섹션 생성",
+        "목표별 섹션 진행률 표시",
+        "섹션 완료 시 목표 진행률 업데이트"
+      ],
+      "removed_features": ["수동 섹션 추가 버튼"]
+    },
+    "WorkoutSectionModal": {
+      "new_features": [
+        "목표 기반 섹션 자동 생성",
+        "섹션별 타이머 설정",
+        "진행률 추적 기능"
+      ],
+      "removed_features": ["사용자 직접 섹션 추가 기능"]
+    },
+    "WorkoutTimerContext": {
+      "new_features": [
+        "다중 섹션 타이머 관리",
+        "타이머 동기화",
+        "백그라운드 실행"
+      ]
+    }
+  },
+  "data_flow_changes": {
+    "goal_creation": "목표 생성 → 섹션 자동 생성 → 계획에 추가",
+    "section_completion": "섹션 완료 → 목표 진행률 업데이트 → 레벨 경험치 부여",
+    "timer_sync": "개별 타이머 → 중앙 타이머 매니저 → 전체 진행률 업데이트"
+  },
+  "performance_optimizations": {
+    "rendering": [
+      "React.memo로 불필요한 리렌더링 방지",
+      "useMemo로 복잡한 계산 최적화",
+      "useCallback으로 함수 재생성 방지"
+    ],
+    "timer_performance": [
+      "requestAnimationFrame 사용",
+      "Web Workers 고려",
+      "타이머 정확도 향상"
+    ],
+    "data_management": [
+      "가상화로 대량 데이터 처리",
+      "지연 로딩 적용",
+      "캐싱 전략 구현"
+    ]
+  },
+  "optimization_improvements": {
+    "type_system": {
+      "description": "타입 시스템 개선",
+      "improvements": [
+        "TabType, SessionStatus, GoalType 등 명확한 타입 정의",
+        "ApiResponse 제네릭 타입으로 API 응답 표준화",
+        "ModalState 인터페이스로 모달 상태 관리 개선",
+        "DashboardData 타입으로 대시보드 데이터 구조화",
+        "SectionTimerState 타입으로 섹션 타이머 상태 관리"
+      ]
+    },
+    "constants_management": {
+      "description": "상수 관리 개선",
+      "improvements": [
+        "API_ENDPOINTS로 엔드포인트 중앙 관리",
+        "ERROR_MESSAGES, SUCCESS_MESSAGES로 메시지 표준화",
+        "LOADING_MESSAGES로 로딩 상태 메시지 통일",
+        "TAB_CONFIG, CHART_TYPES 등 설정값 중앙화",
+        "GOAL_TYPE_CONFIG로 목표 타입별 설정 중앙화"
+      ]
+    },
+    "utility_functions": {
+      "description": "유틸리티 함수 개선",
+      "improvements": [
+        "calculateChartData로 차트 데이터 계산 로직 분리",
+        "calculateWorkoutStats로 통계 계산 로직 분리",
+        "handleApiError로 에러 처리 표준화",
+        "validateWorkout* 함수들로 데이터 검증 강화",
+        "generateSectionsFromGoal로 목표 기반 섹션 생성 로직 분리"
+      ]
+    },
+    "service_layer": {
+      "description": "서비스 레이어 개선",
+      "improvements": [
+        "WorkoutSessionService에 CRUD 작업 표준화",
+        "오프라인 데이터 저장 및 동기화 기능",
+        "ApiResponse 타입으로 응답 구조 통일",
+        "에러 처리 및 성공 메시지 표준화",
+        "SectionGenerationService로 섹션 생성 로직 분리"
+      ]
+    },
+    "performance_optimization": {
+      "description": "성능 최적화",
+      "improvements": [
+        "컴포넌트별 메모이제이션 적용",
+        "불필요한 리렌더링 방지",
+        "데이터 로딩 최적화",
+        "오프라인 지원으로 네트워크 오류 대응",
+        "타이머 성능 최적화 (requestAnimationFrame, Web Workers)"
+      ]
+    }
+  },
+  "new_section_system": {
+    "description": "목표 기반 자동 섹션 생성 시스템",
+    "features": {
+      "goal_based_generation": "운동 목표를 기반으로 자동으로 운동 섹션 생성",
+      "centralized_timer": "중앙 타이머 매니저에서 모든 섹션 타이머 동기화",
+      "automatic_progress": "섹션 완료 시 자동으로 목표 진행률 업데이트",
+      "removed_manual_add": "사용자 직접 섹션 추가 기능 제거"
+    },
+    "workflow": {
+      "goal_creation": "목표 생성 → 섹션 자동 생성 → 계획에 추가",
+      "section_completion": "섹션 완료 → 목표 진행률 업데이트 → 레벨 경험치 부여",
+      "timer_sync": "개별 타이머 → 중앙 타이머 매니저 → 전체 진행률 업데이트"
+    },
+    "components": {
+      "SectionTimerManager": "개별 섹션 타이머 제어",
+      "TimerSynchronizer": "타이머 간 동기화",
+      "GoalSectionGenerator": "목표 기반 섹션 생성 로직"
+    }
+  },
+  "key_considerations": [
+    "탭 간 이동 시 데이터 동기화 및 상태 관리",
+    "모달과 전역 상태 연계 및 데이터 일관성 유지",
+    "오프라인/실패 처리 강화 및 사용자 피드백 제공",
+    "성능 최적화 (필요한 데이터만 로드, 메모이제이션)",
+    "접근성 및 사용자 경험 개선 (로딩 상태, 에러 처리, 키보드 네비게이션)",
+    "타입 안정성 강화로 런타임 오류 방지",
+    "에러 처리 표준화로 사용자 경험 일관성 유지",
+    "오프라인 지원으로 네트워크 불안정 상황 대응",
+    "목표 기반 자동 섹션 생성으로 사용자 편의성 향상",
+    "중앙 타이머 관리로 일관된 타이머 경험 제공",
+    "새 세션 시작 버튼 제거로 UI 단순화",
+    "포괄적인 로깅 시스템으로 디버깅 및 모니터링 강화"
+  ],
+  "recent_changes": {
+    "ui_improvements": [
+      "새 세션 시작 버튼 삭제로 UI 단순화",
+      "세션 카드 CSS 구조 설계에 맞게 변경",
+      "사용자 정보 및 진행률 표시 개선"
+    ],
+    "logging_system": [
+      "SessionsTab에 포괄적인 로깅 추가",
+      "SessionCard에 모든 상호작용 로깅 추가",
+      "WorkoutSessionService에 모든 메서드 로깅 추가",
+      "WorkoutSessionModal에 타이머 및 세션 관리 로깅 추가",
+      "디버깅 및 모니터링을 위한 구조화된 로그 메시지"
+    ],
+    "debugging_features": [
+      "모든 주요 기능에 콘솔로그 추가",
+      "정상 작동 여부 판단을 위한 상세한 로그",
+      "에러 추적 및 성능 모니터링 지원"
+    ]
+  }
+}

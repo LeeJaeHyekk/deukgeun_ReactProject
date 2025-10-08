@@ -1,6 +1,6 @@
-import React from "react"
-import { useStats, useUserStats } from "../hooks/useStats"
-import { LoadingSpinner } from "../ui/LoadingSpinner"
+const React = require('react').default
+const { useStats, useUserStats  } = require('../hooks/useStats')
+const { LoadingSpinner  } = require('../ui/LoadingSpinner')
 
 interface StatsCardProps {
   title: string
@@ -32,7 +32,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
   )
 }
 
-export const PlatformStatsDisplay: React.FC = () => {
+const PlatformStatsDisplay: React.FC = () => {
   const { stats, isLoading, error } = useStats()
 
   if (isLoading) {
@@ -77,7 +77,7 @@ export const PlatformStatsDisplay: React.FC = () => {
   )
 }
 
-export const UserStatsDisplay: React.FC = () => {
+const UserStatsDisplay: React.FC = () => {
   const { userStats, isLoading, error } = useUserStats()
 
   if (isLoading) {

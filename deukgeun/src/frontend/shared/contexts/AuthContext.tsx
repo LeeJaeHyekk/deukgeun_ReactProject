@@ -5,8 +5,8 @@ import React, {
   useMemo,
   useRef,
 } from "react"
-import { useAuth } from "../hooks/useAuth"
-import { User } from "../../../shared/types"
+const { useAuth  } = require('../hooks/useAuth')
+const { User  } = require('../../../shared/types')
 
 interface AuthContextType {
   isAuthenticated: boolean
@@ -17,13 +17,13 @@ interface AuthContextType {
   updateUser: (updatedUser: Partial<User>) => void
   checkAuthStatus: () => Promise<boolean>
 }
-export const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 interface AuthProviderProps {
   children: ReactNode
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
+function AuthProvider({ children }: AuthProviderProps) {
   const auth = useAuth()
   const prevContextRef = useRef<AuthContextType | null>(null)
 
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   )
 }
 
-export function useAuthContext() {
+function useAuthContext() {
   const context = useContext(AuthContext)
   if (!context) {
     throw new Error("useAuthContext must be used within an AuthProvider")

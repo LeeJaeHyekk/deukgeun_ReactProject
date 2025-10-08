@@ -2,7 +2,7 @@
 // 디바운스 훅
 // ============================================================================
 
-import { useState, useEffect, useCallback } from "react"
+const { useState, useEffect, useCallback  } = require('react')
 
 // 디바운스 훅 옵션
 export interface UseDebounceOptions {
@@ -20,7 +20,7 @@ export interface UseDebounceReturn<T> {
 }
 
 // 디바운스 훅
-export function useDebounce<T>(
+function useDebounce<T>(
   initialValue: T,
   options: UseDebounceOptions = {}
 ): UseDebounceReturn<T> {
@@ -66,7 +66,7 @@ export function useDebounce<T>(
 }
 
 // 디바운스 유틸리티 함수
-export function debounce<T extends (...args: any[]) => any>(
+function debounce<T extends (...args: any[]) => any>(
   func: T,
   delay: number,
   options: { leading?: boolean; trailing?: boolean } = {}
@@ -124,7 +124,7 @@ export function debounce<T extends (...args: any[]) => any>(
   return debounced
 }
 
-export function useDebouncedCallback<T extends (...args: any[]) => any>(
+function useDebouncedCallback<T extends (...args: any[]) => any>(
   callback: T,
   delay: number,
   options: { leading?: boolean; trailing?: boolean } = {}

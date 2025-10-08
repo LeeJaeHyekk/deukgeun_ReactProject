@@ -2,9 +2,9 @@
 // Gym Validation Schema
 // ============================================================================
 
-import { z } from "zod"
+const { z  } = require('zod')
 
-export const GymSchema = z.object({
+const GymSchema = z.object({
   id: z.number(),
   name: z.string().max(255),
   address: z.string().max(255),
@@ -23,13 +23,13 @@ export const GymSchema = z.object({
   updatedAt: z.date()
 })
 
-export const CreateGymSchema = GymSchema.omit({
+const CreateGymSchema = GymSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true
 })
 
-export const UpdateGymSchema = CreateGymSchema.partial()
+const UpdateGymSchema = CreateGymSchema.partial()
 
 export type GymInput = z.infer<typeof GymSchema>
 export type CreateGymInput = z.infer<typeof CreateGymSchema>

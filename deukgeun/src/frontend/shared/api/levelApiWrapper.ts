@@ -2,14 +2,14 @@
 // Level API Wrapper - Enhanced Error Handling and State Management
 // ============================================================================
 
-import { levelApi, LevelProgress, UserReward, ExpGrantRequest, ExpGrantResponse } from './levelApi'
-import { levelApiState, LEVEL_CONFIG } from '../config/levelConfig'
+const { levelApi, LevelProgress, UserReward, ExpGrantRequest, ExpGrantResponse  } = require('./levelApi')
+const { levelApiState, LEVEL_CONFIG  } = require('../config/levelConfig')
 
 // ============================================================================
 // Wrapper Functions
 // ============================================================================
 
-export const levelApiWrapper = {
+const levelApiWrapper = {
   /**
    * 사용자 레벨 진행률 조회 (래핑)
    */
@@ -188,7 +188,7 @@ export const levelApiWrapper = {
 // State Management Functions
 // ============================================================================
 
-export const levelApiManager = {
+const levelApiManager = {
   /**
    * API 상태 확인
    */

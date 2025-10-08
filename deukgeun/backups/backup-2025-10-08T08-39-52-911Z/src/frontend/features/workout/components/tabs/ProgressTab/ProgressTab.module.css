@@ -1,0 +1,380 @@
+/* ProgressTab.module.css - 진행 상황 탭 스타일 */
+
+.progressTab {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px;
+  min-height: 100vh;
+  background: transparent;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+}
+
+.headerContent h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.headerContent p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* 섹션 공통 스타일 */
+.statsSection,
+.chartsSection,
+.recentActivitySection {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.sectionHeader {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.sectionHeader h2 {
+  margin: 0 0 8px 0;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sectionHeader p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* 차트 유형 선택 섹션 */
+.chartTypeSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.chartTypeSelector {
+  display: flex;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chartTypeButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.chartTypeButton:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.chartTypeButton.active {
+  background: rgba(245, 158, 11, 0.3);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+/* 최근 활동 섹션 */
+.recentSessionCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.recentSessionCard:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: rgba(245, 158, 11, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sessionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.sessionName {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.sessionDate {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.sessionStats {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.sessionDuration,
+.sessionSets {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 로딩 및 빈 상태 */
+.loadingContainer,
+.noProgressContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 40px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top: 3px solid #f59e0b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+.noProgressIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.noProgressContainer h3 {
+  margin: 0 0 8px 0;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.noProgressContainer p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  text-align: center;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .progressTab {
+    padding: 16px;
+    gap: 20px;
+  }
+
+  .progressHeader {
+    padding: 20px 0;
+    margin-bottom: 16px;
+  }
+
+  .statsSection,
+  .chartsSection,
+  .recentActivitySection {
+    padding: 20px;
+  }
+
+  .sectionHeader h2 {
+    font-size: 20px;
+  }
+
+  .chartTypeSelector {
+    gap: 8px;
+  }
+
+  .chartTypeButton {
+    padding: 8px 16px;
+    font-size: 13px;
+    min-width: 80px;
+  }
+
+  .recentSessionCard {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .sessionInfo {
+    width: 100%;
+  }
+
+  .sessionStats {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sessionDuration,
+  .sessionSets {
+    flex: 1;
+    text-align: center;
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  .loadingContainer,
+  .noProgressContainer {
+    min-height: 250px;
+    padding: 30px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .progressTab {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .progressHeader {
+    padding: 16px 0;
+    margin-bottom: 12px;
+  }
+
+  .headerContent h1 {
+    font-size: 24px;
+  }
+
+  .headerContent p {
+    font-size: 14px;
+  }
+
+  .statsSection,
+  .chartsSection,
+  .recentActivitySection {
+    padding: 16px;
+  }
+
+  .sectionHeader h2 {
+    font-size: 18px;
+  }
+
+  .sectionHeader p {
+    font-size: 13px;
+  }
+
+  .chartTypeSection {
+    padding: 12px;
+  }
+
+  .chartTypeSelector {
+    gap: 6px;
+  }
+
+  .chartTypeButton {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-width: 70px;
+  }
+
+  .recentSessionCard {
+    padding: 16px;
+  }
+
+  .sessionName {
+    font-size: 15px;
+  }
+
+  .sessionDuration,
+  .sessionSets {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .loadingContainer,
+  .noProgressContainer {
+    min-height: 200px;
+    padding: 20px 16px;
+  }
+
+  .noProgressIcon {
+    font-size: 40px;
+  }
+
+  .noProgressContainer h3 {
+    font-size: 18px;
+  }
+
+  .noProgressContainer p {
+    font-size: 13px;
+  }
+}

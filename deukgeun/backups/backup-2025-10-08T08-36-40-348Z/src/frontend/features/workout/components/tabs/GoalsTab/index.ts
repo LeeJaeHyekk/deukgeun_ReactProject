@@ -1,0 +1,7 @@
+export { GoalsTab } from "./GoalsTab"
+export { GoalsHeader } from "./components/GoalsHeader"
+export { ActiveGoalsSection } from "./components/ActiveGoalsSection"
+export { CompletedGoalsSection } from "./components/CompletedGoalsSection"
+export { GoalsContent } from "./components/GoalsContent"
+export { GoalsStats } from "./components/GoalsStats"
+export { useGoalsActions } from "./hooks/useGoalsActions"

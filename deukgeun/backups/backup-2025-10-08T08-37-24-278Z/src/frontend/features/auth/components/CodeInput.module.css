@@ -1,0 +1,136 @@
+/*
+ * 인증 코드 입력 컴포넌트 CSS
+ */
+
+.container {
+  width: 100%;
+}
+
+.inputGroup {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.input {
+  width: 48px;
+  height: 56px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+.input.focused {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.input.error {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  color: #ef4444;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.resendContainer {
+  text-align: center;
+}
+
+.resendButton {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-decoration: underline;
+}
+
+.resendButton:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+}
+
+.resendButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 480px) {
+  .inputGroup {
+    gap: 8px;
+  }
+
+  .input {
+    width: 40px;
+    height: 48px;
+    font-size: 20px;
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .resendButton {
+    transition: none;
+  }
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  .input {
+    border: 2px solid #ffffff;
+  }
+
+  .input.focused {
+    border: 2px solid #3b82f6;
+  }
+
+  .input.error {
+    border: 2px solid #ef4444;
+  }
+}
+
+/* 모바일 키보드 최적화 */
+@media (max-width: 768px) {
+  .input {
+    font-size: 20px;
+  }
+}

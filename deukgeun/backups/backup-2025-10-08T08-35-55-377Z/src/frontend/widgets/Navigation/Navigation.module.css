@@ -1,0 +1,434 @@
+/* 네비게이션 바 */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 64px;
+  padding: 0 18.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  font-family: "Helvetica Neue", sans-serif;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.logoImage {
+  max-width: 120px;
+  max-height: 63px;
+  height: 63px; /* 네비게이션 높이(64px)에 비례하여 적절하게 조절 */
+  filter: brightness(60%) saturate(60%) contrast(110%);
+  object-fit: contain;
+}
+
+.navMenu {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+  flex: 1;
+  justify-content: space-around;
+  margin-left: 40px;
+  padding: 0;
+  margin: 0;
+}
+
+.navMenuItem {
+  position: relative;
+  color: #f1f3f5;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 8px 12px;
+  text-transform: capitalize;
+  text-decoration: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.navMenuItem:hover {
+  color: #f87171;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.adminMenuItem {
+  background: linear-gradient(45deg, #dc2626, #b91c1c);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+}
+
+.adminMenuItem:hover {
+  background: linear-gradient(45deg, #b91c1c, #991b1b);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.navMenuItem.active {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  font-weight: 600;
+}
+
+.navMenuItem.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background: linear-gradient(90deg, #ef4444, #f87171);
+  border-radius: 2px;
+}
+
+.menuIcon {
+  font-size: 18px;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.navMenuItem:hover .menuIcon {
+  transform: scale(1.1);
+}
+
+.navMenuItem::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #ef4444;
+  transition: width 0.3s ease;
+}
+
+.navMenuItem:hover::after {
+  width: 100%;
+}
+
+.a {
+  display: inline-block;
+  text-decoration: none;
+  color: #f1f3f5; /* 인스타 기본 텍스트 색상 */
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 10px;
+  border-radius: 6px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.buttonLink {
+  all: unset;
+  position: relative;
+  color: #f1f3f5;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 8px 12px;
+  text-transform: capitalize;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.buttonLink:hover {
+  color: #f87171;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.buttonLink::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #ef4444;
+  transition: width 0.3s ease;
+}
+
+.buttonLink:hover::after {
+  width: 100%;
+}
+
+/* 모바일 메뉴 버튼 */
+.mobileMenuButton {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.mobileMenuButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 햄버거 아이콘 */
+.hamburger {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: #f1f3f5;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.hamburger::before,
+.hamburger::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  background: #f1f3f5;
+  transition: all 0.3s ease;
+}
+
+.hamburger::before {
+  top: -8px;
+}
+
+.hamburger::after {
+  bottom: -8px;
+}
+
+.hamburger.active {
+  background: transparent;
+}
+
+.hamburger.active::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.hamburger.active::after {
+  bottom: 0;
+  transform: rotate(-45deg);
+}
+
+/* 모바일 메뉴 */
+.mobileMenu {
+  position: fixed;
+  top: 64px;
+  right: -100%;
+  width: 320px;
+  height: calc(100vh - 64px);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  transition: right 0.3s ease;
+  z-index: 999;
+  overflow-y: auto;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+}
+
+.mobileMenu.open {
+  right: 0;
+}
+
+.mobileMenuHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mobileMenuTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #f1f3f5;
+}
+
+.mobileMenuClose {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 20px;
+  color: #f1f3f5;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobileMenuClose:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #f87171;
+  transform: scale(1.05);
+}
+
+.mobileMenuList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mobileMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  color: #f1f3f5;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+}
+
+.mobileMenuItem:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f87171;
+  transform: translateX(4px);
+}
+
+.mobileMenuItem.active {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.mobileMenuItem.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #ef4444, #f87171);
+}
+
+.mobileMenuItem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: linear-gradient(90deg, #f87171, #ef4444);
+  transition: width 0.2s ease;
+}
+
+.mobileMenuItem:hover::before {
+  width: 4px;
+}
+
+.mobileMenuItem .menuIcon {
+  font-size: 20px;
+  transition: transform 0.3s ease;
+}
+
+.mobileMenuItem:hover .menuIcon {
+  transform: scale(1.1);
+}
+
+.mobileMenuItem.active .menuIcon {
+  transform: scale(1.1);
+}
+
+/* 모바일 메뉴 오버레이 */
+.mobileMenuOverlay {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  width: 100%;
+  height: calc(100vh - 64px);
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 998;
+  backdrop-filter: blur(4px);
+}
+
+/* 스크롤바 스타일링 */
+.mobileMenu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.mobileMenu::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.mobileMenu::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.mobileMenu::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .navMenu {
+    display: none;
+  }
+
+  .mobileMenuButton {
+    display: block;
+  }
+
+  .navbar {
+    padding: 0 16px;
+  }
+
+  .logoImage {
+    max-width: 100px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobileMenu {
+    width: 100%;
+    right: -100%;
+  }
+
+  .navbar {
+    padding: 0 12px;
+  }
+
+  .logoImage {
+    max-width: 80px;
+    height: 40px;
+  }
+
+  .mobileMenuHeader {
+    padding: 20px;
+  }
+
+  .mobileMenuItem {
+    padding: 18px 20px;
+  }
+}

@@ -2,7 +2,7 @@
 // 공통 환경 변수 유틸리티
 // ============================================================================
 
-import { config } from "dotenv"
+const { config  } = require('dotenv')
 
 // 환경 변수 로드
 config()
@@ -35,7 +35,7 @@ interface EnvironmentVariables {
 }
 
 // 환경 변수 가져오기 함수
-export function getEnvVar(
+function getEnvVar(
   key: string,
   defaultValue?: string
 ): string | undefined {
@@ -48,7 +48,7 @@ export function getEnvVar(
 }
 
 // 환경 변수 검증 함수
-export function validateRequiredEnvVars(requiredVars: string[]): boolean {
+function validateRequiredEnvVars(requiredVars: string[]): boolean {
   const missingVars = requiredVars.filter(key => !getEnvVar(key))
 
   if (missingVars.length > 0) {
@@ -60,28 +60,28 @@ export function validateRequiredEnvVars(requiredVars: string[]): boolean {
 }
 
 // 환경 설정 가져오기
-export function getEnvironment(): string {
+function getEnvironment(): string {
   const env = process.env.NODE_ENV
   return env || "development"
 }
 
 // 개발 환경 여부 확인
-export function isDevelopment(): boolean {
+function isDevelopment(): boolean {
   return getEnvironment() === "development"
 }
 
 // 프로덕션 환경 여부 확인
-export function isProduction(): boolean {
+function isProduction(): boolean {
   return getEnvironment() === "production"
 }
 
 // 테스트 환경 여부 확인
-export function isTest(): boolean {
+function isTest(): boolean {
   return getEnvironment() === "test"
 }
 
 // 환경 변수 전체 객체로 가져오기
-export function getAllEnvVars(): EnvironmentVariables {
+function getAllEnvVars(): EnvironmentVariables {
   return {
     NODE_ENV: getEnvVar("NODE_ENV", "development")!,
     PORT: getEnvVar("PORT", "3000")!,

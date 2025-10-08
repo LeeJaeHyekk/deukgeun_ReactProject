@@ -1,7 +1,7 @@
 // React Testing Library render 함수
-import React from 'react'
-import { render as rtlRender } from '@testing-library/react'
-import { BrowserRouter } from 'react-router-dom'
+const React = require('react').default
+const { render as rtlRender  } = require('@testing-library/react')
+const { BrowserRouter  } = require('react-router-dom')
 
 // Jest 타입 정의
 declare global {
@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-export const render = (ui: React.ReactElement, options = {}) => {
+const render = (ui: React.ReactElement, options = {}) => {
   const Wrapper = ({ children }: { children: React.ReactNode }) => {
     return React.createElement(BrowserRouter, {}, children)
   }
@@ -26,10 +26,10 @@ export const render = (ui: React.ReactElement, options = {}) => {
 }
 
 // Mock 토큰
-export const mockToken = 'mock-jwt-token'
+const mockToken = 'mock-jwt-token'
 
 // Mock 데이터 생성 함수들
-export const createMockUser = (overrides = {}) => ({
+const createMockUser = (overrides = {}) => ({
   id: 1,
   email: 'test@example.com',
   nickname: '테스트 사용자',
@@ -48,7 +48,7 @@ export const createMockUser = (overrides = {}) => ({
 })
 
 // Mock API 응답들
-export const mockApiResponses = {
+const mockApiResponses = {
   '/api/auth/login': {
     success: true,
     data: {
@@ -75,14 +75,14 @@ export const mockApiResponses = {
   },
 }
 
-export const createMockAuthToken = (overrides = {}) => ({
+const createMockAuthToken = (overrides = {}) => ({
   accessToken: 'mock-access-token',
   refreshToken: 'mock-refresh-token',
   expiresIn: 3600,
   ...overrides,
 })
 
-export const createMockWorkoutSession = (overrides = {}) => ({
+const createMockWorkoutSession = (overrides = {}) => ({
   id: 1,
   userId: 1,
   duration: 60,
@@ -93,7 +93,7 @@ export const createMockWorkoutSession = (overrides = {}) => ({
   ...overrides,
 })
 
-export const createMockWorkoutGoal = (overrides = {}) => ({
+const createMockWorkoutGoal = (overrides = {}) => ({
   id: 1,
   userId: 1,
   type: 'frequency' as const,
@@ -106,7 +106,7 @@ export const createMockWorkoutGoal = (overrides = {}) => ({
   ...overrides,
 })
 
-export const createMockWorkoutPlan = (overrides = {}) => ({
+const createMockWorkoutPlan = (overrides = {}) => ({
   id: 1,
   userId: 1,
   name: '테스트 운동 계획',
@@ -120,7 +120,7 @@ export const createMockWorkoutPlan = (overrides = {}) => ({
   ...overrides,
 })
 
-export const createMockGym = (overrides = {}) => ({
+const createMockGym = (overrides = {}) => ({
   id: 1,
   name: '테스트 헬스장',
   address: '서울시 강남구 테스트로 123',
@@ -133,7 +133,7 @@ export const createMockGym = (overrides = {}) => ({
   ...overrides,
 })
 
-export const createMockMachine = (overrides = {}) => ({
+const createMockMachine = (overrides = {}) => ({
   id: 1,
   name: '벤치프레스',
   category: 'chest',
@@ -146,7 +146,7 @@ export const createMockMachine = (overrides = {}) => ({
   ...overrides,
 })
 
-export const createMockPost = (overrides = {}) => ({
+const createMockPost = (overrides = {}) => ({
   id: 1,
   userId: 1,
   title: '테스트 포스트',
@@ -162,7 +162,7 @@ export const createMockPost = (overrides = {}) => ({
 })
 
 // API 응답 Mock 함수들
-export const createMockApiResponse = (
+const createMockApiResponse = (
   data: any,
   success = true,
   message = ''
@@ -172,14 +172,14 @@ export const createMockApiResponse = (
   data,
 })
 
-export const createMockErrorResponse = (message: string, status = 400) => ({
+const createMockErrorResponse = (message: string, status = 400) => ({
   success: false,
   message,
   status,
 })
 
 // 테스트용 이벤트 시뮬레이션
-export const simulateUserInteraction = {
+const simulateUserInteraction = {
   click: async (element: HTMLElement) => {
     element.click()
     await new Promise(resolve => setTimeout(resolve, 0))
@@ -199,7 +199,7 @@ export const simulateUserInteraction = {
 }
 
 // 테스트용 유효성 검사 함수들
-export const validationHelpers = {
+const validationHelpers = {
   isEmailValid: (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(email)
@@ -228,7 +228,7 @@ export const validationHelpers = {
 }
 
 // 테스트용 날짜/시간 유틸리티
-export const dateHelpers = {
+const dateHelpers = {
   formatDate: (date: Date) => {
     return date.toISOString().split('T')[0]
   },
@@ -251,7 +251,7 @@ export const dateHelpers = {
 }
 
 // 테스트용 거리 계산 유틸리티
-export const distanceHelpers = {
+const distanceHelpers = {
   calculateDistance: (
     lat1: number,
     lon1: number,
@@ -280,7 +280,7 @@ export const distanceHelpers = {
 }
 
 // 테스트용 레벨 시스템 유틸리티
-export const levelHelpers = {
+const levelHelpers = {
   calculateLevel: (exp: number) => {
     // 간단한 레벨 계산 공식
     return Math.floor(exp / 100) + 1
@@ -300,7 +300,7 @@ export const levelHelpers = {
 }
 
 // 테스트용 운동 관련 유틸리티
-export const workoutHelpers = {
+const workoutHelpers = {
   calculateExp: (duration: number, intensity: 'low' | 'medium' | 'high') => {
     const multipliers = { low: 1, medium: 1.5, high: 2 }
     return Math.round(duration * multipliers[intensity])
@@ -323,7 +323,7 @@ export const workoutHelpers = {
 }
 
 // 테스트용 스토리지 Mock
-export const createMockStorage = () => {
+const createMockStorage = () => {
   const store: Record<string, string> = {}
 
   return {
@@ -341,7 +341,7 @@ export const createMockStorage = () => {
 }
 
 // 테스트용 네트워크 요청 Mock
-export const createMockFetch = (mockResponses: Record<string, any>) => {
+const createMockFetch = (mockResponses: Record<string, any>) => {
   return jest.fn((url: string, options?: RequestInit) => {
     const mockResponse = mockResponses[url] || mockResponses['*']
 
@@ -359,7 +359,7 @@ export const createMockFetch = (mockResponses: Record<string, any>) => {
 }
 
 // 테스트용 타이머 Mock
-export const createMockTimers = () => {
+const createMockTimers = () => {
   const timers: NodeJS.Timeout[] = []
 
   return {
@@ -385,7 +385,7 @@ export const createMockTimers = () => {
 }
 
 // 테스트용 지오로케이션 Mock
-export const createMockGeolocation = () => ({
+const createMockGeolocation = () => ({
   getCurrentPosition: jest.fn((success: PositionCallback) => {
     const mockPosition: GeolocationPosition = {
       coords: {

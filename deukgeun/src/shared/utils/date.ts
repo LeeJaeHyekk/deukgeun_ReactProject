@@ -17,22 +17,22 @@ export interface DateFormatOptions {
 }
 
 // 현재 날짜를 ISO 문자열로 반환
-export function getCurrentDateString(): DateString {
+function getCurrentDateString(): DateString {
   return new Date().toISOString()
 }
 
 // 날짜를 ISO 문자열로 변환
-export function toDateString(date: Date): DateString {
+function toDateString(date: Date): DateString {
   return date.toISOString()
 }
 
 // ISO 문자열을 Date 객체로 변환
-export function fromDateString(dateString: DateString): Date {
+function fromDateString(dateString: DateString): Date {
   return new Date(dateString)
 }
 
 // 날짜 포맷팅
-export function formatDate(
+function formatDate(
   date: Date | DateString,
   options: DateFormatOptions = {}
 ): string {
@@ -49,7 +49,7 @@ export function formatDate(
 }
 
 // 시간 포맷팅
-export function formatTime(
+function formatTime(
   date: Date | DateString,
   options: DateFormatOptions = {}
 ): string {
@@ -65,7 +65,7 @@ export function formatTime(
 }
 
 // 날짜와 시간 포맷팅
-export function formatDateTime(
+function formatDateTime(
   date: Date | DateString,
   options: DateFormatOptions = {}
 ): string {
@@ -84,7 +84,7 @@ export function formatDateTime(
 }
 
 // 상대적 시간 표시 (예: "3일 전", "1시간 전")
-export function formatRelativeTime(
+function formatRelativeTime(
   date: Date | DateString,
   baseDate: Date | DateString = new Date()
 ): string {
@@ -127,12 +127,12 @@ export function formatRelativeTime(
 }
 
 // 날짜가 유효한지 확인
-export function isValidDate(date: unknown): date is Date {
+function isValidDate(date: unknown): date is Date {
   return date instanceof Date && !isNaN(date.getTime())
 }
 
 // 날짜 문자열이 유효한지 확인
-export function isValidDateString(
+function isValidDateString(
   dateString: string
 ): dateString is DateString {
   const date = new Date(dateString)
@@ -140,7 +140,7 @@ export function isValidDateString(
 }
 
 // 두 날짜 간의 차이를 계산 (일 단위)
-export function getDaysDifference(
+function getDaysDifference(
   date1: Date | DateString,
   date2: Date | DateString
 ): number {
@@ -152,7 +152,7 @@ export function getDaysDifference(
 }
 
 // 날짜가 오늘인지 확인
-export function isToday(date: Date | DateString): boolean {
+function isToday(date: Date | DateString): boolean {
   const dateObj = typeof date === "string" ? fromDateString(date) : date
   const today = new Date()
 
@@ -164,7 +164,7 @@ export function isToday(date: Date | DateString): boolean {
 }
 
 // 날짜가 어제인지 확인
-export function isYesterday(date: Date | DateString): boolean {
+function isYesterday(date: Date | DateString): boolean {
   const dateObj = typeof date === "string" ? fromDateString(date) : date
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
@@ -177,7 +177,7 @@ export function isYesterday(date: Date | DateString): boolean {
 }
 
 // 날짜가 이번 주인지 확인
-export function isThisWeek(date: Date | DateString): boolean {
+function isThisWeek(date: Date | DateString): boolean {
   const dateObj = typeof date === "string" ? fromDateString(date) : date
   const today = new Date()
   const startOfWeek = new Date(today)
@@ -192,7 +192,7 @@ export function isThisWeek(date: Date | DateString): boolean {
 }
 
 // 날짜가 이번 달인지 확인
-export function isThisMonth(date: Date | DateString): boolean {
+function isThisMonth(date: Date | DateString): boolean {
   const dateObj = typeof date === "string" ? fromDateString(date) : date
   const today = new Date()
 
@@ -203,7 +203,7 @@ export function isThisMonth(date: Date | DateString): boolean {
 }
 
 // 날짜가 이번 년도인지 확인
-export function isThisYear(date: Date | DateString): boolean {
+function isThisYear(date: Date | DateString): boolean {
   const dateObj = typeof date === "string" ? fromDateString(date) : date
   const today = new Date()
 

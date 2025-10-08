@@ -1,4 +1,4 @@
-import apiClient from "./index"
+const apiClient = require('./index').default
 
 // 홈페이지 설정 타입 정의
 export interface HomePageConfig {
@@ -50,7 +50,7 @@ export interface HomePageConfig {
 }
 
 // 기본 홈페이지 설정
-export const DEFAULT_HOME_PAGE_CONFIG: HomePageConfig = {
+const DEFAULT_HOME_PAGE_CONFIG: HomePageConfig = {
   heroTitle: "득근득근",
   heroSubtitle: "과거의 나를 뛰어넘는 것이 진정한 성장이다.",
   heroPrimaryButtonText: "헬스장 찾기",
@@ -166,7 +166,7 @@ export const DEFAULT_HOME_PAGE_CONFIG: HomePageConfig = {
   ],
 }
 
-export const homePageApi = {
+const homePageApi = {
   // 홈페이지 설정 조회
   getHomePageConfig: async (): Promise<HomePageConfig> => {
     try {

@@ -1,7 +1,28 @@
-import { useCallback, useEffect, useRef, useState } from "react"
-import { storage } from "../lib"
-import { authApi } from "../../features/auth/api/authApi"
-import { useUserStore } from "../store/userStore"
+// Browser API polyfills for Node.js environment
+if (typeof window === 'undefined') {
+  global.window = global.window || {}
+  global.document = global.document || {}
+  global.localStorage = global.localStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.sessionStorage = global.sessionStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.File = global.File || class File {}
+  global.StorageEvent = global.StorageEvent || class StorageEvent {}
+  global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
+}
+
+const { useCallback, useEffect, useRef, useState  } = require('react')
+const { storage  } = require('../lib')
+const { authApi  } = require('../../features/auth/api/authApi')
+const { useUserStore  } = require('../store/userStore')
 import type { User } from "../../../shared/types"
 
 // JWT 토큰 유효성 검사
@@ -26,7 +47,7 @@ function getTokenExpiryTime(token: string): number {
   }
 }
 
-export function useAuth() {
+function useAuth() {
   const { user, setUser, clearUser } = useUserStore()
   const [isLoading, setIsLoading] = useState(true)
   const isInitialized = useRef(false)

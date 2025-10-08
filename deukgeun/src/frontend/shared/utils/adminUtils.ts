@@ -9,7 +9,7 @@ import type { User, UserRole } from "../../../shared/types"
  * @param user - 확인할 사용자 객체
  * @returns 관리자 여부
  */
-export function isAdmin(user: User | null): boolean {
+function isAdmin(user: User | null): boolean {
   return user?.role === "admin"
 }
 
@@ -18,7 +18,7 @@ export function isAdmin(user: User | null): boolean {
  * @param user - 확인할 사용자 객체
  * @returns 모더레이터 이상 여부
  */
-export function isModeratorOrHigher(user: User | null): boolean {
+function isModeratorOrHigher(user: User | null): boolean {
   return user?.role === "admin" || user?.role === "moderator"
 }
 
@@ -28,7 +28,7 @@ export function isModeratorOrHigher(user: User | null): boolean {
  * @param requiredRole - 필요한 최소 역할
  * @returns 권한 충족 여부
  */
-export function hasRoleOrHigher(
+function hasRoleOrHigher(
   user: User | null,
   requiredRole: UserRole
 ): boolean {
@@ -51,7 +51,7 @@ export function hasRoleOrHigher(
  * @param user - 확인할 사용자 객체
  * @returns 관리자 접근 권한 여부
  */
-export function canAccessAdminFeatures(user: User | null): boolean {
+function canAccessAdminFeatures(user: User | null): boolean {
   return isAdmin(user)
 }
 
@@ -60,6 +60,6 @@ export function canAccessAdminFeatures(user: User | null): boolean {
  * @param user - 확인할 사용자 객체
  * @returns 관리자 메뉴 표시 여부
  */
-export function shouldShowAdminMenu(user: User | null): boolean {
+function shouldShowAdminMenu(user: User | null): boolean {
   return isAdmin(user)
 }

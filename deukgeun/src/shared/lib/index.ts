@@ -8,4 +8,4 @@ export * from './object'
 export * from './toast'
 
 // Export commonly used functions directly
-export { showToast } from './toast'
+module.exports.showToast = showToast from './toast'

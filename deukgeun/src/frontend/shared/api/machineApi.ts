@@ -5,8 +5,8 @@
 // 이 파일은 하위 호환성을 위해 유지됩니다.
 // 새로운 MachineGuide 기능에서는 @features/machine-guide/services/machineApi를 사용하세요.
 
-import { api } from "./index"
-import { API_ENDPOINTS } from "@shared/config"
+const { api  } = require('./index')
+const { API_ENDPOINTS  } = require('@shared/config')
 import type {
   Machine,
   CreateMachineRequest,
@@ -26,7 +26,7 @@ export interface MachineResponse {
 }
 
 // Machine API functions (Legacy) - DTO 타입 적용
-export const machineApi = {
+const machineApi = {
   // Get all machines
   getMachines: async (): Promise<MachineListResponse> => {
     const response = await api.get<DTOMachineListResponse>(

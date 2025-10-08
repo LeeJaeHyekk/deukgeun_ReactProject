@@ -1,8 +1,29 @@
+// Browser API polyfills for Node.js environment
+if (typeof window === 'undefined') {
+  global.window = global.window || {}
+  global.document = global.document || {}
+  global.localStorage = global.localStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.sessionStorage = global.sessionStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.File = global.File || class File {}
+  global.StorageEvent = global.StorageEvent || class StorageEvent {}
+  global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
+}
+
 // ============================================================================
 // ReCAPTCHA utilities
 // ============================================================================
 
-import { useState, useEffect } from 'react'
+const { useState, useEffect  } = require('react')
 
 export interface RecaptchaConfig {
   siteKey: string
@@ -34,7 +55,7 @@ declare global {
 }
 
 // Load ReCAPTCHA script
-export function loadRecaptchaScript(siteKey: string): Promise<void> {
+function loadRecaptchaScript(siteKey: string): Promise<void> {
   return new Promise((resolve, reject) => {
     // Check if already loaded
     if (window.grecaptcha) {
@@ -78,7 +99,7 @@ export function loadRecaptchaScript(siteKey: string): Promise<void> {
 }
 
 // Render ReCAPTCHA widget
-export function renderRecaptcha(
+function renderRecaptcha(
   container: string | HTMLElement,
   config: RecaptchaConfig
 ): Promise<number> {
@@ -98,7 +119,7 @@ export function renderRecaptcha(
 }
 
 // Get ReCAPTCHA response
-export function getRecaptchaResponse(widgetId?: number): string {
+function getRecaptchaResponse(widgetId?: number): string {
   if (!window.grecaptcha) {
     throw new Error('ReCAPTCHA not loaded')
   }
@@ -111,7 +132,7 @@ export function getRecaptchaResponse(widgetId?: number): string {
 }
 
 // Reset ReCAPTCHA widget
-export function resetRecaptcha(widgetId?: number): void {
+function resetRecaptcha(widgetId?: number): void {
   if (!window.grecaptcha) {
     throw new Error('ReCAPTCHA not loaded')
   }
@@ -124,7 +145,7 @@ export function resetRecaptcha(widgetId?: number): void {
 }
 
 // Execute ReCAPTCHA (for invisible)
-export function executeRecaptcha(widgetId?: number): void {
+function executeRecaptcha(widgetId?: number): void {
   if (!window.grecaptcha) {
     throw new Error('ReCAPTCHA not loaded')
   }
@@ -211,7 +232,7 @@ export async function verifyRecaptchaToken(
 }
 
 // Create ReCAPTCHA widget with promise-based API
-export function createRecaptchaWidget(
+function createRecaptchaWidget(
   container: string | HTMLElement,
   config: RecaptchaConfig
 ): Promise<{
@@ -238,7 +259,7 @@ export function createRecaptchaWidget(
 }
 
 // Hook for React components
-export function useRecaptcha(siteKey: string) {
+function useRecaptcha(siteKey: string) {
   const [isLoaded, setIsLoaded] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -270,13 +291,13 @@ export function useRecaptcha(siteKey: string) {
 // useState and useEffect are already imported at the top
 
 // Development dummy token function
-export const getDummyRecaptchaToken = (): string => {
+const getDummyRecaptchaToken = (): string => {
   const timestamp = Date.now()
   const randomId = Math.random().toString(36).substring(2, 15)
   return `dummy-token-${timestamp}-${randomId}`
 }
 
 // Check if reCAPTCHA is available
-export const isRecaptchaAvailable = (): boolean => {
+const isRecaptchaAvailable = (): boolean => {
   return typeof window !== 'undefined' && !!window.grecaptcha
 }

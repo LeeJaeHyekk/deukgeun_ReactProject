@@ -1,10 +1,9 @@
-import { useState, useCallback } from 'react'
-import {
-  executeRecaptchaV3,
+const { useState, useCallback  } = require('react')
+const { executeRecaptchaV3,
   getDummyRecaptchaToken,
   isRecaptchaAvailable,
-} from '@shared/lib/recaptcha'
-import { config } from '@shared/config'
+ } = require('@shared/lib/recaptcha')
+const { config  } = require('@shared/config')
 
 interface UseRecaptchaOptions {
   action?: string
@@ -20,7 +19,7 @@ interface UseRecaptchaReturn {
   reset: () => void
 }
 
-export function useRecaptcha(
+function useRecaptcha(
   options: UseRecaptchaOptions = {}
 ): UseRecaptchaReturn {
   const { action = 'default', onSuccess, onError } = options
@@ -75,14 +74,14 @@ export function useRecaptcha(
 }
 
 // 특정 액션별 reCAPTCHA 훅들
-export function useRecaptchaForRegister() {
+function useRecaptchaForRegister() {
   return useRecaptcha({ action: 'register' })
 }
 
-export function useRecaptchaForLogin() {
+function useRecaptchaForLogin() {
   return useRecaptcha({ action: 'login' })
 }
 
-export function useRecaptchaForPasswordReset() {
+function useRecaptchaForPasswordReset() {
   return useRecaptcha({ action: 'password_reset' })
 }

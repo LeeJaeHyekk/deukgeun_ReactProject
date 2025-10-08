@@ -1,3 +1,24 @@
+// Browser API polyfills for Node.js environment
+if (typeof window === 'undefined') {
+  global.window = global.window || {}
+  global.document = global.document || {}
+  global.localStorage = global.localStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.sessionStorage = global.sessionStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.File = global.File || class File {}
+  global.StorageEvent = global.StorageEvent || class StorageEvent {}
+  global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
+}
+
 import React, {
   createContext,
   useContext,
@@ -5,7 +26,7 @@ import React, {
   useEffect,
   ReactNode,
 } from 'react'
-import { User } from '@shared/types/dto/user.dto'
+const { User  } = require('@shared/types/dto/user.dto')
 
 interface AuthContextType {
   user: User | null
@@ -22,7 +43,7 @@ interface AuthProviderProps {
   children: ReactNode
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
+function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -70,7 +91,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-export function useAuthContext() {
+function useAuthContext() {
   const context = useContext(AuthContext)
   if (context === undefined) {
     throw new Error('useAuthContext must be used within an AuthProvider')

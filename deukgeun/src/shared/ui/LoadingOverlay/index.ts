@@ -1,1 +1,1 @@
-export { LoadingOverlay } from './LoadingOverlay'
+module.exports.LoadingOverlay = LoadingOverlay from './LoadingOverlay'

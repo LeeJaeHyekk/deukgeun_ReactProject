@@ -1,0 +1,307 @@
+/* Button.module.css - 버튼 스타일 */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.button:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* 버튼 변형 */
+.buttonPrimary {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.buttonSecondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.buttonDanger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.buttonDanger:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.buttonSuccess {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.buttonSuccess:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.buttonInfo {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.buttonInfo:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.buttonWarning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.buttonWarning:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+/* 버튼 크기 */
+.buttonSmall {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  border-radius: 6px;
+}
+
+.buttonMedium {
+  padding: 10px 16px;
+  font-size: 0.875rem;
+  border-radius: 8px;
+}
+
+.buttonLarge {
+  padding: 12px 20px;
+  font-size: 1rem;
+  border-radius: 10px;
+}
+
+.buttonXLarge {
+  padding: 16px 24px;
+  font-size: 1.125rem;
+  border-radius: 12px;
+}
+
+/* 버튼 형태 */
+.buttonRounded {
+  border-radius: 9999px;
+}
+
+.buttonSquare {
+  border-radius: 4px;
+}
+
+/* 버튼 너비 */
+.buttonFull {
+  width: 100%;
+}
+
+.buttonAuto {
+  width: auto;
+}
+
+/* 아이콘 버튼 */
+.buttonIcon {
+  padding: 8px;
+  min-width: 40px;
+  height: 40px;
+}
+
+.buttonIconSmall {
+  padding: 6px;
+  min-width: 32px;
+  height: 32px;
+}
+
+.buttonIconLarge {
+  padding: 12px;
+  min-width: 48px;
+  height: 48px;
+}
+
+/* 로딩 상태 */
+.buttonLoading {
+  position: relative;
+  color: transparent;
+}
+
+.buttonLoading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* 버튼 그룹 */
+.buttonGroup {
+  display: flex;
+  gap: 0;
+}
+
+.buttonGroup .button {
+  border-radius: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.buttonGroup .button:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.buttonGroup .button:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-right: none;
+}
+
+/* 버튼 스택 (모바일용) */
+.buttonStack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.buttonStack .button {
+  width: 100%;
+}
+
+/* 애니메이션 */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .button {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+
+  .buttonSmall {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .buttonLarge {
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+
+  .buttonGroup {
+    flex-direction: column;
+  }
+
+  .buttonGroup .button {
+    border-radius: 8px !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .buttonGroup .button:last-child {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .button {
+    padding: 10px 14px;
+    font-size: 0.875rem;
+  }
+
+  .buttonIcon {
+    min-width: 36px;
+    height: 36px;
+  }
+
+  .buttonIconLarge {
+    min-width: 44px;
+    height: 44px;
+  }
+}
+
+/* 접근성 */
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+
+  .button:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .buttonLoading::after {
+    animation: none;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .buttonSecondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .buttonSecondary:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+  }
+}

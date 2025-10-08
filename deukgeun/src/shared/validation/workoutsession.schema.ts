@@ -2,9 +2,9 @@
 // WorkoutSession Validation Schema
 // ============================================================================
 
-import { z } from "zod"
+const { z  } = require('zod')
 
-export const WorkoutSessionSchema = z.object({
+const WorkoutSessionSchema = z.object({
   id: z.number(),
   userId: z.number(),
   planId: z.number().optional(),
@@ -21,13 +21,13 @@ export const WorkoutSessionSchema = z.object({
   updatedAt: z.date(),
 })
 
-export const CreateWorkoutSessionSchema = WorkoutSessionSchema.omit({
+const CreateWorkoutSessionSchema = WorkoutSessionSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 })
 
-export const UpdateWorkoutSessionSchema = CreateWorkoutSessionSchema.partial()
+const UpdateWorkoutSessionSchema = CreateWorkoutSessionSchema.partial()
 
 export type WorkoutSessionInput = z.infer<typeof WorkoutSessionSchema>
 export type CreateWorkoutSessionInput = z.infer<

@@ -1,0 +1,456 @@
+/* WorkoutPlanCard.module.css - 운동 계획 카드 스타일 */
+
+.workoutPlanCard {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(15px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.workoutPlanCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.workoutPlanCard:hover,
+.workoutPlanCard:focus {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.workoutPlanCard:hover::before,
+.workoutPlanCard:focus::before {
+  opacity: 1;
+}
+
+.workoutPlanCard:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+/* 카드 헤더 */
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.cardTitle {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardTitle h3 {
+  margin: 0 0 12px 0;
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 600;
+  line-height: 1.3;
+  word-break: break-word;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.cardActions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* 카드 내용 */
+.cardContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+  justify-content: space-between;
+}
+
+.cardDescription {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  word-break: break-word;
+  margin: 0;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* 통계 섹션 */
+.cardStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  margin-bottom: auto;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statValue {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 진행률 바 */
+.cardProgress {
+  flex-shrink: 0;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.progressLabel {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 배지 스타일 */
+.badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid currentColor;
+}
+
+.badge.easy {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.badge.medium {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.badge.hard {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* 버튼 스타일 */
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  min-width: 70px;
+  position: relative;
+  overflow: hidden;
+}
+
+.actionButton::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.actionButton:hover::before {
+  left: 100%;
+}
+
+.actionButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.actionButton:active {
+  transform: translateY(0);
+}
+
+.actionButton.primary {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.actionButton.primary:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.actionButton.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.actionButton.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.actionButton.danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.actionButton.danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Compact 모드 */
+.workoutPlanCard.compact {
+  padding: 20px;
+  min-height: 240px;
+  gap: 16px;
+}
+
+.workoutPlanCard.compact .cardHeader {
+  gap: 12px;
+}
+
+.workoutPlanCard.compact .cardTitle h3 {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+
+.workoutPlanCard.compact .cardDescription {
+  font-size: 0.85rem;
+}
+
+.workoutPlanCard.compact .cardContent {
+  gap: 16px;
+}
+
+.workoutPlanCard.compact .cardStats {
+  padding: 16px;
+  gap: 12px;
+}
+
+.workoutPlanCard.compact .statLabel {
+  font-size: 0.75rem;
+}
+
+.workoutPlanCard.compact .statValue {
+  font-size: 1.1rem;
+}
+
+.workoutPlanCard.compact .cardActions {
+  gap: 8px;
+}
+
+.workoutPlanCard.compact .actionButton {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  min-width: 60px;
+}
+
+.workoutPlanCard.compact .cardProgress {
+  padding: 12px;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.workoutPlanCard.compact .progressLabel {
+  font-size: 0.8rem;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .workoutPlanCard {
+    padding: 24px;
+    min-height: 280px;
+    gap: 16px;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .cardTitle h3 {
+    font-size: 1.3rem;
+  }
+
+  .cardActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .cardContent {
+    gap: 16px;
+  }
+
+  .cardStats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .cardProgress {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .progressLabel {
+    font-size: 0.85rem;
+  }
+
+  .statLabel {
+    font-size: 0.75rem;
+  }
+
+  .statValue {
+    font-size: 1.1rem;
+  }
+
+  .actionButton {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    min-width: 65px;
+  }
+}
+
+@media (max-width: 480px) {
+  .workoutPlanCard {
+    padding: 20px;
+    min-height: 240px;
+    gap: 12px;
+  }
+
+  .cardTitle h3 {
+    font-size: 1.2rem;
+  }
+
+  .cardDescription {
+    font-size: 0.85rem;
+  }
+
+  .cardContent {
+    gap: 12px;
+  }
+
+  .cardStats {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .cardProgress {
+    padding: 12px;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .progressLabel {
+    font-size: 0.8rem;
+  }
+
+  .statItem {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+    gap: 8px;
+  }
+
+  .statLabel {
+    font-size: 0.75rem;
+  }
+
+  .statValue {
+    font-size: 1rem;
+  }
+
+  .cardActions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .actionButton {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+}
+
+/* 모션 감소 설정 지원 */
+@media (prefers-reduced-motion: reduce) {
+  .workoutPlanCard,
+  .actionButton {
+    transition: none;
+  }
+
+  .actionButton::before {
+    display: none;
+  }
+}

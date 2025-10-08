@@ -1,7 +1,28 @@
-import { config } from "../config"
+// Browser API polyfills for Node.js environment
+if (typeof window === 'undefined') {
+  global.window = global.window || {}
+  global.document = global.document || {}
+  global.localStorage = global.localStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.sessionStorage = global.sessionStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.File = global.File || class File {}
+  global.StorageEvent = global.StorageEvent || class StorageEvent {}
+  global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
+}
+
+const { config  } = require('../config')
 
 // Validation Functions
-export const validation = {
+const validation = {
   email: (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return (
@@ -39,7 +60,7 @@ export const validation = {
 }
 
 // Error Handling
-export const handleApiError = (error: any): string => {
+const handleApiError = (error: any): string => {
   if (error.response?.data?.message) {
     return error.response.data.message
   }
@@ -52,7 +73,7 @@ export const handleApiError = (error: any): string => {
 }
 
 // Toast Message (Simple implementation)
-export const showToast = (
+const showToast = (
   message: string,
   type: "success" | "error" | "info" | "warning" = "info"
 ) => {
@@ -104,7 +125,7 @@ export const showToast = (
 }
 
 // Local Storage Utilities
-export const storage = {
+const storage = {
   get: (key: string) => {
     try {
       const item = localStorage.getItem(key)
@@ -143,7 +164,7 @@ export const storage = {
 }
 
 // Debounce Function
-export const debounce = <T extends (...args: any[]) => any>(
+const debounce = <T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): ((...args: Parameters<T>) => void) => {
@@ -156,7 +177,7 @@ export const debounce = <T extends (...args: any[]) => any>(
 }
 
 // Format Functions
-export const format = {
+const format = {
   email: (email: string): string => {
     return email.toLowerCase().trim()
   },

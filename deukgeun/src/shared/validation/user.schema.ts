@@ -2,9 +2,9 @@
 // User Validation Schema
 // ============================================================================
 
-import { z } from "zod"
+const { z  } = require('zod')
 
-export const UserSchema = z.object({
+const UserSchema = z.object({
   id: z.number(),
   email: z.string().email(),
   nickname: z.string().min(2).max(20),
@@ -24,7 +24,7 @@ export const UserSchema = z.object({
   updatedAt: z.date(),
 })
 
-export const CreateUserSchema = UserSchema.omit({
+const CreateUserSchema = UserSchema.omit({
   id: true,
   lastLoginAt: true,
   lastActivityAt: true,
@@ -32,7 +32,7 @@ export const CreateUserSchema = UserSchema.omit({
   updatedAt: true,
 })
 
-export const UpdateUserSchema = CreateUserSchema.partial()
+const UpdateUserSchema = CreateUserSchema.partial()
 
 export type UserInput = z.infer<typeof UserSchema>
 export type CreateUserInput = z.infer<typeof CreateUserSchema>

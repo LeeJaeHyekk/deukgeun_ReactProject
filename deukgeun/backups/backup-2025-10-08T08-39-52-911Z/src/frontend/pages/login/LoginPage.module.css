@@ -1,0 +1,647 @@
+/*
+ * 로그인 페이지 CSS - 프로젝트 전체 디자인 시스템 통합
+ * - 다크 그라데이션 배경과 글래스모피즘 스타일 적용
+ * - 인스타그램 디자인의 부드러움과 통일된 색상 팔레트를 강조합니다.
+ */
+
+.pageWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%);
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.loginBox {
+  width: 100%;
+  max-width: 450px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  padding: 48px 40px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  color: #f1f3f5;
+  box-sizing: border-box;
+  margin: auto;
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.loginBox::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-radius: 20px;
+  z-index: -1;
+}
+
+.logo {
+  font-size: 36px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 40px;
+  color: #f1f3f5;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+}
+
+.inputGroup {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.input,
+.passwordInput {
+  width: 100%;
+  max-width: 425px;
+  height: 56px;
+  padding: 0 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f1f3f5;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.input::placeholder,
+.passwordInput::placeholder {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  font-weight: 500;
+}
+
+.input:focus,
+.passwordInput:focus {
+  outline: none;
+  border-color: #f87171;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.2);
+  transform: translateY(-1px);
+}
+
+.inputError {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2) !important;
+}
+
+.errorText {
+  display: block;
+  color: #ef4444;
+  font-size: 13px;
+  margin-top: 6px;
+  font-weight: 500;
+  text-align: center;
+  width: 100%;
+  max-width: 425px;
+  box-sizing: border-box;
+}
+
+.errorMessage {
+  color: #ef4444;
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 14px;
+  font-weight: 500;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 425px;
+}
+
+.eyeIcon {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #adb5bd;
+}
+
+.loginButton {
+  width: 100%;
+  height: 56px;
+  border: none;
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  color: white;
+  font-weight: bold;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 32px;
+  box-shadow: 0 8px 24px rgba(248, 113, 113, 0.3);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.loginButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(248, 113, 113, 0.4);
+}
+
+.loginButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.divider {
+  text-align: center;
+  margin: 40px 0;
+  color: #adb5bd;
+  position: relative;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 35%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+.socialWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.kakaoBtn {
+  background: linear-gradient(135deg, #fee500, #f4d03f);
+  color: #000;
+  font-weight: bold;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(254, 229, 0, 0.3);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.kakaoBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(254, 229, 0, 0.4);
+  background: linear-gradient(135deg, #f4d03f, #f39c12);
+}
+
+.kakaoBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.googleBtn {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.05)
+  );
+  color: #f1f3f5;
+  font-weight: bold;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.googleBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.08)
+  );
+}
+
+.googleBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.linkRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 32px;
+  margin-bottom: 32px;
+}
+
+.linkBtn {
+  background: none;
+  border: none;
+  color: #adb5bd;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.linkBtn:hover:not(:disabled) {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+  transform: translateY(-1px);
+}
+
+.linkBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.recaptcha {
+  margin-top: 0;
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.recaptchaText {
+  font-size: 12px;
+  color: #adb5bd;
+  line-height: 1.4;
+}
+
+.recaptchaContainer {
+  display: flex;
+  justify-content: center;
+  margin: 24px 0;
+  padding: 20px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.recaptchaWidget {
+  transform: scale(0.9);
+  transform-origin: center;
+}
+
+.recaptchaWidget > div {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.passwordInput {
+  padding-right: 56px;
+}
+
+.eyeButton {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  color: #adb5bd;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  padding: 8px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.eyeButton:hover {
+  color: #f1f3f5;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.backButton {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #adb5bd;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #f87171;
+  transform: scale(1.05);
+}
+
+/* 스크린 리더용 클래스 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 반응형 */
+@media (max-width: 1024px) {
+  .loginBox {
+    max-width: 480px;
+    padding: 44px 36px;
+  }
+
+  .logo {
+    font-size: 34px;
+    margin-bottom: 36px;
+  }
+
+  .input,
+  .loginButton,
+  .passwordInput,
+  .kakaoBtn,
+  .googleBtn {
+    height: 54px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageWrapper {
+    padding: 16px;
+  }
+
+  .loginBox {
+    padding: 40px 24px;
+    border-radius: 16px;
+    max-width: 90%;
+  }
+
+  .logo {
+    font-size: 32px;
+    margin-bottom: 32px;
+  }
+
+  .input,
+  .loginButton,
+  .passwordInput,
+  .kakaoBtn,
+  .googleBtn {
+    height: 52px;
+    font-size: 15px;
+    border-radius: 14px;
+  }
+
+  .inputGroup {
+    margin-bottom: 20px;
+  }
+
+  .input,
+  .passwordInput {
+    max-width: 100%;
+  }
+
+  .passwordWrapper {
+    max-width: 100%;
+  }
+
+  .errorText {
+    max-width: 100%;
+  }
+
+  .loginButton {
+    margin-top: 28px;
+  }
+
+  .divider {
+    margin: 32px 0;
+  }
+
+  .socialWrapper {
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .linkRow {
+    margin-top: 28px;
+    margin-bottom: 28px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .linkBtn {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .recaptcha {
+    padding-top: 16px;
+  }
+
+  .recaptchaContainer {
+    margin: 20px 0;
+    padding: 16px 0;
+  }
+
+  .recaptchaWidget {
+    transform: scale(0.85);
+  }
+
+  .backButton {
+    top: 16px;
+    left: 16px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageWrapper {
+    padding: 12px;
+  }
+
+  .loginBox {
+    padding: 32px 20px;
+    border-radius: 12px;
+    max-width: 100%;
+  }
+
+  .logo {
+    font-size: 28px;
+    margin-bottom: 28px;
+  }
+
+  .input,
+  .loginButton,
+  .passwordInput,
+  .kakaoBtn,
+  .googleBtn {
+    height: 48px;
+    font-size: 14px;
+    border-radius: 12px;
+    padding: 0 16px;
+  }
+
+  .inputGroup {
+    margin-bottom: 18px;
+  }
+
+  .input,
+  .passwordInput {
+    max-width: 100%;
+  }
+
+  .passwordWrapper {
+    max-width: 100%;
+  }
+
+  .errorText {
+    max-width: 100%;
+    font-size: 12px;
+  }
+
+  .loginButton {
+    margin-top: 24px;
+  }
+
+  .divider {
+    margin: 28px 0;
+  }
+
+  .socialWrapper {
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .linkRow {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    gap: 8px;
+  }
+
+  .linkBtn {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .recaptcha {
+    padding-top: 12px;
+  }
+
+  .recaptchaContainer {
+    margin: 16px 0;
+    padding: 12px 0;
+  }
+
+  .recaptchaWidget {
+    transform: scale(0.8);
+  }
+
+  .recaptchaText {
+    font-size: 11px;
+  }
+
+  .backButton {
+    top: 12px;
+    left: 12px;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .loginBox {
+    padding: 28px 16px;
+  }
+
+  .logo {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .input,
+  .loginButton,
+  .passwordInput,
+  .kakaoBtn,
+  .googleBtn {
+    height: 44px;
+    font-size: 13px;
+  }
+
+  .input,
+  .passwordInput {
+    max-width: 100%;
+  }
+
+  .passwordWrapper {
+    max-width: 100%;
+  }
+
+  .errorText {
+    max-width: 100%;
+    font-size: 11px;
+  }
+
+  .recaptchaWidget {
+    transform: scale(0.75);
+  }
+}

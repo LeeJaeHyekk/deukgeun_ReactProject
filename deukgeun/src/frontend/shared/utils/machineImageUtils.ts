@@ -1,8 +1,7 @@
 import type { Machine } from "@dto/index"
-import {
-  IMAGE_MATCHING_CONFIG,
+const { IMAGE_MATCHING_CONFIG,
   ImageMatchingManager,
-} from "../config/imageMatchingConfig"
+ } = require('../config/imageMatchingConfig')
 
 // 이미지 매칭 결과 캐시
 const imageCache = new Map<string, string>()
@@ -11,7 +10,7 @@ const imageCache = new Map<string, string>()
 const failedImages = new Set<string>()
 
 // 머신 이름과 이미지 파일명 매핑 함수
-export function findMatchingImage(machine: Machine): string {
+function findMatchingImage(machine: Machine): string {
   // 디버깅을 위한 로그 추가
   console.log("🔍 findMatchingImage 호출:", {
     id: machine.id,
@@ -88,14 +87,14 @@ function findImageByMachineName(
 }
 
 // 전체 이미지 URL 생성 함수
-export function getFullImageUrl(imagePath: string): string {
+function getFullImageUrl(imagePath: string): string {
   return imagePath.startsWith("http")
     ? imagePath
     : `http://localhost:5000${imagePath}`
 }
 
 // 이미지 로드 실패 시 기본 이미지로 대체하는 핸들러 (무한 루프 방지)
-export function handleImageError(
+function handleImageError(
   e: React.SyntheticEvent<HTMLImageElement, Event>
 ): void {
   const target = e.target as HTMLImageElement
@@ -124,13 +123,13 @@ export function handleImageError(
 }
 
 // 캐시 초기화 함수 (필요시 사용)
-export function clearImageCache(): void {
+function clearImageCache(): void {
   imageCache.clear()
   failedImages.clear()
 }
 
 // 확장성을 위한 유틸리티 함수들 (ImageMatchingManager 래퍼)
-export const ImageUtils = {
+const ImageUtils = {
   // 새로운 이미지 파일 추가
   addAvailableImage: (imageFileName: string) => {
     ImageMatchingManager.getInstance().addAvailableImage(imageFileName)

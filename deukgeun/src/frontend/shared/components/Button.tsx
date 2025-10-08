@@ -1,5 +1,5 @@
-import React from 'react'
-import './Button.css'
+const React = require('react').default
+require('./Button.css')
 
 interface ButtonProps {
   children: React.ReactNode
@@ -45,5 +45,5 @@ function Button({
   )
 }
 
-export default Button
-export { Button }
+module.exports.default = Button
+module.exports.Button = Button

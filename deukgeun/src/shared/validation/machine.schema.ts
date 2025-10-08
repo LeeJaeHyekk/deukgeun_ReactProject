@@ -2,9 +2,9 @@
 // Machine Validation Schema
 // ============================================================================
 
-import { z } from "zod"
+const { z  } = require('zod')
 
-export const MachineSchema = z.object({
+const MachineSchema = z.object({
   id: z.number(),
   machineKey: z.string().max(100),
   name: z.string().max(100),
@@ -42,13 +42,13 @@ export const MachineSchema = z.object({
   updatedAt: z.date(),
 })
 
-export const CreateMachineSchema = MachineSchema.omit({
+const CreateMachineSchema = MachineSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 })
 
-export const UpdateMachineSchema = CreateMachineSchema.partial()
+const UpdateMachineSchema = CreateMachineSchema.partial()
 
 export type MachineInput = z.infer<typeof MachineSchema>
 export type CreateMachineInput = z.infer<typeof CreateMachineSchema>

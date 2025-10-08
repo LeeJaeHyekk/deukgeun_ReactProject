@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react"
-import { apiClient } from "../../../shared/api/client"
-import { useAuth } from "./useAuth"
+const { useState, useEffect  } = require('react')
+const { apiClient  } = require('../../../shared/api/client')
+const { useAuth  } = require('./useAuth')
 
 export interface UserStats {
   user: {
@@ -26,7 +26,7 @@ export interface UserStats {
   achievements: any[]
 }
 
-export const useUserStats = () => {
+const useUserStats = () => {
   const [userStats, setUserStats] = useState<UserStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

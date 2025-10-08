@@ -1,15 +1,14 @@
-import { useState, useEffect } from "react"
-import {
-  statsApi,
+const { useState, useEffect  } = require('react')
+const { statsApi,
   PlatformStats,
   UserStats,
   DEFAULT_PLATFORM_STATS,
   DEFAULT_USER_STATS,
-} from "../api/statsApi"
-import { showToast } from "../lib"
-import { useAuth } from "./useAuth"
+ } = require('../api/statsApi')
+const { showToast  } = require('../lib')
+const { useAuth  } = require('./useAuth')
 
-export const useStats = () => {
+const useStats = () => {
   const [stats, setStats] = useState<PlatformStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -43,7 +42,7 @@ export const useStats = () => {
 }
 
 // 사용자 개인 통계 훅
-export const useUserStats = () => {
+const useUserStats = () => {
   const [userStats, setUserStats] = useState<UserStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

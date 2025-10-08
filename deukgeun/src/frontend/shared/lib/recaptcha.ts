@@ -1,4 +1,25 @@
-import { config } from "../config"
+// Browser API polyfills for Node.js environment
+if (typeof window === 'undefined') {
+  global.window = global.window || {}
+  global.document = global.document || {}
+  global.localStorage = global.localStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.sessionStorage = global.sessionStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.File = global.File || class File {}
+  global.StorageEvent = global.StorageEvent || class StorageEvent {}
+  global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
+}
+
+const { config  } = require('../config')
 
 // reCAPTCHA 타입 정의
 interface RecaptchaInstance {
@@ -33,7 +54,7 @@ let recaptchaState: RecaptchaState = {
 }
 
 // reCAPTCHA 스크립트 로드
-export const loadRecaptchaScript = (): Promise<void> => {
+const loadRecaptchaScript = (): Promise<void> => {
   // 이미 로드된 경우
   if (recaptchaState.isLoaded && window.grecaptcha) {
     return Promise.resolve()
@@ -94,7 +115,7 @@ export const loadRecaptchaScript = (): Promise<void> => {
 }
 
 // reCAPTCHA 토큰 생성 (v3)
-export const executeRecaptcha = async (
+const executeRecaptcha = async (
   action: string = "login"
 ): Promise<string> => {
   try {
@@ -143,7 +164,7 @@ export const executeRecaptcha = async (
 }
 
 // reCAPTCHA 위젯 렌더링 (v2용 - 필요시 사용)
-export const renderRecaptchaWidget = (
+const renderRecaptchaWidget = (
   container: string | HTMLElement,
   callback: (token: string) => void,
   options: any = {}
@@ -164,19 +185,19 @@ export const renderRecaptchaWidget = (
 }
 
 // 개발용 더미 토큰 생성
-export const getDummyRecaptchaToken = (): string => {
+const getDummyRecaptchaToken = (): string => {
   const timestamp = Date.now()
   const randomId = Math.random().toString(36).substring(2, 15)
   return `dummy-token-${timestamp}-${randomId}`
 }
 
 // reCAPTCHA 상태 확인
-export const getRecaptchaState = (): RecaptchaState => {
+const getRecaptchaState = (): RecaptchaState => {
   return { ...recaptchaState }
 }
 
 // reCAPTCHA 초기화 (테스트용)
-export const resetRecaptchaState = (): void => {
+const resetRecaptchaState = (): void => {
   recaptchaState = {
     isLoaded: false,
     isLoading: false,
@@ -185,7 +206,7 @@ export const resetRecaptchaState = (): void => {
 }
 
 // 환경별 reCAPTCHA 사용 가능 여부 확인
-export const isRecaptchaAvailable = (): boolean => {
+const isRecaptchaAvailable = (): boolean => {
   return (
     config.RECAPTCHA.IS_DEVELOPMENT ||
     config.RECAPTCHA.IS_TEST_KEY ||

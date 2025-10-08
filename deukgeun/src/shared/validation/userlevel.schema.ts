@@ -2,9 +2,9 @@
 // UserLevel Validation Schema
 // ============================================================================
 
-import { z } from "zod"
+const { z  } = require('zod')
 
-export const UserLevelSchema = z.object({
+const UserLevelSchema = z.object({
   id: z.number(),
   userId: z.number(),
   level: z.number(),
@@ -20,13 +20,13 @@ export const UserLevelSchema = z.object({
   updatedAt: z.date(),
 })
 
-export const CreateUserLevelSchema = UserLevelSchema.omit({
+const CreateUserLevelSchema = UserLevelSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 })
 
-export const UpdateUserLevelSchema = CreateUserLevelSchema.partial()
+const UpdateUserLevelSchema = CreateUserLevelSchema.partial()
 
 export type UserLevelInput = z.infer<typeof UserLevelSchema>
 export type CreateUserLevelInput = z.infer<typeof CreateUserLevelSchema>

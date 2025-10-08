@@ -1,162 +1,183 @@
+// Browser API polyfills for Node.js environment
+if (typeof window === 'undefined') {
+  global.window = global.window || {}
+  global.document = global.document || {}
+  global.localStorage = global.localStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.sessionStorage = global.sessionStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.File = global.File || class File {}
+  global.StorageEvent = global.StorageEvent || class StorageEvent {}
+  global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
+}
+
 // ============================================================================
 // Validation Constants
 // ============================================================================
 
 // Email validation
-export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-export const EMAIL_MIN_LENGTH = 5
-export const EMAIL_MAX_LENGTH = 254
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const EMAIL_MIN_LENGTH = 5
+const EMAIL_MAX_LENGTH = 254
 
 // Password validation
-export const PASSWORD_REGEX =
+const PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/
-export const PASSWORD_MIN_LENGTH = 8
-export const PASSWORD_MAX_LENGTH = 128
+const PASSWORD_MIN_LENGTH = 8
+const PASSWORD_MAX_LENGTH = 128
 
 // Phone number validation (Korean format)
-export const PHONE_REGEX = /^01[0-9]-?[0-9]{4}-?[0-9]{4}$/
-export const PHONE_LENGTH = 11
+const PHONE_REGEX = /^01[0-9]-?[0-9]{4}-?[0-9]{4}$/
+const PHONE_LENGTH = 11
 
 // Nickname validation
-export const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9]{2,20}$/
-export const NICKNAME_MIN_LENGTH = 2
-export const NICKNAME_MAX_LENGTH = 20
+const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9]{2,20}$/
+const NICKNAME_MIN_LENGTH = 2
+const NICKNAME_MAX_LENGTH = 20
 
 // Name validation
-export const NAME_REGEX = /^[가-힣a-zA-Z\s]{2,50}$/
-export const NAME_MIN_LENGTH = 2
-export const NAME_MAX_LENGTH = 50
+const NAME_REGEX = /^[가-힣a-zA-Z\s]{2,50}$/
+const NAME_MIN_LENGTH = 2
+const NAME_MAX_LENGTH = 50
 
 // Username validation
-export const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,30}$/
-export const USERNAME_MIN_LENGTH = 3
-export const USERNAME_MAX_LENGTH = 30
+const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,30}$/
+const USERNAME_MIN_LENGTH = 3
+const USERNAME_MAX_LENGTH = 30
 
 // URL validation
-export const URL_REGEX =
+const URL_REGEX =
   /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/
 
 // Date validation
-export const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/
-export const DATETIME_REGEX =
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/
+const DATETIME_REGEX =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/
 
 // Number validation
-export const POSITIVE_NUMBER_REGEX = /^[1-9]\d*$/
-export const DECIMAL_REGEX = /^\d+(\.\d{1,2})?$/
+const POSITIVE_NUMBER_REGEX = /^[1-9]\d*$/
+const DECIMAL_REGEX = /^\d+(\.\d{1,2})?$/
 
 // File validation
-export const ALLOWED_IMAGE_TYPES = [
+const ALLOWED_IMAGE_TYPES = [
   'image/jpeg',
   'image/png',
   'image/gif',
   'image/webp',
 ]
-export const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/ogg']
-export const ALLOWED_DOCUMENT_TYPES = [
+const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/ogg']
+const ALLOWED_DOCUMENT_TYPES = [
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ]
-export const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
-export const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
-export const MAX_VIDEO_SIZE = 100 * 1024 * 1024 // 100MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024 // 100MB
 
 // Text validation
-export const TEXT_MIN_LENGTH = 1
-export const TEXT_MAX_LENGTH = 1000
-export const LONG_TEXT_MAX_LENGTH = 10000
-export const TITLE_MAX_LENGTH = 200
-export const DESCRIPTION_MAX_LENGTH = 500
+const TEXT_MIN_LENGTH = 1
+const TEXT_MAX_LENGTH = 1000
+const LONG_TEXT_MAX_LENGTH = 10000
+const TITLE_MAX_LENGTH = 200
+const DESCRIPTION_MAX_LENGTH = 500
 
 // Age validation
-export const MIN_AGE = 13
-export const MAX_AGE = 120
+const MIN_AGE = 13
+const MAX_AGE = 120
 
 // Rating validation
-export const MIN_RATING = 1
-export const MAX_RATING = 5
+const MIN_RATING = 1
+const MAX_RATING = 5
 
 // Pagination validation
-export const MIN_PAGE = 1
-export const MAX_PAGE = 10000
-export const MIN_LIMIT = 1
-export const MAX_LIMIT = 100
-export const DEFAULT_LIMIT = 10
+const MIN_PAGE = 1
+const MAX_PAGE = 10000
+const MIN_LIMIT = 1
+const MAX_LIMIT = 100
+const DEFAULT_LIMIT = 10
 
 // Search validation
-export const SEARCH_MIN_LENGTH = 1
-export const SEARCH_MAX_LENGTH = 100
+const SEARCH_MIN_LENGTH = 1
+const SEARCH_MAX_LENGTH = 100
 
 // Category validation
-export const CATEGORY_REGEX = /^[a-zA-Z0-9_-]{1,50}$/
-export const CATEGORY_MIN_LENGTH = 1
-export const CATEGORY_MAX_LENGTH = 50
+const CATEGORY_REGEX = /^[a-zA-Z0-9_-]{1,50}$/
+const CATEGORY_MIN_LENGTH = 1
+const CATEGORY_MAX_LENGTH = 50
 
 // Tag validation
-export const TAG_REGEX = /^[a-zA-Z0-9가-힣_-]{1,30}$/
-export const TAG_MIN_LENGTH = 1
-export const TAG_MAX_LENGTH = 30
-export const MAX_TAGS = 10
+const TAG_REGEX = /^[a-zA-Z0-9가-힣_-]{1,30}$/
+const TAG_MIN_LENGTH = 1
+const TAG_MAX_LENGTH = 30
+const MAX_TAGS = 10
 
 // Machine validation
-export const MACHINE_NAME_MIN_LENGTH = 1
-export const MACHINE_NAME_MAX_LENGTH = 100
-export const MACHINE_DESCRIPTION_MAX_LENGTH = 1000
-export const MACHINE_INSTRUCTIONS_MAX_LENGTH = 2000
+const MACHINE_NAME_MIN_LENGTH = 1
+const MACHINE_NAME_MAX_LENGTH = 100
+const MACHINE_DESCRIPTION_MAX_LENGTH = 1000
+const MACHINE_INSTRUCTIONS_MAX_LENGTH = 2000
 
 // Workout validation
-export const WORKOUT_NAME_MIN_LENGTH = 1
-export const WORKOUT_NAME_MAX_LENGTH = 100
-export const WORKOUT_DESCRIPTION_MAX_LENGTH = 1000
-export const MIN_SETS = 1
-export const MAX_SETS = 50
-export const MIN_REPS = 1
-export const MAX_REPS = 1000
-export const MIN_WEIGHT = 0
-export const MAX_WEIGHT = 1000
-export const MIN_DURATION = 1
-export const MAX_DURATION = 1440 // 24 hours in minutes
+const WORKOUT_NAME_MIN_LENGTH = 1
+const WORKOUT_NAME_MAX_LENGTH = 100
+const WORKOUT_DESCRIPTION_MAX_LENGTH = 1000
+const MIN_SETS = 1
+const MAX_SETS = 50
+const MIN_REPS = 1
+const MAX_REPS = 1000
+const MIN_WEIGHT = 0
+const MAX_WEIGHT = 1000
+const MIN_DURATION = 1
+const MAX_DURATION = 1440 // 24 hours in minutes
 
 // Gym validation
-export const GYM_NAME_MIN_LENGTH = 1
-export const GYM_NAME_MAX_LENGTH = 100
-export const GYM_ADDRESS_MAX_LENGTH = 200
-export const GYM_PHONE_REGEX = /^0\d{1,2}-?\d{3,4}-?\d{4}$/
-export const GYM_HOURS_MAX_LENGTH = 100
+const GYM_NAME_MIN_LENGTH = 1
+const GYM_NAME_MAX_LENGTH = 100
+const GYM_ADDRESS_MAX_LENGTH = 200
+const GYM_PHONE_REGEX = /^0\d{1,2}-?\d{3,4}-?\d{4}$/
+const GYM_HOURS_MAX_LENGTH = 100
 
 // Comment validation
-export const COMMENT_MIN_LENGTH = 1
-export const COMMENT_MAX_LENGTH = 1000
+const COMMENT_MIN_LENGTH = 1
+const COMMENT_MAX_LENGTH = 1000
 
 // Post validation
-export const POST_TITLE_MIN_LENGTH = 1
-export const POST_TITLE_MAX_LENGTH = 200
-export const POST_CONTENT_MIN_LENGTH = 1
-export const POST_CONTENT_MAX_LENGTH = 10000
+const POST_TITLE_MIN_LENGTH = 1
+const POST_TITLE_MAX_LENGTH = 200
+const POST_CONTENT_MIN_LENGTH = 1
+const POST_CONTENT_MAX_LENGTH = 10000
 
 // Level validation
-export const MIN_LEVEL = 1
-export const MAX_LEVEL = 100
-export const MIN_EXP = 0
-export const MAX_EXP = 1000000
+const MIN_LEVEL = 1
+const MAX_LEVEL = 100
+const MIN_EXP = 0
+const MAX_EXP = 1000000
 
 // Streak validation
-export const MIN_STREAK = 0
-export const MAX_STREAK = 365
+const MIN_STREAK = 0
+const MAX_STREAK = 365
 
 // Reward validation
-export const REWARD_NAME_MIN_LENGTH = 1
-export const REWARD_NAME_MAX_LENGTH = 100
-export const REWARD_DESCRIPTION_MAX_LENGTH = 500
+const REWARD_NAME_MIN_LENGTH = 1
+const REWARD_NAME_MAX_LENGTH = 100
+const REWARD_DESCRIPTION_MAX_LENGTH = 500
 
 // Milestone validation
-export const MILESTONE_NAME_MIN_LENGTH = 1
-export const MILESTONE_NAME_MAX_LENGTH = 100
-export const MILESTONE_DESCRIPTION_MAX_LENGTH = 500
+const MILESTONE_NAME_MIN_LENGTH = 1
+const MILESTONE_NAME_MAX_LENGTH = 100
+const MILESTONE_DESCRIPTION_MAX_LENGTH = 500
 
 // HTTP Error messages
-export const HTTP_ERROR_MESSAGES = {
+const HTTP_ERROR_MESSAGES = {
   BAD_REQUEST: '잘못된 요청입니다.',
   UNAUTHORIZED: '인증이 필요합니다.',
   FORBIDDEN: '접근 권한이 없습니다.',
@@ -170,7 +191,7 @@ export const HTTP_ERROR_MESSAGES = {
 } as const
 
 // Error messages
-export const VALIDATION_ERRORS = {
+const VALIDATION_ERRORS = {
   REQUIRED: '필수 입력 항목입니다.',
   EMAIL_INVALID: '올바른 이메일 형식이 아닙니다.',
   EMAIL_TOO_SHORT: `이메일은 최소 ${EMAIL_MIN_LENGTH}자 이상이어야 합니다.`,
@@ -254,7 +275,7 @@ export const VALIDATION_ERRORS = {
 } as const
 
 // Validation functions
-export const validation = {
+const validation = {
   // Email validation
   isEmail: (email: string): boolean => {
     return EMAIL_REGEX.test(email)
@@ -461,4 +482,4 @@ export const validation = {
   },
 }
 
-export default validation
+module.exports.default = validation

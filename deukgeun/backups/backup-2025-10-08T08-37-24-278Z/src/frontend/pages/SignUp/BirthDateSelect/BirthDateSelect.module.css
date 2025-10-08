@@ -1,0 +1,111 @@
+/* 
+전체 wrapper: 드롭다운 3개(연도, 월, 일)를 가로로 나열하며 반응형을 위해 wrap 지원 
+*/
+.wrapper {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+/* 
+  각 드롭다운 셀렉터(연/월/일)를 감싸는 그룹 컨테이너
+  상대 위치를 설정하여 옵션 오버레이의 기준 위치가 됨 
+  */
+.selectorGroup {
+  position: relative;
+  flex: 1;
+  min-width: 90px;
+}
+
+/* 
+  사용자가 선택한 셀렉트 박스 스타일
+  Glassmorphism 스타일 적용, 내부 정렬과 커서 스타일 지정
+  */
+.selector {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 12px 16px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+/* 
+  selector에 마우스 오버 시 더 진한 배경으로 전환 
+  */
+.selector:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* 
+  에러 상태 스타일
+  */
+.selectorError {
+  border-color: #ff6b6b !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.2) !important;
+}
+
+/* 
+  오른쪽 화살표 아이콘 여백 조정 
+  */
+.icon {
+  margin-left: 8px;
+}
+
+/* 
+  옵션 목록 오버레이 (드롭다운)
+  Glassmorphism 스타일, fadeIn 애니메이션 적용, 스크롤 가능
+  */
+.optionsOverlay {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  right: 0;
+  background: rgba(30, 30, 30, 0.9);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease-in-out;
+  max-height: 240px;
+  overflow-y: auto;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* 
+  각 옵션 항목 스타일
+  호버 시 더 밝은 배경으로 강조 
+  */
+.option {
+  padding: 12px 16px;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.option:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 
+  옵션 오버레이가 열릴 때의 부드러운 등장 애니메이션
+  */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

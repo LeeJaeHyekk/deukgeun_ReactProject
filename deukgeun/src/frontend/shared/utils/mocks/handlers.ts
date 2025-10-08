@@ -1,5 +1,5 @@
-import { http, HttpResponse } from "msw"
-import { API_ENDPOINTS } from "@shared/config"
+const { http, HttpResponse  } = require('msw')
+const { API_ENDPOINTS  } = require('@shared/config')
 
 // Mock 데이터
 const mockUsers = [
@@ -61,7 +61,7 @@ const mockUserLevel = {
 }
 
 // API 핸들러들
-export const handlers = [
+const handlers = [
   // 인증 관련 API
   http.post(API_ENDPOINTS.AUTH.LOGIN, () => {
     return HttpResponse.json({

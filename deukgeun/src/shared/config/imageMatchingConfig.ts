@@ -2,7 +2,7 @@
 // Image Matching Configuration
 // ============================================================================
 
-export const IMAGE_MATCHING_CONFIG: {
+const IMAGE_MATCHING_CONFIG: {
   MACHINE_IMAGES: { [key: string]: string }
   DEFAULT_IMAGE: string
   FALLBACK_IMAGE: string
@@ -92,7 +92,7 @@ export const IMAGE_MATCHING_CONFIG: {
 }
 
 // Machine name mapping for better matching
-export const MACHINE_NAME_MAPPING = {
+const MACHINE_NAME_MAPPING = {
   '벤치 프레스': '벤치프레스',
   '스쿼트 랙': '스쿼트랙',
   '풀업 바': '풀업바',
@@ -162,7 +162,7 @@ export const MACHINE_NAME_MAPPING = {
 }
 
 // Function to get machine image
-export function getMachineImage(machineName: string): string {
+function getMachineImage(machineName: string): string {
   // First try exact match
   if (IMAGE_MATCHING_CONFIG.MACHINE_IMAGES[machineName]) {
     return IMAGE_MATCHING_CONFIG.MACHINE_IMAGES[machineName]
@@ -186,16 +186,16 @@ export function getMachineImage(machineName: string): string {
 }
 
 // Function to get all machine names
-export function getAllMachineNames(): string[] {
+function getAllMachineNames(): string[] {
   return Object.keys(IMAGE_MATCHING_CONFIG.MACHINE_IMAGES)
 }
 
 // Function to search machines by name
-export function searchMachines(query: string): string[] {
+function searchMachines(query: string): string[] {
   const normalizedQuery = query.toLowerCase().trim()
   return Object.keys(IMAGE_MATCHING_CONFIG.MACHINE_IMAGES).filter(name =>
     name.toLowerCase().includes(normalizedQuery)
   )
 }
 
-export default IMAGE_MATCHING_CONFIG
+module.exports.default = IMAGE_MATCHING_CONFIG

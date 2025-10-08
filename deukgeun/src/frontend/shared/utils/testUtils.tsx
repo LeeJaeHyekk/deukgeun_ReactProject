@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react'
-import { render, RenderOptions } from '@testing-library/react'
-import { BrowserRouter } from 'react-router-dom'
-import { AuthProvider } from '@frontend/shared/contexts/AuthContext'
-import { WorkoutTimerProvider } from '@frontend/shared/contexts/WorkoutTimerContext'
-import { mockUser, mockToken } from './testSetup'
+const { render, RenderOptions  } = require('@testing-library/react')
+const { BrowserRouter  } = require('react-router-dom')
+const { AuthProvider  } = require('@frontend/shared/contexts/AuthContext')
+const { WorkoutTimerProvider  } = require('@frontend/shared/contexts/WorkoutTimerContext')
+const { mockUser, mockToken  } = require('./testSetup')
 
 // Mock AuthContext values
 const mockAuthContextValue = {
@@ -96,15 +96,15 @@ const customRender = (
 
 // Re-export everything
 export * from '@testing-library/react'
-export { customRender as render }
+module.exports.render = customRender
 
 // Test data factories
-export const createMockUser = (overrides: Partial<typeof mockUser> = {}) => ({
+const createMockUser = (overrides: Partial<typeof mockUser> = {}) => ({
   ...mockUser,
   ...overrides,
 })
 
-export const createMockWorkoutPlan = (overrides: any = {}) => ({
+const createMockWorkoutPlan = (overrides: any = {}) => ({
   id: 'test-plan-id',
   name: 'Test Workout Plan',
   description: 'A test workout plan',
@@ -116,7 +116,7 @@ export const createMockWorkoutPlan = (overrides: any = {}) => ({
   ...overrides,
 })
 
-export const createMockWorkoutSession = (overrides: any = {}) => ({
+const createMockWorkoutSession = (overrides: any = {}) => ({
   id: 'test-session-id',
   planId: 'test-plan-id',
   userId: 'test-user-id',
@@ -129,7 +129,7 @@ export const createMockWorkoutSession = (overrides: any = {}) => ({
   ...overrides,
 })
 
-export const createMockWorkoutGoal = (overrides: any = {}) => ({
+const createMockWorkoutGoal = (overrides: any = {}) => ({
   id: 'test-goal-id',
   userId: 'test-user-id',
   title: 'Test Goal',
@@ -144,7 +144,7 @@ export const createMockWorkoutGoal = (overrides: any = {}) => ({
   ...overrides,
 })
 
-export const createMockMachine = (overrides: any = {}) => ({
+const createMockMachine = (overrides: any = {}) => ({
   id: 'test-machine-id',
   name: 'Test Machine',
   description: 'A test exercise machine',
@@ -159,7 +159,7 @@ export const createMockMachine = (overrides: any = {}) => ({
   ...overrides,
 })
 
-export const createMockGym = (overrides: any = {}) => ({
+const createMockGym = (overrides: any = {}) => ({
   id: 'test-gym-id',
   name: 'Test Gym',
   address: '123 Test Street, Test City',
@@ -176,7 +176,7 @@ export const createMockGym = (overrides: any = {}) => ({
   ...overrides,
 })
 
-export const createMockCommunityPost = (overrides: any = {}) => ({
+const createMockCommunityPost = (overrides: any = {}) => ({
   id: 'test-post-id',
   userId: 'test-user-id',
   title: 'Test Post',
@@ -193,7 +193,7 @@ export const createMockCommunityPost = (overrides: any = {}) => ({
 })
 
 // Mock API responses
-export const mockApiResponses = {
+const mockApiResponses = {
   success: <T>(data: T) => ({
     data,
     status: 200,
@@ -228,11 +228,11 @@ export const mockApiResponses = {
 }
 
 // Wait for async operations
-export const waitFor = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+const waitFor = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 // Mock router navigation
-export const mockNavigate = vi.fn()
-export const mockLocation = {
+const mockNavigate = vi.fn()
+const mockLocation = {
   pathname: '/',
   search: '',
   hash: '',
@@ -241,7 +241,7 @@ export const mockLocation = {
 }
 
 // Mock router
-export const mockRouter = {
+const mockRouter = {
   navigate: mockNavigate,
   location: mockLocation,
   params: {},
@@ -249,23 +249,23 @@ export const mockRouter = {
 }
 
 // Test helpers
-export const expectToBeInTheDocument = (element: HTMLElement | null) => {
+const expectToBeInTheDocument = (element: HTMLElement | null) => {
   expect(element).toBeInTheDocument()
 }
 
-export const expectNotToBeInTheDocument = (element: HTMLElement | null) => {
+const expectNotToBeInTheDocument = (element: HTMLElement | null) => {
   expect(element).not.toBeInTheDocument()
 }
 
-export const expectToHaveTextContent = (element: HTMLElement | null, text: string) => {
+const expectToHaveTextContent = (element: HTMLElement | null, text: string) => {
   expect(element).toHaveTextContent(text)
 }
 
-export const expectToHaveClass = (element: HTMLElement | null, className: string) => {
+const expectToHaveClass = (element: HTMLElement | null, className: string) => {
   expect(element).toHaveClass(className)
 }
 
-export const expectToHaveAttribute = (element: HTMLElement | null, attribute: string, value?: string) => {
+const expectToHaveAttribute = (element: HTMLElement | null, attribute: string, value?: string) => {
   if (value) {
     expect(element).toHaveAttribute(attribute, value)
   } else {

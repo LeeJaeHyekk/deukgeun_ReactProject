@@ -13,6 +13,7 @@
 
 import * as fs from 'fs'
 import * as path from 'path'
+import { fileURLToPath } from 'url'
 import { execSync, spawn } from 'child_process'
 import { Worker, isMainThread, parentPort, workerData } from 'worker_threads'
 import * as crypto from 'crypto'
@@ -1472,10 +1473,37 @@ async function main(): Promise<void> {
   }
 }
 
-// 스크립트 실행
-if (require.main === module) {
-  main()
+// === ESM/CJS 모두에서 "직접 실행"을 감지하는 안전한 진입점 ===
+async function runIfMain() {
+  // ESM: import.meta.url -> 파일 경로
+  try {
+    const __filename = fileURLToPath(import.meta.url)
+    // process.argv[1]은 node 실행시 첫 번째 인자로 넘어온 스크립트 경로
+    if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
+      await main()
+      return
+    }
+  } catch (e) {
+    // import.meta가 없는 CJS 환경에서 무시
+  }
+
+  // CJS 환경에서의 기존 검사 (require가 정의되어 있으면 사용)
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // require가 없는 ESM 환경에서는 ReferenceError가 발생하므로 try/catch로 감싼다
+    // @ts-ignore
+    if (typeof require !== 'undefined' && require.main === module) {
+      await main()
+      return
+    }
+  } catch { /* ignore */ }
 }
+
+// 즉시 실행
+runIfMain().catch(err => {
+  logError(`실행 실패(진입점): ${(err as Error).message}`)
+  process.exit(1)
+})
 
 export {
   FileAnalyzer,

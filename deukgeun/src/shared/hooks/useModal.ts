@@ -1,8 +1,29 @@
+// Browser API polyfills for Node.js environment
+if (typeof window === 'undefined') {
+  global.window = global.window || {}
+  global.document = global.document || {}
+  global.localStorage = global.localStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.sessionStorage = global.sessionStorage || {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {}
+  }
+  global.File = global.File || class File {}
+  global.StorageEvent = global.StorageEvent || class StorageEvent {}
+  global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
+}
+
 // ============================================================================
 // 모달 관리 훅
 // ============================================================================
 
-import { useState, useCallback, useRef, useEffect } from "react"
+const { useState, useCallback, useRef, useEffect  } = require('react')
 
 // 모달 훅 옵션
 export interface UseModalOptions {
@@ -23,7 +44,7 @@ export interface UseModalReturn {
 }
 
 // 모달 훅
-export function useModal(options: UseModalOptions = {}): UseModalReturn {
+function useModal(options: UseModalOptions = {}): UseModalReturn {
   const {
     initialOpen = false,
     closeOnEscape = true,
@@ -147,7 +168,7 @@ export function useModal(options: UseModalOptions = {}): UseModalReturn {
 }
 
 // 다중 모달 관리 훅
-export function useMultiModal() {
+function useMultiModal() {
   const [modals, setModals] = useState<Record<string, boolean>>({})
 
   const openModal = useCallback((modalId: string) => {
@@ -184,7 +205,7 @@ export function useMultiModal() {
 }
 
 // 모달 스택 관리 훅
-export function useModalStack() {
+function useModalStack() {
   const [modalStack, setModalStack] = useState<string[]>([])
 
   const pushModal = useCallback((modalId: string) => {

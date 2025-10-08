@@ -7,6 +7,7 @@
 
 import * as fs from 'fs'
 import * as path from 'path'
+import { fileURLToPath } from 'url'
 import { execSync } from 'child_process'
 import { AutoCompileRunner } from './auto-compile-runner'
 
@@ -65,20 +66,39 @@ class AutoJsToCjsConverter {
       
       // 1. js-to-cjs-converter.ts 컴파일 및 실행
       logStep('STEP1', 'js-to-cjs-converter.ts 컴파일 및 실행')
-      await this.autoRunner.runScript('js-to-cjs-converter.ts')
+      try {
+        const res = await this.autoRunner.runScript('js-to-cjs-converter.ts')
+        // runScript가 반환값을 준다면 출력 (디버깅용)
+        logSuccess(`STEP1 완료${res ? ` — ${JSON.stringify(res)}` : ''}`)
+      } catch (err) {
+        logError(`STEP1 실패: ${(err as Error).message}`)
+        throw err
+      }
       
       // 2. 빌드 스크립트 실행 (선택적)
       const shouldRunBuild = process.argv.includes('--build') || process.argv.includes('-b')
       if (shouldRunBuild) {
         logStep('STEP2', '빌드 스크립트 실행')
-        await this.autoRunner.runScript('build.ts')
+        try {
+          const res = await this.autoRunner.runScript('build.ts')
+          logSuccess(`STEP2 완료${res ? ` — ${JSON.stringify(res)}` : ''}`)
+        } catch (err) {
+          logError(`STEP2 실패: ${(err as Error).message}`)
+          throw err
+        }
       }
       
       // 3. 배포 스크립트 실행 (선택적)
       const shouldRunDeploy = process.argv.includes('--deploy') || process.argv.includes('-d')
       if (shouldRunDeploy) {
         logStep('STEP3', '배포 스크립트 실행')
-        await this.autoRunner.runScript('deploy-script.ts')
+        try {
+          const res = await this.autoRunner.runScript('deploy-script.ts')
+          logSuccess(`STEP3 완료${res ? ` — ${JSON.stringify(res)}` : ''}`)
+        } catch (err) {
+          logError(`STEP3 실패: ${(err as Error).message}`)
+          throw err
+        }
       }
       
       const endTime = Date.now()
@@ -138,9 +158,36 @@ async function main(): Promise<void> {
   }
 }
 
-// 스크립트 실행
-if (require.main === module) {
-  main()
+// === ESM/CJS 모두에서 "직접 실행"을 감지하는 안전한 진입점 ===
+async function runIfMain() {
+  // ESM: import.meta.url -> 파일 경로
+  try {
+    const __filename = fileURLToPath(import.meta.url)
+    // process.argv[1]은 node 실행시 첫 번째 인자로 넘어온 스크립트 경로
+    if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
+      await main()
+      return
+    }
+  } catch (e) {
+    // import.meta가 없는 CJS 환경에서 무시
+  }
+
+  // CJS 환경에서의 기존 검사 (require가 정의되어 있으면 사용)
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // require가 없는 ESM 환경에서는 ReferenceError가 발생하므로 try/catch로 감싼다
+    // @ts-ignore
+    if (typeof require !== 'undefined' && require.main === module) {
+      await main()
+      return
+    }
+  } catch { /* ignore */ }
 }
+
+// 즉시 실행
+runIfMain().catch(err => {
+  logError(`실행 실패(진입점): ${(err as Error).message}`)
+  process.exit(1)
+})
 
 export { AutoJsToCjsConverter, main }

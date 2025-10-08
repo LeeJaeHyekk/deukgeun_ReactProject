@@ -1,4 +1,4 @@
-import apiClient from "./index"
+const apiClient = require('./index').default
 
 export interface PlatformStats {
   activeUsers: number
@@ -31,14 +31,14 @@ export interface UserStats {
 }
 
 // 기본값 상수
-export const DEFAULT_PLATFORM_STATS: PlatformStats = {
+const DEFAULT_PLATFORM_STATS: PlatformStats = {
   activeUsers: 150,
   totalGyms: 45,
   totalPosts: 320,
   achievements: 25,
 }
 
-export const DEFAULT_USER_STATS: UserStats = {
+const DEFAULT_USER_STATS: UserStats = {
   level: 1,
   currentExp: 0,
   totalExp: 100,
@@ -46,7 +46,7 @@ export const DEFAULT_USER_STATS: UserStats = {
   recentPosts: 0,
 }
 
-export const DEFAULT_DETAILED_STATS: DetailedStats = {
+const DEFAULT_DETAILED_STATS: DetailedStats = {
   monthlyUsers: [
     { month: "2024-01", count: 45 },
     { month: "2024-02", count: 52 },
@@ -66,7 +66,7 @@ export const DEFAULT_DETAILED_STATS: DetailedStats = {
   ],
 }
 
-export const statsApi = {
+const statsApi = {
   // 플랫폼 기본 통계 조회
   getPlatformStats: async (): Promise<PlatformStats> => {
     try {

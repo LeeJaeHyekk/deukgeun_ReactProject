@@ -5,8 +5,10 @@ export * from './communityApi'
 export * from './adminApi'
 
 // Export individual APIs for backward compatibility
-export { apiClient as api } from './client'
-export { authApi } from './authApi'
-export { machineApi } from './machineApi'
-export { communityApi as postsApi, communityApi as commentsApi, communityApi as likesApi } from './communityApi'
-export { adminApi } from './adminApi'
+module.exports.api = apiClient from './client'
+module.exports.authApi = authApi from './authApi'
+module.exports.machineApi = machineApi from './machineApi'
+module.exports.postsApi = communityApi
+module.exports.commentsApi = communityApi
+module.exports.likesApi = communityApi from './communityApi'
+module.exports.adminApi = adminApi from './adminApi'

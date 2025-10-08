@@ -2,9 +2,9 @@
 // API 관련 커스텀 훅
 // ============================================================================
 
-import { useState, useEffect, useCallback } from "react"
+const { useState, useEffect, useCallback  } = require('react')
 import type { ApiResponse, LoadingState } from "../types"
-import { apiClient } from "../api/client"
+const { apiClient  } = require('../api/client')
 
 // API 요청 상태
 export interface ApiState<T> extends LoadingState {
@@ -20,7 +20,7 @@ export interface ApiOptions {
 }
 
 // GET 요청 훅
-export function useGet<T = unknown>(
+function useGet<T = unknown>(
   endpoint: string,
   params?: Record<string, string | number | boolean>,
   options: ApiOptions = {}
@@ -80,7 +80,7 @@ export function useGet<T = unknown>(
 }
 
 // POST 요청 훅
-export function usePost<T = unknown, D = unknown>(
+function usePost<T = unknown, D = unknown>(
   endpoint: string,
   options: ApiOptions = {}
 ): [ApiState<T>, (data: D) => Promise<void>] {
@@ -136,7 +136,7 @@ export function usePost<T = unknown, D = unknown>(
 }
 
 // PUT 요청 훅
-export function usePut<T = unknown, D = unknown>(
+function usePut<T = unknown, D = unknown>(
   endpoint: string,
   options: ApiOptions = {}
 ): [ApiState<T>, (data: D) => Promise<void>] {
@@ -192,7 +192,7 @@ export function usePut<T = unknown, D = unknown>(
 }
 
 // DELETE 요청 훅
-export function useDelete<T = unknown>(
+function useDelete<T = unknown>(
   endpoint: string,
   options: ApiOptions = {}
 ): [ApiState<T>, () => Promise<void>] {
@@ -245,7 +245,7 @@ export function useDelete<T = unknown>(
 }
 
 // 파일 업로드 훅
-export function useUpload<T = unknown>(
+function useUpload<T = unknown>(
   endpoint: string,
   options: ApiOptions = {}
 ): [ApiState<T>, (file: File) => Promise<void>] {

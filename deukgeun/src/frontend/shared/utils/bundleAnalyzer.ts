@@ -1,7 +1,7 @@
 // 파일 시스템 모듈 import (파일 쓰기 기능)
-import { writeFileSync } from "fs"
+const { writeFileSync  } = require('fs')
 // 경로 처리 유틸리티 import
-import { resolve } from "path"
+const { resolve  } = require('path')
 
 /**
  * 번들 청크 정보 인터페이스
@@ -30,7 +30,7 @@ interface BundleAnalysis {
  * @param bundleStats - Rollup/Vite에서 생성된 번들 통계 객체
  * @returns 분석된 번들 정보와 권장사항
  */
-export function analyzeBundle(bundleStats: any): BundleAnalysis {
+function analyzeBundle(bundleStats: any): BundleAnalysis {
   const chunks: BundleInfo[] = [] // 분석된 청크 정보를 저장할 배열
   let totalSize = 0 // 전체 번들 크기
   let totalGzippedSize = 0 // 전체 gzip 압축 후 크기
@@ -120,7 +120,7 @@ function findDuplicateDependencies(chunks: BundleInfo[]): string[] {
  * @param outputPath - 출력 파일 경로 (기본값: bundle-analysis.json)
  * @returns 생성된 보고서 객체
  */
-export function generateBundleReport(
+function generateBundleReport(
   analysis: BundleAnalysis,
   outputPath: string = "bundle-analysis.json"
 ) {
@@ -148,7 +148,7 @@ export function generateBundleReport(
  * @param bytes - 변환할 바이트 수
  * @returns 포맷된 문자열 (예: "1.5 MB")
  */
-export function formatBytes(bytes: number): string {
+function formatBytes(bytes: number): string {
   // 0바이트인 경우 즉시 반환
   if (bytes === 0) return "0 Bytes"
 

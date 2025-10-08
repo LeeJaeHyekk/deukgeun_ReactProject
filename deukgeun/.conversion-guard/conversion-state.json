@@ -17,7 +17,23 @@
     {
       "timestamp": "2025-10-08T07:17:46.069Z",
       "error": "Command failed: npm run convert:js-to-cjs"
+    },
+    {
+      "timestamp": "2025-10-08T09:03:30.065Z",
+      "error": "require is not defined"
+    },
+    {
+      "timestamp": "2025-10-08T09:03:34.312Z",
+      "error": "require is not defined"
+    },
+    {
+      "timestamp": "2025-10-08T09:04:45.491Z",
+      "error": "require is not defined"
+    },
+    {
+      "timestamp": "2025-10-08T09:04:49.349Z",
+      "error": "require is not defined"
     }
   ],
-  "lastUpdate": "2025-10-08T08:01:13.449Z"
+  "lastUpdate": "2025-10-08T09:04:49.350Z"
 }

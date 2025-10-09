@@ -1,8 +1,8 @@
-const { useState, useEffect, useCallback, useRef  } = require('react')
-const { useAuth  } = require('./useAuth')
-const { levelApiWrapper, levelApiManager  } = require('../api/levelApiWrapper')
-const { LevelProgress, UserReward  } = require('../api/levelApi')
-const { showToast  } = require('../lib')
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useAuth } from './useAuth'
+import { levelApiWrapper, levelApiManager } from '../api/levelApiWrapper'
+import { LevelProgress, UserReward } from '../api/levelApi'
+import { showToast } from '../lib'
 
 // ============================================================================
 // Constants
@@ -245,3 +245,6 @@ function useLevel() {
       levelApiManager.isEnabled() && isLoggedIn && !cooldownInfo?.isOnCooldown,
   }
 }
+
+// Export the hook
+export { useLevel }

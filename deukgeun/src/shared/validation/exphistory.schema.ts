@@ -2,7 +2,7 @@
 // ExpHistory Validation Schema
 // ============================================================================
 
-const { z  } = require('zod')
+import { z } from 'zod'
 
 const ExpHistorySchema = z.object({
   id: z.number(),

@@ -1,4 +1,4 @@
-const apiClient = require('./index').default
+import apiClient from './index'
 
 export interface PlatformStats {
   activeUsers: number
@@ -99,4 +99,12 @@ const statsApi = {
       return DEFAULT_USER_STATS
     }
   },
+}
+
+// Export all functions and constants
+export {
+  statsApi,
+  DEFAULT_PLATFORM_STATS,
+  DEFAULT_USER_STATS,
+  DEFAULT_DETAILED_STATS,
 }

@@ -1,7 +1,7 @@
-const { apiClient  } = require('./client')
-const { PostDTO, Post  } = require('@shared/types/dto/post.dto')
-const { CommentDTO, Comment  } = require('@shared/types/dto/comment.dto')
-const { LikeDTO, Like  } = require('@shared/types/dto/like.dto')
+import { apiClient } from './client'
+import type { PostDTO, Post } from '@shared/types/dto/post.dto'
+import type { CommentDTO, Comment } from '@shared/types/dto/comment.dto'
+import type { LikeDTO, Like } from '@shared/types/dto/like.dto'
 
 export interface CreatePostRequest {
   title: string
@@ -23,7 +23,7 @@ export interface CreateCommentRequest {
   parentId?: number
 }
 
-const communityApi = {
+export const communityApi = {
   // Posts
   async getPosts(
     page = 1,

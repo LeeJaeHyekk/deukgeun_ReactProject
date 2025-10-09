@@ -19,10 +19,10 @@ if (typeof window === 'undefined') {
   global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
 }
 
-const { useCallback, useEffect, useRef, useState  } = require('react')
-const { storage  } = require('../lib')
-const { authApi  } = require('../../features/auth/api/authApi')
-const { useUserStore  } = require('../store/userStore')
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { storage } from '../lib'
+import { authApi } from '../../features/auth/api/authApi'
+import { useUserStore } from '../store/userStore'
 import type { User } from "../../../shared/types"
 
 // JWT 토큰 유효성 검사
@@ -216,3 +216,5 @@ function useAuth() {
     checkAuthStatus,
   }
 }
+
+export { useAuth }

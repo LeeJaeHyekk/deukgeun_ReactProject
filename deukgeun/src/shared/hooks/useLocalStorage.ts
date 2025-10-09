@@ -23,7 +23,7 @@ if (typeof window === 'undefined') {
 // 로컬 스토리지 관리 훅
 // ============================================================================
 
-const { useState, useEffect, useCallback  } = require('react')
+import { useState, useEffect, useCallback } from 'react'
 
 // 로컬 스토리지 훅 옵션
 export interface UseLocalStorageOptions<T> {
@@ -239,4 +239,10 @@ const localStorageUtils = {
 
     return window.localStorage.length
   },
+}
+
+// Export all functions
+export {
+  useLocalStorage,
+  localStorageUtils,
 }

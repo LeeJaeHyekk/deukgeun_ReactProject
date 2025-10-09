@@ -19,7 +19,14 @@ if (typeof window === 'undefined') {
   global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
 }
 
-const { config  } = require('../config')
+// Default config values
+const config = {
+  RECAPTCHA: {
+    SITE_KEY: process.env.REACT_APP_RECAPTCHA_SITE_KEY || '',
+    IS_DEVELOPMENT: process.env.NODE_ENV === 'development',
+    IS_TEST_KEY: process.env.REACT_APP_RECAPTCHA_SITE_KEY === '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+  },
+}
 
 // reCAPTCHA 타입 정의
 interface RecaptchaInstance {
@@ -34,11 +41,7 @@ interface RecaptchaInstance {
   }
 }
 
-declare global {
-  interface Window {
-    grecaptcha: RecaptchaInstance
-  }
-}
+// Global declaration moved to avoid conflicts
 
 // reCAPTCHA 상태 관리
 interface RecaptchaState {

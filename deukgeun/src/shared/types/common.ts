@@ -78,8 +78,16 @@ export interface User {
   id: number
   email: string
   username: string
+  nickname?: string
+  phone?: string
+  phoneNumber?: string
+  gender?: Gender
+  birthDate?: Date
+  accessToken?: string
+  profileImage?: string
   role: UserRole
   isActive: boolean
+  isEmailVerified?: boolean
   createdAt: Date
   updatedAt: Date
 }

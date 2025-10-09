@@ -198,4 +198,5 @@ function searchMachines(query: string): string[] {
   )
 }
 
-module.exports.default = IMAGE_MATCHING_CONFIG
+export default IMAGE_MATCHING_CONFIG
+export { getMachineImage, getAllMachineNames, searchMachines, MACHINE_NAME_MAPPING }

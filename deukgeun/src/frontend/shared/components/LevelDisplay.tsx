@@ -116,7 +116,7 @@ function LevelDisplay({
         <div className={styles.rewardsSection}>
           <h4 className={styles.rewardsTitle}>획득한 보상</h4>
           <div className={styles.rewardsList}>
-            {rewards.slice(0, 3).map(reward => (
+            {rewards.slice(0, 3).map((reward: any) => (
               <div key={reward.id} className={styles.rewardItem}>
                 <span className={styles.rewardIcon}>
                   {reward.metadata?.icon || "🏆"}
@@ -138,5 +138,4 @@ function LevelDisplay({
   )
 }
 
-module.exports.default = LevelDisplay
-module.exports.LevelDisplay = LevelDisplay
+export { LevelDisplay }

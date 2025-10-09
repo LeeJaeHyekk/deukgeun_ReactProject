@@ -106,7 +106,7 @@ export default function HomePage() {
           <p>{homePageConfig.serviceSubtitle}</p>
         </div>
         <div className={styles.serviceGrid}>
-          {homePageConfig.services.map((service, index) => {
+          {homePageConfig.services.map((service: any, index: any) => {
             // 아이콘 컴포넌트 매핑
             const getIconComponent = (iconName: string) => {
               const iconMap: Record<string, any> = {
@@ -144,7 +144,7 @@ export default function HomePage() {
           <p>{homePageConfig.featuresSubtitle}</p>
         </div>
         <div className={styles.featuresGrid}>
-          {homePageConfig.features.map((feature, index) => {
+          {homePageConfig.features.map((feature: any, index: any) => {
             // 아이콘 컴포넌트 매핑
             const getIconComponent = (iconName: string) => {
               const iconMap: Record<string, any> = {
@@ -332,7 +332,7 @@ export default function HomePage() {
           <p>{homePageConfig.faqSubtitle}</p>
         </div>
         <div className={styles.faqGrid}>
-          {homePageConfig.faqs.map((faq, index) => {
+          {homePageConfig.faqs.map((faq: any, index: any) => {
             // 아이콘 컴포넌트 매핑
             const getIconComponent = (iconName: string) => {
               const iconMap: Record<string, any> = {

@@ -5,8 +5,8 @@ import React, {
   useMemo,
   useRef,
 } from "react"
-const { useAuth  } = require('../hooks/useAuth')
-const { User  } = require('../../../shared/types')
+import { useAuth } from '../hooks/useAuth'
+import { User } from '../../../shared/types'
 
 interface AuthContextType {
   isAuthenticated: boolean
@@ -76,3 +76,5 @@ function useAuthContext() {
   }
   return context
 }
+
+export { AuthProvider, useAuthContext }

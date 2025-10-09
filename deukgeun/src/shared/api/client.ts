@@ -228,4 +228,4 @@ class ApiClient {
 export const apiClient = new ApiClient()
 
 // 기본 export
-module.exports.default = apiClient
+export default apiClient

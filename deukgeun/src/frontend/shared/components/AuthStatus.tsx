@@ -1,4 +1,4 @@
-const { useAuthContext  } = require('../contexts/AuthContext')
+import { useAuthContext } from '../contexts/AuthContext'
 
 function AuthStatus() {
   const { isAuthenticated, user, isLoading, logout } = useAuthContext()

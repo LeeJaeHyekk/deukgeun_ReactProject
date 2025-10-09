@@ -1,5 +1,5 @@
-const { http, HttpResponse  } = require('msw')
-const { API_ENDPOINTS  } = require('@shared/config')
+import { http, HttpResponse } from 'msw'
+import { API_ENDPOINTS } from '@shared/config'
 
 // Mock 데이터
 const mockUsers = [
@@ -239,3 +239,6 @@ const handlers = [
     )
   }),
 ]
+
+// Export handlers
+export { handlers }

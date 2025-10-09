@@ -1,7 +1,7 @@
 // React Testing Library render 함수
-const React = require('react').default
-const { render as rtlRender  } = require('@testing-library/react')
-const { BrowserRouter  } = require('react-router-dom')
+import React from 'react'
+import { render as rtlRender } from '@testing-library/react'
+import { BrowserRouter } from 'react-router-dom'
 
 // Jest 타입 정의
 declare global {

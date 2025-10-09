@@ -26,7 +26,7 @@ import React, {
   useEffect,
   ReactNode,
 } from 'react'
-const { User  } = require('@shared/types/dto/user.dto')
+import type { User } from '@shared/types/dto/user.dto'
 
 interface AuthContextType {
   user: User | null
@@ -91,7 +91,7 @@ function AuthProvider({ children }: AuthProviderProps) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-function useAuthContext() {
+export function useAuthContext() {
   const context = useContext(AuthContext)
   if (context === undefined) {
     throw new Error('useAuthContext must be used within an AuthProvider')

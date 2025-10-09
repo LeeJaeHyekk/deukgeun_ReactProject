@@ -2,7 +2,7 @@
 // Machine Validation Schema
 // ============================================================================
 
-const { z  } = require('zod')
+import { z } from 'zod'
 
 const MachineSchema = z.object({
   id: z.number(),

@@ -2,7 +2,7 @@
 // Machine Image Utilities
 // ============================================================================
 
-import { IMAGE_MATCHING_CONFIG } from "@shared/config/imageMatchingConfig"
+import IMAGE_MATCHING_CONFIG from "@shared/config/imageMatchingConfig"
 import type { Machine } from "@dto/index"
 
 // 이미지 매칭 캐시

@@ -1,5 +1,5 @@
-const React = require('react').default
-const styles = require('./LoadingSpinner.module.css').default
+import React from 'react'
+import styles from './LoadingSpinner.module.css'
 
 interface LoadingSpinnerProps {
   size?: "small" | "medium" | "large"
@@ -17,3 +17,5 @@ function LoadingSpinner({
     </div>
   )
 }
+
+export { LoadingSpinner }

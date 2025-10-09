@@ -330,7 +330,7 @@ class ConversionGuard {
       }
       
       // 변환 실행
-      const { execSync } = require('child_process')
+      const { execSync } = await import('child_process')
       execSync('npm run convert:js-to-cjs', {
         stdio: 'inherit',
         timeout: 300000, // 5분

@@ -50,6 +50,17 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "types": ["node"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "build", "**/*.js", "**/*.jsx"]
+  "include": [
+    "src/frontend/**/*",
+    "src/shared/**/*"
+  ],
+  "exclude": [
+    "node_modules", 
+    "src/backend/node_modules",
+    "src/backend/node_modules/**/*",
+    "dist", 
+    "build", 
+    "**/*.js", 
+    "**/*.jsx"
+  ]
 }

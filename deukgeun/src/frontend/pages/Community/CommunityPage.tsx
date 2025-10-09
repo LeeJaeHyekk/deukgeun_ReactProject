@@ -41,7 +41,7 @@ export default function CommunityPage() {
   useEffect(() => {
     postsApi
       .categories()
-      .then(response => {
+      .then((response: any) => {
         const categories = response.data.data as PostCategory[]
         setAvailableCategories(categories)
       })

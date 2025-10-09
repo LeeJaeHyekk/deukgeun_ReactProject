@@ -19,10 +19,10 @@ export function usePlanValidation() {
 
     // 예상 소요시간 검증
     if (
-      !formData.estimatedDurationMinutes ||
-      formData.estimatedDurationMinutes <= 0
+      !formData.estimated_duration_minutes ||
+      formData.estimated_duration_minutes <= 0
     ) {
-      newErrors.estimatedDurationMinutes = "예상 소요시간을 입력해주세요"
+      newErrors.estimated_duration_minutes = "예상 소요시간을 입력해주세요"
     }
 
     // 운동 목록 검증
@@ -37,11 +37,7 @@ export function usePlanValidation() {
         if (!exercise.sets || exercise.sets <= 0) {
           newErrors[`exercise_${index}_sets`] = "세트 수를 입력해주세요"
         }
-        if (
-          !exercise.repsRange ||
-          exercise.repsRange.min <= 0 ||
-          exercise.repsRange.max <= 0
-        ) {
+        if (!exercise.reps || exercise.reps <= 0) {
           newErrors[`exercise_${index}_reps`] = "반복 횟수를 입력해주세요"
         }
       })

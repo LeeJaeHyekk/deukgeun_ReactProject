@@ -2,9 +2,9 @@
 // API 관련 커스텀 훅
 // ============================================================================
 
-const { useState, useEffect, useCallback  } = require('react')
+import { useState, useEffect, useCallback } from 'react'
 import type { ApiResponse, LoadingState } from "../types"
-const { apiClient  } = require('../api/client')
+import { apiClient } from '../api/client'
 
 // API 요청 상태
 export interface ApiState<T> extends LoadingState {
@@ -298,4 +298,13 @@ function useUpload<T = unknown>(
   }, [refetch])
 
   return [state, execute]
+}
+
+// Export all hooks
+export {
+  useGet,
+  usePost,
+  usePut,
+  useDelete,
+  useUpload,
 }

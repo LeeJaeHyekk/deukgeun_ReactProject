@@ -2,7 +2,7 @@
 // 공통 환경 변수 유틸리티
 // ============================================================================
 
-const { config  } = require('dotenv')
+import { config } from 'dotenv'
 
 // 환경 변수 로드
 config()
@@ -108,3 +108,17 @@ function getAllEnvVars(): EnvironmentVariables {
     RATE_LIMIT_MAX: getEnvVar("RATE_LIMIT_MAX", "100")!,
   }
 }
+
+// Export all functions
+export {
+  getEnvVar,
+  validateRequiredEnvVars,
+  getEnvironment,
+  isDevelopment,
+  isProduction,
+  isTest,
+  getAllEnvVars,
+}
+
+// Export default environment variables
+export const env = getAllEnvVars()

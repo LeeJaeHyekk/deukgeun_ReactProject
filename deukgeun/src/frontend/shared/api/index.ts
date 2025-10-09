@@ -25,9 +25,9 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from 'axios'
-const { config  } = require('@shared/config')
-const { storage  } = require('@shared/lib')
-const { globalErrorHandler  } = require('@pages/Error')
+import { config } from '@shared/config'
+import { storage } from '@shared/lib'
+import { globalErrorHandler } from '@pages/Error'
 
 // API 응답 타입 정의
 export interface ApiResponse<T = unknown> {
@@ -232,4 +232,6 @@ const commentsApi = {
   remove: (commentId: number) => api.delete(`/api/comments/${commentId}`),
 }
 
-module.exports.default = apiClient
+// Export all APIs and client
+export default apiClient
+export { api, postsApi, likesApi, commentsApi }

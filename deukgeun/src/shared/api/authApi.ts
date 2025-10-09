@@ -1,5 +1,5 @@
-const { apiClient, assertApiResponse  } = require('./client')
-const { User  } = require('@shared/types/dto/user.dto')
+import { apiClient, assertApiResponse } from './client'
+import type { User } from '@shared/types/dto/user.dto'
 
 export interface LoginRequest {
   email: string
@@ -18,7 +18,7 @@ export interface AuthResponse {
   token: string
 }
 
-const authApi = {
+export const authApi = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await apiClient.post('/auth/login', credentials)
     return assertApiResponse<AuthResponse>(response.data)

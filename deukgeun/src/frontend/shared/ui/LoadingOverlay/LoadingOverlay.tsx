@@ -1,5 +1,5 @@
 // src/shared/ui/LoadingOverlay/LoadingOverlay.tsx
-const styles = require('./LoadingOverlay.module.css').default
+import styles from './LoadingOverlay.module.css'
 
 interface LoadingOverlayProps {
   show: boolean

@@ -1,12 +1,12 @@
-const { useState, useEffect  } = require('react')
-const { statsApi,
+import { useState, useEffect } from 'react'
+import { statsApi,
   PlatformStats,
   UserStats,
   DEFAULT_PLATFORM_STATS,
   DEFAULT_USER_STATS,
- } = require('../api/statsApi')
-const { showToast  } = require('../lib')
-const { useAuth  } = require('./useAuth')
+ } from '../api/statsApi'
+import { showToast } from '../lib'
+import { useAuth } from './useAuth'
 
 const useStats = () => {
   const [stats, setStats] = useState<PlatformStats | null>(null)
@@ -82,4 +82,10 @@ const useUserStats = () => {
     error,
     refetch: fetchUserStats,
   }
+}
+
+// Export all hooks
+export {
+  useStats,
+  useUserStats,
 }

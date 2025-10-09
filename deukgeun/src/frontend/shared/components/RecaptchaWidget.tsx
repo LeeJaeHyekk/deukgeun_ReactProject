@@ -1,6 +1,6 @@
-const React = require('react').default
-const ReCAPTCHA = require('react-google-recaptcha').default
-const { config  } = require('@shared/config')
+import React from 'react'
+import ReCAPTCHA from 'react-google-recaptcha'
+import { config } from '@shared/config'
 
 interface RecaptchaWidgetProps {
   onChange: (token: string | null) => void
@@ -47,3 +47,5 @@ function RecaptchaWidget({
     />
   )
 }
+
+export { RecaptchaWidget }

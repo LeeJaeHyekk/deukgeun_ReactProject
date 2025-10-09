@@ -1,7 +1,7 @@
 // 파일 시스템 모듈 import (파일 쓰기 기능)
-const { writeFileSync  } = require('fs')
+import { writeFileSync } from 'fs'
 // 경로 처리 유틸리티 import
-const { resolve  } = require('path')
+import { resolve } from 'path'
 
 /**
  * 번들 청크 정보 인터페이스

@@ -19,7 +19,20 @@ if (typeof window === 'undefined') {
   global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
 }
 
-const { config  } = require('../config')
+// Default config values
+const config = {
+  VALIDATION: {
+    EMAIL_MIN_LENGTH: 5,
+    EMAIL_MAX_LENGTH: 100,
+    PASSWORD_MIN_LENGTH: 8,
+    PASSWORD_MAX_LENGTH: 50,
+    NICKNAME_MIN_LENGTH: 2,
+    NICKNAME_MAX_LENGTH: 20,
+  },
+  UI: {
+    TOAST_DURATION: 3000,
+  },
+}
 
 // Validation Functions
 const validation = {
@@ -185,4 +198,14 @@ const format = {
   nickname: (nickname: string): string => {
     return nickname.trim().replace(/\s+/g, " ")
   },
+}
+
+// Export all functions
+export {
+  validation,
+  handleApiError,
+  showToast,
+  storage,
+  debounce,
+  format,
 }

@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react'
-const { render, RenderOptions  } = require('@testing-library/react')
-const { BrowserRouter  } = require('react-router-dom')
-const { AuthProvider  } = require('@frontend/shared/contexts/AuthContext')
-const { WorkoutTimerProvider  } = require('@frontend/shared/contexts/WorkoutTimerContext')
-const { mockUser, mockToken  } = require('./testSetup')
+import { render, RenderOptions } from '@testing-library/react'
+import { BrowserRouter } from 'react-router-dom'
+import { AuthProvider } from '@frontend/shared/contexts/AuthContext'
+import { WorkoutTimerProvider } from '@frontend/shared/contexts/WorkoutTimerContext'
+import { mockUser, mockToken } from './testSetup'
 
 // Mock AuthContext values
 const mockAuthContextValue = {

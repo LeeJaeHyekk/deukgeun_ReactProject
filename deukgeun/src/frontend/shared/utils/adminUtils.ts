@@ -63,3 +63,12 @@ function canAccessAdminFeatures(user: User | null): boolean {
 function shouldShowAdminMenu(user: User | null): boolean {
   return isAdmin(user)
 }
+
+// Export all functions
+export {
+  isAdmin,
+  isModeratorOrHigher,
+  hasRoleOrHigher,
+  canAccessAdminFeatures,
+  shouldShowAdminMenu,
+}

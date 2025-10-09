@@ -8,4 +8,6 @@ export * from './object'
 export * from './toast'
 
 // Export commonly used functions directly
-module.exports.showToast = showToast from './toast'
+export { showToast } from './toast'
+export { storage } from './storage'
+export { validation } from './validation'

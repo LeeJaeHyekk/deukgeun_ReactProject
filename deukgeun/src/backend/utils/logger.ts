@@ -4,6 +4,7 @@
 
 import winston from "winston"
 import path from "path"
+import fs from "fs"
 import { config } from "../config/env"
 
 // 로그 레벨 정의
@@ -109,7 +110,7 @@ if (config.environment === "production") {
     const archiveDir = path.join(logDir, "archive", today)
 
     // 아카이브 디렉토리 생성
-    require("fs").mkdirSync(archiveDir, { recursive: true })
+    fs.mkdirSync(archiveDir, { recursive: true })
 
     // 로그 파일 이동
     const files = ["error.log", "combined.log", "access.log"]
@@ -117,8 +118,8 @@ if (config.environment === "production") {
       const sourcePath = path.join(logDir, file)
       const targetPath = path.join(archiveDir, file)
 
-      if (require("fs").existsSync(sourcePath)) {
-        require("fs").renameSync(sourcePath, targetPath)
+      if (fs.existsSync(sourcePath)) {
+        fs.renameSync(sourcePath, targetPath)
       }
     })
   }

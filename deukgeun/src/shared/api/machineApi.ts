@@ -1,7 +1,7 @@
-const { apiClient, assertApiResponse  } = require('./client')
-const { Machine  } = require('@shared/types/dto/machine.dto')
+import { apiClient, assertApiResponse } from './client'
+import type { Machine } from '@shared/types/dto/machine.dto'
 
-const machineApi = {
+export const machineApi = {
   async getMachines(): Promise<Machine[]> {
     const response = await apiClient.get('/machines')
     return assertApiResponse<Machine[]>(response.data)

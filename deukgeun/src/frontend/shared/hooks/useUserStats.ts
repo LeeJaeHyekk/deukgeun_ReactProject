@@ -1,6 +1,6 @@
-const { useState, useEffect  } = require('react')
-const { apiClient  } = require('../../../shared/api/client')
-const { useAuth  } = require('./useAuth')
+import { useState, useEffect } from 'react'
+import { apiClient } from '../../../shared/api/client'
+import { useAuth } from './useAuth'
 
 export interface UserStats {
   user: {

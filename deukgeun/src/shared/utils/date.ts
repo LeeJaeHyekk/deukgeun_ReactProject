@@ -209,3 +209,17 @@ function isThisYear(date: Date | DateString): boolean {
 
   return dateObj.getFullYear() === today.getFullYear()
 }
+
+// Export all functions
+export {
+  getCurrentDateString,
+  toDateString,
+  fromDateString,
+  formatDate,
+  getDaysDifference,
+  isToday,
+  isYesterday,
+  isThisWeek,
+  isThisMonth,
+  isThisYear,
+}

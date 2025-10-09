@@ -20,8 +20,8 @@ export const createMockUser = (overrides: Partial<User> = {}): User => ({
   role: "user",
   isActive: true,
   isEmailVerified: true,
-  isPhoneVerified: false,
-  name: "테스트",
+  // isPhoneVerified: false, // User 타입에 없는 속성 제거
+  // name: "테스트", // User 타입에 없는 속성 제거
   username: "testuser",
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-01-01"),

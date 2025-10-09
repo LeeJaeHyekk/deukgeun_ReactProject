@@ -1,9 +1,9 @@
-const { useState, useCallback  } = require('react')
-const { executeRecaptchaV3,
+import { useState, useCallback } from 'react'
+import { executeRecaptchaV3,
   getDummyRecaptchaToken,
   isRecaptchaAvailable,
- } = require('@shared/lib/recaptcha')
-const { config  } = require('@shared/config')
+ } from '@shared/lib/recaptcha'
+import { config } from '@shared/config'
 
 interface UseRecaptchaOptions {
   action?: string
@@ -84,4 +84,12 @@ function useRecaptchaForLogin() {
 
 function useRecaptchaForPasswordReset() {
   return useRecaptcha({ action: 'password_reset' })
+}
+
+// Export all functions
+export {
+  useRecaptcha,
+  useRecaptchaForRegister,
+  useRecaptchaForLogin,
+  useRecaptchaForPasswordReset,
 }

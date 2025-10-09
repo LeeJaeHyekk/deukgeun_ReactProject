@@ -233,7 +233,7 @@ function App() {
   return (
     // 전역 에러 바운더리로 전체 앱을 감싸기
     <ErrorBoundary
-      onError={(error, errorInfo) => {
+      onError={(error: Error, errorInfo: any) => {
         // 에러 발생 시 전역 에러 핸들러에 보고
         globalErrorHandler.manualErrorReport(error, {
           componentStack: errorInfo.componentStack || '',

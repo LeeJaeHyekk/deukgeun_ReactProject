@@ -2,7 +2,7 @@
 // 디바운스 훅
 // ============================================================================
 
-const { useState, useEffect, useCallback  } = require('react')
+import { useState, useEffect, useCallback } from 'react'
 
 // 디바운스 훅 옵션
 export interface UseDebounceOptions {
@@ -135,4 +135,11 @@ function useDebouncedCallback<T extends (...args: any[]) => any>(
     options.leading,
     options.trailing,
   ])
+}
+
+// Export all functions
+export {
+  useDebounce,
+  debounce,
+  useDebouncedCallback,
 }

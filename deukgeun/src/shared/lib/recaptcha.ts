@@ -23,7 +23,27 @@ if (typeof window === 'undefined') {
 // ReCAPTCHA utilities
 // ============================================================================
 
-const { useState, useEffect  } = require('react')
+import { useState, useEffect } from 'react'
+
+// reCAPTCHA 타입 정의 (통합된 버전)
+export interface RecaptchaInstance {
+  ready: (callback: () => void) => void
+  execute: (siteKey: string, options?: { action: string }) => Promise<string>
+  render: (container: string | HTMLElement, config?: RecaptchaConfig) => number
+  reset: (widgetId?: number) => void
+  getResponse: (widgetId?: number) => string
+  enterprise?: {
+    ready: (callback: () => void) => void
+    execute: (siteKey: string, options: { action: string }) => Promise<string>
+  }
+}
+
+declare global {
+  interface Window {
+    grecaptcha: RecaptchaInstance
+    onRecaptchaLoad?: () => void
+  }
+}
 
 export interface RecaptchaConfig {
   siteKey: string
@@ -36,23 +56,7 @@ export interface RecaptchaConfig {
   'error-callback'?: () => void
 }
 
-export interface RecaptchaInstance {
-  render: (container: string | HTMLElement, config: RecaptchaConfig) => number
-  reset: (widgetId?: number) => void
-  getResponse: (widgetId?: number) => string
-  execute: (widgetId?: number) => void
-  ready: (callback: () => void) => void
-  enterprise?: {
-    ready: (callback: () => void) => void
-    execute: (siteKey: string, options: { action: string }) => Promise<string>
-  }
-}
-
-declare global {
-  interface Window {
-    onRecaptchaLoad: () => void
-  }
-}
+// RecaptchaInstance는 위에서 이미 정의됨 (중복 제거)
 
 // Load ReCAPTCHA script
 function loadRecaptchaScript(siteKey: string): Promise<void> {
@@ -259,7 +263,7 @@ function createRecaptchaWidget(
 }
 
 // Hook for React components
-function useRecaptcha(siteKey: string) {
+export function useRecaptcha(siteKey: string) {
   const [isLoaded, setIsLoaded] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -291,13 +295,13 @@ function useRecaptcha(siteKey: string) {
 // useState and useEffect are already imported at the top
 
 // Development dummy token function
-const getDummyRecaptchaToken = (): string => {
+export const getDummyRecaptchaToken = (): string => {
   const timestamp = Date.now()
   const randomId = Math.random().toString(36).substring(2, 15)
   return `dummy-token-${timestamp}-${randomId}`
 }
 
 // Check if reCAPTCHA is available
-const isRecaptchaAvailable = (): boolean => {
+export const isRecaptchaAvailable = (): boolean => {
   return typeof window !== 'undefined' && !!window.grecaptcha
 }

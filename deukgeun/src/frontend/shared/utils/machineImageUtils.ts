@@ -1,7 +1,5 @@
 import type { Machine } from "@dto/index"
-const { IMAGE_MATCHING_CONFIG,
-  ImageMatchingManager,
- } = require('../config/imageMatchingConfig')
+import { IMAGE_MATCHING_CONFIG, ImageMatchingManager } from '../config/imageMatchingConfig'
 
 // 이미지 매칭 결과 캐시
 const imageCache = new Map<string, string>()
@@ -174,4 +172,14 @@ const ImageUtils = {
   resetConfig: () => {
     ImageMatchingManager.getInstance().resetConfig()
   },
+}
+
+// Export all functions
+export {
+  findMatchingImage,
+  findImageByMachineName,
+  getFullImageUrl,
+  handleImageError,
+  clearImageCache,
+  ImageUtils,
 }

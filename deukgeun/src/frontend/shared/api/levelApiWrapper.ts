@@ -2,8 +2,8 @@
 // Level API Wrapper - Enhanced Error Handling and State Management
 // ============================================================================
 
-const { levelApi, LevelProgress, UserReward, ExpGrantRequest, ExpGrantResponse  } = require('./levelApi')
-const { levelApiState, LEVEL_CONFIG  } = require('../config/levelConfig')
+import { levelApi, LevelProgress, UserReward, ExpGrantRequest, ExpGrantResponse } from './levelApi'
+import { levelApiState, LEVEL_CONFIG } from '../config/levelConfig'
 
 // ============================================================================
 // Wrapper Functions
@@ -220,4 +220,10 @@ const levelApiManager = {
   reset: () => {
     levelApiState.enableApi()
   }
+}
+
+// Export all functions and objects
+export {
+  levelApiWrapper,
+  levelApiManager,
 }

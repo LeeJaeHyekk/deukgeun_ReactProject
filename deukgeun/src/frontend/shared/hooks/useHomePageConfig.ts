@@ -1,5 +1,5 @@
-const { useState, useEffect  } = require('react')
-const { homePageApi, HomePageConfig, DEFAULT_HOME_PAGE_CONFIG  } = require('../api/homePageApi')
+import { useState, useEffect } from 'react'
+import { homePageApi, HomePageConfig, DEFAULT_HOME_PAGE_CONFIG } from '../api/homePageApi'
 
 const useHomePageConfig = () => {
   const [config, setConfig] = useState<HomePageConfig>(DEFAULT_HOME_PAGE_CONFIG)
@@ -33,3 +33,6 @@ const useHomePageConfig = () => {
     refetch: fetchConfig,
   }
 }
+
+// Export the hook
+export { useHomePageConfig }

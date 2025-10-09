@@ -5,9 +5,9 @@
 // 이 파일은 하위 호환성을 위해 유지됩니다.
 // 새로운 MachineGuide 기능에서는 @features/machine-guide/hooks/useMachines를 사용하세요.
 
-const { useState, useEffect, useCallback, useRef  } = require('react')
-const { machineApi  } = require('@shared/api/machineApi')
-const { showToast  } = require('@shared/lib')
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { machineApi } from '@shared/api/machineApi'
+import { showToast } from '@shared/lib'
 import type { Machine } from "@dto/index"
 import type { CreateMachineRequest, UpdateMachineRequest } from "@dto/index"
 
@@ -255,3 +255,5 @@ const useMachines = () => {
     getMachinesByTarget,
   }
 }
+
+export default useMachines

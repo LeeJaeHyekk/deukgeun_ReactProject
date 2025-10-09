@@ -2,7 +2,7 @@
 // UserLevel Validation Schema
 // ============================================================================
 
-const { z  } = require('zod')
+import { z } from 'zod'
 
 const UserLevelSchema = z.object({
   id: z.number(),

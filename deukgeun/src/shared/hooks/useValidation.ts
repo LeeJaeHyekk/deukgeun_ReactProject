@@ -2,7 +2,7 @@
 // 폼 검증 훅
 // ============================================================================
 
-const { useState, useCallback, useMemo  } = require('react')
+import { useState, useCallback, useMemo } from 'react'
 
 // 검증 규칙 타입
 export type ValidationRule<T> = {
@@ -297,4 +297,9 @@ const validationUtils = {
   range: (value: number, min: number, max: number): boolean => {
     return value >= min && value <= max
   },
+}
+
+// Export all functions
+export {
+  useValidation,
 }

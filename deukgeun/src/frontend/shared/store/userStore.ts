@@ -19,8 +19,8 @@ if (typeof window === 'undefined') {
   global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
 }
 
-const { create  } = require('zustand')
-const { persist, createJSONStorage  } = require('zustand/middleware')
+import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import type { User } from "../../../shared/types"
 
 interface UserStore {
@@ -127,3 +127,5 @@ const useUserStore = create<UserStore>()(
     }
   )
 )
+
+export { useUserStore }

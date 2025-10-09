@@ -1,7 +1,7 @@
-const { apiClient, assertApiResponse  } = require('./client')
-const { User  } = require('@shared/types/dto/user.dto')
-const { Machine  } = require('@shared/types/dto/machine.dto')
-const { Post  } = require('@shared/types/dto/post.dto')
+import { apiClient, assertApiResponse } from './client'
+import type { User } from '@shared/types/dto/user.dto'
+import type { Machine } from '@shared/types/dto/machine.dto'
+import type { Post } from '@shared/types/dto/post.dto'
 
 export interface AdminStats {
   totalUsers: number
@@ -19,7 +19,7 @@ export interface UserManagementData {
   limit: number
 }
 
-const adminApi = {
+export const adminApi = {
   async getStats(): Promise<AdminStats> {
     const response = await apiClient.get('/admin/stats')
     return assertApiResponse<AdminStats>(response.data)

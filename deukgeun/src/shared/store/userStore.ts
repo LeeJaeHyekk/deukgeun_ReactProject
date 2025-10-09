@@ -1,6 +1,6 @@
-const { create  } = require('zustand')
-const { persist  } = require('zustand/middleware')
-const { User  } = require('@shared/types/dto/user.dto')
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+import type { User } from '@shared/types/dto/user.dto'
 
 interface UserState {
   user: User | null
@@ -10,7 +10,7 @@ interface UserState {
   clearUser: () => void
 }
 
-const useUserStore = create<UserState>()(
+export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
       user: null,

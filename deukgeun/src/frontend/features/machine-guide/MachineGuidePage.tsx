@@ -132,7 +132,7 @@ export default function MachineGuidePage() {
 
     const searchLower = searchTerm.toLowerCase()
     return machines.filter(
-      machine => {
+      (machine: any) => {
         const categoryStr = typeof machine.category === 'string' 
           ? machine.category 
           : machine.category?.name || ''
@@ -147,7 +147,7 @@ export default function MachineGuidePage() {
           machine.shortDesc.toLowerCase().includes(searchLower) ||
           categoryStr.toLowerCase().includes(searchLower) ||
           difficultyStr.toLowerCase().includes(searchLower) ||
-          machine.targetMuscles?.some(muscle =>
+          machine.targetMuscles?.some((muscle: any) =>
             muscle.toLowerCase().includes(searchLower)
           )
         )
@@ -223,7 +223,7 @@ export default function MachineGuidePage() {
         <div className="machine-guide-content">
           {filteredMachines.length > 0 ? (
             <div className="machine-grid">
-              {filteredMachines.map(machine => (
+              {filteredMachines.map((machine: any) => (
                 <MachineCard
                   key={machine.id}
                   machine={machine}

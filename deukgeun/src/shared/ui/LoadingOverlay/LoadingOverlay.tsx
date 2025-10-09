@@ -1,4 +1,4 @@
-const React = require('react').default
+import React from 'react'
 
 interface LoadingOverlayProps {
   isLoading: boolean
@@ -6,7 +6,7 @@ interface LoadingOverlayProps {
   children?: React.ReactNode
 }
 
-function LoadingOverlay({
+export function LoadingOverlay({
   isLoading,
   message = 'Loading...',
   children,

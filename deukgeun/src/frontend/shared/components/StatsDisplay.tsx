@@ -1,6 +1,6 @@
-const React = require('react').default
-const { useStats, useUserStats  } = require('../hooks/useStats')
-const { LoadingSpinner  } = require('../ui/LoadingSpinner')
+import React from 'react'
+import { useStats, useUserStats } from '../hooks/useStats'
+import { LoadingSpinner } from '../ui/LoadingSpinner'
 
 interface StatsCardProps {
   title: string

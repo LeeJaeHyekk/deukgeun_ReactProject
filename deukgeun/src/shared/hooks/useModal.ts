@@ -23,7 +23,7 @@ if (typeof window === 'undefined') {
 // 모달 관리 훅
 // ============================================================================
 
-const { useState, useCallback, useRef, useEffect  } = require('react')
+import { useState, useCallback, useRef, useEffect } from 'react'
 
 // 모달 훅 옵션
 export interface UseModalOptions {
@@ -239,4 +239,10 @@ function useModalStack() {
     getTopModal,
     isModalInStack,
   }
+}
+
+// Export all functions
+export {
+  useModal,
+  useModalStack,
 }

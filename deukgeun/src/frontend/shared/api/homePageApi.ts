@@ -1,4 +1,4 @@
-const apiClient = require('./index').default
+import apiClient from './index'
 
 // 홈페이지 설정 타입 정의
 export interface HomePageConfig {
@@ -197,4 +197,10 @@ const homePageApi = {
       throw error
     }
   },
+}
+
+// Export all functions and constants
+export {
+  homePageApi,
+  DEFAULT_HOME_PAGE_CONFIG,
 }

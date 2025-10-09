@@ -1,5 +1,5 @@
-const apiClient = require('./index').default
-const { config  } = require('../config')
+import apiClient from './index'
+import { config } from '../config'
 
 export interface LevelProgress {
   level: number
@@ -134,3 +134,6 @@ const levelApi = {
     return response.data.data
   },
 }
+
+// Export the API object
+export { levelApi }

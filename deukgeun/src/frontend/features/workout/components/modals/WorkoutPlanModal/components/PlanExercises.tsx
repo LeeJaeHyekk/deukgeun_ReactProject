@@ -1,10 +1,11 @@
 import React, { useState } from "react"
-import type { WorkoutPlanExercise } from "../../../../types"
+import type { FormExercise } from "../hooks/usePlanForm"
+import type { WorkoutPlanExercise } from "@/shared/types/dto"
 import styles from "./PlanExercises.module.css"
 
 interface PlanExercisesProps {
-  exercises: WorkoutPlanExercise[]
-  onExerciseChange?: (index: number, exercise: WorkoutPlanExercise) => void
+  exercises: FormExercise[]
+  onExerciseChange?: (index: number, exercise: FormExercise) => void
   onExerciseRemove?: (index: number) => void
   onExerciseAdd?: () => void
   readOnly?: boolean
@@ -21,7 +22,7 @@ export function PlanExercises({
 
   const handleExerciseChange = (
     index: number,
-    field: keyof WorkoutPlanExercise,
+    field: keyof FormExercise,
     value: any
   ) => {
     if (!onExerciseChange) return
@@ -46,7 +47,7 @@ export function PlanExercises({
   }
 
   const getExerciseDisplayValue = (
-    exercise: WorkoutPlanExercise,
+    exercise: FormExercise,
     field: string
   ): string => {
     switch (field) {
@@ -61,7 +62,7 @@ export function PlanExercises({
       case "restTime":
         return exercise.restSeconds ? `${exercise.restSeconds}초` : "0초"
       default:
-        const value = exercise[field as keyof WorkoutPlanExercise]
+        const value = (exercise as any)[field]
         if (value instanceof Date) {
           return value.toLocaleDateString()
         }

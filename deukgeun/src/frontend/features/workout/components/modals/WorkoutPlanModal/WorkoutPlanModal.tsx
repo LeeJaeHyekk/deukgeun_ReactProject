@@ -10,7 +10,7 @@ import { PlanBasicInfo } from "./components/PlanBasicInfo"
 import { PlanExercises } from "./components/PlanExercises"
 import { PlanModalHeader } from "./components/PlanModalHeader"
 import { PlanModalFooter } from "./components/PlanModalFooter"
-import { usePlanForm } from "./hooks/usePlanForm"
+import { usePlanForm, type FormExercise } from "./hooks/usePlanForm"
 import { usePlanValidation } from "./hooks/usePlanValidation"
 import styles from "./WorkoutPlanModal.module.css"
 
@@ -32,6 +32,7 @@ export function WorkoutPlanModal() {
     updateExercise,
     removeExercise,
     getCreatePlanRequest,
+    getExercisesAsForm,
   } = usePlanForm(currentPlan)
   const { errors, validateForm, clearErrors } = usePlanValidation()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -60,15 +61,16 @@ export function WorkoutPlanModal() {
 
   // 폼 제출 핸들러
   const handleSubmit = useCallback(async () => {
-    if (!validateForm(formData)) {
+    if (!validateForm(getCreatePlanRequest())) {
       return
     }
 
     setIsSubmitting(true)
     try {
       if (isEditMode && currentPlan) {
-        // 편집 모드에서는 formData를 직접 사용
-        await updatePlan(currentPlan.id, formData as any)
+        // 편집 모드에서는 UpdatePlanRequest로 변환
+        const updatePlanRequest = { ...getCreatePlanRequest(), id: currentPlan.id }
+        await updatePlan(currentPlan.id, updatePlanRequest)
       } else {
         // 생성 모드에서는 CreatePlanRequest로 변환
         const createPlanRequest = getCreatePlanRequest()
@@ -76,7 +78,7 @@ export function WorkoutPlanModal() {
       }
       closePlanModal()
       resetForm()
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Plan save failed:", error)
     } finally {
       setIsSubmitting(false)
@@ -113,8 +115,8 @@ export function WorkoutPlanModal() {
           />
 
           <PlanExercises
-            exercises={formData.exercises as any}
-            onExerciseChange={updateExercise as any}
+            exercises={getExercisesAsForm()}
+            onExerciseChange={updateExercise}
             onExerciseRemove={removeExercise}
             onExerciseAdd={addExercise}
             readOnly={isViewMode}

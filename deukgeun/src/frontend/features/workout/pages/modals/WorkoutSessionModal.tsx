@@ -11,17 +11,18 @@ import {
   Timer,
 } from "lucide-react"
 import type { WorkoutSession, ExerciseSet } from "../../../../../shared/types"
-import type { Machine } from "@dto/index"
+import type { Machine, WorkoutPlanDTO, WorkoutPlanExerciseForm } from "@dto/index"
 import { useWorkoutTimer } from "../../../../shared/contexts/WorkoutTimerContext"
 import WorkoutSessionService from "../../services/WorkoutSessionService"
+import { safeParseWorkoutPlan } from "@shared/types/guards"
 import "./WorkoutSessionModal.css"
 
 interface SessionData {
   sessionId: number
   planId?: number
   startTime: number
-  plan?: any
-  exercises?: any[]
+  plan?: WorkoutPlanDTO | null
+  exercises?: WorkoutPlanExerciseForm[]
 }
 
 interface WorkoutExercise {
@@ -41,22 +42,22 @@ interface WorkoutSessionModalProps {
   onClose: () => void
   onSave: (session: WorkoutSession) => Promise<void> | void
   session?: WorkoutSession | null
-  plan?: any | null
+  plan?: WorkoutPlanDTO | null
   machines: Machine[]
 }
 
 // 로깅 유틸리티
 const logger = {
-  info: (message: string, data?: any) => {
+  info: (message: string, data?: unknown) => {
     console.log(`[WorkoutSessionModal] ${message}`, data || "")
   },
-  debug: (message: string, data?: any) => {
+  debug: (message: string, data?: unknown) => {
     console.debug(`[WorkoutSessionModal] ${message}`, data || "")
   },
-  warn: (message: string, data?: any) => {
+  warn: (message: string, data?: unknown) => {
     console.warn(`[WorkoutSessionModal] ${message}`, data || "")
   },
-  error: (message: string, data?: any) => {
+  error: (message: string, data?: unknown) => {
     console.error(`[WorkoutSessionModal] ${message}`, data || "")
   },
   performance: (operation: string, startTime: number) => {
@@ -139,7 +140,7 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({
 
 // ------------------- ExerciseCard Component -------------------
 interface ExerciseCardProps {
-  exercise: any
+  exercise: WorkoutPlanExerciseForm
   machine?: Machine
   isCurrent: boolean
   isCompleted: boolean
@@ -192,8 +193,8 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
         </div>
         <div className="exercise-details">
           <span className="exercise-targets">
-            {totalSets}세트 × {exercise.reps || 10}회
-            {exercise.weight && ` (${exercise.weight}kg)`}
+            {totalSets}세트 × {exercise.repsRange?.min || exercise.reps || 10}회
+            {exercise.weightRange?.min && ` (${exercise.weightRange.min}kg)`}
           </span>
           <span className="exercise-progress">
             {completedSets}/{totalSets} 세트 완료
@@ -204,9 +205,8 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
           <button
             onClick={() =>
               onStartRest(
-                exercise.restTime ||
-                  exercise.restSeconds ||
-                  exercise.rest_time ||
+                exercise.restSeconds ||
+                  exercise.restTime ||
                   60
               )
             }
@@ -215,9 +215,8 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
           >
             <Timer size={14} />
             휴식 (
-            {exercise.restTime ||
-              exercise.restSeconds ||
-              exercise.rest_time ||
+            {exercise.restSeconds ||
+              exercise.restTime ||
               60}
             초)
           </button>
@@ -363,14 +362,16 @@ export function WorkoutSessionModal({
   )
 
   // 초기화 함수
-  const initializeSession = (session?: WorkoutSession, plan?: any) => {
+  const initializeSession = (session?: WorkoutSession, plan?: unknown) => {
     const startTime = performance.now()
+    const validatedPlan = plan ? safeParseWorkoutPlan(plan) : null
+    
     logger.info("Session initialization started", {
       hasSession: !!session,
-      hasPlan: !!plan,
+      hasPlan: !!validatedPlan,
       sessionId: session?.id,
-      planName: plan?.name,
-      exercisesCount: plan?.exercises?.length || 0,
+      planName: validatedPlan?.name,
+      exercisesCount: validatedPlan?.exercises?.length || 0,
     })
 
     if (session) {
@@ -380,13 +381,13 @@ export function WorkoutSessionModal({
         sessionName: session.name,
         isCompleted: session.isCompleted,
       })
-    } else if (plan) {
+    } else if (validatedPlan) {
       // 계획 기반 세션 초기화
       const newSession: WorkoutSession = {
         id: 0,
         userId: 0,
-        name: plan.name || "새 운동 세션",
-        description: plan.description || "",
+        name: validatedPlan.name || "새 운동 세션",
+        description: validatedPlan.description || "",
         startTime: new Date(),
         endTime: undefined,
         duration: undefined,
@@ -399,14 +400,14 @@ export function WorkoutSessionModal({
       }
       setCurrentSession(newSession)
       logger.debug("Session initialized from plan", {
-        planName: plan.name,
-        exercisesCount: plan.exercises?.length || 0,
-        exercises: plan.exercises?.map((ex: any) => ({
+        planName: validatedPlan.name,
+        exercisesCount: validatedPlan.exercises?.length || 0,
+        exercises: validatedPlan.exercises?.map((ex) => ({
           id: ex.id,
           name: ex.exerciseName,
           machineId: ex.machineId,
           sets: ex.sets,
-          reps: ex.reps,
+          reps: ex.repsRange?.min || 0,
         })),
       })
     } else {
@@ -605,23 +606,25 @@ export function WorkoutSessionModal({
 
     // 운동 세부사항 준비
     const sessionExercises =
-      plan?.exercises?.map((exercise: any) => {
+      plan?.exercises?.map((exercise) => {
         // 백엔드와 프론트엔드 호환성을 위한 데이터 정규화
-        const normalizedExercise = {
-          id: exercise.id || exercise.plan_exercise_id,
-          machineId: exercise.machineId || exercise.machine_id,
-          exerciseName:
-            exercise.exerciseName || exercise.name || "알 수 없는 운동",
+        const normalizedExercise: WorkoutPlanExerciseForm = {
+          id: exercise.id,
+          planId: exercise.planId,
+          exerciseId: exercise.exerciseId,
+          machineId: exercise.machineId,
+          exerciseName: exercise.exerciseName || "알 수 없는 운동",
+          exerciseOrder: exercise.exerciseOrder || 0,
           sets: exercise.sets || 3,
-          reps: exercise.reps || exercise.repsRange?.min || 10,
-          weight: exercise.weight || exercise.weightRange?.min,
-          restTime:
-            exercise.restTime ||
-            exercise.rest_time ||
-            exercise.restSeconds ||
-            60,
-          order: exercise.order || exercise.exerciseOrder || 0,
-          completedSets: exercise.completedSets || [],
+          repsRange: exercise.repsRange || { min: 10, max: 15 },
+          weightRange: exercise.weightRange,
+          restSeconds: exercise.restSeconds || 60,
+          notes: exercise.notes,
+          // Legacy properties for backward compatibility
+          reps: exercise.repsRange?.min || 10,
+          weight: exercise.weightRange?.min,
+          restTime: exercise.restSeconds || 60,
+          order: exercise.exerciseOrder || 0,
         }
         return normalizedExercise
       }) || []
@@ -646,7 +649,7 @@ export function WorkoutSessionModal({
       session_name?: string
       end_time?: Date
       is_completed?: boolean
-      exercises?: any[]
+      exercises?: WorkoutPlanExerciseForm[]
     }
 
     logger.debug("Completed session data", {
@@ -655,11 +658,11 @@ export function WorkoutSessionModal({
       isCompleted: true,
       sessionName: completedSession.name,
       exercisesCount: sessionExercises.length,
-      exercises: sessionExercises.map((ex: any) => ({
+      exercises: sessionExercises.map((ex) => ({
         id: ex.id,
         name: ex.exerciseName,
         sets: ex.sets,
-        reps: ex.reps,
+        reps: ex.repsRange?.min || ex.reps || 10,
         machineId: ex.machineId,
       })),
     })
@@ -759,36 +762,42 @@ export function WorkoutSessionModal({
           {/* 운동 목록 */}
           <div className="exercise-list">
             <h3>운동 목록</h3>
-            {logger.debug("Rendering exercise list", {
+            {(() => {
+              logger.debug("Rendering exercise list", {
               hasPlan: !!plan,
               planName: plan?.name,
               exercisesCount: plan?.exercises?.length || 0,
-              exercises: plan?.exercises?.map((ex: any) => ({
+              exercises: plan?.exercises?.map((ex) => ({
                 id: ex.id,
                 name: ex.exerciseName,
                 machineId: ex.machineId,
                 sets: ex.sets,
-                reps: ex.reps,
+                reps: ex.repsRange?.min || 10,
               })),
-            })}
+            })
+              return null
+            })()}
             {plan?.exercises && plan.exercises.length > 0 ? (
               // 계획 기반 운동 목록
-              plan.exercises.map((exercise: any, index: number) => {
+              plan.exercises.map((exercise, index: number) => {
                 // 백엔드와 프론트엔드 호환성을 위한 데이터 정규화
-                const normalizedExercise = {
-                  id: exercise.id || exercise.plan_exercise_id,
-                  machineId: exercise.machineId || exercise.machine_id,
-                  exerciseName:
-                    exercise.exerciseName || exercise.name || "알 수 없는 운동",
+                const normalizedExercise: WorkoutPlanExerciseForm = {
+                  id: exercise.id,
+                  planId: exercise.planId,
+                  exerciseId: exercise.exerciseId,
+                  machineId: exercise.machineId,
+                  exerciseName: exercise.exerciseName || "알 수 없는 운동",
+                  exerciseOrder: exercise.exerciseOrder || index,
                   sets: exercise.sets || 3,
-                  reps: exercise.reps || exercise.repsRange?.min || 10,
-                  weight: exercise.weight || exercise.weightRange?.min,
-                  restTime:
-                    exercise.restTime ||
-                    exercise.rest_time ||
-                    exercise.restSeconds ||
-                    60,
-                  order: exercise.order || exercise.exerciseOrder || index,
+                  repsRange: exercise.repsRange || { min: 10, max: 15 },
+                  weightRange: exercise.weightRange,
+                  restSeconds: exercise.restSeconds || 60,
+                  notes: exercise.notes,
+                  // Legacy properties for backward compatibility
+                  reps: exercise.repsRange?.min || 10,
+                  weight: exercise.weightRange?.min,
+                  restTime: exercise.restSeconds || 60,
+                  order: exercise.exerciseOrder || index,
                 }
 
                 const machine = machines.find(
@@ -845,7 +854,7 @@ export function WorkoutSessionModal({
             notes={currentSession.notes || ""}
             onChange={notes => {
               logger.debug("Session notes updated", { newValue: notes })
-              setCurrentSession(prev => ({ ...prev, notes }))
+              setCurrentSession((prev: WorkoutSession) => ({ ...prev, notes }))
               // 세션 서비스에도 메모 업데이트
               sessionService.updateNotes(notes)
             }}

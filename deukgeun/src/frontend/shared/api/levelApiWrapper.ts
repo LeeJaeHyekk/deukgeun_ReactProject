@@ -3,7 +3,13 @@
 // ============================================================================
 
 import { levelApi, LevelProgress, UserReward, ExpGrantRequest, ExpGrantResponse } from './levelApi'
-import { levelApiState, LEVEL_CONFIG } from '../config/levelConfig'
+import { 
+  levelApiState, 
+  LEVEL_CONFIG, 
+  type LevelApiStateManager,
+  type LevelApiResponse,
+  type LevelApiError 
+} from '../config/levelConfig'
 
 // ============================================================================
 // Wrapper Functions
@@ -30,15 +36,16 @@ const levelApiWrapper = {
       const result = await levelApi.getUserProgress(userId)
       levelApiState.recordSuccess()
       return result
-    } catch (error: any) {
+    } catch (error: unknown) {
       levelApiState.recordError()
       
-      if (error?.response?.status === 403 && LEVEL_CONFIG.AUTO_DISABLE_ON_403) {
+      const apiError = error as LevelApiError
+      if (apiError?.response?.status === 403 && LEVEL_CONFIG.AUTO_DISABLE_ON_403) {
         levelApiState.disableApi()
       }
       
       if (!LEVEL_CONFIG.SUPPRESS_ERROR_LOGS) {
-        console.error("레벨 진행률 조회 실패:", error)
+        console.error("레벨 진행률 조회 실패:", apiError)
       }
       
       // 기본값 반환
@@ -66,15 +73,16 @@ const levelApiWrapper = {
       const result = await levelApi.getUserRewards(userId)
       levelApiState.recordSuccess()
       return result
-    } catch (error: any) {
+    } catch (error: unknown) {
       levelApiState.recordError()
       
-      if (error?.response?.status === 403 && LEVEL_CONFIG.AUTO_DISABLE_ON_403) {
+      const apiError = error as LevelApiError
+      if (apiError?.response?.status === 403 && LEVEL_CONFIG.AUTO_DISABLE_ON_403) {
         levelApiState.disableApi()
       }
       
       if (!LEVEL_CONFIG.SUPPRESS_ERROR_LOGS) {
-        console.error("보상 목록 조회 실패:", error)
+        console.error("보상 목록 조회 실패:", apiError)
       }
       
       return []
@@ -99,15 +107,16 @@ const levelApiWrapper = {
       const result = await levelApi.grantExp(data)
       levelApiState.recordSuccess()
       return result
-    } catch (error: any) {
+    } catch (error: unknown) {
       levelApiState.recordError()
       
-      if (error?.response?.status === 403 && LEVEL_CONFIG.AUTO_DISABLE_ON_403) {
+      const apiError = error as LevelApiError
+      if (apiError?.response?.status === 403 && LEVEL_CONFIG.AUTO_DISABLE_ON_403) {
         levelApiState.disableApi()
       }
       
       if (!LEVEL_CONFIG.SUPPRESS_ERROR_LOGS) {
-        console.error("경험치 부여 실패:", error)
+        console.error("경험치 부여 실패:", apiError)
       }
       
       return null
@@ -126,7 +135,7 @@ const levelApiWrapper = {
       const result = await levelApi.checkCooldown(actionType, userId)
       levelApiState.recordSuccess()
       return result
-    } catch (error: any) {
+    } catch (error: unknown) {
       levelApiState.recordError()
       
       if (!LEVEL_CONFIG.SUPPRESS_ERROR_LOGS) {
@@ -149,7 +158,7 @@ const levelApiWrapper = {
       const result = await levelApi.getGlobalLeaderboard(page, limit)
       levelApiState.recordSuccess()
       return result
-    } catch (error: any) {
+    } catch (error: unknown) {
       levelApiState.recordError()
       
       if (!LEVEL_CONFIG.SUPPRESS_ERROR_LOGS) {
@@ -172,7 +181,7 @@ const levelApiWrapper = {
       const result = await levelApi.getSeasonLeaderboard(seasonId, page, limit)
       levelApiState.recordSuccess()
       return result
-    } catch (error: any) {
+    } catch (error: unknown) {
       levelApiState.recordError()
       
       if (!LEVEL_CONFIG.SUPPRESS_ERROR_LOGS) {
@@ -188,11 +197,13 @@ const levelApiWrapper = {
 // State Management Functions
 // ============================================================================
 
-const levelApiManager = {
+const levelApiManager: LevelApiStateManager = {
+  state: levelApiState,
+  
   /**
    * API 상태 확인
    */
-  isEnabled: () => levelApiState.isApiEnabled(),
+  isEnabled: () => levelApiState.getIsApiEnabled(),
   
   /**
    * API 활성화

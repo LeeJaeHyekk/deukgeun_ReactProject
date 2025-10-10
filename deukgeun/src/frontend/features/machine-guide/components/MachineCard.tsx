@@ -8,7 +8,7 @@ import type {
   Machine,
   MachineCategoryDTO,
   DifficultyLevelDTO,
-} from "@dto/index"
+} from "../../../../shared/types"
 import "./MachineCard.css"
 
 interface MachineCardProps {
@@ -124,13 +124,13 @@ export const MachineCard: React.FC<MachineCardProps> = ({
               backgroundColor: getDifficultyColor(
                 typeof machine.difficulty === "string"
                   ? machine.difficulty
-                  : machine.difficulty.name
+                  : machine.difficulty?.name || 'beginner'
               ),
             }}
           >
             {typeof machine.difficulty === "string"
               ? machine.difficulty
-              : machine.difficulty.name}
+              : machine.difficulty?.name || 'beginner'}
           </span>
         </div>
       </div>
@@ -150,7 +150,7 @@ export const MachineCard: React.FC<MachineCardProps> = ({
           <div className="card-targets">
             <span className="targets-label">타겟 근육:</span>
             <div className="targets-list">
-              {machine.targetMuscles.map((muscle, index) => (
+              {machine.targetMuscles.map((muscle: string, index: number) => (
                 <span key={index} className="target-tag">
                   {muscle}
                 </span>

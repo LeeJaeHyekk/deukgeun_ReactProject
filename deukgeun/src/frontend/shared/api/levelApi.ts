@@ -18,13 +18,13 @@ export interface UserReward {
   rewardId: string
   claimedAt: string
   expiresAt?: string
-  metadata?: any
+  metadata?: Record<string, unknown>
 }
 
 export interface ExpGrantRequest {
   actionType: string
   source: string
-  metadata?: any
+  metadata?: Record<string, unknown>
 }
 
 export interface ExpGrantResponse {

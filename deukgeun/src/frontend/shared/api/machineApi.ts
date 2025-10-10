@@ -14,6 +14,12 @@ import type {
   MachineListResponse as DTOMachineListResponse,
   MachineResponse as DTOMachineResponse,
 } from "@dto/index"
+import { 
+  safeParseMachineArray, 
+  safeParseMachine,
+  isMachineDTO,
+  isArray 
+} from "@shared/types/guards"
 
 // 타입 정의 (DTO 기반으로 통합)
 export interface MachineListResponse {
@@ -33,9 +39,14 @@ const machineApi = {
       API_ENDPOINTS.MACHINES.LIST
     )
     console.log("머신 API 응답:", response)
+    
+    // 타입 가드를 사용하여 안전하게 데이터 파싱
+    const machines = safeParseMachineArray(response.data.data)
+    const count = isArray(response.data.data) ? response.data.data.length : 0
+    
     return {
-      machines: Array.isArray(response.data.data) ? response.data.data : [],
-      count: (response.data as any).count || 0,
+      machines,
+      count,
     }
   },
 
@@ -44,8 +55,17 @@ const machineApi = {
     const response = await api.get<DTOMachineResponse>(
       API_ENDPOINTS.MACHINES.DETAIL(id)
     )
+    
+    // 타입 가드를 사용하여 안전하게 데이터 파싱
+    const machineData = response.data.data || response.data
+    const machine = safeParseMachine(machineData)
+    
+    if (!machine) {
+      throw new Error(`Invalid machine data for ID: ${id}`)
+    }
+    
     return {
-      machine: (response.data.data || response.data) as unknown as Machine,
+      machine,
     }
   },
 
@@ -57,8 +77,17 @@ const machineApi = {
       API_ENDPOINTS.MACHINES.CREATE,
       data
     )
+    
+    // 타입 가드를 사용하여 안전하게 데이터 파싱
+    const machineData = response.data.data || response.data
+    const machine = safeParseMachine(machineData)
+    
+    if (!machine) {
+      throw new Error('Invalid machine data received from create API')
+    }
+    
     return {
-      machine: (response.data.data || response.data) as unknown as Machine,
+      machine,
     }
   },
 
@@ -71,8 +100,17 @@ const machineApi = {
       API_ENDPOINTS.MACHINES.UPDATE(id),
       data
     )
+    
+    // 타입 가드를 사용하여 안전하게 데이터 파싱
+    const machineData = response.data.data || response.data
+    const machine = safeParseMachine(machineData)
+    
+    if (!machine) {
+      throw new Error(`Invalid machine data received from update API for ID: ${id}`)
+    }
+    
     return {
-      machine: (response.data.data || response.data) as unknown as Machine,
+      machine,
     }
   },
 
@@ -95,9 +133,14 @@ const machineApi = {
     const response = await api.get<DTOMachineListResponse>(
       `${API_ENDPOINTS.MACHINES.FILTER}?${params.toString()}`
     )
+    
+    // 타입 가드를 사용하여 안전하게 데이터 파싱
+    const machines = safeParseMachineArray(response.data.data)
+    const count = isArray(response.data.data) ? response.data.data.length : 0
+    
     return {
-      machines: Array.isArray(response.data.data) ? response.data.data : [],
-      count: (response.data as any).count || 0,
+      machines,
+      count,
     }
   },
 
@@ -108,9 +151,14 @@ const machineApi = {
     const response = await api.get<DTOMachineListResponse>(
       API_ENDPOINTS.MACHINES.GET_BY_CATEGORY(category)
     )
+    
+    // 타입 가드를 사용하여 안전하게 데이터 파싱
+    const machines = safeParseMachineArray(response.data.data)
+    const count = isArray(response.data.data) ? response.data.data.length : 0
+    
     return {
-      machines: Array.isArray(response.data.data) ? response.data.data : [],
-      count: (response.data as any).count || 0,
+      machines,
+      count,
     }
   },
 
@@ -121,9 +169,14 @@ const machineApi = {
     const response = await api.get<DTOMachineListResponse>(
       API_ENDPOINTS.MACHINES.GET_BY_DIFFICULTY(difficulty)
     )
+    
+    // 타입 가드를 사용하여 안전하게 데이터 파싱
+    const machines = safeParseMachineArray(response.data.data)
+    const count = isArray(response.data.data) ? response.data.data.length : 0
+    
     return {
-      machines: Array.isArray(response.data.data) ? response.data.data : [],
-      count: (response.data as any).count || 0,
+      machines,
+      count,
     }
   },
 
@@ -132,9 +185,14 @@ const machineApi = {
     const response = await api.get<DTOMachineListResponse>(
       API_ENDPOINTS.MACHINES.GET_BY_TARGET(target)
     )
+    
+    // 타입 가드를 사용하여 안전하게 데이터 파싱
+    const machines = safeParseMachineArray(response.data.data)
+    const count = isArray(response.data.data) ? response.data.data.length : 0
+    
     return {
-      machines: Array.isArray(response.data.data) ? response.data.data : [],
-      count: (response.data as any).count || 0,
+      machines,
+      count,
     }
   },
 }

@@ -1,4 +1,4 @@
-import { SCRIPT_GYM_CONFIG } from "./env"
+import { SCRIPT_GYM_CONFIG } from "./env.js"
 
 // Gym 타입 정의 (스크립트용)
 interface Gym {
@@ -14,9 +14,19 @@ interface Gym {
 }
 
 // API 응답 타입 정의
+interface SeoulOpenAPIRow {
+  MGTNO: string // 관리번호
+  BPLCNM: string // 사업장명
+  RDNWHLADDR?: string // 도로명주소
+  SITEWHLADDR?: string // 지번주소
+  SITETEL?: string // 전화번호
+  Y: string // Y 좌표 (위도)
+  X: string // X 좌표 (경도)
+}
+
 interface SeoulOpenAPIResponse {
   LOCALDATA_104201?: {
-    row?: any[]
+    row?: SeoulOpenAPIRow[]
   }
 }
 
@@ -51,16 +61,16 @@ export const getGymsForScript = async (): Promise<Gym[]> => {
   }
 
   // Gym 타입에 맞게 데이터 매핑 (필요한 필드만 변환)
-  const gyms: Gym[] = gymsRaw.map((item: any) => ({
+  const gyms: Gym[] = gymsRaw.map((item: SeoulOpenAPIRow) => ({
     id: item.MGTNO, // 관리번호를 id로 사용
     name: item.BPLCNM, // 사업장명
     type: "짐", // API 데이터에 따라 수정 필요
-    address: item.RDNWHLADDR || item.SITEWHLADDR, // 도로명주소 우선, 없으면 지번주소
-    phone: item.SITETEL,
+    address: item.RDNWHLADDR || item.SITEWHLADDR || "", // 도로명주소 우선, 없으면 지번주소
+    phone: item.SITETEL || "",
     openTime: undefined, // 필요시 별도 파싱
     closeTime: undefined,
-    latitude: Number(item.Y), // Y 좌표 (위도)
-    longitude: Number(item.X), // X 좌표 (경도)
+    latitude: Number(item.Y) || 0, // Y 좌표 (위도)
+    longitude: Number(item.X) || 0, // X 좌표 (경도)
   }))
 
   return gyms

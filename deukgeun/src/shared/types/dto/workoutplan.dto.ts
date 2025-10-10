@@ -2,7 +2,7 @@
 // WorkoutPlanDTO - Data Transfer Object
 // ============================================================================
 
-import type { WorkoutPlanExerciseDTO } from "./workoutplanexercise.dto"
+import type { WorkoutPlanExerciseDTO } from "./workoutPlanExercise.types"
 
 export interface WorkoutPlanDTO {
   id: number

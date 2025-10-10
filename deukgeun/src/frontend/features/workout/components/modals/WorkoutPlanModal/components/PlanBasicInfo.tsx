@@ -88,21 +88,21 @@ export function PlanBasicInfo({
           <input
             id="plan-duration"
             type="number"
-            value={formData.estimated_duration_minutes || 60}
+            value={formData.estimatedDurationMinutes || 60}
             onChange={e =>
               handleInputChange(
-                "estimated_duration_minutes",
+                "estimatedDurationMinutes",
                 parseInt(e.target.value) || 0
               )
             }
             min="1"
             max="300"
-            className={`${styles.formInput} ${errors.estimated_duration_minutes ? styles.error : ""}`}
+            className={`${styles.formInput} ${errors.estimatedDurationMinutes ? styles.error : ""}`}
             disabled={isViewMode}
           />
-          {errors.estimated_duration_minutes && (
+          {errors.estimatedDurationMinutes && (
             <span className={styles.errorMessage}>
-              {errors.estimated_duration_minutes}
+              {errors.estimatedDurationMinutes}
             </span>
           )}
         </div>

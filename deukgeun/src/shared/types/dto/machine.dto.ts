@@ -53,7 +53,7 @@ export interface MachineDTO {
   shortDesc: string
   detailDesc: string
   description?: string
-  instructions?: string
+  instructions?: string[]
   positiveEffect?: string
   category: MachineCategory | MachineCategoryDTO
   targetMuscles?: string[]
@@ -78,7 +78,7 @@ export interface CreateMachineDTO {
   shortDesc: string
   detailDesc: string
   description?: string
-  instructions?: string
+  instructions?: string[]
   positiveEffect?: string
   category: MachineCategory | MachineCategoryDTO
   targetMuscles?: string[]
@@ -98,7 +98,7 @@ export interface UpdateMachineDTO {
   shortDesc?: string
   detailDesc?: string
   description?: string
-  instructions?: string
+  instructions?: string[]
   positiveEffect?: string
   category?: MachineCategory | MachineCategoryDTO
   targetMuscles?: string[]

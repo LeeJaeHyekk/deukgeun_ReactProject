@@ -76,7 +76,7 @@ function useLevel() {
         progressPercentage: progress?.progressPercentage ?? 0,
       }
       setLevelProgress(safeProgress)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("레벨 진행률 조회 실패:", err)
       setError("레벨 정보를 불러오는데 실패했습니다.")
       setLevelProgress(DEFAULT_LEVEL_PROGRESS)
@@ -105,7 +105,7 @@ function useLevel() {
 
       const userRewards = await levelApiWrapper.getUserRewards(user.id)
       setRewards(userRewards)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("보상 목록 조회 실패:", err)
       setError("보상 정보를 불러오는데 실패했습니다.")
       setRewards([])
@@ -119,7 +119,7 @@ function useLevel() {
   // ============================================================================
 
   const grantExp = useCallback(
-    async (actionType: string, source: string, metadata?: any) => {
+    async (actionType: string, source: string, metadata?: Record<string, unknown>) => {
       if (!isLoggedIn || !user) {
         console.log("로그인 상태 아님")
         return null
@@ -150,9 +150,12 @@ function useLevel() {
 
           // 보상 획득 시 알림
           if (result.rewards && result.rewards.length > 0) {
-            result.rewards.forEach((reward: any) => {
+            result.rewards.forEach((reward: UserReward) => {
+              const rewardName = reward.metadata && typeof reward.metadata === 'object' && 'name' in reward.metadata 
+                ? String(reward.metadata.name) 
+                : "보상"
               showToast(
-                `🎁 ${reward.metadata?.name || "보상"} 획득!`,
+                `🎁 ${rewardName} 획득!`,
                 "success"
               )
             })
@@ -167,7 +170,7 @@ function useLevel() {
           showToast("경험치 부여에 실패했습니다.", "error")
           return null
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("경험치 부여 실패:", err)
         showToast("경험치 부여 중 오류가 발생했습니다.", "error")
         return null

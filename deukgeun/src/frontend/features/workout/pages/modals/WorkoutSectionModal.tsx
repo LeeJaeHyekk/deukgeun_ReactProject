@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react"
 import { X, Save, Plus, Trash2, Dumbbell, Clock, Repeat } from "lucide-react"
-import type { WorkoutPlanExercise } from "../../../../../shared/types"
-import type { Machine } from "@dto/index"
+import type { WorkoutPlanExerciseForm } from "../../../../../shared/types/dto"
+import type { Machine } from "../../../../../shared/types"
 import { findMatchingImage } from "../../../../shared/utils/machineImageUtils"
 import "./WorkoutSectionModal.css"
 
 interface WorkoutSectionModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (exercise: Partial<WorkoutPlanExercise>) => Promise<void> | void
-  exercise?: WorkoutPlanExercise | null
+  onSave: (exercise: Partial<WorkoutPlanExerciseForm>) => Promise<void> | void
+  exercise?: WorkoutPlanExerciseForm | null
   machines: Machine[]
   planId: number
 }
@@ -61,11 +61,11 @@ export function WorkoutSectionModal({
   machines,
   planId,
 }: WorkoutSectionModalProps) {
-  const [formData, setFormData] = useState<Partial<WorkoutPlanExercise>>({})
+  const [formData, setFormData] = useState<Partial<WorkoutPlanExerciseForm>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   // 초기화 함수
-  const initializeForm = (exercise?: WorkoutPlanExercise) => {
+  const initializeForm = (exercise?: WorkoutPlanExerciseForm) => {
     const startTime = performance.now()
     logger.info("Form initialization started", {
       isEditMode: !!exercise,
@@ -132,16 +132,16 @@ export function WorkoutSectionModal({
   }, [isOpen, exercise])
 
   // 입력 필드 변경 핸들러
-  const handleInputChange = (field: keyof WorkoutPlanExercise, value: any) => {
+  const handleInputChange = (field: keyof WorkoutPlanExerciseForm, value: any) => {
     logger.debug("Input field changed", {
       field,
       value,
-      previousValue: formData[field],
+      previousValue: formData[field as keyof Partial<WorkoutPlanExerciseForm>],
     })
 
-    setFormData(prev => ({ ...prev, [field]: value }))
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }))
+    setFormData((prev: Partial<WorkoutPlanExerciseForm>) => ({ ...prev, [field]: value }))
+    if (errors[field as string]) {
+      setErrors((prev: Record<string, string>) => ({ ...prev, [field as string]: "" }))
       logger.debug("Cleared error for field", { field })
     }
   }
@@ -164,22 +164,22 @@ export function WorkoutSectionModal({
     const startTime = performance.now()
     logger.info("Form validation started")
 
-    const requiredFields: Array<[keyof WorkoutPlanExercise, string]> = [
+    const requiredFields: Array<[keyof WorkoutPlanExerciseForm, string]> = [
       ["machineId", "운동 기계를 선택해주세요."],
       ["exerciseName", "운동 이름을 입력해주세요."],
       ["sets", "세트 수를 입력해주세요."],
-      ["reps", "횟수를 입력해주세요."],
+      ["repsRange", "횟수 범위를 입력해주세요."],
     ]
 
     const newErrors: Record<string, string> = {}
 
     requiredFields.forEach(([field, message]) => {
-      if (!formData[field] || formData[field] === 0) {
-        newErrors[field] = message
+      if (!formData[field as keyof Partial<WorkoutPlanExerciseForm>] || formData[field as keyof Partial<WorkoutPlanExerciseForm>] === 0) {
+        newErrors[field as string] = message
         logger.warn("Validation failed", {
           field,
           message,
-          value: formData[field],
+          value: formData[field as keyof Partial<WorkoutPlanExerciseForm>],
         })
       }
     })

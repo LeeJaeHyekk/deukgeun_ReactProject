@@ -22,7 +22,7 @@ export function WorkoutPlanCard({
   const getPlanStats = () => {
     return {
       exerciseCount: plan.exercises?.length || 0,
-      totalDuration: plan.estimated_duration_minutes || 0,
+      totalDuration: plan.estimatedDurationMinutes || 0,
       streak: 0, // WorkoutPlanDTO에는 streak 속성이 없음
       progress: 0, // WorkoutPlanDTO에는 progress 속성이 없음
       difficulty: plan.difficulty || "보통",

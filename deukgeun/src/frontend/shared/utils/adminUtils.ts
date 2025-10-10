@@ -40,8 +40,8 @@ function hasRoleOrHigher(
     admin: 3,
   }
 
-  const userRoleLevel = roleHierarchy[user.role] || 0
-  const requiredRoleLevel = roleHierarchy[requiredRole] || 0
+  const userRoleLevel = roleHierarchy[user.role as UserRole] || 0
+  const requiredRoleLevel = roleHierarchy[requiredRole as UserRole] || 0
 
   return userRoleLevel >= requiredRoleLevel
 }

@@ -12,10 +12,11 @@ export type DeepPartial<T> = {
 // API 응답 기본 타입
 export interface ApiResponse<T = unknown> {
   success: boolean
-  message: string
-  data?: T
+  data: T
+  message?: string
   error?: string
   statusCode?: number
+  timestamp?: string
 }
 
 // 페이지네이션 타입
@@ -118,6 +119,8 @@ export interface UserProfile {
 // ============================================================================
 
 // 운동 계획 관련 타입
+import type { WorkoutPlanExerciseDTO } from "./dto"
+
 export interface WorkoutPlan {
   id: number
   userId: number
@@ -128,32 +131,14 @@ export interface WorkoutPlan {
   targetMuscleGroups?: string[]
   isTemplate: boolean
   isPublic: boolean
-  exercises: WorkoutPlanExercise[]
+  exercises: WorkoutPlanExerciseDTO[]
   status: "active" | "archived" | "draft"
   createdAt: Date
   updatedAt: Date
 }
 
-export interface WorkoutPlanExercise {
-  id: number
-  planId: number
-  machineId?: number
-  exerciseName: string
-  exerciseOrder: number
-  order?: number // 프론트엔드 호환성을 위한 별칭
-  sets: number
-  repsRange: { min: number; max: number }
-  reps?: number // 단일 값으로도 사용 가능
-  weightRange?: { min: number; max: number }
-  weight?: number // 단일 값으로도 사용 가능
-  restSeconds: number
-  restTime?: number // 프론트엔드 호환성을 위한 별칭
-  notes?: string
-  isCompleted?: boolean
-  progress?: number
-  createdAt: Date
-  updatedAt: Date
-}
+// WorkoutPlanExercise는 WorkoutPlanExerciseDTO의 별칭
+export type WorkoutPlanExercise = WorkoutPlanExerciseDTO
 
 // 운동 세션 관련 타입
 export interface WorkoutSession {
@@ -214,89 +199,13 @@ export interface WorkoutGoal {
   updatedAt: Date
 }
 
-// 기구 관련 타입
-export interface Machine {
-  id: number
-  name: string
-  imageUrl?: string
-  category: string
-  description?: string
-  createdAt: Date
-  updatedAt: Date
-}
-
-// 헬스장 관련 타입
-export interface Gym {
-  id: number
-  name: string
-  address: string
-  latitude: number
-  longitude: number
-  createdAt: Date
-  updatedAt: Date
-}
+// 기구와 헬스장 타입은 DTO에서 import됨
+export type Machine = import('./dto').MachineDTO
+export type Gym = import('./dto').GymDTO
 
 // ============================================================================
-// Workout Core Types
+// Workout Core Types는 DTO에서 별칭으로 제공됨
 // ============================================================================
-
-// 운동 계획 타입
-export interface WorkoutPlan {
-  id: number
-  userId: number
-  name: string
-  description?: string
-  difficulty: "beginner" | "intermediate" | "advanced"
-  estimatedDurationMinutes: number
-  targetMuscleGroups?: string[]
-  isTemplate: boolean
-  isPublic: boolean
-  exercises: WorkoutPlanExercise[]
-  status: "active" | "archived" | "draft"
-  goals?: WorkoutGoal[]
-  sessions?: WorkoutSession[]
-  createdAt: Date
-  updatedAt: Date
-}
-
-// 운동 계획 운동 타입
-export interface WorkoutPlanExercise {
-  id: number
-  planId: number
-  machineId?: number
-  exerciseId?: number // 프론트엔드 호환성을 위한 속성
-  exerciseName: string
-  exerciseOrder: number
-  sets: number
-  repsRange: { min: number; max: number }
-  weightRange?: { min: number; max: number }
-  restSeconds: number
-  notes?: string
-  isCompleted?: boolean
-  progress?: number
-  createdAt: Date
-  updatedAt: Date
-}
-
-// 운동 세션 타입
-export interface WorkoutSession {
-  id: number
-  userId: number
-  planId?: number
-  gymId?: number
-  name: string
-  startTime: Date
-  endTime?: Date
-  totalDurationMinutes?: number
-  moodRating?: number
-  energyLevel?: number
-  notes?: string
-  status: "in_progress" | "completed" | "paused" | "cancelled"
-  exerciseSets: ExerciseSet[]
-  plan?: WorkoutPlan
-  createdAt: Date
-  updatedAt: Date
-}
 
 // 대시보드 데이터 타입
 export interface DashboardData {

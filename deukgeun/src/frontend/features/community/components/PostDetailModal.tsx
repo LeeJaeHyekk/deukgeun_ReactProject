@@ -32,9 +32,7 @@ export function PostDetailModal({
     title: post.title,
     content: post.content,
     category:
-      typeof post.category === 'string'
-        ? post.category
-        : post.category.name || 'tips',
+      post.category || 'tips'
   })
   const [loading, setLoading] = useState(false)
   const [commentsLoading, setCommentsLoading] = useState(false)
@@ -63,8 +61,14 @@ export function PostDetailModal({
               id: comment.id || 0,
               postId: comment.postId || post.id,
               userId: comment.userId || comment.author_id || 0,
-              author: comment.author?.nickname || comment.author_name || '익명',
+              author: {
+                id: comment.author?.id || comment.userId || 0,
+                nickname: comment.author?.nickname || comment.author_name || '익명',
+                profileImage: comment.author?.profileImage,
+                avatarUrl: comment.author?.avatarUrl
+              },
               content: comment.content || '',
+              likesCount: comment.likesCount || 0,
               createdAt: new Date(
                 comment.createdAt || comment.created_at || Date.now()
               ),
@@ -85,8 +89,14 @@ export function PostDetailModal({
             id: 1,
             postId: post.id,
             userId: 1,
-            author: '테스트 사용자',
+            author: {
+              id: 1,
+              nickname: '테스트 사용자',
+              profileImage: undefined,
+              avatarUrl: undefined
+            },
             content: '이 게시글 정말 좋네요! 👍',
+            likesCount: 0,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -94,8 +104,14 @@ export function PostDetailModal({
             id: 2,
             postId: post.id,
             userId: 2,
-            author: '운동러버',
+            author: {
+              id: 2,
+              nickname: '운동러버',
+              profileImage: undefined,
+              avatarUrl: undefined
+            },
             content: '저도 비슷한 경험이 있어요. 공감합니다!',
+            likesCount: 0,
             createdAt: new Date(Date.now() - 3600000),
             updatedAt: new Date(Date.now() - 3600000),
           },

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, ReactNode } from "react"
 import type { WorkoutPlan } from "../../../../shared/types"
-import type { WorkoutPlanExerciseDTO } from "../../../../shared/types/dto/workoutplanexercise.dto"
+import type { WorkoutPlanExerciseDTO, WorkoutPlanExerciseForm } from "../../../../shared/types/dto/workoutPlanExercise.types"
 
 // 상태 타입 정의
 interface WorkoutPlanState {
@@ -152,7 +152,7 @@ function workoutPlanReducer(
       // 해당 인덱스의 운동을 제거하고 새로운 운동으로 교체
       currentExercises[action.payload.index] = {
         ...exerciseToSave,
-        order: action.payload.index,
+        exerciseOrder: action.payload.index,
       }
 
       return {
@@ -266,7 +266,7 @@ interface WorkoutPlanContextType {
   openEditModal: (plan: WorkoutPlan) => void
   openViewModal: (plan: WorkoutPlan) => void
   closeModal: () => void
-  addExercise: (exercise: Omit<WorkoutPlanExerciseDTO, "order">) => void
+  addExercise: (exercise: WorkoutPlanExerciseForm) => void
   updateExercise: (index: number, exercise: WorkoutPlanExerciseDTO) => void
   removeExercise: (index: number) => void
   saveExercise: (index: number, exercise: WorkoutPlanExerciseDTO) => void
@@ -315,13 +315,24 @@ export function WorkoutPlanProvider({ children }: WorkoutPlanProviderProps) {
     dispatch({ type: "CLOSE_MODAL" })
   }
 
-  const addExercise = (exercise: Omit<WorkoutPlanExerciseDTO, "order">) => {
+  const addExercise = (exercise: WorkoutPlanExerciseForm) => {
     const newExercise: WorkoutPlanExerciseDTO = {
-      ...exercise,
-      order: state.currentPlanExercises.length, // 현재 계획의 운동 개수로 순서 설정
+      id: exercise.id || 0,
+      planId: exercise.planId,
+      exerciseId: exercise.exerciseId,
+      machineId: exercise.machineId,
+      exerciseName: exercise.exerciseName,
+      exerciseOrder: state.currentPlanExercises.length, // 현재 계획의 운동 개수로 순서 설정
+      sets: exercise.sets,
+      repsRange: exercise.repsRange,
+      weightRange: exercise.weightRange,
+      restSeconds: exercise.restSeconds,
+      notes: exercise.notes,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }
     console.log(
-      `➕ [WorkoutPlanContext] addExercise - 운동 추가: ${newExercise.exerciseName}, 순서: ${newExercise.order}, 현재 계획 ID: ${state.draftPlan?.id || "새 계획"}`
+      `➕ [WorkoutPlanContext] addExercise - 운동 추가: ${newExercise.exerciseName}, 순서: ${newExercise.exerciseOrder}, 현재 계획 ID: ${state.draftPlan?.id || "새 계획"}`
     )
     dispatch({ type: "ADD_EXERCISE", payload: newExercise })
   }
@@ -369,13 +380,16 @@ export function WorkoutPlanProvider({ children }: WorkoutPlanProviderProps) {
       description: planData.description || state.draftPlan?.description || "",
       difficulty:
         planData.difficulty || state.draftPlan?.difficulty || "beginner",
-      duration: planData.duration || state.draftPlan?.duration || 60,
-      estimated_duration_minutes:
-        planData.estimated_duration_minutes ||
-        state.draftPlan?.estimated_duration_minutes ||
+      estimatedDurationMinutes:
+        planData.estimatedDurationMinutes ||
+        state.draftPlan?.estimatedDurationMinutes ||
         60,
+      targetMuscleGroups:
+        planData.targetMuscleGroups || state.draftPlan?.targetMuscleGroups || [],
+      isTemplate: planData.isTemplate ?? state.draftPlan?.isTemplate ?? false,
+      isPublic: planData.isPublic ?? state.draftPlan?.isPublic ?? false,
       exercises: state.currentPlanExercises, // 현재 계획의 운동 목록 사용
-      isActive: planData.isActive ?? state.draftPlan?.isActive ?? true,
+      status: state.draftPlan?.status || "draft",
       createdAt: state.draftPlan?.createdAt || new Date(),
       updatedAt: new Date(),
     }
@@ -383,7 +397,7 @@ export function WorkoutPlanProvider({ children }: WorkoutPlanProviderProps) {
     console.log(`📝 [WorkoutPlanContext] saveDraft - 생성된 드래프트:`, {
       id: draftPlan.id,
       name: draftPlan.name,
-      estimated_duration_minutes: draftPlan.estimated_duration_minutes,
+      estimatedDurationMinutes: draftPlan.estimatedDurationMinutes,
       exercisesCount: draftPlan.exercises?.length || 0,
     })
 

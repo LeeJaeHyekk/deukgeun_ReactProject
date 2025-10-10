@@ -1,23 +1,16 @@
 import { useState, useEffect, useCallback } from "react"
 import type {
-  WorkoutPlan,
-  CreatePlanRequest,
+  WorkoutPlanDTO,
   WorkoutPlanExercise,
-} from "../../../../types"
+  WorkoutPlanExerciseForm,
+} from "@/shared/types/dto"
+import type { WorkoutPlan, CreatePlanRequest } from "@/shared/types/common"
+import { createEmptyWorkoutPlanExerciseForm } from "@/shared/utils/transform/workoutPlanExercise"
 
-// 폼에서 사용할 운동 타입 (BaseEntity 속성 제외)
-interface FormExercise {
-  machineId?: number
-  exerciseName: string
-  exerciseOrder: number
-  sets: number
-  repsRange: { min: number; max: number }
-  weightRange?: { min: number; max: number }
-  restSeconds: number
-  notes?: string
-}
+// 폼에서 사용할 운동 타입 (새로운 구조 사용)
+export type FormExercise = WorkoutPlanExerciseForm
 
-// 폼 데이터 타입 (isPublic 제거)
+// 폼 데이터 타입 (CreatePlanRequest와 호환)
 interface FormData {
   name: string
   description?: string
@@ -25,7 +18,16 @@ interface FormData {
   estimatedDurationMinutes: number
   targetMuscleGroups?: string[]
   isTemplate?: boolean
-  exercises: FormExercise[]
+  exercises: Array<{
+    machineId?: number
+    exerciseName: string
+    exerciseOrder: number
+    sets: number
+    repsRange: { min: number; max: number }
+    weightRange?: { min: number; max: number }
+    restSeconds: number
+    notes?: string
+  }>
 }
 
 export function usePlanForm(currentPlan: WorkoutPlan | null) {
@@ -49,7 +51,10 @@ export function usePlanForm(currentPlan: WorkoutPlan | null) {
         estimatedDurationMinutes: currentPlan.estimatedDurationMinutes,
         targetMuscleGroups: currentPlan.targetMuscleGroups || [],
         isTemplate: currentPlan.isTemplate,
-        exercises: currentPlan.exercises.map((exercise: any) => ({
+        exercises: currentPlan.exercises.map((exercise) => ({
+          id: exercise.id,
+          planId: exercise.planId,
+          exerciseId: exercise.exerciseId,
           machineId: exercise.machineId,
           exerciseName: exercise.exerciseName,
           exerciseOrder: exercise.exerciseOrder,
@@ -74,7 +79,7 @@ export function usePlanForm(currentPlan: WorkoutPlan | null) {
     }
   }, [currentPlan])
 
-  const updateFormData = useCallback((updates: Partial<FormData>) => {
+  const updateFormData = useCallback((updates: Partial<CreatePlanRequest>) => {
     setFormData(prev => ({ ...prev, ...updates }))
   }, [])
 
@@ -91,21 +96,19 @@ export function usePlanForm(currentPlan: WorkoutPlan | null) {
   }, [])
 
   const addExercise = useCallback(() => {
-    const newExercise: FormExercise = {
-      machineId: undefined,
-      exerciseName: "",
-      exerciseOrder: formData.exercises.length + 1,
-      sets: 3,
-      repsRange: { min: 8, max: 12 },
-      weightRange: { min: 0, max: 0 },
-      restSeconds: 60,
-      notes: "",
-    }
+    const newExercise = createEmptyWorkoutPlanExerciseForm(currentPlan?.id || 0)
+    newExercise.exerciseId = 0 // 새 운동이므로 0으로 설정
+    newExercise.exerciseOrder = formData.exercises.length + 1
+    newExercise.sets = 3
+    newExercise.repsRange = { min: 8, max: 12 }
+    newExercise.weightRange = { min: 0, max: 0 }
+    newExercise.restSeconds = 60
+    
     setFormData(prev => ({
       ...prev,
       exercises: [...prev.exercises, newExercise],
     }))
-  }, [formData.exercises.length])
+  }, [formData.exercises.length, currentPlan?.id])
 
   const updateExercise = useCallback(
     (index: number, exercise: FormExercise) => {
@@ -123,6 +126,23 @@ export function usePlanForm(currentPlan: WorkoutPlan | null) {
       exercises: prev.exercises.filter((_, i) => i !== index),
     }))
   }, [])
+
+  // exercises를 WorkoutPlanExerciseForm[]로 변환하는 함수
+  const getExercisesAsForm = useCallback((): WorkoutPlanExerciseForm[] => {
+    return formData.exercises.map((exercise, index) => ({
+      id: 0, // 새 운동이므로 0으로 설정
+      planId: currentPlan?.id || 0,
+      exerciseId: 0, // 새 운동이므로 0으로 설정
+      machineId: exercise.machineId,
+      exerciseName: exercise.exerciseName,
+      exerciseOrder: exercise.exerciseOrder || index + 1,
+      sets: exercise.sets,
+      repsRange: exercise.repsRange,
+      weightRange: exercise.weightRange,
+      restSeconds: exercise.restSeconds,
+      notes: exercise.notes,
+    }))
+  }, [formData.exercises, currentPlan?.id])
 
   // CreatePlanRequest로 변환하는 함수
   const getCreatePlanRequest = useCallback((): CreatePlanRequest => {
@@ -149,5 +169,6 @@ export function usePlanForm(currentPlan: WorkoutPlan | null) {
     updateExercise,
     removeExercise,
     getCreatePlanRequest,
+    getExercisesAsForm,
   }
 }

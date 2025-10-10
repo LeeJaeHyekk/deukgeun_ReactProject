@@ -93,8 +93,8 @@ export function GoalComparison({
           const progress = (goal.currentValue / goal.targetValue) * 100
           const progressColor = getProgressColor(progress)
           const progressStatus = getProgressStatus(progress)
-          const daysUntilDeadline = goal.deadline ? getDaysUntilDeadline(goal.deadline.toISOString()) : null
-          const formattedDeadline = goal.deadline ? formatDeadline(goal.deadline.toISOString()) : "설정되지 않음"
+          const daysUntilDeadline = goal.deadline ? getDaysUntilDeadline(typeof goal.deadline === 'string' ? goal.deadline : goal.deadline.toISOString()) : null
+          const formattedDeadline = goal.deadline ? formatDeadline(typeof goal.deadline === 'string' ? goal.deadline : goal.deadline.toISOString()) : "설정되지 않음"
           const goalIcon = getGoalIcon(goal.type)
 
           return (

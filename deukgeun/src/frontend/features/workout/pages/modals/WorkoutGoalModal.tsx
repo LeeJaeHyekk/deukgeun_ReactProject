@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react"
 import { X, Save, Target, Calendar, BarChart3 } from "lucide-react"
-import type { WorkoutGoal } from "../../../../../shared/types"
+import type { WorkoutGoalDTO } from "../../../../../shared/types/dto"
 import "./WorkoutGoalModal.css"
 
 interface WorkoutGoalModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (goal: Partial<WorkoutGoal>) => void
-  goal?: WorkoutGoal | null
+  onSave: (goal: Partial<WorkoutGoalDTO>) => void
+  goal?: WorkoutGoalDTO | null
 }
 
 const GOAL_TYPES = [
@@ -24,7 +24,7 @@ export function WorkoutGoalModal({
   onSave,
   goal,
 }: WorkoutGoalModalProps) {
-  const [formData, setFormData] = useState<Partial<WorkoutGoal>>({
+  const [formData, setFormData] = useState<Partial<WorkoutGoalDTO>>({
     title: "",
     description: "",
     type: "weight",
@@ -63,18 +63,18 @@ export function WorkoutGoalModal({
   }, [goal, isOpen])
 
   // 입력 필드 변경 핸들러
-  const handleInputChange = (field: keyof WorkoutGoal, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+  const handleInputChange = (field: keyof WorkoutGoalDTO, value: any) => {
+    setFormData((prev: Partial<WorkoutGoalDTO>) => ({ ...prev, [field]: value }))
     // 에러 제거
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }))
+    if (errors[field as string]) {
+      setErrors((prev: Record<string, string>) => ({ ...prev, [field as string]: "" }))
     }
   }
 
   // 목표 타입 변경 시 단위 자동 설정
-  const handleTypeChange = (type: WorkoutGoal["type"]) => {
+  const handleTypeChange = (type: WorkoutGoalDTO["type"]) => {
     const goalType = GOAL_TYPES.find(t => t.value === type)
-    setFormData(prev => ({
+    setFormData((prev: Partial<WorkoutGoalDTO>) => ({
       ...prev,
       type,
       unit: goalType?.unit || "kg",
@@ -198,7 +198,7 @@ export function WorkoutGoalModal({
                     formData.type === type.value ? "active" : ""
                   }`}
                   onClick={() =>
-                    handleTypeChange(type.value as WorkoutGoal["type"])
+                    handleTypeChange(type.value as WorkoutGoalDTO["type"])
                   }
                 >
                   <span className="goal-type-icon">{type.icon}</span>

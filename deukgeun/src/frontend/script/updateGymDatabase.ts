@@ -1,5 +1,5 @@
-import { getGymsForScript } from "./getGymsForScript"
-import { scriptEnv, validateEnv } from "./env"
+import { getGymsForScript } from "./getGymsForScript.js"
+import { scriptEnv, validateEnv } from "./env.js"
 
 // Gym 타입 정의 (스크립트용)
 interface Gym {
@@ -66,13 +66,15 @@ export async function updateGymDatabase() {
 function filterValidGyms(gyms: Gym[]): Gym[] {
   return gyms.filter(gym => {
     const hasValidCoords =
-      gym.latitude &&
-      gym.longitude &&
+      gym.latitude != null &&
+      gym.longitude != null &&
       !isNaN(gym.latitude) &&
-      !isNaN(gym.longitude)
-    const hasPhone = gym.phone && gym.phone.trim() !== ""
-    const hasName = gym.name && gym.name.trim() !== ""
-    const hasAddress = gym.address && gym.address.trim() !== ""
+      !isNaN(gym.longitude) &&
+      gym.latitude !== 0 &&
+      gym.longitude !== 0
+    const hasPhone = gym.phone != null && gym.phone.trim() !== ""
+    const hasName = gym.name != null && gym.name.trim() !== ""
+    const hasAddress = gym.address != null && gym.address.trim() !== ""
 
     return hasValidCoords && hasPhone && hasName && hasAddress
   })
@@ -95,7 +97,7 @@ async function saveGymsToDatabase(gyms: Gym[]) {
     })
 
     if (!response.ok) {
-      const errorData = (await response.json().catch(() => ({}))) as any
+      const errorData = (await response.json().catch(() => ({}))) as { message?: string }
       throw new Error(
         `백엔드 API 오류: ${response.status} - ${
           errorData.message || response.statusText
@@ -103,7 +105,7 @@ async function saveGymsToDatabase(gyms: Gym[]) {
       )
     }
 
-    const result = (await response.json()) as any
+    const result = (await response.json()) as { savedCount: number }
     console.log(
       `💾 ${result.savedCount}개의 헬스장 데이터가 데이터베이스에 저장되었습니다.`
     )

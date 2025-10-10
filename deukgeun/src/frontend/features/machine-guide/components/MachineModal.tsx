@@ -4,7 +4,7 @@
 
 import React, { useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import type { Machine } from "@dto/index"
+import type { Machine } from "../../../../shared/types"
 import { findMatchingImage } from "../utils/machineImageUtils"
 import { ROUTES } from "@frontend/shared/constants/routes"
 import "./MachineModal.css"
@@ -166,10 +166,10 @@ export const MachineModal: React.FC<MachineModalProps> = ({
               <span
                 className="modal-difficulty-badge"
                 style={{
-                  backgroundColor: getDifficultyColor(typeof machine.difficulty === 'string' ? machine.difficulty : machine.difficulty.name),
+                  backgroundColor: getDifficultyColor(typeof machine.difficulty === 'string' ? machine.difficulty : machine.difficulty?.name || 'beginner'),
                 }}
               >
-                {typeof machine.difficulty === 'string' ? machine.difficulty : machine.difficulty.name}
+                {typeof machine.difficulty === 'string' ? machine.difficulty : machine.difficulty?.name || 'beginner'}
               </span>
             </div>
           </div>
@@ -195,7 +195,7 @@ export const MachineModal: React.FC<MachineModalProps> = ({
               <div className="info-group">
                 <h3 className="info-title">타겟 근육</h3>
                 <div className="target-muscles">
-                  {machine.targetMuscles.map((muscle, index) => (
+                  {machine.targetMuscles.map((muscle: string, index: number) => (
                     <span key={index} className="muscle-tag">
                       {muscle}
                     </span>

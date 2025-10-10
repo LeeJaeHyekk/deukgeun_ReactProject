@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react'
-import { apiClient } from '../../../shared/api/client'
+import { typedApiClient } from '../../../shared/api/client'
 import { useAuth } from './useAuth'
+import { isValidUserData } from '../../../shared/utils/apiValidation'
+
+export interface Achievement {
+  id: number
+  name: string
+  description: string
+  iconUrl?: string
+  unlockedAt: string
+  category: 'workout' | 'social' | 'streak' | 'level'
+}
 
 export interface UserStats {
   user: {
@@ -23,10 +33,12 @@ export interface UserStats {
     consecutiveDays: number
     totalPosts: number
   }
-  achievements: any[]
+  achievements: Achievement[]
 }
 
-const useUserStats = () => {
+// ApiResponse 타입은 이미 apiValidation에서 정의됨
+
+export const useUserStats = () => {
   const [userStats, setUserStats] = useState<UserStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -42,9 +54,9 @@ const useUserStats = () => {
     try {
       setIsLoading(true)
       setError(null)
-      const response = await apiClient.get("/api/stats/user")
-      setUserStats((response.data as any).data as any)
-    } catch (err) {
+      const response = await typedApiClient.get<UserStats>("/api/stats/user")
+      setUserStats(response as UserStats)
+    } catch (err: unknown) {
       console.error("사용자 통계 조회 오류:", err)
       setError("사용자 통계를 불러오는데 실패했습니다.")
     } finally {

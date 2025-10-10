@@ -37,7 +37,9 @@ export function ReminderCard({
       <div className="reminder-details">
         <div className="detail-item">
           <span className="detail-label">시간:</span>
-          <span className="detail-value">{reminder.time}</span>
+          <span className="detail-value">
+            {reminder.time ? (typeof reminder.time === 'string' ? reminder.time : reminder.time.toLocaleString()) : "설정되지 않음"}
+          </span>
         </div>
         <div className="detail-item">
           <span className="detail-label">반복:</span>

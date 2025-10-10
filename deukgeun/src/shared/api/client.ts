@@ -3,6 +3,7 @@
 // ============================================================================
 
 import type { ApiResponse } from "../types"
+import { TypedApiClient, parseApiResponse, createApiError } from "../utils/apiValidation"
 
 // API 설정
 const API_CONFIG = {
@@ -23,7 +24,7 @@ export interface ApiError {
 // 타입 안전한 응답 처리 헬퍼
 export function assertApiResponse<T>(data: unknown): T {
   if (data === null || data === undefined) {
-    throw new Error('API response data is null or undefined')
+    throw createApiError('API response data is null or undefined')
   }
   return data as T
 }
@@ -178,7 +179,13 @@ class ApiClient {
       }
 
       const data = await response.json()
-      return data as ApiResponse<T>
+      const parsed = parseApiResponse<T>(data)
+      
+      if (!parsed) {
+        throw createApiError(`Failed to parse response from ${url}`)
+      }
+      
+      return parsed
     } catch (error) {
       clearTimeout(timeoutId)
 
@@ -213,9 +220,9 @@ class ApiClient {
     }
 
     console.log("🔐 [ApiClient] 생성된 헤더:", {
-      hasAuthorization: !!(headers as any).Authorization,
-      authorizationPreview: (headers as any).Authorization
-        ? `${String((headers as any).Authorization).substring(0, 30)}...`
+      hasAuthorization: !!(headers as Record<string, unknown>).Authorization,
+      authorizationPreview: (headers as Record<string, unknown>).Authorization
+        ? `${String((headers as Record<string, unknown>).Authorization).substring(0, 30)}...`
         : "없음",
       allHeaders: Object.keys(headers),
     })
@@ -226,6 +233,9 @@ class ApiClient {
 
 // 싱글톤 인스턴스
 export const apiClient = new ApiClient()
+
+// 타입 안전한 API 클라이언트 인스턴스
+export const typedApiClient = new TypedApiClient("", {})
 
 // 기본 export
 export default apiClient

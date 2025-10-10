@@ -110,8 +110,9 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
             content: post.content || '',
             author: post.user?.nickname || post.author || '익명',
             category: post.category || '',
-            likeCount: post.like_count || post.likes || 0,
-            commentCount: post.comment_count || post.comments || 0,
+            likesCount: post.like_count || post.likes || 0,
+            commentsCount: post.comment_count || post.comments || 0,
+            viewsCount: post.views_count || post.views || 0,
             createdAt:
               post.createdAt || post.created_at || new Date().toISOString(),
             updatedAt:

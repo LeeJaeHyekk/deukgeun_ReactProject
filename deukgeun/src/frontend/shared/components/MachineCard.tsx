@@ -3,7 +3,7 @@ import type {
   Machine,
   MachineCategoryDTO,
   DifficultyLevelDTO,
-} from "@dto/index"
+} from "../../shared/types"
 const { findMatchingImage,
   getFullImageUrl,
   handleImageError,
@@ -131,7 +131,7 @@ const MachineCard: React.FC<MachineCardProps> = React.memo(
             <div className="machine-card-targets">
               <span className="machine-card-target-label">타겟 근육:</span>
               <div className="machine-card-target-list">
-                {machine.targetMuscles.map((muscle, index) => (
+                {machine.targetMuscles.map((muscle: string, index: number) => (
                   <span key={index} className="machine-card-target-tag">
                     {muscle}
                   </span>

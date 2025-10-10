@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react"
 import { X, Plus, Save, Clock, Target, Edit, Trash2 } from "lucide-react"
-import type { WorkoutPlan } from "../../../../../shared/types"
-import type { WorkoutPlanExerciseDTO } from "../../../../../shared/types/dto/workoutplanexercise.dto"
+import type { WorkoutPlanExercise, WorkoutPlanExerciseForm } from "@/shared/types/dto"
+import type { WorkoutPlan } from "@/shared/types/common"
 import type { Machine } from "@dto/index"
 import { useWorkoutPlan } from "../../contexts/WorkoutPlanContext"
+import { createEmptyWorkoutPlanExerciseForm } from "@/shared/utils/transform/workoutPlanExercise"
 import "./WorkoutPlanModal.css"
 
 interface WorkoutPlanModalProps {
@@ -67,8 +68,8 @@ export function WorkoutPlanModal({
       saveDraft({ [field]: value })
 
       // 에러 상태 초기화
-      if (errors[field]) {
-        setErrors(prev => ({ ...prev, [field]: "" }))
+      if (errors[field as string]) {
+        setErrors(prev => ({ ...prev, [field as string]: "" }))
       }
     },
     [errors, saveDraft]
@@ -77,20 +78,13 @@ export function WorkoutPlanModal({
   // 운동 추가
   const handleAddExercise = useCallback(() => {
     logger.info("Adding exercise")
-    const newExercise: Omit<WorkoutPlanExerciseDTO, "order"> = {
-      id: 0,
-      planId: plan?.id || 0,
-      exerciseId: 0,
-      machineId: 0,
-      exerciseName: "새로운 운동",
-      sets: 3,
-      reps: 10,
-      weight: 0,
-      restTime: 60,
-      notes: "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
+    const newExercise = createEmptyWorkoutPlanExerciseForm(plan?.id || 0)
+    newExercise.exerciseName = "새로운 운동"
+    newExercise.sets = 3
+    newExercise.repsRange = { min: 10, max: 10 }
+    newExercise.weightRange = { min: 0, max: 0 }
+    newExercise.restSeconds = 60
+    
     addExercise(newExercise)
     setErrors(prev => ({ ...prev, exercises: "" }))
   }, [addExercise, plan?.id])
@@ -106,7 +100,7 @@ export function WorkoutPlanModal({
 
   // 운동 정보 업데이트
   const handleUpdateExercise = useCallback(
-    (index: number, field: keyof WorkoutPlanExerciseDTO, value: any) => {
+    (index: number, field: keyof WorkoutPlanExerciseForm, value: any) => {
       logger.debug("Exercise updated", { index, field, value })
       const updatedExercise = { ...currentPlanExercises[index], [field]: value }
       updateExercise(index, updatedExercise)
@@ -177,7 +171,7 @@ export function WorkoutPlanModal({
         if (exercise.sets <= 0) {
           newErrors[`exercise_${index}_sets`] = "세트 수를 입력해주세요"
         }
-        if (exercise.reps <= 0) {
+        if (!exercise.repsRange || exercise.repsRange.min <= 0) {
           newErrors[`exercise_${index}_reps`] = "반복 횟수를 입력해주세요"
         }
       })
@@ -205,13 +199,13 @@ export function WorkoutPlanModal({
       const finalPlan: WorkoutPlan = {
         ...plan!,
         exercises: currentPlanExercises || [],
-        estimated_duration_minutes: plan?.estimated_duration_minutes || 60,
+        estimatedDurationMinutes: plan?.estimatedDurationMinutes || 60,
       }
 
       logger.debug("Final plan for submission:", {
         id: finalPlan.id,
         name: finalPlan.name,
-        estimated_duration_minutes: finalPlan.estimated_duration_minutes,
+        estimatedDurationMinutes: finalPlan.estimatedDurationMinutes,
         exercisesCount: finalPlan.exercises?.length || 0,
       })
 
@@ -344,15 +338,15 @@ export function WorkoutPlanModal({
                       rawValue: e.target.value,
                       parsedValue: value,
                     })
-                    handleInputChange("estimated_duration_minutes", value)
+                    handleInputChange("estimatedDurationMinutes", value)
                   }}
                   min="1"
                   max="300"
-                  className={errors.estimated_duration_minutes ? "error" : ""}
+                  className={errors.estimatedDurationMinutes ? "error" : ""}
                 />
-                {errors.estimated_duration_minutes && (
+                {errors.estimatedDurationMinutes && (
                   <span className="error-message">
-                    {errors.estimated_duration_minutes}
+                    {errors.estimatedDurationMinutes}
                   </span>
                 )}
               </div>
@@ -407,18 +401,18 @@ export function WorkoutPlanModal({
                       <div className="summary-item">
                         <Target size={14} />
                         <span>
-                          {exercise.sets}세트 × {exercise.reps}회
+                          {exercise.sets}세트 × {exercise.repsRange?.min || 0}회
                         </span>
                       </div>
-                      {exercise.weight && exercise.weight > 0 && (
+                      {exercise.weightRange && exercise.weightRange.min > 0 && (
                         <div className="summary-item">
-                          <span>{exercise.weight}kg</span>
+                          <span>{exercise.weightRange.min}kg</span>
                         </div>
                       )}
-                      {(exercise.restTime || 0) > 0 && (
+                      {(exercise.restSeconds || 0) > 0 && (
                         <div className="summary-item">
                           <Clock size={14} />
-                          <span>{exercise.restTime}초 휴식</span>
+                          <span>{exercise.restSeconds}초 휴식</span>
                         </div>
                       )}
                       {exercise.notes && (
@@ -518,14 +512,15 @@ export function WorkoutPlanModal({
                           <input
                             id={`exercise-${index}-reps`}
                             type="number"
-                            value={exercise.reps}
-                            onChange={e =>
+                            value={exercise.repsRange?.min || 0}
+                            onChange={e => {
+                              const value = parseInt(e.target.value) || 0
                               handleUpdateExercise(
                                 index,
-                                "reps",
-                                parseInt(e.target.value) || 0
+                                "repsRange",
+                                { min: value, max: value }
                               )
-                            }
+                            }}
                             min="1"
                             max="100"
                             className={
@@ -546,14 +541,15 @@ export function WorkoutPlanModal({
                           <input
                             id={`exercise-${index}-weight`}
                             type="number"
-                            value={exercise.weight || 0}
-                            onChange={e =>
+                            value={exercise.weightRange?.min || 0}
+                            onChange={e => {
+                              const value = parseFloat(e.target.value) || 0
                               handleUpdateExercise(
                                 index,
-                                "weight",
-                                parseFloat(e.target.value) || 0
+                                "weightRange",
+                                { min: value, max: value }
                               )
-                            }
+                            }}
                             min="0"
                             step="0.5"
                           />
@@ -566,11 +562,11 @@ export function WorkoutPlanModal({
                           <input
                             id={`exercise-${index}-rest`}
                             type="number"
-                            value={exercise.restTime || 0}
+                            value={exercise.restSeconds || 0}
                             onChange={e =>
                               handleUpdateExercise(
                                 index,
-                                "restTime",
+                                "restSeconds",
                                 parseInt(e.target.value) || 0
                               )
                             }

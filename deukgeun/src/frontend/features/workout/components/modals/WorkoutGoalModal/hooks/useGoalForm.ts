@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect } from "react"
-import type { WorkoutGoal } from "../../../../../../../shared/types"
+import type { WorkoutGoalDTO } from "../../../../../../../shared/types/dto"
 
-export function useGoalForm(goal?: WorkoutGoal | null) {
-  const [formData, setFormData] = useState<Partial<WorkoutGoal>>({
+export function useGoalForm(goal?: WorkoutGoalDTO | null) {
+  const [formData, setFormData] = useState<Partial<WorkoutGoalDTO>>({
     title: "",
     description: "",
     type: "weight",
@@ -42,11 +42,11 @@ export function useGoalForm(goal?: WorkoutGoal | null) {
 
   // 입력 필드 변경 핸들러
   const handleInputChange = useCallback(
-    (field: keyof WorkoutGoal, value: any) => {
-      setFormData(prev => ({ ...prev, [field]: value }))
+    <K extends keyof WorkoutGoalDTO>(field: K, value: WorkoutGoalDTO[K]) => {
+      setFormData((prev: Partial<WorkoutGoalDTO>) => ({ ...prev, [field]: value }))
       // 에러 제거
-      if (errors[field]) {
-        setErrors(prev => ({ ...prev, [field]: "" }))
+      if (errors[field as string]) {
+        setErrors((prev: Record<string, string>) => ({ ...prev, [field as string]: "" }))
       }
     },
     [errors]
@@ -54,7 +54,7 @@ export function useGoalForm(goal?: WorkoutGoal | null) {
 
   // 목표 타입 변경 시 단위 자동 설정
   const handleTypeChange = useCallback(
-    (type: WorkoutGoal["type"]) => {
+    (type: WorkoutGoalDTO["type"]) => {
       const goalTypes = [
         { value: "weight", unit: "kg" },
         { value: "reps", unit: "회" },
@@ -64,13 +64,13 @@ export function useGoalForm(goal?: WorkoutGoal | null) {
       ]
       const goalType = goalTypes.find(t => t.value === type)
 
-      setFormData(prev => ({
+      setFormData((prev: Partial<WorkoutGoalDTO>) => ({
         ...prev,
         type,
         unit: goalType?.unit || "kg",
       }))
       if (errors.type) {
-        setErrors(prev => ({ ...prev, type: "" }))
+        setErrors((prev: Record<string, string>) => ({ ...prev, type: "" }))
       }
     },
     [errors.type]

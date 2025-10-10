@@ -1,13 +1,20 @@
 import { useState, useCallback } from "react"
-import type { WorkoutSession } from "@shared/types"
+import type { WorkoutSession, WorkoutPlan, ExerciseSet } from "@shared/types"
+import type { WorkoutPlanDTO, ExerciseSetDTO } from "@shared/types/dto"
+import { 
+  isWorkoutPlanDTO, 
+  isExerciseSetDTO, 
+  safeParseWorkoutPlan,
+  safeParseWorkoutSessionArray 
+} from "@shared/types/guards"
 
 interface SessionData {
   sessionId: number
   planId?: number
   startTime: number
-  plan?: any
-  exercises?: any[]
-  exerciseSets?: any[]
+  plan?: WorkoutPlanDTO | null
+  exercises?: WorkoutPlanDTO['exercises']
+  exerciseSets?: ExerciseSetDTO[]
   notes?: string
 }
 
@@ -43,7 +50,10 @@ export function useSessionState() {
   )
 
   const initializeSession = useCallback(
-    (session?: WorkoutSession, plan?: any) => {
+    (session?: WorkoutSession, plan?: unknown) => {
+      // 타입 가드를 사용하여 안전하게 plan 검증
+      const validatedPlan = plan ? safeParseWorkoutPlan(plan) : null
+      
       if (session) {
         setCurrentSession(session)
         // 세션 데이터 초기화
@@ -51,14 +61,14 @@ export function useSessionState() {
           sessionId: session.id || Date.now(),
           startTime: Date.now(),
           exerciseSets: session.exerciseSets || [],
-          plan: plan,
+          plan: validatedPlan,
         })
-      } else if (plan) {
+      } else if (validatedPlan) {
         const newSession: WorkoutSession = {
           id: 0,
           userId: 0,
-          name: plan.name || "새 운동 세션",
-          description: plan.description || "",
+          name: validatedPlan.name || "새 운동 세션",
+          description: validatedPlan.description || "",
           startTime: new Date(),
           endTime: undefined,
           duration: undefined,
@@ -73,10 +83,10 @@ export function useSessionState() {
         // 계획 기반 세션 데이터 초기화
         setCurrentSessionData({
           sessionId: Date.now(),
-          planId: plan.id,
+          planId: validatedPlan.id,
           startTime: Date.now(),
-          plan: plan,
-          exerciseSets: plan.exercises || [],
+          plan: validatedPlan,
+          exercises: validatedPlan.exercises || [],
         })
       } else {
         const emptySession: WorkoutSession = {
@@ -126,11 +136,11 @@ export function useSessionState() {
   }, [])
 
   const updateSession = useCallback((updates: Partial<WorkoutSession>) => {
-    setCurrentSession(prev => ({ ...prev, ...updates }))
+    setCurrentSession((prev: WorkoutSession) => ({ ...prev, ...updates }))
   }, [])
 
   const completeSet = useCallback((exerciseIndex: number) => {
-    setCompletedSets(prev => ({
+    setCompletedSets((prev: Record<number, number>) => ({
       ...prev,
       [exerciseIndex]: (prev[exerciseIndex] || 0) + 1,
     }))

@@ -19,37 +19,69 @@ import path from "path"
 // 환경 설정 import
 import { config } from "./config/env"
 
+// 환경 변수 검증
+if (!config.corsOrigin || config.corsOrigin.length === 0) {
+  console.warn('⚠️ CORS_ORIGIN 환경 변수가 설정되지 않았습니다. 기본 localhost 설정을 사용합니다.')
+}
+
 // Express 애플리케이션 인스턴스 생성
 const app = express()
 
 // 환경별 CORS 설정
-const corsOptions = {
-  origin:
-    config.environment === "production"
-      ? [
-          // 프로덕션 도메인들
-          "https://yourdomain.com",
-          "https://www.yourdomain.com",
-          // 개발 환경 (필요시)
-          "http://localhost:5173",
-          "http://localhost:3000",
-        ]
-      : [
-          // 개발 환경
-          "http://localhost:5173",
-          "http://localhost:3000",
-        ],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-Requested-With",
-    "X-API-Key",
-  ],
-  exposedHeaders: ["X-Total-Count"],
-  maxAge: 86400, // 24시간
+const getCorsOptions = () => {
+  const isDevelopment = config.environment === "development"
+  
+  // 기본 localhost origins (환경 변수가 없을 때 사용)
+  const defaultLocalhostOrigins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:5000",
+    "http://localhost:5001",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5000",
+    "http://127.0.0.1:5001",
+  ]
+  
+  // 환경 변수에서 CORS origins 가져오기
+  let envOrigins = config.corsOrigin && config.corsOrigin.length > 0 
+    ? config.corsOrigin 
+    : (isDevelopment ? defaultLocalhostOrigins : [])
+  
+  // 개발 환경에서는 항상 localhost origins 포함
+  if (isDevelopment) {
+    envOrigins = [...new Set([...envOrigins, ...defaultLocalhostOrigins])]
+  }
+  
+  console.log(`🌐 CORS 설정 - 환경: ${config.environment}`)
+  console.log(`🌐 허용된 Origins: ${envOrigins.join(', ')}`)
+  
+  return {
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // origin이 없거나 허용된 목록에 있으면 허용
+      if (!origin || envOrigins.includes(origin)) {
+        console.log(`✅ CORS 허용: ${origin || 'no origin'}`)
+        callback(null, true)
+      } else {
+        console.warn(`❌ CORS 차단: ${origin}`)
+        console.warn(`🌐 허용된 Origins: ${envOrigins.join(', ')}`)
+        callback(new Error(`Not allowed by CORS in ${config.environment}`), false)
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "X-API-Key",
+    ],
+    exposedHeaders: ["X-Total-Count"],
+    maxAge: 86400, // 24시간
+  }
 }
+
+const corsOptions = getCorsOptions()
 
 // 보안 미들웨어 설정 - Helmet을 사용한 보안 헤더 추가
 app.use(

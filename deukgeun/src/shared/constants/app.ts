@@ -21,13 +21,13 @@ export const ENV = {
 // 기본 설정
 export const DEFAULT_CONFIG = {
   PORT: 5000,
-  API_BASE_URL: "http://localhost:5000",
-  FRONTEND_URL: "http://localhost:5173",
+  API_BASE_URL: "",
+  FRONTEND_URL: "",
   DATABASE_HOST: "localhost",
   DATABASE_PORT: 3306,
   DATABASE_NAME: "deukgeun_db",
   JWT_EXPIRES_IN: "7d",
-  CORS_ORIGIN: "http://localhost:5173",
+  CORS_ORIGIN: "",
   UPLOAD_PATH: "./uploads",
   MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
   RATE_LIMIT_WINDOW: 15 * 60 * 1000, // 15분

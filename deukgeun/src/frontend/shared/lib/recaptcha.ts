@@ -22,9 +22,9 @@ if (typeof window === 'undefined') {
 // Default config values
 const config = {
   RECAPTCHA: {
-    SITE_KEY: process.env.REACT_APP_RECAPTCHA_SITE_KEY || '',
-    IS_DEVELOPMENT: process.env.NODE_ENV === 'development',
-    IS_TEST_KEY: process.env.REACT_APP_RECAPTCHA_SITE_KEY === '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+    SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY || '',
+    IS_DEVELOPMENT: import.meta.env.MODE === 'development',
+    IS_TEST_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY === '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
   },
 }
 
@@ -118,7 +118,7 @@ const loadRecaptchaScript = (): Promise<void> => {
 }
 
 // reCAPTCHA 토큰 생성 (v3)
-const executeRecaptcha = async (
+export const executeRecaptcha = async (
   action: string = "login"
 ): Promise<string> => {
   try {
@@ -188,7 +188,7 @@ const renderRecaptchaWidget = (
 }
 
 // 개발용 더미 토큰 생성
-const getDummyRecaptchaToken = (): string => {
+export const getDummyRecaptchaToken = (): string => {
   const timestamp = Date.now()
   const randomId = Math.random().toString(36).substring(2, 15)
   return `dummy-token-${timestamp}-${randomId}`
@@ -209,10 +209,17 @@ const resetRecaptchaState = (): void => {
 }
 
 // 환경별 reCAPTCHA 사용 가능 여부 확인
-const isRecaptchaAvailable = (): boolean => {
-  return (
-    config.RECAPTCHA.IS_DEVELOPMENT ||
-    config.RECAPTCHA.IS_TEST_KEY ||
-    (recaptchaState.isLoaded && !!window.grecaptcha)
-  )
+export const isRecaptchaAvailable = (): boolean => {
+  // 개발 환경에서는 항상 사용 가능
+  if (config.RECAPTCHA.IS_DEVELOPMENT || config.RECAPTCHA.IS_TEST_KEY) {
+    console.log('🔧 개발 환경: reCAPTCHA 사용 가능')
+    return true
+  }
+  
+  const isAvailable = recaptchaState.isLoaded && !!window.grecaptcha
+  console.log('🔍 reCAPTCHA 사용 가능 여부:', isAvailable, {
+    isLoaded: recaptchaState.isLoaded,
+    hasGrecaptcha: !!window.grecaptcha
+  })
+  return isAvailable
 }

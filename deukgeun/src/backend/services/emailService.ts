@@ -102,7 +102,7 @@ class EmailService {
     resetToken: string,
     nickname?: string
   ): Promise<boolean> {
-    const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password?token=${resetToken}`
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`
 
     const subject = "[GymApp] 비밀번호 재설정 링크"
     const html = this.generatePasswordResetEmailHTML(resetUrl, nickname)

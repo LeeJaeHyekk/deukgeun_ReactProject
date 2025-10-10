@@ -391,7 +391,7 @@ export const authApi = {
     console.log('🔄 호출 URL:', API_ENDPOINTS.AUTH.REFRESH)
     console.log(
       '🔄 API_BASE_URL:',
-      import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+      import.meta.env.VITE_BACKEND_URL
     )
 
     try {

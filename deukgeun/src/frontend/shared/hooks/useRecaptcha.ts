@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react'
-import { executeRecaptchaV3,
+import { executeRecaptcha,
   getDummyRecaptchaToken,
   isRecaptchaAvailable,
- } from '@shared/lib/recaptcha'
+ } from '@frontend/shared/lib/recaptcha'
 import { config } from '@shared/config'
 
 interface UseRecaptchaOptions {
@@ -39,13 +39,15 @@ function useRecaptcha(
 
       // 개발 환경에서는 더미 토큰 사용
       if (config.RECAPTCHA.IS_DEVELOPMENT || config.RECAPTCHA.IS_TEST_KEY) {
+        console.log('🔧 개발 환경: 더미 reCAPTCHA 토큰 생성')
         const dummyToken = getDummyRecaptchaToken()
+        console.log('✅ 더미 reCAPTCHA 토큰:', dummyToken)
         onSuccess?.(dummyToken)
         return dummyToken
       }
 
       // 실제 reCAPTCHA 실행
-      const token = await executeRecaptchaV3(action)
+      const token = await executeRecaptcha(action)
       onSuccess?.(token)
       return token
     } catch (err) {

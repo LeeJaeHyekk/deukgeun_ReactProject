@@ -52,7 +52,8 @@
   },
   "include": [
     "src/frontend/**/*",
-    "src/shared/**/*"
+    "src/shared/**/*",
+    "vite-env.d.ts"
   ],
   "exclude": [
     "node_modules", 

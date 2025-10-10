@@ -1,0 +1,175 @@
+/* ChartsSection.module.css - 차트 섹션 스타일 */
+
+.chartsSection {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(15px);
+  min-height: 400px;
+}
+
+.chartsSection h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 24px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  height: 100%;
+  min-height: 300px;
+}
+
+/* 파이 차트 컨테이너 - [0][2] 구조로 변경 */
+.pieChartContainer {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+  height: 100%;
+  align-items: center;
+}
+
+.pieChartWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.legendWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  height: 100%;
+}
+
+.chartContainer {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+}
+
+.chartContainer h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+.chartContent {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+/* 차트 내부 스타일 */
+.chartContainer svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.chartContainer .progress-chart,
+.chartContainer .pie-chart {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+  .chartsGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .chartContainer {
+    min-height: 250px;
+  }
+
+  .pieChartContainer {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .pieChartWrapper {
+    order: 1;
+  }
+
+  .legendWrapper {
+    order: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .chartsSection {
+    padding: 20px;
+    min-height: 350px;
+  }
+
+  .chartsSection h3 {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+  }
+
+  .chartsGrid {
+    gap: 16px;
+  }
+
+  .chartContainer {
+    padding: 16px;
+    min-height: 220px;
+  }
+
+  .chartContainer h4 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+
+  .chartContent {
+    min-height: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chartsSection {
+    padding: 16px;
+    min-height: 300px;
+  }
+
+  .chartsSection h3 {
+    font-size: 1.125rem;
+    margin-bottom: 16px;
+  }
+
+  .chartContainer {
+    padding: 12px;
+    min-height: 200px;
+  }
+
+  .chartContent {
+    min-height: 140px;
+  }
+}

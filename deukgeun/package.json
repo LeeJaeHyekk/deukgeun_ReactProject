@@ -10,6 +10,7 @@
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit",
+    "validate-env": "npx tsx -e \"import('./src/shared/utils/envValidator.js').then(m => m.runEnvironmentValidation())\"",
     "type-safety": "npx tsx scripts/type-safety-checker.ts",
     "type-safety:report": "npm run type-safety && cat type-safety-report.json",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",

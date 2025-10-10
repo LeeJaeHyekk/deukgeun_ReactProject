@@ -165,12 +165,12 @@ export async function executeRecaptchaV3(
 ): Promise<string> {
   try {
     // Development environment - return dummy token
-    if (process.env.DEV) {
+    if (import.meta.env.DEV) {
       console.log('🔧 개발 환경: 더미 reCAPTCHA 토큰 사용')
       return getDummyRecaptchaToken()
     }
 
-    await loadRecaptchaScript(process.env.VITE_RECAPTCHA_SITE_KEY || '')
+    await loadRecaptchaScript(import.meta.env.VITE_RECAPTCHA_SITE_KEY || '')
 
     if (!window.grecaptcha) {
       throw new Error('reCAPTCHA가 로드되지 않았습니다.')
@@ -184,7 +184,7 @@ export async function executeRecaptchaV3(
       window.grecaptcha.ready(async () => {
         try {
           const token = await (window.grecaptcha as any).enterprise.execute(
-            process.env.VITE_RECAPTCHA_SITE_KEY || '',
+            import.meta.env.VITE_RECAPTCHA_SITE_KEY || '',
             {
               action: action,
             }
@@ -303,5 +303,16 @@ export const getDummyRecaptchaToken = (): string => {
 
 // Check if reCAPTCHA is available
 export const isRecaptchaAvailable = (): boolean => {
-  return typeof window !== 'undefined' && !!window.grecaptcha
+  // 개발 환경에서는 항상 사용 가능
+  if (import.meta.env.DEV) {
+    console.log('🔧 개발 환경: reCAPTCHA 사용 가능 (shared)')
+    return true
+  }
+  
+  const isAvailable = typeof window !== 'undefined' && !!window.grecaptcha
+  console.log('🔍 reCAPTCHA 사용 가능 여부 (shared):', isAvailable, {
+    hasWindow: typeof window !== 'undefined',
+    hasGrecaptcha: typeof window !== 'undefined' && !!window.grecaptcha
+  })
+  return isAvailable
 }

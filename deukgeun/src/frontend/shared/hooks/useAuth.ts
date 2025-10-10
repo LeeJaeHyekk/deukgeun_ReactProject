@@ -136,17 +136,28 @@ function useAuth(): UseAuthReturn {
   // 자동 로그인 체크 (localStorage → refresh token)
   const checkAutoLogin = useCallback(async (): Promise<boolean> => {
     try {
+      console.log("🔍 자동 로그인 체크 시작...")
+      
       const token = storage.get("accessToken")
       const storedUser = storage.get("user")
 
+      console.log("🔍 저장된 토큰 상태:", {
+        hasToken: !!token,
+        hasUser: !!storedUser,
+        tokenValid: token ? isTokenValid(token) : false,
+      })
+
       // 1. localStorage에서 유효한 토큰 확인
       if (token && storedUser && isTokenValid(token)) {
+        console.log("✅ 유효한 토큰으로 자동 로그인 성공")
         const validatedUser = validateUser(storedUser)
         if (validatedUser) {
           setUser({ ...validatedUser, accessToken: token })
           setupTokenRefresh(token)
           setIsLoading(false)
           return true
+        } else {
+          console.warn("⚠️ 저장된 사용자 데이터가 유효하지 않음")
         }
       }
 
@@ -157,6 +168,8 @@ function useAuth(): UseAuthReturn {
           try {
             console.log("🔄 토큰 갱신 시도...")
             const response = await authApi.refreshToken()
+            console.log("🔄 토큰 갱신 응답:", response)
+            
             const validatedResponse = validateRefreshTokenResponse(response)
             
             if (validatedResponse?.accessToken) {
@@ -166,14 +179,21 @@ function useAuth(): UseAuthReturn {
               setupTokenRefresh(validatedResponse.accessToken)
               setIsLoading(false)
               return true
+            } else {
+              console.warn("⚠️ 토큰 갱신 응답이 유효하지 않음:", response)
             }
           } catch (err) {
+            console.error("❌ 토큰 갱신 실패:", err)
             console.log("❌ 토큰 갱신 실패, 로그아웃 처리")
             clearUser()
             storage.remove("accessToken")
             storage.remove("user")
           }
+        } else {
+          console.warn("⚠️ 저장된 사용자 데이터가 유효하지 않음")
         }
+      } else {
+        console.log("ℹ️ 저장된 사용자 데이터가 없음")
       }
 
       // 3. 자동 로그인 실패

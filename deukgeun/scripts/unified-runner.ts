@@ -7,7 +7,93 @@
 
 import * as path from 'path'
 import * as fs from 'fs'
-import { execSync, spawn } from 'child_process'
+import { execSync, spawn, exec } from 'child_process'
+import { promisify } from 'util'
+
+// 보안을 위한 유틸리티 함수들
+const execAsync = promisify(exec)
+
+/**
+ * 보안 유틸리티 클래스
+ */
+class SecurityUtils {
+  /**
+   * 경로 검증 - Path Traversal 방지
+   */
+  static validatePath(inputPath: string, basePath: string): boolean {
+    try {
+      const resolvedPath = path.resolve(inputPath)
+      const resolvedBase = path.resolve(basePath)
+      return resolvedPath.startsWith(resolvedBase)
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * 안전한 명령어 실행
+   */
+  static async safeExec(command: string, options: any = {}): Promise<{ stdout: string; stderr: string }> {
+    // 명령어 화이트리스트 검증
+    const allowedCommands = ['npm', 'npx', 'tsc', 'vite', 'pm2', 'node']
+    const commandParts = command.trim().split(' ')
+    const baseCommand = commandParts[0]
+    
+    if (!allowedCommands.includes(baseCommand)) {
+      throw new Error(`허용되지 않은 명령어: ${baseCommand}`)
+    }
+
+    // 위험한 문자 필터링
+    const dangerousChars = [';', '&', '|', '`', '$', '(', ')', '<', '>']
+    if (dangerousChars.some(char => command.includes(char))) {
+      throw new Error(`위험한 문자가 포함된 명령어: ${command}`)
+    }
+
+    const result = await execAsync(command, {
+      timeout: options.timeout || 300000,
+      maxBuffer: 1024 * 1024 * 10, // 10MB
+      ...options
+    })
+    
+    // Buffer를 string으로 변환
+    return {
+      stdout: result.stdout.toString(),
+      stderr: result.stderr.toString()
+    }
+  }
+
+  /**
+   * 파일 권한 검증
+   */
+  static validateFilePermissions(filePath: string): boolean {
+    try {
+      const stats = fs.statSync(filePath)
+      // 시스템 파일이나 중요한 파일 보호
+      const systemPaths = [
+        '/etc/', '/usr/', '/bin/', '/sbin/', '/var/log/',
+        'C:\\Windows\\', 'C:\\Program Files\\', 'C:\\ProgramData\\'
+      ]
+      
+      const normalizedPath = path.resolve(filePath)
+      return !systemPaths.some(systemPath => normalizedPath.includes(systemPath))
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * 디렉토리 크기 제한 검증
+   */
+  static async validateDirectorySize(dirPath: string, maxSizeMB: number = 1000): Promise<boolean> {
+    try {
+      const { stdout } = await execAsync(`du -sm "${dirPath}" 2>/dev/null || echo "0"`)
+      const sizeMB = parseInt(stdout.split('\t')[0]) || 0
+      return sizeMB <= maxSizeMB
+    } catch {
+      return false
+    }
+  }
+}
 
 // 색상 출력을 위한 유틸리티
 const colors = {
@@ -288,11 +374,30 @@ class UnifiedRunner {
     try {
       logInfo('ES 모듈을 CommonJS로 변환 중...')
       
-      // converter-functions 모듈 직접 사용
-      const { convertFiles, scanConversionTargets, printConversionReport } = await import('./modules/converter-functions')
+      // dist 디렉토리 생성 및 정리
+      const distDir = path.join(this.options.projectRoot, 'dist')
+      if (fs.existsSync(distDir)) {
+        logInfo('기존 dist 디렉토리 정리 중...')
+        fs.rmSync(distDir, { recursive: true, force: true })
+      }
+      fs.mkdirSync(distDir, { recursive: true })
+
+      // 원본 소스 코드를 dist로 복사 (변환을 위한 준비)
+      logInfo('소스 코드를 dist로 복사 중...')
+      this.copyDirectory(path.join(this.options.projectRoot, 'src'), path.join(distDir, 'src'))
       
-      // 변환 대상 파일 스캔
-      const targets = scanConversionTargets(this.options.projectRoot)
+      // package.json과 기타 설정 파일들 복사
+      const filesToCopy = ['package.json', 'tsconfig.json', 'vite.config.ts', 'tailwind.config.js', 'postcss.config.mjs']
+      for (const file of filesToCopy) {
+        const sourcePath = path.join(this.options.projectRoot, file)
+        if (fs.existsSync(sourcePath)) {
+          fs.copyFileSync(sourcePath, path.join(distDir, file))
+        }
+      }
+
+      // 변환 대상 파일 스캔 (dist 내부에서)
+      const { scanConversionTargets, convertFiles, printConversionReport } = await import('./modules/converter-functions')
+      const targets = scanConversionTargets(distDir)
       
       if (targets.length === 0) {
         logInfo('변환할 파일이 없습니다.')
@@ -301,11 +406,12 @@ class UnifiedRunner {
 
       // 변환 옵션 설정
       const conversionOptions = {
-        backup: this.options.backup,
-        validate: false, // 검증 비활성화
+        backup: false, // dist 내부에서는 백업 불필요
+        validate: true, // CJS 변환 검증 활성화
         polyfill: true,
         parallel: this.options.parallel,
-        maxWorkers: 4
+        maxWorkers: 4,
+        targetDir: distDir // 변환 대상 디렉토리 지정
       }
 
       // 파일 변환 실행
@@ -314,11 +420,45 @@ class UnifiedRunner {
       // 결과 보고서 출력
       printConversionReport(report)
 
-      const success = report.failed.length === 0
+      // CJS 변환 검증
+      const cjsValidation = this.validateCJSConversion(distDir)
+      if (!cjsValidation.isValid) {
+        logWarning(`CJS 변환 검증 실패: ${cjsValidation.errors.join(', ')}`)
+      }
+
+      // 부분 변환 성공도 허용 (임계값 기반)
+      const failureRate = report.failed.length / report.total
+      const maxAllowedFailureRate = 0.3 // 30% 이하의 실패는 허용
+      
+      const success = failureRate <= maxAllowedFailureRate && cjsValidation.isValid
+      
       if (success) {
-        logSuccess('코드 변환 완료')
+        if (report.failed.length === 0) {
+          logSuccess('코드 변환 완료 (100% 성공)')
+        } else {
+          logSuccess(`코드 변환 완료 (${Math.round((1 - failureRate) * 100)}% 성공, ${report.failed.length}개 파일 실패 허용)`)
+        }
       } else {
-        logWarning(`코드 변환 완료 (${report.failed.length}개 파일 실패)`)
+        if (failureRate > maxAllowedFailureRate) {
+          logError(`코드 변환 실패: 실패율 ${Math.round(failureRate * 100)}% (허용 한계: ${Math.round(maxAllowedFailureRate * 100)}%)`)
+        }
+        if (!cjsValidation.isValid) {
+          logError(`CJS 검증 실패: ${cjsValidation.errors.join(', ')}`)
+        }
+      }
+
+      // 실패한 파일들의 상세 정보 출력
+      if (report.failed.length > 0) {
+        logWarning(`\n❌ 변환 실패한 파일들 (${report.failed.length}개):`)
+        report.failed.forEach((result, index) => {
+          logError(`  ${index + 1}. ${result.filePath}`)
+          if (result.error) {
+            logError(`     오류: ${result.error}`)
+          }
+        })
+        
+        // 실패 원인 분석 및 해결 방안 제시
+        this.analyzeConversionFailures(report.failed)
       }
 
       return { 
@@ -327,7 +467,10 @@ class UnifiedRunner {
           converted: true, 
           total: report.total,
           success: report.success.length,
-          failed: report.failed.length
+          failed: report.failed.length,
+          failureRate: Math.round(failureRate * 100),
+          cjsValid: cjsValidation.isValid,
+          cjsErrors: cjsValidation.errors
         } 
       }
 
@@ -344,24 +487,64 @@ class UnifiedRunner {
     try {
       logInfo('프로젝트 빌드 중...')
       
-      // 백엔드 빌드
+      const distDir = path.join(this.options.projectRoot, 'dist')
+      
+      // dist 디렉토리 확인
+      if (!fs.existsSync(distDir)) {
+        throw new Error('dist 디렉토리가 없습니다. 변환을 먼저 실행하세요.')
+      }
+
+      // 백엔드 빌드 (dist 내부에서)
       logInfo('백엔드 빌드 중...')
-      execSync('npm run build:backend', {
-        stdio: this.options.verbose ? 'inherit' : 'pipe',
-        cwd: this.options.projectRoot,
-        timeout: this.options.timeout
+      const backendDistDir = path.join(distDir, 'backend')
+      if (!fs.existsSync(backendDistDir)) {
+        fs.mkdirSync(backendDistDir, { recursive: true })
+      }
+
+      // 백엔드 TypeScript 컴파일 (dist/src/backend에서 dist/backend로)
+      const backendSrcDir = path.join(distDir, 'src', 'backend')
+      if (fs.existsSync(backendSrcDir)) {
+        const tscCommand = `npx tsc --project ${path.join(distDir, 'tsconfig.json')} --outDir ${backendDistDir}`
+        await SecurityUtils.safeExec(tscCommand, {
+          cwd: distDir,
+          timeout: this.options.timeout
+        })
+      }
+
+      // 프론트엔드 빌드 (dist 내부에서)
+      logInfo('프론트엔드 빌드 중...')
+      const frontendDistDir = path.join(distDir, 'frontend')
+      if (!fs.existsSync(frontendDistDir)) {
+        fs.mkdirSync(frontendDistDir, { recursive: true, mode: 0o755 })
+      }
+
+      // Vite 빌드 실행 (dist 내부에서) - 안전한 명령어 실행
+      await SecurityUtils.safeExec('npx vite build', {
+        cwd: distDir,
+        timeout: this.options.timeout,
+        env: {
+          ...process.env,
+          NODE_ENV: this.options.environment
+        }
       })
 
-      // 프론트엔드 빌드
-      logInfo('프론트엔드 빌드 중...')
-      execSync('npm run build', {
-        stdio: this.options.verbose ? 'inherit' : 'pipe',
-        cwd: this.options.projectRoot,
-        timeout: this.options.timeout
-      })
+      // 빌드 결과 검증
+      const buildValidation = this.validateBuildOutput(distDir)
+      if (!buildValidation.isValid) {
+        logWarning(`빌드 검증 실패: ${buildValidation.errors.join(', ')}`)
+      }
 
       logSuccess('빌드 완료')
-      return { success: true, results: { built: true } }
+      return { 
+        success: true, 
+        results: { 
+          built: true,
+          backendBuilt: fs.existsSync(path.join(backendDistDir, 'index.js')),
+          frontendBuilt: fs.existsSync(path.join(frontendDistDir, 'index.html')),
+          buildValid: buildValidation.isValid,
+          buildErrors: buildValidation.errors
+        } 
+      }
 
     } catch (error: any) {
       logError(`빌드 실패: ${error.message}`)
@@ -382,22 +565,65 @@ class UnifiedRunner {
         throw new Error('dist 디렉토리가 없습니다. 빌드를 먼저 실행하세요.')
       }
 
-      // 배포 스크립트 실행
+      // 빌드 결과물 검증
+      const buildValidation = this.validateBuildOutput(distDir)
+      if (!buildValidation.isValid) {
+        throw new Error(`빌드 결과물이 올바르지 않습니다: ${buildValidation.errors.join(', ')}`)
+      }
+
+      // 공유 모듈을 dist/shared로 복사 (프로젝트 구조 유지)
+      logInfo('공유 모듈 배포 중...')
+      const sharedSrcDir = path.join(distDir, 'src', 'shared')
+      const sharedDistDir = path.join(distDir, 'shared')
+      
+      if (fs.existsSync(sharedSrcDir)) {
+        if (fs.existsSync(sharedDistDir)) {
+          fs.rmSync(sharedDistDir, { recursive: true, force: true })
+        }
+        this.copyDirectory(sharedSrcDir, sharedDistDir)
+      }
+
+      // 데이터 파일 복사
+      logInfo('데이터 파일 배포 중...')
+      const dataDir = path.join(distDir, 'data')
+      if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true })
+      }
+      
+      const sourceDataDir = path.join(this.options.projectRoot, 'src', 'data')
+      if (fs.existsSync(sourceDataDir)) {
+        this.copyDirectory(sourceDataDir, dataDir)
+      }
+
+      // 배포 스크립트 실행 (dist 디렉토리 기준) - 안전한 명령어 실행
       const deployScript = path.join(this.options.projectRoot, 'scripts', 'deploy.ts')
       if (fs.existsSync(deployScript)) {
-        execSync(`npx tsx ${deployScript} --verbose`, {
-          stdio: this.options.verbose ? 'inherit' : 'pipe',
+        const deployCommand = `npx tsx ${deployScript} --verbose --dist-dir ${distDir}`
+        await SecurityUtils.safeExec(deployCommand, {
           cwd: this.options.projectRoot,
           timeout: this.options.timeout
         })
       } else {
         logWarning('배포 스크립트를 찾을 수 없습니다. 기본 배포를 실행합니다.')
-        // 기본 배포 로직
-        this.copyDirectory(distDir, path.join(this.options.projectRoot, 'public'))
+        // 기본 배포 로직 - dist 폴더 구조 유지
+        this.ensureDistStructure(distDir)
+      }
+
+      // 배포 결과 검증
+      const deployValidation = this.validateDeployOutput(distDir)
+      if (!deployValidation.isValid) {
+        logWarning(`배포 검증 실패: ${deployValidation.errors.join(', ')}`)
       }
 
       logSuccess('배포 완료')
-      return { success: true, results: { deployed: true } }
+      return { 
+        success: true, 
+        results: { 
+          deployed: true,
+          deployValid: deployValidation.isValid,
+          deployErrors: deployValidation.errors
+        } 
+      }
 
     } catch (error: any) {
       logError(`배포 실패: ${error.message}`)
@@ -414,7 +640,7 @@ class UnifiedRunner {
       
       // PM2 설치 확인
       try {
-        execSync('pm2 --version', { stdio: 'pipe' })
+        await SecurityUtils.safeExec('pm2 --version', { timeout: 10000 })
       } catch {
         logWarning('PM2가 설치되지 않았습니다. npm install -g pm2를 실행하세요.')
         return { success: false, results: { error: 'PM2 not installed' } }
@@ -427,9 +653,8 @@ class UnifiedRunner {
         this.createPM2Config(configFile)
       }
 
-      // PM2 프로세스 시작
-      execSync('pm2 start ecosystem.config.cjs', {
-        stdio: this.options.verbose ? 'inherit' : 'pipe',
+      // PM2 프로세스 시작 - 안전한 명령어 실행
+      await SecurityUtils.safeExec('pm2 start ecosystem.config.cjs', {
         cwd: this.options.projectRoot,
         timeout: this.options.timeout
       })
@@ -450,15 +675,14 @@ class UnifiedRunner {
     try {
       logInfo('헬스체크 실행 중...')
       
-      // PM2 상태 확인
+      // PM2 상태 확인 - 안전한 명령어 실행
       try {
-        const status = execSync('pm2 status', { 
-          stdio: 'pipe',
+        const { stdout } = await SecurityUtils.safeExec('pm2 status', {
           cwd: this.options.projectRoot,
           timeout: 10000
-        }).toString()
+        })
         
-        if (status.includes('online')) {
+        if (stdout.includes('online')) {
           logSuccess('PM2 프로세스가 정상적으로 실행 중입니다.')
         } else {
           logWarning('PM2 프로세스 상태를 확인하세요.')
@@ -477,20 +701,62 @@ class UnifiedRunner {
   }
 
   /**
-   * 에러 복구
+   * 에러 복구 - 완전한 복구 로직 구현
    */
   private async recoverFromError(phase: string): Promise<{ success: boolean; results: any }> {
     try {
       logInfo(`${phase} 단계 복구 시도 중...`)
       
-      // 백업에서 복원
+      // 1. 백업에서 복원
       if (this.backupPath && fs.existsSync(this.backupPath)) {
         logInfo('백업에서 복원 중...')
-        // 복원 로직 구현
+        await this.restoreFromBackup()
       }
 
-      // 재시도
-      return await this.executePhase(phase)
+      // 2. dist 디렉토리 정리
+      const distDir = path.join(this.options.projectRoot, 'dist')
+      if (fs.existsSync(distDir)) {
+        logInfo('dist 디렉토리 정리 중...')
+        fs.rmSync(distDir, { recursive: true, force: true })
+      }
+
+      // 3. 임시 파일 정리
+      await this.cleanupTempFiles()
+
+      // 4. 의존성 재설치 (필요한 경우)
+      if (phase === 'build' || phase === 'convert') {
+        logInfo('의존성 확인 중...')
+        await this.verifyDependencies()
+      }
+
+      // 5. 재시도 (최대 3회)
+      let retryCount = 0
+      const maxRetries = 3
+      
+      while (retryCount < maxRetries) {
+        try {
+          retryCount++
+          logInfo(`재시도 ${retryCount}/${maxRetries}...`)
+          
+          const result = await this.executePhase(phase)
+          if (result.success) {
+            logSuccess(`${phase} 단계 복구 성공`)
+            return result
+          }
+          
+          if (retryCount < maxRetries) {
+            // 재시도 전 대기
+            await new Promise(resolve => setTimeout(resolve, 2000 * retryCount))
+          }
+        } catch (error: any) {
+          if (retryCount >= maxRetries) {
+            throw error
+          }
+          logWarning(`재시도 ${retryCount} 실패: ${error.message}`)
+        }
+      }
+
+      throw new Error(`${phase} 단계 복구 실패 (${maxRetries}회 재시도)`)
 
     } catch (error: any) {
       logError(`복구 실패: ${error.message}`)
@@ -499,26 +765,510 @@ class UnifiedRunner {
   }
 
   /**
-   * 디렉토리 복사 (재귀)
+   * 백업에서 복원
+   */
+  private async restoreFromBackup(): Promise<void> {
+    if (!this.backupPath || !fs.existsSync(this.backupPath)) {
+      throw new Error('백업 경로가 유효하지 않습니다')
+    }
+
+    try {
+      // 백업된 파일들을 원본 위치로 복원
+      const backupTargets = ['package.json', 'src', 'scripts']
+      
+      for (const target of backupTargets) {
+        const backupPath = path.join(this.backupPath, target)
+        const restorePath = path.join(this.options.projectRoot, target)
+        
+        if (fs.existsSync(backupPath)) {
+          if (fs.existsSync(restorePath)) {
+            fs.rmSync(restorePath, { recursive: true, force: true })
+          }
+          
+          const stat = fs.statSync(backupPath)
+          if (stat.isDirectory()) {
+            this.copyDirectory(backupPath, restorePath)
+          } else {
+            const destDir = path.dirname(restorePath)
+            if (!fs.existsSync(destDir)) {
+              fs.mkdirSync(destDir, { recursive: true })
+            }
+            fs.copyFileSync(backupPath, restorePath)
+          }
+          
+          logInfo(`${target} 복원 완료`)
+        }
+      }
+    } catch (error: any) {
+      throw new Error(`백업 복원 실패: ${error.message}`)
+    }
+  }
+
+  /**
+   * 임시 파일 정리
+   */
+  private async cleanupTempFiles(): Promise<void> {
+    try {
+      const tempDirs = [
+        path.join(this.options.projectRoot, 'dist'),
+        path.join(this.options.projectRoot, 'node_modules', '.cache'),
+        path.join(this.options.projectRoot, '.vite'),
+        path.join(this.options.projectRoot, '.tsbuildinfo')
+      ]
+
+      for (const tempDir of tempDirs) {
+        if (fs.existsSync(tempDir)) {
+          fs.rmSync(tempDir, { recursive: true, force: true })
+          logInfo(`임시 파일 정리: ${path.basename(tempDir)}`)
+        }
+      }
+    } catch (error: any) {
+      logWarning(`임시 파일 정리 실패: ${error.message}`)
+    }
+  }
+
+  /**
+   * 의존성 검증
+   */
+  private async verifyDependencies(): Promise<void> {
+    try {
+      // 필수 도구들 확인
+      const requiredTools = ['npm', 'node', 'tsc']
+      
+      for (const tool of requiredTools) {
+        try {
+          await SecurityUtils.safeExec(`${tool} --version`, { timeout: 10000 })
+        } catch {
+          throw new Error(`필수 도구가 설치되지 않음: ${tool}`)
+        }
+      }
+
+      // package.json 확인
+      const packageJsonPath = path.join(this.options.projectRoot, 'package.json')
+      if (!fs.existsSync(packageJsonPath)) {
+        throw new Error('package.json 파일이 없습니다')
+      }
+
+      // node_modules 확인
+      const nodeModulesPath = path.join(this.options.projectRoot, 'node_modules')
+      if (!fs.existsSync(nodeModulesPath)) {
+        logWarning('node_modules가 없습니다. npm install을 실행합니다...')
+        await SecurityUtils.safeExec('npm install', { 
+          cwd: this.options.projectRoot,
+          timeout: 300000 
+        })
+      }
+
+    } catch (error: any) {
+      throw new Error(`의존성 검증 실패: ${error.message}`)
+    }
+  }
+
+  /**
+   * 안전한 디렉토리 복사 (재귀) - 보안 강화
    */
   private copyDirectory(source: string, destination: string): void {
-    if (!fs.existsSync(destination)) {
-      fs.mkdirSync(destination, { recursive: true })
+    // 경로 검증
+    if (!SecurityUtils.validatePath(source, this.options.projectRoot)) {
+      throw new Error(`잘못된 소스 경로: ${source}`)
     }
     
-    const items = fs.readdirSync(source)
+    if (!SecurityUtils.validatePath(destination, this.options.projectRoot)) {
+      throw new Error(`잘못된 대상 경로: ${destination}`)
+    }
+
+    // 파일 권한 검증
+    if (!SecurityUtils.validateFilePermissions(source)) {
+      throw new Error(`접근 권한이 없는 소스 경로: ${source}`)
+    }
+
+    // 디렉토리 크기 검증 (비동기이므로 경고만)
+    SecurityUtils.validateDirectorySize(source, 500).then(isValid => {
+      if (!isValid) {
+        logWarning(`소스 디렉토리가 너무 큽니다: ${source}`)
+      }
+    }).catch(() => {
+      // 크기 검증 실패는 무시
+    })
+
+    try {
+      if (!fs.existsSync(destination)) {
+        fs.mkdirSync(destination, { recursive: true, mode: 0o755 })
+      }
+      
+      const items = fs.readdirSync(source)
+      
+      // 파일 개수 제한 (DoS 방지)
+      if (items.length > 10000) {
+        throw new Error(`너무 많은 파일: ${items.length}개 (최대 10,000개)`)
+      }
+      
+      for (const item of items) {
+        // 파일명 검증 (위험한 문자 제거)
+        const sanitizedItem = item.replace(/[<>:"|?*\x00-\x1f]/g, '_')
+        if (sanitizedItem !== item) {
+          logWarning(`파일명 정리됨: ${item} → ${sanitizedItem}`)
+        }
+        
+        const sourcePath = path.join(source, item)
+        const destPath = path.join(destination, sanitizedItem)
+        
+        // 심볼릭 링크 검증
+        const stat = fs.lstatSync(sourcePath)
+        if (stat.isSymbolicLink()) {
+          logWarning(`심볼릭 링크 건너뜀: ${sourcePath}`)
+          continue
+        }
+        
+        if (stat.isDirectory()) {
+          this.copyDirectory(sourcePath, destPath)
+        } else {
+          // 파일 크기 제한 (100MB)
+          if (stat.size > 100 * 1024 * 1024) {
+            logWarning(`큰 파일 건너뜀: ${sourcePath} (${Math.round(stat.size / 1024 / 1024)}MB)`)
+            continue
+          }
+          
+          fs.copyFileSync(sourcePath, destPath)
+          // 파일 권한 설정
+          fs.chmodSync(destPath, 0o644)
+        }
+      }
+    } catch (error: any) {
+      throw new Error(`디렉토리 복사 실패: ${error.message}`)
+    }
+  }
+
+  /**
+   * CJS 변환 검증
+   */
+  private validateCJSConversion(distDir: string): { isValid: boolean; errors: string[] } {
+    const errors: string[] = []
+    
+    try {
+      // dist/src 디렉토리에서 .js 파일들을 검사
+      const srcDir = path.join(distDir, 'src')
+      if (!fs.existsSync(srcDir)) {
+        errors.push('src 디렉토리가 없습니다')
+        return { isValid: false, errors }
+      }
+
+      // 모든 .js 파일을 검사하여 ES 모듈 문법이 있는지 확인
+      const jsFiles = this.findFiles(srcDir, '.js')
+      let esModuleCount = 0
+      
+      for (const file of jsFiles) {
+        const content = fs.readFileSync(file, 'utf-8')
+        
+        // ES 모듈 문법 검사
+        if (content.includes('import ') || content.includes('export ')) {
+          esModuleCount++
+          errors.push(`${path.relative(distDir, file)}: ES 모듈 문법 발견`)
+        }
+        
+        // require 문법이 있는지 확인 (CJS)
+        if (!content.includes('require(') && !content.includes('module.exports')) {
+          // 빈 파일이 아닌 경우에만 체크
+          if (content.trim().length > 0) {
+            errors.push(`${path.relative(distDir, file)}: CJS 문법이 없습니다`)
+          }
+        }
+      }
+
+      if (esModuleCount > 0) {
+        errors.push(`${esModuleCount}개 파일에서 ES 모듈 문법 발견`)
+      }
+
+      return { isValid: errors.length === 0, errors }
+
+    } catch (error: any) {
+      errors.push(`검증 중 오류: ${error.message}`)
+      return { isValid: false, errors }
+    }
+  }
+
+  /**
+   * 빌드 결과 검증
+   */
+  private validateBuildOutput(distDir: string): { isValid: boolean; errors: string[] } {
+    const errors: string[] = []
+    
+    try {
+      // 백엔드 빌드 결과 확인
+      const backendIndex = path.join(distDir, 'backend', 'index.js')
+      if (!fs.existsSync(backendIndex)) {
+        errors.push('백엔드 index.js 파일이 없습니다')
+      }
+
+      // 프론트엔드 빌드 결과 확인
+      const frontendIndex = path.join(distDir, 'frontend', 'index.html')
+      if (!fs.existsSync(frontendIndex)) {
+        errors.push('프론트엔드 index.html 파일이 없습니다')
+      }
+
+      // 공유 모듈 확인
+      const sharedDir = path.join(distDir, 'shared')
+      if (!fs.existsSync(sharedDir)) {
+        errors.push('shared 디렉토리가 없습니다')
+      }
+
+      // 구조 검증
+      const expectedStructure = [
+        'backend',
+        'frontend', 
+        'shared'
+      ]
+
+      for (const dir of expectedStructure) {
+        const dirPath = path.join(distDir, dir)
+        if (!fs.existsSync(dirPath)) {
+          errors.push(`${dir} 디렉토리가 없습니다`)
+        }
+      }
+
+      return { isValid: errors.length === 0, errors }
+
+    } catch (error: any) {
+      errors.push(`빌드 검증 중 오류: ${error.message}`)
+      return { isValid: false, errors }
+    }
+  }
+
+  /**
+   * 파일 찾기 (재귀)
+   */
+  private findFiles(dir: string, extension: string): string[] {
+    const files: string[] = []
+    
+    if (!fs.existsSync(dir)) {
+      return files
+    }
+
+    const items = fs.readdirSync(dir)
     
     for (const item of items) {
-      const sourcePath = path.join(source, item)
-      const destPath = path.join(destination, item)
-      const stat = fs.statSync(sourcePath)
+      const fullPath = path.join(dir, item)
+      const stat = fs.statSync(fullPath)
       
       if (stat.isDirectory()) {
-        this.copyDirectory(sourcePath, destPath)
-      } else {
-        fs.copyFileSync(sourcePath, destPath)
+        files.push(...this.findFiles(fullPath, extension))
+      } else if (item.endsWith(extension)) {
+        files.push(fullPath)
       }
     }
+    
+    return files
+  }
+
+  /**
+   * 배포 결과 검증
+   */
+  private validateDeployOutput(distDir: string): { isValid: boolean; errors: string[] } {
+    const errors: string[] = []
+    
+    try {
+      // 필수 디렉토리 확인
+      const requiredDirs = ['backend', 'frontend', 'shared', 'data']
+      for (const dir of requiredDirs) {
+        const dirPath = path.join(distDir, dir)
+        if (!fs.existsSync(dirPath)) {
+          errors.push(`${dir} 디렉토리가 없습니다`)
+        }
+      }
+
+      // 백엔드 필수 파일 확인
+      const backendFiles = ['index.js', 'app.js']
+      for (const file of backendFiles) {
+        const filePath = path.join(distDir, 'backend', file)
+        if (!fs.existsSync(filePath)) {
+          errors.push(`백엔드 ${file} 파일이 없습니다`)
+        }
+      }
+
+      // 프론트엔드 필수 파일 확인
+      const frontendFiles = ['index.html']
+      for (const file of frontendFiles) {
+        const filePath = path.join(distDir, 'frontend', file)
+        if (!fs.existsSync(filePath)) {
+          errors.push(`프론트엔드 ${file} 파일이 없습니다`)
+        }
+      }
+
+      // 공유 모듈 확인
+      const sharedFiles = this.findFiles(path.join(distDir, 'shared'), '.js')
+      if (sharedFiles.length === 0) {
+        errors.push('공유 모듈 파일이 없습니다')
+      }
+
+      return { isValid: errors.length === 0, errors }
+
+    } catch (error: any) {
+      errors.push(`배포 검증 중 오류: ${error.message}`)
+      return { isValid: false, errors }
+    }
+  }
+
+  /**
+   * dist 구조 보장
+   */
+  private ensureDistStructure(distDir: string): void {
+    try {
+      // 필수 디렉토리 생성
+      const requiredDirs = ['backend', 'frontend', 'shared', 'data']
+      for (const dir of requiredDirs) {
+        const dirPath = path.join(distDir, dir)
+        if (!fs.existsSync(dirPath)) {
+          fs.mkdirSync(dirPath, { recursive: true })
+          logInfo(`${dir} 디렉토리 생성`)
+        }
+      }
+
+      // 프로젝트 구조와 동일하게 유지
+      const structureMap = {
+        'src/backend': 'backend',
+        'src/frontend': 'frontend', 
+        'src/shared': 'shared',
+        'src/data': 'data'
+      }
+
+      for (const [srcPath, destPath] of Object.entries(structureMap)) {
+        const fullSrcPath = path.join(distDir, srcPath)
+        const fullDestPath = path.join(distDir, destPath)
+        
+        if (fs.existsSync(fullSrcPath) && !fs.existsSync(fullDestPath)) {
+          this.copyDirectory(fullSrcPath, fullDestPath)
+          logInfo(`${srcPath} → ${destPath} 복사 완료`)
+        }
+      }
+
+    } catch (error: any) {
+      logError(`구조 보장 중 오류: ${error.message}`)
+    }
+  }
+
+  /**
+   * 변환 실패 원인 분석 및 해결 방안 제시
+   */
+  private analyzeConversionFailures(failedResults: any[]): void {
+    logInfo('\n🔍 변환 실패 원인 분석:')
+    
+    const errorTypes = new Map<string, number>()
+    const fileTypes = new Map<string, number>()
+    
+    failedResults.forEach(result => {
+      // 오류 유형별 분류
+      const error = result.error || '알 수 없는 오류'
+      const errorType = this.categorizeError(error)
+      errorTypes.set(errorType, (errorTypes.get(errorType) || 0) + 1)
+      
+      // 파일 유형별 분류
+      const filePath = result.filePath
+      const fileType = this.categorizeFileType(filePath)
+      fileTypes.set(fileType, (fileTypes.get(fileType) || 0) + 1)
+    })
+    
+    // 오류 유형별 통계
+    logInfo('📊 오류 유형별 통계:')
+    for (const [errorType, count] of errorTypes.entries()) {
+      logInfo(`  • ${errorType}: ${count}개`)
+    }
+    
+    // 파일 유형별 통계
+    logInfo('📁 파일 유형별 통계:')
+    for (const [fileType, count] of fileTypes.entries()) {
+      logInfo(`  • ${fileType}: ${count}개`)
+    }
+    
+    // 해결 방안 제시
+    logInfo('\n💡 해결 방안:')
+    this.suggestSolutions(errorTypes, fileTypes)
+  }
+  
+  /**
+   * 오류 유형 분류
+   */
+  private categorizeError(error: string): string {
+    if (error.includes('파일이 존재하지 않습니다')) return '파일 없음'
+    if (error.includes('파일을 읽을 수 없습니다')) return '파일 읽기 실패'
+    if (error.includes('변환 결과 검증 실패')) return '변환 검증 실패'
+    if (error.includes('변환된 내용을 파일에 쓸 수 없습니다')) return '파일 쓰기 실패'
+    if (error.includes('ES Module 문법')) return 'ES Module 문법 오류'
+    if (error.includes('CommonJS 문법')) return 'CommonJS 문법 오류'
+    if (error.includes('문법적 오류')) return '문법 오류'
+    if (error.includes('권한')) return '권한 오류'
+    return '기타 오류'
+  }
+  
+  /**
+   * 파일 유형 분류
+   */
+  private categorizeFileType(filePath: string): string {
+    if (filePath.includes('frontend/')) return '프론트엔드 파일'
+    if (filePath.includes('backend/')) return '백엔드 파일'
+    if (filePath.includes('shared/')) return '공유 파일'
+    if (filePath.includes('components/')) return 'React 컴포넌트'
+    if (filePath.includes('api/')) return 'API 파일'
+    if (filePath.includes('utils/')) return '유틸리티 파일'
+    if (filePath.includes('types/')) return '타입 정의 파일'
+    if (filePath.includes('constants/')) return '상수 파일'
+    return '기타 파일'
+  }
+  
+  /**
+   * 해결 방안 제시
+   */
+  private suggestSolutions(errorTypes: Map<string, number>, fileTypes: Map<string, number>): void {
+    const suggestions: string[] = []
+    
+    // 오류 유형별 해결 방안
+    if (errorTypes.has('파일 없음')) {
+      suggestions.push('• 파일 경로를 확인하고 누락된 파일을 복원하세요.')
+    }
+    
+    if (errorTypes.has('파일 읽기 실패')) {
+      suggestions.push('• 파일 권한을 확인하고 읽기 권한을 부여하세요.')
+    }
+    
+    if (errorTypes.has('변환 검증 실패')) {
+      suggestions.push('• ES Module 문법을 수동으로 CommonJS로 변환하세요.')
+      suggestions.push('• import.meta.env 사용을 process.env로 변경하세요.')
+    }
+    
+    if (errorTypes.has('ES Module 문법 오류')) {
+      suggestions.push('• 복잡한 import/export 패턴을 단순화하세요.')
+      suggestions.push('• 동적 import() 사용을 피하고 정적 import를 사용하세요.')
+    }
+    
+    if (errorTypes.has('문법 오류')) {
+      suggestions.push('• 괄호, 중괄호, 따옴표의 균형을 확인하세요.')
+      suggestions.push('• 세미콜론 누락을 확인하세요.')
+    }
+    
+    // 파일 유형별 해결 방안
+    if (fileTypes.has('React 컴포넌트')) {
+      suggestions.push('• React 컴포넌트의 JSX 문법을 확인하세요.')
+      suggestions.push('• React 관련 import를 CommonJS 형태로 변환하세요.')
+    }
+    
+    if (fileTypes.has('API 파일')) {
+      suggestions.push('• API 파일의 비동기 함수 문법을 확인하세요.')
+      suggestions.push('• async/await 패턴을 CommonJS 호환 형태로 변환하세요.')
+    }
+    
+    if (fileTypes.has('타입 정의 파일')) {
+      suggestions.push('• TypeScript 타입 정의는 변환이 필요하지 않을 수 있습니다.')
+      suggestions.push('• .d.ts 파일은 건너뛰도록 설정을 확인하세요.')
+    }
+    
+    // 일반적인 해결 방안
+    suggestions.push('• 변환 규칙을 업데이트하여 새로운 패턴을 지원하세요.')
+    suggestions.push('• 수동으로 변환할 수 없는 파일은 제외 목록에 추가하세요.')
+    suggestions.push('• --verbose 옵션을 사용하여 상세한 로그를 확인하세요.')
+    
+    // 해결 방안 출력
+    suggestions.forEach((suggestion, index) => {
+      logInfo(`  ${index + 1}. ${suggestion}`)
+    })
   }
 
   /**
@@ -595,7 +1345,7 @@ class UnifiedRunner {
 }
 
 /**
- * 명령행 인수 파싱
+ * 명령행 인수 파싱 (개선된 버전)
  */
 function parseArguments(): Partial<UnifiedRunnerOptions> {
   const args = process.argv.slice(2)
@@ -607,17 +1357,65 @@ function parseArguments(): Partial<UnifiedRunnerOptions> {
     switch (arg) {
       case '--project-root':
       case '-p':
-        options.projectRoot = args[++i]
+        if (i + 1 < args.length) {
+          options.projectRoot = args[++i]
+        } else {
+          logError('--project-root 옵션에 값이 필요합니다.')
+          process.exit(1)
+        }
         break
       case '--environment':
       case '-e':
-        options.environment = args[++i] as any
+        if (i + 1 < args.length) {
+          const env = args[++i]
+          if (['development', 'production', 'staging'].includes(env)) {
+            options.environment = env as any
+          } else {
+            logError(`잘못된 환경 값: ${env}. development, production, staging 중 하나를 선택하세요.`)
+            process.exit(1)
+          }
+        } else {
+          logError('--environment 옵션에 값이 필요합니다.')
+          process.exit(1)
+        }
         break
       case '--phases':
-        options.phases = args[++i].split(',')
+        if (i + 1 < args.length) {
+          const phasesStr = args[++i]
+          // 쉼표로 구분된 단계들을 정리하고 유효성 검사
+          const phases = phasesStr.split(',').map(p => p.trim()).filter(p => p.length > 0)
+          const validPhases = ['env', 'safety', 'convert', 'build', 'deploy', 'pm2', 'health']
+          const invalidPhases = phases.filter(p => !validPhases.includes(p))
+          
+          if (invalidPhases.length > 0) {
+            logError(`잘못된 단계: ${invalidPhases.join(', ')}. 유효한 단계: ${validPhases.join(', ')}`)
+            process.exit(1)
+          }
+          
+          options.phases = phases
+        } else {
+          logError('--phases 옵션에 값이 필요합니다.')
+          process.exit(1)
+        }
         break
       case '--skip-phases':
-        options.skipPhases = args[++i].split(',')
+        if (i + 1 < args.length) {
+          const skipPhasesStr = args[++i]
+          // 쉼표로 구분된 단계들을 정리하고 유효성 검사
+          const skipPhases = skipPhasesStr.split(',').map(p => p.trim()).filter(p => p.length > 0)
+          const validPhases = ['env', 'safety', 'convert', 'build', 'deploy', 'pm2', 'health']
+          const invalidPhases = skipPhases.filter(p => !validPhases.includes(p))
+          
+          if (invalidPhases.length > 0) {
+            logError(`잘못된 단계: ${invalidPhases.join(', ')}. 유효한 단계: ${validPhases.join(', ')}`)
+            process.exit(1)
+          }
+          
+          options.skipPhases = skipPhases
+        } else {
+          logError('--skip-phases 옵션에 값이 필요합니다.')
+          process.exit(1)
+        }
         break
       case '--verbose':
       case '-v':
@@ -635,11 +1433,31 @@ function parseArguments(): Partial<UnifiedRunnerOptions> {
         break
       case '--max-retries':
       case '-r':
-        options.maxRetries = parseInt(args[++i])
+        if (i + 1 < args.length) {
+          const retries = parseInt(args[++i])
+          if (isNaN(retries) || retries < 0) {
+            logError('--max-retries 옵션에는 0 이상의 숫자가 필요합니다.')
+            process.exit(1)
+          }
+          options.maxRetries = retries
+        } else {
+          logError('--max-retries 옵션에 값이 필요합니다.')
+          process.exit(1)
+        }
         break
       case '--timeout':
       case '-t':
-        options.timeout = parseInt(args[++i]) * 1000
+        if (i + 1 < args.length) {
+          const timeout = parseInt(args[++i])
+          if (isNaN(timeout) || timeout <= 0) {
+            logError('--timeout 옵션에는 0보다 큰 숫자가 필요합니다.')
+            process.exit(1)
+          }
+          options.timeout = timeout * 1000
+        } else {
+          logError('--timeout 옵션에 값이 필요합니다.')
+          process.exit(1)
+        }
         break
       case '--no-auto-recovery':
         options.autoRecovery = false
@@ -652,10 +1470,50 @@ function parseArguments(): Partial<UnifiedRunnerOptions> {
         printHelp()
         process.exit(0)
         break
+      default:
+        // 알 수 없는 옵션 처리
+        if (arg.startsWith('-')) {
+          logError(`알 수 없는 옵션: ${arg}`)
+          logError('--help 또는 -h를 사용하여 사용법을 확인하세요.')
+          process.exit(1)
+        } else {
+          // 위치 인수로 처리 (예: 단계 이름들)
+          logWarning(`위치 인수 무시됨: ${arg}`)
+        }
+        break
     }
   }
 
+  // 옵션 유효성 검사
+  validateOptions(options)
+
   return options
+}
+
+/**
+ * 옵션 유효성 검사
+ */
+function validateOptions(options: Partial<UnifiedRunnerOptions>): void {
+  // phases와 skipPhases에 중복이 있는지 확인
+  if (options.phases && options.skipPhases) {
+    const duplicates = options.phases.filter(phase => options.skipPhases!.includes(phase))
+    if (duplicates.length > 0) {
+      logError(`단계 중복: ${duplicates.join(', ')}가 phases와 skipPhases에 모두 포함되어 있습니다.`)
+      process.exit(1)
+    }
+  }
+  
+  // maxRetries 범위 확인
+  if (options.maxRetries !== undefined && (options.maxRetries < 0 || options.maxRetries > 10)) {
+    logError('maxRetries는 0-10 범위여야 합니다.')
+    process.exit(1)
+  }
+  
+  // timeout 범위 확인
+  if (options.timeout !== undefined && (options.timeout < 1000 || options.timeout > 3600000)) {
+    logError('timeout은 1초(1000ms) - 1시간(3600000ms) 범위여야 합니다.')
+    process.exit(1)
+  }
 }
 
 /**

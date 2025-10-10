@@ -3,6 +3,9 @@
 // ============================================================================
 
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ROUTES } from '@frontend/shared/constants/routes'
+import { ErrorHandler, ErrorReporter } from '@frontend/pages/Error/ErrorHandler'
 import './ErrorFallback.css'
 
 interface ErrorFallbackProps {
@@ -25,8 +28,37 @@ export function ErrorFallback({
   onReload
 }: ErrorFallbackProps) {
   const [showDetails, setShowDetails] = useState(false)
+  const navigate = useNavigate()
 
   const isDevelopment = import.meta.env.DEV
+
+  // 에러 정보 생성
+  const appError = error ? ErrorHandler.getErrorFromException(error) : null
+
+  // 에러 리포팅
+  React.useEffect(() => {
+    if (appError) {
+      ErrorReporter.reportError(appError, {
+        errorId,
+        componentStack: errorInfo?.componentStack,
+        errorBoundary: true,
+      })
+    }
+  }, [appError, errorId, errorInfo])
+
+  // 에러 페이지로 이동
+  const handleGoToErrorPage = () => {
+    if (appError) {
+      const params = new URLSearchParams({
+        code: appError.statusCode.toString(),
+        title: encodeURIComponent(appError.title),
+        message: encodeURIComponent(appError.message),
+        description: encodeURIComponent(appError.description || ''),
+        enhanced: 'true',
+      })
+      navigate(`${ROUTES.ERROR}?${params.toString()}`)
+    }
+  }
 
   return (
     <div className="error-fallback">
@@ -62,6 +94,15 @@ export function ErrorFallback({
             >
               페이지 새로고침
             </button>
+
+            {appError && (
+              <button
+                className="error-fallback__button error-fallback__button--tertiary"
+                onClick={handleGoToErrorPage}
+              >
+                상세 에러 페이지 보기
+              </button>
+            )}
           </div>
 
           {isDevelopment && (

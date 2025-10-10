@@ -45,7 +45,7 @@ export const appConfig: AppConfig = {
     accessSecret: process.env.JWT_ACCESS_SECRET || "",
     refreshSecret: process.env.JWT_REFRESH_SECRET || "",
   },
-  corsOrigin: process.env.CORS_ORIGIN?.split(",") || ["https://yourdomain.com", "https://www.yourdomain.com"],
+  corsOrigin: process.env.CORS_ORIGIN?.split(",") || [],
   database: databaseConfig,
   apiKeys: {
     kakao: process.env.KAKAO_API_KEY || "",

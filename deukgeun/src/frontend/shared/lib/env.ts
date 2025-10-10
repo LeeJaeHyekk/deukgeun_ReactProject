@@ -13,7 +13,7 @@ export interface EnvConfig {
 // 환경 변수 가져오기
 export const getEnvConfig = (): EnvConfig => {
   return {
-    API_BASE_URL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
+    API_BASE_URL: import.meta.env.VITE_API_BASE_URL || "",
     KAKAO_API_KEY: import.meta.env.VITE_KAKAO_API_KEY || "",
     RECAPTCHA_SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY || "",
     NODE_ENV: import.meta.env.NODE_ENV || "development",

@@ -12,7 +12,7 @@ export interface FrontendConfig {
 // 환경 변수에서 설정 가져오기
 const getConfig = (): FrontendConfig => {
   return {
-    apiBaseUrl: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
+    apiBaseUrl: import.meta.env.VITE_API_BASE_URL || "",
     kakaoApiKey: import.meta.env.VITE_KAKAO_API_KEY || "",
     recaptchaSiteKey: import.meta.env.VITE_RECAPTCHA_SITE_KEY || "",
     environment: (import.meta.env.MODE as "development" | "production" | "test") || "development",

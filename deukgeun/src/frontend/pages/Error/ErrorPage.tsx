@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import ErrorPageCSS from "./ErrorPage.module.css"
+import EnhancedErrorPage from "./EnhancedErrorPage"
+import { ErrorHandler } from "./ErrorHandler"
 
 interface ErrorPageProps {
   statusCode?: number
@@ -19,6 +21,29 @@ export default function ErrorPage({
   showRetryButton = false,
   onRetry,
 }: ErrorPageProps) {
+  // 새로운 Enhanced Error Page 사용
+  const [useEnhanced, setUseEnhanced] = useState(true)
+  
+  // URL 파라미터에서 enhanced 모드 확인
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search)
+    const enhanced = searchParams.get('enhanced')
+    setUseEnhanced(enhanced !== 'false')
+  }, [])
+
+  // Enhanced Error Page 사용
+  if (useEnhanced) {
+    return (
+      <EnhancedErrorPage
+        statusCode={statusCode}
+        title={title}
+        message={message}
+        showHomeButton={showHomeButton}
+        showRetryButton={showRetryButton}
+        onRetry={onRetry}
+      />
+    )
+  }
   // React Hooks를 컴포넌트 최상위에서 호출
   let navigate: any = null
   let location: any = null

@@ -1,5 +1,5 @@
 export const getEnvVar = (key: string, defaultValue?: string): string => {
-  const value = process.env[key] || defaultValue
+  const value = import.meta.env[key] || defaultValue
   if (!value) {
     throw new Error(`Environment variable ${key} is not defined`)
   }
@@ -8,7 +8,7 @@ export const getEnvVar = (key: string, defaultValue?: string): string => {
 
 export const env = {
   // Backend
-  BACKEND_URL: getEnvVar('VITE_BACKEND_URL', 'http://localhost:5000'),
+  BACKEND_URL: getEnvVar('VITE_BACKEND_URL', ''),
 
   // Kakao Maps
   KAKAO_MAP_API_KEY: getEnvVar('VITE_LOCATION_JAVASCRIPT_MAP_API_KEY'),
@@ -21,9 +21,9 @@ export const env = {
   RECAPTCHA_SITE_KEY: getEnvVar('VITE_RECAPTCHA_SITE_KEY'),
 
   // Environment
-  NODE_ENV: process.env.MODE || 'development',
-  IS_DEVELOPMENT: (process.env.MODE || 'development') === 'development',
-  IS_PRODUCTION: (process.env.MODE || 'development') === 'production',
+  NODE_ENV: import.meta.env.MODE || 'development',
+  IS_DEVELOPMENT: (import.meta.env.MODE || 'development') === 'development',
+  IS_PRODUCTION: (import.meta.env.MODE || 'development') === 'production',
 } as const
 
 // Kakao Maps Configuration

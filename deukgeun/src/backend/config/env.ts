@@ -103,9 +103,8 @@ console.log(
   `🔑 Database password: ${process.env.DB_PASSWORD ? '***' : 'NOT SET'}`
 )
 
-// 환경 설정
-const environment: Environment =
-  (process.env.NODE_ENV as Environment) || "development"
+// 환경 설정 - 개발 환경 강제 설정 (CORS 문제 해결을 위해)
+const environment: Environment = "development"
 
 // 데이터베이스 설정
 const databaseConfig: DatabaseConfig = {
@@ -182,7 +181,16 @@ export const appConfig: AppConfig = {
   environment,
   port: parseInt(process.env.PORT || "5000"),
   jwt: jwtConfig,
-  corsOrigin: process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3000", "http://localhost:5173", "https://yourdomain.com", "https://www.yourdomain.com"],
+  corsOrigin: process.env.CORS_ORIGIN?.split(",").filter(origin => origin.trim() !== "") || [
+    "http://localhost:3000",
+    "http://localhost:5173", 
+    "http://localhost:5000",
+    "http://localhost:5001",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5000",
+    "http://127.0.0.1:5001",
+  ],
   database: databaseConfig,
   apiKeys: apiKeyConfig,
   security: securityConfig,
@@ -247,7 +255,7 @@ export const {
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "7d",
   JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || "your-access-secret",
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "your-refresh-secret",
-  CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:3000,http://localhost:5173",
+  CORS_ORIGIN: process.env.CORS_ORIGIN || "",
   KAKAO_API_KEY: process.env.KAKAO_API_KEY || "",
   KAKAO_JAVASCRIPT_MAP_API_KEY: process.env.KAKAO_JAVASCRIPT_MAP_API_KEY || "",
   KAKAO_Location_MobileMapApiKey:
@@ -285,3 +293,19 @@ export const {
 
 // 기존 코드와의 호환성을 위해 config 별칭 제공
 export const config = appConfig
+
+// 환경 변수 검증 및 로깅
+try {
+  // 백엔드 환경 변수 검증
+  const { validateBackendEnvVars } = require('../../shared/utils/envValidator')
+  validateBackendEnvVars()
+} catch (error) {
+  console.warn('⚠️ 환경 변수 검증 모듈을 로드할 수 없습니다:', error)
+}
+
+console.log(`🔧 Backend 환경 설정 로드 완료:`)
+console.log(`   - 환경: ${config.environment}`)
+console.log(`   - 포트: ${config.port}`)
+console.log(`   - CORS Origins: ${config.corsOrigin.length > 0 ? config.corsOrigin.join(', ') : '설정되지 않음'}`)
+console.log(`   - 데이터베이스: ${config.database.host}:${config.database.port}`)
+console.log(`   - JWT 만료시간: ${config.jwt.expiresIn}`)

@@ -4,15 +4,71 @@
 
 import type { ApiResponse } from "../types"
 import { TypedApiClient, parseApiResponse, createApiError } from "../utils/apiValidation"
+import { validateFrontendEnvVars } from "../utils/envValidator"
+
+// 프론트엔드 환경 변수 검증 (경고만, 에러는 발생시키지 않음)
+try {
+  validateFrontendEnvVars()
+} catch (error) {
+  console.warn('⚠️ API 클라이언트 환경 변수 검증 실패:', error)
+  // 프론트엔드에서는 에러를 발생시키지 않고 경고만 표시
+}
+
+// 환경별 API 설정
+const getApiConfig = () => {
+  const isDevelopment = import.meta.env.MODE === 'development'
+  const isProduction = import.meta.env.MODE === 'production'
+  
+  // 환경 변수에서 baseURL 가져오기 (하드코딩 제거)
+  let baseURL = import.meta.env.VITE_BACKEND_URL
+  
+  // 개발 환경에서 localhost:5173으로 접근할 때는 localhost:5000 사용
+  if (isDevelopment && window.location.hostname === 'localhost' && window.location.port === '5173') {
+    baseURL = 'http://localhost:5000'
+    console.log('🔧 개발 환경 감지: localhost:5000 사용')
+  }
+  
+  if (!baseURL) {
+    console.warn('⚠️ VITE_BACKEND_URL 환경 변수가 설정되지 않았습니다.')
+    console.warn('⚠️ API 연결에 문제가 발생할 수 있습니다.')
+    // 프론트엔드에서는 에러를 발생시키지 않고 경고만 표시
+  }
+
+  // baseURL이 없을 때는 빈 문자열로 설정 (API 호출 시 에러 발생)
+  const safeBaseURL = baseURL || ''
+
+  if (isDevelopment) {
+    return {
+      baseURL: safeBaseURL,
+      timeout: 10000,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  }
+  
+  if (isProduction) {
+    return {
+      baseURL: safeBaseURL,
+      timeout: 15000,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  }
+  
+  // 기본값 (테스트 환경 등)
+  return {
+    baseURL: safeBaseURL,
+    timeout: 10000,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }
+}
 
 // API 설정
-const API_CONFIG = {
-  baseURL: process.env.VITE_BACKEND_URL || "http://localhost:5001",
-  timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
-  },
-}
+const API_CONFIG = getApiConfig()
 
 // API 에러 타입
 export interface ApiError {

@@ -2,14 +2,69 @@
 // Application Configuration
 // ============================================================================
 
-export const config = {
-  // API Configuration
-  api: {
-    baseURL: process.env.VITE_BACKEND_URL || 'http://localhost:5001',
+import { validateFrontendEnvVars } from '../utils/envValidator'
+
+// 프론트엔드 환경 변수 검증 (경고만, 에러는 발생시키지 않음)
+try {
+  validateFrontendEnvVars()
+} catch (error) {
+  console.warn('⚠️ 프론트엔드 환경 변수 검증 실패:', error)
+  // 프론트엔드에서는 에러를 발생시키지 않고 경고만 표시
+}
+
+// 환경별 API 설정
+const getApiConfig = () => {
+  const isDevelopment = import.meta.env.MODE === 'development'
+  const isProduction = import.meta.env.MODE === 'production'
+  
+  // 환경 변수에서 baseURL 가져오기 (하드코딩 제거)
+  let baseURL = import.meta.env.VITE_BACKEND_URL
+  
+  // 개발 환경에서 localhost:5173으로 접근할 때는 localhost:5000 사용
+  if (isDevelopment && typeof window !== 'undefined' && window.location.hostname === 'localhost' && window.location.port === '5173') {
+    baseURL = 'http://localhost:5000'
+    console.log('🔧 개발 환경 감지: localhost:5000 사용')
+  }
+  
+  if (!baseURL) {
+    console.warn('⚠️ VITE_BACKEND_URL 환경 변수가 설정되지 않았습니다.')
+    console.warn('⚠️ API 연결에 문제가 발생할 수 있습니다.')
+    // 프론트엔드에서는 에러를 발생시키지 않고 경고만 표시
+  }
+
+  // baseURL이 없을 때는 빈 문자열로 설정 (API 호출 시 에러 발생)
+  const safeBaseURL = baseURL || ''
+
+  if (isDevelopment) {
+    return {
+      baseURL: safeBaseURL,
+      timeout: 10000,
+      retryAttempts: 3,
+      retryDelay: 1000,
+    }
+  }
+  
+  if (isProduction) {
+    return {
+      baseURL: safeBaseURL,
+      timeout: 15000,
+      retryAttempts: 5,
+      retryDelay: 2000,
+    }
+  }
+  
+  // 기본값 (테스트 환경 등)
+  return {
+    baseURL: safeBaseURL,
     timeout: 10000,
     retryAttempts: 3,
     retryDelay: 1000,
-  },
+  }
+}
+
+export const config = {
+  // API Configuration
+  api: getApiConfig(),
 
   // Authentication Configuration
   auth: {
@@ -23,23 +78,23 @@ export const config = {
   app: {
     name: 'Deukgeun',
     version: '1.0.0',
-    environment: process.env.MODE || 'development',
-    debug: process.env.DEV,
+    environment: import.meta.env.MODE || 'development',
+    debug: import.meta.env.DEV,
   },
 
   // Feature Flags
   features: {
-    enableRecaptcha: process.env.VITE_ENABLE_RECAPTCHA === 'true',
-    enableAnalytics: process.env.VITE_ENABLE_ANALYTICS === 'true',
-    enableNotifications: process.env.VITE_ENABLE_NOTIFICATIONS === 'true',
+    enableRecaptcha: import.meta.env.VITE_ENABLE_RECAPTCHA === 'true',
+    enableAnalytics: import.meta.env.VITE_ENABLE_ANALYTICS === 'true',
+    enableNotifications: import.meta.env.VITE_ENABLE_NOTIFICATIONS === 'true',
   },
 
   // ReCAPTCHA Configuration
   RECAPTCHA: {
     SITE_KEY:
-      process.env.VITE_RECAPTCHA_SITE_KEY || 'your_recaptcha_site_key_here',
-    IS_DEVELOPMENT: process.env.DEV || false,
-    IS_TEST_KEY: (process.env.VITE_RECAPTCHA_SITE_KEY || '').includes(
+      import.meta.env.VITE_RECAPTCHA_SITE_KEY || 'your_recaptcha_site_key_here',
+    IS_DEVELOPMENT: import.meta.env.DEV || false,
+    IS_TEST_KEY: (import.meta.env.VITE_RECAPTCHA_SITE_KEY || '').includes(
       'test'
     ),
     VERSION: 'v3',
@@ -189,59 +244,175 @@ export const API_ENDPOINTS = {
   },
 }
 
-// Environment Configuration
-export const ENV_CONFIG = {
-  // Backend URL
-  BACKEND_URL: process.env.VITE_BACKEND_URL || 'http://localhost:5001',
-
-  // Frontend URL
-  FRONTEND_URL: process.env.VITE_FRONTEND_URL || 'http://localhost:5173',
-
-  // Database URL
-  DATABASE_URL:
-    process.env.VITE_DATABASE_URL || 'mysql://localhost:3306/deukgeun',
-
-  // Redis URL
-  REDIS_URL: process.env.VITE_REDIS_URL || 'redis://localhost:6379',
-
-  // JWT Secret
-  JWT_SECRET: process.env.VITE_JWT_SECRET || 'your-secret-key',
-
-  // ReCAPTCHA
-  RECAPTCHA_SITE_KEY: process.env.VITE_RECAPTCHA_SITE_KEY || '',
-  RECAPTCHA_SECRET_KEY: process.env.VITE_RECAPTCHA_SECRET_KEY || '',
-
-  // Kakao API
-  KAKAO_API_KEY: process.env.VITE_KAKAO_API_KEY || '',
-
-  // Google API
-  GOOGLE_API_KEY: process.env.VITE_GOOGLE_API_KEY || '',
-
-  // Email Configuration
-  SMTP_HOST: process.env.VITE_SMTP_HOST || 'localhost',
-  SMTP_PORT: process.env.VITE_SMTP_PORT || '587',
-  SMTP_USER: process.env.VITE_SMTP_USER || '',
-  SMTP_PASS: process.env.VITE_SMTP_PASS || '',
-
-  // File Storage
-  UPLOAD_PATH: process.env.VITE_UPLOAD_PATH || './uploads',
-  MAX_FILE_SIZE: process.env.VITE_MAX_FILE_SIZE || '10485760', // 10MB
-
-  // Rate Limiting
-  RATE_LIMIT_WINDOW: process.env.VITE_RATE_LIMIT_WINDOW || '900000', // 15 minutes
-  RATE_LIMIT_MAX: process.env.VITE_RATE_LIMIT_MAX || '100',
-
-  // CORS
-  CORS_ORIGIN: process.env.VITE_CORS_ORIGIN || 'http://localhost:5173',
-
-  // Logging
-  LOG_LEVEL: process.env.VITE_LOG_LEVEL || 'info',
-  LOG_FILE: process.env.VITE_LOG_FILE || './logs/app.log',
-
-  // Monitoring
-  ENABLE_MONITORING: process.env.VITE_ENABLE_MONITORING === 'true',
-  MONITORING_PORT: process.env.VITE_MONITORING_PORT || '9090',
+// 환경별 설정 생성 함수
+const getEnvConfig = () => {
+  const isDevelopment = import.meta.env.MODE === 'development'
+  const isProduction = import.meta.env.MODE === 'production'
+  
+  if (isDevelopment) {
+    return {
+      // Backend URL
+      BACKEND_URL: import.meta.env.VITE_BACKEND_URL || '',
+      
+      // Frontend URL
+      FRONTEND_URL: import.meta.env.VITE_FRONTEND_URL || '',
+      
+      // Database URL
+      DATABASE_URL: import.meta.env.VITE_DATABASE_URL || 'mysql://localhost:3306/deukgeun',
+      
+      // Redis URL
+      REDIS_URL: import.meta.env.VITE_REDIS_URL || 'redis://localhost:6379',
+      
+      // JWT Secret
+      JWT_SECRET: import.meta.env.VITE_JWT_SECRET || 'dev-secret-key',
+      
+      // ReCAPTCHA
+      RECAPTCHA_SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY || '',
+      RECAPTCHA_SECRET_KEY: import.meta.env.VITE_RECAPTCHA_SECRET_KEY || '',
+      
+      // Kakao API
+      KAKAO_API_KEY: import.meta.env.VITE_KAKAO_API_KEY || '',
+      
+      // Google API
+      GOOGLE_API_KEY: import.meta.env.VITE_GOOGLE_API_KEY || '',
+      
+      // Email Configuration
+      SMTP_HOST: import.meta.env.VITE_SMTP_HOST || 'localhost',
+      SMTP_PORT: import.meta.env.VITE_SMTP_PORT || '587',
+      SMTP_USER: import.meta.env.VITE_SMTP_USER || '',
+      SMTP_PASS: import.meta.env.VITE_SMTP_PASS || '',
+      
+      // File Storage
+      UPLOAD_PATH: import.meta.env.VITE_UPLOAD_PATH || './uploads',
+      MAX_FILE_SIZE: import.meta.env.VITE_MAX_FILE_SIZE || '10485760', // 10MB
+      
+      // Rate Limiting
+      RATE_LIMIT_WINDOW: import.meta.env.VITE_RATE_LIMIT_WINDOW || '900000', // 15 minutes
+      RATE_LIMIT_MAX: import.meta.env.VITE_RATE_LIMIT_MAX || '100',
+      
+      // CORS
+      CORS_ORIGIN: import.meta.env.VITE_CORS_ORIGIN || '',
+      
+      // Logging
+      LOG_LEVEL: import.meta.env.VITE_LOG_LEVEL || 'debug',
+      LOG_FILE: import.meta.env.VITE_LOG_FILE || './logs/app.log',
+      
+      // Monitoring
+      ENABLE_MONITORING: import.meta.env.VITE_ENABLE_MONITORING === 'true',
+      MONITORING_PORT: import.meta.env.VITE_MONITORING_PORT || '9090',
+    }
+  }
+  
+  if (isProduction) {
+    return {
+      // Backend URL
+      BACKEND_URL: import.meta.env.VITE_BACKEND_URL || '',
+      
+      // Frontend URL
+      FRONTEND_URL: import.meta.env.VITE_FRONTEND_URL || '',
+      
+      // Database URL
+      DATABASE_URL: import.meta.env.VITE_DATABASE_URL || 'mysql://localhost:3306/deukgeun',
+      
+      // Redis URL
+      REDIS_URL: import.meta.env.VITE_REDIS_URL || 'redis://localhost:6379',
+      
+      // JWT Secret
+      JWT_SECRET: import.meta.env.VITE_JWT_SECRET || '',
+      
+      // ReCAPTCHA
+      RECAPTCHA_SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY || '',
+      RECAPTCHA_SECRET_KEY: import.meta.env.VITE_RECAPTCHA_SECRET_KEY || '',
+      
+      // Kakao API
+      KAKAO_API_KEY: import.meta.env.VITE_KAKAO_API_KEY || '',
+      
+      // Google API
+      GOOGLE_API_KEY: import.meta.env.VITE_GOOGLE_API_KEY || '',
+      
+      // Email Configuration
+      SMTP_HOST: import.meta.env.VITE_SMTP_HOST || 'smtp.gmail.com',
+      SMTP_PORT: import.meta.env.VITE_SMTP_PORT || '587',
+      SMTP_USER: import.meta.env.VITE_SMTP_USER || '',
+      SMTP_PASS: import.meta.env.VITE_SMTP_PASS || '',
+      
+      // File Storage
+      UPLOAD_PATH: import.meta.env.VITE_UPLOAD_PATH || './uploads',
+      MAX_FILE_SIZE: import.meta.env.VITE_MAX_FILE_SIZE || '10485760', // 10MB
+      
+      // Rate Limiting
+      RATE_LIMIT_WINDOW: import.meta.env.VITE_RATE_LIMIT_WINDOW || '900000', // 15 minutes
+      RATE_LIMIT_MAX: import.meta.env.VITE_RATE_LIMIT_MAX || '100',
+      
+      // CORS
+      CORS_ORIGIN: import.meta.env.VITE_CORS_ORIGIN || '',
+      
+      // Logging
+      LOG_LEVEL: import.meta.env.VITE_LOG_LEVEL || 'info',
+      LOG_FILE: import.meta.env.VITE_LOG_FILE || './logs/app.log',
+      
+      // Monitoring
+      ENABLE_MONITORING: import.meta.env.VITE_ENABLE_MONITORING === 'true',
+      MONITORING_PORT: import.meta.env.VITE_MONITORING_PORT || '9090',
+    }
+  }
+  
+  // 기본값 (테스트 환경 등)
+  return {
+    // Backend URL
+    BACKEND_URL: import.meta.env.VITE_BACKEND_URL || '',
+    
+    // Frontend URL
+    FRONTEND_URL: import.meta.env.VITE_FRONTEND_URL || '',
+    
+    // Database URL
+    DATABASE_URL: import.meta.env.VITE_DATABASE_URL || 'mysql://localhost:3306/deukgeun',
+    
+    // Redis URL
+    REDIS_URL: import.meta.env.VITE_REDIS_URL || 'redis://localhost:6379',
+    
+    // JWT Secret
+    JWT_SECRET: import.meta.env.VITE_JWT_SECRET || 'test-secret-key',
+    
+    // ReCAPTCHA
+    RECAPTCHA_SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY || '',
+    RECAPTCHA_SECRET_KEY: import.meta.env.VITE_RECAPTCHA_SECRET_KEY || '',
+    
+    // Kakao API
+    KAKAO_API_KEY: import.meta.env.VITE_KAKAO_API_KEY || '',
+    
+    // Google API
+    GOOGLE_API_KEY: import.meta.env.VITE_GOOGLE_API_KEY || '',
+    
+    // Email Configuration
+    SMTP_HOST: import.meta.env.VITE_SMTP_HOST || 'localhost',
+    SMTP_PORT: import.meta.env.VITE_SMTP_PORT || '587',
+    SMTP_USER: import.meta.env.VITE_SMTP_USER || '',
+    SMTP_PASS: import.meta.env.VITE_SMTP_PASS || '',
+    
+    // File Storage
+    UPLOAD_PATH: import.meta.env.VITE_UPLOAD_PATH || './uploads',
+    MAX_FILE_SIZE: import.meta.env.VITE_MAX_FILE_SIZE || '10485760', // 10MB
+    
+    // Rate Limiting
+    RATE_LIMIT_WINDOW: import.meta.env.VITE_RATE_LIMIT_WINDOW || '900000', // 15 minutes
+    RATE_LIMIT_MAX: import.meta.env.VITE_RATE_LIMIT_MAX || '100',
+    
+    // CORS
+    CORS_ORIGIN: import.meta.env.VITE_CORS_ORIGIN || '',
+    
+    // Logging
+    LOG_LEVEL: import.meta.env.VITE_LOG_LEVEL || 'info',
+    LOG_FILE: import.meta.env.VITE_LOG_FILE || './logs/app.log',
+    
+    // Monitoring
+    ENABLE_MONITORING: import.meta.env.VITE_ENABLE_MONITORING === 'true',
+    MONITORING_PORT: import.meta.env.VITE_MONITORING_PORT || '9090',
+  }
 }
+
+// Environment Configuration
+export const ENV_CONFIG = getEnvConfig()
 
 // Kakao Configuration
 export const KAKAO_CONFIG = {
@@ -352,4 +523,4 @@ export const routeUtils = {
 }
 
 // Export all configurations
-module.exports.default = config
+export default config

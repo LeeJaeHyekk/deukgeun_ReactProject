@@ -88,7 +88,7 @@ function findImageByMachineName(
 function getFullImageUrl(imagePath: string): string {
   return imagePath.startsWith("http")
     ? imagePath
-    : `http://localhost:5000${imagePath}`
+    : `${import.meta.env.VITE_BACKEND_URL}${imagePath}`
 }
 
 // 이미지 로드 실패 시 기본 이미지로 대체하는 핸들러 (무한 루프 방지)
@@ -108,7 +108,7 @@ function handleImageError(
   failedImages.add(currentSrc)
 
   // 기본 이미지 URL
-  const defaultImageUrl = `http://localhost:5000${IMAGE_MATCHING_CONFIG.defaultImage}`
+  const defaultImageUrl = `${import.meta.env.VITE_BACKEND_URL}${IMAGE_MATCHING_CONFIG.defaultImage}`
 
   // 이미 기본 이미지인 경우 무한 루프 방지
   if (currentSrc === defaultImageUrl) {

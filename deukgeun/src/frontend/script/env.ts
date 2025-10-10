@@ -3,13 +3,13 @@
 // ============================================================================
 
 export const SCRIPT_CONFIG = {
-  API_BASE_URL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
+  API_BASE_URL: import.meta.env.VITE_BACKEND_URL || "",
   KAKAO_API_KEY: import.meta.env.VITE_KAKAO_API_KEY || "",
   GYM_SEARCH_RADIUS: 1000,
   MAX_GYMS_PER_REQUEST: 15,
   BATCH_SIZE: 10,
   // 추가 환경 변수들
-  VITE_BACKEND_URL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
+  VITE_BACKEND_URL: import.meta.env.VITE_BACKEND_URL || "",
   SEOUL_OPENAPI_KEY: import.meta.env.VITE_SEOUL_OPENAPI_KEY || "",
 }
 
@@ -28,7 +28,7 @@ export const SCRIPT_GYM_CONFIG = {
 
 export const scriptEnv = {
   ...SCRIPT_CONFIG,
-  VITE_BACKEND_URL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
+  VITE_BACKEND_URL: import.meta.env.VITE_BACKEND_URL || "",
 }
 
 export const validateEnv = () => {

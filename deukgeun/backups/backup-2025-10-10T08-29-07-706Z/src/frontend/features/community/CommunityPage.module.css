@@ -1,0 +1,495 @@
+/* 전체 페이지 */
+.communityPage {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%);
+  color: #fff;
+  padding-top: 64px;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    sans-serif;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* 헤더 */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 40px 32px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  color: #fff;
+  line-height: 1.2;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  line-height: 1.5;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+/* 컨트롤 섹션 */
+.controls {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 32px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.searchSort {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 20px;
+  align-items: center;
+  width: 100%;
+}
+
+.searchBox {
+  min-width: 0;
+}
+
+.searchInput {
+  width: 100%;
+  max-width: 100%;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(209, 213, 219, 0.9);
+  background: rgba(255, 255, 255, 0.92);
+  color: #374151;
+  backdrop-filter: blur(6px);
+  font-size: 16px;
+  min-width: 0;
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+.sortSelect {
+  flex: 0 0 auto;
+  min-width: 160px;
+  max-width: 160px;
+  justify-self: end;
+}
+
+.select {
+  padding: 16px 20px;
+  border: 1px solid rgba(209, 213, 219, 0.9);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #374151;
+  font-size: 16px;
+  cursor: pointer;
+  min-width: 160px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+.select option {
+  background: #1f2937;
+  color: #fff;
+  padding: 8px 12px;
+}
+
+.select option:hover {
+  background: #374151;
+}
+
+.categoriesRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.categories {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+}
+
+.categoryBtn {
+  padding: 12px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.categoryBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.categoryBtn.active {
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  border-color: #f87171;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(248, 113, 113, 0.4);
+  transform: translateY(-2px);
+}
+
+.createPostBtn {
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  border: none;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(248, 113, 113, 0.3);
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.createPostBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(248, 113, 113, 0.4);
+}
+
+/* 게시글 섹션 */
+.postsSection {
+  margin-bottom: 0;
+  background: linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%);
+}
+
+.postsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 24px;
+}
+
+/* 로딩 상태 */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #f87171;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingState p {
+  color: #e5e7eb;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* 빈 상태 */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.emptyState h3 {
+  color: #fff;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  line-height: 1.3;
+}
+
+.emptyState p {
+  color: #e5e7eb;
+  font-size: 1.125rem;
+  margin: 0 0 32px 0;
+  line-height: 1.5;
+}
+
+.createFirstPostBtn {
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  border: none;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(248, 113, 113, 0.3);
+}
+
+.createFirstPostBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(248, 113, 113, 0.4);
+}
+
+/* 반응형 컬럼 다운스케일 */
+@media (max-width: 1200px) {
+  .container {
+    max-width: 1200px;
+    padding: 28px 20px;
+  }
+
+  .header {
+    padding: 36px 28px;
+    margin-bottom: 32px;
+  }
+
+  .title {
+    font-size: 2.25rem;
+  }
+
+  .controls {
+    padding: 28px;
+    margin-bottom: 28px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .container {
+    padding: 24px 16px;
+  }
+
+  .header {
+    padding: 32px 24px;
+    margin-bottom: 28px;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .controls {
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .searchSort {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .sortSelect {
+    justify-self: start;
+    min-width: 160px;
+  }
+
+  .categoriesRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .categories {
+    justify-content: center;
+    margin-bottom: 0;
+  }
+
+  .createPostBtn {
+    align-self: center;
+  }
+
+  .emptyState {
+    padding: 80px 16px;
+  }
+
+  .emptyState h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 12px;
+  }
+
+  .header {
+    padding: 28px 20px;
+    margin-bottom: 24px;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .controls {
+    padding: 20px;
+    margin-bottom: 20px;
+    gap: 20px;
+  }
+
+  .searchInput,
+  .select {
+    font-size: 15px;
+    padding: 14px 16px;
+  }
+
+  .categoryBtn {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+
+  .createPostBtn {
+    width: 100%;
+    padding: 14px 20px;
+  }
+
+  .emptyState {
+    padding: 60px 12px;
+  }
+
+  .emptyState h3 {
+    font-size: 1.25rem;
+  }
+
+  .emptyState p {
+    font-size: 1rem;
+  }
+
+  .createFirstPostBtn {
+    padding: 14px 24px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 16px 8px;
+  }
+
+  .header {
+    padding: 24px 16px;
+    margin-bottom: 20px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .controls {
+    padding: 16px;
+    margin-bottom: 16px;
+    gap: 16px;
+  }
+
+  .searchInput,
+  .select {
+    font-size: 14px;
+    padding: 12px 14px;
+  }
+
+  .categoryBtn {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .emptyState {
+    padding: 40px 8px;
+  }
+
+  .emptyState h3 {
+    font-size: 1.125rem;
+  }
+
+  .emptyState p {
+    font-size: 0.9rem;
+  }
+
+  .createFirstPostBtn {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+}
+
+/* 애니메이션 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

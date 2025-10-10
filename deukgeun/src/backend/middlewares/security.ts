@@ -49,12 +49,8 @@ export const corsSecurity = (
   res: Response,
   next: NextFunction
 ) => {
-  // 허용된 Origin만 접근 가능
-  const allowedOrigins = [
-    "http://localhost:5173",
-    "http://localhost:5000",
-    "https://yourdomain.com", // 프로덕션 도메인
-  ]
+  // 허용된 Origin만 접근 가능 (환경 변수에서 가져오기)
+  const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || []
 
   const origin = req.headers.origin
 

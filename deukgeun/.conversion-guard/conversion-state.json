@@ -1,6 +1,6 @@
 {
   "isConverting": false,
-  "lastConversion": "2025-10-08T07:18:39.283Z",
+  "lastConversion": "2025-10-10T03:51:38.413Z",
   "convertedFiles": [
     "src/shared/config/index.ts",
     "src/shared/lib/env.ts",
@@ -10,8 +10,8 @@
   "fileHashes": {
     "src/shared/config/index.ts": "303e57e4768dbd394eae99f5141e5135",
     "src/shared/lib/env.ts": "65e0ed7bf0799f44593ad029d98e218e",
-    "src/shared/api/client.ts": "620235f7c9b93c9f116ecedeba6fc3aa",
-    "src/shared/lib/recaptcha.ts": "7545baaca6e7dad3e8dbe1a4f7ddad5f"
+    "src/shared/api/client.ts": "526135cd1cc422ebe21e9b943120edfa",
+    "src/shared/lib/recaptcha.ts": "62f615b01fe6eaf44f4d7cf0d35a3059"
   },
   "errors": [
     {
@@ -35,5 +35,5 @@
       "error": "require is not defined"
     }
   ],
-  "lastUpdate": "2025-10-08T09:04:49.350Z"
+  "lastUpdate": "2025-10-10T03:52:10.247Z"
 }

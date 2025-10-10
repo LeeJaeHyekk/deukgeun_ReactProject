@@ -220,6 +220,17 @@ export interface UpdateMachineDTO {
   categoryId?: number
 }
 
+export interface MachineFilterQuery {
+  category?: MachineCategory
+  difficulty?: DifficultyLevel
+  target?: string
+  search?: string
+  page?: number
+  limit?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+}
+
 export interface MachineDTOResponse extends DTOResponse<MachineDTO> {}
 export interface MachineDTOListResponse extends DTOResponse<MachineDTO[]> {}
 

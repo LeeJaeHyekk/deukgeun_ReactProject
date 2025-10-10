@@ -20,7 +20,7 @@ import { UserTransformer } from "../transformers/user.transformer"
 
 export async function login(
   req: Request<Record<string, never>, Record<string, never>, LoginRequest>,
-  res: Response<LoginResponse | ErrorResponse>
+  res: Response<ApiResponse<LoginResponse> | ErrorResponse>
 ): Promise<void> {
   try {
     const { email, password, recaptchaToken } = req.body
@@ -86,8 +86,11 @@ export async function login(
       .json({
         success: true,
         message: "로그인 성공",
-        accessToken,
-        user: UserTransformer.toDTO(user),
+        data: {
+          accessToken,
+          refreshToken,
+          user: UserTransformer.toDTO(user),
+        }
       })
   } catch (error) {
     logger.error("로그인 처리 중 오류:", error)
@@ -177,6 +180,7 @@ export function logout(req: Request, res: Response<ApiResponse>): void {
     res.clearCookie("refreshToken").json({
       success: true,
       message: "로그아웃 성공",
+      data: null
     })
   } catch (error) {
     logger.error("로그아웃 처리 중 오류:", error)
@@ -184,6 +188,7 @@ export function logout(req: Request, res: Response<ApiResponse>): void {
       success: false,
       message: "서버 오류가 발생했습니다.",
       error: "서버 오류",
+      data: null
     })
   }
 }
@@ -553,6 +558,7 @@ export const register = async (
       success: true,
       message: "회원가입 성공",
       accessToken,
+      refreshToken,
       user: UserTransformer.toDTO(newUser),
     }
 
@@ -1133,6 +1139,7 @@ export async function resetPasswordStep3(
     res.json({
       success: true,
       message: "비밀번호가 성공적으로 재설정되었습니다.",
+      data: null
     })
   } catch (error) {
     logger.error("비밀번호 재설정 Step 3 처리 중 오류:", error)

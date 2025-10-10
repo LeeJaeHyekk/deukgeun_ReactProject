@@ -2,7 +2,7 @@ import { Repository } from "typeorm"
 import { Gym } from "../entities/Gym"
 import axios from "axios"
 import { config } from "../config/env"
-import * as cheerio from "cheerio"
+import cheerio from "cheerio"
 import { BatchProcessingService } from "./batchProcessingService"
 import { ErrorHandlingService, ErrorContext } from "./errorHandlingService"
 
@@ -762,7 +762,7 @@ async function searchGymSites(gymName: string): Promise<SearchResult[]> {
           $(".gym-item").each((index, element) => {
             const name = $(element).find(".gym-name").text().trim()
             if (name.includes(gymName)) {
-              const extractedInfo = extractGymInfoFromElement($, element)
+              const extractedInfo = extractGymInfoFromElement($ as any, element)
               if (extractedInfo) {
                 results.push({
                   name: gymName,

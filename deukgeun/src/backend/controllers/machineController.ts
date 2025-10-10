@@ -28,7 +28,7 @@ function getMachineService(): MachineService {
 export const createMachine = async (req: Request, res: Response) => {
   try {
     const machineData: CreateMachineRequest = req.body
-    const savedMachine = await getMachineService().createMachine(machineData)
+    const savedMachine = await getMachineService().createMachine(machineData as any)
 
     // DTO 변환 적용
     const machineDTO = toMachineDTO(savedMachine)

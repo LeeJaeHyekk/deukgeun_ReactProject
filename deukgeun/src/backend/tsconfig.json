@@ -32,16 +32,23 @@
       "@dto/*": ["shared/types/dto/*"],
       "@dto": ["shared/types/dto/index"],
       "@shared/*": ["shared/*"],
+      "@shared/utils/*": ["shared/utils/*"],
+      "@shared/utils/transform/*": ["shared/utils/transform/*"],
       "@domains/*": ["backend/domains/*"],
       "@infrastructure/*": ["backend/infrastructure/*"],
       "@constants/*": ["shared/constants/*"],
       "@validation/*": ["shared/validation/*"],
-      "@api/*": ["shared/api/*"]
+      "@api/*": ["shared/api/*"],
+      "@/shared/*": ["shared/*"],
+      "@/shared/utils/*": ["shared/utils/*"],
+      "@/shared/utils/transform/*": ["shared/utils/transform/*"]
     }
   },
   "include": [
     "./**/*", 
-    "../shared/types/**/*",
+    "../shared/types/dto/**/*",
+    "../shared/types/common.ts",
+    "../shared/types/index.ts",
     "../shared/constants/**/*",
     "../shared/validation/**/*"
   ],
@@ -56,7 +63,6 @@
     "../shared/contexts/**/*",
     "../shared/hooks/**/*",
     "../shared/ui/**/*",
-    "../shared/utils/**/*",
     "../shared/lib/recaptcha.ts",
     "../shared/lib/storage.ts",
     "../shared/lib/string.ts",
@@ -64,6 +70,11 @@
     "../shared/lib/date.ts",
     "../shared/lib/object.ts",
     "../shared/api/**/*",
-    "../shared/config/imageMatchingConfig.ts"
+    "../shared/config/imageMatchingConfig.ts",
+    "../shared/constants/validation.ts",
+    "../shared/types/components.ts",
+    "../shared/utils/storage.ts",
+    "../shared/utils/apiValidation.ts",
+    "../shared/utils/**/*"
   ]
 }

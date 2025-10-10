@@ -85,6 +85,7 @@ export class PostService {
       return {
         success: false,
         message: "포스트 조회 중 오류가 발생했습니다.",
+        data: null
       }
     }
   }

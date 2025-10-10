@@ -48,7 +48,7 @@
     "allowJs": false,
     "checkJs": false,
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "types": ["node", "jest"]
+    "types": ["node"]
   },
   "include": [
     "src/frontend/**/*",

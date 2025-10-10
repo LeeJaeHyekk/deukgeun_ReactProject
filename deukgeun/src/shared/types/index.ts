@@ -147,8 +147,8 @@ export type {
   Gym,
 } from "./common"
 
-// 컴포넌트 Props 타입들
-export * from "./components"
+// 컴포넌트 Props 타입들 (백엔드에서는 제외)
+// export * from "./components"
 
 // 타입 가드 및 검증 함수들
 export * from "./guards"

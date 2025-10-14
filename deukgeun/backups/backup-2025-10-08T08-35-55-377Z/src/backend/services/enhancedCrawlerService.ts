@@ -958,7 +958,7 @@ function extractGymInfoFromText(text: string): any {
 }
 
 // HTML 요소에서 헬스장 정보 추출
-function extractGymInfoFromElement($: cheerio.CheerioAPI, element: any): any {
+function extractGymInfoFromElement($: cheerio.Root, element: any): any {
   const info: any = {}
 
   info.address = $(element).find(".address, .location").text().trim()

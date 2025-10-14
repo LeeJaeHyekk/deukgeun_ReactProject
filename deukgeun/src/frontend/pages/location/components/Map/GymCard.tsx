@@ -55,6 +55,7 @@ export function GymCard({ gym, onClick }: GymCardProps) {
       className={styles.card}
       onClick={handleClick}
       style={{ cursor: onClick ? "pointer" : "default" }}
+      data-gym-id={gym.id}
     >
       {gym.imageUrl && (
         <div className={styles.imageContainer}>

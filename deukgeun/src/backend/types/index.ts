@@ -31,6 +31,14 @@ export interface ApiKeyConfig {
   googleSecureSecret: string
   seoulOpenApi: string
   gymApi: string
+  // 크롤링 관련 API 키들
+  naverClientId: string
+  naverClientSecret: string
+  daumApiKey: string
+  facebookAccessToken: string
+  instagramAccessToken: string
+  twitterBearerToken: string
+  sportsDataApiKey: string
 }
 
 // 보안 설정 타입

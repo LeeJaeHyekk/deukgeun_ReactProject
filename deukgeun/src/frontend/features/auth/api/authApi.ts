@@ -128,16 +128,34 @@ export const authApi = {
   // Login
   login: async (data: LoginRequest): Promise<ApiLoginResponse> => {
     console.log('✅ 로그인 요청:', data)
-    const response = await axios.post<BackendLoginResponse>(
+    const response = await axios.post<{
+      success: boolean
+      message: string
+      data: {
+        accessToken: string
+        refreshToken: string
+        user: {
+          id: number
+          email: string
+          nickname: string
+        }
+      }
+    }>(
       `${config.api.baseURL}${API_ENDPOINTS.AUTH.LOGIN}`,
       data
     )
     console.log('✅ 로그인 응답:', response)
-    // 백엔드 응답 구조에 맞게 수정 - data 필드 없이 직접 반환
-    return {
-      message: response.data.message,
-      accessToken: response.data.accessToken,
-      user: response.data.user,
+    console.log('✅ 로그인 응답 데이터:', response.data)
+    
+    // 백엔드 응답 구조에 맞게 수정 - data 필드에서 추출
+    if (response.data.success && response.data.data) {
+      return {
+        message: response.data.message,
+        accessToken: response.data.data.accessToken,
+        user: response.data.data.user,
+      }
+    } else {
+      throw new Error(response.data.message || '로그인에 실패했습니다.')
     }
   },
 

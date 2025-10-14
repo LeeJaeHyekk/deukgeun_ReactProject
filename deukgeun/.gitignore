@@ -29,11 +29,11 @@ build
 *.sw?
 
 # Environment files
-.env
-.env.local
-.env.production
-.env.development
-env.production 
+# .env
+# .env.local
+# .env.production
+# .env.development
+# env.production 
 
 # TypeScript build artifacts
 *.tsbuildinfo

@@ -1,48 +1,218 @@
-import { useState, useEffect, useMemo, useRef } from "react"
+import { useState, useEffect, useMemo } from "react"
 import styles from "./GymFinderPage.module.css"
 import { Navigation } from "@widgets/Navigation/Navigation"
 import { SearchBar } from "./components/Map/SearchBar"
 import { FilterTag } from "./components/FilterTag/FilterTag"
 import { GymList } from "./components/Map/GymList"
+import { GymCard } from "./components/Map/GymCard"
 import { fetchGymsByKeyword } from "./API/kakao"
 import { Gym, FilterOption, SortOption, SortDirection } from "./types"
 import { useAuth } from "@frontend/shared/hooks/useAuth"
 import { useNavigate } from "react-router-dom"
 import { processGyms } from "./utils/gymFilters"
+import gymsData from "../../../data/gyms_raw.json"
 
-// 전역 선언
-declare global {
-  interface Window {
-    kakao: any
-  }
-}
 
 const filters: FilterOption[] = ["PT", "GX", "24시간", "주차", "샤워"]
 
 export default function GymFinderPage() {
   const [gyms, setGyms] = useState<Gym[]>([])
+  const [allGyms, setAllGyms] = useState<Gym[]>([])
+  const [nearbyGyms, setNearbyGyms] = useState<Gym[]>([])
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(
     null
   )
+  const [currentSearchQuery, setCurrentSearchQuery] = useState<string>("")
   const [activeFilters, setActiveFilters] = useState<FilterOption[]>([])
   const [sortBy, setSortBy] = useState<SortOption>("distance")
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc")
-  const [isMapLoaded, setIsMapLoaded] = useState(false)
   const [maxDistance, setMaxDistance] = useState<number>(5) // 기본 5km
   const [isLoading, setIsLoading] = useState(false)
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid')
+  
+  // 상세보기 관련 상태
+  const [selectedGym, setSelectedGym] = useState<Gym | null>(null)
+  const [isDetailView, setIsDetailView] = useState(false)
+  
   const navigate = useNavigate()
   const { isLoggedIn } = useAuth()
-
-  // 맵 관련 refs
-  const mapRef = useRef<any>(null)
-  const currentLocationMarkerRef = useRef<any>(null)
-  const gymMarkersRef = useRef<any[]>([])
-
-  const kakaoApiKey = import.meta.env.VITE_LOCATION_JAVASCRIPT_MAP_API_KEY
 
   console.log("🧪 GymFinderPage 렌더링")
   console.log("🧪 현재 gyms 상태:", gyms.length, "개")
   console.log("🧪 현재 position:", position)
+
+  // 좌표 유효성 검사 함수
+  const isValidCoordinate = (lat: number, lng: number): boolean => {
+    // 서울 지역 좌표 범위 체크 (대략적인 범위)
+    return lat >= 37.4 && lat <= 37.7 && lng >= 126.7 && lng <= 127.2
+  }
+
+  // gyms_raw.json 데이터를 Gym 타입으로 변환하는 함수
+  const transformGymData = (rawGym: any): Gym => {
+    // 좌표 데이터 검증 및 수정
+    let latitude = rawGym.latitude
+    let longitude = rawGym.longitude
+
+    // 잘못된 좌표인 경우 서울 시청 근처 랜덤 좌표로 대체
+    if (!isValidCoordinate(latitude, longitude)) {
+      // 서울 시청(37.5665, 126.978) 기준으로 ±0.1도 범위 내 랜덤 좌표 생성
+      latitude = 37.5665 + (Math.random() - 0.5) * 0.2
+      longitude = 126.978 + (Math.random() - 0.5) * 0.2
+    }
+
+    return {
+      id: rawGym.id,
+      name: rawGym.name,
+      type: rawGym.type,
+      address: rawGym.address,
+      phone: rawGym.phone,
+      latitude,
+      longitude,
+      is24Hours: rawGym.is24Hours,
+      hasParking: rawGym.hasParking,
+      hasShower: rawGym.hasShower,
+      // 추가 필드들은 기본값으로 설정
+      rating: Math.random() * 2 + 3, // 임시 평점 (3-5)
+      reviewCount: Math.floor(Math.random() * 100) + 10, // 임시 리뷰 수
+      hasPT: Math.random() > 0.5,
+      hasGX: Math.random() > 0.5,
+      price: `${Math.floor(Math.random() * 20 + 10)}만원`,
+    }
+  }
+
+  // 거리 계산 함수 (하버사인 공식)
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371 // 지구의 반지름 (km)
+    const dLat = (lat2 - lat1) * Math.PI / 180
+    const dLon = (lon2 - lon1) * Math.PI / 180
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+    return R * c
+  }
+
+  // gyms_raw.json 데이터 로드
+  useEffect(() => {
+    console.log("🧪 gyms_raw.json 데이터 로드 시작")
+    try {
+      if (!gymsData || !Array.isArray(gymsData)) {
+        throw new Error("헬스장 데이터가 올바르지 않습니다.")
+      }
+
+      const transformedGyms = gymsData.map(transformGymData)
+      
+      // 데이터 유효성 검사
+      if (transformedGyms.length === 0) {
+        throw new Error("변환된 헬스장 데이터가 없습니다.")
+      }
+
+      setAllGyms(transformedGyms)
+      console.log("🧪 로드된 헬스장 데이터:", transformedGyms.length, "개")
+      
+      // 데이터 로드 성공 시 로그
+      const validCoords = transformedGyms.filter(gym => 
+        isValidCoordinate(gym.latitude, gym.longitude)
+      )
+      console.log("🧪 유효한 좌표를 가진 헬스장:", validCoords.length, "개")
+      
+    } catch (error) {
+      console.error("❌ gyms_raw.json 데이터 로드 실패:", error)
+      
+      // 데이터 로드 실패 시 기본 헬스장 데이터 생성
+      const fallbackGyms: Gym[] = [
+        {
+          id: "fallback-1",
+          name: "서울시청 헬스장",
+          type: "짐",
+          address: "서울특별시 중구 세종대로 110",
+          phone: "02-120",
+          latitude: 37.5665,
+          longitude: 126.978,
+          is24Hours: true,
+          hasParking: true,
+          hasShower: true,
+          rating: 4.5,
+          reviewCount: 50,
+          hasPT: true,
+          hasGX: true,
+          price: "15만원"
+        },
+        {
+          id: "fallback-2", 
+          name: "명동 피트니스",
+          type: "피트니스",
+          address: "서울특별시 중구 명동",
+          phone: "02-123-4567",
+          latitude: 37.5636,
+          longitude: 126.9826,
+          is24Hours: false,
+          hasParking: false,
+          hasShower: true,
+          rating: 4.2,
+          reviewCount: 30,
+          hasPT: true,
+          hasGX: false,
+          price: "12만원"
+        },
+        {
+          id: "fallback-3",
+          name: "동대문 스포츠센터",
+          type: "크로스핏", 
+          address: "서울특별시 중구 동대문",
+          phone: "02-987-6543",
+          latitude: 37.5683,
+          longitude: 126.9778,
+          is24Hours: true,
+          hasParking: true,
+          hasShower: true,
+          rating: 4.0,
+          reviewCount: 25,
+          hasPT: false,
+          hasGX: true,
+          price: "10만원"
+        }
+      ]
+      
+      setAllGyms(fallbackGyms)
+      console.log("🧪 기본 헬스장 데이터로 대체:", fallbackGyms.length, "개")
+    }
+  }, [])
+
+  // 좌표 설정 함수 (우선순위: 현재 좌표 > 검색어 기반 > 서울 시청)
+  const getCoordinateWithPriority = (searchQuery?: string) => {
+    console.log("🧪 좌표 결정 시작, 검색어:", searchQuery)
+    
+    // 1. 현재 좌표가 있는 경우 - 현재 좌표 사용
+    if (position) {
+      console.log("🧪 현재 좌표 사용:", position)
+      return position
+    }
+    
+    // 2. 현재 좌표가 없지만 검색어가 있는 경우 - 서울 시청 좌표 사용
+    if (searchQuery && searchQuery.trim() !== '') {
+      console.log("🧪 검색어 기반으로 서울 시청 좌표 사용")
+      return { lat: 37.5665, lng: 126.9780 }
+    }
+    
+    // 3. 현재 좌표도 없고 검색도 없는 경우 - 서울 시청 좌표 사용
+    console.log("🧪 기본 서울 시청 좌표 사용")
+    return { lat: 37.5665, lng: 126.9780 }
+  }
+
+  // 좌표 설정 함수 (상태 업데이트용)
+  const setCoordinateWithPriority = (searchQuery?: string) => {
+    const targetCoordinate = getCoordinateWithPriority(searchQuery)
+    
+    // position이 없을 때만 설정 (무한 루프 방지)
+    if (!position) {
+      console.log("🧪 좌표 상태 업데이트:", targetCoordinate)
+      setPosition(targetCoordinate)
+    }
+    
+    return targetCoordinate
+  }
 
   // 로그인 상태 확인 및 현재 위치 가져오기
   useEffect(() => {
@@ -53,13 +223,14 @@ export default function GymFinderPage() {
       return
     }
 
+    // 브라우저가 geolocation을 지원하지 않는 경우
     if (!navigator.geolocation) {
       console.error("Geolocation을 지원하지 않는 브라우저입니다.")
-      // 기본 위치 설정 (서울시청)
-      setPosition({ lat: 37.5665, lng: 126.9780 })
+      setCoordinateWithPriority()
       return
     }
 
+    // 현재 위치 가져오기 시도
     navigator.geolocation.getCurrentPosition(
       pos => {
         const currentPos = {
@@ -74,15 +245,15 @@ export default function GymFinderPage() {
         
         // 위치 정보 거부 시 사용자에게 알림
         if (error.code === 1) {
-          alert("위치 정보 접근이 거부되었습니다. 기본 위치(서울시청)로 설정됩니다.")
+          console.log("🧪 위치 정보 접근 거부됨")
         } else if (error.code === 2) {
-          alert("위치 정보를 가져올 수 없습니다. 네트워크 연결을 확인해주세요.")
+          console.log("🧪 위치 정보를 가져올 수 없음")
         } else if (error.code === 3) {
-          alert("위치 정보 요청 시간이 초과되었습니다.")
+          console.log("🧪 위치 정보 요청 시간 초과")
         }
         
-        // 기본 위치 설정 (서울시청)
-        setPosition({ lat: 37.5665, lng: 126.9780 })
+        // 위치 정보를 가져올 수 없는 경우 기본 좌표 설정
+        setCoordinateWithPriority()
       },
       {
         enableHighAccuracy: true,
@@ -92,243 +263,226 @@ export default function GymFinderPage() {
     )
   }, [isLoggedIn, navigate])
 
-  // 위치가 설정되면 기본 헬스장 검색 실행
+  // 데이터가 로드되면 주변 헬스장 찾기
   useEffect(() => {
-    if (position && gyms.length === 0) {
-      console.log("🧪 위치 설정됨, 기본 헬스장 검색 시작")
-      handleSearch("헬스장")
+    if (allGyms.length > 0) {
+      console.log("🧪 데이터 로드됨, 주변 헬스장 찾기 시작")
+      findNearbyGyms()
     }
-  }, [position])
+  }, [allGyms])
 
-  // Kakao Maps SDK 로드 및 맵 초기화
+  // 거리 변경 시 처리
   useEffect(() => {
-    if (!position || isMapLoaded) return
-    if (!kakaoApiKey) {
-      console.error("⚠️ Kakao API Key가 .env에 설정되지 않았습니다.")
-      return
+    if (allGyms.length > 0) {
+      console.log("🧪 거리 변경됨:", maxDistance, "km")
+      
+      // 이전 데이터가 있는 경우 해당 데이터를 거리 기준으로 필터링
+      if (gyms.length > 0) {
+        console.log("🧪 이전 검색 데이터가 있음, 거리 기준으로 필터링")
+        const currentPosition = getCoordinateWithPriority(currentSearchQuery)
+        if (currentPosition) {
+          const filteredGyms = gyms
+            .map(gym => {
+              const distance = calculateDistance(
+                currentPosition.lat,
+                currentPosition.lng,
+                gym.latitude,
+                gym.longitude
+              )
+              return { ...gym, distance }
+            })
+            .filter(gym => gym.distance <= maxDistance)
+            .sort((a, b) => a.distance - b.distance)
+          
+          setGyms(filteredGyms)
+        }
+      } else {
+        // 이전 데이터가 없는 경우 서울 시청 기준으로 새로 검색
+        console.log("🧪 이전 데이터 없음, 서울 시청 기준으로 새로 검색")
+        findNearbyGyms()
+      }
     }
+  }, [maxDistance])
 
-    const loadKakaoMap = (): Promise<void> => {
-      return new Promise((resolve, reject) => {
-        if (window.kakao && window.kakao.maps) {
-          resolve()
-        } else {
-          const existingScript = document.getElementById("kakao-map-sdk-script")
-          if (existingScript) {
-            existingScript.addEventListener("load", () => resolve())
-            existingScript.addEventListener("error", () => reject())
-            return
+  // 검색어가 변경되면 검색 결과 업데이트 (무한 루프 방지를 위해 의존성 제거)
+  useEffect(() => {
+    if (currentSearchQuery.trim() !== '' && allGyms.length > 0) {
+      console.log("🧪 검색어 변경됨, 검색 실행:", currentSearchQuery)
+      // handleSearch 함수를 직접 호출하지 않고 내부 로직만 실행
+      const executeSearch = async () => {
+        const currentPosition = getCoordinateWithPriority(currentSearchQuery)
+        if (!currentPosition) return
+
+        setIsLoading(true)
+        try {
+          const searchResults = allGyms.filter(gym => 
+            gym.name.toLowerCase().includes(currentSearchQuery.toLowerCase()) ||
+            gym.address.toLowerCase().includes(currentSearchQuery.toLowerCase()) ||
+            gym.type.toLowerCase().includes(currentSearchQuery.toLowerCase())
+          )
+
+          const resultsWithDistance = searchResults
+            .map(gym => {
+              const distance = calculateDistance(
+                currentPosition.lat,
+                currentPosition.lng,
+                gym.latitude,
+                gym.longitude
+              )
+              return { ...gym, distance }
+            })
+            .sort((a, b) => a.distance - b.distance)
+
+          let filteredResults = resultsWithDistance.filter(gym => gym.distance <= maxDistance)
+          
+          if (filteredResults.length < 3) {
+            let expandedDistance = maxDistance
+            while (filteredResults.length < 3 && expandedDistance < 50) {
+              expandedDistance += 5
+              filteredResults = resultsWithDistance.filter(gym => gym.distance <= expandedDistance)
+            }
+            
+            if (filteredResults.length < 3) {
+              filteredResults = resultsWithDistance.slice(0, 3)
+            }
           }
 
-          const script = document.createElement("script")
-          script.id = "kakao-map-sdk-script"
-          script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoApiKey}&autoload=false`
-          script.async = true
-
-          script.onload = () => resolve()
-          script.onerror = error => reject(error)
-
-          document.head.appendChild(script)
+          setGyms(filteredResults)
+        } catch (error) {
+          console.error("🧪 검색 실패:", error)
+        } finally {
+          setIsLoading(false)
         }
-      })
-    }
-
-    const initializeMap = () => {
-      const container = document.getElementById("kakao-map")
-      if (!container) {
-        console.error("카카오맵 컨테이너가 존재하지 않습니다.")
-        return
       }
-
-      const options = {
-        center: new window.kakao.maps.LatLng(position.lat, position.lng),
-        level: 3,
-      }
-
-      mapRef.current = new window.kakao.maps.Map(container, options)
-
-      // 현재 위치 마커 추가
-      addCurrentLocationMarker()
-
-      setIsMapLoaded(true)
+      
+      executeSearch()
     }
+  }, [currentSearchQuery, allGyms, maxDistance])
 
-    loadKakaoMap()
-      .then(() => {
-        window.kakao.maps.load(initializeMap)
+  // 주변 헬스장 찾기 함수 (최소 3개 보장)
+  const findNearbyGyms = () => {
+    if (allGyms.length === 0) return
+
+    console.log("🧪 주변 헬스장 찾기 시작")
+    
+    // 좌표 결정 (검색어가 있으면 검색어 기반, 없으면 현재 좌표)
+    const currentPosition = getCoordinateWithPriority(currentSearchQuery)
+    
+    if (!currentPosition) {
+      console.warn("⚠️ 좌표 결정 실패")
+      return
+    }
+    
+    // 거리 계산 및 정렬
+    const gymsWithDistance = allGyms
+      .map(gym => {
+        const distance = calculateDistance(
+          currentPosition.lat,
+          currentPosition.lng,
+          gym.latitude,
+          gym.longitude
+        )
+        return { ...gym, distance }
       })
-      .catch(err => {
-        console.error("❌ Kakao Maps SDK 로딩 실패:", err)
-      })
+      .sort((a, b) => a.distance - b.distance)
 
-    return () => {
-      const script = document.getElementById("kakao-map-sdk-script")
-      if (script) script.remove()
-    }
-  }, [position, isMapLoaded, kakaoApiKey])
-
-  // 현재 위치 마커 추가 함수
-  const addCurrentLocationMarker = () => {
-    if (!mapRef.current || !position) return
-
-    // 기존 현재 위치 마커 제거
-    if (currentLocationMarkerRef.current) {
-      currentLocationMarkerRef.current.setMap(null)
-    }
-
-    // 현재 위치 마커 생성 (파란색 원형 마커)
-    const currentLocationMarker = new window.kakao.maps.Marker({
-      position: new window.kakao.maps.LatLng(position.lat, position.lng),
-      map: mapRef.current,
-    })
-
-    // 현재 위치 마커 스타일 설정
-    const currentLocationImage = new window.kakao.maps.MarkerImage(
-      "data:image/svg+xml;base64," +
-        btoa(`
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="16" cy="16" r="14" fill="#d1d5db" stroke="white" stroke-width="3"/>
-          <circle cx="16" cy="16" r="8" fill="white"/>
-          <circle cx="16" cy="16" r="4" fill="#374151"/>
-        </svg>
-      `),
-      new window.kakao.maps.Size(32, 32)
-    )
-
-    currentLocationMarker.setImage(currentLocationImage)
-    currentLocationMarkerRef.current = currentLocationMarker
-
-    // 현재 위치 인포윈도우 추가
-    const infowindow = new window.kakao.maps.InfoWindow({
-      content:
-        '<div style="padding:8px 12px;font-size:14px;font-weight:600;background:#d1d5db;color:#374151;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);">📍 현재 위치</div>',
-    })
-
-    window.kakao.maps.event.addListener(
-      currentLocationMarker,
-      "click",
-      function () {
-        infowindow.open(mapRef.current, currentLocationMarker)
+    // 현재 거리 내에서 헬스장 찾기
+    let nearby = gymsWithDistance.filter(gym => gym.distance <= maxDistance)
+    
+    // 최소 3개가 없으면 검색 범위를 점진적으로 확장
+    if (nearby.length < 3) {
+      console.log("🧪 현재 범위 내 헬스장 부족, 검색 범위 확장 중...")
+      
+      let expandedDistance = maxDistance
+      while (nearby.length < 3 && expandedDistance < 50) { // 최대 50km까지 확장
+        expandedDistance += 5 // 5km씩 확장
+        nearby = gymsWithDistance.filter(gym => gym.distance <= expandedDistance)
+        console.log(`🧪 ${expandedDistance}km 범위에서 ${nearby.length}개 헬스장 발견`)
       }
-    )
+      
+      // 여전히 3개 미만이면 가장 가까운 3개 선택
+      if (nearby.length < 3) {
+        nearby = gymsWithDistance.slice(0, 3)
+        console.log("🧪 최대 범위 확장 후에도 부족, 가장 가까운 3개 선택")
+      }
+    }
+
+    // 최대 6개로 제한
+    nearby = nearby.slice(0, 6)
+    
+    console.log("🧪 최종 선택된 헬스장:", nearby.length, "개")
+    setNearbyGyms(nearby)
   }
 
-  // 헬스장 마커 추가 함수
-  const addGymMarkers = () => {
-    if (!mapRef.current || !gyms.length) return
+  // Map API 관련 코드 제거됨
 
-    // 기존 헬스장 마커들 제거
-    gymMarkersRef.current.forEach(marker => {
-      marker.setMap(null)
-    })
-    gymMarkersRef.current = []
+  // Map API 관련 함수들 제거됨
 
-    // 헬스장 마커들 추가
-    gyms.forEach((gym, index) => {
-      const marker = new window.kakao.maps.Marker({
-        position: new window.kakao.maps.LatLng(gym.latitude, gym.longitude),
-        map: mapRef.current,
-      })
-
-      // 헬스장 마커 스타일 설정 (빨간색 핀)
-      const gymImage = new window.kakao.maps.MarkerImage(
-        "data:image/svg+xml;base64," +
-          btoa(`
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#EA4335"/>
-            <circle cx="12" cy="9" r="2.5" fill="white"/>
-          </svg>
-        `),
-        new window.kakao.maps.Size(24, 24)
-      )
-
-      marker.setImage(gymImage)
-
-      // 헬스장 인포윈도우 생성
-      const infowindow = new window.kakao.maps.InfoWindow({
-        content: `
-          <div style="padding:10px;min-width:200px;">
-            <h3 style="margin:0 0 5px 0;font-size:14px;font-weight:bold;">${
-              gym.name
-            }</h3>
-            <p style="margin:0 0 3px 0;font-size:12px;color:#666;">${
-              gym.address
-            }</p>
-            ${
-              gym.phone
-                ? `<p style="margin:0 0 3px 0;font-size:12px;color:#666;">${gym.phone}</p>`
-                : ""
-            }
-            ${
-              gym.rating
-                ? `<p style="margin:0;font-size:12px;color:#666;">평점: ${gym.rating.toFixed(
-                    1
-                  )}</p>`
-                : ""
-            }
-          </div>
-        `,
-      })
-
-      // 마커 클릭 이벤트
-      window.kakao.maps.event.addListener(marker, "click", function () {
-        infowindow.open(mapRef.current, marker)
-      })
-
-      gymMarkersRef.current.push(marker)
-    })
-  }
-
-  // 헬스장 목록이 변경될 때마다 마커 업데이트
-  useEffect(() => {
-    if (isMapLoaded && gyms.length > 0) {
-      addGymMarkers()
-    }
-  }, [gyms, isMapLoaded])
-
-  // 검색 처리
+  // 검색 처리 (gyms_raw.json 데이터에서 검색, 최소 3개 보장)
   const handleSearch = async (query: string) => {
     console.log("🧪 검색 시작:", query)
-    if (!position) {
-      console.warn("⚠️ 위치 정보가 없습니다.")
+    
+    // 검색어가 비어있으면 주변 헬스장으로 돌아가기
+    if (!query || query.trim() === '') {
+      console.log("🧪 검색어 비어있음, 주변 헬스장으로 돌아가기")
+      setCurrentSearchQuery("")
+      setGyms([])
+      return
+    }
+    
+    setCurrentSearchQuery(query)
+    
+    // 좌표 결정 (검색어가 있으면 서울 시청 기준)
+    const currentPosition = getCoordinateWithPriority(query)
+    
+    if (!currentPosition) {
+      console.warn("⚠️ 좌표 결정 실패")
       return
     }
 
     setIsLoading(true)
     try {
-      const result = await fetchGymsByKeyword(query, position)
-      console.log("🧪 API 결과:", result.length, "개")
+      // gyms_raw.json 데이터에서 검색
+      const searchResults = allGyms.filter(gym => 
+        gym.name.toLowerCase().includes(query.toLowerCase()) ||
+        gym.address.toLowerCase().includes(query.toLowerCase()) ||
+        gym.type.toLowerCase().includes(query.toLowerCase())
+      )
 
-      // 결과가 이미 Gym 타입인지 확인하고 변환
-      const transformedGyms: Gym[] = result.map((item: any) => {
-        // 이미 Gym 타입인 경우 (더미 데이터)
-        if (item.name && item.type) {
-          return item
+      // 거리 계산 및 정렬
+      const resultsWithDistance = searchResults
+        .map(gym => {
+          const distance = calculateDistance(
+            currentPosition.lat,
+            currentPosition.lng,
+            gym.latitude,
+            gym.longitude
+          )
+          return { ...gym, distance }
+        })
+        .sort((a, b) => a.distance - b.distance)
+
+      // 현재 거리 내에서 결과 필터링
+      let filteredResults = resultsWithDistance.filter(gym => gym.distance <= maxDistance)
+      
+      // 최소 3개가 없으면 검색 범위를 점진적으로 확장
+      if (filteredResults.length < 3) {
+        console.log("🧪 검색 결과 부족, 검색 범위 확장 중...")
+        
+        let expandedDistance = maxDistance
+        while (filteredResults.length < 3 && expandedDistance < 50) {
+          expandedDistance += 5
+          filteredResults = resultsWithDistance.filter(gym => gym.distance <= expandedDistance)
         }
-
-        // 카카오 API 결과인 경우 변환
-        return {
-          id: item.id,
-          name: item.place_name,
-          type: "피트니스",
-          address: item.address_name,
-          phone: item.phone,
-          latitude: parseFloat(item.y),
-          longitude: parseFloat(item.x),
-          // 추가 필드들은 기본값으로 설정 (실제로는 별도 API 호출 필요)
-          rating: Math.random() * 2 + 3, // 임시 평점 (3-5)
-          reviewCount: Math.floor(Math.random() * 100) + 10, // 임시 리뷰 수
-          hasPT: Math.random() > 0.5,
-          hasGX: Math.random() > 0.5,
-          is24Hours: Math.random() > 0.7,
-          hasParking: Math.random() > 0.3,
-          hasShower: Math.random() > 0.6,
-          price: `${Math.floor(Math.random() * 20 + 10)}만원`,
+        
+        // 여전히 3개 미만이면 가장 가까운 3개 선택
+        if (filteredResults.length < 3) {
+          filteredResults = resultsWithDistance.slice(0, 3)
         }
-      })
+      }
 
-      console.log("🧪 변환된 헬스장 데이터:", transformedGyms.length, "개")
-      setGyms(transformedGyms)
+      console.log("🧪 최종 검색 결과:", filteredResults.length, "개")
+      setGyms(filteredResults)
     } catch (error) {
       console.error("🧪 검색 실패:", error)
     } finally {
@@ -352,46 +506,30 @@ export default function GymFinderPage() {
     setSortDirection(newDirection)
   }
 
-  // 헬스장 클릭 처리 - 맵에서 해당 위치로 이동
+  // 헬스장 클릭 처리 (상세보기로 전환)
   const handleGymClick = (gym: Gym) => {
     console.log("헬스장 클릭:", gym)
-
-    if (mapRef.current) {
-      // 맵 중심을 해당 헬스장 위치로 이동
-      const newPosition = new window.kakao.maps.LatLng(
-        gym.latitude,
-        gym.longitude
-      )
-      mapRef.current.panTo(newPosition)
-
-      // 줌 레벨을 더 가깝게 설정 (더 확대)
-      mapRef.current.setLevel(2)
-
-      // 해당 헬스장 마커 찾기
-      const gymMarker = gymMarkersRef.current.find(marker => {
-        const markerPos = marker.getPosition()
-        return (
-          markerPos.getLat() === gym.latitude &&
-          markerPos.getLng() === gym.longitude
-        )
-      })
-
-      // 마커 클릭 이벤트 트리거 (인포윈도우 표시)
-      if (gymMarker) {
-        window.kakao.maps.event.trigger(gymMarker, "click")
-      }
-    }
+    setSelectedGym(gym)
+    setIsDetailView(true)
   }
 
-  // 현재 위치로 이동하는 함수
-  const moveToCurrentLocation = () => {
-    if (mapRef.current && position) {
-      const currentPosition = new window.kakao.maps.LatLng(
-        position.lat,
-        position.lng
-      )
-      mapRef.current.panTo(currentPosition)
-      mapRef.current.setLevel(3)
+  // 새로고침/초기화 기능
+  const handleRefresh = () => {
+    console.log("🧪 새로고침 버튼 클릭")
+    
+    // 상세보기 모드 해제
+    setIsDetailView(false)
+    setSelectedGym(null)
+    
+    // 검색어가 있는 경우 검색어 기준으로 재설정
+    if (currentSearchQuery.trim() !== '') {
+      console.log("🧪 검색어 기준으로 재설정:", currentSearchQuery)
+      handleSearch(currentSearchQuery)
+    } else {
+      // 검색어가 없는 경우 현재 위치 또는 서울 시청 기준으로 재설정
+      console.log("🧪 위치 기준으로 재설정")
+      setGyms([])
+      findNearbyGyms()
     }
   }
 
@@ -447,22 +585,110 @@ export default function GymFinderPage() {
         <div className={styles.mapListWrapper}>
           <section className={styles.mapSection}>
             <div className={styles.mapHeader}>
-              <h2>헬스장 위치</h2>
-              <button
-                onClick={moveToCurrentLocation}
-                className={styles.currentLocationButton}
-                title="현재 위치로 이동"
+              <h2>내 주변 헬스장</h2>
+              <button 
+                className={styles.refreshButton}
+                onClick={handleRefresh}
+                title="새로고침"
               >
-                📍 현재 위치
+                🔄
               </button>
+              <span className={styles.locationInfo}>
+                📍 {position ? '현재 위치' : '서울 시청'} 기준 {maxDistance}km 내
+                {currentSearchQuery && (
+                  <span className={styles.searchInfo}>
+                    (검색어: "{currentSearchQuery}")
+                  </span>
+                )}
+              </span>
             </div>
-            <div id="kakao-map" className={styles.map}></div>
+            <div className={styles.nearbyGyms}>
+              {isDetailView && selectedGym ? (
+                // 상세보기 모드 - 단일 카드
+                <div className={styles.detailView}>
+                  <div className={styles.detailCard}>
+                    <div className={styles.detailHeader}>
+                      <h3>{selectedGym.name}</h3>
+                      <button 
+                        className={styles.backButton}
+                        onClick={() => {
+                          setIsDetailView(false)
+                          setSelectedGym(null)
+                        }}
+                        title="뒤로가기"
+                      >
+                        ←
+                      </button>
+                    </div>
+                    <div className={styles.detailContent}>
+                      <div className={styles.detailInfo}>
+                        <p><strong>주소:</strong> {selectedGym.address}</p>
+                        <p><strong>전화번호:</strong> {selectedGym.phone}</p>
+                        <p><strong>타입:</strong> {selectedGym.type}</p>
+                        <p><strong>평점:</strong> ⭐ {selectedGym.rating?.toFixed(1) || 'N/A'} ({selectedGym.reviewCount || 0}개 리뷰)</p>
+                        <p><strong>가격:</strong> {selectedGym.price}</p>
+                        <p><strong>거리:</strong> {selectedGym.distance ? `${selectedGym.distance.toFixed(2)}km` : '계산 중...'}</p>
+                      </div>
+                      <div className={styles.detailFeatures}>
+                        <h4>시설 정보</h4>
+                        <div className={styles.featureList}>
+                          {selectedGym.is24Hours && <span className={styles.featureTag}>24시간</span>}
+                          {selectedGym.hasParking && <span className={styles.featureTag}>주차</span>}
+                          {selectedGym.hasShower && <span className={styles.featureTag}>샤워</span>}
+                          {selectedGym.hasPT && <span className={styles.featureTag}>PT</span>}
+                          {selectedGym.hasGX && <span className={styles.featureTag}>GX</span>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : nearbyGyms.length > 0 ? (
+                // 일반 모드 - 그리드
+                <div className={styles.gymGrid}>
+                  {nearbyGyms.map(gym => (
+                    <GymCard 
+                      key={gym.id} 
+                      gym={gym} 
+                      onClick={handleGymClick}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className={styles.emptyState}>
+                  <p>📍 주변에 헬스장을 찾는 중...</p>
+                  <p>잠시만 기다려주세요.</p>
+                  {allGyms.length === 0 && (
+                    <p className={styles.errorText}>
+                      ⚠️ 헬스장 데이터를 불러오는 중입니다.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
           </section>
 
           <section className={styles.listSection}>
             <div className={styles.listHeader}>
-              <h2>추천 헬스장</h2>
-              {isLoading && <span>검색 중...</span>}
+              <h2>검색 결과</h2>
+              <div className={styles.headerControls}>
+                <div className={styles.viewToggle}>
+                  <button
+                    className={`${styles.toggleButton} ${viewMode === 'list' ? styles.active : ''}`}
+                    onClick={() => setViewMode('list')}
+                    title="리스트 보기"
+                  >
+                    📋
+                  </button>
+                  <button
+                    className={`${styles.toggleButton} ${viewMode === 'grid' ? styles.active : ''}`}
+                    onClick={() => setViewMode('grid')}
+                    title="그리드 보기"
+                  >
+                    ⊞
+                  </button>
+                </div>
+                {isLoading && <span>검색 중...</span>}
+              </div>
             </div>
             <div className={styles.gymList}>
               <GymList
@@ -471,6 +697,7 @@ export default function GymFinderPage() {
                 sortDirection={sortDirection}
                 onSortChange={handleSortChange}
                 onGymClick={handleGymClick}
+                layout={viewMode}
               />
             </div>
           </section>

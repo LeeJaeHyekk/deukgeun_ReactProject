@@ -239,10 +239,7 @@ router.get("/batch-stats", async (req, res) => {
 
     // 배치 크기 자동 계산
     const availableMemory = process.memoryUsage().heapTotal
-    const optimalBatchSize = BatchProcessingService.calculateOptimalBatchSize(
-      allGyms.length,
-      availableMemory
-    )
+    const optimalBatchSize = 20 // 기본 배치 크기
 
     res.json({
       success: true,

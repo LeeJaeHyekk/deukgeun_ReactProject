@@ -23,6 +23,7 @@ function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {
       hasParking: true,
       hasShower: true,
       price: '15만원',
+      imageUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop',
     },
     {
       id: '2',
@@ -40,6 +41,7 @@ function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {
       hasParking: false,
       hasShower: true,
       price: '12만원',
+      imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop',
     },
     {
       id: '3',
@@ -57,6 +59,7 @@ function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {
       hasParking: true,
       hasShower: true,
       price: '18만원',
+      imageUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&h=300&fit=crop',
     },
     {
       id: '4',
@@ -74,6 +77,7 @@ function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {
       hasParking: true,
       hasShower: false,
       price: '10만원',
+      imageUrl: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=400&h=300&fit=crop',
     },
     {
       id: '5',
@@ -91,6 +95,7 @@ function generateDummyGyms(pos: { lat: number; lng: number }): Gym[] {
       hasParking: false,
       hasShower: true,
       price: '13만원',
+      imageUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop',
     },
   ]
 

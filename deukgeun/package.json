@@ -112,7 +112,10 @@
     "convert:fixed:dry": "npx tsx scripts/js-to-cjs-converter-fixed.ts --dry-run",
     "convert:enhanced": "npx tsx scripts/enhanced-js-to-cjs-converter.ts",
     "convert:enhanced:verbose": "npx tsx scripts/enhanced-js-to-cjs-converter.ts --verbose",
-    "convert:enhanced:dry": "npx tsx scripts/enhanced-js-to-cjs-converter.ts --dry-run"
+    "convert:enhanced:dry": "npx tsx scripts/enhanced-js-to-cjs-converter.ts --dry-run",
+    "test:crawling-api": "npx tsx scripts/test-crawling-api.ts",
+    "test:crawling-api:bash": "chmod +x scripts/test-crawling-api.sh && ./scripts/test-crawling-api.sh",
+    "test:server-and-api": "node scripts/start-server-and-test.js"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",
@@ -123,10 +126,11 @@
     "@types/css-modules": "^1.0.5",
     "@types/react-datepicker": "^7.0.0",
     "aws-sdk": "^2.1692.0",
-    "cheerio": "^1.0.0-rc.12",
+    "cheerio": "^1.1.2",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "cron": "^4.3.3",
     "dotenv": "^17.2.1",
     "helmet": "^7.1.0",
     "lucide-react": "^0.294.0",

@@ -10,6 +10,7 @@ interface GymListProps {
   sortDirection: SortDirection
   onSortChange: (sortBy: SortOption, direction: SortDirection) => void
   onGymClick?: (gym: Gym) => void
+  layout?: 'list' | 'grid'
 }
 
 export function GymList({
@@ -18,6 +19,7 @@ export function GymList({
   sortDirection,
   onSortChange,
   onGymClick,
+  layout = 'list',
 }: GymListProps) {
   if (gyms.length === 0) {
     return (
@@ -39,7 +41,7 @@ export function GymList({
         />
       </div>
 
-      <div className={styles.list}>
+      <div className={`${styles.list} ${layout === 'grid' ? styles.grid : ''}`}>
         {gyms.map(gym => (
           <GymCard key={gym.id} gym={gym} onClick={onGymClick} />
         ))}

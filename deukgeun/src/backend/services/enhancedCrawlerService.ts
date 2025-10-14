@@ -444,25 +444,20 @@ export const updateGymDetailsWithEnhancedSources = async (
   }
 
   // 배치 처리를 통한 업데이트
-  const result = await BatchProcessingService.processGymsInBatches(
-    gymRepo,
-    async (gym: Gym) => {
-      return await updateSingleGym(gym)
-    },
-    batchConfig
-  )
+  const batchService = new BatchProcessingService(gymRepo)
+  const result = await batchService.processGymsInBatches(batchConfig)
 
   console.log(`\n📊 최종 결과:`)
-  console.log(`✅ 성공: ${result.progress.success}개`)
-  console.log(`❌ 실패: ${result.progress.failed}개`)
+  console.log(`✅ 성공: ${result.success}개`)
+  console.log(`❌ 실패: ${result.failed}개`)
   console.log(
-    `📈 성공률: ${((result.progress.success / gyms.length) * 100).toFixed(1)}%`
+    `📈 성공률: ${((result.success / result.total) * 100).toFixed(1)}%`
   )
   console.log(`⏱️ 소요 시간: ${result.duration}ms`)
 
   if (result.errors.length > 0) {
     console.log(`\n❌ 실패한 헬스장들:`)
-    result.errors.forEach(error => {
+    result.errors.forEach((error: any) => {
       const gymName = (error as any).gymName || "unknown"
       console.log(`- ${gymName}: ${error.message}`)
     })

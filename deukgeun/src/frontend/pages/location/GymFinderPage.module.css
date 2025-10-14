@@ -3,7 +3,7 @@
   flex-direction: column;
   min-height: 100vh;
   width: 100vw;
-  background: linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%);
+  background: linear-gradient(135deg, #b0b0b0, #969696, #7c7c7c);
   color: #fff;
   margin: 0;
   box-sizing: border-box;
@@ -173,6 +173,8 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(6px);
   background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
 }
 
 .mapHeader {
@@ -190,6 +192,7 @@
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 1rem;
 }
 
 .mapHeader h2 {
@@ -197,6 +200,220 @@
   font-size: 1.25rem;
   font-weight: 600;
   color: #fff;
+}
+
+.locationInfo {
+  font-size: 0.875rem;
+  color: #e0e0e0;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  flex: 1;
+  text-align: right;
+}
+
+.refreshButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  backdrop-filter: blur(8px);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+}
+
+.refreshButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.refreshButton:active {
+  transform: translateY(0);
+}
+
+.searchInfo {
+  color: #4f46e5;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.nearbyGyms {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.nearbyGyms::-webkit-scrollbar {
+  width: 8px;
+}
+
+.nearbyGyms::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.nearbyGyms::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.nearbyGyms::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.gymGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #ccc;
+  padding: 2rem;
+}
+
+.emptyState p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+/* 상세보기 스타일 */
+.detailView {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 1rem;
+}
+
+.detailCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 100%;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detailHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detailHeader h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.backButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  backdrop-filter: blur(8px);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.backButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.backButton:active {
+  transform: translateY(0);
+}
+
+.detailContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.detailInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detailInfo p {
+  margin: 0;
+  font-size: 1rem;
+  color: #e0e0e0;
+  line-height: 1.5;
+}
+
+.detailInfo strong {
+  color: #fff;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.detailFeatures h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.featureList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.featureTag {
+  background: rgba(79, 70, 229, 0.2);
+  color: #a5b4fc;
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
 }
 
 .currentLocationButton {
@@ -278,6 +495,47 @@
     text-align: center;
   }
 
+  .headerControls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .viewToggle {
+    display: flex;
+    gap: 0.25rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    padding: 0.25rem;
+  }
+
+  .toggleButton {
+    background: transparent;
+    border: none;
+    color: #ccc;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 2rem;
+  }
+
+  .toggleButton:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  .toggleButton.active {
+    background: #d1d5db;
+    color: #374151;
+  }
+
   .listHeader span {
     color: #e0e0e0;
     font-weight: 500;
@@ -344,10 +602,46 @@
     min-height: 400px;
   }
 
+  .gymGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .nearbyGyms {
+    padding: 0.75rem;
+  }
+
   .mapHeader {
     flex-direction: column;
     gap: 0.75rem;
     align-items: stretch;
+  }
+
+  .mapHeader h2 {
+    text-align: center;
+  }
+
+  .locationInfo {
+    text-align: center;
+    order: 3;
+  }
+
+  .refreshButton {
+    align-self: center;
+    order: 2;
+  }
+
+  .detailCard {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+
+  .detailHeader h3 {
+    font-size: 1.25rem;
+  }
+
+  .detailInfo p {
+    font-size: 0.9rem;
   }
 
   .currentLocationButton {
@@ -359,6 +653,16 @@
     color: #e0e0e0;
     font-weight: 500;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .headerControls {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .viewToggle {
+    order: 2;
   }
 }
 

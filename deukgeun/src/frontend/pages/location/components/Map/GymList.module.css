@@ -30,6 +30,16 @@
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 
+/* 그리드 레이아웃 지원 */
+.list.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
 .list::-webkit-scrollbar {
   width: 8px;
 }

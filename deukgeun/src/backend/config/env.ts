@@ -165,6 +165,14 @@ const apiKeyConfig: ApiKeyConfig = {
   googleSecureSecret: process.env.GOOGLE_secure_secret_generator || "",
   seoulOpenApi: process.env.SEOUL_OPENAPI_KEY || "",
   gymApi: process.env.VITE_GYM_API_KEY || "",
+  // 크롤링 관련 API 키들
+  naverClientId: process.env.NAVER_CLIENT_ID || "",
+  naverClientSecret: process.env.NAVER_CLIENT_SECRET || "",
+  daumApiKey: process.env.DAUM_API_KEY || "",
+  facebookAccessToken: process.env.FACEBOOK_ACCESS_TOKEN || "",
+  instagramAccessToken: process.env.INSTAGRAM_ACCESS_TOKEN || "",
+  twitterBearerToken: process.env.TWITTER_BEARER_TOKEN || "",
+  sportsDataApiKey: process.env.SPORTS_DATA_API_KEY || "",
 }
 
 // 보안 설정

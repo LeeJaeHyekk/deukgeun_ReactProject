@@ -4,7 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from "typeorm"
+import { Equipment } from "./Equipment"
 
 @Entity()
 export class Gym {
@@ -32,6 +34,27 @@ export class Gym {
   @Column({ type: "varchar", nullable: true })
   openHour!: string
 
+  @Column({ type: "varchar", nullable: true })
+  closeHour!: string
+
+  @Column({ type: "varchar", nullable: true })
+  price!: string
+
+  @Column({ type: "decimal", precision: 3, scale: 2, nullable: true })
+  rating!: number
+
+  @Column({ type: "int", nullable: true })
+  reviewCount!: number
+
+  @Column({ type: "varchar", nullable: true })
+  source!: string
+
+  @Column({ type: "decimal", precision: 3, scale: 2, nullable: true })
+  confidence!: number
+
+  @Column({ type: "varchar", length: 50, nullable: true })
+  type!: string
+
   @Column({ type: "tinyint", default: 0 })
   is24Hours!: boolean
 
@@ -49,6 +72,9 @@ export class Gym {
 
   @Column({ type: "tinyint", default: 0 })
   hasShower!: boolean
+
+  @OneToMany(() => Equipment, equipment => equipment.gym)
+  equipments!: Equipment[]
 
   @CreateDateColumn()
   createdAt!: Date

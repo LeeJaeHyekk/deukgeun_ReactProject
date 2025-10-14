@@ -101,7 +101,7 @@ async function startServer() {
     const envEndTime = Date.now()
     console.log(`🔧 Debug: validateEnvironmentVariables completed in ${envEndTime - envStartTime}ms`)
     
-    // 데이터베이스 연결 시도 (개발 환경에서는 선택사항)
+    // 데이터베이스 연결 시도 (모든 환경에서 필수)
     console.log("🔄 Step 2: Attempting database connection...")
     const dbStartTime = Date.now()
     try {
@@ -112,16 +112,9 @@ async function startServer() {
         console.log("✅ Database already initialized")
         databaseConnected = true
       } else {
-        // 개발 환경에서는 데이터베이스 연결을 건너뛰고 서버만 시작
-        if (environment === "development") {
-          console.log("🔧 Development mode: Skipping database connection for faster startup")
-          console.log("💡 일부 API 기능이 제한될 수 있습니다.")
-          console.log("💡 데이터베이스 연결을 원한다면 MySQL 서버를 확인해주세요.")
-          databaseConnected = false
-        } else {
-          await AppDataSource.initialize()
-          databaseConnected = true
-        }
+        // 모든 환경에서 데이터베이스 연결 필수
+        await AppDataSource.initialize()
+        databaseConnected = true
       }
       
       const dbEndTime = Date.now()
@@ -142,18 +135,18 @@ async function startServer() {
       console.log(`❌ Step 2: Database connection failed in ${dbEndTime - dbStartTime}ms`)
       console.warn("⚠️ Database connection failed:", dbErrorMessage)
       
-      if (environment === "production") {
-        console.error("❌ Production environment requires database connection")
-        console.log("=".repeat(60))
-        console.log("❌ SERVER STARTUP FAILED - PRODUCTION DB REQUIRED")
-        console.log("=".repeat(60))
-        process.exit(1)
-      } else {
-        console.log("🔧 Development mode: Continuing without database connection")
-        console.log("💡 일부 API 기능이 제한될 수 있습니다.")
-        console.log("💡 데이터베이스 연결을 원한다면 MySQL 서버를 확인해주세요.")
-        console.log("🚀 서버를 계속 시작합니다...")
-      }
+      // 모든 환경에서 데이터베이스 연결 필수
+      console.error("❌ Database connection is required for all environments")
+      console.log("=".repeat(60))
+      console.log("❌ SERVER STARTUP FAILED - DATABASE CONNECTION REQUIRED")
+      console.log("=".repeat(60))
+      console.log("💡 Please check the following:")
+      console.log("   - MySQL server is running")
+      console.log("   - Database credentials are correct")
+      console.log("   - Database exists and is accessible")
+      console.log("   - Environment variables are properly set")
+      console.log("=".repeat(60))
+      process.exit(1)
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)

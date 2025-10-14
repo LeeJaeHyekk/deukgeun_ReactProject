@@ -290,69 +290,6 @@ export const register = async (
 
     console.log("✅ 필수 필드 검증 통과")
 
-    // 개발 환경에서 데이터베이스가 연결되지 않은 경우 mock 응답
-    if (process.env.NODE_ENV === "development" && !AppDataSource.isInitialized) {
-      console.log("🔧 Development mode: Database not connected, returning mock response")
-      
-      const mockUser = {
-        id: Math.floor(Math.random() * 1000000),
-        email,
-        nickname,
-        phone: phone || null,
-        gender: gender || null,
-        birthday: birthday || null,
-        role: "user" as const,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-
-      const { accessToken, refreshToken } = createTokens(mockUser.id, mockUser.role)
-
-      logger.info(`회원가입 성공 (Mock) - User ID: ${mockUser.id}, Email: ${email}`)
-      console.log("🎉 회원가입 성공 (Mock) - 응답 전송 시작")
-
-      const responseData = {
-        success: true,
-        message: "회원가입 성공 (개발 모드)",
-        accessToken,
-        refreshToken,
-        user: {
-          id: mockUser.id,
-          email: mockUser.email,
-          nickname: mockUser.nickname,
-          phone: mockUser.phone || undefined,
-          gender: mockUser.gender || undefined,
-          birthday: mockUser.birthday || undefined,
-          role: mockUser.role,
-          isActive: true,
-          isEmailVerified: false,
-          isPhoneVerified: false,
-          createdAt: mockUser.createdAt,
-          updatedAt: mockUser.updatedAt
-        },
-      }
-
-      console.log("📤 응답 데이터 (Mock):", {
-        success: responseData.success,
-        message: responseData.message,
-        userId: responseData.user.id,
-        userEmail: responseData.user.email,
-        userNickname: responseData.user.nickname,
-      })
-
-      res
-        .cookie("refreshToken", refreshToken, {
-          httpOnly: true,
-          secure: (process.env.NODE_ENV as string) === "production",
-          sameSite: "strict",
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
-        })
-        .status(201)
-        .json(responseData)
-
-      console.log("✅ 회원가입 완료 (Mock) - 응답 전송 완료")
-      return
-    }
 
     // 이메일 형식 검증
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

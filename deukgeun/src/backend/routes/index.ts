@@ -12,6 +12,7 @@ import workoutRoutes from "./workout"
 import logsRoutes from "./logs"
 import recaptchaRoutes from "./recaptcha"
 import homePageRoutes from "./homePage"
+import enhancedGymRoutes from "./enhancedGymRoutes"
 import { AppDataSource, checkDatabaseHealth } from "../config/database"
 import { 
   isValidHealthResponse, 
@@ -138,6 +139,9 @@ if (isDatabaseConnected) {
   
   router.use("/homepage", homePageRoutes)
   console.log("✅ Homepage routes configured")
+  
+  router.use("/enhanced-gym", enhancedGymRoutes)
+  console.log("✅ Enhanced Gym routes configured")
   
   console.log("✅ All API routes configured (full functionality)")
 } else {

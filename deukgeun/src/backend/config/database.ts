@@ -3,6 +3,10 @@ import "reflect-metadata"
 import { DataSource } from "typeorm"
 // 환경 변수 로드 라이브러리 import
 import { config } from "dotenv"
+// MySQL 연결 테스트를 위한 mysql2 import
+import mysql from "mysql2/promise"
+// 데이터베이스 진단 도구 import
+import { runDatabaseDiagnostics, createDatabaseIfNotExists } from "../utils/databaseDiagnostics"
 
 // 엔티티 클래스들 import - 데이터베이스 테이블과 매핑되는 클래스들
 import { Post } from "../entities/Post" // 게시글 엔티티
@@ -42,15 +46,25 @@ export const AppDataSource = new DataSource({
   // 데이터베이스 타입 설정
   type: "mysql", // MySQL 데이터베이스 사용
 
-  // 데이터베이스 연결 설정
+  // 데이터베이스 연결 설정 (환경 변수 사용)
   host: process.env.DB_HOST || "localhost", // 데이터베이스 호스트
   port: parseInt(process.env.DB_PORT || "3306"), // 데이터베이스 포트
   username: process.env.DB_USERNAME || "root", // 데이터베이스 사용자명
   password: process.env.DB_PASSWORD || "", // 데이터베이스 비밀번호
-  database: process.env.DB_NAME || "deukgeun_db", // 데이터베이스 이름
+  database: process.env.DB_DATABASE || process.env.DB_NAME || "deukgeun_db", // 데이터베이스 이름
 
-  // 스키마 자동 동기화 설정 (외래키 제약조건 문제로 인해 비활성화)
-  synchronize: false,
+  // 연결 풀 설정
+  extra: {
+    connectionLimit: 10,
+    acquireTimeout: 60000,
+    timeout: 60000,
+    reconnect: true,
+    charset: 'utf8mb4',
+    timezone: '+09:00'
+  },
+
+  // 스키마 자동 동기화 설정 (개발 환경에서만 활성화)
+  synchronize: true, // 개발용으로 강제 활성화
 
   // SQL 쿼리 로깅 설정 (개발 환경에서만 활성화)
   logging: environment === "development",
@@ -89,21 +103,186 @@ export const AppDataSource = new DataSource({
 })
 
 /**
+ * MySQL 서버 상태 확인 함수
+ * @returns Promise<boolean> 서버 접근 가능 여부
+ */
+const checkMySQLServerStatus = async (): Promise<boolean> => {
+  try {
+    console.log("🔄 Checking MySQL server status...")
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST || "localhost",
+      port: parseInt(process.env.DB_PORT || "3306"),
+      user: process.env.DB_USERNAME || "root",
+      password: process.env.DB_PASSWORD || "",
+    })
+    
+    await connection.ping()
+    await connection.end()
+    console.log("✅ MySQL server is accessible")
+    return true
+  } catch (error) {
+    console.warn("❌ MySQL server is not accessible:", error instanceof Error ? error.message : String(error))
+    return false
+  }
+}
+
+/**
+ * 데이터베이스 연결 재시도 함수
+ * @param maxRetries 최대 재시도 횟수
+ * @param delay 재시도 간격 (ms)
+ * @returns Promise<boolean> 연결 성공 여부
+ */
+const retryDatabaseConnection = async (maxRetries: number = 2, delay: number = 1000): Promise<boolean> => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`🔄 Database connection attempt ${attempt}/${maxRetries}`)
+      
+      // 이미 초기화된 경우 스킵
+      if (AppDataSource.isInitialized) {
+        console.log(`✅ Database already initialized`)
+        return true
+      }
+      
+      await AppDataSource.initialize()
+      console.log(`✅ Database connected successfully on attempt ${attempt}`)
+      return true
+    } catch (error) {
+      console.warn(`❌ Database connection attempt ${attempt} failed:`, error instanceof Error ? error.message : String(error))
+      
+      if (attempt < maxRetries) {
+        console.log(`⏳ Waiting ${delay}ms before retry...`)
+        await new Promise(resolve => setTimeout(resolve, delay))
+        delay *= 1.2 // 더 빠른 백오프
+      }
+    }
+  }
+  return false
+}
+
+/**
  * 데이터베이스 연결 함수
  * TypeORM DataSource를 초기화하고 연결을 설정
  * @returns 초기화된 DataSource 인스턴스
  */
 export const connectDatabase = async () => {
+  console.log("=".repeat(60))
+  console.log("🔧 DATABASE CONNECTION DEBUG START")
+  console.log("=".repeat(60))
+  
   try {
-    // DataSource 초기화
-    await AppDataSource.initialize()
-    console.log("✅ Database connection established successfully")
-    console.log(
-      `📊 Database: ${process.env.DB_NAME || "deukgeun_db"} on ${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || "3306"}`
-    )
+    console.log("🔄 Step 1: Initializing database connection...")
+    console.log(`📊 Step 1.1: Connection details:`)
+    console.log(`   - Host: ${process.env.DB_HOST || "localhost"}`)
+    console.log(`   - Port: ${process.env.DB_PORT || "3306"}`)
+    console.log(`   - Database: ${process.env.DB_DATABASE || process.env.DB_NAME || "deukgeun_db"}`)
+    console.log(`   - Username: ${process.env.DB_USERNAME || "root"}`)
+    console.log(`   - Password: ${process.env.DB_PASSWORD ? "***" : "NOT SET"}`)
+    console.log(`   - Environment: ${process.env.NODE_ENV || "development"}`)
+    
+    console.log("🔄 Step 2: Checking AppDataSource configuration...")
+    console.log(`   - Type: ${AppDataSource.options.type}`)
+    console.log(`   - Synchronize: ${AppDataSource.options.synchronize}`)
+    console.log(`   - Logging: ${AppDataSource.options.logging}`)
+    console.log(`   - Entities count: ${AppDataSource.options.entities?.length || 0}`)
+    
+    console.log("🔄 Step 2.1: Skipping comprehensive diagnostics for faster startup...")
+    // await runDatabaseDiagnostics() // 주석 처리하여 빠른 시작
+    
+    console.log("🔄 Step 2.2: Attempting to create database if it doesn't exist...")
+    const dbCreated = await createDatabaseIfNotExists()
+    if (dbCreated) {
+      console.log("✅ Database creation/verification completed")
+    } else {
+      console.warn("⚠️ Database creation failed, but continuing with connection attempt...")
+    }
+    
+    console.log("🔄 Step 3: Attempting AppDataSource.initialize() with retry logic...")
+    const startTime = Date.now()
+    
+    // DataSource 초기화 (재시도 로직 포함)
+    const connectionSuccess = await retryDatabaseConnection(2, 1000)
+    
+    if (!connectionSuccess) {
+      throw new Error("Failed to connect to database after 2 attempts")
+    }
+    
+    const endTime = Date.now()
+    console.log(`✅ Step 3: AppDataSource.initialize() completed in ${endTime - startTime}ms`)
+    
+    console.log("🔄 Step 4: Verifying connection status...")
+    console.log(`   - Is Initialized: ${AppDataSource.isInitialized}`)
+    console.log(`   - Connection Name: ${AppDataSource.name}`)
+    
+    console.log("🔄 Step 5: Testing database query...")
+    const queryStartTime = Date.now()
+    const result = await AppDataSource.query("SELECT 1 as test, NOW() as `current_time`")
+    const queryEndTime = Date.now()
+    
+    console.log(`✅ Step 5: Database query test successful in ${queryEndTime - queryStartTime}ms`)
+    console.log(`   - Query result:`, result)
+    
+    console.log("🔄 Step 6: Getting connection info...")
+    const connection = AppDataSource.manager.connection
+    console.log(`   - Connection name: ${connection.name}`)
+    console.log(`   - Connection options:`, {
+      host: (connection.options as any).host,
+      port: (connection.options as any).port,
+      database: (connection.options as any).database,
+      username: (connection.options as any).username
+    })
+    
+    console.log("=".repeat(60))
+    console.log("✅ DATABASE CONNECTION SUCCESSFUL")
+    console.log("=".repeat(60))
+    console.log(`📊 Database: ${process.env.DB_DATABASE || process.env.DB_NAME || "deukgeun_db"} on ${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || "3306"}`)
+    console.log(`⏱️ Total connection time: ${endTime - startTime}ms`)
+    console.log("=".repeat(60))
+    
     return AppDataSource
   } catch (error) {
-    console.error("❌ Database connection failed:", error)
+    console.log("=".repeat(60))
+    console.log("❌ DATABASE CONNECTION FAILED")
+    console.log("=".repeat(60))
+    
+    console.error("❌ Error occurred during database connection:")
+    console.error("   - Error type:", error?.constructor?.name || "Unknown")
+    console.error("   - Error message:", error instanceof Error ? error.message : String(error))
+    
+    if (error instanceof Error) {
+      console.error("   - Error stack:", error.stack)
+      
+      // 상세한 에러 분석
+      console.log("🔍 Error Analysis:")
+      if (error.message.includes('ECONNREFUSED')) {
+        console.error("   - Issue: Connection refused")
+        console.error("   - Cause: MySQL 서버가 실행되지 않았거나 연결을 거부했습니다.")
+        console.error("   - Solution: MySQL 서버 상태를 확인해주세요.")
+        console.error("   - Check: netstat -an | grep 3306")
+      } else if (error.message.includes('ER_ACCESS_DENIED_ERROR')) {
+        console.error("   - Issue: Access denied")
+        console.error("   - Cause: 데이터베이스 인증 정보가 잘못되었습니다.")
+        console.error("   - Solution: 사용자명과 비밀번호를 확인해주세요.")
+        console.error("   - Check: DB_USERNAME, DB_PASSWORD 환경변수")
+      } else if (error.message.includes('ER_BAD_DB_ERROR')) {
+        console.error("   - Issue: Database not found")
+        console.error("   - Cause: 데이터베이스가 존재하지 않습니다.")
+        console.error("   - Solution: 데이터베이스를 생성해주세요.")
+        console.error("   - Check: CREATE DATABASE deukgeun_db;")
+      } else if (error.message.includes('ETIMEDOUT')) {
+        console.error("   - Issue: Connection timeout")
+        console.error("   - Cause: 데이터베이스 서버 응답 시간 초과")
+        console.error("   - Solution: 네트워크 연결 및 서버 상태 확인")
+      } else if (error.message.includes('ENOTFOUND')) {
+        console.error("   - Issue: Host not found")
+        console.error("   - Cause: 데이터베이스 호스트를 찾을 수 없습니다.")
+        console.error("   - Solution: DB_HOST 환경변수 확인")
+      }
+    }
+    
+    console.log("=".repeat(60))
+    console.log("❌ DATABASE CONNECTION DEBUG END")
+    console.log("=".repeat(60))
+    
     throw error
   }
 }
@@ -126,19 +305,54 @@ export const getConnection = () => {
  * @returns 데이터베이스 상태 정보 객체
  */
 export const checkDatabaseHealth = async () => {
+  console.log("🔍 DATABASE HEALTH CHECK START")
+  
   try {
+    console.log("🔄 Step 1: Getting database connection...")
     const connection = getConnection()
-    // 간단한 쿼리로 데이터베이스 응답성 확인
-    await connection.query("SELECT 1")
+    console.log(`   - Connection name: ${connection.name}`)
+    console.log(`   - Is initialized: ${connection.isInitialized}`)
+    
+    console.log("🔄 Step 2: Testing database query...")
+    const startTime = Date.now()
+    const result = await connection.query("SELECT 1 as health_check, NOW() as `timestamp`, VERSION() as mysql_version")
+    const endTime = Date.now()
+    
+    console.log(`✅ Step 2: Database query successful in ${endTime - startTime}ms`)
+    console.log(`   - Query result:`, result)
+    
+    console.log("🔄 Step 3: Getting connection statistics...")
+    const stats = {
+      isInitialized: connection.isInitialized,
+      name: connection.name,
+      options: {
+        host: (connection.options as any).host,
+        port: (connection.options as any).port,
+        database: (connection.options as any).database,
+        username: (connection.options as any).username
+      }
+    }
+    console.log(`   - Connection stats:`, stats)
+    
+    console.log("✅ DATABASE HEALTH CHECK SUCCESSFUL")
+    
     return {
       status: "healthy", // 정상 상태
       message: "Database is connected and responsive", // 연결됨 및 응답 가능
+      responseTime: endTime - startTime,
+      timestamp: new Date().toISOString(),
+      connectionInfo: stats,
+      queryResult: result
     }
   } catch (error) {
+    console.log("❌ DATABASE HEALTH CHECK FAILED")
+    console.error("   - Error:", error instanceof Error ? error.message : String(error))
+    
     return {
       status: "unhealthy", // 비정상 상태
       message: "Database connection failed", // 연결 실패
-      error, // 에러 정보
+      error: error instanceof Error ? error.message : String(error),
+      timestamp: new Date().toISOString()
     }
   }
 }

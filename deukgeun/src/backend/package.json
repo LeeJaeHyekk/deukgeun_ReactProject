@@ -5,10 +5,12 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only --notify false index.ts",
+    "dev": "tsx watch index.ts",
+    "dev:ts-node": "ts-node-dev --respawn --transpile-only index.ts",
     "build": "tsc",
+    "build:watch": "tsc --watch",
     "start": "node dist/index.js",
-    "ts-node": "ts-node",
+    "start:dev": "tsx index.ts",
     "createWorkoutJournalTables": "ts-node scripts/createWorkoutJournalTables.ts",
     "seedWorkoutJournalData": "ts-node scripts/seedWorkoutJournalData.ts",
     "migrate:types": "ts-node scripts/migrateToNewTypeSystem.ts",
@@ -20,7 +22,9 @@
     "seed:optimized": "ts-node scripts/seedOptimizedData.ts",
     "seed:clear": "ts-node scripts/clearAndSeedData.ts",
     "db:reset": "ts-node scripts/safeDatabaseReset.ts",
-    "db:sync": "ts-node scripts/syncDatabase.ts"
+    "db:sync": "ts-node scripts/syncDatabase.ts",
+    "test:db": "tsx test-database-connection.ts",
+    "test:db:diagnose": "tsx -e \"import('./utils/databaseDiagnostics').then(m => m.runDatabaseDiagnostics())\""
   },
   "keywords": [],
   "author": "",
@@ -62,6 +66,7 @@
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.20.6",
     "typescript": "^4.9.5"
   }
 }

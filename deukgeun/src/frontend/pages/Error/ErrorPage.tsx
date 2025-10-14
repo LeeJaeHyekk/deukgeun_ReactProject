@@ -9,8 +9,6 @@ interface ErrorPageProps {
   title?: string
   message?: string
   showHomeButton?: boolean
-  showRetryButton?: boolean
-  onRetry?: () => void
 }
 
 export default function ErrorPage({
@@ -18,9 +16,11 @@ export default function ErrorPage({
   title,
   message,
   showHomeButton = true,
-  showRetryButton = false,
-  onRetry,
 }: ErrorPageProps) {
+  // React Hooks를 컴포넌트 최상위에서 호출
+  const navigate = useNavigate()
+  const location = useLocation()
+  
   // 새로운 Enhanced Error Page 사용
   const [useEnhanced, setUseEnhanced] = useState(true)
   
@@ -39,28 +39,10 @@ export default function ErrorPage({
         title={title}
         message={message}
         showHomeButton={showHomeButton}
-        showRetryButton={showRetryButton}
-        onRetry={onRetry}
       />
     )
   }
-  // React Hooks를 컴포넌트 최상위에서 호출
-  let navigate: any = null
-  let location: any = null
-
-  try {
-    navigate = useNavigate()
-    location = useLocation()
-  } catch (error) {
-    // Router 컨텍스트가 없는 경우 기본값 사용
-    console.warn("Router context not available, using fallback navigation")
-    navigate = {
-      push: (path: string) => (window.location.href = path),
-      replace: (path: string) => window.location.replace(path),
-    }
-    location = { search: window.location.search }
-  }
-
+  
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [errorStatusCode, setErrorStatusCode] = useState(statusCode)
   const [errorTitle, setErrorTitle] = useState(title)
@@ -174,14 +156,6 @@ export default function ErrorPage({
     navigate("/", { replace: true })
   }
 
-  const handleRetryClick = () => {
-    if (onRetry) {
-      onRetry()
-    } else {
-      window.location.reload()
-    }
-  }
-
   const handleBackClick = () => {
     navigate(-1)
   }
@@ -244,19 +218,9 @@ export default function ErrorPage({
             )}
           </div>
 
-          <p style={styles.description}>{errorInfo.message}</p>
 
           {/* 액션 버튼들 */}
           <div style={styles.buttonContainer}>
-            {showRetryButton && (
-              <button
-                onClick={handleRetryClick}
-                style={styles.retryButton}
-                className="retryButton"
-              >
-                🔄 다시 시도
-              </button>
-            )}
             <button
               onClick={handleBackClick}
               style={styles.backButton}
@@ -295,11 +259,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: "center",
     justifyContent: "center",
     minHeight: "100vh",
-    padding: "20px",
-    background:
-      "linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%)",
+    padding: "1rem",
+    background: "linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%)",
     fontFamily:
-      "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif",
+      "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
     color: "#ffffff",
     position: "relative",
     overflow: "hidden",
@@ -308,15 +271,14 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    maxWidth: "900px",
-    width: "100%",
+    maxWidth: "600px",
+    width: "90%",
     textAlign: "center",
-    background: "rgba(255, 255, 255, 0.1)",
+    background: "linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%)",
     border: "1px solid rgba(255, 255, 255, 0.2)",
-    borderRadius: "32px",
-    padding: "48px",
-    backdropFilter: "blur(20px)",
-    boxShadow: "0 25px 80px rgba(0, 0, 0, 0.2)",
+    borderRadius: "16px",
+    padding: "3rem 2rem",
+    boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.1), 0 8px 32px rgba(0, 0, 0, 0.3)",
     position: "relative",
     zIndex: 1,
   },
@@ -324,8 +286,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    marginBottom: "40px",
-    gap: "20px",
+    marginBottom: "2rem",
+    gap: "1.5rem",
   },
   iconContainer: {
     display: "flex",
@@ -392,192 +354,165 @@ const styles: { [key: string]: React.CSSProperties } = {
     height: "100%",
     overflow: "hidden",
     zIndex: 0,
+    background: "linear-gradient(135deg, #a0a0a0 0%, #808080 100%)",
   },
   floatingCircle1: {
     position: "absolute",
-    top: "10%",
+    top: "15%",
     left: "10%",
-    width: "200px",
-    height: "200px",
-    background: "rgba(139, 92, 246, 0.1)",
+    width: "120px",
+    height: "120px",
+    background: "linear-gradient(135deg, #808080 0%, #606060 100%)",
     borderRadius: "50%",
-    animation: "float 6s ease-in-out infinite",
+    animation: "float 8s ease-in-out infinite",
+    opacity: 0.15,
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
   },
   floatingCircle2: {
     position: "absolute",
     top: "60%",
     right: "15%",
-    width: "150px",
-    height: "150px",
-    background: "rgba(124, 58, 237, 0.1)",
+    width: "80px",
+    height: "80px",
+    background: "linear-gradient(135deg, #707070 0%, #505050 100%)",
     borderRadius: "50%",
     animation: "float 8s ease-in-out infinite reverse",
+    opacity: 0.15,
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
   },
   floatingCircle3: {
     position: "absolute",
     bottom: "20%",
     left: "20%",
-    width: "100px",
-    height: "100px",
-    background: "rgba(139, 92, 246, 0.1)",
+    width: "60px",
+    height: "60px",
+    background: "linear-gradient(135deg, #606060 0%, #404040 100%)",
     borderRadius: "50%",
-    animation: "float 10s ease-in-out infinite",
+    animation: "float 8s ease-in-out infinite",
+    opacity: 0.15,
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
   },
   videoContainer: {
     position: "relative",
   },
   video: {
-    width: "400px",
-    height: "auto",
-    borderRadius: "16px",
-    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)",
+    width: "160px",
+    height: "160px",
+    borderRadius: "12px",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
     border: "1px solid rgba(255, 255, 255, 0.2)",
+    objectFit: "cover",
   },
   videoFallback: {
-    width: "400px",
-    height: "300px",
-    background: "rgba(255, 255, 255, 0.05)",
-    borderRadius: "16px",
+    width: "160px",
+    height: "160px",
+    background: "rgba(255, 255, 255, 0.1)",
+    borderRadius: "12px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
     border: "1px solid rgba(255, 255, 255, 0.2)",
   },
   fallbackIcon: {
-    fontSize: "64px",
-    opacity: 0.5,
+    fontSize: "2.5rem",
+    opacity: 0.4,
+    color: "rgba(255, 255, 255, 0.6)",
   },
   errorInfo: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: "24px",
+    gap: "1.5rem",
   },
   title: {
-    fontSize: "36px",
+    fontSize: "1.75rem",
     fontWeight: "700",
     color: "#ffffff",
     margin: "0",
     lineHeight: "1.2",
+    letterSpacing: "-0.02em",
     textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
-  },
-  description: {
-    fontSize: "18px",
-    color: "rgba(255, 255, 255, 0.8)",
-    margin: "0",
-    lineHeight: "1.6",
-    maxWidth: "600px",
-    textShadow: "0 1px 2px rgba(0, 0, 0, 0.3)",
   },
   buttonContainer: {
     display: "flex",
-    gap: "16px",
-    flexWrap: "wrap",
+    flexDirection: "row",
+    gap: "1.5rem",
     justifyContent: "center",
-    marginTop: "20px",
-  },
-  retryButton: {
-    padding: "16px 32px",
-    background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-    color: "#ffffff",
-    border: "none",
-    borderRadius: "16px",
-    fontSize: "16px",
-    fontWeight: "600",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-    boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
-    backdropFilter: "blur(10px)",
-    position: "relative",
-    overflow: "hidden",
+    width: "100%",
+    marginTop: "1rem",
   },
   backButton: {
-    padding: "16px 32px",
-    background: "rgba(255, 255, 255, 0.1)",
-    color: "#ffffff",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
-    borderRadius: "16px",
-    fontSize: "16px",
-    fontWeight: "600",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-    backdropFilter: "blur(10px)",
-    position: "relative",
-    overflow: "hidden",
-  },
-  homeButton: {
-    padding: "16px 32px",
-    background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+    padding: "1rem 1.5rem",
+    background: "#3b82f6",
     color: "#ffffff",
     border: "none",
-    borderRadius: "16px",
-    fontSize: "16px",
+    borderRadius: "12px",
+    fontSize: "0.875rem",
     fontWeight: "600",
     cursor: "pointer",
-    transition: "all 0.3s ease",
-    boxShadow: "0 4px 12px rgba(139, 92, 246, 0.3)",
-    backdropFilter: "blur(10px)",
+    transition: "all 0.2s ease",
     position: "relative",
     overflow: "hidden",
+    minWidth: "140px",
+  },
+  homeButton: {
+    padding: "1rem 1.5rem",
+    background: "#ffffff",
+    color: "#3b82f6",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    borderRadius: "12px",
+    fontSize: "0.875rem",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    position: "relative",
+    overflow: "hidden",
+    minWidth: "140px",
   },
   additionalInfo: {
-    marginTop: "40px",
-    padding: "24px",
-    background: "rgba(255, 255, 255, 0.05)",
-    borderRadius: "20px",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
+    marginTop: "1.5rem",
+    padding: "1rem",
+    background: "#f9fafb",
+    borderRadius: "8px",
+    border: "1px solid #e5e7eb",
     textAlign: "left",
-    minWidth: "300px",
-    backdropFilter: "blur(10px)",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+    minWidth: "200px",
   },
   errorCode: {
-    fontSize: "14px",
-    color: "rgba(255, 255, 255, 0.7)",
-    margin: "0 0 8px 0",
-    fontFamily: "monospace",
+    fontSize: "0.75rem",
+    color: "#6b7280",
+    margin: "0 0 0.5rem 0",
+    fontFamily: "'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace",
+    fontWeight: "500",
   },
   timestamp: {
-    fontSize: "14px",
-    color: "rgba(255, 255, 255, 0.7)",
+    fontSize: "0.75rem",
+    color: "#6b7280",
     margin: "0",
+    fontWeight: "400",
   },
 }
 
-// 버튼 호버 효과 추가
+// 현대적인 버튼 호버 효과 추가
 const addHoverEffects = () => {
   const style = document.createElement("style")
   style.textContent = `
-    .retryButton:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-    }
     .backButton:hover {
-      transform: translateY(-2px);
-      background: rgba(255, 255, 255, 0.2) !important;
-      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+      background: #2563eb !important;
     }
     .homeButton:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+      background: #f9fafb !important;
     }
-    @keyframes pulse {
-      0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-      50% {
-        opacity: 0.7;
-        transform: scale(1.1);
-      }
+    .backButton:active, .homeButton:active {
+      transform: scale(0.98);
     }
     @keyframes float {
       0%, 100% {
         transform: translateY(0px) rotate(0deg);
       }
       50% {
-        transform: translateY(-20px) rotate(180deg);
+        transform: translateY(-15px) rotate(180deg);
       }
     }
   `

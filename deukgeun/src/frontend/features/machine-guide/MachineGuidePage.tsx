@@ -118,7 +118,15 @@ export default function MachineGuidePage() {
   useEffect(() => {
     if (error) {
       console.error("MachineGuide 에러:", error)
-      // 에러가 5초 후 자동으로 사라지도록 설정
+      
+      // 404 에러에 대한 특별 처리
+      if (error.includes('404') || error.includes('찾을 수 없습니다')) {
+        console.warn('⚠️ 머신 데이터를 찾을 수 없습니다. 서버가 시작되지 않았을 수 있습니다.')
+        // 404 에러는 자동으로 사라지지 않도록 함
+        return
+      }
+      
+      // 다른 에러는 5초 후 자동으로 사라지도록 설정
       const timer = setTimeout(() => {
         clearError()
       }, 5000)
@@ -201,8 +209,15 @@ export default function MachineGuidePage() {
       {error && (
         <div className="machine-guide-error">
           <div className="error-message">
-            <span className="error-icon">⚠️</span>
-            <span className="error-text">{error}</span>
+            <span className="error-icon">
+              {error.includes('404') || error.includes('찾을 수 없습니다') ? '⚠️' : '❌'}
+            </span>
+            <span className="error-text">
+              {error.includes('404') || error.includes('찾을 수 없습니다') 
+                ? '머신 데이터를 불러올 수 없습니다. 서버가 실행 중인지 확인해주세요.'
+                : error
+              }
+            </span>
             <button className="error-close" onClick={clearError}>
               ✕
             </button>

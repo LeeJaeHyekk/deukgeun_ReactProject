@@ -803,7 +803,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
           }))
 
           try {
-            const dashboardData = await workoutApi.getDashboardData()
+            const dashboardData = await workoutApi.getProgress()
             set(state => ({
               dashboardData,
               loading: {

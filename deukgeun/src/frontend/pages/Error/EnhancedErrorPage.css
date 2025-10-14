@@ -1,5 +1,5 @@
 /* ============================================================================
-   Enhanced Error Page Styles
+   Modern Instagram-Style Error Page
    ============================================================================ */
 
 .enhanced-error-page {
@@ -8,9 +8,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  padding: 1rem;
+  background: linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   color: #ffffff;
   position: relative;
   overflow: hidden;
@@ -21,11 +21,12 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  font-size: 1.2rem;
-  color: #ffffff;
+  font-size: 1rem;
+  color: #6b7280;
+  font-weight: 400;
 }
 
-/* 배경 애니메이션 */
+/* Modern Background */
 .error-background {
   position: absolute;
   top: 0;
@@ -34,39 +35,47 @@
   height: 100%;
   overflow: hidden;
   z-index: 0;
+  background: linear-gradient(135deg, #a0a0a0 0%, #808080 100%);
 }
 
 .floating-shape {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  animation: float 6s ease-in-out infinite;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  animation: float 8s ease-in-out infinite;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .shape-1 {
-  top: 10%;
+  top: 15%;
   left: 10%;
-  width: 200px;
-  height: 200px;
+  width: 120px;
+  height: 120px;
   animation-delay: 0s;
+  background: linear-gradient(135deg, #808080 0%, #606060 100%);
+  opacity: 0.15;
 }
 
 .shape-2 {
   top: 60%;
   right: 15%;
-  width: 150px;
-  height: 150px;
-  animation-delay: 2s;
+  width: 80px;
+  height: 80px;
+  animation-delay: 3s;
   animation-direction: reverse;
+  background: linear-gradient(135deg, #707070 0%, #505050 100%);
+  opacity: 0.15;
 }
 
 .shape-3 {
   bottom: 20%;
   left: 20%;
-  width: 100px;
-  height: 100px;
-  animation-delay: 4s;
+  width: 60px;
+  height: 60px;
+  animation-delay: 6s;
+  background: linear-gradient(135deg, #606060 0%, #404040 100%);
+  opacity: 0.15;
 }
 
 @keyframes float {
@@ -74,20 +83,19 @@
     transform: translateY(0px) rotate(0deg);
   }
   50% {
-    transform: translateY(-20px) rotate(180deg);
+    transform: translateY(-15px) rotate(180deg);
   }
 }
 
-/* 메인 컨테이너 */
+/* Main Container - Instagram Card Style */
 .error-container {
-  max-width: 1000px;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.1);
+  max-width: 600px;
+  width: 90%;
+  background: linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
-  padding: 3rem;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 8px 32px rgba(0, 0, 0, 0.3);
   position: relative;
   z-index: 1;
 }
@@ -97,37 +105,37 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 2rem;
+  gap: 2.5rem;
 }
 
-/* 미디어 섹션 */
+/* Media Section */
 .error-media {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .error-video-container {
   position: relative;
-  border-radius: 16px;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .error-video {
-  width: 400px;
-  height: auto;
-  max-height: 300px;
+  width: 160px;
+  height: 160px;
   object-fit: cover;
-  border-radius: 16px;
+  border-radius: 12px;
 }
 
 .video-fallback {
-  width: 400px;
-  height: 300px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
+  width: 160px;
+  height: 160px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -135,8 +143,9 @@
 }
 
 .fallback-icon {
-  font-size: 4rem;
-  opacity: 0.7;
+  font-size: 2.5rem;
+  opacity: 0.4;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .error-icon-container {
@@ -146,338 +155,204 @@
 }
 
 .error-icon {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-  border: 3px solid rgba(255, 255, 255, 0.2);
+  font-size: 2.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.3);
 }
 
-/* 에러 정보 */
+/* Error Info */
 .error-info {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
-  max-width: 600px;
+  width: 100%;
 }
 
 .error-header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .error-title {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   margin: 0;
   line-height: 1.2;
+  color: #ffffff;
+  letter-spacing: -0.02em;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .error-code {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.1);
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.15);
   padding: 0.5rem 1rem;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-weight: 500;
 }
 
-.error-message {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
 
 .error-description {
-  font-size: 1rem;
+  font-size: 0.875rem;
   margin: 0;
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.6;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color: #6b7280;
+  line-height: 1.4;
 }
 
-/* 액션 버튼들 */
+/* Action Buttons - Instagram Style */
 .error-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+  flex-direction: row;
+  gap: 1.5rem;
   justify-content: center;
+  width: 100%;
   margin-top: 1rem;
 }
 
 .error-action-button {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 1rem 2rem;
+  padding: 1rem 1.5rem;
   border-radius: 12px;
   font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  min-width: 140px;
 }
 
-.error-action-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+.error-action-button[data-variant="secondary"] {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+.error-action-button[data-variant="secondary"]:hover {
+  background: #2563eb;
+}
+
+.error-action-button[data-variant="success"] {
+  background: #ffffff;
+  color: #3b82f6;
+  border: 1px solid #e5e7eb;
+}
+
+.error-action-button[data-variant="success"]:hover {
+  background: #f9fafb;
 }
 
 .button-icon {
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
-/* 제안사항 */
-.error-suggestions {
-  width: 100%;
-  margin-top: 1rem;
-}
-
-.suggestions-toggle {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0 auto;
-}
-
-.suggestions-toggle:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
-}
-
-.toggle-icon {
-  transition: transform 0.3s ease;
-}
-
-.suggestions-list {
-  margin-top: 1rem;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: left;
-}
-
-.suggestion-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.suggestion-item:last-child {
-  margin-bottom: 0;
-}
-
-.suggestion-number {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  font-size: 0.8rem;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.suggestion-text {
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.5;
-}
-
-/* 푸터 */
-.error-footer {
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  width: 100%;
-}
-
-.error-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.meta-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.meta-item:last-child {
-  border-bottom: none;
-}
-
-.meta-label {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 500;
-}
-
-.meta-value {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-}
-
-.quick-links h4 {
-  margin: 0 0 1rem 0;
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 600;
-}
-
-.links-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-}
-
-.quick-link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  color: #ffffff;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
-}
-
-.quick-link:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
-}
-
-.link-icon {
-  font-size: 1.1rem;
-}
-
-.link-label {
-  font-weight: 500;
-}
-
-/* 반응형 디자인 */
+/* Responsive Design */
 @media (max-width: 768px) {
   .enhanced-error-page {
-    padding: 1rem;
+    padding: 0.5rem;
   }
 
   .error-container {
-    padding: 2rem;
+    padding: 1.5rem;
+    max-width: 350px;
   }
 
   .error-title {
-    font-size: 2rem;
+    font-size: 1.375rem;
   }
 
   .error-video,
   .video-fallback {
-    width: 100%;
-    max-width: 300px;
-    height: 200px;
+    width: 150px;
+    height: 150px;
   }
 
-  .error-actions {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .error-action-button {
-    width: 100%;
-    max-width: 300px;
-  }
-
-  .error-footer {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  .links-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .suggestion-item {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .suggestion-number {
-    align-self: flex-start;
+  .error-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
   }
 }
 
 @media (max-width: 480px) {
   .error-container {
-    padding: 1.5rem;
+    padding: 1.25rem;
+    max-width: 320px;
   }
 
   .error-title {
-    font-size: 1.8rem;
+    font-size: 1.25rem;
   }
 
   .error-message {
-    font-size: 1.1rem;
+    font-size: 0.875rem;
   }
 
   .error-description {
-    font-size: 0.9rem;
-  }
-
-  .error-icon {
-    width: 100px;
-    height: 100px;
-    font-size: 2.5rem;
+    font-size: 0.8125rem;
   }
 }
 
-/* 다크 모드 지원 */
+/* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
   .enhanced-error-page {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: linear-gradient(to bottom, #808080 0%, #606060 50%, #404040 100%);
+    color: #ffffff;
+  }
+
+  .error-container {
+    background: linear-gradient(to bottom, #808080 0%, #606060 50%, #404040 100%);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .error-title {
+    color: #ffffff;
+  }
+
+
+  .error-code {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .video-fallback {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .fallback-icon {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .error-action-button[data-variant="success"] {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .error-action-button[data-variant="success"]:hover {
+    background: rgba(255, 255, 255, 0.2);
   }
 }
 
-/* 접근성 */
+/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   .floating-shape {
     animation: none;
@@ -486,31 +361,70 @@
   .error-action-button:hover {
     transform: none;
   }
-  
-  .suggestions-toggle:hover {
-    transform: none;
-  }
-  
-  .quick-link:hover {
-    transform: none;
-  }
 }
 
-/* 포커스 스타일 */
-.error-action-button:focus,
-.suggestions-toggle:focus,
-.quick-link:focus {
-  outline: 2px solid rgba(255, 255, 255, 0.5);
+/* Focus Styles */
+.error-action-button:focus {
+  outline: 2px solid #0095f6;
   outline-offset: 2px;
 }
 
-/* 로딩 상태 */
+/* Loading State */
 .error-action-button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .error-action-button:disabled:hover {
   transform: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Instagram-like subtle animations */
+.error-action-button {
+  position: relative;
+}
+
+.error-action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.error-action-button:hover::before {
+  left: 100%;
+}
+
+/* Modern glassmorphism effect for shapes */
+.floating-shape {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Subtle shadow improvements */
+.error-container {
+  box-shadow: 
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* Instagram-style button press effect */
+.error-action-button:active {
+  transform: scale(0.98);
+}
+
+/* Modern typography improvements */
+.error-title {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.error-message {
+  font-weight: 400;
+  letter-spacing: -0.005em;
 }

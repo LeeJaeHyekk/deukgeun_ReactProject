@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { ROUTES, MENU_ITEMS } from '@frontend/shared/constants/routes'
+import { ROUTES } from '@frontend/shared/constants/routes'
 import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
-import { useUserStore } from '@frontend/shared/store/userStore'
 import Button from '@frontend/shared/components/Button'
-import ErrorNavigation from './ErrorNavigation'
-import ErrorAnalytics from './ErrorAnalytics'
 import './EnhancedErrorPage.css'
 
 // 에러 타입 정의
@@ -36,10 +33,7 @@ interface EnhancedErrorPageProps {
   title?: string
   message?: string
   description?: string
-  suggestions?: string[]
-  onRetry?: () => void
   showHomeButton?: boolean
-  showRetryButton?: boolean
   customActions?: ErrorAction[]
 }
 
@@ -48,21 +42,24 @@ export default function EnhancedErrorPage({
   title,
   message,
   description,
-  suggestions,
-  onRetry,
   showHomeButton = true,
-  showRetryButton = false,
   customActions = [],
 }: EnhancedErrorPageProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  const { isAuthenticated, user } = useAuthContext()
-  const userStore = useUserStore()
+  // AuthContext가 없을 수 있으므로 안전하게 처리
+  let isAuthenticated = false
+  
+  try {
+    const authContext = useAuthContext()
+    isAuthenticated = authContext.isAuthenticated
+  } catch (error) {
+    // AuthContext가 없는 경우 기본값 사용
+    console.warn('AuthContext not available:', error)
+  }
   
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [errorInfo, setErrorInfo] = useState<ErrorInfo | null>(null)
-  const [isRetrying, setIsRetrying] = useState(false)
-  const [showSuggestions, setShowSuggestions] = useState(false)
 
   // URL 파라미터에서 에러 정보 추출
   useEffect(() => {
@@ -108,7 +105,7 @@ export default function EnhancedErrorPage({
           title: customTitle || '잘못된 요청',
           message: customMessage || '요청하신 정보가 올바르지 않습니다.',
           description: customDescription || '입력한 정보를 다시 확인해주세요.',
-          icon: '⚠️',
+          icon: '⚠',
           color: '#f59e0b',
           gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
           suggestions: [
@@ -125,7 +122,7 @@ export default function EnhancedErrorPage({
           title: customTitle || '인증이 필요합니다',
           message: customMessage || '로그인이 필요한 서비스입니다.',
           description: customDescription || '로그인 후 다시 시도해주세요.',
-          icon: '🔐',
+          icon: '🔒',
           color: '#3b82f6',
           gradient: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
           suggestions: [
@@ -176,7 +173,7 @@ export default function EnhancedErrorPage({
           title: customTitle || '서버 오류가 발생했습니다',
           message: customMessage || '일시적인 서버 오류입니다.',
           description: customDescription || '잠시 후 다시 시도해주세요.',
-          icon: '🖥️',
+          icon: '💻',
           color: '#ef4444',
           gradient: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
           suggestions: [
@@ -194,7 +191,7 @@ export default function EnhancedErrorPage({
           title: customTitle || '서비스가 일시적으로 사용할 수 없습니다',
           message: customMessage || '서버 점검 중입니다.',
           description: customDescription || '점검이 완료되면 다시 이용하실 수 있습니다.',
-          icon: '🔧',
+          icon: '⚙️',
           color: '#f59e0b',
           gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
           suggestions: [
@@ -229,7 +226,7 @@ export default function EnhancedErrorPage({
           title: customTitle || '오류가 발생했습니다',
           message: customMessage || '예상치 못한 오류가 발생했습니다.',
           description: customDescription || '다시 시도해주세요.',
-          icon: '❌',
+          icon: '⚠',
           color: '#ef4444',
           gradient: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
           suggestions: [
@@ -242,24 +239,7 @@ export default function EnhancedErrorPage({
     }
   }, [])
 
-  // 액션 핸들러들
-  const handleRetry = useCallback(async () => {
-    if (!errorInfo?.isRetryable) return
-    
-    setIsRetrying(true)
-    try {
-      if (onRetry) {
-        await onRetry()
-      } else {
-        window.location.reload()
-      }
-    } catch (error) {
-      console.error('Retry failed:', error)
-    } finally {
-      setIsRetrying(false)
-    }
-  }, [errorInfo?.isRetryable, onRetry])
-
+  // 액션 핸들러들 (간소화)
   const handleHome = useCallback(() => {
     navigate(ROUTES.HOME, { replace: true })
   }, [navigate])
@@ -272,42 +252,15 @@ export default function EnhancedErrorPage({
     }
   }, [navigate])
 
-  const handleLogin = useCallback(() => {
-    navigate(ROUTES.LOGIN, { replace: true })
-  }, [navigate])
-
-  const handleContact = useCallback(() => {
-    // 고객센터 연락처나 문의 페이지로 이동
-    window.open('mailto:support@deukgeun.com', '_blank')
-  }, [])
-
-  // 기본 액션들 생성
+  // 기본 액션들 생성 (간소화: 이전 페이지, 홈으로만)
   const getDefaultActions = useCallback((): ErrorAction[] => {
     const actions: ErrorAction[] = []
-
-    if (errorInfo?.isRetryable && showRetryButton) {
-      actions.push({
-        label: '다시 시도',
-        action: handleRetry,
-        variant: 'primary',
-        icon: '🔄',
-      })
-    }
-
-    if (errorInfo?.isAuthRequired && !isAuthenticated) {
-      actions.push({
-        label: '로그인',
-        action: handleLogin,
-        variant: 'primary',
-        icon: '🔐',
-      })
-    }
 
     actions.push({
       label: '이전 페이지',
       action: handleBack,
       variant: 'secondary',
-      icon: '⬅️',
+      icon: '←',
     })
 
     if (showHomeButton) {
@@ -319,15 +272,8 @@ export default function EnhancedErrorPage({
       })
     }
 
-    actions.push({
-      label: '고객센터',
-      action: handleContact,
-      variant: 'ghost',
-      icon: '📞',
-    })
-
     return actions
-  }, [errorInfo, showRetryButton, showHomeButton, isAuthenticated, handleRetry, handleLogin, handleBack, handleHome, handleContact])
+  }, [showHomeButton, handleBack, handleHome])
 
   // 최종 액션들 결정
   const finalActions = customActions.length > 0 ? customActions : getDefaultActions()
@@ -401,104 +347,26 @@ export default function EnhancedErrorPage({
               <div className="error-code">오류 코드: {errorInfo.statusCode}</div>
             </div>
 
-            <p className="error-message">{errorInfo.message}</p>
-            <p className="error-description">{errorInfo.description}</p>
 
             {/* 액션 버튼들 */}
             <div className="error-actions">
               {finalActions.map((action, index) => (
-                <Button
+                <button
                   key={index}
-                  variant={action.variant}
-                  size="lg"
+                  data-variant={action.variant}
                   onClick={action.action}
-                  disabled={isRetrying && action.label === '다시 시도'}
-                  loading={isRetrying && action.label === '다시 시도'}
                   className="error-action-button"
                 >
                   {action.icon && <span className="button-icon">{action.icon}</span>}
                   {action.label}
-                </Button>
-              ))}
-            </div>
-
-            {/* 제안사항 */}
-            {errorInfo.suggestions.length > 0 && (
-              <div className="error-suggestions">
-                <button
-                  className="suggestions-toggle"
-                  onClick={() => setShowSuggestions(!showSuggestions)}
-                >
-                  <span className="toggle-icon">
-                    {showSuggestions ? '▼' : '▶'}
-                  </span>
-                  해결 방법 보기
-                </button>
-                
-                {showSuggestions && (
-                  <div className="suggestions-list">
-                    {errorInfo.suggestions.map((suggestion, index) => (
-                      <div key={index} className="suggestion-item">
-                        <span className="suggestion-number">{index + 1}</span>
-                        <span className="suggestion-text">{suggestion}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* 추가 정보 */}
-        <div className="error-footer">
-          <div className="error-meta">
-            <div className="meta-item">
-              <span className="meta-label">발생 시간:</span>
-              <span className="meta-value">{new Date().toLocaleString('ko-KR')}</span>
-            </div>
-            <div className="meta-item">
-              <span className="meta-label">사용자:</span>
-              <span className="meta-value">
-                {isAuthenticated && user ? (user.nickname || user.username || user.email) : '비로그인'}
-              </span>
-            </div>
-            <div className="meta-item">
-              <span className="meta-label">페이지:</span>
-              <span className="meta-value">{location.pathname}</span>
-            </div>
-          </div>
-
-          {/* 빠른 링크 */}
-          <div className="quick-links">
-            <h4>빠른 링크</h4>
-            <div className="links-grid">
-              {MENU_ITEMS.slice(0, 4).map((item) => (
-                <button
-                  key={item.path}
-                  className="quick-link"
-                  onClick={() => navigate(item.path)}
-                >
-                  <span className="link-icon">{item.icon}</span>
-                  <span className="link-label">{item.label}</span>
                 </button>
               ))}
             </div>
+
           </div>
         </div>
 
-        {/* 향상된 네비게이션 */}
-        <ErrorNavigation 
-          currentErrorCode={errorInfo.statusCode}
-          onNavigate={(path) => navigate(path, { replace: true })}
-        />
 
-        {/* 에러 분석 */}
-        <ErrorAnalytics
-          errorCode={errorInfo.statusCode}
-          errorTitle={errorInfo.title}
-          errorMessage={errorInfo.message}
-        />
       </div>
     </div>
   )

@@ -67,6 +67,9 @@ export class TypedApiClient {
       method: 'GET',
       headers: { ...this.defaultHeaders, ...headers }
     })
+    if (response.data === undefined) {
+      throw createApiError('Response data is undefined')
+    }
     return response.data
   }
 
@@ -77,6 +80,9 @@ export class TypedApiClient {
       headers: { ...this.defaultHeaders, ...headers },
       body: data ? JSON.stringify(data) : undefined
     })
+    if (response.data === undefined) {
+      throw createApiError('Response data is undefined')
+    }
     return response.data
   }
 
@@ -87,6 +93,9 @@ export class TypedApiClient {
       headers: { ...this.defaultHeaders, ...headers },
       body: data ? JSON.stringify(data) : undefined
     })
+    if (response.data === undefined) {
+      throw createApiError('Response data is undefined')
+    }
     return response.data
   }
 
@@ -96,6 +105,9 @@ export class TypedApiClient {
       method: 'DELETE',
       headers: { ...this.defaultHeaders, ...headers }
     })
+    if (response.data === undefined) {
+      throw createApiError('Response data is undefined')
+    }
     return response.data
   }
 

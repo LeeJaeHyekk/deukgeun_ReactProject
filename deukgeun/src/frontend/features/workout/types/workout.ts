@@ -272,23 +272,6 @@ export interface ChartData {
   }>
 }
 
-export interface WorkoutStats {
-  totalSessions: number
-  totalWorkouts?: number // 호환성을 위한 별칭
-  totalExercises?: number // 호환성을 위한 별칭
-  totalDuration: number
-  averageDuration?: number // 호환성을 위한 별칭
-  completionRate?: number // 호환성을 위한 별칭
-  weeklyProgress?: any[] // 호환성을 위한 별칭
-  monthlyProgress?: any[] // 호환성을 위한 별칭
-  averageMood: number
-  averageEnergy: number
-  completedGoals: number
-  activeGoals: number
-  currentStreak: number
-  totalExp: number
-  level: number
-}
 
 export interface WorkoutSessionStatus {
   isActive: boolean

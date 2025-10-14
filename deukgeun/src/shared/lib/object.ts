@@ -11,7 +11,7 @@ export const object = {
     if (typeof obj === 'object') {
       const cloned = {} as T
       for (const key in obj) {
-        if (obj.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
           cloned[key] = object.clone(obj[key])
         }
       }

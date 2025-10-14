@@ -2,7 +2,7 @@ import { Repository } from "typeorm"
 import { Gym } from "../entities/Gym"
 import axios from "axios"
 import { config } from "../config/env"
-import cheerio from "cheerio"
+import * as cheerio from "cheerio"
 import { BatchProcessingService } from "./batchProcessingService"
 import { ErrorHandlingService, ErrorContext } from "./errorHandlingService"
 

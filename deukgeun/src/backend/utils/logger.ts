@@ -5,7 +5,12 @@
 import winston from "winston"
 import path from "path"
 import fs from "fs"
-import { config } from "../config/env"
+// import { config } from "../config/env"
+
+// 간단한 config 객체 정의
+const config = {
+  environment: process.env.NODE_ENV || "development"
+}
 
 // 로그 레벨 정의
 const logLevels = {

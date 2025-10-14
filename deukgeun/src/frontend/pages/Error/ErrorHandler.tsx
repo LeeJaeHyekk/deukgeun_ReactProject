@@ -359,7 +359,7 @@ interface ErrorHandlerProps {
   }>
 }
 
-export default function ErrorHandler({ 
+export default function ErrorHandlerComponent({ 
   error, 
   statusCode, 
   customActions 

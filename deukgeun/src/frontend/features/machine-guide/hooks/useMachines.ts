@@ -85,6 +85,12 @@ export const useMachines = () => {
         } catch (err) {
           lastError = err instanceof Error ? err : new Error(String(err))
 
+          // 404 에러는 재시도하지 않음
+          if (err instanceof Error && err.message.includes('404')) {
+            console.warn('⚠️ 404 에러: 재시도하지 않음')
+            throw lastError
+          }
+
           if (attempt < MAX_RETRY_ATTEMPTS) {
             console.warn(
               `⚠️ API 호출 실패 (${attempt}/${MAX_RETRY_ATTEMPTS}), ${RETRY_DELAY}ms 후 재시도...`

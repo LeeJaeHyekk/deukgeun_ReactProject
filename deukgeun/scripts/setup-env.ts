@@ -47,7 +47,7 @@ BACKEND_PORT=5000
 DB_HOST=localhost
 DB_PORT=3306
 DB_USERNAME=root
-DB_PASSWORD=your_password
+DB_PASSWORD=Deukgeun6204_DB25
 DB_DATABASE=deukgeun_db
 
 # JWT Configuration

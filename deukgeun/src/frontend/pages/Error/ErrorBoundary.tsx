@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from "react"
+import { BrowserRouter } from "react-router-dom"
 import ErrorPage from "./ErrorPage"
 
 interface Props {
@@ -106,15 +107,17 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback
       }
 
-      // 기본 에러 페이지 표시
+      // 기본 에러 페이지 표시 (Router context 제공)
       return (
-        <ErrorPage
-          statusCode={500}
-          title="애플리케이션 오류"
-          message="예상치 못한 오류가 발생했습니다. 페이지를 새로고침하거나 다시 시도해주세요."
-          showRetryButton={true}
-          onRetry={this.handleRetry}
-        />
+        <BrowserRouter>
+          <ErrorPage
+            statusCode={500}
+            title="애플리케이션 오류"
+            message="예상치 못한 오류가 발생했습니다. 페이지를 새로고침하거나 다시 시도해주세요."
+            showRetryButton={true}
+            onRetry={this.handleRetry}
+          />
+        </BrowserRouter>
       )
     }
 

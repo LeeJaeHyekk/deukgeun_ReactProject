@@ -100,8 +100,17 @@ const createApiClient = (): AxiosInstance => {
     async (error: Error & { response?: { status: number } }) => {
       const originalRequest = error as Error & {
         config?: AxiosRequestConfig & { _retry?: boolean }
-        response?: { status: number }
+        response?: { status: number; data?: any }
       }
+
+      // 에러 로깅 개선
+      console.error('🚨 API 에러 발생:', {
+        url: originalRequest.config?.url,
+        method: originalRequest.config?.method,
+        status: originalRequest.response?.status,
+        message: error.message,
+        data: originalRequest.response?.data
+      })
 
       // 레벨 API 관련 요청은 특별 처리
       const isLevelApiRequest =
@@ -148,6 +157,25 @@ const createApiClient = (): AxiosInstance => {
           window.location.href = '/login'
           return Promise.reject(refreshError)
         }
+      }
+
+      // 404 에러에 대한 특별 처리
+      if (originalRequest.response?.status === 404) {
+        const errorMessage = originalRequest.response?.data?.message || '요청한 리소스를 찾을 수 없습니다.'
+        console.warn('⚠️ 404 에러:', errorMessage)
+        
+        // 사용자에게 친화적인 에러 메시지 제공
+        const userFriendlyError = new Error(errorMessage)
+        return Promise.reject(userFriendlyError)
+      }
+
+      // 500 에러에 대한 특별 처리
+      if (originalRequest.response?.status && originalRequest.response.status >= 500) {
+        const errorMessage = originalRequest.response?.data?.message || '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+        console.error('🚨 서버 에러:', errorMessage)
+        
+        const userFriendlyError = new Error(errorMessage)
+        return Promise.reject(userFriendlyError)
       }
 
       return Promise.reject(error)
@@ -201,7 +229,7 @@ const api = {
   },
 }
 
-// Community specific helpers
+// Community specific helpers (백엔드 라우팅 기준으로 통일)
 const postsApi = {
   list: (params?: {
     category?: string
@@ -213,14 +241,13 @@ const postsApi = {
   categories: () => api.get(`/api/posts/categories`),
   categoriesLive: () => api.get(`/api/posts/categories/live`),
   detail: (id: number) => api.get(`/api/posts/${id}`),
+  my: () => api.get(`/api/posts/my`),
   create: (data: unknown) => api.post(`/api/posts`, data),
   update: (id: number, data: unknown) => api.put(`/api/posts/${id}`, data),
   remove: (id: number) => api.delete(`/api/posts/${id}`),
 }
 
 const likesApi = {
-  like: (postId: number) => api.post<LikeResponse>(`/api/likes/${postId}`),
-  unlike: (postId: number) => api.delete<LikeResponse>(`/api/likes/${postId}`),
   toggle: (postId: number) => api.post<LikeResponse>(`/api/likes/${postId}`), // 토글 방식
 }
 
@@ -229,6 +256,8 @@ const commentsApi = {
     api.get(`/api/comments/${postId}`, { params }),
   create: (postId: number, data: { content: string }) =>
     api.post(`/api/comments/${postId}`, data),
+  update: (commentId: number, data: { content: string }) =>
+    api.put(`/api/comments/${commentId}`, data),
   remove: (commentId: number) => api.delete(`/api/comments/${commentId}`),
 }
 

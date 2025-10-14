@@ -7,9 +7,13 @@
     "outDir": "../../dist/backend",
     "strict": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "declaration": false,
+    "noEmit": false,
+    "isolatedModules": true,
 
     // TypeORM + TS5 안정화 핵심
     "experimentalDecorators": true,
@@ -75,6 +79,7 @@
     "../shared/types/components.ts",
     "../shared/utils/storage.ts",
     "../shared/utils/apiValidation.ts",
+    "../shared/utils/envValidator.ts",
     "../shared/utils/**/*"
   ]
 }

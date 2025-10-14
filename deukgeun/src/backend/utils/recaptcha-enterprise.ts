@@ -142,6 +142,15 @@ export const recaptchaEnterpriseMiddleware = (
 ) => {
   return async (req: any, res: any, next: any) => {
     try {
+      // 개발 환경에서는 reCAPTCHA 검증을 우회
+      if (process.env.NODE_ENV === "development") {
+        console.log("🔧 Development mode: Bypassing reCAPTCHA verification")
+        req.recaptchaScore = 1.0
+        req.recaptchaRiskLevel = 'low'
+        next()
+        return
+      }
+
       const token = req.body.recaptchaToken || req.headers['x-recaptcha-token']
 
       if (!token) {

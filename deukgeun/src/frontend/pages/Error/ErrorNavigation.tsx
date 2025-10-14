@@ -36,7 +36,7 @@ export default function ErrorNavigation({
     
     switch (currentErrorCode) {
       case 401:
-      case 403:
+      case 403: {
         // 인증 관련 에러의 경우 로그인 페이지와 홈 페이지 추가
         const authPages = [
           { label: '로그인', path: ROUTES.LOGIN, icon: '🔐', description: '로그인 페이지로 이동' },
@@ -44,6 +44,7 @@ export default function ErrorNavigation({
           ...accessibleItems.slice(0, 2)
         ]
         return authPages
+      }
       case 404:
         return accessibleItems.slice(0, 4) // 홈, 커뮤니티, 기구가이드, 헬스장찾기
       case 500:

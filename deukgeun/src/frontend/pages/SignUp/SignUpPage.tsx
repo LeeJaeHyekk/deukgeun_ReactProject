@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import {
   FaEye,
   FaEyeSlash,
-  FaUpload,
-  FaTimes,
   FaCheck,
   FaExclamationTriangle,
 } from 'react-icons/fa'
@@ -83,7 +81,6 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [profileImage, setProfileImage] = useState<File | null>(null)
   const [gender, setGender] = useState<string>('')
   const [birthday, setBirthday] = useState({ year: '', month: '', day: '' })
 
@@ -353,56 +350,6 @@ export default function SignUpPage() {
     }
   }
 
-  // 이미지 변경 핸들러
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('🖼️ 이미지 변경 핸들러 호출')
-    const file = event.target.files?.[0]
-
-    if (file) {
-      console.log('📁 선택된 파일:', {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-      })
-
-      // 파일 크기 검증 (5MB 이하)
-      if (file.size > 5 * 1024 * 1024) {
-        console.log('❌ 파일 크기 초과:', file.size, 'bytes')
-        showToast('파일 크기는 5MB 이하여야 합니다.', 'error')
-        return
-      }
-      console.log('✅ 파일 크기 검증 통과')
-
-      // 파일 타입 검증
-      if (!file.type.startsWith('image/')) {
-        console.log('❌ 이미지 파일이 아님:', file.type)
-        showToast('이미지 파일만 업로드 가능합니다.', 'error')
-        return
-      }
-      console.log('✅ 파일 타입 검증 통과')
-
-      console.log('✅ 이미지 파일 설정 완료')
-      setProfileImage(file)
-    } else {
-      console.log('📁 파일이 선택되지 않음')
-    }
-  }
-
-  // 이미지 제거 핸들러
-  const handleRemoveImage = () => {
-    console.log('🗑️ 이미지 제거 핸들러 호출')
-    setProfileImage(null)
-    const fileInput = document.getElementById(
-      'profileImage'
-    ) as HTMLInputElement
-    if (fileInput) {
-      fileInput.value = ''
-      console.log('✅ 파일 입력 필드 초기화 완료')
-    } else {
-      console.log('⚠️ 파일 입력 필드를 찾을 수 없음')
-    }
-    console.log('✅ 이미지 제거 완료')
-  }
 
   // 폼 검증 함수
   const validateForm = (): boolean => {
@@ -884,32 +831,6 @@ export default function SignUpPage() {
             )}
           </div>
 
-          {/* 프로필 이미지 선택 */}
-          <div className={styles.fileWrapper}>
-            <label htmlFor="profileImage" className={styles.fileLabel}>
-              <FaUpload /> 프로필 이미지 선택 (선택사항)
-            </label>
-            <input
-              id="profileImage"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className={styles.hiddenFileInput}
-            />
-            {profileImage && (
-              <div className={styles.fileInfo}>
-                <span>업로드된 이미지: {profileImage.name}</span>
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className={styles.removeButton}
-                  aria-label="이미지 제거"
-                >
-                  <FaTimes />
-                </button>
-              </div>
-            )}
-          </div>
 
           {/* reCAPTCHA */}
           <div className={styles.recaptcha}>

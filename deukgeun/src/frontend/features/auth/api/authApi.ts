@@ -145,6 +145,8 @@ export const authApi = {
   register: async (data: RegisterRequest): Promise<ApiRegisterResponse> => {
     console.log('📡 회원가입 API 호출 시작')
     console.log('📡 요청 URL:', API_ENDPOINTS.AUTH.REGISTER)
+    console.log('📡 config.api.baseURL:', config.api.baseURL)
+    console.log('📡 전체 요청 URL:', `${config.api.baseURL}${API_ENDPOINTS.AUTH.REGISTER}`)
     console.log('📡 요청 데이터:', {
       email: data.email,
       nickname: data.nickname,
@@ -157,8 +159,11 @@ export const authApi = {
     })
 
     try {
+      const fullUrl = `${config.api.baseURL}${API_ENDPOINTS.AUTH.REGISTER}`
+      console.log('📡 실제 요청할 전체 URL:', fullUrl)
+      
       const response = await axios.post<BackendRegisterResponse>(
-        `${config.api.baseURL}${API_ENDPOINTS.AUTH.REGISTER}`,
+        fullUrl,
         data
       )
       console.log('✅ 회원가입 API 응답 성공:', response)

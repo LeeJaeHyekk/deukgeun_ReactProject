@@ -464,8 +464,8 @@ export function isEmail(value: unknown): value is string {
 
 export function isPhoneNumber(value: unknown): value is string {
   if (!isString(value)) return false
-  const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/
-  return phoneRegex.test(value.replace(/[\s\-\(\)]/g, ''))
+  const phoneRegex = /^[+]?[1-9][\d]{0,15}$/
+  return phoneRegex.test(value.replace(/[\s\-()]/g, ''))
 }
 
 export function isUrl(value: unknown): value is string {

@@ -112,7 +112,7 @@ Deukgeun은 다음과 같은 문제를 해결합니다:
 
 ### 필수 요구사항
 - Node.js 18.0.0 이상
-- MySQL 8.0 이상
+- MySQL 8.4 이상
 - Git
 
 ### 설치 및 실행
@@ -402,7 +402,7 @@ NODE_ENV=production
 PORT=4000
 DB_HOST=localhost
 DB_USER=root
-DB_PASSWORD=your_password
+DB_PASSWORD=Deukgeun6204_DB25
 DB_NAME=deukgeun
 JWT_SECRET=your_jwt_secret
 ```

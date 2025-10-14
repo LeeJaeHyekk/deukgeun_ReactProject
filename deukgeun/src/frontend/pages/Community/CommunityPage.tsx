@@ -110,7 +110,7 @@ export default function CommunityPage() {
   // 게시글 좋아요
   const handleLikePost = async (postId: number) => {
     try {
-      await likesApi.like(postId)
+      await likesApi.toggle(postId)
       showToast('좋아요를 눌렀습니다.', 'success')
       fetchPosts(currentPage) // 목록 새로고침
     } catch (error: unknown) {

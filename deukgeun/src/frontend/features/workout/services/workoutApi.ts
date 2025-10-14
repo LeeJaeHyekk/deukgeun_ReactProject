@@ -160,7 +160,6 @@ export const workoutPlansApi = {
       console.error("❌ [WorkoutPlansApi] Failed to fetch plans:", error)
       handleApiError(error)
       throw error
-      throw error
     }
   },
 
@@ -178,7 +177,6 @@ export const workoutPlansApi = {
       console.error(`❌ [WorkoutPlansApi] Failed to fetch plan ${id}:`, error)
       handleApiError(error)
       throw error
-      throw error
     }
   },
 
@@ -195,7 +193,6 @@ export const workoutPlansApi = {
     } catch (error) {
       console.error("❌ [WorkoutPlansApi] Failed to create plan:", error)
       handleApiError(error)
-      throw error
       throw error
     }
   },
@@ -216,7 +213,6 @@ export const workoutPlansApi = {
     } catch (error) {
       console.error(`❌ [WorkoutPlansApi] Failed to update plan ${id}:`, error)
       handleApiError(error)
-      throw error
       throw error
     }
   },

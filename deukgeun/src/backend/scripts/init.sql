@@ -29,7 +29,7 @@ SET GLOBAL max_connections = 200;
 SET GLOBAL wait_timeout = 600;
 SET GLOBAL interactive_timeout = 600;
 
--- 쿼리 캐시 설정 (MySQL 8.0에서는 제거됨)
+-- 쿼리 캐시 설정 (MySQL 8.4에서는 제거됨)
 -- 대신 InnoDB Buffer Pool 최적화 사용
 
 -- 슬로우 쿼리 로그 설정

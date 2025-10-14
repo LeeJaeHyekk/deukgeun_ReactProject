@@ -134,22 +134,22 @@ export const API_ENDPOINTS = {
   BASE_URL: config.api.baseURL,
   // Auth endpoints
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    LOGOUT: '/auth/logout',
-    REFRESH: '/auth/refresh',
-    FORGOT_PASSWORD: '/auth/forgot-password',
-    RESET_PASSWORD: '/auth/reset-password',
-    VERIFY_EMAIL: '/auth/verify-email',
-    ACCOUNT_RECOVERY: '/auth/account-recovery',
-    FIND_ID: '/auth/find-id',
-    FIND_PASSWORD: '/auth/find-password',
-    FIND_ID_SIMPLE: '/auth/find-id-simple',
-    RESET_PASSWORD_SIMPLE_STEP1: '/auth/reset-password-simple-step1',
-    RESET_PASSWORD_SIMPLE_STEP2: '/auth/reset-password-simple-step2',
-    RESET_PASSWORD_VERIFY_CODE: '/auth/reset-password-verify-code',
-    RESET_PASSWORD_COMPLETE: '/auth/reset-password-complete',
-    CHECK: '/auth/check',
+    LOGIN: '/api/auth/login',
+    REGISTER: '/api/auth/register',
+    LOGOUT: '/api/auth/logout',
+    REFRESH: '/api/auth/refresh',
+    FORGOT_PASSWORD: '/api/auth/forgot-password',
+    RESET_PASSWORD: '/api/auth/reset-password',
+    VERIFY_EMAIL: '/api/auth/verify-email',
+    ACCOUNT_RECOVERY: '/api/auth/account-recovery',
+    FIND_ID: '/api/auth/find-id',
+    FIND_PASSWORD: '/api/auth/find-password',
+    FIND_ID_SIMPLE: '/api/auth/find-id-simple',
+    RESET_PASSWORD_SIMPLE_STEP1: '/api/auth/reset-password-simple-step1',
+    RESET_PASSWORD_SIMPLE_STEP2: '/api/auth/reset-password-simple-step2',
+    RESET_PASSWORD_VERIFY_CODE: '/api/auth/reset-password-verify-code',
+    RESET_PASSWORD_COMPLETE: '/api/auth/reset-password-complete',
+    CHECK: '/api/auth/check',
   },
 
   // User endpoints
@@ -162,58 +162,58 @@ export const API_ENDPOINTS = {
 
   // Machine endpoints
   MACHINES: {
-    LIST: '/machines',
-    GET_ALL: '/machines',
-    GET_BY_ID: (id: number) => `/machines/${id}`,
-    DETAIL: (id: number) => `/machines/${id}`,
-    GET_BY_CATEGORY: (category: string) => `/machines/category/${category}`,
-    GET_BY_DIFFICULTY: (difficulty: string) => `/machines/difficulty/${difficulty}`,
-    GET_BY_TARGET: (target: string) => `/machines/target/${target}`,
-    SEARCH: '/machines/search',
-    FILTER: '/machines/filter',
-    CREATE: '/machines',
-    UPDATE: (id: number) => `/machines/${id}`,
-    DELETE: (id: number) => `/machines/${id}`,
+    LIST: '/api/machines',
+    GET_ALL: '/api/machines',
+    GET_BY_ID: (id: number) => `/api/machines/${id}`,
+    DETAIL: (id: number) => `/api/machines/${id}`,
+    GET_BY_CATEGORY: (category: string) => `/api/machines/category/${category}`,
+    GET_BY_DIFFICULTY: (difficulty: string) => `/api/machines/difficulty/${difficulty}`,
+    GET_BY_TARGET: (target: string) => `/api/machines/target/${target}`,
+    SEARCH: '/api/machines/search',
+    FILTER: '/api/machines/filter',
+    CREATE: '/api/machines',
+    UPDATE: (id: number) => `/api/machines/${id}`,
+    DELETE: (id: number) => `/api/machines/${id}`,
   },
 
   // Post endpoints
   POSTS: {
-    LIST: '/community/posts',
-    GET_ALL: '/community/posts',
-    GET_BY_ID: (id: number) => `/community/posts/${id}`,
-    CREATE: '/community/posts',
-    UPDATE: (id: number) => `/community/posts/${id}`,
-    DELETE: (id: number) => `/community/posts/${id}`,
-    LIKE: '/community/posts/like',
-    UNLIKE: '/community/posts/unlike',
+    LIST: '/api/posts',
+    GET_ALL: '/api/posts',
+    GET_BY_ID: (id: number) => `/api/posts/${id}`,
+    CREATE: '/api/posts',
+    UPDATE: (id: number) => `/api/posts/${id}`,
+    DELETE: (id: number) => `/api/posts/${id}`,
+    LIKE: '/api/posts/like',
+    UNLIKE: '/api/posts/unlike',
   },
 
   // Comment endpoints
   COMMENTS: {
-    LIST: '/community/comments',
-    GET_BY_ID: '/community/comments',
-    CREATE: '/community/comments',
-    UPDATE: '/community/comments',
-    DELETE: '/community/comments',
-    LIKE: '/community/comments/like',
-    UNLIKE: '/community/comments/unlike',
+    LIST: '/api/comments',
+    GET_BY_ID: '/api/comments',
+    CREATE: '/api/comments',
+    UPDATE: '/api/comments',
+    DELETE: '/api/comments',
+    LIKE: '/api/comments/like',
+    UNLIKE: '/api/comments/unlike',
   },
 
   // Workout endpoints
   WORKOUT: {
-    SESSIONS: '/workout/sessions',
-    PLANS: '/workout/plans',
-    GOALS: '/workout/goals',
-    STATS: '/workout/stats',
+    SESSIONS: '/api/workouts/sessions',
+    PLANS: '/api/workouts/plans',
+    GOALS: '/api/workouts/goals',
+    STATS: '/api/workouts/stats',
   },
 
   // Gym endpoints
   GYMS: {
-    LIST: '/gyms',
-    GET_ALL: '/gyms',
-    GET_BY_ID: (id: number) => `/gyms/${id}`,
-    SEARCH: '/gyms/search',
-    NEARBY: '/gyms/nearby',
+    LIST: '/api/gyms',
+    GET_ALL: '/api/gyms',
+    GET_BY_ID: (id: number) => `/api/gyms/${id}`,
+    SEARCH: '/api/gyms/search',
+    NEARBY: '/api/gyms/nearby',
   },
 
   // Admin endpoints
@@ -228,19 +228,19 @@ export const API_ENDPOINTS = {
 
   // Level endpoints
   LEVELS: {
-    GET_USER_LEVEL: (userId: number) => `/levels/user/${userId}`,
-    GET_LEVELS: '/levels',
-    UPDATE_LEVEL: '/levels/update',
-    GRANT_EXP: '/levels/grant-exp',
+    GET_USER_LEVEL: (userId: number) => `/api/level/user/${userId}`,
+    GET_LEVELS: '/api/level',
+    UPDATE_LEVEL: '/api/level/update',
+    GRANT_EXP: '/api/level/grant-exp',
   },
 
   // Workout Goals endpoints
   WORKOUT_GOALS: {
-    GET_ALL: '/workout/goals',
-    GET_BY_ID: (id: number) => `/workout/goals/${id}`,
-    CREATE: '/workout/goals',
-    UPDATE: (id: number) => `/workout/goals/${id}`,
-    DELETE: (id: number) => `/workout/goals/${id}`,
+    GET_ALL: '/api/workouts/goals',
+    GET_BY_ID: (id: number) => `/api/workouts/goals/${id}`,
+    CREATE: '/api/workouts/goals',
+    UPDATE: (id: number) => `/api/workouts/goals/${id}`,
+    DELETE: (id: number) => `/api/workouts/goals/${id}`,
   },
 }
 

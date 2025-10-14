@@ -33,7 +33,7 @@ build
 .env.local
 .env.production
 .env.development
-env.production
+env.production 
 
 # TypeScript build artifacts
 *.tsbuildinfo

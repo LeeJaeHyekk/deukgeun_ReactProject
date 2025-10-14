@@ -51,8 +51,8 @@ const API_ENDPOINTS = {
   GOALS: "/api/workouts/goals",
   GOAL: (id: number) => `/api/workouts/goals/${id}`,
 
-  // Dashboard
-  DASHBOARD: "/api/workouts/dashboard",
+  // Progress
+  PROGRESS: "/api/workouts/progress",
 } as const
 
 // ============================================================================
@@ -827,22 +827,22 @@ export const workoutApi = {
   // ============================================================================
 
   /**
-   * 대시보드 데이터 조회
+   * 운동 진행 상황 조회
    */
-  async getDashboardData(): Promise<DashboardData> {
+  async getProgress(): Promise<DashboardData> {
     try {
-      console.log("📡 [workoutApi] getDashboardData 호출")
+      console.log("📡 [workoutApi] getProgress 호출")
       const response = await apiClient.get<ApiResponse<DashboardData>>(
-        API_ENDPOINTS.DASHBOARD
+        API_ENDPOINTS.PROGRESS
       )
       const data = response.data?.data || response.data
-      console.log("✅ [workoutApi] getDashboardData 성공")
+      console.log("✅ [workoutApi] getProgress 성공")
       if (!data) {
         throw new WorkoutApiError("응답 데이터가 없습니다", 500, "NO_DATA")
       }
       return data as DashboardData
     } catch (error) {
-      console.error("❌ [workoutApi] getDashboardData 실패", error)
+      console.error("❌ [workoutApi] getProgress 실패", error)
       handleApiError(error)
       throw error
     }

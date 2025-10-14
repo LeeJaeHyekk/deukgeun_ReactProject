@@ -36,7 +36,7 @@ const machineApi = {
   // Get all machines
   getMachines: async (): Promise<MachineListResponse> => {
     const response = await api.get<DTOMachineListResponse>(
-      API_ENDPOINTS.MACHINES.LIST
+      API_ENDPOINTS.MACHINES.GET_ALL
     )
     console.log("머신 API 응답:", response)
     
@@ -53,7 +53,7 @@ const machineApi = {
   // Get machine by ID
   getMachine: async (id: number): Promise<MachineResponse> => {
     const response = await api.get<DTOMachineResponse>(
-      API_ENDPOINTS.MACHINES.DETAIL(id)
+      API_ENDPOINTS.MACHINES.GET_BY_ID(id)
     )
     
     // 타입 가드를 사용하여 안전하게 데이터 파싱

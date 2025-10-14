@@ -6,7 +6,7 @@ import { FilterTag } from "./components/FilterTag/FilterTag"
 import { GymList } from "./components/Map/GymList"
 import { fetchGymsByKeyword } from "./API/kakao"
 import { Gym, FilterOption, SortOption, SortDirection } from "./types"
-import useAuth from "@shared/hooks/useAuth"
+import { useAuth } from "@frontend/shared/hooks/useAuth"
 import { useNavigate } from "react-router-dom"
 import { processGyms } from "./utils/gymFilters"
 
@@ -31,7 +31,7 @@ export default function GymFinderPage() {
   const [maxDistance, setMaxDistance] = useState<number>(5) // 기본 5km
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuth()
+  const { isLoggedIn } = useAuth()
 
   // 맵 관련 refs
   const mapRef = useRef<any>(null)
@@ -47,7 +47,7 @@ export default function GymFinderPage() {
   // 로그인 상태 확인 및 현재 위치 가져오기
   useEffect(() => {
     console.log("🧪 위치 정보 가져오기 시작")
-    if (!isAuthenticated) {
+    if (!isLoggedIn) {
       console.log("🧪 로그인되지 않음, 로그인 페이지로 이동")
       navigate("/login")
       return
@@ -55,6 +55,8 @@ export default function GymFinderPage() {
 
     if (!navigator.geolocation) {
       console.error("Geolocation을 지원하지 않는 브라우저입니다.")
+      // 기본 위치 설정 (서울시청)
+      setPosition({ lat: 37.5665, lng: 126.9780 })
       return
     }
 
@@ -69,9 +71,26 @@ export default function GymFinderPage() {
       },
       error => {
         console.error("위치 정보를 가져오지 못했습니다.", error)
+        
+        // 위치 정보 거부 시 사용자에게 알림
+        if (error.code === 1) {
+          alert("위치 정보 접근이 거부되었습니다. 기본 위치(서울시청)로 설정됩니다.")
+        } else if (error.code === 2) {
+          alert("위치 정보를 가져올 수 없습니다. 네트워크 연결을 확인해주세요.")
+        } else if (error.code === 3) {
+          alert("위치 정보 요청 시간이 초과되었습니다.")
+        }
+        
+        // 기본 위치 설정 (서울시청)
+        setPosition({ lat: 37.5665, lng: 126.9780 })
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000 // 5분
       }
     )
-  }, [isAuthenticated, navigate])
+  }, [isLoggedIn, navigate])
 
   // 위치가 설정되면 기본 헬스장 검색 실행
   useEffect(() => {

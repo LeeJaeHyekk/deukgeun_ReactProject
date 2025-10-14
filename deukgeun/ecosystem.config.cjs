@@ -11,16 +11,22 @@ module.exports = {
       // 자동 재시작 방지 (개발 중에는 수동으로 관리)
       autorestart: false,
       watch: false,
+      // ESM 모듈 지원
+      interpreter: 'node',
+      interpreter_args: '--experimental-modules',
       env: {
         NODE_ENV: 'development',
         PORT: 5000,
+        // ESM 모듈 경로 설정
+        NODE_PATH: './dist/backend',
         // TypeScript 경로 매핑 지원
-        NODE_PATH: './dist/backend'
+        TS_NODE_BASEURL: './dist/backend'
       },
       env_production: {
         NODE_ENV: 'production',
         PORT: 5000,
-        NODE_PATH: './dist/backend'
+        NODE_PATH: './dist/backend',
+        TS_NODE_BASEURL: './dist/backend'
       },
       // 로그 설정 개선
       error_file: './logs/backend-error.log',
@@ -44,7 +50,8 @@ module.exports = {
     },
     {
       name: 'deukgeun-frontend',
-      script: 'scripts/serve-frontend-optimized.cjs',
+      script: 'npm',
+      args: 'run dev',
       cwd: './',
       instances: 1,
       exec_mode: 'fork',
@@ -55,11 +62,13 @@ module.exports = {
       watch: false,
       env: {
         NODE_ENV: 'development',
-        FRONTEND_PORT: 3000
+        FRONTEND_PORT: 3000,
+        VITE_PORT: 3000
       },
       env_production: {
         NODE_ENV: 'production',
-        FRONTEND_PORT: 3000
+        FRONTEND_PORT: 3000,
+        VITE_PORT: 3000
       },
       // 로그 설정 개선
       error_file: './logs/frontend-error.log',

@@ -11,6 +11,7 @@ import { runDatabaseDiagnostics, createDatabaseIfNotExists } from "../utils/data
 // 엔티티 클래스들 import - 데이터베이스 테이블과 매핑되는 클래스들
 import { Post } from "../entities/Post" // 게시글 엔티티
 import { Gym } from "../entities/Gym" // 헬스장 엔티티
+import { Equipment } from "../entities/Equipment" // 헬스장 기구 엔티티
 import { User } from "../entities/User" // 사용자 엔티티
 import { Machine } from "../entities/Machine" // 운동 머신 엔티티
 import { Comment } from "../entities/Comment" // 댓글 엔티티
@@ -73,6 +74,7 @@ export const AppDataSource = new DataSource({
   entities: [
     Post, // 게시글 테이블
     Gym, // 헬스장 테이블
+    Equipment, // 헬스장 기구 테이블
     User, // 사용자 테이블
     Machine, // 운동 머신 테이블
     Comment, // 댓글 테이블

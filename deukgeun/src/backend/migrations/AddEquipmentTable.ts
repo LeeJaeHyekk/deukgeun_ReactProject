@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, Index, ForeignKey } from "typeorm"
+import { MigrationInterface, QueryRunner, Table, TableForeignKey, TableIndex } from "typeorm"
 
 export class AddEquipmentTable1700000000000 implements MigrationInterface {
   name = 'AddEquipmentTable1700000000000'
@@ -134,7 +134,7 @@ export class AddEquipmentTable1700000000000 implements MigrationInterface {
     // 외래키 제약조건 추가
     await queryRunner.createForeignKey(
       "equipment",
-      new ForeignKey({
+      new TableForeignKey({
         columnNames: ["gymId"],
         referencedColumnNames: ["id"],
         referencedTableName: "gym",
@@ -145,38 +145,59 @@ export class AddEquipmentTable1700000000000 implements MigrationInterface {
     // 인덱스 생성
     await queryRunner.createIndex(
       "equipment",
-      new Index("IDX_EQUIPMENT_GYM_ID", ["gymId"])
+      new TableIndex({
+        name: "IDX_EQUIPMENT_GYM_ID",
+        columnNames: ["gymId"]
+      })
     )
 
     await queryRunner.createIndex(
       "equipment",
-      new Index("IDX_EQUIPMENT_TYPE", ["type"])
+      new TableIndex({
+        name: "IDX_EQUIPMENT_TYPE",
+        columnNames: ["type"]
+      })
     )
 
     await queryRunner.createIndex(
       "equipment",
-      new Index("IDX_EQUIPMENT_CATEGORY", ["category"])
+      new TableIndex({
+        name: "IDX_EQUIPMENT_CATEGORY",
+        columnNames: ["category"]
+      })
     )
 
     await queryRunner.createIndex(
       "equipment",
-      new Index("IDX_EQUIPMENT_BRAND", ["brand"])
+      new TableIndex({
+        name: "IDX_EQUIPMENT_BRAND",
+        columnNames: ["brand"]
+      })
     )
 
     await queryRunner.createIndex(
       "equipment",
-      new Index("IDX_EQUIPMENT_SOURCE", ["source"])
+      new TableIndex({
+        name: "IDX_EQUIPMENT_SOURCE",
+        columnNames: ["source"]
+      })
     )
 
     // 복합 인덱스
     await queryRunner.createIndex(
       "equipment",
-      new Index("IDX_EQUIPMENT_GYM_TYPE", ["gymId", "type"])
+      new TableIndex({
+        name: "IDX_EQUIPMENT_GYM_TYPE",
+        columnNames: ["gymId", "type"]
+      })
     )
 
     await queryRunner.createIndex(
       "equipment",
-      new Index("IDX_EQUIPMENT_GYM_CATEGORY", ["gymId", "category"])
+      new TableIndex({
+        name: "IDX_EQUIPMENT_GYM_CATEGORY",
+        columnNames: ["gymId", "category"]
+      })
     )
   }
 

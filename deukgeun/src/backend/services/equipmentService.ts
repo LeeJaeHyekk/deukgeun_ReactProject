@@ -12,7 +12,7 @@ import {
   EquipmentCategory,
   EquipmentType
 } from '../../shared/types/equipment'
-import { EquipmentCrawlerService } from './equipmentCrawlerService'
+// import { EquipmentCrawlerService } from './equipmentCrawlerService' // deprecated
 
 /**
  * 기구 정보 관리 서비스
@@ -20,7 +20,7 @@ import { EquipmentCrawlerService } from './equipmentCrawlerService'
 export class EquipmentService {
   private equipmentRepo: Repository<Equipment>
   private gymRepo: Repository<Gym>
-  private crawlerService: EquipmentCrawlerService
+  // private crawlerService: EquipmentCrawlerService // deprecated
 
   constructor(
     equipmentRepo: Repository<Equipment>,
@@ -28,7 +28,7 @@ export class EquipmentService {
   ) {
     this.equipmentRepo = equipmentRepo
     this.gymRepo = gymRepo
-    this.crawlerService = new EquipmentCrawlerService()
+    // this.crawlerService = new EquipmentCrawlerService() // deprecated
   }
 
   /**
@@ -241,8 +241,8 @@ export class EquipmentService {
         source: 'crawled'
       })
 
-      // 기구 정보 크롤링
-      const crawledData = await this.crawlerService.crawlGymEquipment(gymName, gymAddress)
+      // 기구 정보 크롤링 (deprecated - 임시로 빈 배열 반환)
+      const crawledData: any[] = [] // await this.crawlerService.crawlGymEquipment(gymName, gymAddress)
 
       // 크롤링된 데이터 저장
       const savedEquipments: EquipmentDTO[] = []

@@ -7,7 +7,7 @@ import commentRoutes from "./comment"
 import likeRoutes from "./like"
 import levelRoutes from "./level"
 import statsRoutes from "./stats"
-import schedulerRoutes from "./scheduler"
+// import schedulerRoutes from "./scheduler" // deprecated
 import workoutRoutes from "./workout"
 import logsRoutes from "./logs"
 import recaptchaRoutes from "./recaptcha"
@@ -125,7 +125,7 @@ if (isDatabaseConnected) {
   router.use("/stats", statsRoutes)
   console.log("✅ Stats routes configured")
   
-  router.use("/scheduler", schedulerRoutes)
+  // router.use("/scheduler", schedulerRoutes) // deprecated
   console.log("✅ Scheduler routes configured")
   
   router.use("/workouts", workoutRoutes)

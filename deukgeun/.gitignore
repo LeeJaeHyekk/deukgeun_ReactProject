@@ -29,11 +29,15 @@ build
 *.sw?
 
 # Environment files
-# .env
-# .env.local
-# .env.production
-# .env.development
-# env.production 
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+env.production
+env.development
+env.sample
+env.unified 
 
 # TypeScript build artifacts
 *.tsbuildinfo
@@ -70,3 +74,71 @@ pnpm-lock.yaml
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Security sensitive files
+ssh-config
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+known_hosts
+authorized_keys
+
+# Deployment and infrastructure files
+docker-compose.override.yml
+docker-compose.local.yml
+*.bat
+*.sh
+!scripts/**/*.sh
+!scripts/**/*.bat
+connect-ec2.bat
+quick-deploy.bat
+deploy-ssh-commands.sh
+
+# Database configuration and credentials
+ormconfig.json
+database.yml
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+
+# PM2 and process management
+ecosystem.config.js
+pm2.config.js
+.pm2/
+
+# Backup files
+backups/
+*.backup
+*.bak
+
+# Test data and sensitive data
+src/data/*.json
+!src/data/test_*.json
+!src/data/gyms_raw.json
+
+# Configuration files with sensitive data
+nginx.conf
+*.conf
+config.json
+secrets.json
+credentials.json
+
+# IDE and editor specific
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/shelf
+
+# Local development files
+local/
+dev/
+temp/
+tmp/

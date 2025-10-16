@@ -1,51 +1,73 @@
 import "reflect-metadata"
-import express from "express"
-import cors from "cors"
+import { AppDataSource } from "./config/database"
+import app from "./simple-app"
+import { logger } from "./utils/logger"
+import { initializeCrawlingService } from "./services/crawlingService"
+// import { getRepository } from "typeorm" // AppDataSource.getRepository 사용
+import { Gym } from "./entities/Gym"
 
-const app = express()
-const PORT = 5000
+const PORT = process.env.BACKEND_PORT || 5000
 
-// 기본 CORS 설정
-app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:3000", "http://localhost:5000"],
-  credentials: true
-}))
+async function startServer() {
+  try {
+    console.log("🚀 Starting Deukgeun Backend Server...")
+    
+    // 데이터베이스 연결
+    console.log("📊 Connecting to database...")
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize()
+    }
+    console.log("✅ Database connected successfully")
+    
+    // 크롤링 서비스 초기화 (비동기, 서버 시작을 블로킹하지 않음)
+    console.log("🔄 Initializing crawling service...")
+    setTimeout(async () => {
+      try {
+        const gymRepo = AppDataSource.getRepository(Gym)
+        await initializeCrawlingService(gymRepo)
+        console.log("✅ Crawling service initialized successfully")
+      } catch (error) {
+        console.warn("⚠️ Crawling service initialization failed:", error instanceof Error ? error.message : String(error))
+      }
+    }, 1000) // 1초 후 초기화
+    
+    // 서버 시작
+    console.log(`🌐 Starting server on port ${PORT}...`)
+    const server = app.listen(PORT, () => {
+      console.log("=".repeat(60))
+      console.log("🚀 DEUKGEUN BACKEND SERVER STARTED")
+      console.log("=".repeat(60))
+      console.log(`🌐 Server URL: http://localhost:${PORT}`)
+      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
+      console.log(`🔧 Port: ${PORT}`)
+      console.log(`✅ Database: Connected`)
+      console.log(`🔄 Crawling Service: Initializing (non-blocking)`)
+      console.log("=".repeat(60))
+      console.log("✅ Backend server is ready!")
+      console.log("=".repeat(60))
+    })
 
-// 기본 미들웨어
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('🔄 SIGTERM received, shutting down gracefully')
+      server.close(() => {
+        console.log('✅ Server closed')
+        process.exit(0)
+      })
+    })
 
-// 기본 라우트
-app.get("/", (req, res) => {
-  res.json({
-    message: "Deukgeun Backend API - Simple Mode",
-    version: "1.0.0",
-    timestamp: new Date().toISOString(),
-    environment: "development",
-    status: "healthy",
-  })
-})
+    process.on('SIGINT', () => {
+      console.log('🔄 SIGINT received, shutting down gracefully')
+      server.close(() => {
+        console.log('✅ Server closed')
+        process.exit(0)
+      })
+    })
 
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "healthy",
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-  })
-})
+  } catch (error) {
+    console.error("❌ Server startup failed:", error)
+    process.exit(1)
+  }
+}
 
-// 서버 시작
-app.listen(PORT, () => {
-  console.log("=".repeat(60))
-  console.log("🚀 DEUKGEUN BACKEND SERVER STARTED (SIMPLE MODE)")
-  console.log("=".repeat(60))
-  console.log(`🌐 Server URL: http://localhost:${PORT}`)
-  console.log(`📊 Environment: development`)
-  console.log(`🔧 Port: ${PORT}`)
-  console.log("📝 Available endpoints:")
-  console.log(`   - GET  /           - Server status`)
-  console.log(`   - GET  /health     - Health check`)
-  console.log("=".repeat(60))
-  console.log("✅ Backend server is ready!")
-  console.log("=".repeat(60))
-})
+startServer()

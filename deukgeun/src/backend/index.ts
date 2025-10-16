@@ -4,7 +4,7 @@ import app from "./app"
 import { logger } from "./utils/logger"
 import { getAvailablePort } from "./utils/getAvailablePort"
 // import { config, logConfigInfo, validateEnvironmentVariables } from "./config/env"
-import { autoInitializeScheduler } from "./services/autoUpdateScheduler"
+// import { autoInitializeScheduler } from "./services/autoUpdateScheduler" // deprecated
 import { 
   validateAllConfigs, 
   isValidServerStatus, 
@@ -17,20 +17,34 @@ import {
 const environment = process.env.NODE_ENV || "development"
 
 // 타입 안전한 config 객체 정의
+console.log("🔧 Creating config object...")
+console.log("🔧 Getting PORT...")
+const port = safeGetEnvNumber('PORT', 5000)
+console.log(`🔧 PORT: ${port}`)
+
+console.log("🔧 Getting NODE_ENV...")
+const nodeEnv = safeGetEnvString('NODE_ENV', 'development')
+console.log(`🔧 NODE_ENV: ${nodeEnv}`)
+
+console.log("🔧 Getting CORS_ORIGIN...")
+const corsOrigin = safeGetEnvArray('CORS_ORIGIN', [
+  "http://localhost:3000",
+  "http://localhost:5173", 
+  "http://localhost:5000",
+  "http://localhost:5001",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:5173",
+  "http://127.0.0.1:5000",
+  "http://127.0.0.1:5001",
+])
+console.log(`🔧 CORS_ORIGIN: ${corsOrigin}`)
+
 const config = {
-  port: safeGetEnvNumber('PORT', 5000),
-  environment: safeGetEnvString('NODE_ENV', 'development'),
-  corsOrigin: safeGetEnvArray('CORS_ORIGIN', [
-    "http://localhost:3000",
-    "http://localhost:5173", 
-    "http://localhost:5000",
-    "http://localhost:5001",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:5000",
-    "http://127.0.0.1:5001",
-  ])
+  port,
+  environment: nodeEnv,
+  corsOrigin
 }
+console.log("✅ Config object created successfully")
 
 // 타입 안전한 환경 변수 검증 함수
 async function validateEnvironmentVariables() {
@@ -121,11 +135,10 @@ async function startServer() {
       if (databaseConnected) {
         console.log(`✅ Step 2: Database connected successfully in ${dbEndTime - dbStartTime}ms`)
 
-        // Initialize auto-update scheduler only if database is connected
-        console.log("🔄 Step 2.1: Initializing auto-update scheduler...")
-        autoInitializeScheduler()
-        logger.info("Auto-update scheduler initialized")
-        console.log("✅ Step 2.1: Auto-update scheduler initialized")
+        // Auto-update scheduler is deprecated - using new crawling system
+        console.log("🔄 Step 2.1: Skipping deprecated auto-update scheduler...")
+        logger.info("Auto-update scheduler is deprecated - using new crawling system")
+        console.log("✅ Step 2.1: Skipped deprecated auto-update scheduler")
       } else {
         console.log(`⚠️ Step 2: Database connection skipped in ${dbEndTime - dbStartTime}ms`)
       }

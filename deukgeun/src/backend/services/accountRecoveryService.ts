@@ -1,9 +1,9 @@
-import { AppDataSource } from "../config/database"
-import { User } from "../entities/User"
+import { AppDataSource } from '@backend/config/database'
+import { User } from '@backend/entities/User'
 import { VerificationToken } from "../entities/VerificationToken"
 import { PasswordResetToken } from "../entities/PasswordResetToken"
 import { emailService } from "./emailService"
-import { logger } from "../utils/logger"
+import { logger } from '@backend/utils/logger'
 import {
   VerificationTokenData,
   PasswordResetTokenData,

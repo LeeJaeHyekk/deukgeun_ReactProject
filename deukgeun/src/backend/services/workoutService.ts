@@ -1,7 +1,7 @@
-import { AppDataSource } from "../config/database"
+import { AppDataSource } from '@backend/config/database'
 import { WorkoutPlan } from "../entities/WorkoutPlan"
 import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
-import { WorkoutSession } from "../entities/WorkoutSession"
+import { WorkoutSession } from '@backend/entities/WorkoutSession'
 import { ExerciseSet } from "../entities/ExerciseSet"
 import { WorkoutGoal } from "../entities/WorkoutGoal"
 import { In } from "typeorm"

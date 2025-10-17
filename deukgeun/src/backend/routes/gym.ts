@@ -5,7 +5,7 @@ import {
   searchGyms,
   getGymsByLocation,
   updateGymData,
-} from "../controllers/gymController"
+} from '@backend/controllers/gymController'
 
 const router = Router()
 

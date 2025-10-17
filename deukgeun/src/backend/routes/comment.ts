@@ -1,6 +1,6 @@
 import { Router } from "express"
-import { authMiddleware } from "../middlewares/auth"
-import { CommentController } from "../controllers/commentController"
+import { authMiddleware } from '@backend/middlewares/auth'
+import { CommentController } from '@backend/controllers/commentController'
 
 const router = Router()
 const commentController = new CommentController()

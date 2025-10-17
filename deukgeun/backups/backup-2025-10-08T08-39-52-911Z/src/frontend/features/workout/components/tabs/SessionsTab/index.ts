@@ -1,6 +1,0 @@
-export { SessionsTab } from "./SessionsTab"
-export { SessionsHeader } from "./components/SessionsHeader"
-export { ActiveSessionContainer } from "./components/ActiveSessionContainer"
-export { SessionsContent } from "./components/SessionsContent"
-export { SessionsStats } from "./components/SessionsStats"
-export { useSessionsActions } from "./hooks/useSessionsActions"

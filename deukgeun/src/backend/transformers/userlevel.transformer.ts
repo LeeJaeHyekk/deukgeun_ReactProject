@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { UserLevelDTO } from "../../shared/types/dto/userlevel.dto"
-import { UserLevel } from "../entities/UserLevel"
+import { UserLevel } from '@backend/entities/UserLevel'
 
 export class UserLevelTransformer {
   static toDTO(entity: UserLevel): UserLevelDTO {

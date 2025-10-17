@@ -2,8 +2,8 @@
 // Like Transformer
 // ============================================================================
 
-import { LikeDTO } from "../../shared/types/dto/like.dto"
-import { Like } from "../entities/Like"
+import { LikeDTO } from '@shared/types/dto/like.dto'
+import { Like } from '@backend/entities/Like'
 
 export class LikeTransformer {
   static toDTO(entity: Like): LikeDTO {

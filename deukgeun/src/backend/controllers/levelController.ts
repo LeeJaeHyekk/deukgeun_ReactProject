@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
-import { LevelService } from "../services/levelService"
-import { logger } from "../utils/logger"
+import { LevelService } from '@backend/services/levelService'
+import { logger } from '@backend/utils/logger'
 
 const levelService = new LevelService()
 

@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { WorkoutSessionDTO } from "../../shared/types/dto/workoutsession.dto"
-import { WorkoutSession } from "../entities/WorkoutSession"
+import { WorkoutSession } from '@backend/entities/WorkoutSession'
 
 export class WorkoutSessionTransformer {
   static toDTO(entity: WorkoutSession): WorkoutSessionDTO {

@@ -1,4 +1,4 @@
-import { EnhancedGymInfo } from '../types/CrawlingTypes'
+import { EnhancedGymInfo } from '@backend/modules/crawling/types/CrawlingTypes'
 import { PriceExtractor } from './PriceExtractor'
 
 /**

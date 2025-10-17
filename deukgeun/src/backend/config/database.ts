@@ -9,24 +9,24 @@ import mysql from "mysql2/promise"
 import { runDatabaseDiagnostics, createDatabaseIfNotExists } from "../utils/databaseDiagnostics"
 
 // 엔티티 클래스들 import - 데이터베이스 테이블과 매핑되는 클래스들
-import { Post } from "../entities/Post" // 게시글 엔티티
-import { Gym } from "../entities/Gym" // 헬스장 엔티티
-import { Equipment } from "../entities/Equipment" // 헬스장 기구 엔티티
-import { User } from "../entities/User" // 사용자 엔티티
-import { Machine } from "../entities/Machine" // 운동 머신 엔티티
-import { Comment } from "../entities/Comment" // 댓글 엔티티
-import { Like } from "../entities/Like" // 게시글 좋아요 엔티티
-import { UserLevel } from "../entities/UserLevel" // 사용자 레벨 엔티티
+import { Post } from '@backend/entities/Post' // 게시글 엔티티
+import { Gym } from '@backend/entities/Gym' // 헬스장 엔티티
+import { Equipment } from '@backend/entities/Equipment' // 헬스장 기구 엔티티
+import { User } from '@backend/entities/User' // 사용자 엔티티
+import { Machine } from '@backend/entities/Machine' // 운동 머신 엔티티
+import { Comment } from '@backend/entities/Comment' // 댓글 엔티티
+import { Like } from '@backend/entities/Like' // 게시글 좋아요 엔티티
+import { UserLevel } from '@backend/entities/UserLevel' // 사용자 레벨 엔티티
 import { ExpHistory } from "../entities/ExpHistory" // 경험치 이력 엔티티
 import { UserReward } from "../entities/UserReward" // 사용자 보상 엔티티
 import { Milestone } from "../entities/Milestone" // 마일스톤 엔티티
 import { UserStreak } from "../entities/UserStreak" // 사용자 연속 활동 엔티티
-import { WorkoutSession } from "../entities/WorkoutSession" // 운동 세션 엔티티
+import { WorkoutSession } from '@backend/entities/WorkoutSession' // 운동 세션 엔티티
 import { ExerciseSet } from "../entities/ExerciseSet" // 운동 세트 엔티티
 import { WorkoutGoal } from "../entities/WorkoutGoal" // 운동 목표 엔티티
 import { WorkoutPlan } from "../entities/WorkoutPlan" // 운동 계획 엔티티
 import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise" // 운동 계획 운동 엔티티
-import { WorkoutStats } from "../entities/WorkoutStats" // 운동 통계 엔티티
+import { WorkoutStats } from '@backend/entities/WorkoutStats' // 운동 통계 엔티티
 import { WorkoutProgress } from "../entities/WorkoutProgress" // 운동 진행 상황 엔티티
 import { WorkoutReminder } from "../entities/WorkoutReminder" // 운동 알림 엔티티
 import { VerificationToken } from "../entities/VerificationToken" // 이메일 인증 토큰 엔티티
@@ -57,8 +57,8 @@ export const AppDataSource = new DataSource({
   // 연결 풀 설정
   extra: {
     connectionLimit: 10,
-    acquireTimeout: 60000,
-    timeout: 60000,
+    acquireTimeout: 10000,
+    timeout: 10000,
     reconnect: true,
     charset: 'utf8mb4',
     timezone: '+09:00'
@@ -134,7 +134,7 @@ const checkMySQLServerStatus = async (): Promise<boolean> => {
  * @param delay 재시도 간격 (ms)
  * @returns Promise<boolean> 연결 성공 여부
  */
-const retryDatabaseConnection = async (maxRetries: number = 2, delay: number = 1000): Promise<boolean> => {
+const retryDatabaseConnection = async (maxRetries: number = 3, delay: number = 500): Promise<boolean> => {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       console.log(`🔄 Database connection attempt ${attempt}/${maxRetries}`)
@@ -154,7 +154,7 @@ const retryDatabaseConnection = async (maxRetries: number = 2, delay: number = 1
       if (attempt < maxRetries) {
         console.log(`⏳ Waiting ${delay}ms before retry...`)
         await new Promise(resolve => setTimeout(resolve, delay))
-        delay *= 1.2 // 더 빠른 백오프
+        delay *= 1.5 // 더 빠른 백오프
       }
     }
   }
@@ -202,10 +202,10 @@ export const connectDatabase = async () => {
     const startTime = Date.now()
     
     // DataSource 초기화 (재시도 로직 포함)
-    const connectionSuccess = await retryDatabaseConnection(2, 1000)
+    const connectionSuccess = await retryDatabaseConnection(3, 500)
     
     if (!connectionSuccess) {
-      throw new Error("Failed to connect to database after 2 attempts")
+      throw new Error("Failed to connect to database after 3 attempts")
     }
     
     const endTime = Date.now()

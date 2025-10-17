@@ -4,7 +4,7 @@
 // ============================================================================
 
 import { Request, Response, NextFunction } from "express"
-import { extendedLogger } from "../utils/logger"
+import { extendedLogger } from '@backend/utils/logger'
 
 // 성능 메트릭 인터페이스
 interface PerformanceMetrics {

@@ -13,12 +13,12 @@ import logsRoutes from "./logs"
 import recaptchaRoutes from "./recaptcha"
 import homePageRoutes from "./homePage"
 import enhancedGymRoutes from "./enhancedGymRoutes"
-import { AppDataSource, checkDatabaseHealth } from "../config/database"
+import { AppDataSource, checkDatabaseHealth } from '@backend/config/database'
 import { 
   isValidHealthResponse, 
   isValidApiResponse,
   isValidServerStatus 
-} from "../utils/typeGuards"
+} from '@backend/utils/typeGuards'
 
 console.log("=".repeat(60))
 console.log("🔧 API ROUTES INITIALIZATION DEBUG START")

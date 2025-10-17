@@ -1,5 +1,5 @@
-import { AppDataSource } from "../config/database"
-import { logger } from "../utils/logger"
+import { AppDataSource } from '@backend/config/database'
+import { logger } from '@backend/utils/logger'
 
 /**
  * Machine 테이블만 마이그레이션하는 스크립트

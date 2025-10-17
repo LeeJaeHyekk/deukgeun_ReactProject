@@ -1,5 +1,7 @@
 import { BaseSearchEngine } from './BaseSearchEngine'
-import { EnhancedGymInfo } from '../../types/CrawlingTypes'
+import { EnhancedGymInfo } from '@backend/modules/crawling/types/CrawlingTypes'
+import { AntiDetectionUtils } from '@backend/modules/crawling/utils/AntiDetectionUtils'
+import { NaverCafeFallbackStrategies } from '../../strategies/NaverCafeFallbackStrategies'
 import * as cheerio from 'cheerio'
 
 /**
@@ -7,17 +9,40 @@ import * as cheerio from 'cheerio'
  * 정교한 검색 및 정보 추출 로직 구현
  */
 export class NaverCafeSearchEngine extends BaseSearchEngine {
+  /**
+   * 폴백 전략 초기화
+   */
+  protected initializeFallbackStrategies(): void {
+    const strategies = NaverCafeFallbackStrategies.getAllStrategies()
+    strategies.forEach(strategy => {
+      this.fallbackManager.registerStrategy(strategy)
+    })
+    console.log(`📋 네이버 카페 폴백 전략 등록 완료: ${strategies.length}개`)
+  }
+
   async search(gymName: string, address?: string): Promise<EnhancedGymInfo | null> {
+    return this.executeWithFallback(
+      () => this.performPrimarySearch(gymName, address),
+      gymName,
+      address
+    )
+  }
+
+  /**
+   * 1차 검색 수행
+   */
+  private async performPrimarySearch(gymName: string, address?: string): Promise<EnhancedGymInfo | null> {
     try {
-      console.log(`🔍 네이버 카페 검색 시도: ${gymName} ${address ? `(${address})` : ''}`)
+      console.log(`🔍 네이버 카페 1차 검색 시도: ${gymName} ${address ? `(${address})` : ''}`)
       
       // 다양한 검색 쿼리 시도
       const searchQueries = this.generateSearchQueries(gymName, address)
       
-      for (const query of searchQueries) {
+      for (let i = 0; i < searchQueries.length; i++) {
+        const query = searchQueries[i]
         try {
           const searchUrl = `https://search.naver.com/search.naver?where=cafe&query=${encodeURIComponent(query)}`
-          console.log(`🔍 검색 쿼리: ${query}`)
+          console.log(`🔍 검색 쿼리 ${i + 1}/${searchQueries.length}: ${query}`)
           
           const response = await this.makeRequest(searchUrl)
           
@@ -28,12 +53,22 @@ export class NaverCafeSearchEngine extends BaseSearchEngine {
               console.log(`✅ 네이버 카페에서 정보 추출 성공: ${gymName}`)
               return extractedInfo
             }
+          } else if (response.status === 403) {
+            console.warn(`🚫 403 Forbidden - 네이버 카페 검색 차단됨: ${gymName}`)
+            throw new Error('403 Forbidden - 네이버 카페 검색 차단')
           }
           
-          // 요청 간 지연
-          await this.delayExecution()
+          // 요청 간 지연 (마지막 쿼리가 아닌 경우에만)
+          if (i < searchQueries.length - 1) {
+            await this.delayBetweenRequests()
+          }
         } catch (queryError) {
           console.warn(`쿼리 "${query}" 검색 실패:`, queryError)
+          
+          // 403 에러인 경우 즉시 throw하여 폴백 전략으로 넘어감
+          if (AntiDetectionUtils.is403Error(queryError)) {
+            throw new Error('403 Forbidden - 네이버 카페 검색 차단')
+          }
           continue
         }
       }
@@ -41,10 +76,11 @@ export class NaverCafeSearchEngine extends BaseSearchEngine {
       console.log(`❌ 모든 네이버 카페 검색 쿼리 실패: ${gymName}`)
       return null
     } catch (error) {
-      console.error(`네이버 카페 검색 전체 실패: ${gymName}`, error)
-      return null
+      console.error(`네이버 카페 1차 검색 실패: ${gymName}`, error)
+      throw error // 폴백 전략으로 넘어가도록 에러 재throw
     }
   }
+
 
   /**
    * 다양한 검색 쿼리 생성

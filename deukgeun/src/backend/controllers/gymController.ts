@@ -1,8 +1,8 @@
 import { Request, Response } from "express"
-import { Gym } from "../entities/Gym"
-import { AppDataSource } from "../config/database"
+import { Gym } from '@backend/entities/Gym'
+import { AppDataSource } from '@backend/config/database'
 import { ApiResponse, ErrorResponse } from "../types"
-import { toGymDTO, toGymDTOList } from "@transformers/index"
+import { toGymDTO, toGymDTOList } from "@/transformers/index"
 
 export async function getAllGyms(
   req: Request,

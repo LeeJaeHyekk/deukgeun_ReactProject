@@ -4,22 +4,15 @@
  */
 
 import * as path from 'path'
-import { fileURLToPath } from 'url'
+import { getFilename } from '../../../utils/pathUtils'
 
 /**
  * 프로젝트 루트 디렉토리 경로를 반환
  * 실행 위치에 관계없이 일관된 경로를 제공
  */
 export function getProjectRoot(): string {
-  // ESM 환경에서 __filename 대체
-  if (typeof __filename !== 'undefined') {
-    // CommonJS 환경
-    return path.resolve(__filename, '..', '..', '..', '..', '..', '..')
-  } else {
-    // ESM 환경
-    const __filename = fileURLToPath(import.meta.url)
-    return path.resolve(__filename, '..', '..', '..', '..', '..', '..')
-  }
+  const __filename = getFilename()
+  return path.resolve(__filename, '..', '..', '..', '..', '..', '..')
 }
 
 /**

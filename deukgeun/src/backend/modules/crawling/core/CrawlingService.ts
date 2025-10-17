@@ -6,12 +6,12 @@
 import { Repository } from 'typeorm'
 import { Gym } from '../../../entities/Gym'
 import { DataProcessor } from './DataProcessor'
-import { PublicApiSource } from '../sources/PublicApiSource'
-import { OptimizedGymCrawlingSource } from '../sources/OptimizedGymCrawlingSource'
-import { DataMerger } from '../processors/DataMerger'
-import { EnhancedDataMerger } from '../processors/EnhancedDataMerger'
-import { DataValidator } from '../processors/DataValidator'
-import { CrawlingHistoryTracker } from '../tracking/CrawlingHistoryTracker'
+import { PublicApiSource } from '@backend/modules/crawling/sources/PublicApiSource'
+import { OptimizedGymCrawlingSource } from '@backend/modules/crawling/sources/OptimizedGymCrawlingSource'
+import { DataMerger } from '@backend/modules/crawling/processors/DataMerger'
+import { EnhancedDataMerger } from '@backend/modules/crawling/processors/EnhancedDataMerger'
+import { DataValidator } from '@backend/modules/crawling/processors/DataValidator'
+import { CrawlingHistoryTracker } from '@backend/modules/crawling/tracking/CrawlingHistoryTracker'
 import { getGymsRawPath } from '../utils/pathUtils'
 import { 
   CrawlingConfig, 
@@ -19,7 +19,7 @@ import {
   CrawlingOptions, 
   ProcessedGymData,
   CrawlingStatus 
-} from '../types/CrawlingTypes'
+} from '@backend/modules/crawling/types/CrawlingTypes'
 
 export class CrawlingService {
   private gymRepo: Repository<Gym>

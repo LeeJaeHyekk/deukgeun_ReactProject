@@ -18,31 +18,38 @@ import type {
 
 import * as path from 'path'
 import * as fs from 'fs'
-import { fileURLToPath } from 'url'
+import { getDirname } from '../utils/pathUtils'
 
 const nodeEnv = process.env.NODE_ENV || 'development'
 
-// ESM에서 __dirname 안전하게 처리
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+// ESM/CJS 호환 __dirname 처리
+const __dirname = getDirname()
 
-// 프로젝트 루트 경로 계산
+// 백엔드 디렉토리 경로 계산 (현재 파일 기준)
+const backendDir = path.resolve(__dirname, '..')
 const projectRoot = path.resolve(__dirname, '../../..')
 
-// 환경 변수 로딩 - 단순화된 단일 경로 방식
+// 환경 변수 로딩 - 백엔드 디렉토리 우선 방식
 function loadEnvironmentVariables() {
   console.log("=".repeat(60))
   console.log("🔧 ENVIRONMENT VARIABLES LOADING DEBUG START")
   console.log("=".repeat(60))
   
   console.log(`🔧 Current environment: ${nodeEnv}`)
+  console.log(`🔧 Backend directory: ${backendDir}`)
   console.log(`🔧 Project root: ${projectRoot}`)
   
-  // 우선순위에 따른 단일 경로 선택
+  // 우선순위에 따른 경로 선택 (백엔드 디렉토리 우선)
   const envPaths = [
+    // 백엔드 디렉토리의 환경 파일들 (우선순위 높음)
+    path.join(backendDir, '.env.local'),
+    path.join(backendDir, '.env'),
+    path.join(backendDir, nodeEnv === 'production' ? 'env.production' : 'env.development'),
+    // 프로젝트 루트의 환경 파일들 (백업)
     path.join(projectRoot, '.env.local'),
     path.join(projectRoot, '.env'),
     path.join(projectRoot, nodeEnv === 'production' ? 'env.production' : 'env.development'),
+    // 상대 경로 (현재 작업 디렉토리 기준)
     '.env.local',
     '.env'
   ]
@@ -86,7 +93,7 @@ function loadEnvironmentVariables() {
   console.log("=".repeat(60))
   console.log("⚠️ ENVIRONMENT VARIABLES LOADING WARNING")
   console.log("=".repeat(60))
-  console.log("⚠️ No environment file found. Using system environment variables only.")
+  console.log("⚠️ No environment file found. Using system environment variables and defaults.")
   console.log("🔧 Available system environment variables:")
   
   // 시스템 환경 변수 중 중요한 것들만 표시
@@ -100,6 +107,7 @@ function loadEnvironmentVariables() {
     console.log(`   - ${varName}: ${value ? (varName.includes('PASSWORD') || varName.includes('SECRET') ? '***' : value) : 'NOT SET'}`)
   })
   
+  console.log("💡 Using default values for missing environment variables")
   console.log("=".repeat(60))
   console.log("⚠️ ENVIRONMENT VARIABLES LOADING DEBUG END")
   console.log("=".repeat(60))

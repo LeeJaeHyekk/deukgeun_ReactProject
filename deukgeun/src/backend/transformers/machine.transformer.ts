@@ -2,8 +2,8 @@
 // Machine Transformer
 // ============================================================================
 
-import { MachineDTO } from "../../shared/types/dto/machine.dto"
-import { Machine } from "../entities/Machine"
+import { MachineDTO } from '@shared/types/dto/machine.dto'
+import { Machine } from '@backend/entities/Machine'
 
 export class MachineTransformer {
   static toDTO(entity: Machine): MachineDTO {

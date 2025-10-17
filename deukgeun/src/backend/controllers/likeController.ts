@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
-import { Like } from "../entities/Like"
-import { Post } from "../entities/Post"
-import { AppDataSource } from "../config/database"
+import { Like } from '@backend/entities/Like'
+import { Post } from '@backend/entities/Post'
+import { AppDataSource } from '@backend/config/database'
 import { toLikeDTO } from "../transformers"
 
 export class LikeController {

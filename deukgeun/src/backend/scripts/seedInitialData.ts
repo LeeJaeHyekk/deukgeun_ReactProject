@@ -2,19 +2,19 @@
 // 초기 데이터 생성 스크립트
 // ============================================================================
 
-import { AppDataSource } from "../config/database"
-import { User } from "../entities/User"
-import { UserLevel } from "../entities/UserLevel"
+import { AppDataSource } from '@backend/config/database'
+import { User } from '@backend/entities/User'
+import { UserLevel } from '@backend/entities/UserLevel'
 import { UserReward } from "../entities/UserReward"
 import { Milestone } from "../entities/Milestone"
 import { UserStreak } from "../entities/UserStreak"
-import { Gym } from "../entities/Gym"
-import { Machine } from "../entities/Machine"
+import { Gym } from '@backend/entities/Gym'
+import { Machine } from '@backend/entities/Machine'
 import { WorkoutPlan } from "../entities/WorkoutPlan"
 import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
 import { ExpHistory } from "../entities/ExpHistory"
-import { Post } from "../entities/Post"
-import { Comment } from "../entities/Comment"
+import { Post } from '@backend/entities/Post'
+import { Comment } from '@backend/entities/Comment'
 import bcrypt from "bcrypt"
 
 async function seedInitialData() {

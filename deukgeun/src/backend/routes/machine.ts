@@ -9,7 +9,7 @@ import {
   getMachinesByCategory,
   getMachinesByDifficulty,
   getMachinesByTarget,
-} from "../controllers/machineController"
+} from '@backend/controllers/machineController'
 // import {
 //   validateMachine,
 //   validateMachineUpdate,

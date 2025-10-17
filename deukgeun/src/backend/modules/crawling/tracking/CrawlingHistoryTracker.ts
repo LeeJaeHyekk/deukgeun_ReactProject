@@ -3,8 +3,8 @@
  * 진행사항 문서화 및 히스토리 관리
  */
 
-import { ProcessedGymData, CrawlingStatus } from '../types/CrawlingTypes'
-import { MergeResult } from '../processors/EnhancedDataMerger'
+import { ProcessedGymData, CrawlingStatus } from '@backend/modules/crawling/types/CrawlingTypes'
+import { MergeResult } from '@backend/modules/crawling/processors/EnhancedDataMerger'
 import { getCrawlingHistoryPath } from '../utils/pathUtils'
 
 export interface CrawlingHistoryEntry {

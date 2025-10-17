@@ -9,7 +9,7 @@ import { NaverSearchEngine } from './NaverSearchEngine'
 import { GoogleSearchEngine } from './GoogleSearchEngine'
 import { DaumSearchEngine } from './DaumSearchEngine'
 import { NaverBlogSearchEngine } from './NaverBlogSearchEngine'
-import { EnhancedGymInfo } from '../../types/CrawlingTypes'
+import { EnhancedGymInfo } from '@backend/modules/crawling/types/CrawlingTypes'
 
 export interface SearchEngineConfig {
   timeout: number
@@ -35,11 +35,11 @@ export class SearchEngineFactory {
 
   constructor(config: Partial<SearchEngineConfig> = {}) {
     this.config = {
-      timeout: 30000,
-      delay: 1000,
+      timeout: 45000, // 타임아웃 증가
+      delay: 2000,    // 기본 지연 시간 증가
       maxRetries: 3,
-      enableParallel: true,
-      maxConcurrent: 3,
+      enableParallel: false, // 병렬 실행 비활성화 (403 에러 방지)
+      maxConcurrent: 1,      // 동시 요청 수 최소화
       ...config
     }
 
@@ -55,7 +55,8 @@ export class SearchEngineFactory {
       delay: this.config.delay
     }
 
-    this.engines.set('naver_cafe', new NaverCafeSearchEngine(engineConfig.timeout, engineConfig.delay))
+    // 네이버 카페 검색 엔진에 더 긴 지연 시간 적용
+    this.engines.set('naver_cafe', new NaverCafeSearchEngine(engineConfig.timeout, 3000))
     this.engines.set('naver', new NaverSearchEngine(engineConfig.timeout, engineConfig.delay))
     this.engines.set('google', new GoogleSearchEngine(engineConfig.timeout, engineConfig.delay))
     this.engines.set('daum', new DaumSearchEngine(engineConfig.timeout, engineConfig.delay))

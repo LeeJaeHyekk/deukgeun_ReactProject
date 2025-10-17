@@ -3,7 +3,7 @@
  * 여러 소스에서 수집된 데이터를 병합하고 중복을 제거
  */
 
-import { ProcessedGymData, ProcessedEquipmentData } from '../types/CrawlingTypes'
+import { ProcessedGymData, ProcessedEquipmentData } from '@backend/modules/crawling/types/CrawlingTypes'
 import { DataValidator } from './DataValidator'
 
 export class DataMerger {

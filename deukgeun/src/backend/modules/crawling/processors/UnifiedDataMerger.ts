@@ -3,7 +3,7 @@
  * 모든 데이터 병합 로직을 하나로 통합하여 중복 제거 및 성능 최적화
  */
 
-import { ProcessedGymData } from '../types/CrawlingTypes'
+import { ProcessedGymData } from '@backend/modules/crawling/types/CrawlingTypes'
 
 export interface UnifiedMergeResult {
   mergedData: ProcessedGymData[]

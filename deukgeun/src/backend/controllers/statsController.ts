@@ -1,10 +1,10 @@
 import { Request, Response } from "express"
 import { MoreThanOrEqual } from "typeorm"
-import { User } from "../entities/User"
-import { Gym } from "../entities/Gym"
-import { Post } from "../entities/Post"
-import { UserLevel } from "../entities/UserLevel"
-import { AppDataSource } from "../config/database"
+import { User } from '@backend/entities/User'
+import { Gym } from '@backend/entities/Gym'
+import { Post } from '@backend/entities/Post'
+import { UserLevel } from '@backend/entities/UserLevel'
+import { AppDataSource } from '@backend/config/database'
 
 export class StatsController {
   // 전체 통계 조회

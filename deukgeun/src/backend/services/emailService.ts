@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer"
 import { config } from "../config/env"
-import { logger } from "../utils/logger"
+import { logger } from '@backend/utils/logger'
 import { EmailServiceConfig, EmailContent } from "../types"
 
 class EmailService {

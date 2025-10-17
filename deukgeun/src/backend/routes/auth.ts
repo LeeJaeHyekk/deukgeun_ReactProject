@@ -15,8 +15,8 @@ import {
   findIdSimple,
   resetPasswordSimpleStep1,
   resetPasswordSimpleStep2,
-} from "../controllers/authController"
-import { authMiddleware } from "../middlewares/auth"
+} from '@backend/controllers/authController'
+import { authMiddleware } from '@backend/middlewares/auth'
 import { recaptchaEnterpriseMiddleware } from "../utils/recaptcha-enterprise"
 
 const router = Router()

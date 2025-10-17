@@ -8,7 +8,7 @@ import { Gym } from '../../../entities/Gym'
 import { 
   ProcessedGymData, 
   ProcessedEquipmentData 
-} from '../types/CrawlingTypes'
+} from '@backend/modules/crawling/types/CrawlingTypes'
 import axios from 'axios'
 
 export class DataProcessor {

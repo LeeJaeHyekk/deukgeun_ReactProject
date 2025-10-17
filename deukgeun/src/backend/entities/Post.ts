@@ -11,7 +11,7 @@ import {
 } from "typeorm"
 import { User } from "./User"
 import { Like } from "./Like"
-import type { PostCategory } from "../../shared/types/dto/post.dto"
+import type { PostCategory } from '@shared/types/dto/post.dto'
 
 /**
  * 포스트 엔티티 클래스

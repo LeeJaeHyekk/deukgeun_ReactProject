@@ -8,7 +8,7 @@ import {
   WorkoutPlanExerciseForm,
   CreateWorkoutPlanExercise,
   UpdateWorkoutPlanExercise,
-} from "@/shared/types/dto/workoutPlanExercise.types"
+} from "../../types/dto/workoutPlanExercise.types"
 
 // ============================================================================
 // 타입 가드 함수들 (런타임 검증)

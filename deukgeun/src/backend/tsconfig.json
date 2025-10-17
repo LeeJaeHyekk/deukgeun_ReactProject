@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "node",
-    "lib": ["ES2020"],
-    "outDir": "../../dist/backend",
+    "lib": ["ES2022"],
+    "outDir": "../../dist",
     "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -20,32 +20,35 @@
     "emitDecoratorMetadata": true,
     "useDefineForClassFields": false,
 
-    // 런타임 경로 alias
-    "baseUrl": "../",
+    // 최적화된 절대 경로 설정
+    "baseUrl": ".",
     "paths": {
-      "@types/*": ["shared/types/*"],
-      "@config/*": ["backend/config/*"],
-      "@controllers/*": ["backend/controllers/*"],
-      "@entities/*": ["backend/entities/*"],
-      "@middlewares/*": ["backend/middlewares/*"],
-      "@routes/*": ["backend/routes/*"],
-      "@services/*": ["backend/services/*"],
-      "@utils/*": ["backend/utils/*"],
-      "@transformers/*": ["backend/transformers/*"],
-      "@transformers": ["backend/transformers/index"],
-      "@dto/*": ["shared/types/dto/*"],
-      "@dto": ["shared/types/dto/index"],
-      "@shared/*": ["shared/*"],
-      "@shared/utils/*": ["shared/utils/*"],
-      "@shared/utils/transform/*": ["shared/utils/transform/*"],
-      "@domains/*": ["backend/domains/*"],
-      "@infrastructure/*": ["backend/infrastructure/*"],
-      "@constants/*": ["shared/constants/*"],
-      "@validation/*": ["shared/validation/*"],
-      "@api/*": ["shared/api/*"],
-      "@/shared/*": ["shared/*"],
-      "@/shared/utils/*": ["shared/utils/*"],
-      "@/shared/utils/transform/*": ["shared/utils/transform/*"]
+      // 백엔드 모듈 경로 (최적화)
+      "@/*": ["./*"],
+      "@/config/*": ["./config/*"],
+      "@/controllers/*": ["./controllers/*"],
+      "@/entities/*": ["./entities/*"],
+      "@/middlewares/*": ["./middlewares/*"],
+      "@/routes/*": ["./routes/*"],
+      "@/services/*": ["./services/*"],
+      "@/utils/*": ["./utils/*"],
+      "@/transformers/*": ["./transformers/*"],
+      "@/types/*": ["./types/*"],
+      "@/modules/*": ["./modules/*"],
+      "@/modules/server/*": ["./modules/server/*"],
+      
+      // 공유 모듈 경로
+      "@shared/*": ["../shared/*"],
+      "@shared/types/*": ["../shared/types/*"],
+      "@shared/utils/*": ["../shared/utils/*"],
+      "@shared/constants/*": ["../shared/constants/*"],
+      "@shared/validation/*": ["../shared/validation/*"],
+      "@shared/api/*": ["../shared/api/*"],
+      
+      // 레거시 호환성 (점진적 제거 예정)
+      "@backend/*": ["./*"],
+      "@backend/modules/*": ["./modules/*"],
+      "@backend/modules/server/*": ["./modules/server/*"]
     }
   },
   "include": [
@@ -53,7 +56,6 @@
     "../shared/types/dto/**/*",
     "../shared/types/common.ts",
     "../shared/types/index.ts",
-    "../shared/constants/**/*",
     "../shared/validation/**/*"
   ],
   "exclude": [

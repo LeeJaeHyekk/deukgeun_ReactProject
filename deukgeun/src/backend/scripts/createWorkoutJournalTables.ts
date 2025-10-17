@@ -1,16 +1,16 @@
 import { createConnection } from "typeorm"
 import { config } from "../config/env"
-import { WorkoutSession } from "../entities/WorkoutSession"
+import { WorkoutSession } from '@backend/entities/WorkoutSession'
 import { ExerciseSet } from "../entities/ExerciseSet"
 import { WorkoutGoal } from "../entities/WorkoutGoal"
 import { WorkoutPlan } from "../entities/WorkoutPlan"
 import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
-import { WorkoutStats } from "../entities/WorkoutStats"
+import { WorkoutStats } from '@backend/entities/WorkoutStats'
 import { WorkoutProgress } from "../entities/WorkoutProgress"
 import { WorkoutReminder } from "../entities/WorkoutReminder"
-import { Machine } from "../entities/Machine"
-import { User } from "../entities/User"
-import { Gym } from "../entities/Gym"
+import { Machine } from '@backend/entities/Machine'
+import { User } from '@backend/entities/User'
+import { Gym } from '@backend/entities/Gym'
 
 async function createWorkoutJournalTables() {
   try {

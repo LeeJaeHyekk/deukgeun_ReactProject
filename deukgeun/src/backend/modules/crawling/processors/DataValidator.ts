@@ -3,7 +3,7 @@
  * 크롤링된 데이터의 유효성을 검증하고 정제
  */
 
-import { ProcessedGymData, ProcessedEquipmentData } from '../types/CrawlingTypes'
+import { ProcessedGymData, ProcessedEquipmentData } from '@backend/modules/crawling/types/CrawlingTypes'
 
 export class DataValidator {
   /**

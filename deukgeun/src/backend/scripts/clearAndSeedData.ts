@@ -1,5 +1,5 @@
-import { AppDataSource } from "../config/database"
-import { logger } from "../utils/logger"
+import { AppDataSource } from '@backend/config/database'
+import { logger } from '@backend/utils/logger'
 
 /**
  * 기존 데이터를 삭제하고 새로운 시드 데이터를 넣는 스크립트

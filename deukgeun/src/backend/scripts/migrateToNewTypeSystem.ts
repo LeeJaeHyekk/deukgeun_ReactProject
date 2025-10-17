@@ -1,7 +1,7 @@
-import { AppDataSource } from "../config/database"
-import { Machine } from "../entities/Machine"
+import { AppDataSource } from '@backend/config/database'
+import { Machine } from '@backend/entities/Machine'
 import { WorkoutGoal } from "../entities/WorkoutGoal"
-import { logger } from "../utils/logger"
+import { logger } from '@backend/utils/logger'
 
 /**
  * 기존 데이터베이스 스키마를 새로운 타입 시스템에 맞게 마이그레이션하는 스크립트

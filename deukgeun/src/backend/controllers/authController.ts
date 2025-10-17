@@ -1,12 +1,12 @@
 import { Request, Response } from "express"
-import { User } from "../entities/User"
-import { UserLevel } from "../entities/UserLevel"
+import { User } from '@backend/entities/User'
+import { UserLevel } from '@backend/entities/UserLevel'
 import { UserStreak } from "../entities/UserStreak"
 import bcrypt from "bcrypt"
-import { verifyRecaptcha } from "../utils/recaptcha"
-import { createTokens, verifyRefreshToken } from "../utils/jwt"
-import { logger } from "../utils/logger"
-import { AppDataSource } from "../config/database"
+import { verifyRecaptcha } from '@backend/utils/recaptcha'
+import { createTokens, verifyRefreshToken } from '@backend/utils/jwt'
+import { logger } from '@backend/utils/logger'
+import { AppDataSource } from '@backend/config/database'
 import { ApiResponse, ErrorResponse } from "../types"
 import {
   LoginRequest,
@@ -14,9 +14,9 @@ import {
   LoginResponse,
   RegisterResponse,
 } from "../types"
-import { accountRecoveryService } from "../services/accountRecoveryService"
+import { accountRecoveryService } from '@backend/services/accountRecoveryService'
 import { SecurityInfo } from "../types"
-import { UserTransformer } from "../transformers/user.transformer"
+import { UserTransformer } from '@backend/transformers/user.transformer'
 
 export async function login(
   req: Request<Record<string, never>, Record<string, never>, LoginRequest>,

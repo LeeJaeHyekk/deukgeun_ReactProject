@@ -112,7 +112,7 @@ export type {
   UpdateDTO,
   DTOListResponse,
   DTOSingleResponse,
-} from "./dto"
+} from "@shared/types/dto"
 
 // 공통 유틸리티 타입
 export type {
@@ -145,16 +145,16 @@ export type {
   User,
   Machine,
   Gym,
-} from "./common"
+} from "@shared/types/common"
 
 // 컴포넌트 Props 타입들 (백엔드에서는 제외)
 // export * from "./components"
 
 // 타입 가드 및 검증 함수들
-export * from "./guards"
+export * from "@shared/types/guards"
 
 // 기구 관련 타입들
-export * from "./equipment"
+export * from "@shared/types/equipment"
 
 // ============================================================================
 // 간소화된 타입 별칭 (기존 코드와의 호환성)

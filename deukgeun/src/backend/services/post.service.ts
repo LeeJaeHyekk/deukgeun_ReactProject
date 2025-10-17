@@ -1,6 +1,6 @@
-import { AppDataSource } from "../config/database"
-import { Post } from "../entities/Post"
-import { User } from "../entities/User"
+import { AppDataSource } from '@backend/config/database'
+import { Post } from '@backend/entities/Post'
+import { User } from '@backend/entities/User'
 import { ApiResponse } from "../types"
 
 interface PostQueryParams {

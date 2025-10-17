@@ -1,6 +1,6 @@
 import express from "express"
-import { authMiddleware } from "../middlewares/auth"
-import { logger } from "../utils/logger"
+import { authMiddleware } from '@backend/middlewares/auth'
+import { logger } from '@backend/utils/logger'
 import path from "path"
 import fs from "fs"
 

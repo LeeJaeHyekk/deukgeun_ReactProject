@@ -16,6 +16,13 @@ import routes from "./routes"
 import cookieParser from "cookie-parser"
 // 파일 경로 처리 유틸리티 import
 import path from "path"
+// 파일 시스템 유틸리티 import
+import fs from "fs"
+// ESM/CJS 호환을 위한 경로 유틸리티
+import { getDirname } from "./utils/pathUtils"
+
+// __dirname 대체 (ESM/CJS 둘 다 호환)
+const __dirname = getDirname()
 // 환경 설정 import (임시로 주석 처리)
 // import { config } from "./config/env"
 
@@ -174,7 +181,6 @@ try {
   console.log(`   - Public path: ${publicPath}`)
 
   // 경로 존재 여부 확인
-  const fs = require('fs')
   if (fs.existsSync(imgPath)) {
     app.use(
       "/img",

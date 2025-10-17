@@ -10,8 +10,8 @@ import {
   updateLevelConfig,
   resetUserProgress,
   getSystemStats,
-} from "../controllers/levelController"
-import { authMiddleware, isAdmin } from "../middlewares/auth"
+} from '@backend/controllers/levelController'
+import { authMiddleware, isAdmin } from '@backend/middlewares/auth'
 import { rateLimiter } from "../middlewares/rateLimiter"
 
 const router = Router()

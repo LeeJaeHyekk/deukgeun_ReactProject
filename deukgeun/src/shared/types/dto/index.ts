@@ -247,7 +247,7 @@ export type MachineResponse = MachineDTOResponse
 
 // 새로운 타입 구조 import (먼저 import)
 export * from "./workoutPlanExercise.types"
-export * from "@/shared/utils/transform/workoutPlanExercise"
+export * from "../../utils/transform/workoutPlanExercise"
 
 // WorkoutPlanExercise 타입을 import
 import type { WorkoutPlanExercise } from "./workoutPlanExercise.types"

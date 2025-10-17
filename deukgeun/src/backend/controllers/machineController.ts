@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
-import { MachineService } from "../services/machineService"
-import { toMachineDTO, toMachineDTOList } from "@transformers/index"
+import { MachineService } from '@backend/services/machineService'
+import { toMachineDTO, toMachineDTOList } from "@/transformers/index"
 import type {
   CreateMachineRequest,
   UpdateMachineRequest,
@@ -8,8 +8,8 @@ import type {
   MachineListResponse,
   MachineCategory,
   DifficultyLevel,
-} from "../../shared/types/dto"
-import { logger } from "../utils/logger"
+} from '@shared/types/dto'
+import { logger } from '@backend/utils/logger'
 
 // Machine 서비스 인스턴스 생성 (지연 초기화)
 let machineService: MachineService | null = null

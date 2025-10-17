@@ -5,18 +5,18 @@
 
 import { Repository } from 'typeorm'
 import { Gym } from '../../../entities/Gym'
-import { PublicApiSource } from '../sources/PublicApiSource'
-import { SearchEngineFactory } from '../sources/search/SearchEngineFactory'
-import { UnifiedDataMerger } from '../processors/UnifiedDataMerger'
-import { DataValidator } from '../processors/DataValidator'
-import { CrawlingHistoryTracker } from '../tracking/CrawlingHistoryTracker'
+import { PublicApiSource } from '@backend/modules/crawling/sources/PublicApiSource'
+import { SearchEngineFactory } from '@backend/modules/crawling/sources/search/SearchEngineFactory'
+import { UnifiedDataMerger } from '@backend/modules/crawling/processors/UnifiedDataMerger'
+import { DataValidator } from '@backend/modules/crawling/processors/DataValidator'
+import { CrawlingHistoryTracker } from '@backend/modules/crawling/tracking/CrawlingHistoryTracker'
 import { 
   ProcessedGymData, 
   CrawlingResult, 
   CrawlingConfig, 
   CrawlingStatus,
   CrawlingOptions 
-} from '../types/CrawlingTypes'
+} from '@backend/modules/crawling/types/CrawlingTypes'
 
 export interface OptimizedCrawlingConfig extends CrawlingConfig {
   // 성능 최적화 설정

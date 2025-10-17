@@ -1,5 +1,5 @@
-import { AppDataSource } from "../config/database"
-import { logger } from "../utils/logger"
+import { AppDataSource } from '@backend/config/database'
+import { logger } from '@backend/utils/logger'
 
 /**
  * 중복된 컬럼들을 정리하는 마이그레이션 스크립트

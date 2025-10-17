@@ -85,6 +85,7 @@ export default defineConfig(({ mode }) => {
         "@validation": path.resolve(__dirname, "./src/shared/validation"),
         "@api": path.resolve(__dirname, "./src/shared/api"),
         "@dto": path.resolve(__dirname, "./src/shared/types/dto"),
+        "@data": path.resolve(__dirname, "./src/data"),
       },
     },
 

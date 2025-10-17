@@ -4,7 +4,7 @@
  */
 
 import { Repository } from 'typeorm'
-import { Gym } from '../entities/Gym'
+import { Gym } from '@backend/entities/Gym'
 import { CrawlingService } from '../modules/crawling/core/CrawlingService'
 import { CrawlingConfig } from '../modules/crawling/types/CrawlingTypes'
 

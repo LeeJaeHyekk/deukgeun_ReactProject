@@ -14,11 +14,9 @@ import { CrawlingService } from '../modules/crawling/core/CrawlingService.js'
 import { Gym } from '../entities/Gym.js'
 import * as dotenv from 'dotenv'
 import * as path from 'path'
-import { fileURLToPath } from 'url'
-import { dirname } from 'path'
+import { getDirname } from '../utils/pathUtils'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+const __dirname = getDirname()
 
 // 환경 변수 로드
 dotenv.config({ path: path.join(__dirname, '..', '.env') })

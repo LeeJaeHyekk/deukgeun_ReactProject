@@ -2,8 +2,8 @@
 // Gym Transformer
 // ============================================================================
 
-import { GymDTO } from "../../shared/types/dto/gym.dto"
-import { Gym } from "../entities/Gym"
+import { GymDTO } from '@shared/types/dto/gym.dto'
+import { Gym } from '@backend/entities/Gym'
 
 export class GymTransformer {
   static toDTO(entity: Gym): GymDTO {

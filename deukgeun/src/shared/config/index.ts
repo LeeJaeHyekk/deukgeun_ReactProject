@@ -2,7 +2,7 @@
 // Application Configuration
 // ============================================================================
 
-import { validateFrontendEnvVars } from '../utils/envValidator'
+import { validateFrontendEnvVars } from '@shared/utils/envValidator'
 
 // 프론트엔드 환경 변수 검증 (경고만, 에러는 발생시키지 않음)
 try {

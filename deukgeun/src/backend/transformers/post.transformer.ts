@@ -2,8 +2,8 @@
 // Post Transformer
 // ============================================================================
 
-import { PostDTO } from "../../shared/types/dto/post.dto"
-import { Post } from "../entities/Post"
+import { PostDTO } from '@shared/types/dto/post.dto'
+import { Post } from '@backend/entities/Post'
 
 export class PostTransformer {
   static toDTO(entity: Post): PostDTO {

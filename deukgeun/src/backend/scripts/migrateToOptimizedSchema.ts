@@ -1,5 +1,5 @@
-import { AppDataSource } from "../config/database"
-import { logger } from "../utils/logger"
+import { AppDataSource } from '@backend/config/database'
+import { logger } from '@backend/utils/logger'
 
 /**
  * 최적화된 스키마로 전체 데이터베이스 마이그레이션

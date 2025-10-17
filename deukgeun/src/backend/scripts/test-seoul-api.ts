@@ -7,11 +7,10 @@ import { PublicApiSource } from '../modules/crawling/sources/PublicApiSource.js'
 import * as dotenv from 'dotenv'
 
 // 환경 변수 로드
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
+import { getDirname } from '../utils/pathUtils'
+import { join } from 'path'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+const __dirname = getDirname()
 dotenv.config({ path: join(__dirname, '../../.env') })
 
 // 테스트용 환경 변수 직접 설정

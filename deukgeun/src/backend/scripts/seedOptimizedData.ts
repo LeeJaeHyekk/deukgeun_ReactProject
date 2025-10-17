@@ -1,24 +1,24 @@
-import { AppDataSource } from "../config/database"
-import { User } from "../entities/User"
-import { Gym } from "../entities/Gym"
-import { Machine } from "../entities/Machine"
-import { Post } from "../entities/Post"
-import { Comment } from "../entities/Comment"
-import { Like } from "../entities/Like"
-import { UserLevel } from "../entities/UserLevel"
+import { AppDataSource } from '@backend/config/database'
+import { User } from '@backend/entities/User'
+import { Gym } from '@backend/entities/Gym'
+import { Machine } from '@backend/entities/Machine'
+import { Post } from '@backend/entities/Post'
+import { Comment } from '@backend/entities/Comment'
+import { Like } from '@backend/entities/Like'
+import { UserLevel } from '@backend/entities/UserLevel'
 import { ExpHistory } from "../entities/ExpHistory"
 import { UserReward } from "../entities/UserReward"
 import { Milestone } from "../entities/Milestone"
 import { UserStreak } from "../entities/UserStreak"
-import { WorkoutSession } from "../entities/WorkoutSession"
+import { WorkoutSession } from '@backend/entities/WorkoutSession'
 import { ExerciseSet } from "../entities/ExerciseSet"
 import { WorkoutGoal } from "../entities/WorkoutGoal"
 import { WorkoutPlan } from "../entities/WorkoutPlan"
 import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
-import { WorkoutStats } from "../entities/WorkoutStats"
+import { WorkoutStats } from '@backend/entities/WorkoutStats'
 import { WorkoutProgress } from "../entities/WorkoutProgress"
 import { WorkoutReminder } from "../entities/WorkoutReminder"
-import { logger } from "../utils/logger"
+import { logger } from '@backend/utils/logger'
 import bcrypt from "bcrypt"
 
 /**

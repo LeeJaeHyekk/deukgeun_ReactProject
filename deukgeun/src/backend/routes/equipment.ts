@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express'
-import { EquipmentService } from '../services/equipmentService'
+import { EquipmentService } from '@backend/services/equipmentService'
 import { 
   CreateEquipmentDTO, 
   UpdateEquipmentDTO, 

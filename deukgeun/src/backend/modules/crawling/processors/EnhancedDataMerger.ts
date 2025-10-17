@@ -3,7 +3,7 @@
  * gyms_raw 데이터와 크롤링 데이터를 지능적으로 병합
  */
 
-import { ProcessedGymData } from '../types/CrawlingTypes'
+import { ProcessedGymData } from '@backend/modules/crawling/types/CrawlingTypes'
 
 export interface MergeResult {
   mergedData: ProcessedGymData[]

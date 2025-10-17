@@ -1,8 +1,8 @@
 import { Router } from 'express'
 import { getRepository } from 'typeorm'
-import { Gym } from '../entities/Gym'
-import { getCrawlingService } from '../services/crawlingService'
-import { warnLegacyServiceUsage } from '../services/legacy-crawling-services'
+import { Gym } from '@backend/entities/Gym'
+import { getCrawlingService } from '@backend/services/crawlingService'
+import { warnLegacyServiceUsage } from '@backend/services/legacy-crawling-services'
 
 const router = Router()
 

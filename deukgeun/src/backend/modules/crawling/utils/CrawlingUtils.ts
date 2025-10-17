@@ -2,7 +2,7 @@
  * 크롤링 유틸리티 함수들
  */
 
-import { ProcessedGymData, ProcessedEquipmentData } from '../types/CrawlingTypes'
+import { ProcessedGymData, ProcessedEquipmentData } from '@backend/modules/crawling/types/CrawlingTypes'
 
 /**
  * 크롤링 데이터 검증

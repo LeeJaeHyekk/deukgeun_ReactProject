@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm'
-import { Equipment } from '../entities/Equipment'
-import { Gym } from '../entities/Gym'
+import { Equipment } from '@backend/entities/Equipment'
+import { Gym } from '@backend/entities/Gym'
 import { 
   CreateEquipmentDTO, 
   UpdateEquipmentDTO, 

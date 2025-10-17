@@ -1,10 +1,14 @@
 import fs from "fs"
 import path from "path"
+import { getDirname } from "../utils/pathUtils"
 import { createConnection } from "typeorm"
-import { Gym } from "../entities/Gym"
+import { Gym } from '@backend/entities/Gym'
 import { filterGyms } from "./gymUtils"
 import { convertTMToWGS84 } from "../utils/coordinateUtils"
 import { config } from "../config/env"
+
+// __dirname 대체 (ESM/CJS 둘 다 호환)
+const __dirname = getDirname()
 
 // API related constants
 const API_KEY = process.env.VITE_GYM_API_KEY

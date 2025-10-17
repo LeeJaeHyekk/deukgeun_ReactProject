@@ -197,7 +197,12 @@ export function safeGetEnvNumber(key: string, defaultValue: number = 0): number 
   const value = process.env[key]
   if (isString(value)) {
     const parsed = parseInt(value, 10)
-    return isValidPort(parsed) ? parsed : defaultValue
+    // 포트 번호가 아닌 경우에는 단순히 숫자인지만 확인
+    if (key === 'PORT' || key === 'DB_PORT' || key === 'EMAIL_PORT' || key === 'MONITORING_PORT') {
+      return isValidPort(parsed) ? parsed : defaultValue
+    }
+    // 다른 숫자 값들은 NaN이 아닌지만 확인
+    return isNaN(parsed) ? defaultValue : parsed
   }
   return defaultValue
 }
@@ -242,8 +247,13 @@ export function validateDatabaseConnectionConfig(): {
   const password = safeGetEnvString('DB_PASSWORD', '')
   const database = safeGetEnvString('DB_DATABASE', 'deukgeun_db')
   
+  // 개발 환경에서는 더 관대한 검증
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  
   if (!isString(host) || host.length === 0) {
-    errors.push('DB_HOST is required and must be a valid string')
+    if (!isDevelopment) {
+      errors.push('DB_HOST is required and must be a valid string')
+    }
   }
   
   if (!isValidPort(port)) {
@@ -251,15 +261,22 @@ export function validateDatabaseConnectionConfig(): {
   }
   
   if (!isString(username) || username.length === 0) {
-    errors.push('DB_USERNAME is required and must be a valid string')
+    if (!isDevelopment) {
+      errors.push('DB_USERNAME is required and must be a valid string')
+    }
   }
   
+  // 비밀번호는 빈 문자열도 허용 (로컬 개발 환경)
   if (!isString(password)) {
-    errors.push('DB_PASSWORD must be a valid string')
+    if (!isDevelopment) {
+      errors.push('DB_PASSWORD must be a valid string')
+    }
   }
   
   if (!isString(database) || database.length === 0) {
-    errors.push('DB_DATABASE is required and must be a valid string')
+    if (!isDevelopment) {
+      errors.push('DB_DATABASE is required and must be a valid string')
+    }
   }
   
   const config = {
@@ -293,13 +310,18 @@ export function validateJWTConfig(): {
 } {
   const errors: string[] = []
   
-  const secret = safeGetEnvString('JWT_SECRET', '')
+  const secret = safeGetEnvString('JWT_SECRET', 'dev_jwt_secret_key_2024')
   const expiresIn = safeGetEnvString('JWT_EXPIRES_IN', '7d')
-  const accessSecret = safeGetEnvString('JWT_ACCESS_SECRET', '')
-  const refreshSecret = safeGetEnvString('JWT_REFRESH_SECRET', '')
+  const accessSecret = safeGetEnvString('JWT_ACCESS_SECRET', 'dev_access_secret_2024')
+  const refreshSecret = safeGetEnvString('JWT_REFRESH_SECRET', 'dev_refresh_secret_2024')
+  
+  // 개발 환경에서는 기본값 사용 허용
+  const isDevelopment = process.env.NODE_ENV === 'development'
   
   if (!isString(secret) || secret.length === 0) {
-    errors.push('JWT_SECRET is required and must be a valid string')
+    if (!isDevelopment) {
+      errors.push('JWT_SECRET is required and must be a valid string')
+    }
   }
   
   if (!isString(expiresIn) || expiresIn.length === 0) {
@@ -307,11 +329,15 @@ export function validateJWTConfig(): {
   }
   
   if (!isString(accessSecret) || accessSecret.length === 0) {
-    errors.push('JWT_ACCESS_SECRET is required and must be a valid string')
+    if (!isDevelopment) {
+      errors.push('JWT_ACCESS_SECRET is required and must be a valid string')
+    }
   }
   
   if (!isString(refreshSecret) || refreshSecret.length === 0) {
-    errors.push('JWT_REFRESH_SECRET is required and must be a valid string')
+    if (!isDevelopment) {
+      errors.push('JWT_REFRESH_SECRET is required and must be a valid string')
+    }
   }
   
   const config = {

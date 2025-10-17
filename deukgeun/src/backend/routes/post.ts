@@ -1,6 +1,6 @@
 import { Router } from "express"
-import { PostController } from "../controllers/postController"
-import { authMiddleware } from "../middlewares/auth"
+import { PostController } from '@backend/controllers/postController'
+import { authMiddleware } from '@backend/middlewares/auth'
 
 /**
  * Express 라우터 인스턴스 생성

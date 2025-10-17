@@ -1,5 +1,5 @@
-import { AppDataSource } from "../config/database"
-import { UserLevel } from "../entities/UserLevel"
+import { AppDataSource } from '@backend/config/database'
+import { UserLevel } from '@backend/entities/UserLevel'
 import { ExpHistory } from "../entities/ExpHistory"
 import { UserReward } from "../entities/UserReward"
 import { Milestone } from "../entities/Milestone"

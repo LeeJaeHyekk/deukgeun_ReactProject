@@ -1,5 +1,5 @@
 import { BaseSearchEngine } from './BaseSearchEngine'
-import { EnhancedGymInfo } from '../../types/CrawlingTypes'
+import { EnhancedGymInfo } from '@backend/modules/crawling/types/CrawlingTypes'
 
 /**
  * 네이버 검색 엔진

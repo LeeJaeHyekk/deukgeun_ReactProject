@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express"
-import { WorkoutService } from "../services/workoutService"
-import { authMiddleware } from "../middlewares/auth"
-import { logger } from "../utils/logger"
+import { WorkoutService } from '@backend/services/workoutService'
+import { authMiddleware } from '@backend/middlewares/auth'
+import { logger } from '@backend/utils/logger'
 import { toWorkoutSessionDTO, toWorkoutSessionDTOList } from "../transformers"
 
 export class WorkoutController {

@@ -1,7 +1,7 @@
 import { Router } from "express"
-import { StatsController } from "../controllers/statsController"
+import { StatsController } from '@backend/controllers/statsController'
 import { rateLimiter } from "../middlewares/rateLimiter"
-import { isAdmin, authMiddleware } from "../middlewares/auth"
+import { isAdmin, authMiddleware } from '@backend/middlewares/auth'
 
 const router = Router()
 const statsController = new StatsController()

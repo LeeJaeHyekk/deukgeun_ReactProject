@@ -3,8 +3,8 @@ import type {
   Machine,
   MachineCategoryDTO,
   DifficultyLevelDTO,
-} from "../../shared/types"
-import { findMatchingImage, getFullImageUrl, handleImageError } from '../utils/machineImageUtils'
+} from "@frontend/shared/types"
+import { findMatchingImage, getFullImageUrl, handleImageError } from '@frontend/shared/utils/machineImageUtils'
 import './MachineCard.css'
 
 interface MachineCardProps {

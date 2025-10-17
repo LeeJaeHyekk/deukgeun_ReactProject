@@ -1,11 +1,11 @@
 import fs from "fs"
 import path from "path"
-import { getDirname } from "../utils/pathUtils"
+import { getDirname } from "@backend/utils/pathUtils"
 import { createConnection } from "typeorm"
 import { Gym } from '@backend/entities/Gym'
-import { filterGyms } from "./gymUtils"
-import { convertTMToWGS84 } from "../utils/coordinateUtils"
-import { config } from "../config/env"
+import { filterGyms } from "@backend/scripts/gymUtils"
+import { convertTMToWGS84 } from "@backend/utils/coordinateUtils"
+import { config } from "@backend/config/env"
 
 // __dirname 대체 (ESM/CJS 둘 다 호환)
 const __dirname = getDirname()

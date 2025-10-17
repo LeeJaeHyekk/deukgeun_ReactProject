@@ -5,7 +5,7 @@
 // 이 파일은 하위 호환성을 위해 유지됩니다.
 // 새로운 MachineGuide 기능에서는 @features/machine-guide/services/machineApi를 사용하세요.
 
-import { api } from './index'
+import { api } from '@frontend/shared/api/index'
 import { API_ENDPOINTS } from '@shared/config'
 import type {
   Machine,

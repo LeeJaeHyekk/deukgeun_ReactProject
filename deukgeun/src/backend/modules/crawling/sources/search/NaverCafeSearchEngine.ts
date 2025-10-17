@@ -1,7 +1,7 @@
-import { BaseSearchEngine } from './BaseSearchEngine'
+import { BaseSearchEngine } from '@backend/modules/crawling/sources/search/BaseSearchEngine'
 import { EnhancedGymInfo } from '@backend/modules/crawling/types/CrawlingTypes'
 import { AntiDetectionUtils } from '@backend/modules/crawling/utils/AntiDetectionUtils'
-import { NaverCafeFallbackStrategies } from '../../strategies/NaverCafeFallbackStrategies'
+import { NaverCafeFallbackStrategies } from '@backend/modules/crawling/strategies/NaverCafeFallbackStrategies'
 import * as cheerio from 'cheerio'
 
 /**

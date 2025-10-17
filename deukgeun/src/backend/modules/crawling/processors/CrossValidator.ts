@@ -1,5 +1,5 @@
 import { EnhancedGymInfo } from '@backend/modules/crawling/types/CrawlingTypes'
-import { PriceExtractor } from './PriceExtractor'
+import { PriceExtractor } from '@backend/modules/crawling/processors/PriceExtractor'
 
 /**
  * 교차 검증기

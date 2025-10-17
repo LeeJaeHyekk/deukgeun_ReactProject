@@ -72,9 +72,36 @@ const defaultOptions: ConversionOptions = {
 }
 
 /**
- * 경로 별칭 매핑 (백엔드 tsconfig.json 기반)
+ * 경로 별칭 매핑 (현재 빌드 구조 기반)
  */
 const pathAliases = {
+  // 백엔드 모듈 경로 (dist/backend/backend/ 기준)
+  '@backend/*': './*',
+  '@backend/config/*': './config/*',
+  '@backend/controllers/*': './controllers/*',
+  '@backend/entities/*': './entities/*',
+  '@backend/middlewares/*': './middlewares/*',
+  '@backend/routes/*': './routes/*',
+  '@backend/services/*': './services/*',
+  '@backend/utils/*': './utils/*',
+  '@backend/transformers/*': './transformers/*',
+  '@backend/transformers': './transformers/index',
+  '@backend/modules/*': './modules/*',
+  '@backend/modules/server/*': './modules/server/*',
+  '@backend/types/*': './types/*',
+  
+  // 공유 모듈 경로 (dist/backend/ 기준)
+  '@shared/*': '../shared/*',
+  '@shared/types/*': '../shared/types/*',
+  '@shared/types/dto/*': '../shared/types/dto/*',
+  '@shared/types/dto': '../shared/types/dto/index',
+  '@shared/utils/*': '../shared/utils/*',
+  '@shared/utils/transform/*': '../shared/utils/transform/*',
+  '@shared/constants/*': '../shared/constants/*',
+  '@shared/validation/*': '../shared/validation/*',
+  '@shared/api/*': '../shared/api/*',
+  
+  // 레거시 별칭들
   '@types/*': '../shared/types/*',
   '@config/*': './config/*',
   '@controllers/*': './controllers/*',
@@ -87,9 +114,6 @@ const pathAliases = {
   '@transformers': './transformers/index',
   '@dto/*': '../shared/types/dto/*',
   '@dto': '../shared/types/dto/index',
-  '@shared/*': '../shared/*',
-  '@shared/utils/*': '../shared/utils/*',
-  '@shared/utils/transform/*': '../shared/utils/transform/*',
   '@domains/*': './domains/*',
   '@infrastructure/*': './infrastructure/*',
   '@constants/*': '../shared/constants/*',
@@ -288,34 +312,27 @@ class EnhancedJsToCjsConverter {
         return true
       }
       
-      // 이미 변환된 파일인지 확인
-      if (this.isAlreadyConverted(content)) {
-        log(`이미 변환됨: ${path.relative(this.options.distPath, filePath)}`, 'yellow')
-        return true
-      }
+      // .js 파일은 무조건 .cjs로 변환 (확장자 변경 목적)
+      // 내용이 이미 CommonJS 형태여도 확장자만 변경
       
       // 변환 실행
       const convertedContent = this.convertContent(content, filePath)
       
-      if (convertedContent !== content) {
-        if (this.options.dryRun) {
-          log(`변환 예정: ${path.relative(this.options.distPath, filePath)}`, 'yellow')
-          return true
-        }
-        
-        // .cjs 파일로 저장
-        const cjsPath = filePath.replace('.js', '.cjs')
-        fs.writeFileSync(cjsPath, convertedContent)
-        
-        // 원본 .js 파일 삭제
-        fs.unlinkSync(filePath)
-        
-        log(`변환됨: ${path.relative(this.options.distPath, filePath)} → ${path.relative(this.options.distPath, cjsPath)}`, 'green')
+      // .js 파일은 무조건 .cjs로 변환 (내용 변경 여부와 관계없이)
+      if (this.options.dryRun) {
+        log(`변환 예정: ${path.relative(this.options.distPath, filePath)}`, 'yellow')
         return true
-      } else {
-        log(`변환 불필요: ${path.relative(this.options.distPath, filePath)}`, 'yellow')
-        return false
       }
+      
+      // .cjs 파일로 저장
+      const cjsPath = filePath.replace('.js', '.cjs')
+      fs.writeFileSync(cjsPath, convertedContent)
+      
+      // 원본 .js 파일 삭제
+      fs.unlinkSync(filePath)
+      
+      log(`변환됨: ${path.relative(this.options.distPath, filePath)} → ${path.relative(this.options.distPath, cjsPath)}`, 'green')
+      return true
     } catch (error) {
       logError(`파일 변환 실패: ${filePath} - ${(error as Error).message}`)
       return false
@@ -326,21 +343,34 @@ class EnhancedJsToCjsConverter {
    * 이미 변환된 파일인지 확인
    */
   private isAlreadyConverted(content: string): boolean {
-    // ESM 문법이 있으면 변환이 필요함 (minified 코드도 감지)
+    // 이미 CommonJS 형태인지 확인
+    const hasUseStrict = content.includes('"use strict"')
+    const hasRequire = /require\s*\(/.test(content)
+    const hasExports = /exports\.|module\.exports/.test(content)
+    const hasObjectDefineProperty = content.includes('Object.defineProperty(exports')
+    
+    // ESM 문법이 있으면 변환이 필요함
     const hasImport = /import\s*[^;]*from\s*['"]/.test(content) || content.includes('import ')
     const hasExport = /export\s*[^;]*from\s*['"]/.test(content) || content.includes('export ')
     const hasImportMeta = content.includes('import.meta')
     
+    // 빈 export 문도 ESM 문법으로 간주
+    const hasEmptyExport = /export\s*\{\s*\}\s*;?/.test(content)
+    const hasExportDefault = /export\s+default/.test(content)
+    const hasExportDeclaration = /export\s+(const|let|var|function|class|async\s+function)/.test(content)
+    
     // ESM 문법이 있으면 변환 필요
-    if (hasImport || hasExport || hasImportMeta) {
+    if (hasImport || hasExport || hasImportMeta || hasEmptyExport || hasExportDefault || hasExportDeclaration) {
       return false
     }
     
-    // CommonJS 문법이 있으면 이미 변환됨
-    const hasRequire = content.includes('require(')
-    const hasModuleExports = content.includes('module.exports')
+    // CommonJS 문법이 있으면 이미 변환된 것으로 간주
+    if (hasUseStrict && (hasRequire || hasExports || hasObjectDefineProperty)) {
+      return true
+    }
     
-    return hasRequire && hasModuleExports
+    // .js 파일이면 .cjs로 변환 필요 (확장자 변경)
+    return false
   }
 
   /**
@@ -349,6 +379,20 @@ class EnhancedJsToCjsConverter {
   private convertContent(content: string, filePath: string): string {
     let convertedContent = content
     
+    // 이미 CommonJS 형태인 경우 경로만 수정
+    if (this.isAlreadyCommonJS(convertedContent)) {
+      // 1. 경로 별칭 변환 (가장 중요)
+      if (this.options.fixPathAliases) {
+        convertedContent = this.convertPathAliases(convertedContent, filePath)
+      }
+      
+      // 2. require 경로를 .cjs로 수정
+      convertedContent = this.fixRequireExtensions(convertedContent, filePath)
+      
+      return convertedContent
+    }
+    
+    // ESM 형태인 경우 전체 변환
     // 1. import.meta.env 변환
     convertedContent = this.convertImportMetaEnv(convertedContent)
     
@@ -369,6 +413,69 @@ class EnhancedJsToCjsConverter {
     
     // 5. 기타 ESM 문법 변환
     convertedContent = this.convertOtherEsmSyntax(convertedContent)
+    
+    // 6. 최종 정리 - 빈 줄과 불필요한 세미콜론 정리
+    convertedContent = this.cleanupConvertedContent(convertedContent)
+    
+    return convertedContent
+  }
+
+  /**
+   * 이미 CommonJS 형태인지 확인
+   */
+  private isAlreadyCommonJS(content: string): boolean {
+    const hasUseStrict = content.includes('"use strict"')
+    const hasRequire = /require\s*\(/.test(content)
+    const hasExports = /exports\.|module\.exports/.test(content)
+    const hasObjectDefineProperty = content.includes('Object.defineProperty(exports')
+    
+    return hasUseStrict && (hasRequire || hasExports || hasObjectDefineProperty)
+  }
+
+  /**
+   * require 경로 확장자를 .cjs로 수정
+   */
+  private fixRequireExtensions(content: string, filePath: string): string {
+    let convertedContent = content
+    
+    // 상대 경로의 .js 파일을 .cjs로 변경
+    convertedContent = convertedContent.replace(
+      /require\(['"]\.\/([^'"]+)\.js['"]\)/g,
+      'require("./$1.cjs")'
+    )
+    
+    convertedContent = convertedContent.replace(
+      /require\(['"]\.\.\/([^'"]+)\.js['"]\)/g,
+      'require("../$1.cjs")'
+    )
+    
+    convertedContent = convertedContent.replace(
+      /require\(['"]\.\.\/\.\.\/([^'"]+)\.js['"]\)/g,
+      'require("../../$1.cjs")'
+    )
+    
+    // 확장자가 없는 상대 경로도 .cjs로 변경 (해당 .cjs 파일이 존재하는 경우)
+    convertedContent = convertedContent.replace(
+      /require\(['"]\.\/([^'"]+)['"]\)/g,
+      (match, moduleName) => {
+        const cjsPath = path.join(path.dirname(filePath), `${moduleName}.cjs`)
+        if (fs.existsSync(cjsPath)) {
+          return `require("./${moduleName}.cjs")`
+        }
+        return match
+      }
+    )
+    
+    convertedContent = convertedContent.replace(
+      /require\(['"]\.\.\/([^'"]+)['"]\)/g,
+      (match, moduleName) => {
+        const cjsPath = path.join(path.dirname(filePath), '..', `${moduleName}.cjs`)
+        if (fs.existsSync(cjsPath)) {
+          return `require("../${moduleName}.cjs")`
+        }
+        return match
+      }
+    )
     
     return convertedContent
   }
@@ -514,11 +621,14 @@ class EnhancedJsToCjsConverter {
     //   }
     // )
     
-    // 13. 빈 export 문 제거
-    convertedContent = convertedContent.replace(/export\s*\{\s*\}/g, '')
+    // 13. 빈 export 문 제거 (더 포괄적인 패턴)
+    convertedContent = convertedContent.replace(/export\s*\{\s*\}\s*;?/g, '')
     
-    // 14. export {} 문 제거
+    // 14. export {} 문 제거 (세미콜론이 있는 경우)
     convertedContent = convertedContent.replace(/export\s*\{\s*\}\s*;/g, '')
+    
+    // 15. export {} 문 제거 (세미콜론이 없는 경우)
+    convertedContent = convertedContent.replace(/export\s*\{\s*\}/g, '')
     
     return convertedContent
   }
@@ -543,6 +653,31 @@ class EnhancedJsToCjsConverter {
     }
     
     return convertedContent
+  }
+
+  /**
+   * 상대 경로 계산 (현재 빌드 구조에 맞게 수정)
+   */
+  private calculateRelativePath(fromFile: string, toPath: string): string {
+    const fromDir = path.dirname(fromFile)
+    
+    // dist/backend/backend/ 기준으로 경로 계산
+    let relativePath: string
+    
+    if (toPath.startsWith('./')) {
+      // 같은 디렉토리 내 파일
+      relativePath = path.relative(fromDir, path.join(fromDir, toPath.substring(2)))
+    } else if (toPath.startsWith('../shared/')) {
+      // shared 모듈로의 경로
+      const sharedPath = path.join(path.dirname(fromDir), '..', toPath.substring(3))
+      relativePath = path.relative(fromDir, sharedPath)
+    } else {
+      // 기타 경로
+      relativePath = path.relative(fromDir, toPath)
+    }
+    
+    // Windows 경로를 Unix 스타일로 변환
+    return relativePath.replace(/\\/g, '/')
   }
 
   /**
@@ -600,6 +735,25 @@ class EnhancedJsToCjsConverter {
   }
 
   /**
+   * 변환된 내용 정리
+   */
+  private cleanupConvertedContent(content: string): string {
+    let cleanedContent = content
+    
+    // 연속된 빈 줄을 하나로 줄이기
+    cleanedContent = cleanedContent.replace(/\n\s*\n\s*\n/g, '\n\n')
+    
+    // 파일 끝의 불필요한 세미콜론과 빈 줄 제거
+    cleanedContent = cleanedContent.replace(/;\s*$/, '')
+    cleanedContent = cleanedContent.replace(/\n\s*$/, '')
+    
+    // 빈 export 문이 남아있으면 제거
+    cleanedContent = cleanedContent.replace(/export\s*\{\s*\}\s*;?/g, '')
+    
+    return cleanedContent
+  }
+
+  /**
    * 모듈 경로 해석
    */
   private resolveModulePath(modulePath: string, currentFilePath: string): string {
@@ -616,14 +770,6 @@ class EnhancedJsToCjsConverter {
     return modulePath
   }
 
-  /**
-   * 상대 경로 계산
-   */
-  private calculateRelativePath(fromFile: string, toPath: string): string {
-    const fromDir = path.dirname(fromFile)
-    const relativePath = path.relative(fromDir, toPath)
-    return relativePath.replace(/\\/g, '/')
-  }
 
   /**
    * import/export 변환이 필요한지 확인
@@ -632,7 +778,18 @@ class EnhancedJsToCjsConverter {
     // minified 코드도 감지
     const hasImport = /import\s*[^;]*from\s*['"]/.test(content) || content.includes('import ')
     const hasExport = /export\s*[^;]*from\s*['"]/.test(content) || content.includes('export ')
-    return hasImport || hasExport
+    
+    // 빈 export 문도 ESM 문법으로 간주 (export {}; export {};)
+    const hasEmptyExport = /export\s*\{\s*\}\s*;?/.test(content)
+    
+    // export default, export const, export function 등도 감지
+    const hasExportDefault = /export\s+default/.test(content)
+    const hasExportDeclaration = /export\s+(const|let|var|function|class|async\s+function)/.test(content)
+    
+    // import.meta도 ESM 문법
+    const hasImportMeta = content.includes('import.meta')
+    
+    return hasImport || hasExport || hasEmptyExport || hasExportDefault || hasExportDeclaration || hasImportMeta
   }
 
   /**
@@ -879,19 +1036,7 @@ async function main(): Promise<void> {
 }
 
 // 스크립트 실행
-async function runIfMain() {
-  try {
-    const __filename = fileURLToPath(import.meta.url)
-    if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
-      await main()
-      return
-    }
-  } catch (e) {
-    // import.meta가 없는 환경에서 무시
-  }
-}
-
-runIfMain().catch(error => {
+main().catch(error => {
   logError(`실행 실패: ${error.message}`)
   process.exit(1)
 })

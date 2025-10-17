@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { HomePageConfig } from "../entities/HomePageConfig"
+import { HomePageConfig } from "@backend/entities/HomePageConfig"
 import { AppDataSource } from '@backend/config/database'
 
 export class HomePageController {

@@ -2,8 +2,8 @@
 // 지연 로딩 관리 모듈
 // ============================================================================
 
-import { AppDataSource } from "@/config/database"
-import { logger } from "@/utils/logger"
+import { AppDataSource } from "@backend/config/database"
+import { logger } from "@backend/utils/logger"
 
 /**
  * 지연 로딩된 모듈들의 상태를 추적합니다.
@@ -84,16 +84,79 @@ export async function lazyLoad<T>(
 }
 
 /**
+ * 타임아웃과 함께 Promise를 실행합니다.
+ */
+async function withTimeout<T>(
+  promise: Promise<T>, 
+  timeoutMs: number, 
+  errorMessage: string = "Operation timed out"
+): Promise<T> {
+  let timeoutId: NodeJS.Timeout | undefined
+  
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`${errorMessage} (${timeoutMs}ms)`))
+    }, timeoutMs)
+  })
+  
+  try {
+    return await Promise.race([promise, timeoutPromise])
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+  }
+}
+
+/**
  * 데이터베이스 연결을 지연 로딩합니다.
+ * 타임아웃과 재시도 로직을 포함합니다.
  */
 export async function lazyLoadDatabase(): Promise<typeof AppDataSource> {
   return lazyLoad(
     'database',
     async () => {
+      console.log("🔄 Initializing database connection...")
+      
       if (!AppDataSource.isInitialized) {
-        await AppDataSource.initialize()
+        try {
+          // 15초 타임아웃으로 데이터베이스 연결 시도
+          await withTimeout(
+            AppDataSource.initialize(),
+            15000,
+            "Database connection timeout"
+          )
+          
+          console.log("✅ Database connection established successfully")
+          
+          // 연결 상태 확인
+          if (AppDataSource.isInitialized) {
+            console.log("📊 Database connection verified")
+            return AppDataSource
+          } else {
+            throw new Error("Database initialization completed but connection not verified")
+          }
+          
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          console.error("❌ Database initialization failed:", errorMessage)
+          
+          // 연결이 이미 초기화된 경우 정리
+          if (AppDataSource.isInitialized) {
+            try {
+              await AppDataSource.destroy()
+              console.log("🔄 Database connection cleaned up after failure")
+            } catch (cleanupError) {
+              console.warn("⚠️ Failed to cleanup database connection:", cleanupError)
+            }
+          }
+          
+          throw new Error(`Database connection failed: ${errorMessage}`)
+        }
+      } else {
+        console.log("📦 Using existing database connection")
+        return AppDataSource
       }
-      return AppDataSource
     },
     AppDataSource // fallback
   )

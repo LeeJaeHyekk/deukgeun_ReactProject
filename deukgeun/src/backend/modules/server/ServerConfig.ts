@@ -6,8 +6,8 @@ import {
   safeGetEnvString,
   safeGetEnvNumber,
   safeGetEnvArray
-} from "@/utils/typeGuards"
-import { getCachedServerConfig } from "./ConfigCache"
+} from "@backend/utils/typeGuards"
+import { getCachedServerConfig } from "@backend/modules/server/ConfigCache"
 
 export interface ServerConfig {
   port: number

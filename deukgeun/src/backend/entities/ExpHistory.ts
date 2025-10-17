@@ -7,8 +7,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
-import type { ExpActionType } from "../types"
-import { User } from "./User"
+import type { ExpActionType } from "@backend/types"
+import { User } from "@backend/entities/User"
 
 @Entity("exp_history")
 export class ExpHistory {

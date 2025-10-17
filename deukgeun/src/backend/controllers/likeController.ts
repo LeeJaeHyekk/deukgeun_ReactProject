@@ -2,7 +2,7 @@ import { Request, Response } from "express"
 import { Like } from '@backend/entities/Like'
 import { Post } from '@backend/entities/Post'
 import { AppDataSource } from '@backend/config/database'
-import { toLikeDTO } from "../transformers"
+import { toLikeDTO } from "@backend/transformers"
 
 export class LikeController {
   // 좋아요 토글 (추가/제거)

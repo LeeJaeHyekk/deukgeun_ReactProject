@@ -2,8 +2,8 @@
  * 폴백 전략 테스트 스크립트
  * 의도적으로 실패할 수 있는 쿼리로 폴백 시스템 테스트
  */
-import { OptimizedGymCrawlingSource } from '../modules/crawling/sources/OptimizedGymCrawlingSource'
-import { ProcessedGymData } from '../modules/crawling/types/CrawlingTypes'
+import { OptimizedGymCrawlingSource } from '@backend/modules/crawling/sources/OptimizedGymCrawlingSource'
+import { ProcessedGymData } from '@backend/modules/crawling/types/CrawlingTypes'
 
 async function testFallbackCrawling() {
   console.log('🧪 폴백 전략 테스트 시작')

@@ -1,10 +1,10 @@
 import "reflect-metadata"
-import { AppDataSource } from "./config/database"
-import app from "./simple-app"
-import { logger } from "./utils/logger"
-import { initializeCrawlingService } from "./services/crawlingService"
+import { AppDataSource } from "@backend/config/database"
+import app from "@backend/simple-app"
+import { logger } from "@backend/utils/logger"
+import { initializeCrawlingService } from "@backend/services/crawlingService"
 // import { getRepository } from "typeorm" // AppDataSource.getRepository 사용
-import { Gym } from "./entities/Gym"
+import { Gym } from "@backend/entities/Gym"
 
 const PORT = process.env.BACKEND_PORT || 5000
 

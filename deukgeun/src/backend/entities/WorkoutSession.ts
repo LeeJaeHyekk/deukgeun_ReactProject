@@ -9,10 +9,10 @@ import {
   OneToMany,
   Index,
 } from "typeorm"
-import { User } from "./User"
-import { WorkoutPlan } from "./WorkoutPlan"
-import { Gym } from "./Gym"
-import { ExerciseSet } from "./ExerciseSet"
+import { User } from "@backend/entities/User"
+import { WorkoutPlan } from "@backend/entities/WorkoutPlan"
+import { Gym } from "@backend/entities/Gym"
+import { ExerciseSet } from "@backend/entities/ExerciseSet"
 
 @Entity("workout_sessions")
 export class WorkoutSession {

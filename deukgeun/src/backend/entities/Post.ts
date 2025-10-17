@@ -9,8 +9,8 @@ import {
   JoinColumn,
   Index,
 } from "typeorm"
-import { User } from "./User"
-import { Like } from "./Like"
+import { User } from "@backend/entities/User"
+import { Like } from "@backend/entities/Like"
 import type { PostCategory } from '@shared/types/dto/post.dto'
 
 /**

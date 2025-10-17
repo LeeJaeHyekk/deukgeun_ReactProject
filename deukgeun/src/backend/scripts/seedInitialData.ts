@@ -5,14 +5,14 @@
 import { AppDataSource } from '@backend/config/database'
 import { User } from '@backend/entities/User'
 import { UserLevel } from '@backend/entities/UserLevel'
-import { UserReward } from "../entities/UserReward"
-import { Milestone } from "../entities/Milestone"
-import { UserStreak } from "../entities/UserStreak"
+import { UserReward } from "@backend/entities/UserReward"
+import { Milestone } from "@backend/entities/Milestone"
+import { UserStreak } from "@backend/entities/UserStreak"
 import { Gym } from '@backend/entities/Gym'
 import { Machine } from '@backend/entities/Machine'
-import { WorkoutPlan } from "../entities/WorkoutPlan"
-import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
-import { ExpHistory } from "../entities/ExpHistory"
+import { WorkoutPlan } from "@backend/entities/WorkoutPlan"
+import { WorkoutPlanExercise } from "@backend/entities/WorkoutPlanExercise"
+import { ExpHistory } from "@backend/entities/ExpHistory"
 import { Post } from '@backend/entities/Post'
 import { Comment } from '@backend/entities/Comment'
 import bcrypt from "bcrypt"

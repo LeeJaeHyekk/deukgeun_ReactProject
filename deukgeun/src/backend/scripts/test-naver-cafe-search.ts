@@ -3,8 +3,8 @@
  * 개선된 검색 및 정보 추출 기능을 테스트합니다.
  */
 
-import { NaverCafeSearchEngine } from '../modules/crawling/sources/search/NaverCafeSearchEngine'
-import { getGymsRawPath } from '../modules/crawling/utils/pathUtils'
+import { NaverCafeSearchEngine } from '@backend/modules/crawling/sources/search/NaverCafeSearchEngine'
+import { getGymsRawPath } from '@backend/modules/crawling/utils/pathUtils'
 import * as fs from 'fs/promises'
 
 async function testNaverCafeSearch() {

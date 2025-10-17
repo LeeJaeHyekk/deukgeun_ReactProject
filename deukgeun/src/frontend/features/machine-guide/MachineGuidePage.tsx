@@ -3,10 +3,10 @@
 // ============================================================================
 
 import React, { useEffect, useState, useCallback } from "react"
-import { useMachines } from "./hooks/useMachines"
-import { MachineFilter } from "./components/MachineFilter"
-import { MachineCard } from "./components/MachineCard"
-import { MachineModal } from "./components/MachineModal"
+import { useMachines } from "@frontend/features/machine-guide/hooks/useMachines"
+import { MachineFilter } from "@frontend/features/machine-guide/components/MachineFilter"
+import { MachineCard } from "@frontend/features/machine-guide/components/MachineCard"
+import { MachineModal } from "@frontend/features/machine-guide/components/MachineModal"
 import type { Machine } from "@dto/index"
 import { Navigation } from "@widgets/Navigation/Navigation"
 import "./MachineGuidePage.css"

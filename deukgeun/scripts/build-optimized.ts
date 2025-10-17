@@ -165,16 +165,43 @@ class OptimizedBuildProcess {
     }
     
     try {
-      // 백엔드 TypeScript 컴파일
-      execSync('npx tsc -p src/backend/tsconfig.json', {
+      // 백엔드 TypeScript 컴파일 (빌드용 설정 사용)
+      execSync('npx tsc -p src/backend/tsconfig.build.json', {
         stdio: this.options.verbose ? 'inherit' : 'pipe',
         cwd: this.options.projectRoot,
         timeout: 300000 // 5분
       })
       
+      // Shared 폴더 별도 빌드
+      await this.buildShared()
+      
       logSuccess('백엔드 빌드 완료')
     } catch (error) {
       logError(`백엔드 빌드 실패: ${(error as Error).message}`)
+      throw error
+    }
+  }
+
+  /**
+   * Shared 폴더 빌드
+   */
+  private async buildShared(): Promise<void> {
+    logStep('SHARED', 'Shared 폴더 빌드 중...')
+    
+    try {
+      // Shared 폴더를 dist/shared로 복사
+      const srcSharedPath = path.join(this.options.projectRoot, 'src', 'shared')
+      const distSharedPath = path.join(this.distPath, 'shared')
+      
+      if (fs.existsSync(srcSharedPath)) {
+        if (fs.existsSync(distSharedPath)) {
+          fs.rmSync(distSharedPath, { recursive: true, force: true })
+        }
+        fs.cpSync(srcSharedPath, distSharedPath, { recursive: true })
+        logSuccess('Shared 폴더 복사 완료')
+      }
+    } catch (error) {
+      logError(`Shared 폴더 빌드 실패: ${(error as Error).message}`)
       throw error
     }
   }
@@ -452,18 +479,6 @@ class OptimizedBuildProcess {
     logStep('ORGANIZE', 'dist 폴더 구조 정리...')
     
     try {
-      // shared 폴더를 dist 루트로 이동
-      const backendSharedPath = path.join(this.distPath, 'backend', 'shared')
-      const distSharedPath = path.join(this.distPath, 'shared')
-      
-      if (fs.existsSync(backendSharedPath)) {
-        if (fs.existsSync(distSharedPath)) {
-          fs.rmSync(distSharedPath, { recursive: true, force: true })
-        }
-        fs.renameSync(backendSharedPath, distSharedPath)
-        log('✅ shared 폴더를 dist 루트로 이동', 'green')
-      }
-      
       // data 폴더 생성 (src/data 복사)
       const srcDataPath = path.join(this.options.projectRoot, 'src', 'data')
       const distDataPath = path.join(this.distPath, 'data')

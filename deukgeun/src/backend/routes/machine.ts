@@ -15,7 +15,7 @@ import {
 //   validateMachineUpdate,
 //   validateId,
 // } from "../middlewares/mixValidation"
-import { machineRateLimiter } from "../middlewares/rateLimiter"
+import { machineRateLimiter } from "@backend/middlewares/rateLimiter"
 
 const router = Router()
 

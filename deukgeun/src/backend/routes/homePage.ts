@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { HomePageController } from '@backend/controllers/homePageController'
-import { rateLimiter } from "../middlewares/rateLimiter"
+import { rateLimiter } from "@backend/middlewares/rateLimiter"
 import { isAdmin, authMiddleware } from '@backend/middlewares/auth'
 
 const router = Router()

@@ -1,7 +1,7 @@
-import { Gym } from "../../types/index"
+import { Gym } from "@frontend/pages/location/types/index"
 import { GymCard } from "./GymCard"
-import { SortSelect } from "../SortSelect/SortSelect"
-import { SortOption, SortDirection } from "../../types"
+import { SortSelect } from "@frontend/pages/location/components/SortSelect/SortSelect"
+import { SortOption, SortDirection } from "@frontend/pages/location/types"
 import styles from "./GymList.module.css"
 
 interface GymListProps {

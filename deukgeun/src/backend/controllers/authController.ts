@@ -1,13 +1,13 @@
 import { Request, Response } from "express"
 import { User } from '@backend/entities/User'
 import { UserLevel } from '@backend/entities/UserLevel'
-import { UserStreak } from "../entities/UserStreak"
+import { UserStreak } from "@backend/entities/UserStreak"
 import bcrypt from "bcrypt"
 import { verifyRecaptcha } from '@backend/utils/recaptcha'
 import { createTokens, verifyRefreshToken } from '@backend/utils/jwt'
 import { logger } from '@backend/utils/logger'
 import { AppDataSource } from '@backend/config/database'
-import { ApiResponse, ErrorResponse } from "../types"
+import { ApiResponse, ErrorResponse } from "@backend/types"
 import {
   LoginRequest,
   RegisterRequest,
@@ -15,7 +15,7 @@ import {
   RegisterResponse,
 } from "../types"
 import { accountRecoveryService } from '@backend/services/accountRecoveryService'
-import { SecurityInfo } from "../types"
+import { SecurityInfo } from "@backend/types"
 import { UserTransformer } from '@backend/transformers/user.transformer'
 
 export async function login(

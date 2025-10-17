@@ -1,5 +1,5 @@
-import { Gym } from "../../types/index"
-import { formatDistance } from "../../utils/distanceUtils"
+import { Gym } from "@frontend/pages/location/types/index"
+import { formatDistance } from "@frontend/pages/location/utils/distanceUtils"
 import styles from "./GymCard.module.css"
 
 interface GymCardProps {

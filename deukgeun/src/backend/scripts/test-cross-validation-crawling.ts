@@ -4,8 +4,8 @@
  */
 
 import { AppDataSource } from '@backend/config/database'
-import { OptimizedGymCrawlingSource } from '../modules/crawling/sources/OptimizedGymCrawlingSource'
-import { EnhancedDataMerger } from '../modules/crawling/processors/EnhancedDataMerger'
+import { OptimizedGymCrawlingSource } from '@backend/modules/crawling/sources/OptimizedGymCrawlingSource'
+import { EnhancedDataMerger } from '@backend/modules/crawling/processors/EnhancedDataMerger'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 

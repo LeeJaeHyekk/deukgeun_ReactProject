@@ -2,7 +2,7 @@
  * 적응형 재시도 관리자
  * 실패 패턴에 따라 재시도 전략을 동적으로 조정
  */
-import { CircuitBreaker } from './CircuitBreaker'
+import { CircuitBreaker } from '@backend/modules/crawling/utils/CircuitBreaker'
 
 export interface RetryConfig {
   maxRetries: number

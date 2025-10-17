@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from "typeorm"
-import { Equipment } from "./Equipment"
+import { Equipment } from "@backend/entities/Equipment"
 
 @Entity()
 export class Gym {

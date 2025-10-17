@@ -1,5 +1,5 @@
 import { AppDataSource } from '@backend/config/database'
-import { HomePageConfig } from "../entities/HomePageConfig"
+import { HomePageConfig } from "@backend/entities/HomePageConfig"
 
 /**
  * 홈페이지 설정 초기 데이터 삽입

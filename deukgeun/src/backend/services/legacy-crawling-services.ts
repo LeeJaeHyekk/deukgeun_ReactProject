@@ -3,7 +3,7 @@
  * 기존의 복잡한 크롤링 서비스들을 비활성화하고 새로운 모듈화된 구조로 대체
  */
 
-import { getMigrationWarning, DEPRECATED_SERVICES } from './crawling-migration'
+import { getMigrationWarning, DEPRECATED_SERVICES } from '@backend/services/crawling-migration'
 
 // 기존 크롤링 서비스들을 비활성화하기 위한 플레이스홀더
 // 실제 구현은 src/backend/modules/crawling/ 에서 처리

@@ -8,8 +8,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
-import type { StreakType } from "../types"
-import { User } from "./User"
+import type { StreakType } from "@backend/types"
+import { User } from "@backend/entities/User"
 
 @Entity("user_streaks")
 export class UserStreak {

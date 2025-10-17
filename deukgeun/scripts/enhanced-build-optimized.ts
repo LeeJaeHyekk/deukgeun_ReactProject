@@ -220,8 +220,8 @@ class EnhancedBuildProcess {
     }
     
     try {
-      // 백엔드 TypeScript 컴파일
-      execSync('npx tsc -p src/backend/tsconfig.json', {
+      // 백엔드 TypeScript 컴파일 (빌드용 설정 사용)
+      execSync('npx tsc -p src/backend/tsconfig.build.json', {
         stdio: this.options.verbose ? 'inherit' : 'pipe',
         cwd: this.options.projectRoot,
         timeout: 300000 // 5분

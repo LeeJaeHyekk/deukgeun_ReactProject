@@ -4,10 +4,12 @@
   "description": "",
   "main": "../../dist/backend/index.js",
   "scripts": {
-    "dev": "tsx watch index.ts",
+    "dev": "tsx watch --tsconfig tsconfig.dev.json index.ts",
     "dev:ts-node": "ts-node-dev --respawn --transpile-only index.ts",
+    "dev:check": "tsc -p tsconfig.dev.json --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "build:watch": "tsc -p tsconfig.build.json --watch",
+    "build:clean": "rimraf ../../dist/backend && npm run build",
     "start": "node ../../dist/backend/index.js",
     "start:dev": "tsx index.ts",
     "postbuild": "node scripts/postbuild.cjs",

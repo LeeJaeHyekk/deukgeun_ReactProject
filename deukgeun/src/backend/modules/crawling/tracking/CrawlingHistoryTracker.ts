@@ -5,7 +5,7 @@
 
 import { ProcessedGymData, CrawlingStatus } from '@backend/modules/crawling/types/CrawlingTypes'
 import { MergeResult } from '@backend/modules/crawling/processors/EnhancedDataMerger'
-import { getCrawlingHistoryPath } from '../utils/pathUtils'
+import { getCrawlingHistoryPath } from '@backend/modules/crawling/utils/pathUtils'
 
 export interface CrawlingHistoryEntry {
   id: string

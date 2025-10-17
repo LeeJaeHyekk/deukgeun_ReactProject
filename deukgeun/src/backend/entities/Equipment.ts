@@ -7,7 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm"
-import { Gym } from "./Gym"
+import { Gym } from "@backend/entities/Gym"
 
 export enum EquipmentType {
   CARDIO = "cardio",

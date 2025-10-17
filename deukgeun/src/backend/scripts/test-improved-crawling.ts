@@ -1,8 +1,8 @@
 /**
  * 개선된 크롤링 시스템 테스트 스크립트
  */
-import { OptimizedGymCrawlingSource } from '../modules/crawling/sources/OptimizedGymCrawlingSource'
-import { ProcessedGymData } from '../modules/crawling/types/CrawlingTypes'
+import { OptimizedGymCrawlingSource } from '@backend/modules/crawling/sources/OptimizedGymCrawlingSource'
+import { ProcessedGymData } from '@backend/modules/crawling/types/CrawlingTypes'
 
 async function testImprovedCrawling() {
   console.log('🧪 개선된 크롤링 시스템 테스트 시작')

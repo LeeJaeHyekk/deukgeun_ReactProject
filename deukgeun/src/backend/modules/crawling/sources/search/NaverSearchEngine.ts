@@ -1,4 +1,4 @@
-import { BaseSearchEngine } from './BaseSearchEngine'
+import { BaseSearchEngine } from '@backend/modules/crawling/sources/search/BaseSearchEngine'
 import { EnhancedGymInfo } from '@backend/modules/crawling/types/CrawlingTypes'
 
 /**

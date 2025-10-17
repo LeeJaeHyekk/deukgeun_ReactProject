@@ -3,11 +3,11 @@
  * 새로운 LOCALDATA_104201 API 구조 테스트
  */
 
-import { PublicApiSource } from '../modules/crawling/sources/PublicApiSource.js'
+import { PublicApiSource } from '@backend/modules/crawling/sources/PublicApiSource.js'
 import * as dotenv from 'dotenv'
 
 // 환경 변수 로드
-import { getDirname } from '../utils/pathUtils'
+import { getDirname } from '@backend/utils/pathUtils'
 import { join } from 'path'
 
 const __dirname = getDirname()

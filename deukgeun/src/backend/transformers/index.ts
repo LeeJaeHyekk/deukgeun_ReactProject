@@ -37,16 +37,16 @@ export { LikeTransformer } from "./like.transformer"
 // 통합된 Transformer 함수들 (편의성을 위해)
 // ============================================================================
 
-import { MachineTransformer } from "./machine.transformer"
-import { UserTransformer } from "./user.transformer"
-import { PostTransformer } from "./post.transformer"
-import { CommentTransformer } from "./comment.transformer"
-import { GymTransformer } from "./gym.transformer"
-import { WorkoutSessionTransformer } from "./workoutsession.transformer"
-import { ExerciseSetTransformer } from "./exerciseset.transformer"
-import { ExpHistoryTransformer } from "./exphistory.transformer"
-import { UserLevelTransformer } from "./userlevel.transformer"
-import { LikeTransformer } from "./like.transformer"
+import { MachineTransformer } from "@backend/transformers/machine.transformer"
+import { UserTransformer } from "@backend/transformers/user.transformer"
+import { PostTransformer } from "@backend/transformers/post.transformer"
+import { CommentTransformer } from "@backend/transformers/comment.transformer"
+import { GymTransformer } from "@backend/transformers/gym.transformer"
+import { WorkoutSessionTransformer } from "@backend/transformers/workoutsession.transformer"
+import { ExerciseSetTransformer } from "@backend/transformers/exerciseset.transformer"
+import { ExpHistoryTransformer } from "@backend/transformers/exphistory.transformer"
+import { UserLevelTransformer } from "@backend/transformers/userlevel.transformer"
+import { LikeTransformer } from "@backend/transformers/like.transformer"
 
 // Machine 변환 함수들
 export const toMachineDTO = MachineTransformer.toDTO

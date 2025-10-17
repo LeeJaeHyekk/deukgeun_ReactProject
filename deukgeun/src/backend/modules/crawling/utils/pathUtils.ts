@@ -4,7 +4,7 @@
  */
 
 import * as path from 'path'
-import { getFilename } from '../../../utils/pathUtils'
+import { getFilename } from '@backend/utils/pathUtils'
 
 /**
  * 프로젝트 루트 디렉토리 경로를 반환

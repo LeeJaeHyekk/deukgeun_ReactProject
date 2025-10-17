@@ -4,7 +4,7 @@
  */
 
 import { Repository } from 'typeorm'
-import { Gym } from '../../../entities/Gym'
+import { Gym } from '@backend/entities/Gym'
 import { PublicApiSource } from '@backend/modules/crawling/sources/PublicApiSource'
 import { SearchEngineFactory } from '@backend/modules/crawling/sources/search/SearchEngineFactory'
 import { UnifiedDataMerger } from '@backend/modules/crawling/processors/UnifiedDataMerger'

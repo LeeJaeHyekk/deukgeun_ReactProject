@@ -7,8 +7,8 @@
 
 import "reflect-metadata"
 import { config } from "dotenv"
-import { runDatabaseDiagnostics, createDatabaseIfNotExists } from "./utils/databaseDiagnostics"
-import { AppDataSource } from "./config/database"
+import { runDatabaseDiagnostics, createDatabaseIfNotExists } from "@backend/utils/databaseDiagnostics"
+import { AppDataSource } from "@backend/config/database"
 
 // 환경 변수 로드
 config()

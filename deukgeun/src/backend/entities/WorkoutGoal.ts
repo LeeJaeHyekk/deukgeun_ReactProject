@@ -8,7 +8,7 @@ import {
   JoinColumn,
   Index,
 } from "typeorm"
-import { User } from "./User"
+import { User } from "@backend/entities/User"
 
 @Entity("workout_goals")
 export class WorkoutGoal {

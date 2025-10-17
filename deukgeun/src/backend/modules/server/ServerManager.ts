@@ -2,10 +2,10 @@
 // 서버 관리 메인 모듈
 // ============================================================================
 
-import { createServerConfig, ServerConfig } from "./ServerConfig"
-import { validateEnvironmentVariables, ValidationResult } from "./ServerValidator"
-import { connectDatabase, DatabaseConnectionResult } from "./DatabaseManager"
-import { startExpressServer, setupGracefulShutdown, ServerStartResult } from "./ServerStarter"
+import { createServerConfig, ServerConfig } from "@backend/modules/server/ServerConfig"
+import { validateEnvironmentVariables, ValidationResult } from "@backend/modules/server/ServerValidator"
+import { connectDatabase, DatabaseConnectionResult } from "@backend/modules/server/DatabaseManager"
+import { startExpressServer, setupGracefulShutdown, ServerStartResult } from "@backend/modules/server/ServerStarter"
 import { 
   measureAsyncPerformance, 
   logPerformanceMetrics, 

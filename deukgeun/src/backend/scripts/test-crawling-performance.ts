@@ -2,8 +2,8 @@
  * 성능 테스트 스크립트
  * 크롤링 시스템의 성능과 안정성을 종합적으로 테스트
  */
-import { OptimizedGymCrawlingSource } from '../modules/crawling/sources/OptimizedGymCrawlingSource'
-import { ProcessedGymData } from '../modules/crawling/types/CrawlingTypes'
+import { OptimizedGymCrawlingSource } from '@backend/modules/crawling/sources/OptimizedGymCrawlingSource'
+import { ProcessedGymData } from '@backend/modules/crawling/types/CrawlingTypes'
 
 async function testPerformanceCrawling() {
   console.log('🧪 성능 테스트 시작')

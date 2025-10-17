@@ -6,7 +6,7 @@ import { config } from "dotenv"
 // MySQL 연결 테스트를 위한 mysql2 import
 import mysql from "mysql2/promise"
 // 데이터베이스 진단 도구 import
-import { runDatabaseDiagnostics, createDatabaseIfNotExists } from "../utils/databaseDiagnostics"
+import { runDatabaseDiagnostics, createDatabaseIfNotExists } from "@backend/utils/databaseDiagnostics"
 
 // 엔티티 클래스들 import - 데이터베이스 테이블과 매핑되는 클래스들
 import { Post } from '@backend/entities/Post' // 게시글 엔티티
@@ -17,21 +17,21 @@ import { Machine } from '@backend/entities/Machine' // 운동 머신 엔티티
 import { Comment } from '@backend/entities/Comment' // 댓글 엔티티
 import { Like } from '@backend/entities/Like' // 게시글 좋아요 엔티티
 import { UserLevel } from '@backend/entities/UserLevel' // 사용자 레벨 엔티티
-import { ExpHistory } from "../entities/ExpHistory" // 경험치 이력 엔티티
-import { UserReward } from "../entities/UserReward" // 사용자 보상 엔티티
-import { Milestone } from "../entities/Milestone" // 마일스톤 엔티티
-import { UserStreak } from "../entities/UserStreak" // 사용자 연속 활동 엔티티
+import { ExpHistory } from '@backend/entities/ExpHistory' // 경험치 이력 엔티티
+import { UserReward } from '@backend/entities/UserReward' // 사용자 보상 엔티티
+import { Milestone } from '@backend/entities/Milestone' // 마일스톤 엔티티
+import { UserStreak } from '@backend/entities/UserStreak' // 사용자 연속 활동 엔티티
 import { WorkoutSession } from '@backend/entities/WorkoutSession' // 운동 세션 엔티티
-import { ExerciseSet } from "../entities/ExerciseSet" // 운동 세트 엔티티
-import { WorkoutGoal } from "../entities/WorkoutGoal" // 운동 목표 엔티티
-import { WorkoutPlan } from "../entities/WorkoutPlan" // 운동 계획 엔티티
-import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise" // 운동 계획 운동 엔티티
+import { ExerciseSet } from '@backend/entities/ExerciseSet' // 운동 세트 엔티티
+import { WorkoutGoal } from '@backend/entities/WorkoutGoal' // 운동 목표 엔티티
+import { WorkoutPlan } from '@backend/entities/WorkoutPlan' // 운동 계획 엔티티
+import { WorkoutPlanExercise } from '@backend/entities/WorkoutPlanExercise' // 운동 계획 운동 엔티티
 import { WorkoutStats } from '@backend/entities/WorkoutStats' // 운동 통계 엔티티
-import { WorkoutProgress } from "../entities/WorkoutProgress" // 운동 진행 상황 엔티티
-import { WorkoutReminder } from "../entities/WorkoutReminder" // 운동 알림 엔티티
-import { VerificationToken } from "../entities/VerificationToken" // 이메일 인증 토큰 엔티티
-import { PasswordResetToken } from "../entities/PasswordResetToken" // 비밀번호 재설정 토큰 엔티티
-import { HomePageConfig } from "../entities/HomePageConfig" // 홈페이지 설정 엔티티
+import { WorkoutProgress } from '@backend/entities/WorkoutProgress' // 운동 진행 상황 엔티티
+import { WorkoutReminder } from '@backend/entities/WorkoutReminder' // 운동 알림 엔티티
+import { VerificationToken } from '@backend/entities/VerificationToken' // 이메일 인증 토큰 엔티티
+import { PasswordResetToken } from '@backend/entities/PasswordResetToken' // 비밀번호 재설정 토큰 엔티티
+import { HomePageConfig } from '@backend/entities/HomePageConfig' // 홈페이지 설정 엔티티
 
 // 환경 변수 로드 (.env 파일에서 환경 변수 읽기)
 config()

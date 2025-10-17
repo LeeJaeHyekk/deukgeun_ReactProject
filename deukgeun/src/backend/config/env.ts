@@ -14,11 +14,11 @@ import type {
   SMSConfig,
   UploadConfig,
   SchedulerConfig,
-} from "../types"
+} from "@backend/types"
 
 import * as path from 'path'
 import * as fs from 'fs'
-import { getDirname } from '../utils/pathUtils'
+import { getDirname } from '@backend/utils/pathUtils'
 
 const nodeEnv = process.env.NODE_ENV || 'development'
 

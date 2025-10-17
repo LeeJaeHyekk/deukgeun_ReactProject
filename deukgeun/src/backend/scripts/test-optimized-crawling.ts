@@ -3,9 +3,9 @@
  * 성능 최적화, 중복 제거, 메모리 효율성을 검증하는 테스트 스크립트
  */
 
-import { OptimizedCrawlingService } from '../modules/crawling/core/OptimizedCrawlingService'
-import { SearchEngineFactory } from '../modules/crawling/sources/search/SearchEngineFactory'
-import { UnifiedDataMerger } from '../modules/crawling/processors/UnifiedDataMerger'
+import { OptimizedCrawlingService } from '@backend/modules/crawling/core/OptimizedCrawlingService'
+import { SearchEngineFactory } from '@backend/modules/crawling/sources/search/SearchEngineFactory'
+import { UnifiedDataMerger } from '@backend/modules/crawling/processors/UnifiedDataMerger'
 
 // 테스트용 Mock Repository
 class MockGymRepository {

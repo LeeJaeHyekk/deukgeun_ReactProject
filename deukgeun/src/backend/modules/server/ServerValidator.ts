@@ -2,9 +2,9 @@
 // 서버 검증 모듈
 // ============================================================================
 
-import { validateAllConfigs } from "@/utils/typeGuards"
-import { ServerConfig } from "./ServerConfig"
-import { getCachedValidationResult } from "./ConfigCache"
+import { validateAllConfigs } from "@backend/utils/typeGuards"
+import { ServerConfig } from "@backend/modules/server/ServerConfig"
+import { getCachedValidationResult } from "@backend/modules/server/ConfigCache"
 
 export interface ValidationResult {
   isValid: boolean

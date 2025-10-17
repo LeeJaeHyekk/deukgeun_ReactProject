@@ -1,5 +1,5 @@
 import type { Machine } from "@dto/index"
-import { IMAGE_MATCHING_CONFIG, ImageMatchingManager } from '../config/imageMatchingConfig'
+import { IMAGE_MATCHING_CONFIG, ImageMatchingManager } from '@frontend/shared/config/imageMatchingConfig'
 
 // 이미지 매칭 결과 캐시
 const imageCache = new Map<string, string>()

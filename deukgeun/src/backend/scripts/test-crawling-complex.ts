@@ -2,8 +2,8 @@
  * 복잡한 쿼리 크롤링 테스트 스크립트
  * 특수문자와 복잡한 이름을 가진 헬스장으로 테스트
  */
-import { OptimizedGymCrawlingSource } from '../modules/crawling/sources/OptimizedGymCrawlingSource'
-import { ProcessedGymData } from '../modules/crawling/types/CrawlingTypes'
+import { OptimizedGymCrawlingSource } from '@backend/modules/crawling/sources/OptimizedGymCrawlingSource'
+import { ProcessedGymData } from '@backend/modules/crawling/types/CrawlingTypes'
 
 async function testComplexCrawling() {
   console.log('🧪 복잡한 쿼리 크롤링 테스트 시작')

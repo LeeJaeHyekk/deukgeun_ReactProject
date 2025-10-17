@@ -1,8 +1,8 @@
 import { AppDataSource } from '@backend/config/database'
 import { User } from '@backend/entities/User'
-import { VerificationToken } from "../entities/VerificationToken"
-import { PasswordResetToken } from "../entities/PasswordResetToken"
-import { emailService } from "./emailService"
+import { VerificationToken } from "@backend/entities/VerificationToken"
+import { PasswordResetToken } from "@backend/entities/PasswordResetToken"
+import { emailService } from "@backend/services/emailService"
 import { logger } from '@backend/utils/logger'
 import {
   VerificationTokenData,

@@ -4,7 +4,7 @@
  */
 
 import { ProcessedGymData, ProcessedEquipmentData } from '@backend/modules/crawling/types/CrawlingTypes'
-import { DataValidator } from './DataValidator'
+import { DataValidator } from '@backend/modules/crawling/processors/DataValidator'
 
 export class DataMerger {
   private validator: DataValidator

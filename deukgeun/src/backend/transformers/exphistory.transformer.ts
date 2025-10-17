@@ -2,9 +2,9 @@
 // ExpHistory Transformer
 // ============================================================================
 
-import { ExpHistoryDTO } from "../../shared/types/dto/exphistory.dto"
-import { ExpHistory } from "../entities/ExpHistory"
-import type { ExpActionType } from "../types"
+import { ExpHistoryDTO } from "@shared/types/dto/exphistory.dto"
+import { ExpHistory } from "@backend/entities/ExpHistory"
+import type { ExpActionType } from "@backend/types"
 
 export class ExpHistoryTransformer {
   static toDTO(entity: ExpHistory): ExpHistoryDTO {

@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken"
-import { logger } from "./logger"
+import { logger } from "@backend/utils/logger"
 
 // Default secrets for development (should be overridden in production)
 const ACCESS_TOKEN_SECRET =

@@ -2,7 +2,7 @@
 // WorkoutSession Transformer
 // ============================================================================
 
-import { WorkoutSessionDTO } from "../../shared/types/dto/workoutsession.dto"
+import { WorkoutSessionDTO } from "@shared/types/dto/workoutsession.dto"
 import { WorkoutSession } from '@backend/entities/WorkoutSession'
 
 export class WorkoutSessionTransformer {

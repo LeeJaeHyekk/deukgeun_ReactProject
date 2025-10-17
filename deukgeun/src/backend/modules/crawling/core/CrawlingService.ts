@@ -4,15 +4,15 @@
  */
 
 import { Repository } from 'typeorm'
-import { Gym } from '../../../entities/Gym'
-import { DataProcessor } from './DataProcessor'
+import { Gym } from '@backend/entities/Gym'
+import { DataProcessor } from '@backend/modules/crawling/core/DataProcessor'
 import { PublicApiSource } from '@backend/modules/crawling/sources/PublicApiSource'
 import { OptimizedGymCrawlingSource } from '@backend/modules/crawling/sources/OptimizedGymCrawlingSource'
 import { DataMerger } from '@backend/modules/crawling/processors/DataMerger'
 import { EnhancedDataMerger } from '@backend/modules/crawling/processors/EnhancedDataMerger'
 import { DataValidator } from '@backend/modules/crawling/processors/DataValidator'
 import { CrawlingHistoryTracker } from '@backend/modules/crawling/tracking/CrawlingHistoryTracker'
-import { getGymsRawPath } from '../utils/pathUtils'
+import { getGymsRawPath } from '@backend/modules/crawling/utils/pathUtils'
 import { 
   CrawlingConfig, 
   CrawlingResult, 

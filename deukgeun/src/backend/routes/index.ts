@@ -1,18 +1,18 @@
 import { Router } from "express"
-import authRoutes from "./auth"
-import gymRoutes from "./gym"
-import machineRoutes from "./machine"
-import postRoutes from "./post"
-import commentRoutes from "./comment"
-import likeRoutes from "./like"
-import levelRoutes from "./level"
-import statsRoutes from "./stats"
-// import schedulerRoutes from "./scheduler" // deprecated
-import workoutRoutes from "./workout"
-import logsRoutes from "./logs"
-import recaptchaRoutes from "./recaptcha"
-import homePageRoutes from "./homePage"
-import enhancedGymRoutes from "./enhancedGymRoutes"
+import authRoutes from "@backend/routes/auth"
+import gymRoutes from "@backend/routes/gym"
+import machineRoutes from "@backend/routes/machine"
+import postRoutes from "@backend/routes/post"
+import commentRoutes from "@backend/routes/comment"
+import likeRoutes from "@backend/routes/like"
+import levelRoutes from "@backend/routes/level"
+import statsRoutes from "@backend/routes/stats"
+// import schedulerRoutes from "@backend/routes/scheduler" // deprecated
+import workoutRoutes from "@backend/routes/workout"
+import logsRoutes from "@backend/routes/logs"
+import recaptchaRoutes from "@backend/routes/recaptcha"
+import homePageRoutes from "@backend/routes/homePage"
+import enhancedGymRoutes from "@backend/routes/enhancedGymRoutes"
 import { AppDataSource, checkDatabaseHealth } from '@backend/config/database'
 import { 
   isValidHealthResponse, 

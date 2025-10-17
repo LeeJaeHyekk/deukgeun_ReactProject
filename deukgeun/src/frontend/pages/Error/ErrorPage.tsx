@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import ErrorPageCSS from "./ErrorPage.module.css"
-import EnhancedErrorPage from "./EnhancedErrorPage"
-import { ErrorHandler } from "./ErrorHandler"
+import EnhancedErrorPage from "@frontend/pages/Error/EnhancedErrorPage"
+import { ErrorHandler } from "@frontend/pages/Error/ErrorHandler"
 
 interface ErrorPageProps {
   statusCode?: number

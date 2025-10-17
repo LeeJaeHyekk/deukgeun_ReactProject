@@ -2,8 +2,8 @@
 // 설정 캐시 관리 모듈
 // ============================================================================
 
-import { ServerConfig } from "./ServerConfig"
-import { ValidationResult } from "./ServerValidator"
+import { ServerConfig } from "@backend/modules/server/ServerConfig"
+import { ValidationResult } from "@backend/modules/server/ServerValidator"
 
 /**
  * 설정 캐시 인터페이스

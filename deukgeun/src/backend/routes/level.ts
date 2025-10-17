@@ -12,7 +12,7 @@ import {
   getSystemStats,
 } from '@backend/controllers/levelController'
 import { authMiddleware, isAdmin } from '@backend/middlewares/auth'
-import { rateLimiter } from "../middlewares/rateLimiter"
+import { rateLimiter } from "@backend/middlewares/rateLimiter"
 
 const router = Router()
 

@@ -3,7 +3,7 @@
  * 봇 탐지 회피 실패 시 다양한 대체 전략을 순차적으로 시도
  */
 import { EnhancedGymInfo } from '@backend/modules/crawling/types/CrawlingTypes'
-import { AdaptiveRetryManager } from './AdaptiveRetryManager'
+import { AdaptiveRetryManager } from '@backend/modules/crawling/utils/AdaptiveRetryManager'
 
 export interface FallbackStrategy {
   name: string

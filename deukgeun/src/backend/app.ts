@@ -9,9 +9,9 @@ import morgan from "morgan"
 // TypeORM 메타데이터 리플렉션 지원
 import "reflect-metadata"
 // 커스텀 에러 핸들러 미들웨어 import
-import { errorHandler } from "./middlewares/errorHandler"
+import { errorHandler } from "@backend/middlewares/errorHandler"
 // API 라우트 설정 import
-import routes from "./routes"
+import routes from "@backend/routes"
 // 쿠키 파싱 미들웨어 import
 import cookieParser from "cookie-parser"
 // 파일 경로 처리 유틸리티 import
@@ -19,7 +19,7 @@ import path from "path"
 // 파일 시스템 유틸리티 import
 import fs from "fs"
 // ESM/CJS 호환을 위한 경로 유틸리티
-import { getDirname } from "./utils/pathUtils"
+import { getDirname } from "@backend/utils/pathUtils"
 
 // __dirname 대체 (ESM/CJS 둘 다 호환)
 const __dirname = getDirname()

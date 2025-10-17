@@ -3,12 +3,12 @@
  * 모든 검색 엔진을 통합 관리하고 중복 코드를 제거하여 성능 최적화
  */
 
-import { BaseSearchEngine } from './BaseSearchEngine'
-import { NaverCafeSearchEngine } from './NaverCafeSearchEngine'
-import { NaverSearchEngine } from './NaverSearchEngine'
-import { GoogleSearchEngine } from './GoogleSearchEngine'
-import { DaumSearchEngine } from './DaumSearchEngine'
-import { NaverBlogSearchEngine } from './NaverBlogSearchEngine'
+import { BaseSearchEngine } from '@backend/modules/crawling/sources/search/BaseSearchEngine'
+import { NaverCafeSearchEngine } from '@backend/modules/crawling/sources/search/NaverCafeSearchEngine'
+import { NaverSearchEngine } from '@backend/modules/crawling/sources/search/NaverSearchEngine'
+import { GoogleSearchEngine } from '@backend/modules/crawling/sources/search/GoogleSearchEngine'
+import { DaumSearchEngine } from '@backend/modules/crawling/sources/search/DaumSearchEngine'
+import { NaverBlogSearchEngine } from '@backend/modules/crawling/sources/search/NaverBlogSearchEngine'
 import { EnhancedGymInfo } from '@backend/modules/crawling/types/CrawlingTypes'
 
 export interface SearchEngineConfig {

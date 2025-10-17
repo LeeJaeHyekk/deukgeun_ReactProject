@@ -4,7 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "lib": ["ES2022"],
-    "outDir": "../../dist",
+    "outDir": "../../dist/backend",
     "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -12,8 +12,9 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "declaration": false,
-    "noEmit": false,
+    "noEmit": true,
     "isolatedModules": true,
+    "moduleDetection": "force",
 
     // TypeORM + TS5 안정화 핵심
     "experimentalDecorators": true,
@@ -23,19 +24,19 @@
     // 최적화된 절대 경로 설정
     "baseUrl": ".",
     "paths": {
-      // 백엔드 모듈 경로 (최적화)
-      "@/*": ["./*"],
-      "@/config/*": ["./config/*"],
-      "@/controllers/*": ["./controllers/*"],
-      "@/entities/*": ["./entities/*"],
-      "@/middlewares/*": ["./middlewares/*"],
-      "@/routes/*": ["./routes/*"],
-      "@/services/*": ["./services/*"],
-      "@/utils/*": ["./utils/*"],
-      "@/transformers/*": ["./transformers/*"],
-      "@/types/*": ["./types/*"],
-      "@/modules/*": ["./modules/*"],
-      "@/modules/server/*": ["./modules/server/*"],
+      // 백엔드 모듈 경로 (개발용)
+      "@backend/*": ["./*"],
+      "@backend/config/*": ["./config/*"],
+      "@backend/controllers/*": ["./controllers/*"],
+      "@backend/entities/*": ["./entities/*"],
+      "@backend/middlewares/*": ["./middlewares/*"],
+      "@backend/routes/*": ["./routes/*"],
+      "@backend/services/*": ["./services/*"],
+      "@backend/utils/*": ["./utils/*"],
+      "@backend/transformers/*": ["./transformers/*"],
+      "@backend/types/*": ["./types/*"],
+      "@backend/modules/*": ["./modules/*"],
+      "@backend/modules/server/*": ["./modules/server/*"],
       
       // 공유 모듈 경로
       "@shared/*": ["../shared/*"],
@@ -43,12 +44,7 @@
       "@shared/utils/*": ["../shared/utils/*"],
       "@shared/constants/*": ["../shared/constants/*"],
       "@shared/validation/*": ["../shared/validation/*"],
-      "@shared/api/*": ["../shared/api/*"],
-      
-      // 레거시 호환성 (점진적 제거 예정)
-      "@backend/*": ["./*"],
-      "@backend/modules/*": ["./modules/*"],
-      "@backend/modules/server/*": ["./modules/server/*"]
+      "@shared/api/*": ["../shared/api/*"]
     }
   },
   "include": [

@@ -1,4 +1,4 @@
-import { Gym } from '../types'
+import { Gym } from '@frontend/pages/location/types'
 import { KAKAO_CONFIG } from '@frontend/shared/lib/env'
 
 const KAKAO_API_KEY = KAKAO_CONFIG.REST_API_KEY

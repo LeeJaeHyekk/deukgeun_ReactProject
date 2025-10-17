@@ -10,11 +10,11 @@
 
 import 'reflect-metadata'
 import { DataSource } from 'typeorm'
-import { CrawlingService } from '../modules/crawling/core/CrawlingService.js'
-import { Gym } from '../entities/Gym.js'
+import { CrawlingService } from '@backend/modules/crawling/core/CrawlingService.js'
+import { Gym } from '@backend/entities/Gym.js'
 import * as dotenv from 'dotenv'
 import * as path from 'path'
-import { getDirname } from '../utils/pathUtils'
+import { getDirname } from '@backend/utils/pathUtils'
 
 const __dirname = getDirname()
 

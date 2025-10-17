@@ -3,11 +3,11 @@
 // ============================================================================
 
 import { Server } from "http"
-import app from "@/app"
-import { logger } from "@/utils/logger"
-import { getAvailablePort } from "@/utils/getAvailablePort"
-import { ServerConfig } from "./ServerConfig"
-import { DatabaseConnectionResult } from "./DatabaseManager"
+import app from "@backend/app"
+import { logger } from "@backend/utils/logger"
+import { getAvailablePort } from "@backend/utils/getAvailablePort"
+import { ServerConfig } from "@backend/modules/server/ServerConfig"
+import { DatabaseConnectionResult } from "@backend/modules/server/DatabaseManager"
 
 export interface ServerStartResult {
   server: Server

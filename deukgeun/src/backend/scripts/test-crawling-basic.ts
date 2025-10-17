@@ -2,8 +2,8 @@
  * 기본 크롤링 테스트 스크립트
  * 간단한 헬스장 3개로 기본 기능 테스트
  */
-import { OptimizedGymCrawlingSource } from '../modules/crawling/sources/OptimizedGymCrawlingSource'
-import { ProcessedGymData } from '../modules/crawling/types/CrawlingTypes'
+import { OptimizedGymCrawlingSource } from '@backend/modules/crawling/sources/OptimizedGymCrawlingSource'
+import { ProcessedGymData } from '@backend/modules/crawling/types/CrawlingTypes'
 
 async function testBasicCrawling() {
   console.log('🧪 기본 크롤링 테스트 시작')

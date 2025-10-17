@@ -5,8 +5,8 @@
 
 import { Repository } from 'typeorm'
 import { Gym } from '@backend/entities/Gym'
-import { CrawlingService } from '../modules/crawling/core/CrawlingService'
-import { CrawlingConfig } from '../modules/crawling/types/CrawlingTypes'
+import { CrawlingService } from '@backend/modules/crawling/core/CrawlingService'
+import { CrawlingConfig } from '@backend/modules/crawling/types/CrawlingTypes'
 
 // 싱글톤 인스턴스
 let crawlingServiceInstance: CrawlingService | null = null

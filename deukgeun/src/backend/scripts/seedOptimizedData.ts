@@ -6,18 +6,18 @@ import { Post } from '@backend/entities/Post'
 import { Comment } from '@backend/entities/Comment'
 import { Like } from '@backend/entities/Like'
 import { UserLevel } from '@backend/entities/UserLevel'
-import { ExpHistory } from "../entities/ExpHistory"
-import { UserReward } from "../entities/UserReward"
-import { Milestone } from "../entities/Milestone"
-import { UserStreak } from "../entities/UserStreak"
+import { ExpHistory } from "@backend/entities/ExpHistory"
+import { UserReward } from "@backend/entities/UserReward"
+import { Milestone } from "@backend/entities/Milestone"
+import { UserStreak } from "@backend/entities/UserStreak"
 import { WorkoutSession } from '@backend/entities/WorkoutSession'
-import { ExerciseSet } from "../entities/ExerciseSet"
-import { WorkoutGoal } from "../entities/WorkoutGoal"
-import { WorkoutPlan } from "../entities/WorkoutPlan"
-import { WorkoutPlanExercise } from "../entities/WorkoutPlanExercise"
+import { ExerciseSet } from "@backend/entities/ExerciseSet"
+import { WorkoutGoal } from "@backend/entities/WorkoutGoal"
+import { WorkoutPlan } from "@backend/entities/WorkoutPlan"
+import { WorkoutPlanExercise } from "@backend/entities/WorkoutPlanExercise"
 import { WorkoutStats } from '@backend/entities/WorkoutStats'
-import { WorkoutProgress } from "../entities/WorkoutProgress"
-import { WorkoutReminder } from "../entities/WorkoutReminder"
+import { WorkoutProgress } from "@backend/entities/WorkoutProgress"
+import { WorkoutReminder } from "@backend/entities/WorkoutReminder"
 import { logger } from '@backend/utils/logger'
 import bcrypt from "bcrypt"
 

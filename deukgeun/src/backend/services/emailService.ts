@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer"
-import { config } from "../config/env"
+import { config } from "@backend/config/env"
 import { logger } from '@backend/utils/logger'
-import { EmailServiceConfig, EmailContent } from "../types"
+import { EmailServiceConfig, EmailContent } from "@backend/types"
 
 class EmailService {
   private transporter: nodemailer.Transporter | null = null

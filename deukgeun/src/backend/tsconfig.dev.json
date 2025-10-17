@@ -1,0 +1,68 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "sourceMap": true,
+    "declaration": false,
+    "removeComments": false,
+    "incremental": true,
+    "tsBuildInfoFile": "../../dist/backend/.tsbuildinfo",
+    "baseUrl": ".",
+    "paths": {
+      // 백엔드 모듈 경로 (개발용)
+      "@backend/*": ["./*"],
+      "@backend/config/*": ["./config/*"],
+      "@backend/controllers/*": ["./controllers/*"],
+      "@backend/entities/*": ["./entities/*"],
+      "@backend/middlewares/*": ["./middlewares/*"],
+      "@backend/routes/*": ["./routes/*"],
+      "@backend/services/*": ["./services/*"],
+      "@backend/utils/*": ["./utils/*"],
+      "@backend/transformers/*": ["./transformers/*"],
+      "@backend/types/*": ["./types/*"],
+      "@backend/modules/*": ["./modules/*"],
+      "@backend/modules/server/*": ["./modules/server/*"],
+      
+      // 공유 모듈 경로
+      "@shared/*": ["../shared/*"],
+      "@shared/types/*": ["../shared/types/*"],
+      "@shared/utils/*": ["../shared/utils/*"],
+      "@shared/constants/*": ["../shared/constants/*"],
+      "@shared/validation/*": ["../shared/validation/*"],
+      "@shared/api/*": ["../shared/api/*"]
+    }
+  },
+  "include": [
+    "./**/*", 
+    "../shared/types/dto/**/*",
+    "../shared/types/common.ts",
+    "../shared/types/index.ts",
+    "../shared/validation/**/*"
+  ],
+  "exclude": [
+    "node_modules", 
+    "node_modules/**/*",
+    "dist", 
+    "build", 
+    "**/*.js", 
+    "**/*.jsx",
+    "../frontend/**/*",
+    "../shared/contexts/**/*",
+    "../shared/hooks/**/*",
+    "../shared/ui/**/*",
+    "../shared/lib/recaptcha.ts",
+    "../shared/lib/storage.ts",
+    "../shared/lib/string.ts",
+    "../shared/lib/toast.ts",
+    "../shared/lib/date.ts",
+    "../shared/lib/object.ts",
+    "../shared/api/**/*",
+    "../shared/config/imageMatchingConfig.ts",
+    "../shared/constants/validation.ts",
+    "../shared/types/components.ts",
+    "../shared/utils/storage.ts",
+    "../shared/utils/apiValidation.ts",
+    "../shared/utils/envValidator.ts",
+    "../shared/utils/**/*"
+  ]
+}

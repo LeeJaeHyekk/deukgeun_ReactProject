@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express'
-import { verifyRecaptchaEnterprise, checkRecaptchaEnterpriseHealth } from '../utils/recaptcha-enterprise'
+import { verifyRecaptchaEnterprise, checkRecaptchaEnterpriseHealth } from '@backend/utils/recaptcha-enterprise'
 
 const router = Router()
 

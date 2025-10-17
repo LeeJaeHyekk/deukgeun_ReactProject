@@ -1,6 +1,6 @@
 import { AppDataSource } from '@backend/config/database'
 import { Machine } from '@backend/entities/Machine'
-import { WorkoutGoal } from "../entities/WorkoutGoal"
+import { WorkoutGoal } from "@backend/entities/WorkoutGoal"
 import { logger } from '@backend/utils/logger'
 
 /**

@@ -1,11 +1,11 @@
 import { AppDataSource } from '@backend/config/database'
 import { User } from '@backend/entities/User'
-import { WorkoutPlan } from "../entities/WorkoutPlan"
-import { WorkoutGoal } from "../entities/WorkoutGoal"
+import { WorkoutPlan } from "@backend/entities/WorkoutPlan"
+import { WorkoutGoal } from "@backend/entities/WorkoutGoal"
 import { WorkoutSession } from '@backend/entities/WorkoutSession'
-import { ExerciseSet } from "../entities/ExerciseSet"
+import { ExerciseSet } from "@backend/entities/ExerciseSet"
 import { WorkoutStats } from '@backend/entities/WorkoutStats'
-import { WorkoutProgress } from "../entities/WorkoutProgress"
+import { WorkoutProgress } from "@backend/entities/WorkoutProgress"
 import { Machine } from '@backend/entities/Machine'
 
 async function seedWorkoutJournalData() {

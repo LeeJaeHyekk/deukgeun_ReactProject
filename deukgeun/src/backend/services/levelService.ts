@@ -1,10 +1,10 @@
 import { AppDataSource } from '@backend/config/database'
 import { UserLevel } from '@backend/entities/UserLevel'
-import { ExpHistory } from "../entities/ExpHistory"
-import { UserReward } from "../entities/UserReward"
-import { Milestone } from "../entities/Milestone"
+import { ExpHistory } from "@backend/entities/ExpHistory"
+import { UserReward } from "@backend/entities/UserReward"
+import { Milestone } from "@backend/entities/Milestone"
 import { Between } from "typeorm"
-import { getLevelConfig } from "../config/levelConfig"
+import { getLevelConfig } from "@backend/config/levelConfig"
 
 interface ExpGrantData {
   [key: string]: any

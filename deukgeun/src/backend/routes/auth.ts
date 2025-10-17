@@ -17,7 +17,7 @@ import {
   resetPasswordSimpleStep2,
 } from '@backend/controllers/authController'
 import { authMiddleware } from '@backend/middlewares/auth'
-import { recaptchaEnterpriseMiddleware } from "../utils/recaptcha-enterprise"
+import { recaptchaEnterpriseMiddleware } from "@backend/utils/recaptcha-enterprise"
 
 const router = Router()
 

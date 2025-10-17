@@ -2,7 +2,7 @@ import { Request, Response } from "express"
 import { Comment } from '@backend/entities/Comment'
 import { User } from '@backend/entities/User'
 import { AppDataSource } from '@backend/config/database'
-import { toCommentDTO, toCommentDTOList } from "../transformers"
+import { toCommentDTO, toCommentDTOList } from "@backend/transformers"
 
 export class CommentController {
   // 댓글 생성

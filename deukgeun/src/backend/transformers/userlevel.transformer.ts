@@ -2,7 +2,7 @@
 // UserLevel Transformer
 // ============================================================================
 
-import { UserLevelDTO } from "../../shared/types/dto/userlevel.dto"
+import { UserLevelDTO } from "@shared/types/dto/userlevel.dto"
 import { UserLevel } from '@backend/entities/UserLevel'
 
 export class UserLevelTransformer {

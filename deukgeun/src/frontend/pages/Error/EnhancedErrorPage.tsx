@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ROUTES } from '@frontend/shared/constants/routes'
-import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
+import { useAuthRedux } from '@frontend/shared/hooks/useAuthRedux'
 import Button from '@frontend/shared/components/Button'
 import './EnhancedErrorPage.css'
 
@@ -47,15 +47,23 @@ export default function EnhancedErrorPage({
 }: EnhancedErrorPageProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  // AuthContext가 없을 수 있으므로 안전하게 처리
+  // Redux context가 없을 수 있으므로 안전하게 처리
   let isAuthenticated = false
   
-  try {
-    const authContext = useAuthContext()
-    isAuthenticated = authContext.isAuthenticated
-  } catch (error) {
-    // AuthContext가 없는 경우 기본값 사용
-    console.warn('AuthContext not available:', error)
+  // Redux Provider가 있는지 확인
+  const hasReduxProvider = document.querySelector('[data-testid="redux-provider"]') !== null
+  
+  if (hasReduxProvider) {
+    try {
+      const authContext = useAuthRedux()
+      isAuthenticated = authContext.isLoggedIn
+    } catch (error) {
+      // Redux context가 없는 경우 기본값 사용
+      console.warn('Redux context not available:', error)
+    }
+  } else {
+    // Redux Provider가 없는 경우 기본값 사용
+    console.warn('Redux Provider not found, using default values')
   }
   
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)

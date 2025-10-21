@@ -186,6 +186,40 @@ function startMonitor(): void {
   }
 }
 
+// 주간 크롤링 실행
+function runWeeklyCrawling(): void {
+  logInfo('주간 크롤링 실행 중...')
+  try {
+    execSync('npx ts-node src/backend/scripts/weekly-crawling-cron.ts', { stdio: 'inherit' })
+    logSuccess('주간 크롤링이 완료되었습니다.')
+  } catch (error) {
+    logError(`주간 크롤링 실행에 실패했습니다: ${(error as Error).message}`)
+    process.exit(1)
+  }
+}
+
+// 크롤링 로그 확인
+function showCrawlingLogs(): void {
+  logInfo('크롤링 로그 확인 중... (최근 100줄)')
+  try {
+    execSync('pm2 logs weekly-crawling --lines 100', { stdio: 'inherit' })
+  } catch (error) {
+    logError(`크롤링 로그 확인에 실패했습니다: ${(error as Error).message}`)
+    process.exit(1)
+  }
+}
+
+// 크롤링 상태 확인
+function showCrawlingStatus(): void {
+  logInfo('크롤링 상태 확인 중...')
+  try {
+    execSync('pm2 show weekly-crawling', { stdio: 'inherit' })
+  } catch (error) {
+    logError(`크롤링 상태 확인에 실패했습니다: ${(error as Error).message}`)
+    process.exit(1)
+  }
+}
+
 // 도움말 표시
 function showHelp(): void {
   log('사용법: node pm2-manager.js [명령어]', 'blue')
@@ -200,9 +234,15 @@ function showHelp(): void {
   console.log('  clean   - 로그 파일 정리')
   console.log('  monitor - 실시간 모니터링')
   console.log('')
+  log('크롤링 관련 명령어:', 'cyan')
+  console.log('  crawl      - 주간 크롤링 수동 실행')
+  console.log('  crawl-logs - 크롤링 로그 확인')
+  console.log('  crawl-status - 크롤링 상태 확인')
+  console.log('')
   log('예시:', 'yellow')
   console.log('  node pm2-manager.js start')
   console.log('  node pm2-manager.js status')
+  console.log('  node pm2-manager.js crawl')
 }
 
 // 메인 함수
@@ -247,6 +287,15 @@ function main(): void {
     case 'monitor':
       startMonitor()
       break
+    case 'crawl':
+      runWeeklyCrawling()
+      break
+    case 'crawl-logs':
+      showCrawlingLogs()
+      break
+    case 'crawl-status':
+      showCrawlingStatus()
+      break
     case 'help':
     default:
       showHelp()
@@ -270,5 +319,8 @@ export {
   showLogs,
   deleteProcesses,
   cleanLogs,
-  startMonitor
+  startMonitor,
+  runWeeklyCrawling,
+  showCrawlingLogs,
+  showCrawlingStatus
 }

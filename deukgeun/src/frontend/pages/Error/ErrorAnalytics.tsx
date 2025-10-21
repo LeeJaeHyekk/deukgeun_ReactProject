@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
-import { useUserStore } from '@frontend/shared/store/userStore'
+import { useAuthRedux } from '@frontend/shared/hooks/useAuthRedux'
 import './ErrorAnalytics.css'
 
 interface ErrorAnalyticsProps {
@@ -34,8 +33,7 @@ export default function ErrorAnalytics({
   const [showDetails, setShowDetails] = useState(false)
   
   const location = useLocation()
-  const { isAuthenticated } = useAuthContext()
-  const user = useUserStore(state => state.user)
+  const { isLoggedIn: isAuthenticated, user } = useAuthRedux()
 
   useEffect(() => {
     const generateAnalytics = async () => {

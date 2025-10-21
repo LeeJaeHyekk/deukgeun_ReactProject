@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { showToast } from "@shared/lib"
+import { showToast } from "@frontend/shared/lib"
 import { Navigation } from "@widgets/Navigation/Navigation"
 import { PostModal } from "./components/PostModal"
 import { PostDetailModal } from "./components/PostDetailModal"

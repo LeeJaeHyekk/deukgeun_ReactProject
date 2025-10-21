@@ -2,8 +2,8 @@
 // Machine Guide API Service
 // ============================================================================
 
-import { api } from "@shared/api"
-import { API_ENDPOINTS } from "@shared/config"
+import { api } from "@frontend/shared/api"
+import { API_ENDPOINTS } from "@frontend/shared/config"
 import type {
   Machine,
   CreateMachineRequest,

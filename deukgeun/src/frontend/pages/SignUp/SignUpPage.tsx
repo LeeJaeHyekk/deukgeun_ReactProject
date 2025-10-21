@@ -14,7 +14,8 @@ import {
   SIGNUP_VALIDATION_MESSAGES,
   ERROR_TOAST_TYPES,
 } from '@frontend/shared/constants/validation'
-import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
+import { useAuthRedux } from '@frontend/shared/hooks/useAuthRedux'
+import { logger } from '@frontend/shared/utils/logger'
 import styles from './SignUpPage.module.css'
 import { GenderSelect } from './GenderSelect/GenderSelect'
 import { BirthdaySelect } from './BirthDateSelect/BirthDateSelect'
@@ -53,20 +54,14 @@ interface FormErrors {
 
 export default function SignUpPage() {
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuthContext()
+  const { isLoggedIn: isAuthenticated, login } = useAuthRedux()
   const {
     execute: executeRecaptcha,
     isLoading: recaptchaLoading,
     error: recaptchaError,
   } = useRecaptchaForRegister()
 
-  // 로그인된 상태에서 접근 시 메인페이지로 리다이렉트
-  useEffect(() => {
-    if (isAuthenticated) {
-      console.log('🧪 이미 로그인된 상태 - 메인페이지로 리다이렉트')
-      navigate('/', { replace: true })
-    }
-  }, [isAuthenticated, navigate])
+  // RedirectIfLoggedIn 컴포넌트에서 처리하므로 여기서는 제거
 
   // 폼 상태
   const [formData, setFormData] = useState<FormData>({
@@ -515,19 +510,43 @@ export default function SignUpPage() {
           : '없음',
       })
 
-      console.log('🔄 API 호출 시작')
+      logger.info('SIGNUP_PAGE', 'API 호출 시작')
       const response = await authApi.register(registerData)
-      console.log('✅ API 응답 성공:', response)
+      logger.info('SIGNUP_PAGE', 'API 응답 성공', response)
 
-      console.log('🔄 토큰 저장 시작')
-      // 토큰 저장
-      storage.set('accessToken', response.accessToken)
-      storage.set('user', response.user)
-      console.log('✅ 토큰 저장 완료')
+      // Redux의 login 함수 사용
+      
+      // 백엔드 응답을 새로운 타입 시스템과 호환되도록 변환
+      const userWithToken = {
+        id: response.user.id,
+        email: response.user.email,
+        username: response.user.email, // username은 email과 동일하게 설정
+        nickname: response.user.nickname,
+        accessToken: response.accessToken,
+        // 새로운 타입 시스템에서 요구하는 필드들에 기본값 설정
+        role: 'user' as const,
+        isActive: true,
+        isEmailVerified: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      
+      logger.info('SIGNUP_PAGE', '로그인 함수 호출 전', {
+        userId: userWithToken.id,
+        userEmail: userWithToken.email,
+        hasToken: !!userWithToken.accessToken
+      })
+      
+      login(userWithToken, response.accessToken)
 
       showToast(SIGNUP_VALIDATION_MESSAGES.SUCCESS, 'success')
-      console.log('🎉 회원가입 완료 - 메인페이지로 이동')
-      navigate('/')
+      logger.info('SIGNUP_PAGE', '회원가입 완료 - AuthContext를 통한 자동 리다이렉트')
+      
+      // RedirectIfLoggedIn이 작동하지 않을 경우를 대비한 백업 리다이렉트
+      setTimeout(() => {
+        logger.info('SIGNUP_PAGE', '회원가입 백업 리다이렉트 실행')
+        navigate('/', { replace: true })
+      }, 500)
     } catch (error: unknown) {
       console.error('❌ 회원가입 실패:', error)
       console.error('❌ 에러 상세:', {

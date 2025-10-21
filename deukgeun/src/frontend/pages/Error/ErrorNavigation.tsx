@@ -1,8 +1,7 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ROUTES, MENU_ITEMS } from '@frontend/shared/constants/routes'
-import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
-import { useUserStore } from '@frontend/shared/store/userStore'
+import { useAuthRedux } from '@frontend/shared/hooks/useAuthRedux'
 import Button from '@frontend/shared/components/Button'
 import './ErrorNavigation.css'
 
@@ -17,8 +16,7 @@ export default function ErrorNavigation({
 }: ErrorNavigationProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  const { isAuthenticated } = useAuthContext()
-  const user = useUserStore(state => state.user)
+  const { isLoggedIn: isAuthenticated, user } = useAuthRedux()
 
   // 사용자 인증 상태에 따라 접근 가능한 메뉴 아이템 필터링
   const getAccessibleMenuItems = () => {

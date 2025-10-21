@@ -20,7 +20,7 @@ if (typeof window === 'undefined') {
 }
 
 // Default config values
-const config = {
+export const config = {
   RECAPTCHA: {
     SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY || '',
     IS_DEVELOPMENT: import.meta.env.MODE === 'development',

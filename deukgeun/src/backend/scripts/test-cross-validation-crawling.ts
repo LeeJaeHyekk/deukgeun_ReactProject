@@ -3,7 +3,7 @@
  * 전화번호, 운영시간, 가격, 시설 정보의 정확도를 교차 검증을 통해 향상
  */
 
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 import { OptimizedGymCrawlingSource } from '@backend/modules/crawling/sources/OptimizedGymCrawlingSource'
 import { EnhancedDataMerger } from '@backend/modules/crawling/processors/EnhancedDataMerger'
 import * as fs from 'fs/promises'

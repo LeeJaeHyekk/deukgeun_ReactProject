@@ -7,7 +7,7 @@ import { useMachines } from "@frontend/features/machine-guide/hooks/useMachines"
 import { MachineFilter } from "@frontend/features/machine-guide/components/MachineFilter"
 import { MachineCard } from "@frontend/features/machine-guide/components/MachineCard"
 import { MachineModal } from "@frontend/features/machine-guide/components/MachineModal"
-import type { Machine } from "@dto/index"
+import type { Machine } from "../../../shared/types/dto"
 import { Navigation } from "@widgets/Navigation/Navigation"
 import "./MachineGuidePage.css"
 

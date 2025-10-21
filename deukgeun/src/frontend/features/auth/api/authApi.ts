@@ -1,8 +1,8 @@
 // features/auth/api/authApi.ts
-import { api } from '@shared/api'
-import { API_ENDPOINTS } from '@shared/config'
+import { api } from '@frontend/shared/api'
+import { API_ENDPOINTS } from '@frontend/shared/config'
 import axios from 'axios'
-import { config } from '@shared/config'
+import { config } from '@frontend/shared/config'
 import {
   SIGNUP_VALIDATION_MESSAGES,
   HTTP_ERROR_MESSAGES,

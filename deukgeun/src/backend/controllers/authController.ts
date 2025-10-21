@@ -6,7 +6,7 @@ import bcrypt from "bcrypt"
 import { verifyRecaptcha } from '@backend/utils/recaptcha'
 import { createTokens, verifyRefreshToken } from '@backend/utils/jwt'
 import { logger } from '@backend/utils/logger'
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 import { ApiResponse, ErrorResponse } from "@backend/types"
 import {
   LoginRequest,

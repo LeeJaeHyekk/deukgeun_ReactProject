@@ -34,10 +34,13 @@ build
 .env.production
 .env.development
 .env.staging
+.env.*
 env.production
 env.development
 env.sample
-env.unified 
+env.unified
+env.ec2
+env.development 
 
 # TypeScript build artifacts
 *.tsbuildinfo
@@ -120,6 +123,15 @@ backups/
 src/data/*.json
 !src/data/test_*.json
 !src/data/gyms_raw.json
+
+# API keys and secrets in code
+**/secrets/
+**/keys/
+**/credentials/
+**/*secret*
+**/*key*
+**/*password*
+**/*token*
 
 # Configuration files with sensitive data
 nginx.conf

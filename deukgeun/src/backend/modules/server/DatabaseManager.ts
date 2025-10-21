@@ -2,7 +2,7 @@
 // 데이터베이스 연결 관리 모듈
 // ============================================================================
 
-import { AppDataSource } from "@backend/config/database"
+import { AppDataSource } from "@backend/config/databaseConfig"
 import { logger } from "@backend/utils/logger"
 import { ServerConfig } from "@backend/modules/server/ServerConfig"
 import { lazyLoadDatabase } from "@backend/modules/server/LazyLoader"

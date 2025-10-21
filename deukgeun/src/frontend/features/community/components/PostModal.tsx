@@ -1,6 +1,6 @@
 // components/PostModal.tsx
 import { useState, useEffect } from "react"
-import { showToast } from "@shared/lib"
+import { showToast } from "@frontend/shared/lib"
 import type { PostCategoryInfo } from "../../../../shared/types"
 import styles from "./PostModal.module.css"
 

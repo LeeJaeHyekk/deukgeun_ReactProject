@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import type { WorkoutSession, ExerciseSet } from "@shared/types"
-import type { Machine } from "@dto/index"
+import type { Machine } from "../../../../../../shared/types/dto"
 import { useWorkoutTimer } from "@shared/contexts/WorkoutTimerContext"
 import { useWorkoutStore } from "../../../store/workoutStore"
 import { useMachines } from "@shared/hooks/useMachines"

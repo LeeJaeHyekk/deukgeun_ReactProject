@@ -1,4 +1,4 @@
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 import { User } from '@backend/entities/User'
 import { VerificationToken } from "@backend/entities/VerificationToken"
 import { PasswordResetToken } from "@backend/entities/PasswordResetToken"

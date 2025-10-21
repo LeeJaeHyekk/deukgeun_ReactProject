@@ -1,7 +1,7 @@
-import { useAuthContext } from '../contexts/AuthContext'
+import { useAuthRedux } from '../hooks/useAuthRedux'
 
 function AuthStatus() {
-  const { isAuthenticated, user, isLoading, logout } = useAuthContext()
+  const { isLoggedIn: isAuthenticated, user, isLoading, logout } = useAuthRedux()
 
   if (isLoading) {
     return <div>인증 상태 확인 중...</div>

@@ -4,7 +4,7 @@ import { FaArrowLeft } from 'react-icons/fa'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { useAccountRecovery } from '@features/auth/hooks/useAccountRecovery'
-import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
+import { useAuthRedux } from '@frontend/shared/hooks/useAuthRedux'
 import { RecaptchaWidget } from '@frontend/shared/components/RecaptchaWidget'
 import { showToast } from '@frontend/shared/lib'
 import styles from './FindIdPage.module.css'
@@ -26,7 +26,7 @@ function formatPhoneNumber(value: string): string {
 
 export default function FindIdPage() {
   const navigate = useNavigate()
-  const { isAuthenticated, isLoading } = useAuthContext()
+  const { isLoggedIn: isAuthenticated, isLoading } = useAuthRedux()
   const { state, findIdSimple, reset } = useAccountRecovery()
 
   const [formData, setFormData] = useState({

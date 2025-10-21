@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { HomePageConfig } from "@backend/entities/HomePageConfig"
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 
 export class HomePageController {
   // 홈페이지 설정 조회

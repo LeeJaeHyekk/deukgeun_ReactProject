@@ -22,8 +22,8 @@ import {
 } from '@backend/modules/crawling/types/CrawlingTypes'
 
 export class CrawlingService {
-  private gymRepo: Repository<Gym>
-  private dataProcessor: DataProcessor
+  private gymRepo: Repository<Gym> | null
+  private dataProcessor: DataProcessor | null
   private publicApiSource: PublicApiSource
   private optimizedCrawlingSource: OptimizedGymCrawlingSource
   private dataMerger: DataMerger
@@ -33,9 +33,10 @@ export class CrawlingService {
   private config: CrawlingConfig
   private status: CrawlingStatus
 
-  constructor(gymRepo: Repository<Gym>) {
+  constructor(gymRepo: Repository<Gym> | null) {
     this.gymRepo = gymRepo
-    this.dataProcessor = new DataProcessor(gymRepo)
+    // gymRepo가 null인 경우 파일 기반으로만 동작
+    this.dataProcessor = gymRepo ? new DataProcessor(gymRepo) : null
     this.publicApiSource = new PublicApiSource()
     this.optimizedCrawlingSource = new OptimizedGymCrawlingSource()
     this.dataMerger = new DataMerger()
@@ -54,7 +55,7 @@ export class CrawlingService {
       maxRetries: 3,
       timeout: 30000,
       saveToFile: true,
-      saveToDatabase: true
+      saveToDatabase: false // 기본적으로 파일 기반으로만 저장 (DB 저장 비활성화)
     }
 
     this.status = {

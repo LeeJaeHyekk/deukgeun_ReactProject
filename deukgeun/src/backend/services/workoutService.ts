@@ -1,4 +1,4 @@
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 import { WorkoutPlan } from "@backend/entities/WorkoutPlan"
 import { WorkoutPlanExercise } from "@backend/entities/WorkoutPlanExercise"
 import { WorkoutSession } from '@backend/entities/WorkoutSession'

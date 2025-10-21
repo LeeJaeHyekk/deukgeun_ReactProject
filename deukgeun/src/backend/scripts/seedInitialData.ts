@@ -2,7 +2,7 @@
 // 초기 데이터 생성 스크립트
 // ============================================================================
 
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 import { User } from '@backend/entities/User'
 import { UserLevel } from '@backend/entities/UserLevel'
 import { UserReward } from "@backend/entities/UserReward"

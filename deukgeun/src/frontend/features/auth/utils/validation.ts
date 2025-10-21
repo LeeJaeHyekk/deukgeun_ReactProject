@@ -1,4 +1,4 @@
-import { validation } from "@shared/lib"
+import { validation } from "@frontend/shared/lib"
 
 // 폼 필드별 검증 규칙
 export const AUTH_VALIDATION_RULES = {

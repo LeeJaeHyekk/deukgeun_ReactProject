@@ -1,4 +1,4 @@
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 import { UserLevel } from '@backend/entities/UserLevel'
 import { ExpHistory } from "@backend/entities/ExpHistory"
 import { UserReward } from "@backend/entities/UserReward"

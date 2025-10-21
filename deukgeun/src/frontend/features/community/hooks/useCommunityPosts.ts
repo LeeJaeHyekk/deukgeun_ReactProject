@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { postsApi } from '@frontend/shared/api'
-import { showToast } from '@shared/lib'
+import { showToast } from '@frontend/shared/lib'
 import {
   PostDTO as CommunityPost,
   PostCategoryInfo,

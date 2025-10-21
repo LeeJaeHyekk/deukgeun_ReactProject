@@ -1,7 +1,6 @@
 import React, { useState, useEffect, memo, useMemo, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { useAuthContext } from "@frontend/shared/contexts/AuthContext"
-import { useUserStore } from "@frontend/shared/store/userStore"
+import { useAuthRedux } from "@frontend/shared/hooks/useAuthRedux"
 import { LevelDisplay } from "@frontend/shared/components/LevelDisplay"
 import { Navigation } from "@widgets/Navigation/Navigation"
 import type { User } from "../../../shared/types"
@@ -22,7 +21,6 @@ interface MyPageProps {
 }
 
 // Zustand selector 최적화
-const selectUser = (state: { user: User | null }) => state.user
 
 // 메모이제이션된 컴포넌트들
 const InfoItem = memo(
@@ -84,8 +82,7 @@ const StatsCard = memo(
 
 function MyPage({ className }: MyPageProps) {
   const navigate = useNavigate()
-  const user = useUserStore(selectUser)
-  const { logout } = useAuthContext()
+  const { user, logout } = useAuthRedux()
 
   // 사용자 정보 메모이제이션 (성능 최적화)
   const userInfo = useMemo((): UserInfo => {

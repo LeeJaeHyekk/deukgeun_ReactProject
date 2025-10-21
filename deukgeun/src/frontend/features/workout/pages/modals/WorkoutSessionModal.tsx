@@ -11,7 +11,7 @@ import {
   Timer,
 } from "lucide-react"
 import type { WorkoutSession, ExerciseSet } from "../../../../../shared/types"
-import type { Machine, WorkoutPlanDTO, WorkoutPlanExerciseForm } from "@dto/index"
+import type { Machine, WorkoutPlanDTO, WorkoutPlanExerciseForm } from "../../../../../shared/types/dto"
 import { useWorkoutTimer } from "../../../../shared/contexts/WorkoutTimerContext"
 import WorkoutSessionService from "../../services/WorkoutSessionService"
 import { safeParseWorkoutPlan } from "@shared/types/guards"

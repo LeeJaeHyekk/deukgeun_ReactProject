@@ -13,10 +13,14 @@ let crawlingServiceInstance: CrawlingService | null = null
 
 /**
  * 크롤링 서비스 인스턴스 가져오기
+ * gymRepo가 null/undefined인 경우 파일 기반으로만 동작
  */
-export function getCrawlingService(gymRepo: Repository<Gym>): CrawlingService {
-  if (!crawlingServiceInstance) {
+export function getCrawlingService(gymRepo: Repository<Gym> | null | undefined): CrawlingService {
+  if (!crawlingServiceInstance && gymRepo) {
     crawlingServiceInstance = new CrawlingService(gymRepo)
+  } else if (!crawlingServiceInstance && !gymRepo) {
+    // 데이터베이스 없이 파일 기반으로만 동작하는 더미 레포지토리 생성
+    crawlingServiceInstance = new CrawlingService(null as any)
   }
   return crawlingServiceInstance
 }

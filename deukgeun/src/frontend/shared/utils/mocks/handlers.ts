@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import { API_ENDPOINTS } from '@shared/config'
+import { API_ENDPOINTS } from '@frontend/shared/config'
 
 // Mock 데이터
 const mockUsers = [

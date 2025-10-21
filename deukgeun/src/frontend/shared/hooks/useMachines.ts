@@ -6,8 +6,8 @@
 // 새로운 MachineGuide 기능에서는 @features/machine-guide/hooks/useMachines를 사용하세요.
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { machineApi } from '@shared/api/machineApi'
-import { showToast } from '@shared/lib'
+import { machineApi } from '@frontend/shared/api/machineApi'
+import { showToast } from '@frontend/shared/lib'
 import type { 
   Machine, 
   CreateMachineRequest, 

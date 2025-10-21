@@ -1,4 +1,4 @@
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 import { Post } from '@backend/entities/Post'
 import { User } from '@backend/entities/User'
 import { ApiResponse } from "@backend/types"

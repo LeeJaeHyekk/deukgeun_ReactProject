@@ -3,7 +3,7 @@ import { executeRecaptcha,
   getDummyRecaptchaToken,
   isRecaptchaAvailable,
  } from '@frontend/shared/lib/recaptcha'
-import { config } from '@shared/config'
+import { config } from '@frontend/shared/config'
 
 interface UseRecaptchaOptions {
   action?: string

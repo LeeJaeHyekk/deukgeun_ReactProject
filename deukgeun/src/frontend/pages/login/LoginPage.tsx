@@ -4,9 +4,10 @@ import { FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa'
 import { authApi } from '@features/auth/api/authApi'
 import type { LoginRequest } from '../../../shared/types'
 import { validation, showToast } from '@frontend/shared/lib'
-import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
+import { useAuthRedux } from '@frontend/shared/hooks/useAuthRedux'
 import { RecaptchaWidget } from '@frontend/shared/components/RecaptchaWidget'
 import { useAuthErrorHandler } from '@pages/Error'
+import { logger } from '@frontend/shared/utils/logger'
 
 import styles from './LoginPage.module.css'
 
@@ -23,15 +24,10 @@ export default function LoginPage() {
   }>({})
   const [error, setError] = useState<string>('')
   const navigate = useNavigate()
-  const { login, isAuthenticated } = useAuthContext()
+  const { login, isLoggedIn: isAuthenticated } = useAuthRedux()
   const { handleApiError, hasError, errorInfo, retry } = useAuthErrorHandler()
 
-  // 로그인된 상태에서 접근 시 메인페이지로 리다이렉트
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/', { replace: true })
-    }
-  }, [isAuthenticated, navigate])
+  // RedirectIfLoggedIn 컴포넌트에서 처리하므로 여기서는 제거
 
   // 폼 검증
   const validateForm = (): boolean => {
@@ -79,21 +75,21 @@ export default function LoginPage() {
         recaptchaToken: recaptchaToken!,
       }
 
-      console.log('🧪 로그인 데이터:', { ...loginData, password: '***' })
+      logger.info('LOGIN_PAGE', '로그인 데이터 준비', { ...loginData, password: '***' })
 
       const response = await authApi.login(loginData)
 
-      console.log('🧪 로그인 응답:', response)
+      logger.info('LOGIN_PAGE', '로그인 API 응답', response)
 
       if (!response || !response.user) {
-        console.log('🧪 로그인 실패: 사용자 정보 없음')
+        logger.error('LOGIN_PAGE', '로그인 실패: 사용자 정보 없음')
         showToast('로그인에 실패했습니다.', 'error')
         setLoading(false)
         return
       }
 
       // AuthContext의 login 함수 사용 (Zustand + storage 모두 업데이트)
-      console.log('🧪 AuthContext login 호출')
+      logger.info('LOGIN_PAGE', 'AuthContext login 호출')
 
       // 백엔드 응답을 새로운 타입 시스템과 호환되도록 변환
       const userWithToken = {
@@ -109,12 +105,23 @@ export default function LoginPage() {
         createdAt: new Date(),
         updatedAt: new Date(),
       }
+      
+      logger.info('LOGIN_PAGE', '로그인 함수 호출 전', {
+        userId: userWithToken.id,
+        userEmail: userWithToken.email,
+        hasToken: !!userWithToken.accessToken
+      })
+      
       login(userWithToken, response.accessToken)
 
-      console.log('🧪 로그인 성공!')
+      logger.info('LOGIN_PAGE', '로그인 성공!')
       showToast('로그인 성공!', 'success')
 
-      // 자동 리다이렉트는 App.tsx의 RedirectIfLoggedIn에서 처리
+      // RedirectIfLoggedIn이 작동하지 않을 경우를 대비한 백업 리다이렉트
+      setTimeout(() => {
+        logger.info('LOGIN_PAGE', '백업 리다이렉트 실행')
+        navigate('/', { replace: true })
+      }, 500)
     } catch (error: unknown) {
       console.log('🧪 로그인 에러:', error)
       handleApiError(error as any)

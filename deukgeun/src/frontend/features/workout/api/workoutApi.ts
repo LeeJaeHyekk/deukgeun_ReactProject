@@ -2,7 +2,7 @@
 // Workout Feature API Client - Unified API Interface
 // ============================================================================
 
-import { apiClient } from "../../../../shared/api/client"
+import apiClient from "@frontend/shared/api"
 import type {
   WorkoutPlan,
   WorkoutSession,

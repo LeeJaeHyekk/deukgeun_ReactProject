@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { Comment } from '@backend/entities/Comment'
 import { User } from '@backend/entities/User'
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 import { toCommentDTO, toCommentDTOList } from "@backend/transformers"
 
 export class CommentController {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { commentsApi } from '@frontend/shared/api'
-import { showToast } from '@shared/lib'
-import { useAuthContext } from '@shared/contexts/AuthContext'
+import { showToast } from '@frontend/shared/lib'
+import { useAuthRedux } from '@frontend/shared/hooks/useAuthRedux'
 import {
   PostDTO as CommunityPost,
   Comment as PostComment,
@@ -24,7 +24,7 @@ export function PostDetailModal({
   onUpdate,
   onDelete,
 }: PostDetailModalProps) {
-  const { user } = useAuthContext()
+  const { user } = useAuthRedux()
   const [comments, setComments] = useState<PostComment[]>([])
   const [newComment, setNewComment] = useState('')
   const [isEditing, setIsEditing] = useState(false)

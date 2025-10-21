@@ -5,7 +5,7 @@
 import React from "react"
 import { Link, useLocation } from "react-router-dom"
 import { ROUTES } from "@frontend/shared/constants/routes"
-import { useUserStore } from "@shared/store/userStore"
+import { useAuthRedux } from "@frontend/shared/hooks/useAuthRedux"
 import { validateAdminAccess } from "../utils/adminUtils"
 import type { AdminRole } from "../types"
 import "./AdminLayout.css"
@@ -22,7 +22,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   description,
 }) => {
   const location = useLocation()
-  const user = useUserStore(state => state.user)
+  const { user } = useAuthRedux()
 
   // 관리자 권한 확인
   if (!user || !validateAdminAccess(user.role as AdminRole, "admin")) {

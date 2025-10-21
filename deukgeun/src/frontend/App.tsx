@@ -1,19 +1,25 @@
 // React Router 관련 라이브러리 import
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-// 인증 관련 컨텍스트 및 훅 import
-import { AuthProvider } from '@frontend/shared/contexts/AuthContext'
-import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
-import { useUserStore } from '@frontend/shared/store/userStore'
+import { useEffect } from 'react'
+// Redux 관련 import
+import { ReduxProvider } from '@frontend/shared/providers/ReduxProvider'
+import { useAuthRedux } from '@frontend/shared/hooks/useAuthRedux'
+import { initializeAuth } from '@frontend/shared/store/authInitializer'
 // 워크아웃 타이머 컨텍스트 import
 import { WorkoutTimerProvider } from '@frontend/shared/contexts/WorkoutTimerContext'
 // 공통 UI 컴포넌트 import
 import { LoadingSpinner } from '@frontend/shared/ui/LoadingSpinner/LoadingSpinner'
 // 에러 처리 관련 import
 import { ErrorBoundary, globalErrorHandler } from '@pages/Error'
+// 로거 import
+import { logger } from '@frontend/shared/utils/logger'
+// 개발자 도구 import
+import { DevTools } from '@frontend/shared/components/DevTools'
+import { LoginTest } from '@frontend/shared/components/LoginTest'
 // 라우트 상수 import
 import { ROUTES } from '@frontend/shared/constants/routes'
 // 페이지 컴포넌트들 import
-import HomePage from '@pages/HomePage'
+import HomePage from '@pages/HomePage/HomePage'
 import LoginPage from '@pages/login/LoginPage'
 import ErrorPage from '@pages/Error/ErrorPage'
 import SignUpPage from '@pages/SignUp/SignUpPage'
@@ -35,7 +41,7 @@ import DatabaseUpdatePage from '@features/admin/DatabaseUpdatePage'
  */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   // 인증 상태와 로딩 상태 가져오기
-  const { isAuthenticated, isLoading } = useAuthContext()
+  const { isLoggedIn: isAuthenticated, isLoading } = useAuthRedux()
 
   // 로딩 중일 때는 스피너 표시
   if (isLoading) {
@@ -58,8 +64,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
  */
 function AdminRoute({ children }: { children: React.ReactNode }) {
   // 인증 상태와 로딩 상태 가져오기
-  const { isAuthenticated, isLoading } = useAuthContext()
-  const user = useUserStore(state => state.user)
+  const { isLoggedIn: isAuthenticated, isLoading, user } = useAuthRedux()
 
   // 로딩 중일 때는 스피너 표시
   if (isLoading) {
@@ -86,16 +91,21 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
  * @returns 로그인되지 않은 사용자에게는 자식 컴포넌트를, 로그인된 사용자는 홈으로 리다이렉트
  */
 function RedirectIfLoggedIn({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuthContext()
+  const { isLoggedIn: isAuthenticated, isLoading } = useAuthRedux()
+
+  logger.debug('REDIRECT', 'RedirectIfLoggedIn 체크', { isAuthenticated, isLoading })
 
   if (isLoading) {
+    logger.debug('REDIRECT', 'RedirectIfLoggedIn: 로딩 중...')
     return <LoadingSpinner text="인증 확인 중..." />
   }
 
   if (isAuthenticated) {
+    logger.info('REDIRECT', 'RedirectIfLoggedIn: 로그인된 사용자 감지 - 홈으로 리다이렉트')
     return <Navigate to={ROUTES.HOME} replace />
   }
 
+  logger.debug('REDIRECT', 'RedirectIfLoggedIn: 로그인되지 않은 사용자 - 페이지 표시')
   return <>{children}</>
 }
 
@@ -105,7 +115,14 @@ function RedirectIfLoggedIn({ children }: { children: React.ReactNode }) {
  */
 function AppRoutes() {
   // 전체 앱의 로딩 상태 가져오기
-  const { isLoading } = useAuthContext()
+  const { isLoading } = useAuthRedux()
+
+  // 앱 초기화 (한 번만 실행)
+  useEffect(() => {
+    initializeAuth().catch((error) => {
+      console.error('앱 초기화 실패:', error)
+    })
+  }, [])
 
   // 전체 앱 로딩 중일 때만 로딩 스피너 표시
   if (isLoading) {
@@ -240,8 +257,8 @@ function App() {
         })
       }}
     >
-      {/* 인증 상태를 관리하는 컨텍스트 프로바이더 */}
-      <AuthProvider>
+      {/* Redux 상태를 관리하는 프로바이더 */}
+      <ReduxProvider>
         {/* 워크아웃 타이머 상태를 관리하는 컨텍스트 프로바이더 */}
         <WorkoutTimerProvider>
           {/* 브라우저 라우터 설정 - React Router v7 호환성을 위한 future flags */}
@@ -253,9 +270,13 @@ function App() {
           >
             {/* 메인 라우트 컴포넌트 */}
             <AppRoutes />
+            {/* 개발자 도구 */}
+            <DevTools />
+            {/* 로그인 테스트 도구 */}
+            <LoginTest />
           </BrowserRouter>
         </WorkoutTimerProvider>
-      </AuthProvider>
+      </ReduxProvider>
     </ErrorBoundary>
   )
 }

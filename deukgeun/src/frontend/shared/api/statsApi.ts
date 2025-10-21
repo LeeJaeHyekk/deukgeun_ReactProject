@@ -1,5 +1,15 @@
 import apiClient from './index'
 
+// 캐시 관리
+let platformStatsCache: PlatformStats | null = null
+let userStatsCache: UserStats | null = null
+let detailedStatsCache: DetailedStats | null = null
+let cacheTimestamp: number = 0
+const CACHE_DURATION = 5 * 60 * 1000 // 5분
+
+// 중복 요청 방지
+let pendingPlatformStatsRequest: Promise<PlatformStats> | null = null
+
 export interface PlatformStats {
   activeUsers: number
   totalGyms: number
@@ -67,15 +77,49 @@ const DEFAULT_DETAILED_STATS: DetailedStats = {
 }
 
 const statsApi = {
-  // 플랫폼 기본 통계 조회
+  // 플랫폼 기본 통계 조회 (캐싱 및 중복 요청 방지 적용)
   getPlatformStats: async (): Promise<PlatformStats> => {
-    try {
-      const response = await apiClient.get("/api/stats/platform")
-      return response.data.data
-    } catch (error) {
-      console.warn("플랫폼 통계 조회 실패, 기본값 사용:", error)
-      return DEFAULT_PLATFORM_STATS
+    // 캐시된 데이터가 있고 유효한 경우 반환
+    if (platformStatsCache && Date.now() - cacheTimestamp < CACHE_DURATION) {
+      console.log("📦 플랫폼 통계 캐시 사용")
+      return platformStatsCache
     }
+
+    // 이미 진행 중인 요청이 있으면 기다림
+    if (pendingPlatformStatsRequest) {
+      console.log("🔄 플랫폼 통계 요청 진행 중, 기존 요청 대기")
+      return pendingPlatformStatsRequest
+    }
+
+    // 새로운 요청 시작
+    pendingPlatformStatsRequest = (async () => {
+      try {
+        console.log("🌐 플랫폼 통계 API 호출")
+        const response = await apiClient.get("/api/stats/platform")
+        const stats = response.data.data
+        
+        // 캐시 업데이트
+        platformStatsCache = stats
+        cacheTimestamp = Date.now()
+        
+        return stats
+      } catch (error) {
+        console.warn("플랫폼 통계 조회 실패, 기본값 사용:", error)
+        
+        // 에러 시에도 기본값을 캐시에 저장하여 반복 호출 방지
+        if (!platformStatsCache) {
+          platformStatsCache = DEFAULT_PLATFORM_STATS
+          cacheTimestamp = Date.now()
+        }
+        
+        return DEFAULT_PLATFORM_STATS
+      } finally {
+        // 요청 완료 후 pendingRequest 초기화
+        pendingPlatformStatsRequest = null
+      }
+    })()
+
+    return pendingPlatformStatsRequest
   },
 
   // 상세 통계 조회 (관리자용)

@@ -6,14 +6,14 @@
 // 새로운 MachineGuide 기능에서는 @features/machine-guide/services/machineApi를 사용하세요.
 
 import { api } from '@frontend/shared/api/index'
-import { API_ENDPOINTS } from '@shared/config'
+import { API_ENDPOINTS } from '@frontend/shared/config'
 import type {
   Machine,
   CreateMachineRequest,
   UpdateMachineRequest,
   MachineListResponse as DTOMachineListResponse,
   MachineResponse as DTOMachineResponse,
-} from "@dto/index"
+} from "../../../shared/types/dto"
 import { 
   safeParseMachineArray, 
   safeParseMachine,
@@ -196,3 +196,5 @@ const machineApi = {
     }
   },
 }
+
+export { machineApi }

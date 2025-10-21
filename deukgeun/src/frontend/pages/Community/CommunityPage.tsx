@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { postsApi, likesApi } from '@frontend/shared/api'
-import { showToast } from '@shared/lib'
+import { showToast } from '@frontend/shared/lib'
 import { PostGrid } from '../../features/community/components/PostGrid'
 import { PostModal } from '../../features/community/components/PostModal'
 import { PostDetailModal } from '../../features/community/components/PostDetailModal'

@@ -6,9 +6,24 @@ import { warnLegacyServiceUsage } from '@backend/services/legacy-crawling-servic
 
 const router = Router()
 
-// 레거시 컨트롤러 대신 새로운 크롤링 서비스 사용
-const gymRepo = getRepository(Gym)
-const crawlingService = getCrawlingService(gymRepo)
+// 지연 초기화를 위한 변수들
+let gymRepo: any = null
+let crawlingService: any = null
+
+// 데이터베이스 연결이 준비된 후에 초기화하는 함수
+function initializeServices() {
+  if (!gymRepo) {
+    try {
+      gymRepo = getRepository(Gym)
+      crawlingService = getCrawlingService(gymRepo)
+    } catch (error) {
+      console.warn('⚠️ Database connection not ready, using fallback service')
+      // 데이터베이스 연결이 없을 때는 파일 기반 서비스 사용
+      crawlingService = getCrawlingService(undefined as any)
+    }
+  }
+  return { gymRepo, crawlingService }
+}
 
 /**
  * @route POST /api/enhanced-gym/update-data
@@ -19,6 +34,7 @@ router.post('/update-data', async (req, res) => {
   try {
     warnLegacyServiceUsage('EnhancedGymController')
     
+    const { crawlingService } = initializeServices()
     const result = await crawlingService.executeIntegratedCrawling()
     
     res.json({
@@ -47,6 +63,7 @@ router.get('/crawl/:gymName', async (req, res) => {
   try {
     warnLegacyServiceUsage('EnhancedGymController')
     
+    const { crawlingService } = initializeServices()
     const { gymName } = req.params
     const { address } = req.query
     
@@ -148,6 +165,7 @@ router.get('/validate-quality/:gymId', async (req, res) => {
  */
 router.get('/crawling-stats', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     const statistics = crawlingService.getSessionStatistics()
     
     res.json({
@@ -173,6 +191,7 @@ router.get('/crawling-stats', async (req, res) => {
  */
 router.put('/config', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     const newConfig = req.body
     crawlingService.updateConfig(newConfig)
     
@@ -200,6 +219,7 @@ router.put('/config', async (req, res) => {
  */
 router.get('/status', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     const status = crawlingService.getStatus()
     const progress = crawlingService.getCrawlingProgress()
     
@@ -229,6 +249,7 @@ router.get('/status', async (req, res) => {
  */
 router.post('/stop', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     await crawlingService.cleanup()
     
     res.json({
@@ -254,6 +275,7 @@ router.post('/stop', async (req, res) => {
  */
 router.get('/performance', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     const statistics = crawlingService.getSessionStatistics()
     const currentSession = crawlingService.getCurrentSession()
     
@@ -288,6 +310,7 @@ router.get('/performance', async (req, res) => {
  */
 router.post('/integrated-crawling', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     const result = await crawlingService.executeIntegratedCrawling()
     
     res.json({
@@ -314,6 +337,7 @@ router.post('/integrated-crawling', async (req, res) => {
  */
 router.get('/public-api-scheduler/status', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     const status = crawlingService.getStatus()
     
     res.json({
@@ -347,6 +371,7 @@ router.post('/public-api-scheduler/control', async (req, res) => {
     const { action } = req.body // 'start' 또는 'stop'
     
     if (action === 'start') {
+      const { crawlingService } = initializeServices()
       const result = await crawlingService.executeIntegratedCrawling()
       res.json({
         success: result.success,
@@ -355,6 +380,7 @@ router.post('/public-api-scheduler/control', async (req, res) => {
         timestamp: new Date().toISOString()
       })
     } else if (action === 'stop') {
+      const { crawlingService } = initializeServices()
       await crawlingService.cleanup()
       res.json({
         success: true,
@@ -387,6 +413,7 @@ router.post('/public-api-scheduler/control', async (req, res) => {
 router.post('/api-list-update', async (req, res) => {
   try {
     // API 목록 업데이트는 공공 API 데이터 수집과 동일
+    const { crawlingService } = initializeServices()
     const publicApiData = await crawlingService.collectFromPublicAPI()
     
     res.json({
@@ -416,6 +443,7 @@ router.post('/api-list-update', async (req, res) => {
  */
 router.get('/crawl-bypass/:gymName', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     const { gymName } = req.params
     const { address } = req.query
     
@@ -488,6 +516,7 @@ router.post('/validate-type-guard', async (req, res) => {
  */
 router.get('/integrated-crawling/status', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     const status = crawlingService.getStatus()
     const progress = crawlingService.getCrawlingProgress()
     const currentSession = crawlingService.getCurrentSession()
@@ -519,6 +548,7 @@ router.get('/integrated-crawling/status', async (req, res) => {
  */
 router.post('/integrated-crawling/stop', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     await crawlingService.cleanup()
     
     res.json({
@@ -544,6 +574,7 @@ router.post('/integrated-crawling/stop', async (req, res) => {
  */
 router.get('/sessions', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     const { limit = 10 } = req.query
     const sessions = crawlingService.getRecentSessions(Number(limit))
     
@@ -570,6 +601,7 @@ router.get('/sessions', async (req, res) => {
  */
 router.get('/sessions/:sessionId', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     const { sessionId } = req.params
     const session = crawlingService.getSession(sessionId)
     
@@ -604,6 +636,7 @@ router.get('/sessions/:sessionId', async (req, res) => {
  */
 router.get('/statistics', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     const statistics = crawlingService.getSessionStatistics()
     
     res.json({
@@ -629,6 +662,7 @@ router.get('/statistics', async (req, res) => {
  */
 router.get('/current-session', async (req, res) => {
   try {
+    const { crawlingService } = initializeServices()
     const currentSession = crawlingService.getCurrentSession()
     
     res.json({

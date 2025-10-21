@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express"
 import { PostService } from "@backend/services/post.service"
 import { User } from '@backend/entities/User'
 import { LevelService } from '@backend/services/levelService'
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 import { ApiResponse, ErrorResponse } from "@backend/types"
 import { toPostDTO, toPostDTOList } from "@backend/transformers/index"
 

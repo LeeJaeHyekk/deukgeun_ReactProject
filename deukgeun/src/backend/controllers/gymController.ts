@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { Gym } from '@backend/entities/Gym'
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 import { ApiResponse, ErrorResponse } from "@backend/types"
 import { toGymDTO, toGymDTOList } from "@backend/transformers/index"
 

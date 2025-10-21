@@ -2,7 +2,7 @@
 // 지연 로딩 관리 모듈
 // ============================================================================
 
-import { AppDataSource } from "@backend/config/database"
+import { AppDataSource } from "@backend/config/databaseConfig"
 import { logger } from "@backend/utils/logger"
 
 /**

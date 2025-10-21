@@ -295,10 +295,10 @@ export const {
   DB_USERNAME: process.env.DB_USERNAME || "root",
   DB_PASSWORD: process.env.DB_PASSWORD || "",
   DB_DATABASE: process.env.DB_DATABASE || process.env.DB_NAME || "deukgeun_db",
-  JWT_SECRET: process.env.JWT_SECRET || "your-secret-key",
+  JWT_SECRET: process.env.JWT_SECRET || "",
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "7d",
-  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || "your-access-secret",
-  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "your-refresh-secret",
+  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || "",
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "",
   CORS_ORIGIN: process.env.CORS_ORIGIN || "",
   KAKAO_API_KEY: process.env.KAKAO_API_KEY || "",
   KAKAO_JAVASCRIPT_MAP_API_KEY: process.env.KAKAO_JAVASCRIPT_MAP_API_KEY || "",
@@ -313,8 +313,8 @@ export const {
   VITE_GYM_API_KEY: process.env.VITE_GYM_API_KEY || "",
   RECAPTCHA_SECRET: process.env.RECAPTCHA_SECRET || "",
   RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY || "",
-  ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET || "yourAccessSecret",
-  REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET || "yourRefreshSecret",
+  ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET || "",
+  REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET || "",
   EMAIL_HOST: process.env.EMAIL_HOST || "smtp.gmail.com",
   EMAIL_PORT: safeParseInt(process.env.EMAIL_PORT, 587, "EMAIL_PORT"),
   EMAIL_USER: process.env.EMAIL_USER || "",
@@ -407,6 +407,8 @@ export async function validateEnvironmentVariables() {
     console.log(`   - Secret: ${jwtConfig.hasSecret ? 'SET ✅' : 'NOT SET ⚠️'}`)
     
     if (!jwtConfig.hasSecret) {
+      console.error("🚨 CRITICAL: JWT_SECRET이 설정되지 않았습니다!")
+      console.error("   보안상 매우 위험합니다. .env 파일에 JWT_SECRET을 설정해주세요.")
       console.warn("⚠️ WARNING: JWT_SECRET is not set. This may cause authentication issues.")
     }
     

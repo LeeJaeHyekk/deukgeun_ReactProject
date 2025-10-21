@@ -4,7 +4,7 @@
 
 import { useState, useCallback, useRef, useMemo } from "react"
 import { MachineApiService } from "@frontend/features/machine-guide/services/machineApi"
-import type { Machine, MachineDTO } from "@dto/index"
+import type { Machine, MachineDTO } from "../../../../shared/types/dto"
 import type { MachineFilterQuery } from "@frontend/features/machine-guide/types"
 
 const FETCH_COOLDOWN = 500 // 0.5초로 단축

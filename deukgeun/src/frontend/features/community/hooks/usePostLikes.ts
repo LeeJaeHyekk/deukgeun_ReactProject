@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { likesApi } from '@frontend/shared/api'
-import { showToast } from '@shared/lib'
+import { showToast } from '@frontend/shared/lib'
 import { Post as CommunityPost } from '../../../../shared/types'
 
 export function usePostLikes() {

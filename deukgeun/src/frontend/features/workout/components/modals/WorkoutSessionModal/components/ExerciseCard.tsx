@@ -1,6 +1,6 @@
 import React from "react"
 import { Check, Timer } from "lucide-react"
-import type { Machine } from "@dto/index"
+import type { Machine } from "../../../../../../../shared/types/dto"
 
 interface ExerciseCardProps {
   exercise: any

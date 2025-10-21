@@ -22,9 +22,11 @@ const __dirname = getDirname()
 dotenv.config({ path: path.join(__dirname, '..', '.env') })
 dotenv.config({ path: path.join(__dirname, '..', 'env.development') })
 
-// 테스트용 환경 변수 설정
+// 테스트용 환경 변수 확인
 if (!process.env.SEOUL_OPENAPI_KEY) {
-  process.env.SEOUL_OPENAPI_KEY = '467572475373737933314e4e494377'
+  console.error('❌ SEOUL_OPENAPI_KEY 환경 변수가 설정되지 않았습니다.')
+  console.error('   .env 파일에 SEOUL_OPENAPI_KEY를 설정해주세요.')
+  process.exit(1)
 }
 
 async function testIntegratedCrawling() {

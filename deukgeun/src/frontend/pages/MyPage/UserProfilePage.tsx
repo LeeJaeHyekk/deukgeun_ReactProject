@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { useAuthContext } from "../../../frontend/shared/contexts/AuthContext"
+import { useAuthRedux } from "../../../frontend/shared/hooks/useAuthRedux"
 import "./UserProfilePage.module.css"
 
 interface UserProfileForm {
@@ -10,7 +10,7 @@ interface UserProfileForm {
 }
 
 function UserProfilePage() {
-  const { user, updateUser } = useAuthContext()
+  const { user, updateUser } = useAuthRedux()
   const [formData, setFormData] = useState<UserProfileForm>({
     nickname: "",
     birthDate: "",

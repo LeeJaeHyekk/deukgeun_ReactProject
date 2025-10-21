@@ -5,7 +5,7 @@
 import winston from "winston"
 import path from "path"
 import fs from "fs"
-// import { config } from "@backend/config/env"
+// import { config } from "@backend/config/environmentConfig"
 
 // 간단한 config 객체 정의
 const config = {

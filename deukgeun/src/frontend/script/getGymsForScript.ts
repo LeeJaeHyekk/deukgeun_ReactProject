@@ -1,4 +1,4 @@
-import { SCRIPT_GYM_CONFIG } from "./env.js"
+import { SCRIPT_GYM_CONFIG } from "./env"
 
 // Gym 타입 정의 (스크립트용)
 interface Gym {

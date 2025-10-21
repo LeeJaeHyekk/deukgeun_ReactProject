@@ -1,158 +1,73 @@
-import { useCallback } from "react"
-import {
-  WorkoutPlanDTO,
-  WorkoutGoalDTO,
-  WorkoutSessionDTO,
-  ExerciseItem,
-} from "../types"
+/**
+ * 워크아웃 액션 관련 훅들
+ */
 
-interface ActionResponse<T = any> {
-  success: boolean
-  data?: T
-  error?: string
+import { useWorkoutStore } from '../store/workoutStore'
+
+/**
+ * 워크아웃 플랜 액션 훅
+ */
+export function useWorkoutPlansActions() {
+  const actions = useWorkoutStore(state => ({
+    fetchPlans: state.fetchPlans,
+    createPlan: state.createPlan,
+    updatePlan: state.updatePlan,
+    deletePlan: state.deletePlan,
+    duplicatePlan: state.duplicatePlan,
+  }))
+
+  console.log("[useWorkoutPlansActions] 훅 실행됨", {
+    timestamp: new Date().toISOString(),
+    fetchPlansRef: actions.fetchPlans.toString().slice(0, 50),
+  })
+
+  return actions
 }
 
-export function useWorkoutActions() {
-  // 계획 관련 액션
-  const createWorkoutPlan = useCallback(
-    async (
-      planData: Omit<WorkoutPlanDTO, "id" | "createdAt" | "updatedAt">
-    ) => {
-      try {
-        // API 호출 로직 구현 예정
-        console.log("Creating workout plan:", planData)
-        return { success: true, data: { ...planData, id: Date.now() } }
-      } catch (error) {
-        console.error("Failed to create workout plan:", error)
-        return { success: false, error: "운동 계획 생성에 실패했습니다." }
-      }
-    },
-    []
-  )
+/**
+ * 워크아웃 세션 액션 훅
+ */
+export function useWorkoutSessionsActions() {
+  return useWorkoutStore(state => ({
+    fetchSessions: state.fetchSessions,
+    createSession: state.createSession,
+    updateSession: state.updateSession,
+    deleteSession: state.deleteSession,
+    startSession: state.startSession,
+    pauseSession: state.pauseSession,
+    completeSession: state.completeSession,
+  }))
+}
 
-  const updateWorkoutPlan = useCallback(
-    async (planId: number, updates: Partial<WorkoutPlanDTO>) => {
-      try {
-        // API 호출 로직 구현 예정
-        console.log("Updating workout plan:", planId, updates)
-        return { success: true, data: { id: planId, ...updates } }
-      } catch (error) {
-        console.error("Failed to update workout plan:", error)
-        return { success: false, error: "운동 계획 수정에 실패했습니다." }
-      }
-    },
-    []
-  )
+/**
+ * 워크아웃 목표 액션 훅
+ */
+export function useWorkoutGoalsActions() {
+  return useWorkoutStore(state => ({
+    fetchGoals: state.fetchGoals,
+    createGoal: state.createGoal,
+    updateGoal: state.updateGoal,
+    deleteGoal: state.deleteGoal,
+    completeGoal: state.completeGoal,
+  }))
+}
 
-  const deleteWorkoutPlan = useCallback(async (planId: number) => {
-    try {
-      // API 호출 로직 구현 예정
-      console.log("Deleting workout plan:", planId)
-      return { success: true }
-    } catch (error) {
-      console.error("Failed to delete workout plan:", error)
-      return { success: false, error: "운동 계획 삭제에 실패했습니다." }
-    }
-  }, [])
+/**
+ * 대시보드 액션 훅
+ */
+export function useWorkoutDashboardActions() {
+  return useWorkoutStore(state => ({
+    fetchDashboardData: state.fetchDashboardData,
+    refreshDashboard: state.refreshDashboard,
+  }))
+}
 
-  // 목표 관련 액션
-  const createWorkoutGoal = useCallback(
-    async (
-      goalData: Omit<WorkoutGoalDTO, "id" | "createdAt" | "updatedAt">
-    ) => {
-      try {
-        // API 호출 로직 구현 예정
-        console.log("Creating workout goal:", goalData)
-        return { success: true, data: { ...goalData, id: Date.now() } }
-      } catch (error) {
-        console.error("Failed to create workout goal:", error)
-        return { success: false, error: "목표 생성에 실패했습니다." }
-      }
-    },
-    []
-  )
-
-  const updateWorkoutGoal = useCallback(
-    async (goalId: number, updates: Partial<WorkoutGoalDTO>) => {
-      try {
-        // API 호출 로직 구현 예정
-        console.log("Updating workout goal:", goalId, updates)
-        return { success: true, data: { id: goalId, ...updates } }
-      } catch (error) {
-        console.error("Failed to update workout goal:", error)
-        return { success: false, error: "목표 수정에 실패했습니다." }
-      }
-    },
-    []
-  )
-
-  const deleteWorkoutGoal = useCallback(async (goalId: number) => {
-    try {
-      // API 호출 로직 구현 예정
-      console.log("Deleting workout goal:", goalId)
-      return { success: true }
-    } catch (error) {
-      console.error("Failed to delete workout goal:", error)
-      return { success: false, error: "목표 삭제에 실패했습니다." }
-    }
-  }, [])
-
-  // 세션 관련 액션
-  const createWorkoutSession = useCallback(
-    async (
-      sessionData: Omit<WorkoutSessionDTO, "id" | "createdAt" | "updatedAt">
-    ) => {
-      try {
-        // API 호출 로직 구현 예정
-        console.log("Creating workout session:", sessionData)
-        return { success: true, data: { ...sessionData, id: Date.now() } }
-      } catch (error) {
-        console.error("Failed to create workout session:", error)
-        return { success: false, error: "운동 세션 생성에 실패했습니다." }
-      }
-    },
-    []
-  )
-
-  const updateWorkoutSession = useCallback(
-    async (sessionId: number, updates: Partial<WorkoutSessionDTO>) => {
-      try {
-        // API 호출 로직 구현 예정
-        console.log("Updating workout session:", sessionId, updates)
-        return { success: true, data: { id: sessionId, ...updates } }
-      } catch (error) {
-        console.error("Failed to update workout session:", error)
-        return { success: false, error: "운동 세션 수정에 실패했습니다." }
-      }
-    },
-    []
-  )
-
-  const deleteWorkoutSession = useCallback(async (sessionId: number) => {
-    try {
-      // API 호출 로직 구현 예정
-      console.log("Deleting workout session:", sessionId)
-      return { success: true }
-    } catch (error) {
-      console.error("Failed to delete workout session:", error)
-      return { success: false, error: "운동 세션 삭제에 실패했습니다." }
-    }
-  }, [])
-
-  return {
-    // 계획 관련 액션
-    createWorkoutPlan,
-    updateWorkoutPlan,
-    deleteWorkoutPlan,
-
-    // 세션 관련 액션
-    createWorkoutSession,
-    updateWorkoutSession,
-    deleteWorkoutSession,
-
-    // 목표 관련 액션
-    createWorkoutGoal,
-    updateWorkoutGoal,
-    deleteWorkoutGoal,
-  }
+/**
+ * 워크아웃 유틸리티 액션 훅
+ */
+export function useWorkoutUtils() {
+  return useWorkoutStore(state => ({
+    resetStore: state.resetStore,
+    clearCache: state.clearCache,
+  }))
 }

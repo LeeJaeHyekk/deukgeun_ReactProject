@@ -1,7 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { useUserStore } from '@frontend/shared/store/userStore'
-import { useAuthContext } from '@frontend/shared/contexts/AuthContext'
+import { useAuthRedux } from '@frontend/shared/hooks/useAuthRedux'
 import {
   MENU_ITEMS,
   ROUTES,
@@ -12,8 +11,7 @@ import styles from './Navigation.module.css'
 
 export const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const user = useUserStore(state => state.user)
-  const { isAuthenticated, logout } = useAuthContext()
+  const { user, isLoggedIn: isAuthenticated, logout } = useAuthRedux()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -59,7 +57,6 @@ export const Navigation = () => {
               className={`${styles.navMenuItem} ${isActivePage(path) ? styles.active : ''}`}
               onClick={closeMobileMenu}
             >
-              <span className={styles.menuIcon}>{icon}</span>
               {label}
             </Link>
           </li>
@@ -147,7 +144,6 @@ export const Navigation = () => {
                 className={`${styles.mobileMenuItem} ${isActivePage(path) ? styles.active : ''}`}
                 onClick={closeMobileMenu}
               >
-                <span className={styles.menuIcon}>{icon}</span>
                 {label}
               </Link>
             </li>

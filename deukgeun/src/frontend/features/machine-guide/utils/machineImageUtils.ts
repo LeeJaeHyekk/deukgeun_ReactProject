@@ -2,8 +2,8 @@
 // Machine Image Utilities
 // ============================================================================
 
-import IMAGE_MATCHING_CONFIG from "@shared/config/imageMatchingConfig"
-import type { Machine } from "@dto/index"
+import IMAGE_MATCHING_CONFIG from "@frontend/shared/config/imageMatchingConfig"
+import type { Machine } from "../../../../shared/types/dto"
 
 // 이미지 매칭 캐시
 const imageCache = new Map<string, string>()

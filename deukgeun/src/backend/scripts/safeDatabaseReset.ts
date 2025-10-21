@@ -1,4 +1,4 @@
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 import { DataSource } from "typeorm"
 
 async function safeDatabaseReset() {

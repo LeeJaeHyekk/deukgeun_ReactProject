@@ -5,7 +5,7 @@ import { createConnection } from "typeorm"
 import { Gym } from '@backend/entities/Gym'
 import { filterGyms } from "@backend/scripts/gymUtils"
 import { convertTMToWGS84 } from "@backend/utils/coordinateUtils"
-import { config } from "@backend/config/env"
+import { config } from "@backend/config/environmentConfig"
 
 // __dirname 대체 (ESM/CJS 둘 다 호환)
 const __dirname = getDirname()

@@ -1,6 +1,8 @@
-import { useUserStore } from "@shared/store/userStore"
+import { store } from "@frontend/shared/store"
+import { resetAuth } from "@frontend/shared/store/authSlice"
 
 export const logout = () => {
-  useUserStore.getState().clearUser()
-  localStorage.removeItem("accessToken") // 필요시
+  store.dispatch(resetAuth())
+  localStorage.removeItem("accessToken")
+  localStorage.removeItem("user")
 }

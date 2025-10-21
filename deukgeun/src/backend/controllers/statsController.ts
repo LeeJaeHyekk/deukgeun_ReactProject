@@ -4,7 +4,7 @@ import { User } from '@backend/entities/User'
 import { Gym } from '@backend/entities/Gym'
 import { Post } from '@backend/entities/Post'
 import { UserLevel } from '@backend/entities/UserLevel'
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 
 export class StatsController {
   // 전체 통계 조회

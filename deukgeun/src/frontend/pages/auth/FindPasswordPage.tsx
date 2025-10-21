@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { FaArrowLeft } from "react-icons/fa"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
-import { useAuthContext } from "@frontend/shared/contexts/AuthContext"
+import { useAuthRedux } from "@frontend/shared/hooks/useAuthRedux"
 import { useAccountRecovery } from "@features/auth/hooks/useAccountRecovery"
 import { RecaptchaWidget } from "@frontend/shared/components/RecaptchaWidget"
 import type {
@@ -29,7 +29,7 @@ function formatPhoneNumber(value: string): string {
 
 export default function FindPasswordPage() {
   const navigate = useNavigate()
-  const { isAuthenticated, isLoading } = useAuthContext()
+  const { isLoggedIn: isAuthenticated, isLoading } = useAuthRedux()
   const { state, resetPasswordSimpleStep1, resetPasswordSimpleStep2, reset } =
     useAccountRecovery()
 

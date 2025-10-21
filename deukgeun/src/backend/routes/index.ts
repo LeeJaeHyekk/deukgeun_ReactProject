@@ -13,7 +13,7 @@ import logsRoutes from "@backend/routes/logs"
 import recaptchaRoutes from "@backend/routes/recaptcha"
 import homePageRoutes from "@backend/routes/homePage"
 import enhancedGymRoutes from "@backend/routes/enhancedGymRoutes"
-import { AppDataSource, checkDatabaseHealth } from '@backend/config/database'
+import { AppDataSource, checkDatabaseHealth } from '@backend/config/databaseConfig'
 import { 
   isValidHealthResponse, 
   isValidApiResponse,

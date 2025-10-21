@@ -126,6 +126,43 @@ module.exports = {
       listen_timeout: 15000,
       // 주기적 재시작 (매일 새벽 2시)
       cron_restart: '0 2 * * *'
+    },
+    {
+      name: 'weekly-crawling',
+      script: 'npx',
+      args: 'ts-node src/backend/scripts/weekly-crawling-cron.ts',
+      cwd: './',
+      instances: 1,
+      exec_mode: 'fork',
+      // Windows에서 CMD 창이 열리지 않도록 설정
+      windowsHide: true,
+      // 크롤링은 자동 재시작 비활성화 (수동 실행)
+      autorestart: false,
+      watch: false,
+      env: {
+        NODE_ENV: 'production'
+      },
+      // 로그 설정
+      error_file: './logs/weekly-crawling-error.log',
+      out_file: './logs/weekly-crawling-out.log',
+      log_file: './logs/weekly-crawling-combined.log',
+      time: true,
+      // 메모리 설정 최적화
+      max_memory_restart: '1G',
+      node_args: '--max-old-space-size=2048',
+      // 재시작 설정
+      restart_delay: 30000,
+      max_restarts: 1,
+      min_uptime: '5m',
+      // 로그 로테이션 설정
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      merge_logs: true,
+      // 프로세스 그룹 설정
+      kill_timeout: 30000,
+      wait_ready: true,
+      listen_timeout: 30000,
+      // 7일 주기 실행 (매주 일요일 새벽 2시)
+      cron_restart: '0 2 * * 0'
     }
   ],
 

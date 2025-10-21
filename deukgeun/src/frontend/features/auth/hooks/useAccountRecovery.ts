@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { showToast } from "@shared/lib"
+import { showToast } from "@frontend/shared/lib"
 import { authApi } from "../api/authApi"
 import type {
   FindIdStep1Request,

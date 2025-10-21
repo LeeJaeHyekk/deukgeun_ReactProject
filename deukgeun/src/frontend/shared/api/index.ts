@@ -25,8 +25,8 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from 'axios'
-import { config } from '@shared/config'
-import { storage } from '@shared/lib'
+import { config } from '@frontend/shared/config'
+import { storage } from '@frontend/shared/lib'
 import { globalErrorHandler } from '@pages/Error'
 
 // API 응답 타입 정의
@@ -71,12 +71,15 @@ const createApiClient = (): AxiosInstance => {
   instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
       const token = storage.get('accessToken')
+      
       console.log(
         'API 요청 인터셉터 - 토큰:',
         token ? `${token.substring(0, 20)}...` : '없음'
       )
       console.log('요청 URL:', config.url)
       console.log('요청 메서드:', config.method)
+      console.log('Base URL:', config.baseURL)
+      console.log('Full URL:', `${config.baseURL}${config.url}`)
 
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`
@@ -84,6 +87,7 @@ const createApiClient = (): AxiosInstance => {
       } else {
         console.log('토큰이 없거나 헤더를 설정할 수 없음')
       }
+      
       return config
     },
     (error: Error) => {
@@ -101,6 +105,27 @@ const createApiClient = (): AxiosInstance => {
       const originalRequest = error as Error & {
         config?: AxiosRequestConfig & { _retry?: boolean }
         response?: { status: number; data?: any }
+      }
+
+
+      // 네트워크 연결 실패 감지
+      const errorWithCode = error as Error & { code?: string }
+      const isNetworkError = 
+        error.message === 'Network Error' || 
+        error.message === 'ERR_CONNECTION_REFUSED' ||
+        error.message === 'ERR_CONNECTION_RESET' ||
+        errorWithCode.code === 'ERR_NETWORK' ||
+        !originalRequest.response?.status
+
+      if (isNetworkError) {
+        console.warn('🌐 백엔드 서버 연결 실패 - 개발 모드에서 기본값 사용')
+        console.warn('에러 상세:', {
+          message: error.message,
+          code: errorWithCode.code,
+          url: originalRequest.config?.url
+        })
+        // 네트워크 에러는 전역 에러 핸들러에 보고하지 않음
+        return Promise.reject(error)
       }
 
       // 에러 로깅 개선

@@ -1,4 +1,4 @@
-import { AppDataSource } from '@backend/config/database'
+import { AppDataSource } from '@backend/config/databaseConfig'
 import { HomePageConfig } from "@backend/entities/HomePageConfig"
 
 /**
@@ -257,7 +257,7 @@ if (require.main === module) {
       await seedHomePageConfig()
       process.exit(0)
     })
-    .catch((error) => {
+    .catch((error: any) => {
       console.error("데이터베이스 연결 실패:", error)
       process.exit(1)
     })

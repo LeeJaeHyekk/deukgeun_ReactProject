@@ -1,5 +1,5 @@
-import { getGymsForScript } from "./getGymsForScript.js"
-import { scriptEnv, validateEnv } from "./env.js"
+import { getGymsForScript } from "./getGymsForScript"
+import { scriptEnv, validateEnv } from "./env"
 
 // Gym 타입 정의 (스크립트용)
 interface Gym {

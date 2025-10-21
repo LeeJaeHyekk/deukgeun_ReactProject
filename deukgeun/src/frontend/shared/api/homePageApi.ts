@@ -1,5 +1,13 @@
 import apiClient from './index'
 
+// 캐시 관리
+let configCache: HomePageConfig | null = null
+let cacheTimestamp: number = 0
+const CACHE_DURATION = 5 * 60 * 1000 // 5분
+
+// 중복 요청 방지
+let pendingRequest: Promise<HomePageConfig> | null = null
+
 // 홈페이지 설정 타입 정의
 export interface HomePageConfig {
   // Hero 섹션
@@ -167,15 +175,49 @@ const DEFAULT_HOME_PAGE_CONFIG: HomePageConfig = {
 }
 
 const homePageApi = {
-  // 홈페이지 설정 조회
+  // 홈페이지 설정 조회 (캐싱 및 중복 요청 방지 적용)
   getHomePageConfig: async (): Promise<HomePageConfig> => {
-    try {
-      const response = await apiClient.get("/api/homepage/config")
-      return response.data.data
-    } catch (error) {
-      console.warn("홈페이지 설정 조회 실패, 기본값 사용:", error)
-      return DEFAULT_HOME_PAGE_CONFIG
+    // 캐시된 데이터가 있고 유효한 경우 반환
+    if (configCache && Date.now() - cacheTimestamp < CACHE_DURATION) {
+      console.log("📦 홈페이지 설정 캐시 사용")
+      return configCache
     }
+
+    // 이미 진행 중인 요청이 있으면 기다림
+    if (pendingRequest) {
+      console.log("🔄 홈페이지 설정 요청 진행 중, 기존 요청 대기")
+      return pendingRequest
+    }
+
+    // 새로운 요청 시작
+    pendingRequest = (async () => {
+      try {
+        console.log("🌐 홈페이지 설정 API 호출")
+        const response = await apiClient.get("/api/homepage/config")
+        const config = response.data.data
+        
+        // 캐시 업데이트
+        configCache = config
+        cacheTimestamp = Date.now()
+        
+        return config
+      } catch (error) {
+        console.warn("홈페이지 설정 조회 실패, 기본값 사용:", error)
+        
+        // 에러 시에도 기본값을 캐시에 저장하여 반복 호출 방지
+        if (!configCache) {
+          configCache = DEFAULT_HOME_PAGE_CONFIG
+          cacheTimestamp = Date.now()
+        }
+        
+        return DEFAULT_HOME_PAGE_CONFIG
+      } finally {
+        // 요청 완료 후 pendingRequest 초기화
+        pendingRequest = null
+      }
+    })()
+
+    return pendingRequest
   },
 
   // 홈페이지 설정 업데이트 (관리자용)

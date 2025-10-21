@@ -1,4 +1,4 @@
-import type { Machine } from "@dto/index"
+import type { Machine } from "../../../shared/types/dto"
 import { IMAGE_MATCHING_CONFIG, ImageMatchingManager } from '@frontend/shared/config/imageMatchingConfig'
 
 // 이미지 매칭 결과 캐시

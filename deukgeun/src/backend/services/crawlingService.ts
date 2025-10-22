@@ -22,7 +22,7 @@ export function getCrawlingService(gymRepo: Repository<Gym> | null | undefined):
     // 데이터베이스 없이 파일 기반으로만 동작하는 더미 레포지토리 생성
     crawlingServiceInstance = new CrawlingService(null as any)
   }
-  return crawlingServiceInstance
+  return crawlingServiceInstance!
 }
 
 /**

@@ -122,7 +122,7 @@ export const workoutApi = {
         : undefined
       const response = await apiClient.get<ApiResponse<WorkoutPlan[]>>(
         API_ENDPOINTS.PLANS,
-        queryParams
+        { params: queryParams }
       )
       const data = response.data as unknown as WorkoutPlan[]
       console.log("✅ [workoutApi] getPlans 성공", {
@@ -352,12 +352,12 @@ export const workoutApi = {
         : undefined
       const response = await apiClient.get<ApiResponse<WorkoutSession[]>>(
         API_ENDPOINTS.SESSIONS,
-        queryParams
+        { params: queryParams }
       )
       console.log("✅ [workoutApi] getSessions 성공", {
-        count: response.data?.data?.length,
+        count: (response.data as any)?.data?.length,
       })
-      return response.data?.data || []
+      return (response.data as any)?.data || []
     } catch (error) {
       console.error("❌ [workoutApi] getSessions 실패", error)
       handleApiError(error)
@@ -697,25 +697,25 @@ export const workoutApi = {
         : undefined
       const response = await apiClient.get<ApiResponse<WorkoutGoal[]>>(
         API_ENDPOINTS.GOALS,
-        queryParams
+        { params: queryParams }
       )
 
       console.log("📡 [workoutApi] getGoals 응답 전체:", response)
       console.log("📡 [workoutApi] getGoals response.data:", response.data)
       console.log(
         "📡 [workoutApi] getGoals response.data?.data:",
-        response.data?.data
+        (response.data as any)?.data
       )
 
       // 응답 구조 확인 및 데이터 추출
       let goals: WorkoutGoal[] = []
 
-      if (response.data?.data) {
-        goals = response.data.data
+      if ((response.data as any)?.data) {
+        goals = (response.data as any).data
       } else if (Array.isArray(response.data)) {
         goals = response.data
-      } else if (response.data?.success && Array.isArray(response.data.data)) {
-        goals = response.data.data
+      } else if ((response.data as any)?.success && Array.isArray((response.data as any).data)) {
+        goals = (response.data as any).data
       }
 
       console.log("✅ [workoutApi] getGoals 성공", {

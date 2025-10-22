@@ -2,8 +2,8 @@ import { useState, useCallback } from 'react'
 import { executeRecaptcha,
   getDummyRecaptchaToken,
   isRecaptchaAvailable,
- } from '@frontend/shared/lib/recaptcha'
-import { config } from '@frontend/shared/config'
+  config,
+} from '@frontend/shared/lib/recaptcha'
 
 interface UseRecaptchaOptions {
   action?: string

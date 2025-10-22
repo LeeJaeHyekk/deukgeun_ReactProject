@@ -137,6 +137,26 @@ class EnhancedJsToCjsConverter {
     dependenciesFixed: 0,
     errors: 0
   }
+  
+  // 캐시된 파일 목록
+  private cachedFiles: {
+    jsFiles: string[]
+    cjsFiles: string[]
+    lastScan: number
+  } = {
+    jsFiles: [],
+    cjsFiles: [],
+    lastScan: 0
+  }
+  
+  // ESM 문법 감지용 정규식 캐시
+  private readonly esmPatterns = {
+    import: /import\s+[^;]*from\s*['"]|import\s*\(|import\s*\{|import\s*\*|import\s+React|import\s+type\s+/,
+    export: /export\s+[^;]*from\s*['"]|export\s*\{|export\s*\*|export\s+default|export\s+(const|let|var|function|class|async\s+function)|export\s+enum\s+|export\s+interface\s+/,
+    importMeta: /import\.meta/,
+    emptyExport: /export\s*\{\s*\}\s*;?/,
+    dynamicImport: /import\s*\(/
+  }
 
   constructor(options: ConversionOptions) {
     this.options = options
@@ -168,18 +188,20 @@ class EnhancedJsToCjsConverter {
       
       if (jsFiles.length === 0) {
         logWarning('변환할 .js 파일이 없습니다.')
-        return true
+      } else {
+        log(`변환 대상: ${jsFiles.length}개 파일`, 'blue')
+        
+        // 4. 파일 변환
+        await this.convertFiles(jsFiles)
       }
       
-      log(`변환 대상: ${jsFiles.length}개 파일`, 'blue')
+      // 5. CJS 파일에서 ESM 문법 변환
+      await this.convertCjsFilesWithEsmSyntax()
       
-      // 4. 파일 변환
-      await this.convertFiles(jsFiles)
-      
-      // 5. require 경로 수정
+      // 6. require 경로 수정
       await this.fixRequirePaths()
       
-      // 6. 정리
+      // 7. 정리
       await this.cleanup()
       
       const duration = ((Date.now() - startTime) / 1000).toFixed(2)
@@ -235,48 +257,94 @@ class EnhancedJsToCjsConverter {
   }
 
   /**
-   * JS 파일 찾기
+   * JS/TS 파일 찾기 (최적화된 버전)
    */
   private findJsFiles(): string[] {
-    logStep('SCAN', 'JS 파일 스캔 중...')
+    // 캐시된 결과가 있으면 재사용
+    const now = Date.now()
+    if (this.cachedFiles.jsFiles.length > 0 && (now - this.cachedFiles.lastScan) < 5000) {
+      return this.cachedFiles.jsFiles
+    }
+    
+    logStep('SCAN', 'JS/TS 파일 스캔 중...')
     
     const jsFiles: string[] = []
-    this.scanDirectory(this.options.distPath, jsFiles)
+    this.scanDirectory(this.options.distPath, jsFiles, ['.js', '.ts', '.tsx'])
     
-    log(`발견된 JS 파일: ${jsFiles.length}개`, 'blue')
+    // 캐시 업데이트
+    this.cachedFiles.jsFiles = jsFiles
+    this.cachedFiles.lastScan = now
+    
+    log(`발견된 JS/TS 파일: ${jsFiles.length}개`, 'blue')
+    
+    // JS/TS 파일에서 ESM 문법 사용 여부 확인 (배치 처리)
+    const esmInJsFiles = this.batchCheckEsmSyntax(jsFiles)
+    log(`JS/TS 파일 중 ESM 문법 사용: ${esmInJsFiles}개`, 'blue')
+    
     return jsFiles
   }
 
   /**
-   * 디렉토리 스캔
+   * 디렉토리 스캔 (최적화된 버전)
    */
-  private scanDirectory(dir: string, jsFiles: string[]): void {
+  private scanDirectory(dir: string, fileList: string[], extensions: string[] = ['.js', '.ts', '.tsx']): void {
     if (!fs.existsSync(dir)) {
       return
     }
     
-    const items = fs.readdirSync(dir)
-    
-    for (const item of items) {
-      const itemPath = path.join(dir, item)
-      const stat = fs.statSync(itemPath)
+    try {
+      const items = fs.readdirSync(dir)
       
-      if (stat.isDirectory()) {
-        // 특정 디렉토리는 제외
-        if (!['node_modules', '.git', '.conversion-backup'].includes(item)) {
-          this.scanDirectory(itemPath, jsFiles)
+      for (const item of items) {
+        const itemPath = path.join(dir, item)
+        const stat = fs.statSync(itemPath)
+        
+        if (stat.isDirectory()) {
+          // 특정 디렉토리는 제외
+          if (!['node_modules', '.git', '.conversion-backup'].includes(item)) {
+            this.scanDirectory(itemPath, fileList, extensions)
+          }
+        } else if (extensions.some(ext => item.endsWith(ext)) && !item.endsWith('.min.js')) {
+          fileList.push(itemPath)
         }
-      } else if (item.endsWith('.js') && !item.endsWith('.min.js')) {
-        jsFiles.push(itemPath)
       }
+    } catch (error) {
+      logWarning(`디렉토리 스캔 실패: ${dir} - ${(error as Error).message}`)
     }
   }
 
   /**
-   * 파일들 변환
+   * 배치 ESM 문법 확인 (성능 최적화)
+   */
+  private batchCheckEsmSyntax(files: string[]): number {
+    let esmCount = 0
+    const batchSize = 10 // 한 번에 처리할 파일 수
+    
+    for (let i = 0; i < files.length; i += batchSize) {
+      const batch = files.slice(i, i + batchSize)
+      
+      for (const file of batch) {
+        try {
+          const content = fs.readFileSync(file, 'utf8')
+          if (this.hasEsmSyntax(content)) {
+            esmCount++
+          }
+        } catch (error) {
+          // 파일 읽기 실패는 무시
+        }
+      }
+    }
+    
+    return esmCount
+  }
+
+  /**
+   * 파일들 변환 (개선된 에러 처리)
    */
   private async convertFiles(jsFiles: string[]): Promise<void> {
     logStep('CONVERT', '파일 변환 중...')
+    
+    const failedFiles: string[] = []
     
     for (const jsFile of jsFiles) {
       try {
@@ -288,15 +356,33 @@ class EnhancedJsToCjsConverter {
       } catch (error) {
         logError(`파일 변환 실패: ${jsFile} - ${(error as Error).message}`)
         this.conversionStats.errors++
+        failedFiles.push(jsFile)
+        
+        // 연속된 실패가 많으면 중단
+        if (failedFiles.length > 10) {
+          logError('너무 많은 파일 변환 실패로 중단합니다.')
+          throw new Error('파일 변환 실패율이 너무 높습니다.')
+        }
       }
+    }
+    
+    if (failedFiles.length > 0) {
+      logWarning(`${failedFiles.length}개 파일 변환 실패`)
     }
   }
 
   /**
-   * 개별 파일 변환
+   * 개별 파일 변환 (메모리 효율성 개선)
    */
   private async convertFile(filePath: string): Promise<boolean> {
     try {
+      // 파일 크기 확인 (10MB 제한)
+      const stats = fs.statSync(filePath)
+      if (stats.size > 10 * 1024 * 1024) {
+        logWarning(`파일이 너무 큽니다 (${(stats.size / 1024 / 1024).toFixed(2)}MB): ${path.relative(this.options.distPath, filePath)}`)
+        return false
+      }
+      
       const content = fs.readFileSync(filePath, 'utf8')
       
       // 빈 파일이나 "use strict"만 있는 파일 처리
@@ -312,23 +398,23 @@ class EnhancedJsToCjsConverter {
         return true
       }
       
-      // .js 파일은 무조건 .cjs로 변환 (확장자 변경 목적)
-      // 내용이 이미 CommonJS 형태여도 확장자만 변경
-      
       // 변환 실행
       const convertedContent = this.convertContent(content, filePath)
       
-      // .js 파일은 무조건 .cjs로 변환 (내용 변경 여부와 관계없이)
       if (this.options.dryRun) {
         log(`변환 예정: ${path.relative(this.options.distPath, filePath)}`, 'yellow')
         return true
       }
       
       // .cjs 파일로 저장
-      const cjsPath = filePath.replace('.js', '.cjs')
-      fs.writeFileSync(cjsPath, convertedContent)
+      const cjsPath = this.getCjsPath(filePath)
       
-      // 원본 .js 파일 삭제
+      // 원자적 쓰기 (안전성 향상)
+      const tempPath = cjsPath + '.tmp'
+      fs.writeFileSync(tempPath, convertedContent)
+      fs.renameSync(tempPath, cjsPath)
+      
+      // 원본 파일 삭제
       fs.unlinkSync(filePath)
       
       log(`변환됨: ${path.relative(this.options.distPath, filePath)} → ${path.relative(this.options.distPath, cjsPath)}`, 'green')
@@ -337,6 +423,20 @@ class EnhancedJsToCjsConverter {
       logError(`파일 변환 실패: ${filePath} - ${(error as Error).message}`)
       return false
     }
+  }
+
+  /**
+   * CJS 파일 경로 생성
+   */
+  private getCjsPath(originalPath: string): string {
+    if (originalPath.endsWith('.js')) {
+      return originalPath.replace('.js', '.cjs')
+    } else if (originalPath.endsWith('.ts')) {
+      return originalPath.replace('.ts', '.cjs')
+    } else if (originalPath.endsWith('.tsx')) {
+      return originalPath.replace('.tsx', '.cjs')
+    }
+    return originalPath + '.cjs'
   }
 
   /**
@@ -379,8 +479,11 @@ class EnhancedJsToCjsConverter {
   private convertContent(content: string, filePath: string): string {
     let convertedContent = content
     
-    // 이미 CommonJS 형태인 경우 경로만 수정
-    if (this.isAlreadyCommonJS(convertedContent)) {
+    // ESM 문법이 있는지 먼저 확인
+    const hasEsmSyntax = this.hasEsmSyntax(convertedContent)
+    
+    // 이미 CommonJS 형태이고 ESM 문법이 없는 경우 경로만 수정
+    if (this.isAlreadyCommonJS(convertedContent) && !hasEsmSyntax) {
       // 1. 경로 별칭 변환 (가장 중요)
       if (this.options.fixPathAliases) {
         convertedContent = this.convertPathAliases(convertedContent, filePath)
@@ -418,6 +521,18 @@ class EnhancedJsToCjsConverter {
     convertedContent = this.cleanupConvertedContent(convertedContent)
     
     return convertedContent
+  }
+
+  /**
+   * ESM 문법이 있는지 확인 (최적화된 버전)
+   */
+  private hasEsmSyntax(content: string): boolean {
+    // 캐시된 정규식 패턴 사용으로 성능 향상
+    return this.esmPatterns.import.test(content) ||
+           this.esmPatterns.export.test(content) ||
+           this.esmPatterns.importMeta.test(content) ||
+           this.esmPatterns.emptyExport.test(content) ||
+           this.esmPatterns.dynamicImport.test(content)
   }
 
   /**
@@ -549,13 +664,22 @@ class EnhancedJsToCjsConverter {
       }
     )
     
-    // 5. 기본 export 변환
+    // 5. 동적 import 변환
+    convertedContent = convertedContent.replace(
+      /import\s*\(['"]([^'"]+)['"]\)/g,
+      (match, modulePath) => {
+        const resolvedPath = this.resolveModulePath(modulePath, filePath)
+        return `require('${resolvedPath}')`
+      }
+    )
+    
+    // 6. 기본 export 변환
     convertedContent = convertedContent.replace(
       /export\s+default\s+([^;]+)/g,
       'module.exports = $1'
     )
     
-    // 6. 명명된 export 변환 (as 키워드 처리)
+    // 7. 명명된 export 변환 (as 키워드 처리)
     convertedContent = convertedContent.replace(
       /export\s*\{\s*([^}]+)\s*\}/g,
       (match: string, exports: string) => {
@@ -571,7 +695,7 @@ class EnhancedJsToCjsConverter {
       }
     )
     
-    // 7. export * from 변환 - minified 코드도 처리
+    // 8. export * from 변환 - minified 코드도 처리
     convertedContent = convertedContent.replace(
       /export\s*\*\s*from\s*['"]([^'"]+)['"]/g,
       (match, modulePath) => {
@@ -580,7 +704,7 @@ class EnhancedJsToCjsConverter {
       }
     )
     
-    // 8. export const/let/var/function/class 변환
+    // 9. export const/let/var/function/class 변환
     convertedContent = convertedContent.replace(
       /export\s+(const|let|var|function|class)\s+(\w+)/g,
       (match, declaration, name) => {
@@ -588,7 +712,7 @@ class EnhancedJsToCjsConverter {
       }
     )
     
-    // 9. export function 변환 (별도 처리)
+    // 10. export function 변환 (별도 처리)
     convertedContent = convertedContent.replace(
       /export\s+function\s+(\w+)/g,
       (match, name) => {
@@ -596,7 +720,7 @@ class EnhancedJsToCjsConverter {
       }
     )
     
-    // 10. export async function 변환
+    // 11. export async function 변환
     convertedContent = convertedContent.replace(
       /export\s+async\s+function\s+(\w+)/g,
       (match, name) => {
@@ -604,32 +728,71 @@ class EnhancedJsToCjsConverter {
       }
     )
     
-    // 11. 함수 선언 후 module.exports 추가 (더 정확한 패턴) - 비활성화
-    // minified 코드에서는 함수 패턴이 복잡하므로 수동으로 처리하지 않음
-    // convertedContent = convertedContent.replace(
-    //   /(function\s+(\w+)\s*\([^)]*\)\s*\{[^}]*\})/g,
-    //   (match, func, funcName) => {
-    //     return `${func}\nmodule.exports.${funcName} = ${funcName}`
-    //   }
-    // )
-    
-    // 12. async 함수 선언 후 module.exports 추가 (더 정확한 패턴) - 비활성화
-    // convertedContent = convertedContent.replace(
-    //   /(async\s+function\s+(\w+)\s*\([^)]*\)\s*\{[^}]*\})/g,
-    //   (match, func, funcName) => {
-    //     return `${func}\nmodule.exports.${funcName} = ${funcName}`
-    //   }
-    // )
-    
-    // 13. 빈 export 문 제거 (더 포괄적인 패턴)
+    // 12. 빈 export 문 제거 (더 포괄적인 패턴)
     convertedContent = convertedContent.replace(/export\s*\{\s*\}\s*;?/g, '')
     
-    // 14. export {} 문 제거 (세미콜론이 있는 경우)
+    // 13. export {} 문 제거 (세미콜론이 있는 경우)
     convertedContent = convertedContent.replace(/export\s*\{\s*\}\s*;/g, '')
     
-    // 15. export {} 문 제거 (세미콜론이 없는 경우)
+    // 14. export {} 문 제거 (세미콜론이 없는 경우)
     convertedContent = convertedContent.replace(/export\s*\{\s*\}/g, '')
     
+    // 15. 남은 export 문들 제거 (더 포괄적인 패턴)
+    convertedContent = convertedContent.replace(/export\s*\{\s*[^}]*\}/g, '')
+    
+    // 16. TypeScript 타입 전용 import 제거 (정확한 패턴)
+    convertedContent = convertedContent.replace(/^import\s+type\s+[^;]+;?\s*$/gm, '')
+    
+    // 17. TypeScript 타입 전용 export 제거 (정확한 패턴)
+    convertedContent = convertedContent.replace(/^export\s+type\s+[^;]+;?\s*$/gm, '')
+    
+    // 18. TypeScript interface export 제거 (멀티라인 정확한 패턴)
+    convertedContent = convertedContent.replace(/^export\s+interface\s+[^{]*\{[^}]*\};?\s*$/gm, '')
+
+    // 19. TypeScript enum export 변환
+    convertedContent = convertedContent.replace(
+      /export\s+enum\s+(\w+)\s*\{([^}]*)\}/g,
+      (match, enumName, enumBody) => {
+        // enum을 CommonJS 형태로 변환
+        const enumValues = enumBody.split(',').map(item => {
+          const trimmed = item.trim()
+          if (trimmed.includes('=')) {
+            return trimmed
+          }
+          return `${trimmed} = "${trimmed}"`
+        }).join(', ')
+        
+        return `const ${enumName} = {\n  ${enumValues}\n}\nmodule.exports.${enumName} = ${enumName}`
+      }
+    )
+
+    // 20. React 컴포넌트 import 변환
+    convertedContent = convertedContent.replace(
+      /import\s+React\s*,\s*\{([^}]+)\}\s*from\s*['"]react['"]/g,
+      (match, reactImports) => {
+        const imports = reactImports.split(',').map(imp => imp.trim()).join(', ')
+        return `const React = require('react')\nconst { ${imports} } = require('react')`
+      }
+    )
+
+    // 21. React 단독 import 변환
+    convertedContent = convertedContent.replace(
+      /import\s+React\s*from\s*['"]react['"]/g,
+      'const React = require("react")'
+    )
+
+    // 22. React hooks import 변환
+    convertedContent = convertedContent.replace(
+      /import\s*\{([^}]+)\}\s*from\s*['"]react['"]/g,
+      (match, hooks) => {
+        const hookList = hooks.split(',').map(hook => hook.trim()).join(', ')
+        return `const { ${hookList} } = require('react')`
+      }
+    )
+
+    // 23. 남은 export 문들 제거 (정확한 패턴)
+    convertedContent = convertedContent.replace(/^export\s*\{\s*[^}]*\};?\s*$/gm, '')
+
     return convertedContent
   }
 
@@ -849,37 +1012,85 @@ class EnhancedJsToCjsConverter {
   }
 
   /**
-   * CJS 파일 찾기
+   * CJS 파일 찾기 (최적화된 버전)
    */
   private findCjsFiles(): string[] {
+    // 캐시된 결과가 있으면 재사용
+    const now = Date.now()
+    if (this.cachedFiles.cjsFiles.length > 0 && (now - this.cachedFiles.lastScan) < 5000) {
+      return this.cachedFiles.cjsFiles
+    }
+    
     const cjsFiles: string[] = []
-    this.scanDirectoryForCjs(this.options.distPath, cjsFiles)
+    this.scanDirectory(this.options.distPath, cjsFiles, ['.cjs'])
+    
+    // 캐시 업데이트
+    this.cachedFiles.cjsFiles = cjsFiles
+    this.cachedFiles.lastScan = now
+    
     return cjsFiles
   }
 
   /**
-   * CJS 파일 스캔
+   * CJS 파일에서 ESM 문법 변환 (개선된 버전)
    */
-  private scanDirectoryForCjs(dir: string, cjsFiles: string[]): void {
-    if (!fs.existsSync(dir)) {
-      return
-    }
+  private async convertCjsFilesWithEsmSyntax(): Promise<void> {
+    logStep('CONVERT_CJS', 'CJS 파일에서 ESM 문법 변환 중...')
     
-    const items = fs.readdirSync(dir)
+    const cjsFiles = this.findCjsFiles()
+    let convertedCount = 0
+    let esmFoundCount = 0
     
-    for (const item of items) {
-      const itemPath = path.join(dir, item)
-      const stat = fs.statSync(itemPath)
-      
-      if (stat.isDirectory()) {
-        if (!['node_modules', '.git', '.conversion-backup'].includes(item)) {
-          this.scanDirectoryForCjs(itemPath, cjsFiles)
+    log(`[SCAN] CJS 파일 스캔 중...`, 'cyan')
+    log(`발견된 CJS 파일: ${cjsFiles.length}개`, 'blue')
+    
+    for (const cjsFile of cjsFiles) {
+      try {
+        const content = fs.readFileSync(cjsFile, 'utf8')
+        
+        // ESM 문법이 있는지 확인
+        if (this.hasEsmSyntax(content)) {
+          log(`CJS 파일에서 ESM 문법 발견: ${path.relative(this.options.distPath, cjsFile)}`, 'yellow')
+          esmFoundCount++
+          
+          // 변환 실행 - CJS 파일에 특화된 변환
+          const convertedContent = this.convertCjsFileContent(content, cjsFile)
+          
+          if (this.options.dryRun) {
+            log(`CJS 변환 예정: ${path.relative(this.options.distPath, cjsFile)}`, 'yellow')
+            continue
+          }
+          
+          // 변환된 내용 저장
+          fs.writeFileSync(cjsFile, convertedContent)
+          log(`CJS 변환됨: ${path.relative(this.options.distPath, cjsFile)}`, 'green')
+          convertedCount++
         }
-      } else if (item.endsWith('.cjs')) {
-        cjsFiles.push(itemPath)
+      } catch (error) {
+        logError(`CJS 파일 변환 실패: ${cjsFile} - ${(error as Error).message}`)
       }
     }
+    
+    log(`\n📊 분석 결과:`, 'bright')
+    log(`  • CJS 파일: ${cjsFiles.length}개`, 'blue')
+    log(`  • CJS 파일 중 ESM 문법 사용: ${esmFoundCount}개`, 'yellow')
+    if (esmFoundCount > 0) {
+      log(`⚠️  변환이 필요한 파일들이 있습니다.`, 'yellow')
+      log(`변환을 실행하려면 다음 명령을 사용하세요:`, 'cyan')
+      log(`  npx ts-node scripts/enhanced-js-to-cjs-converter.ts --verbose`, 'cyan')
+    }
+    
+    log(`CJS 파일 변환 완료: ${convertedCount}개`, 'green')
   }
+
+  /**
+   * 통합된 변환 로직 (중복 제거)
+   */
+  private convertCjsFileContent(content: string, filePath: string): string {
+    // 기존 convertContent 메서드 재사용 (중복 제거)
+    return this.convertContent(content, filePath)
+  }
+
 
   /**
    * 정리 작업
@@ -921,16 +1132,23 @@ class EnhancedJsToCjsConverter {
   }
 
   /**
-   * 변환 통계 출력
+   * 변환 통계 출력 (개선된 버전)
    */
   private printStats(): void {
+    const successRate = this.conversionStats.filesProcessed > 0 
+      ? ((this.conversionStats.filesConverted / this.conversionStats.filesProcessed) * 100).toFixed(1)
+      : '0'
+    
     log('\n📊 변환 통계:', 'bright')
     log(`  • 처리된 파일: ${this.conversionStats.filesProcessed}개`, 'blue')
     log(`  • 변환된 파일: ${this.conversionStats.filesConverted}개`, 'green')
+    log(`  • 성공률: ${successRate}%`, this.conversionStats.errors > 0 ? 'yellow' : 'green')
     log(`  • 경로 별칭 수정: ${this.conversionStats.pathAliasesFixed}개`, 'cyan')
     log(`  • 의존성 경로 수정: ${this.conversionStats.dependenciesFixed}개`, 'cyan')
+    
     if (this.conversionStats.errors > 0) {
       log(`  • 오류: ${this.conversionStats.errors}개`, 'red')
+      log(`  • 실패율: ${((this.conversionStats.errors / this.conversionStats.filesProcessed) * 100).toFixed(1)}%`, 'red')
     }
   }
 }

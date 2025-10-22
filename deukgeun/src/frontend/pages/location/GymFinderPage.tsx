@@ -11,6 +11,58 @@ import { useAuth } from "@frontend/shared/hooks/useAuth"
 import { useNavigate } from "react-router-dom"
 import { processGyms } from "@frontend/pages/location/utils/gymFilters"
 import gymsData from "@data/gyms_raw.json"
+import type { GymsData } from "@frontend/shared/types/gym"
+import { 
+  isArray, 
+  isNonEmptyArray, 
+  isObject, 
+  hasAllKeys, 
+  safeCast,
+  isString,
+  isNumber,
+  isBoolean
+} from "@frontend/shared/utils/typeGuards"
+import { 
+  withRequestManagement, 
+  stateSafetyManager 
+} from "@frontend/shared/utils/apiRequestManager"
+import { logger } from "@frontend/shared/utils/logger"
+
+// 안전한 데이터 검증 및 타입 캐스팅
+const validateGymsData = (data: unknown): GymsData => {
+  if (!isArray(data)) {
+    logger.error('GYM_DATA', 'gymsData가 배열이 아닙니다', data)
+    return []
+  }
+
+  if (!isNonEmptyArray(data)) {
+    logger.warn('GYM_DATA', 'gymsData가 비어있습니다')
+    return []
+  }
+
+  // 첫 번째 항목의 구조 검증
+  const sampleItem = data[0]
+  const requiredKeys = ['name', 'address', 'phone', 'type']
+  
+  if (!isObject(sampleItem) || !hasAllKeys(sampleItem, requiredKeys)) {
+    logger.error('GYM_DATA', 'gymsData 구조가 올바르지 않습니다', {
+      sampleItem,
+      requiredKeys,
+      hasAllKeys: hasAllKeys(sampleItem, requiredKeys)
+    })
+    return []
+  }
+
+  logger.info('GYM_DATA', 'gymsData 검증 성공', {
+    count: data.length,
+    sampleKeys: Object.keys(sampleItem)
+  })
+
+  return data as GymsData
+}
+
+// 타입 안전성을 위한 검증된 데이터
+const typedGymsData: GymsData = validateGymsData(gymsData)
 
 
 const filters: FilterOption[] = ["PT", "GX", "24시간", "주차", "샤워"]
@@ -47,30 +99,40 @@ export default function GymFinderPage() {
     return lat >= 37.4 && lat <= 37.7 && lng >= 126.7 && lng <= 127.2
   }
 
-  // gyms_raw.json 데이터를 Gym 타입으로 변환하는 함수
-  const transformGymData = (rawGym: any): Gym => {
-    // 좌표 데이터 검증 및 수정
-    let latitude = rawGym.latitude
-    let longitude = rawGym.longitude
+  // 안전한 데이터 변환 함수
+  const transformGymData = (rawGym: unknown): Gym => {
+    // 타입 가드를 사용한 안전한 데이터 추출
+    const safeGet = (key: string, fallback: any) => {
+      if (!isObject(rawGym) || !(key in rawGym)) return fallback
+      return rawGym[key] ?? fallback
+    }
+
+    // 좌표 데이터 안전하게 추출 및 검증
+    let latitude = safeCast(safeGet('latitude', 0), isNumber, 37.5665)
+    let longitude = safeCast(safeGet('longitude', 0), isNumber, 126.978)
 
     // 잘못된 좌표인 경우 서울 시청 근처 랜덤 좌표로 대체
     if (!isValidCoordinate(latitude, longitude)) {
-      // 서울 시청(37.5665, 126.978) 기준으로 ±0.1도 범위 내 랜덤 좌표 생성
+      logger.warn('GYM_TRANSFORM', '잘못된 좌표 데이터 발견, 기본값으로 대체', {
+        originalLat: latitude,
+        originalLng: longitude
+      })
       latitude = 37.5665 + (Math.random() - 0.5) * 0.2
       longitude = 126.978 + (Math.random() - 0.5) * 0.2
     }
 
     return {
-      id: rawGym.id,
-      name: rawGym.name,
-      type: rawGym.type,
-      address: rawGym.address,
-      phone: rawGym.phone,
+      id: safeCast(safeGet('id', Date.now().toString()), isString, Date.now().toString()),
+      name: safeCast(safeGet('name', ''), isString, '알 수 없는 헬스장'),
+      type: safeCast(safeGet('type', '짐'), (value): value is "짐" | "피트니스" | "크로스핏" => 
+        isString(value) && ['짐', '피트니스', '크로스핏'].includes(value), '짐'),
+      address: safeCast(safeGet('address', ''), isString, '주소 정보 없음'),
+      phone: safeCast(safeGet('phone', ''), isString, '전화번호 없음'),
       latitude,
       longitude,
-      is24Hours: rawGym.is24Hours,
-      hasParking: rawGym.hasParking,
-      hasShower: rawGym.hasShower,
+      is24Hours: safeCast(safeGet('is24Hours', false), isBoolean, false),
+      hasParking: safeCast(safeGet('hasParking', false), isBoolean, false),
+      hasShower: safeCast(safeGet('hasShower', false), isBoolean, false),
       // 추가 필드들은 기본값으로 설정
       rating: Math.random() * 2 + 3, // 임시 평점 (3-5)
       reviewCount: Math.floor(Math.random() * 100) + 10, // 임시 리뷰 수
@@ -93,91 +155,61 @@ export default function GymFinderPage() {
     return R * c
   }
 
-  // gyms_raw.json 데이터 로드
+  // 안전한 데이터 로딩 with 상태 관리
   useEffect(() => {
-    console.log("🧪 gyms_raw.json 데이터 로드 시작")
-    try {
-      if (!gymsData || !Array.isArray(gymsData)) {
-        throw new Error("헬스장 데이터가 올바르지 않습니다.")
-      }
-
-      const transformedGyms = gymsData.map(transformGymData)
+    const loadGymsData = async () => {
+      const requestKey = 'gyms-data-load'
       
-      // 데이터 유효성 검사
-      if (transformedGyms.length === 0) {
-        throw new Error("변환된 헬스장 데이터가 없습니다.")
-      }
-
-      setAllGyms(transformedGyms)
-      console.log("🧪 로드된 헬스장 데이터:", transformedGyms.length, "개")
+      // 상태 관리 안전장치 적용
+      stateSafetyManager.setLoading(requestKey, true)
+      stateSafetyManager.setError(requestKey, null)
       
-      // 데이터 로드 성공 시 로그
-      const validCoords = transformedGyms.filter(gym => 
-        isValidCoordinate(gym.latitude, gym.longitude)
-      )
-      console.log("🧪 유효한 좌표를 가진 헬스장:", validCoords.length, "개")
-      
-    } catch (error) {
-      console.error("❌ gyms_raw.json 데이터 로드 실패:", error)
-      
-      // 데이터 로드 실패 시 기본 헬스장 데이터 생성
-      const fallbackGyms: Gym[] = [
-        {
-          id: "fallback-1",
-          name: "서울시청 헬스장",
-          type: "짐",
-          address: "서울특별시 중구 세종대로 110",
-          phone: "02-120",
-          latitude: 37.5665,
-          longitude: 126.978,
-          is24Hours: true,
-          hasParking: true,
-          hasShower: true,
-          rating: 4.5,
-          reviewCount: 50,
-          hasPT: true,
-          hasGX: true,
-          price: "15만원"
-        },
-        {
-          id: "fallback-2", 
-          name: "명동 피트니스",
-          type: "피트니스",
-          address: "서울특별시 중구 명동",
-          phone: "02-123-4567",
-          latitude: 37.5636,
-          longitude: 126.9826,
-          is24Hours: false,
-          hasParking: false,
-          hasShower: true,
-          rating: 4.2,
-          reviewCount: 30,
-          hasPT: true,
-          hasGX: false,
-          price: "12만원"
-        },
-        {
-          id: "fallback-3",
-          name: "동대문 스포츠센터",
-          type: "크로스핏", 
-          address: "서울특별시 중구 동대문",
-          phone: "02-987-6543",
-          latitude: 37.5683,
-          longitude: 126.9778,
-          is24Hours: true,
-          hasParking: true,
-          hasShower: true,
-          rating: 4.0,
-          reviewCount: 25,
-          hasPT: false,
-          hasGX: true,
-          price: "10만원"
+      try {
+        logger.info('GYM_LOADER', '헬스장 데이터 로드 시작')
+        
+        if (!isNonEmptyArray(typedGymsData)) {
+          throw new Error("헬스장 데이터가 비어있거나 유효하지 않습니다.")
         }
-      ]
-      
-      setAllGyms(fallbackGyms)
-      console.log("🧪 기본 헬스장 데이터로 대체:", fallbackGyms.length, "개")
+
+        // 안전한 데이터 변환
+        const transformedGyms = typedGymsData.map(transformGymData)
+        
+        // 변환된 데이터 검증
+        if (!isNonEmptyArray(transformedGyms)) {
+          throw new Error("변환된 헬스장 데이터가 없습니다.")
+        }
+
+        // 유효한 좌표 데이터 필터링
+        const validCoords = transformedGyms.filter(gym => 
+          isValidCoordinate(gym.latitude, gym.longitude)
+        )
+
+        logger.info('GYM_LOADER', '헬스장 데이터 로드 성공', {
+          totalCount: transformedGyms.length,
+          validCoordsCount: validCoords.length,
+          invalidCoordsCount: transformedGyms.length - validCoords.length
+        })
+
+        setAllGyms(transformedGyms)
+        
+        // 성공 상태 업데이트
+        stateSafetyManager.setLoading(requestKey, false)
+        stateSafetyManager.setError(requestKey, null)
+        
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류'
+        logger.error('GYM_LOADER', '헬스장 데이터 로드 실패', { error: errorMessage })
+        
+        // 에러 상태 업데이트
+        stateSafetyManager.setLoading(requestKey, false)
+        stateSafetyManager.setError(requestKey, errorMessage)
+        
+        // 빈 배열로 초기화하여 앱이 정상 작동하도록 함
+        setAllGyms([])
+      }
     }
+
+    loadGymsData()
   }, [])
 
   // 좌표 설정 함수 (우선순위: 현재 좌표 > 검색어 기반 > 서울 시청)
@@ -418,75 +450,108 @@ export default function GymFinderPage() {
 
   // Map API 관련 함수들 제거됨
 
-  // 검색 처리 (gyms_raw.json 데이터에서 검색, 최소 3개 보장)
+  // 안전한 검색 처리 with 요청 관리
   const handleSearch = async (query: string) => {
-    console.log("🧪 검색 시작:", query)
+    const searchKey = `gym-search-${query.trim()}`
     
-    // 검색어가 비어있으면 주변 헬스장으로 돌아가기
-    if (!query || query.trim() === '') {
-      console.log("🧪 검색어 비어있음, 주변 헬스장으로 돌아가기")
-      setCurrentSearchQuery("")
-      setGyms([])
-      return
-    }
-    
-    setCurrentSearchQuery(query)
-    
-    // 좌표 결정 (검색어가 있으면 서울 시청 기준)
-    const currentPosition = getCoordinateWithPriority(query)
-    
-    if (!currentPosition) {
-      console.warn("⚠️ 좌표 결정 실패")
-      return
-    }
-
-    setIsLoading(true)
-    try {
-      // gyms_raw.json 데이터에서 검색
-      const searchResults = allGyms.filter(gym => 
-        gym.name.toLowerCase().includes(query.toLowerCase()) ||
-        gym.address.toLowerCase().includes(query.toLowerCase()) ||
-        gym.type.toLowerCase().includes(query.toLowerCase())
-      )
-
-      // 거리 계산 및 정렬
-      const resultsWithDistance = searchResults
-        .map(gym => {
-          const distance = calculateDistance(
-            currentPosition.lat,
-            currentPosition.lng,
-            gym.latitude,
-            gym.longitude
-          )
-          return { ...gym, distance }
-        })
-        .sort((a, b) => a.distance - b.distance)
-
-      // 현재 거리 내에서 결과 필터링
-      let filteredResults = resultsWithDistance.filter(gym => gym.distance <= maxDistance)
-      
-      // 최소 3개가 없으면 검색 범위를 점진적으로 확장
-      if (filteredResults.length < 3) {
-        console.log("🧪 검색 결과 부족, 검색 범위 확장 중...")
+    // 요청 관리 안전장치 적용
+    const result = await withRequestManagement(
+      async () => {
+        logger.info('GYM_SEARCH', '검색 시작', { query })
         
-        let expandedDistance = maxDistance
-        while (filteredResults.length < 3 && expandedDistance < 50) {
-          expandedDistance += 5
-          filteredResults = resultsWithDistance.filter(gym => gym.distance <= expandedDistance)
+        // 검색어 유효성 검사
+        if (!isString(query) || query.trim() === '') {
+          logger.info('GYM_SEARCH', '검색어 비어있음, 주변 헬스장으로 돌아가기')
+          setCurrentSearchQuery("")
+          setGyms([])
+          return []
         }
         
-        // 여전히 3개 미만이면 가장 가까운 3개 선택
+        setCurrentSearchQuery(query)
+        
+        // 좌표 결정 (검색어가 있으면 서울 시청 기준)
+        const currentPosition = getCoordinateWithPriority(query)
+        
+        if (!currentPosition) {
+          logger.warn('GYM_SEARCH', '좌표 결정 실패')
+          return []
+        }
+
+        // 안전한 데이터 검색
+        if (!isNonEmptyArray(allGyms)) {
+          logger.warn('GYM_SEARCH', '검색할 헬스장 데이터가 없습니다')
+          return []
+        }
+
+        // 검색어로 필터링
+        const searchResults = allGyms.filter(gym => {
+          const nameMatch = isString(gym.name) && gym.name.toLowerCase().includes(query.toLowerCase())
+          const addressMatch = isString(gym.address) && gym.address.toLowerCase().includes(query.toLowerCase())
+          const typeMatch = isString(gym.type) && gym.type.toLowerCase().includes(query.toLowerCase())
+          return nameMatch || addressMatch || typeMatch
+        })
+
+        // 거리 계산 및 정렬
+        const resultsWithDistance = searchResults
+          .map(gym => {
+            const distance = calculateDistance(
+              currentPosition.lat,
+              currentPosition.lng,
+              gym.latitude,
+              gym.longitude
+            )
+            return { ...gym, distance }
+          })
+          .sort((a, b) => a.distance - b.distance)
+
+        // 현재 거리 내에서 결과 필터링
+        let filteredResults = resultsWithDistance.filter(gym => gym.distance <= maxDistance)
+        
+        // 최소 3개가 없으면 검색 범위를 점진적으로 확장
         if (filteredResults.length < 3) {
-          filteredResults = resultsWithDistance.slice(0, 3)
+          logger.info('GYM_SEARCH', '검색 결과 부족, 검색 범위 확장 중...', {
+            currentCount: filteredResults.length,
+            maxDistance
+          })
+          
+          let expandedDistance = maxDistance
+          while (filteredResults.length < 3 && expandedDistance < 50) {
+            expandedDistance += 5
+            filteredResults = resultsWithDistance.filter(gym => gym.distance <= expandedDistance)
+          }
+          
+          // 여전히 3개 미만이면 가장 가까운 3개 선택
+          if (filteredResults.length < 3) {
+            filteredResults = resultsWithDistance.slice(0, 3)
+          }
+        }
+
+        logger.info('GYM_SEARCH', '검색 완료', {
+          query,
+          totalResults: resultsWithDistance.length,
+          filteredResults: filteredResults.length,
+          maxDistance
+        })
+
+        return filteredResults
+      },
+      {
+        key: searchKey,
+        cooldownMs: 500, // 0.5초 쿨다운
+        onSuccess: (results) => {
+          logger.info('GYM_SEARCH', '검색 성공', { resultCount: results.length })
+          setGyms(results)
+        },
+        onError: (error) => {
+          logger.error('GYM_SEARCH', '검색 실패', { error: error instanceof Error ? error.message : String(error) })
+          setGyms([])
         }
       }
+    )
 
-      console.log("🧪 최종 검색 결과:", filteredResults.length, "개")
-      setGyms(filteredResults)
-    } catch (error) {
-      console.error("🧪 검색 실패:", error)
-    } finally {
-      setIsLoading(false)
+    // 결과가 없으면 빈 배열로 설정
+    if (!result) {
+      setGyms([])
     }
   }
 

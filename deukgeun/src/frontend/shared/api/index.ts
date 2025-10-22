@@ -64,6 +64,9 @@ const createApiClient = (): AxiosInstance => {
     withCredentials: true, // 쿠키 전송을 위해 필요
     headers: {
       'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
     },
   })
 
@@ -99,6 +102,22 @@ const createApiClient = (): AxiosInstance => {
   // 응답 인터셉터 - 토큰 갱신 및 에러 처리
   instance.interceptors.response.use(
     (response: AxiosResponse) => {
+      // 304 Not Modified 응답 처리
+      if (response.status === 304) {
+        console.log('📦 캐시된 데이터 사용:', response.config.url)
+        
+        // 304 응답의 경우 캐시된 데이터를 반환하되, 
+        // 사용자 통계의 경우 강제 새로고침을 위해 특별 처리
+        if (response.config.url?.includes('/api/stats/user')) {
+          console.log('🔄 사용자 통계 304 응답 - 캐시 무효화 필요')
+          // 304 응답이지만 사용자 정보가 변경되었을 수 있으므로
+          // 클라이언트에서 강제 새로고침을 트리거할 수 있도록 플래그 설정
+          response.data = { ...response.data, _forceRefresh: true }
+        }
+        
+        return response
+      }
+      
       return response
     },
     async (error: Error & { response?: { status: number } }) => {
@@ -192,6 +211,17 @@ const createApiClient = (): AxiosInstance => {
         // 사용자에게 친화적인 에러 메시지 제공
         const userFriendlyError = new Error(errorMessage)
         return Promise.reject(userFriendlyError)
+      }
+
+      // 429 에러 (Too Many Requests) 처리
+      if (originalRequest.response?.status === 429) {
+        const retryAfter = originalRequest.response?.data?.retryAfter || 60
+        const errorMessage = `요청이 너무 많습니다. ${retryAfter}초 후 다시 시도해주세요.`
+        console.warn('⚠️ API 요청 제한:', errorMessage)
+        
+        // 429 에러는 전역 에러 핸들러에 보고하지 않음
+        const rateLimitError = new Error(errorMessage)
+        return Promise.reject(rateLimitError)
       }
 
       // 500 에러에 대한 특별 처리

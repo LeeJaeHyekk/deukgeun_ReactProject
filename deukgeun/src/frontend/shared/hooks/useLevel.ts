@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useAuth } from './useAuth'
+import { useAuthRedux } from './useAuthRedux'
 import { levelApiWrapper, levelApiManager } from '../api/levelApiWrapper'
 import { LevelProgress, UserReward } from '../api/levelApi'
 import { showToast } from '../lib'
+import { withRequestManagement, autoReconnectManager, stateSafetyManager } from '../utils/apiRequestManager'
+import { logger } from '../utils/logger'
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const FETCH_COOLDOWN = 30000 // 30초 쿨다운
+const FETCH_COOLDOWN = 60000 // 60초 쿨다운
 
 // ============================================================================
 // Default Values
@@ -28,7 +30,7 @@ const DEFAULT_LEVEL_PROGRESS: LevelProgress = {
 // ============================================================================
 
 function useLevel() {
-  const { user, isLoggedIn } = useAuth()
+  const { user, isLoggedIn } = useAuthRedux()
   const [levelProgress, setLevelProgress] = useState<LevelProgress | null>(null)
   const [rewards, setRewards] = useState<UserReward[]>([])
   const [cooldownInfo, setCooldownInfo] = useState<{
@@ -45,6 +47,7 @@ function useLevel() {
 
   // API 호출 제한을 위한 ref
   const lastFetchTime = useRef<number>(0)
+  const isFetching = useRef<boolean>(false)
 
   // ============================================================================
   // API 호출 함수들
@@ -56,32 +59,60 @@ function useLevel() {
       return
     }
 
-    // API 호출 제한 확인
-    const now = Date.now()
-    if (now - lastFetchTime.current < FETCH_COOLDOWN) {
-      console.log("API 호출 제한: 쿨다운 중")
+    const requestKey = `level-progress-${user.id}`
+    
+    // 상태 안전장치 확인
+    if (stateSafetyManager.getLoading(requestKey)) {
+      logger.debug('LEVEL', '이미 로딩 중인 요청', { requestKey })
       return
     }
 
-    try {
-      setIsLoading(true)
-      setError(null)
-      lastFetchTime.current = now
+    // 비활성 상태 확인
+    if (stateSafetyManager.isInactive(requestKey)) {
+      logger.debug('LEVEL', '비활성 상태 - 요청 스킵', { requestKey })
+      return
+    }
 
-      const progress = await levelApiWrapper.getUserProgress(user.id)
-      // progress가 유효한지 확인하고 기본값과 병합
-      const safeProgress = {
-        ...DEFAULT_LEVEL_PROGRESS,
-        ...progress,
-        progressPercentage: progress?.progressPercentage ?? 0,
+    // 요청 관리자를 통한 안전한 요청
+    const result = await withRequestManagement(
+      async () => {
+        logger.debug('LEVEL', '레벨 진행률 조회 시작', { userId: user.id })
+        const progress = await levelApiWrapper.getUserProgress(user.id)
+        
+        // progress가 유효한지 확인하고 기본값과 병합
+        const safeProgress = {
+          ...DEFAULT_LEVEL_PROGRESS,
+          ...progress,
+          progressPercentage: progress?.progressPercentage ?? 0,
+        }
+        
+        logger.info('LEVEL', '레벨 진행률 조회 성공', { userId: user.id, progress: safeProgress })
+        return safeProgress
+      },
+      {
+        key: requestKey,
+        cooldownMs: FETCH_COOLDOWN,
+        onSuccess: (data) => {
+          setLevelProgress(data)
+          setError(null)
+          stateSafetyManager.setLoading(requestKey, false)
+        },
+        onError: (error) => {
+          logger.error('LEVEL', '레벨 진행률 조회 실패', { userId: user.id, error: error?.message })
+          setError("레벨 정보를 불러오는데 실패했습니다.")
+          setLevelProgress(DEFAULT_LEVEL_PROGRESS)
+          stateSafetyManager.setError(requestKey, error?.message || '알 수 없는 오류')
+          stateSafetyManager.setLoading(requestKey, false)
+        },
+        onRetry: (retryCount) => {
+          logger.info('LEVEL', '레벨 진행률 조회 재시도', { userId: user.id, retryCount })
+          stateSafetyManager.setLoading(requestKey, true)
+        }
       }
-      setLevelProgress(safeProgress)
-    } catch (err: unknown) {
-      console.error("레벨 진행률 조회 실패:", err)
-      setError("레벨 정보를 불러오는데 실패했습니다.")
-      setLevelProgress(DEFAULT_LEVEL_PROGRESS)
-    } finally {
-      setIsLoading(false)
+    )
+
+    if (result) {
+      setLevelProgress(result)
     }
   }, [isLoggedIn, user])
 
@@ -91,26 +122,53 @@ function useLevel() {
       return
     }
 
-    // API 호출 제한 확인
-    const now = Date.now()
-    if (now - lastFetchTime.current < FETCH_COOLDOWN) {
-      console.log("API 호출 제한: 쿨다운 중")
+    const requestKey = `user-rewards-${user.id}`
+    
+    // 상태 안전장치 확인
+    if (stateSafetyManager.getLoading(requestKey)) {
+      logger.debug('LEVEL', '이미 로딩 중인 요청', { requestKey })
       return
     }
 
-    try {
-      setIsLoading(true)
-      setError(null)
-      lastFetchTime.current = now
+    // 비활성 상태 확인
+    if (stateSafetyManager.isInactive(requestKey)) {
+      logger.debug('LEVEL', '비활성 상태 - 요청 스킵', { requestKey })
+      return
+    }
 
-      const userRewards = await levelApiWrapper.getUserRewards(user.id)
-      setRewards(userRewards)
-    } catch (err: unknown) {
-      console.error("보상 목록 조회 실패:", err)
-      setError("보상 정보를 불러오는데 실패했습니다.")
-      setRewards([])
-    } finally {
-      setIsLoading(false)
+    // 요청 관리자를 통한 안전한 요청
+    const result = await withRequestManagement(
+      async () => {
+        logger.debug('LEVEL', '보상 목록 조회 시작', { userId: user.id })
+        const userRewards = await levelApiWrapper.getUserRewards(user.id)
+        
+        logger.info('LEVEL', '보상 목록 조회 성공', { userId: user.id, rewardsCount: userRewards.length })
+        return userRewards
+      },
+      {
+        key: requestKey,
+        cooldownMs: FETCH_COOLDOWN,
+        onSuccess: (data) => {
+          setRewards(data)
+          setError(null)
+          stateSafetyManager.setLoading(requestKey, false)
+        },
+        onError: (error) => {
+          logger.error('LEVEL', '보상 목록 조회 실패', { userId: user.id, error: error?.message })
+          setError("보상 정보를 불러오는데 실패했습니다.")
+          setRewards([])
+          stateSafetyManager.setError(requestKey, error?.message || '알 수 없는 오류')
+          stateSafetyManager.setLoading(requestKey, false)
+        },
+        onRetry: (retryCount) => {
+          logger.info('LEVEL', '보상 목록 조회 재시도', { userId: user.id, retryCount })
+          stateSafetyManager.setLoading(requestKey, true)
+        }
+      }
+    )
+
+    if (result) {
+      setRewards(result)
     }
   }, [isLoggedIn, user])
 
@@ -208,8 +266,34 @@ function useLevel() {
 
   useEffect(() => {
     if (isLoggedIn && user) {
+      const userId = user.id
+      
+      // 자동 재연결 설정
+      const setupAutoReconnect = () => {
+        const reconnectKey = `level-auto-reconnect-${userId}`
+        
+        autoReconnectManager.startAutoReconnect(reconnectKey, async () => {
+          logger.info('LEVEL', '자동 재연결 시도', { userId })
+          await Promise.all([
+            fetchLevelProgress(),
+            fetchRewards()
+          ])
+        })
+      }
+
+      // 초기 데이터 로드
       fetchLevelProgress()
       fetchRewards()
+      
+      // 자동 재연결 설정
+      setupAutoReconnect()
+      
+      // 컴포넌트 언마운트 시 자동 재연결 정리
+      return () => {
+        const reconnectKey = `level-auto-reconnect-${userId}`
+        autoReconnectManager.stopAutoReconnect(reconnectKey)
+        logger.debug('LEVEL', '자동 재연결 정리', { userId })
+      }
     } else {
       // 로그아웃 시 기본값 설정
       setLevelProgress(DEFAULT_LEVEL_PROGRESS)
@@ -217,8 +301,11 @@ function useLevel() {
       setCooldownInfo(null)
       setDailyLimitInfo(null)
       setError(null)
+      
+      // 모든 자동 재연결 정리
+      autoReconnectManager.stopAllAutoReconnects()
     }
-  }, [isLoggedIn, user, fetchLevelProgress, fetchRewards])
+  }, [isLoggedIn, user])
 
   // ============================================================================
   // Return Values

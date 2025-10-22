@@ -44,3 +44,14 @@ declare module "*.module.css" {
   const classes: { [key: string]: string }
   export default classes
 }
+
+declare module "*.json" {
+  const value: any
+  export default value
+}
+
+declare module "@data/gyms_raw.json" {
+  import { GymsData } from "@frontend/shared/types/gym"
+  const value: GymsData
+  export default value
+}

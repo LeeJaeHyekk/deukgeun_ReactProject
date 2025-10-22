@@ -857,6 +857,12 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+.levelNumber {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+}
+
 .progressContainer {
   width: 100%;
   display: flex;
@@ -1029,6 +1035,7 @@
   gap: 40px;
   padding: 60px 0 40px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  align-items: start;
 }
 
 /* 회사 정보 컬럼 */
@@ -1145,6 +1152,23 @@
   padding-left: 8px;
 }
 
+/* 비활성화된 링크 스타일 */
+.disabledLink {
+  color: rgba(255, 255, 255, 0.4);
+  cursor: default;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  pointer-events: none;
+}
+
+.disabledLink:hover {
+  color: rgba(255, 255, 255, 0.4);
+  transform: none;
+  box-shadow: none;
+  padding-left: 0;
+  cursor: default;
+}
+
 .footerLinks a:hover::before {
   width: 100%;
 }
@@ -1193,7 +1217,7 @@
 /* 반응형 디자인 */
 @media (max-width: 1024px) {
   .footerMain {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 40px 30px;
     padding: 50px 0 30px 0;
   }
@@ -1202,6 +1226,7 @@
     grid-column: 1 / -1;
     padding-right: 0;
     text-align: center;
+    margin-bottom: 20px;
   }
 
   .footerLogo {
@@ -1223,13 +1248,15 @@
   }
 
   .footerMain {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 30px;
     padding: 40px 0 30px 0;
   }
 
   .footerColumn:first-child {
+    grid-column: 1 / -1;
     text-align: center;
+    margin-bottom: 20px;
   }
 
   .footerColumn h4 {
@@ -1266,6 +1293,7 @@
   }
 
   .footerMain {
+    grid-template-columns: 1fr;
     padding: 30px 0 20px 0;
     gap: 25px;
   }

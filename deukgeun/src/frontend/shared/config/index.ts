@@ -38,6 +38,7 @@ export const config = getConfig()
 
 // API 엔드포인트 정의 (백엔드 라우팅 기준으로 통일)
 export const API_ENDPOINTS = {
+  BASE_URL: config.api.baseURL,
   // 인증 관련
   AUTH: {
     LOGIN: "/api/auth/login",
@@ -77,6 +78,8 @@ export const API_ENDPOINTS = {
     GET_BY_CATEGORY: (category: string) => `/api/machines/category/${category}`,
     GET_BY_DIFFICULTY: (difficulty: string) => `/api/machines/difficulty/${difficulty}`,
     GET_BY_TARGET: (target: string) => `/api/machines/target/${target}`,
+    LIST: "/api/machines",
+    DETAIL: (id: number) => `/api/machines/${id}`,
   },
   
   // 게시글 관련
@@ -116,6 +119,17 @@ export const API_ENDPOINTS = {
     UPDATE_CONFIG: "/api/level/admin/config",
     RESET_USER_PROGRESS: (userId: number) => `/api/level/admin/reset/${userId}`,
     GET_SYSTEM_STATS: "/api/level/admin/stats",
+  },
+  
+  // 레벨 시스템 (별칭)
+  LEVELS: {
+    GET_USER_LEVEL: (userId: number) => `/api/level/user/${userId}`,
+    GRANT_EXP: "/api/level/exp/grant",
+  },
+  
+  // 운동 목표 관련
+  WORKOUT_GOALS: {
+    GET_ALL: "/api/workout/goals",
   },
   
   // 통계 관련

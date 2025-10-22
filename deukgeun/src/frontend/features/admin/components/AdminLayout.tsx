@@ -88,7 +88,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         <div className="sidebar-footer">
           <div className="user-info">
             <span className="user-role">관리자</span>
-            <span className="user-name">{user.name}</span>
+            <span className="user-name">{user.username}</span>
           </div>
           <Link to={ROUTES.HOME} className="back-to-app">
             ← 앱으로 돌아가기

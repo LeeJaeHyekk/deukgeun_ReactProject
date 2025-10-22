@@ -110,7 +110,7 @@ const useMachines = (): UseMachinesReturn => {
     setLoading(true)
     setError(null)
     try {
-      const response = await machineApi.getMachineById(id)
+      const response = await machineApi.getMachine(id)
       const validatedMachine = validateMachine(response)
       
       if (!validatedMachine) {

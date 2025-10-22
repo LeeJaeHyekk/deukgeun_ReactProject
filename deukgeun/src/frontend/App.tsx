@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 // Redux 관련 import
 import { ReduxProvider } from '@frontend/shared/providers/ReduxProvider'
 import { useAuthRedux } from '@frontend/shared/hooks/useAuthRedux'
+import { useAppData } from '@frontend/shared/hooks/useAppData'
 import { initializeAuth } from '@frontend/shared/store/authInitializer'
 // 워크아웃 타이머 컨텍스트 import
 import { WorkoutTimerProvider } from '@frontend/shared/contexts/WorkoutTimerContext'
@@ -13,9 +14,6 @@ import { LoadingSpinner } from '@frontend/shared/ui/LoadingSpinner/LoadingSpinne
 import { ErrorBoundary, globalErrorHandler } from '@pages/Error'
 // 로거 import
 import { logger } from '@frontend/shared/utils/logger'
-// 개발자 도구 import
-import { DevTools } from '@frontend/shared/components/DevTools'
-import { LoginTest } from '@frontend/shared/components/LoginTest'
 // 라우트 상수 import
 import { ROUTES } from '@frontend/shared/constants/routes'
 // 페이지 컴포넌트들 import
@@ -115,7 +113,8 @@ function RedirectIfLoggedIn({ children }: { children: React.ReactNode }) {
  */
 function AppRoutes() {
   // 전체 앱의 로딩 상태 가져오기
-  const { isLoading } = useAuthRedux()
+  const { isLoading: authLoading } = useAuthRedux()
+  const { isLoading: appLoading, isInitialized } = useAppData()
 
   // 앱 초기화 (한 번만 실행)
   useEffect(() => {
@@ -125,7 +124,7 @@ function AppRoutes() {
   }, [])
 
   // 전체 앱 로딩 중일 때만 로딩 스피너 표시
-  if (isLoading) {
+  if (authLoading || (!isInitialized && appLoading)) {
     return <LoadingSpinner text="앱 초기화 중..." />
   }
 
@@ -270,10 +269,6 @@ function App() {
           >
             {/* 메인 라우트 컴포넌트 */}
             <AppRoutes />
-            {/* 개발자 도구 */}
-            <DevTools />
-            {/* 로그인 테스트 도구 */}
-            <LoginTest />
           </BrowserRouter>
         </WorkoutTimerProvider>
       </ReduxProvider>

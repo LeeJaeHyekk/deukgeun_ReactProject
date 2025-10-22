@@ -4,16 +4,17 @@ import { User } from '@backend/entities/User'
 import { Gym } from '@backend/entities/Gym'
 import { Post } from '@backend/entities/Post'
 import { UserLevel } from '@backend/entities/UserLevel'
-import { AppDataSource } from '@backend/config/databaseConfig'
+import { lazyLoadDatabase } from "@backend/modules/server/LazyLoader"
 
 export class StatsController {
   // 전체 통계 조회
   getOverallStats = async (req: Request, res: Response) => {
     try {
-      const userRepo = AppDataSource.getRepository(User)
-      const gymRepo = AppDataSource.getRepository(Gym)
-      const postRepo = AppDataSource.getRepository(Post)
-      const userLevelRepo = AppDataSource.getRepository(UserLevel)
+      const dataSource = await lazyLoadDatabase()
+      const userRepo = dataSource.getRepository(User)
+      const gymRepo = dataSource.getRepository(Gym)
+      const postRepo = dataSource.getRepository(Post)
+      const userLevelRepo = dataSource.getRepository(UserLevel)
 
       // 사용자 통계
       const totalUsers = await userRepo.count()
@@ -81,10 +82,11 @@ export class StatsController {
         return res.status(401).json({ message: "인증이 필요합니다." })
       }
 
-      const userRepo = AppDataSource.getRepository(User)
-      const gymRepo = AppDataSource.getRepository(Gym)
-      const postRepo = AppDataSource.getRepository(Post)
-      const userLevelRepo = AppDataSource.getRepository(UserLevel)
+      const dataSource = await lazyLoadDatabase()
+      const userRepo = dataSource.getRepository(User)
+      const gymRepo = dataSource.getRepository(Gym)
+      const postRepo = dataSource.getRepository(Post)
+      const userLevelRepo = dataSource.getRepository(UserLevel)
 
       // 사용자 정보
       const user = await userRepo.findOne({ where: { id: userId } })
@@ -177,6 +179,13 @@ export class StatsController {
         achievements: [],
       }
 
+      // 캐시 헤더 설정 (5분 캐시)
+      res.set({
+        'Cache-Control': 'private, max-age=300', // 5분
+        'ETag': `"user-stats-${userId}-${Date.now()}"`, // 고유 ETag
+        'Last-Modified': new Date().toUTCString()
+      })
+
       res.json({
         success: true,
         message: "사용자 통계를 성공적으로 조회했습니다.",
@@ -193,8 +202,9 @@ export class StatsController {
   // 레벨별 사용자 분포
   getLevelDistribution = async (req: Request, res: Response) => {
     try {
-      const userLevelRepo = AppDataSource.getRepository(UserLevel)
-      const postRepo = AppDataSource.getRepository(Post)
+      const dataSource = await lazyLoadDatabase()
+      const userLevelRepo = dataSource.getRepository(UserLevel)
+      const postRepo = dataSource.getRepository(Post)
 
       // 레벨별 사용자 수
       const levelDistribution = await userLevelRepo

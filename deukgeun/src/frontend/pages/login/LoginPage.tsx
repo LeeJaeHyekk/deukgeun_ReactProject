@@ -117,11 +117,7 @@ export default function LoginPage() {
       logger.info('LOGIN_PAGE', '로그인 성공!')
       showToast('로그인 성공!', 'success')
 
-      // RedirectIfLoggedIn이 작동하지 않을 경우를 대비한 백업 리다이렉트
-      setTimeout(() => {
-        logger.info('LOGIN_PAGE', '백업 리다이렉트 실행')
-        navigate('/', { replace: true })
-      }, 500)
+      // RedirectIfLoggedIn 컴포넌트가 자동으로 리다이렉트를 처리합니다
     } catch (error: unknown) {
       console.log('🧪 로그인 에러:', error)
       handleApiError(error as any)
@@ -178,19 +174,7 @@ export default function LoginPage() {
     )
   }
 
-  // 이미 로그인된 상태라면 로딩 화면 표시
-  if (isAuthenticated) {
-    return (
-      <div className={styles.pageWrapper}>
-        <div className={styles.loginBox}>
-          <div style={{ textAlign: 'center', color: '#f1f3f5' }}>
-            <p>이미 로그인된 상태입니다.</p>
-            <p>메인페이지로 이동 중...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // 이미 로그인된 상태라면 RedirectIfLoggedIn이 처리하므로 여기서는 제거
 
   return (
     <div className={styles.pageWrapper}>

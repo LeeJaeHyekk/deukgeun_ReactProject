@@ -422,7 +422,7 @@ export const authApi = {
         API_ENDPOINTS.AUTH.REFRESH
       )
       console.log('✅ refreshToken API 성공:', response)
-      return response.data as RefreshResponse
+      return response.data as unknown as RefreshResponse
     } catch (error: unknown) {
       console.error('❌ refreshToken API 실패:', error)
       console.error('❌ 에러 상세:', {

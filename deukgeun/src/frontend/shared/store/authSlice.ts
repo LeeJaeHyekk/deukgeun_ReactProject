@@ -195,17 +195,24 @@ const authSlice = createSlice({
         hasToken: !!token
       })
 
-      // 중복 로그인 방지
+      // 중복 로그인 방지 - 같은 사용자로 이미 로그인된 경우
       if (state.isAuthenticated && state.user?.id === user.id) {
         logger.warn('AUTH', '이미 로그인된 사용자입니다.', { userId: user.id })
         return
       }
 
+      // Date 객체를 직렬화 안전하게 변환
+      const sanitizedUser = {
+        ...user,
+        createdAt: user.createdAt instanceof Date ? user.createdAt : new Date(user.createdAt),
+        updatedAt: user.updatedAt instanceof Date ? user.updatedAt : new Date(user.updatedAt),
+      }
+
       // 사용자 데이터와 토큰 저장
       storage.set("accessToken", token)
-      storage.set("user", user)
+      storage.set("user", sanitizedUser)
       
-      const userWithToken = { ...user, accessToken: token }
+      const userWithToken = { ...sanitizedUser, accessToken: token }
       state.isAuthenticated = true
       state.user = userWithToken
       state.isLoading = false

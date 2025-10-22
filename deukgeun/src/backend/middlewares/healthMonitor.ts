@@ -32,7 +32,7 @@ export interface HealthStatus {
 /**
  * 데이터베이스 연결 상태를 확인합니다.
  */
-async function checkDatabaseHealth(): Promise<{
+export async function checkDatabaseHealth(): Promise<{
   connected: boolean
   responseTime?: number
   error?: string

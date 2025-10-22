@@ -3,15 +3,15 @@ import { validation } from "@frontend/shared/lib"
 // 폼 필드별 검증 규칙
 export const AUTH_VALIDATION_RULES = {
   email: {
-    required: (value: string) => validation.isRequired(value),
-    format: (value: string) => validation.isEmail(value),
+    required: (value: string) => validation.required(value),
+    format: (value: string) => validation.email(value),
     message: {
       required: "이메일을 입력해주세요.",
       format: "유효한 이메일 주소를 입력해주세요.",
     },
   },
   password: {
-    required: (value: string) => validation.isRequired(value),
+    required: (value: string) => validation.required(value),
     minLength: (value: string) => validation.minLength(value, 8),
     complexity: (value: string) => {
       const hasUpperCase = /[A-Z]/.test(value)
@@ -26,7 +26,7 @@ export const AUTH_VALIDATION_RULES = {
     },
   },
   confirmPassword: {
-    required: (value: string) => validation.isRequired(value),
+    required: (value: string) => validation.required(value),
     match: (value: string, password: string) => value === password,
     message: {
       required: "비밀번호 확인을 입력해주세요.",
@@ -34,7 +34,7 @@ export const AUTH_VALIDATION_RULES = {
     },
   },
   nickname: {
-    required: (value: string) => validation.isRequired(value),
+    required: (value: string) => validation.required(value),
     minLength: (value: string) => validation.minLength(value, 2),
     maxLength: (value: string) => validation.maxLength(value, 20),
     format: (value: string) => /^[a-zA-Z0-9가-힣_-]+$/.test(value),
@@ -47,7 +47,7 @@ export const AUTH_VALIDATION_RULES = {
     },
   },
   phone: {
-    required: (value: string) => validation.isRequired(value),
+    required: (value: string) => validation.required(value),
     format: (value: string) => /^01[0-9]-\d{3,4}-\d{4}$/.test(value),
     message: {
       required: "휴대폰 번호를 입력해주세요.",
@@ -55,7 +55,7 @@ export const AUTH_VALIDATION_RULES = {
     },
   },
   name: {
-    required: (value: string) => validation.isRequired(value),
+    required: (value: string) => validation.required(value),
     message: {
       required: "이름을 입력해주세요.",
     },

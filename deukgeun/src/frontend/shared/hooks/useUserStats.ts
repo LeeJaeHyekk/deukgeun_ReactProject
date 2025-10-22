@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { typedApiClient } from '../../../shared/api/client'
-import { useAuth } from './useAuth'
+import { useAuthRedux } from './useAuthRedux'
 import { isValidUserData } from '../../../shared/utils/apiValidation'
 
 export interface Achievement {
@@ -42,7 +42,7 @@ export const useUserStats = () => {
   const [userStats, setUserStats] = useState<UserStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { user } = useAuth()
+  const { user } = useAuthRedux()
 
   const fetchUserStats = async () => {
     if (!user) {

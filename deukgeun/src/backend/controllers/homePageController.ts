@@ -1,12 +1,13 @@
 import { Request, Response } from "express"
 import { HomePageConfig } from "@backend/entities/HomePageConfig"
-import { AppDataSource } from '@backend/config/databaseConfig'
+import { lazyLoadDatabase } from "@backend/modules/server/LazyLoader"
 
 export class HomePageController {
   // 홈페이지 설정 조회
   getHomePageConfig = async (req: Request, res: Response) => {
     try {
-      const configRepo = AppDataSource.getRepository(HomePageConfig)
+      const dataSource = await lazyLoadDatabase()
+      const configRepo = dataSource.getRepository(HomePageConfig)
       const configs = await configRepo.find({
         where: { isActive: true },
         order: { key: "ASC" },
@@ -58,7 +59,8 @@ export class HomePageController {
   updateHomePageConfig = async (req: Request, res: Response) => {
     try {
       const { key, value, type, description } = req.body
-      const configRepo = AppDataSource.getRepository(HomePageConfig)
+      const dataSource = await lazyLoadDatabase()
+      const configRepo = dataSource.getRepository(HomePageConfig)
 
       if (!key || value === undefined) {
         return res.status(400).json({
@@ -109,7 +111,8 @@ export class HomePageController {
   updateMultipleConfigs = async (req: Request, res: Response) => {
     try {
       const { configs } = req.body
-      const configRepo = AppDataSource.getRepository(HomePageConfig)
+      const dataSource = await lazyLoadDatabase()
+      const configRepo = dataSource.getRepository(HomePageConfig)
 
       if (!Array.isArray(configs)) {
         return res.status(400).json({

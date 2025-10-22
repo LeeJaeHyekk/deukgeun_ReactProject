@@ -27,7 +27,8 @@
       "@infrastructure/*": ["backend/infrastructure/*"],
       "@config/*": ["backend/config/*"],
       "@middlewares/*": ["backend/middlewares/*"],
-      "@routes/*": ["backend/routes/*"]
+      "@routes/*": ["backend/routes/*"],
+      "@data/*": ["data/*"]
     },
     "typeRoots": ["./node_modules/@types"],
     "target": "ESNext",

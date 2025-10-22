@@ -33,7 +33,9 @@ interface EnhancedErrorPageProps {
   title?: string
   message?: string
   description?: string
+  suggestions?: string[]
   showHomeButton?: boolean
+  showRetryButton?: boolean
   customActions?: ErrorAction[]
 }
 

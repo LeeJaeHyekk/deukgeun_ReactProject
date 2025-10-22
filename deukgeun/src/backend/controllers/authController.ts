@@ -6,7 +6,7 @@ import bcrypt from "bcrypt"
 import { verifyRecaptcha } from '@backend/utils/recaptcha'
 import { createTokens, verifyRefreshToken } from '@backend/utils/jwt'
 import { logger } from '@backend/utils/logger'
-import { AppDataSource } from '@backend/config/databaseConfig'
+import { lazyLoadDatabase } from "@backend/modules/server/LazyLoader"
 import { ApiResponse, ErrorResponse } from "@backend/types"
 import {
   LoginRequest,
@@ -59,7 +59,8 @@ export async function login(
       return
     }
 
-    const userRepo = AppDataSource.getRepository(User)
+    const dataSource = await lazyLoadDatabase()
+    const userRepo = dataSource.getRepository(User)
     const user = await userRepo.findOne({ where: { email } })
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -129,7 +130,8 @@ export async function refreshToken(
       return
     }
 
-    const userRepo = AppDataSource.getRepository(User)
+    const dataSource = await lazyLoadDatabase()
+    const userRepo = dataSource.getRepository(User)
     const user = await userRepo.findOne({ where: { id: payload.userId } })
 
     if (!user) {
@@ -393,9 +395,10 @@ export const register = async (
     console.log("✅ reCAPTCHA 검증 통과")
 
     console.log("🔄 데이터베이스 연결 및 중복 확인 시작")
-    const userRepo = AppDataSource.getRepository(User)
-    const userLevelRepo = AppDataSource.getRepository(UserLevel)
-    const userStreakRepo = AppDataSource.getRepository(UserStreak)
+    const dataSource = await lazyLoadDatabase()
+    const userRepo = dataSource.getRepository(User)
+    const userLevelRepo = dataSource.getRepository(UserLevel)
+    const userStreakRepo = dataSource.getRepository(UserStreak)
 
     // 이메일 중복 확인
     console.log("🔍 이메일 중복 확인:", email)

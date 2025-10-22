@@ -9,6 +9,8 @@ interface ErrorPageProps {
   title?: string
   message?: string
   showHomeButton?: boolean
+  showRetryButton?: boolean
+  onRetry?: () => void
 }
 
 export default function ErrorPage({

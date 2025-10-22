@@ -13,7 +13,8 @@ import logsRoutes from "@backend/routes/logs"
 import recaptchaRoutes from "@backend/routes/recaptcha"
 import homePageRoutes from "@backend/routes/homePage"
 import enhancedGymRoutes from "@backend/routes/enhancedGymRoutes"
-import { AppDataSource, checkDatabaseHealth } from '@backend/config/databaseConfig'
+import { AppDataSource } from '@backend/config/databaseConfig'
+import { checkDatabaseHealth } from '@backend/middlewares/healthMonitor'
 import { 
   isValidHealthResponse, 
   isValidApiResponse,
@@ -40,7 +41,7 @@ router.get("/health", async (req, res) => {
     if (isDatabaseConnected) {
       console.log("🔄 Running database health check...")
       databaseHealth = await checkDatabaseHealth()
-      console.log(`   - Database health: ${databaseHealth.status}`)
+      console.log(`   - Database health: ${databaseHealth.connected ? 'connected' : 'disconnected'}`)
     }
     
     const healthStatus = {

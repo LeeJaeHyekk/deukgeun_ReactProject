@@ -164,12 +164,12 @@ export function useAuthRedux(): UseAuthReturn {
     }
   }, [tokenRefreshTimer])
 
-  // 로그인 상태가 변경될 때 토큰 갱신 설정
+  // 로그인 상태가 변경될 때 토큰 갱신 설정 (한 번만 실행)
   useEffect(() => {
-    if (isAuthenticated && user?.accessToken) {
+    if (isAuthenticated && user?.accessToken && !tokenRefreshTimer) {
       setupTokenRefresh(user.accessToken)
     }
-  }, [isAuthenticated, user?.accessToken]) // setupTokenRefresh 의존성 제거
+  }, [isAuthenticated, user?.accessToken, tokenRefreshTimer, setupTokenRefresh])
 
   return {
     isLoggedIn: isAuthenticated,

@@ -370,6 +370,197 @@ class FileAnalyzer {
   }
 
   /**
+   * ESM 문법이 있는지 확인
+   */
+  private hasEsmSyntax(content: string): boolean {
+    // import 문법 확인
+    const hasImport = /import\s+.*from\s*['"]/.test(content) || content.includes('import ')
+    const hasExport = /export\s+.*from\s*['"]/.test(content) || content.includes('export ')
+    const hasImportMeta = content.includes('import.meta')
+    
+    // 빈 export 문도 ESM 문법으로 간주
+    const hasEmptyExport = /export\s*\{\s*\}\s*;?/.test(content)
+    const hasExportDefault = /export\s+default/.test(content)
+    const hasExportDeclaration = /export\s+(const|let|var|function|class|async\s+function)/.test(content)
+    
+    return hasImport || hasExport || hasImportMeta || hasEmptyExport || hasExportDefault || hasExportDeclaration
+  }
+
+  /**
+   * CJS 파일에서 ESM 문법 변환
+   */
+  private async convertCjsFilesWithEsmSyntax(integrator: BuildIntegrator): Promise<void> {
+    logStep('CONVERT_CJS', 'CJS 파일에서 ESM 문법 변환 중...')
+    
+    try {
+      const distPath = path.join(process.cwd(), 'dist')
+      if (!fs.existsSync(distPath)) {
+        logWarning('dist 폴더가 존재하지 않습니다.')
+        return
+      }
+      
+      const cjsFiles = this.findCjsFiles(distPath)
+      let convertedCount = 0
+      
+      for (const cjsFile of cjsFiles) {
+        try {
+          const content = fs.readFileSync(cjsFile, 'utf8')
+          
+          // ESM 문법이 있는지 확인
+          if (this.hasEsmSyntax(content)) {
+            log(`ESM 문법 발견: ${path.relative(process.cwd(), cjsFile)}`, 'yellow')
+            
+            // 변환 실행
+            const convertedContent = this.convertEsmToCommonJS(content, cjsFile)
+            
+            // 변환된 내용 저장
+            fs.writeFileSync(cjsFile, convertedContent)
+            log(`CJS 변환됨: ${path.relative(process.cwd(), cjsFile)}`, 'green')
+            convertedCount++
+          }
+        } catch (error) {
+          logError(`CJS 파일 변환 실패: ${cjsFile} - ${(error as Error).message}`)
+        }
+      }
+      
+      log(`CJS 파일 변환 완료: ${convertedCount}개`, 'green')
+    } catch (error) {
+      logError(`CJS 파일 변환 프로세스 실패: ${(error as Error).message}`)
+    }
+  }
+
+  /**
+   * CJS 파일 찾기
+   */
+  private findCjsFiles(dir: string): string[] {
+    const cjsFiles: string[] = []
+    this.scanDirectoryForCjs(dir, cjsFiles)
+    return cjsFiles
+  }
+
+  /**
+   * CJS 파일 스캔
+   */
+  private scanDirectoryForCjs(dir: string, cjsFiles: string[]): void {
+    if (!fs.existsSync(dir)) {
+      return
+    }
+    
+    const items = fs.readdirSync(dir)
+    
+    for (const item of items) {
+      const itemPath = path.join(dir, item)
+      const stat = fs.statSync(itemPath)
+      
+      if (stat.isDirectory()) {
+        if (!['node_modules', '.git', '.conversion-backup'].includes(item)) {
+          this.scanDirectoryForCjs(itemPath, cjsFiles)
+        }
+      } else if (item.endsWith('.cjs')) {
+        cjsFiles.push(itemPath)
+      }
+    }
+  }
+
+  /**
+   * ESM을 CommonJS로 변환
+   */
+  private convertEsmToCommonJS(content: string, filePath: string): string {
+    let convertedContent = content
+    
+    // 1. import.meta.env 변환
+    convertedContent = this.convertImportMetaEnv(convertedContent)
+    
+    // 2. import/export 변환
+    if (this.needsImportExportConversion(convertedContent)) {
+      convertedContent = this.convertImportExport(convertedContent, filePath)
+    }
+    
+    // 3. 기타 ESM 문법 변환
+    convertedContent = this.convertOtherEsmSyntax(convertedContent)
+    
+    return convertedContent
+  }
+
+  /**
+   * import.meta.env 변환
+   */
+  private convertImportMetaEnv(content: string): string {
+    let convertedContent = content
+    
+    if (convertedContent.includes('import.meta.env')) {
+      // VITE_ 변수들 먼저 처리
+      convertedContent = convertedContent.replace(/import\.meta\.env\.VITE_([A-Z_]+)/g, 'process.env.VITE_$1')
+      
+      // 특수 변수들 처리
+      convertedContent = convertedContent.replace(/import\.meta\.env\.MODE/g, 'process.env.NODE_ENV')
+      convertedContent = convertedContent.replace(/import\.meta\.env\.DEV/g, 'process.env.NODE_ENV === "development"')
+      convertedContent = convertedContent.replace(/import\.meta\.env\.PROD/g, 'process.env.NODE_ENV === "production"')
+      
+      // 일반 환경 변수들 처리
+      convertedContent = convertedContent.replace(/import\.meta\.env\.([A-Z_]+)/g, 'process.env.$1')
+      
+      // 나머지 import.meta.env 처리
+      convertedContent = convertedContent.replace(/import\.meta\.env/g, 'process.env')
+    }
+    
+    return convertedContent
+  }
+
+  /**
+   * import/export 변환이 필요한지 확인
+   */
+  private needsImportExportConversion(content: string): boolean {
+    return content.includes('import ') || content.includes('export ')
+  }
+
+  /**
+   * import/export 변환
+   */
+  private convertImportExport(content: string, filePath: string): string {
+    let convertedContent = content
+    
+    // 기본 import 변환
+    convertedContent = convertedContent.replace(/import\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g, 'const $1 = require(\'$2\').default')
+    
+    // 명명된 import 변환
+    convertedContent = convertedContent.replace(/import\s*\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]/g, 'const { $1 } = require(\'$2\')')
+    
+    // 네임스페이스 import 변환
+    convertedContent = convertedContent.replace(/import\s+\*\s+as\s+(\w+)\s+from\s+['"]([^'"]+)['"]/g, 'const $1 = require(\'$2\')')
+    
+    // 기본 export 변환
+    convertedContent = convertedContent.replace(/export\s+default\s+([^;]+)/g, 'module.exports.default = $1')
+    
+    // 명명된 export 변환
+    convertedContent = convertedContent.replace(/export\s*\{\s*([^}]+)\s*\}/g, (match: string, exports: string) => {
+      return exports.split(',').map(exp => {
+        exp = exp.trim()
+        return `module.exports.${exp} = ${exp}`
+      }).join('\n')
+    })
+    
+    return convertedContent
+  }
+
+  /**
+   * 기타 ESM 문법 변환
+   */
+  private convertOtherEsmSyntax(content: string): string {
+    let convertedContent = content
+    
+    // import() 동적 import 변환
+    convertedContent = convertedContent.replace(/import\(['"]([^'"]+)['"]\)/g, "require('$1')")
+    
+    // __dirname, __filename 변환 (ESM에서는 사용 불가)
+    if (convertedContent.includes('import.meta.url')) {
+      convertedContent = convertedContent.replace(/import\.meta\.url/g, '__filename')
+    }
+    
+    return convertedContent
+  }
+
+  /**
    * 파일 분류 (수정된 버전)
    */
   private classifyFile(filePath: string): void {
@@ -1410,7 +1601,10 @@ async function main(): Promise<void> {
         }
       }
       
-      // 3. 변환된 파일 적용 확인 (이미 executeConversion에서 적용됨)
+      // 3. CJS 파일에서 ESM 문법 변환
+      await this.convertCjsFilesWithEsmSyntax(integrator)
+      
+      // 4. 변환된 파일 적용 확인 (이미 executeConversion에서 적용됨)
       logStep('APPLY', '변환된 파일 적용 상태 확인...')
       log(`롤백 스택 크기: ${integrator.getRollbackStackSize()}`, 'blue')
       

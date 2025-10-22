@@ -226,8 +226,8 @@ export class CrawlingService {
       // 3. 데이터 품질 검사
       if (this.config.enableQualityCheck) {
         this.status.currentStep = '데이터 품질 검사'
-        const qualityResult = await this.dataProcessor.checkDataQuality()
-        result.dataQuality = qualityResult
+        const qualityResult = await this.dataProcessor?.checkDataQuality()
+        result.dataQuality = qualityResult || { average: 0, min: 0, max: 0, distribution: {} }
       }
 
       // 4. 최종 결과 계산
@@ -525,7 +525,7 @@ export class CrawlingService {
     }
     
     // 데이터 프로세서 정리
-    await this.dataProcessor.cleanup()
+    await this.dataProcessor?.cleanup()
     
     console.log('✅ 크롤링 서비스 정리 완료')
   }

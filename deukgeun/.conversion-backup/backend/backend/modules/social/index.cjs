@@ -1,0 +1,26 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Like = exports.Comment = exports.Post = exports.PostService = exports.LikeController = exports.CommentController = exports.PostController = exports.likeRoutes = exports.commentRoutes = exports.postRoutes = void 0;
+var post_1 = require('routes/post');
+Object.defineProperty(exports, "postRoutes", { enumerable: true, get: function () { return __importDefault(post_1).default; } });
+var comment_1 = require('routes/comment');
+Object.defineProperty(exports, "commentRoutes", { enumerable: true, get: function () { return __importDefault(comment_1).default; } });
+var like_1 = require('routes/like');
+Object.defineProperty(exports, "likeRoutes", { enumerable: true, get: function () { return __importDefault(like_1).default; } });
+var postController_1 = require('controllers/postController');
+Object.defineProperty(exports, "PostController", { enumerable: true, get: function () { return postController_1.PostController; } });
+var commentController_1 = require('controllers/commentController');
+Object.defineProperty(exports, "CommentController", { enumerable: true, get: function () { return commentController_1.CommentController; } });
+var likeController_1 = require('controllers/likeController');
+Object.defineProperty(exports, "LikeController", { enumerable: true, get: function () { return likeController_1.LikeController; } });
+var post_service_1 = require('services/post.service');
+Object.defineProperty(exports, "PostService", { enumerable: true, get: function () { return post_service_1.PostService; } });
+var Post_1 = require('entities/Post');
+Object.defineProperty(exports, "Post", { enumerable: true, get: function () { return Post_1.Post; } });
+var Comment_1 = require('entities/Comment');
+Object.defineProperty(exports, "Comment", { enumerable: true, get: function () { return Comment_1.Comment; } });
+var Like_1 = require('entities/Like');
+Object.defineProperty(exports, "Like", { enumerable: true, get: function () { return Like_1.Like; } });

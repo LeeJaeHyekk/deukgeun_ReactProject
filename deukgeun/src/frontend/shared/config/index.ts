@@ -4,7 +4,6 @@
 
 export interface FrontendConfig {
   apiBaseUrl: string
-  kakaoApiKey: string
   recaptchaSiteKey: string
   environment: "development" | "production" | "test"
   api: {
@@ -16,13 +15,12 @@ export interface FrontendConfig {
 const getConfig = (): FrontendConfig => {
   console.log('🔧 환경 변수 로딩 중...')
   console.log('🔧 VITE_BACKEND_URL:', import.meta.env.VITE_BACKEND_URL)
-  console.log('🔧 VITE_KAKAO_API_KEY:', import.meta.env.VITE_KAKAO_API_KEY)
+  // Kakao API 제거됨
   console.log('🔧 VITE_RECAPTCHA_SITE_KEY:', import.meta.env.VITE_RECAPTCHA_SITE_KEY)
   console.log('🔧 MODE:', import.meta.env.MODE)
   
   const config = {
     apiBaseUrl: import.meta.env.VITE_BACKEND_URL || "",
-    kakaoApiKey: import.meta.env.VITE_KAKAO_API_KEY || "",
     recaptchaSiteKey: import.meta.env.VITE_RECAPTCHA_SITE_KEY || "",
     environment: (import.meta.env.MODE as "development" | "production" | "test") || "development",
     api: {

@@ -1,53 +1,69 @@
-/**
- * 거리 계산 유틸리티 함수들
- */
+export interface Coordinates {
+  lat: number
+  lng: number
+}
 
-// Haversine 공식을 사용한 두 지점 간 거리 계산 (km)
+/**
+ * 두 좌표 간의 거리를 km 단위로 계산합니다.
+ * Haversine 공식을 사용하여 지구의 곡률을 고려한 정확한 거리 계산
+ */
 export function calculateDistance(
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number
+  coord1: Coordinates,
+  coord2: Coordinates
 ): number {
-  const R = 6371 // 지구의 반지름 (km)
-  const dLat = toRadians(lat2 - lat1)
-  const dLng = toRadians(lng2 - lng1)
+  const R = 6371 // 지구 반지름 (km)
+  const dLat = ((coord2.lat - coord1.lat) * Math.PI) / 180
+  const dLon = ((coord2.lng - coord1.lng) * Math.PI) / 180
+  const lat1 = (coord1.lat * Math.PI) / 180
+  const lat2 = (coord2.lat * Math.PI) / 180
 
   const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRadians(lat1)) *
-      Math.cos(toRadians(lat2)) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2)
-
+    Math.sin(dLat / 2) ** 2 +
+    Math.sin(dLon / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2)
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  const distance = R * c
 
-  return Math.round(distance * 100) / 100 // 소수점 2자리까지 반올림
+  return R * c
 }
 
-// 도를 라디안으로 변환
-function toRadians(degrees: number): number {
-  return degrees * (Math.PI / 180)
+/**
+ * 숫자 거리값을 보기 좋게 포맷 (예: "500m" / "2.3km")
+ */
+export function formatDistance(distanceKm: number): string {
+  return distanceKm < 1
+    ? `${Math.round(distanceKm * 1000)}m`
+    : `${distanceKm.toFixed(1)}km`
 }
 
-// 거리를 사람이 읽기 쉬운 형태로 포맷팅
-export function formatDistance(distance: number): string {
-  if (distance < 1) {
-    return `${Math.round(distance * 1000)}m`
-  }
-  return `${distance}km`
+/**
+ * 좌표 유효성 검사 (서울 지역 기준)
+ */
+export function isValidCoordinate(lat: number, lng: number): boolean {
+  return lat >= 37.4 && lat <= 37.7 && lng >= 126.7 && lng <= 127.2
 }
 
-// 현재 위치에서 헬스장까지의 거리 계산
+/**
+ * 거리 기반 정렬을 위한 헬퍼 함수
+ */
+export function sortByDistance<T extends { distance?: number }>(
+  items: T[],
+  direction: 'asc' | 'desc' = 'asc'
+): T[] {
+  return [...items].sort((a, b) => {
+    const distanceA = a.distance ?? Infinity
+    const distanceB = b.distance ?? Infinity
+    return direction === 'asc' ? distanceA - distanceB : distanceB - distanceA
+  })
+}
+
+/**
+ * 현재 위치에서 헬스장까지의 거리 계산 (기존 코드 호환성)
+ */
 export function calculateDistanceFromCurrent(
-  currentPos: { lat: number; lng: number },
+  currentPosition: { lat: number; lng: number },
   gym: { latitude: number; longitude: number }
 ): number {
   return calculateDistance(
-    currentPos.lat,
-    currentPos.lng,
-    gym.latitude,
-    gym.longitude
+    { lat: currentPosition.lat, lng: currentPosition.lng },
+    { lat: gym.latitude, lng: gym.longitude }
   )
 }

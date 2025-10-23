@@ -4,7 +4,6 @@
 
 export const SCRIPT_CONFIG = {
   API_BASE_URL: import.meta.env.VITE_BACKEND_URL || "",
-  KAKAO_API_KEY: import.meta.env.VITE_KAKAO_API_KEY || "",
   GYM_SEARCH_RADIUS: 1000,
   MAX_GYMS_PER_REQUEST: 15,
   BATCH_SIZE: 10,
@@ -14,8 +13,8 @@ export const SCRIPT_CONFIG = {
 }
 
 export const GYM_CONFIG = {
-  API_KEY: import.meta.env.VITE_SEOUL_OPENAPI_KEY || import.meta.env.VITE_KAKAO_API_KEY || "",
-  BASE_URL: "https://dapi.kakao.com/v2/local",
+  API_KEY: import.meta.env.VITE_SEOUL_OPENAPI_KEY || "",
+  BASE_URL: "https://openapi.seoul.go.kr:8088", // 서울시 공공데이터 API 사용
   SEARCH_RADIUS: 1000,
   MAX_RESULTS: 15,
 }
@@ -23,7 +22,7 @@ export const GYM_CONFIG = {
 // 추가 export들
 export const SCRIPT_GYM_CONFIG = {
   ...SCRIPT_CONFIG,
-  API_KEY: import.meta.env.VITE_SEOUL_OPENAPI_KEY || import.meta.env.VITE_KAKAO_API_KEY || "",
+  API_KEY: import.meta.env.VITE_SEOUL_OPENAPI_KEY || "",
 }
 
 export const scriptEnv = {
@@ -32,7 +31,7 @@ export const scriptEnv = {
 }
 
 export const validateEnv = () => {
-  return SCRIPT_CONFIG.API_BASE_URL && (SCRIPT_CONFIG.KAKAO_API_KEY || SCRIPT_CONFIG.SEOUL_OPENAPI_KEY)
+  return SCRIPT_CONFIG.API_BASE_URL && SCRIPT_CONFIG.SEOUL_OPENAPI_KEY
 }
 
 export default SCRIPT_CONFIG

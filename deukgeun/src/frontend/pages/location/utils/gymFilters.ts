@@ -118,45 +118,39 @@ export function filterGymsByDistance(
   })
 }
 
-// 통합 필터링 및 정렬 함수
+// 통합 필터링 및 정렬 함수 (Redux 호환)
 export function processGyms(
   gyms: Gym[],
-  options: {
-    activeFilters: FilterOption[]
-    sortBy: SortOption
-    sortDirection: SortDirection
-    maxDistance?: number
-    currentPosition: { lat: number; lng: number } | null
-  }
+  activeFilters: FilterOption[],
+  sortBy: SortOption,
+  sortDirection: SortDirection
 ): Gym[] {
   let processedGyms = [...gyms]
 
-  // 1. 거리 계산 추가
-  if (options.currentPosition) {
-    processedGyms = processedGyms.map(gym => ({
-      ...gym,
-      distance: calculateDistanceFromCurrent(options.currentPosition!, gym),
-    }))
+  // 1. 필터링
+  if (activeFilters.length > 0) {
+    processedGyms = processedGyms.filter(gym => {
+      return activeFilters.every(filter => {
+        switch (filter) {
+          case "PT":
+            return gym.hasPT === true
+          case "GX":
+            return gym.hasGX === true
+          case "24시간":
+            return gym.is24Hours === true
+          case "주차":
+            return gym.hasParking === true
+          case "샤워":
+            return gym.hasShower === true
+          default:
+            return true
+        }
+      })
+    })
   }
 
-  // 2. 거리 기반 필터링
-  if (options.maxDistance && options.currentPosition) {
-    processedGyms = filterGymsByDistance(
-      processedGyms,
-      options.maxDistance,
-      options.currentPosition
-    )
-  }
-
-  // 3. 필터링
-  processedGyms = filterGyms(
-    processedGyms,
-    options.activeFilters,
-    options.currentPosition
-  )
-
-  // 4. 정렬
-  processedGyms = sortGyms(processedGyms, options.sortBy, options.sortDirection)
+  // 2. 정렬
+  processedGyms = sortGyms(processedGyms, sortBy, sortDirection)
 
   return processedGyms
 }

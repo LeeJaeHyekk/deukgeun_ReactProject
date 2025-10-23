@@ -1,1 +1,0 @@
-module.exports.LoadingOverlay = LoadingOverlay from './LoadingOverlay'

@@ -3,6 +3,7 @@ import authSlice from './authSlice.js'
 import appSlice from './appSlice'
 import statsReducer from './statsSlice'
 import homeReducer from './homeSlice'
+import locationReducer from '@frontend/pages/location/slices/locationSlice'
 import { logger } from '../utils/logger'
 
 export const store = configureStore({
@@ -12,6 +13,7 @@ export const store = configureStore({
     auth: authSlice.reducer,
     app: appSlice.reducer,
     stats: statsReducer,
+    location: locationReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -124,18 +124,30 @@ export class MachineService {
     }
 
     if (filters.difficulty) {
-      query.andWhere("machine.difficulty_level = :difficulty", {
+      query.andWhere("machine.difficulty = :difficulty", {
         difficulty: filters.difficulty,
       })
     }
 
     if (filters.target) {
-      query.andWhere("JSON_CONTAINS(machine.target_muscle, :target)", {
-        target: `"${filters.target}"`,
+      // JSON 배열에서 특정 값을 검색하는 쿼리
+      // MySQL 5.7+ 에서 JSON_CONTAINS 사용
+      console.log(`🔍 타겟 근육 필터링: "${filters.target}"`)
+      query.andWhere("JSON_CONTAINS(machine.targetMuscles, :targetJson)", {
+        targetJson: `"${filters.target}"`,
       })
     }
 
-    return await query.getMany()
+    const result = await query.getMany()
+    console.log(`📊 필터링 결과: ${result.length}개 기구 발견`)
+    if (filters.target && result.length > 0) {
+      console.log(`✅ 타겟 "${filters.target}"으로 필터링된 기구들:`)
+      result.forEach(machine => {
+        console.log(`   - ${machine.name}: [${machine.targetMuscles?.join(', ')}]`)
+      })
+    }
+    
+    return result
   }
 
   /**
@@ -179,13 +191,24 @@ export class MachineService {
    */
   async getMachinesByTarget(target: string): Promise<Machine[]> {
     try {
-      return await this.machineRepository
+      console.log(`🔍 타겟별 기구 조회: "${target}"`)
+      const result = await this.machineRepository
         .createQueryBuilder("machine")
-        .where("JSON_CONTAINS(machine.target_muscle, :target)", {
-          target: `"${target}"`,
+        .where("JSON_CONTAINS(machine.targetMuscles, :targetJson)", {
+          targetJson: `"${target}"`,
         })
         .orderBy("machine.name", "ASC")
         .getMany()
+      
+      console.log(`📊 타겟 "${target}" 결과: ${result.length}개 기구 발견`)
+      if (result.length > 0) {
+        console.log(`✅ 타겟 "${target}"으로 조회된 기구들:`)
+        result.forEach(machine => {
+          console.log(`   - ${machine.name}: [${machine.targetMuscles?.join(', ')}]`)
+        })
+      }
+      
+      return result
     } catch (error) {
       console.error("타겟별 기구 조회 오류:", error)
       return []

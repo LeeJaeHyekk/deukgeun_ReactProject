@@ -55,6 +55,7 @@ export const isTest = (): boolean => {
 
 // 헬스장 관련 설정 (Kakao API 제거 후 로컬 데이터 사용)
 export const GYM_CONFIG = {
+  API_KEY: '', // 로컬 데이터 사용으로 API_KEY 불필요
   SEARCH_RADIUS: 1000,
   MAX_RESULTS: 15,
 }

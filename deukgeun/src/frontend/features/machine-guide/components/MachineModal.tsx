@@ -214,26 +214,72 @@ export const MachineModal: React.FC<MachineModalProps> = ({
               </div>
             )}
 
-            {/* 메타 정보 */}
+            {/* 사용법 */}
+            {machine.instructions && machine.instructions.length > 0 && (
+              <div className="info-group">
+                <h3 className="info-title">사용법</h3>
+                <div className="instructions-content">
+                  <ol className="instructions-list">
+                    {machine.instructions.map((instruction, index) => (
+                      <li key={index} className="instruction-item">
+                        <span className="instruction-number">{index + 1}</span>
+                        <span className="instruction-text">{instruction}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </div>
+            )}
+
+            {/* 기구 상세 정보 */}
             <div className="info-group">
-              <h3 className="info-title">기타 정보</h3>
+              <h3 className="info-title">기구 상세 정보</h3>
               <div className="meta-info">
+                {/* 카테고리 정보 */}
                 <div className="meta-item">
-                  <span className="meta-label">기구 키:</span>
-                  <span className="meta-value">{machine.machineKey}</span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">생성일:</span>
+                  <span className="meta-label">카테고리:</span>
                   <span className="meta-value">
-                    {new Date(machine.createdAt).toLocaleDateString("ko-KR")}
+                    {typeof machine.category === "string" 
+                      ? machine.category 
+                      : machine.category?.name || "기타"}
                   </span>
                 </div>
+                
+                {/* 난이도 정보 */}
                 <div className="meta-item">
-                  <span className="meta-label">수정일:</span>
+                  <span className="meta-label">난이도:</span>
                   <span className="meta-value">
-                    {new Date(machine.updatedAt).toLocaleDateString("ko-KR")}
+                    {typeof machine.difficulty === "string" 
+                      ? machine.difficulty 
+                      : machine.difficulty?.name || "beginner"}
                   </span>
                 </div>
+                
+                {/* 타겟 근육 수 */}
+                <div className="meta-item">
+                  <span className="meta-label">타겟 근육:</span>
+                  <span className="meta-value">
+                    {machine.targetMuscles?.length || 0}개 근육
+                  </span>
+                </div>
+                
+                {/* 사용법 단계 수 */}
+                <div className="meta-item">
+                  <span className="meta-label">사용법:</span>
+                  <span className="meta-value">
+                    {machine.instructions?.length || 0}단계
+                  </span>
+                </div>
+                
+                {/* 동영상 유무 */}
+                <div className="meta-item">
+                  <span className="meta-label">동영상:</span>
+                  <span className="meta-value">
+                    {machine.videoUrl ? "있음" : "없음"}
+                  </span>
+                </div>
+                
+                {/* 활성 상태 */}
                 <div className="meta-item">
                   <span className="meta-label">상태:</span>
                   <span
@@ -241,7 +287,7 @@ export const MachineModal: React.FC<MachineModalProps> = ({
                       machine.isActive ? "active" : "inactive"
                     }`}
                   >
-                    {machine.isActive ? "활성" : "비활성"}
+                    {machine.isActive ? "사용 가능" : "점검 중"}
                   </span>
                 </div>
               </div>

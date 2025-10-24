@@ -10,7 +10,7 @@ const imageCache = new Map<string, string>()
 
 // 머신 이름과 이미지 매핑
 const machineImageMapping: Record<string, string> = {
-  벤치프레스: "/img/machine/chest-press.png",
+  벤치프레스: "/img/machine/bench-press.png",
   랫풀다운: "/img/machine/lat-pulldown.png",
   레그프레스: "/img/machine/leg-press.png",
   스쿼트랙: "/img/machine/squat-rack.png",
@@ -41,6 +41,16 @@ const machineImageMapping: Record<string, string> = {
   버피: "/img/machine/burpee.png",
   점프스쿼트: "/img/machine/jump-squat.png",
   플라이오메트릭: "/img/machine/plyometric.png",
+  러닝머신: "/img/machine/treadmill.png",
+  로잉머신: "/img/machine/rowing.png",
+  풀업딥스스테이션: "/img/machine/chin-up-dip-station.png",
+  셀렉터라이즈드랫풀다운: "/img/machine/selectorized-lat-pulldown.png",
+  셀렉터라이즈드레그컬: "/img/machine/selectorized-leg-curl.png",
+  그라운드베이스콤보인클라인: "/img/machine/ground-base-combo-incline.png",
+  플레이트로디드레그프레스: "/img/machine/plate-loaded-leg-press.png",
+  플레이트로디드스쿼트: "/img/machine/plate-loaded-squat.png",
+  플레이트로디드와이드풀다운: "/img/machine/plate-loaded-wide-pulldown.png",
+  니링레그컬: "/img/machine/kneeling-leg-curl.png",
 }
 
 /**
@@ -97,16 +107,14 @@ export function clearImageCache(): void {
  */
 export function getCategoryDefaultImage(category: string): string {
   const categoryImages: Record<string, string> = {
-    상체: "/img/machine/upper-body.png",
-    하체: "/img/machine/lower-body.png",
-    전신: "/img/machine/full-body.png",
-    기타: "/img/machine/other.png",
-    strength: "/img/machine/strength.png",
     cardio: "/img/machine/cardio.png",
-    flexibility: "/img/machine/flexibility.png",
-    balance: "/img/machine/balance.png",
-    functional: "/img/machine/functional.png",
-    rehabilitation: "/img/machine/rehabilitation.png",
+    fullbody: "/img/machine/full-body.png",
+    chest: "/img/machine/chest.png",
+    back: "/img/machine/back.png",
+    shoulders: "/img/machine/shoulders.png",
+    arms: "/img/machine/arms.png",
+    legs: "/img/machine/legs.png",
+    core: "/img/machine/core.png",
   }
 
   return categoryImages[category] || "/img/machine/default.png"

@@ -5,15 +5,15 @@
 import React, { useCallback } from "react"
 import { findMatchingImage, getFullImageUrl } from "../utils/machineImageUtils"
 import type {
-  Machine,
+  MachineDTO,
   MachineCategoryDTO,
   DifficultyLevelDTO,
-} from "../../../../shared/types"
+} from "../../../../shared/types/dto/machine.dto"
 import "./MachineCard.css"
 
 interface MachineCardProps {
-  machine: Machine
-  onClick: (machine: Machine) => void
+  machine: MachineDTO
+  onClick: (machine: MachineDTO) => void
   className?: string
 }
 
@@ -34,13 +34,10 @@ export const MachineCard: React.FC<MachineCardProps> = ({
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
       case "beginner":
-      case "초급":
         return "#28a745"
       case "intermediate":
-      case "중급":
         return "#ffc107"
       case "advanced":
-      case "고급":
         return "#dc3545"
       case "expert":
         return "#6f42c1"
@@ -51,31 +48,7 @@ export const MachineCard: React.FC<MachineCardProps> = ({
 
   // 카테고리 아이콘 가져오기
   const getCategoryIcon = (category: string | MachineCategoryDTO) => {
-    const categoryStr = typeof category === "string" ? category : category.name
-    switch (categoryStr.toLowerCase()) {
-      case "cardio":
-        return "🏃"
-      case "strength":
-        return "💪"
-      case "flexibility":
-        return "🧘"
-      case "balance":
-        return "⚖️"
-      case "functional":
-        return "🎯"
-      case "rehabilitation":
-        return "🏥"
-      case "상체":
-        return "👤"
-      case "하체":
-        return "🦵"
-      case "전신":
-        return "🏃‍♂️"
-      case "기타":
-        return "🔧"
-      default:
-        return "🏋️"
-    }
+    return ""
   }
 
   return (
@@ -113,7 +86,6 @@ export const MachineCard: React.FC<MachineCardProps> = ({
         {/* 카테고리 및 난이도 배지 */}
         <div className="card-badges">
           <span className="category-badge">
-            {getCategoryIcon(machine.category)}{" "}
             {typeof machine.category === "string"
               ? machine.category
               : machine.category.name}
@@ -171,14 +143,43 @@ export const MachineCard: React.FC<MachineCardProps> = ({
       {/* 카드 푸터 */}
       <div className="card-footer">
         <div className="card-meta">
+          {/* 동영상 유무 */}
           <span className="meta-item">
-            <span className="meta-icon">📅</span>
-            {new Date(machine.updatedAt).toLocaleDateString("ko-KR")}
+            <span className="meta-icon">🎥</span>
+            {machine.videoUrl ? "동영상 있음" : "동영상 없음"}
           </span>
+          
+          {/* 사용법 단계 수 */}
           <span className="meta-item">
-            <span className="meta-icon">🆔</span>
-            {machine.machineKey}
+            <span className="meta-icon">📋</span>
+            {machine.instructions?.length || 0}단계
           </span>
+          
+          {/* 활성 상태 */}
+          <span className="meta-item">
+            <span className="meta-icon">{machine.isActive ? "✅" : "❌"}</span>
+            {machine.isActive ? "사용 가능" : "점검 중"}
+          </span>
+          
+          {/* 타겟 근육 수 */}
+          <span className="meta-item">
+            <span className="meta-icon">💪</span>
+            {machine.targetMuscles?.length || 0}개 근육
+          </span>
+          
+          {/* 이미지 정보 (새로 추가) */}
+          {machine.imageMetadata && (
+            <>
+              <span className="meta-item">
+                <span className="meta-icon">📏</span>
+                {machine.imageMetadata.dimensions.width}x{machine.imageMetadata.dimensions.height}
+              </span>
+              <span className="meta-item">
+                <span className="meta-icon">💾</span>
+                {(machine.imageMetadata.fileSize / 1024).toFixed(0)}KB
+              </span>
+            </>
+          )}
         </div>
 
         <button className="card-action" aria-label="상세 정보 보기">

@@ -1,6 +1,6 @@
 import { Gym } from "@frontend/pages/location/types/index"
-import { GymCard } from "./GymCard"
-import { SortSelect } from "@frontend/pages/location/components/SortSelect/SortSelect"
+import { GymCard } from "../gymCard/GymCard"
+// import { SortSelect } from "@frontend/pages/location/components/SortSelect/SortSelect"
 import { SortOption, SortDirection } from "@frontend/pages/location/types"
 import styles from "./GymList.module.css"
 
@@ -34,11 +34,11 @@ export function GymList({
     <div className={styles.container}>
       <div className={styles.header}>
         <h3>{gyms.length}개</h3>
-        <SortSelect
+        {/* <SortSelect
           sortBy={sortBy}
           sortDirection={sortDirection}
           onSortChange={onSortChange}
-        />
+        /> */}
       </div>
 
       <div className={`${styles.list} ${layout === 'grid' ? styles.grid : ''}`}>

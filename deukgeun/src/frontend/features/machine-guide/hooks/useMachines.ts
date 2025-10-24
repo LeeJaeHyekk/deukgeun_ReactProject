@@ -4,13 +4,12 @@
 
 import { useState, useCallback, useRef, useMemo } from "react"
 import { MachineApiService } from "@frontend/features/machine-guide/services/machineApi"
-import type { Machine, MachineDTO } from "../../../../shared/types/dto"
+import { API_CONSTANTS } from "@frontend/features/machine-guide/utils/constants"
+import { validateMachineArray } from "@frontend/features/machine-guide/utils/validation"
+import { safeErrorLog } from "@frontend/features/machine-guide/utils/errorHandling"
+import type { Machine } from "../../../../shared/types/dto"
+import type { MachineDTO } from "../../../../shared/types/dto/machine.dto"
 import type { MachineFilterQuery } from "@frontend/features/machine-guide/types"
-
-const FETCH_COOLDOWN = 500 // 0.5초로 단축
-const CACHE_DURATION = 5 * 60 * 1000 // 5분 캐시
-const MAX_RETRY_ATTEMPTS = 3
-const RETRY_DELAY = 1000
 
 export const useMachines = () => {
   const [machines, setMachines] = useState<MachineDTO[]>([])
@@ -31,7 +30,7 @@ export const useMachines = () => {
   // 캐시 유틸리티 함수들
   const getCachedData = useCallback((key: string) => {
     const cached = machinesCache.current.get(key)
-    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    if (cached && Date.now() - cached.timestamp < API_CONSTANTS.CACHE_DURATION) {
       return cached.data
     }
     return null
@@ -79,7 +78,7 @@ export const useMachines = () => {
     async <T>(operation: () => Promise<T>): Promise<T> => {
       let lastError: Error
 
-      for (let attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt++) {
+      for (let attempt = 1; attempt <= API_CONSTANTS.MAX_RETRY_ATTEMPTS; attempt++) {
         try {
           return await operation()
         } catch (err) {
@@ -91,13 +90,13 @@ export const useMachines = () => {
             throw lastError
           }
 
-          if (attempt < MAX_RETRY_ATTEMPTS) {
+          if (attempt < API_CONSTANTS.MAX_RETRY_ATTEMPTS) {
             console.warn(
-              `⚠️ API 호출 실패 (${attempt}/${MAX_RETRY_ATTEMPTS}), ${RETRY_DELAY}ms 후 재시도...`
+              `⚠️ API 호출 실패 (${attempt}/${API_CONSTANTS.MAX_RETRY_ATTEMPTS}), ${API_CONSTANTS.RETRY_DELAY}ms 후 재시도...`
             )
             setRetryCount(attempt)
             await new Promise(resolve =>
-              setTimeout(resolve, RETRY_DELAY * attempt)
+              setTimeout(resolve, API_CONSTANTS.RETRY_DELAY * attempt)
             )
           }
         }
@@ -111,8 +110,8 @@ export const useMachines = () => {
   // 쿨다운 체크
   const checkCooldown = useCallback(() => {
     const now = Date.now()
-    if (now - lastFetchTime < FETCH_COOLDOWN) {
-      const remaining = FETCH_COOLDOWN - (now - lastFetchTime)
+    if (now - lastFetchTime < API_CONSTANTS.FETCH_COOLDOWN) {
+      const remaining = API_CONSTANTS.FETCH_COOLDOWN - (now - lastFetchTime)
       console.log(`⏳ API 호출 제한: ${remaining}ms 후 재시도 가능`)
       return false
     }

@@ -3,14 +3,14 @@
 // ============================================================================
 
 export type MachineCategory =
+  | 'cardio'
+  | 'fullbody'
   | 'chest'
   | 'back'
   | 'shoulders'
   | 'arms'
   | 'legs'
   | 'core'
-  | 'cardio'
-  | 'fullbody'
 
 export type DifficultyLevel =
   | 'beginner'
@@ -43,6 +43,35 @@ export interface MachineFilterQuery {
   sortOrder?: 'asc' | 'desc'
 }
 
+// 이미지 메타데이터 인터페이스
+export interface ImageMetadata {
+  fileName: string
+  fileSize: number
+  dimensions: {
+    width: number
+    height: number
+  }
+  format: string
+  lastModified: Date
+  checksum?: string
+}
+
+// 이미지 분류 정보
+export interface ImageClassification {
+  type: 'equipment' | 'exercise' | 'instruction' | 'diagram'
+  angle: 'front' | 'side' | 'back' | 'top' | 'diagonal'
+  lighting: 'natural' | 'studio' | 'gym'
+  background: 'transparent' | 'white' | 'gym' | 'outdoor'
+}
+
+// 이미지 사용 정보
+export interface ImageUsage {
+  isThumbnail: boolean
+  isMainImage: boolean
+  displayOrder: number
+  altText: string
+}
+
 export interface MachineDTO {
   id: number
   machineKey: string
@@ -50,6 +79,9 @@ export interface MachineDTO {
   nameKo?: string
   nameEn?: string
   imageUrl: string
+  imageMetadata?: ImageMetadata
+  imageClassification?: ImageClassification
+  imageUsage?: ImageUsage
   shortDesc: string
   detailDesc: string
   description?: string
@@ -75,6 +107,9 @@ export interface CreateMachineDTO {
   nameKo?: string
   nameEn?: string
   imageUrl: string
+  imageMetadata?: ImageMetadata
+  imageClassification?: ImageClassification
+  imageUsage?: ImageUsage
   shortDesc: string
   detailDesc: string
   description?: string
@@ -95,6 +130,9 @@ export interface UpdateMachineDTO {
   nameKo?: string
   nameEn?: string
   imageUrl?: string
+  imageMetadata?: ImageMetadata
+  imageClassification?: ImageClassification
+  imageUsage?: ImageUsage
   shortDesc?: string
   detailDesc?: string
   description?: string

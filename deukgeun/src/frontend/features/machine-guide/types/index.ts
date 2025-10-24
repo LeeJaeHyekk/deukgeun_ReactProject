@@ -5,15 +5,13 @@
 // 기계 카테고리
 export type MachineCategory =
   | "cardio"
-  | "strength"
-  | "flexibility"
-  | "balance"
-  | "functional"
-  | "rehabilitation"
-  | "상체"
-  | "하체"
-  | "전신"
-  | "기타"
+  | "fullbody"
+  | "chest"
+  | "back"
+  | "shoulders"
+  | "arms"
+  | "legs"
+  | "core"
 
 // 난이도 레벨
 export type DifficultyLevel =
@@ -21,9 +19,6 @@ export type DifficultyLevel =
   | "intermediate"
   | "advanced"
   | "expert"
-  | "초급"
-  | "중급"
-  | "고급"
 
 export interface Machine {
   id: number
@@ -88,14 +83,21 @@ export interface MachineResponse {
 }
 
 export type TargetMuscle =
+  | "전신"
+  | "상체"
+  | "하체"
   | "가슴"
-  | "등"
   | "어깨"
-  | "팔"
-  | "복근"
-  | "허리"
-  | "엉덩이"
-  | "다리"
+  | "삼두근"
+  | "이두근"
+  | "전완근"
+  | "등"
+  | "코어"
+  | "햄스트링"
+  | "종아리"
+  | "대퇴사두근"
+  | "둔근"
+  | "심폐기능"
 
 // Filter Types
 export interface MachineFilterQuery {
@@ -150,22 +152,17 @@ export interface UseMachinesReturn {
 
 // Constants
 export const MACHINE_CATEGORIES: MachineCategory[] = [
-  "상체",
-  "하체",
-  "전신",
-  "기타",
   "cardio",
-  "strength",
-  "flexibility",
-  "balance",
-  "functional",
-  "rehabilitation",
+  "fullbody",
+  "chest",
+  "back",
+  "shoulders",
+  "arms",
+  "legs",
+  "core",
 ]
 
 export const DIFFICULTY_LEVELS: DifficultyLevel[] = [
-  "초급",
-  "중급",
-  "고급",
   "beginner",
   "intermediate",
   "advanced",
@@ -173,14 +170,21 @@ export const DIFFICULTY_LEVELS: DifficultyLevel[] = [
 ]
 
 export const TARGET_MUSCLES: TargetMuscle[] = [
+  "전신",
+  "상체",
+  "하체",
   "가슴",
-  "등",
   "어깨",
-  "팔",
-  "복근",
-  "허리",
-  "엉덩이",
-  "다리",
+  "삼두근",
+  "이두근",
+  "전완근",
+  "등",
+  "코어",
+  "햄스트링",
+  "종아리",
+  "대퇴사두근",
+  "둔근",
+  "심폐기능",
 ]
 // Utility Types
 export type MachineSortOption = "name" | "category" | "difficulty" | "createdAt"

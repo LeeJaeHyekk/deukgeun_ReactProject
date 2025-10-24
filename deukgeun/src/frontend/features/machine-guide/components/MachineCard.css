@@ -208,17 +208,21 @@
 }
 
 .card-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  flex: 1;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .meta-icon {
@@ -278,8 +282,8 @@
     align-items: stretch;
   }
   .card-meta {
-    flex-direction: row;
-    justify-content: space-between;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem;
   }
   .card-action {
     justify-content: center;
@@ -312,5 +316,12 @@
   .target-tag {
     padding: 0.15rem 0.5rem;
     font-size: 0.7rem;
+  }
+  .card-meta {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+  .meta-item {
+    font-size: 0.65rem;
   }
 }

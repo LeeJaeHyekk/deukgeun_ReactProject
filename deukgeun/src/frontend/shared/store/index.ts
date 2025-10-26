@@ -4,6 +4,9 @@ import appSlice from './appSlice'
 import statsReducer from './statsSlice'
 import homeReducer from './homeSlice'
 import locationReducer from '@frontend/pages/location/slices/locationSlice'
+import postsReducer from '@frontend/features/community/posts/postsSlice'
+import likesReducer from '@frontend/features/community/likes/likesSlice'
+import { likesPersistenceMiddleware } from '@frontend/features/community/likes/likesPersistenceMiddleware'
 import { logger } from '../utils/logger'
 
 export const store = configureStore({
@@ -14,6 +17,8 @@ export const store = configureStore({
     app: appSlice.reducer,
     stats: statsReducer,
     location: locationReducer,
+    posts: postsReducer,
+    likes: likesReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -29,7 +34,7 @@ export const store = configureStore({
           'app.lastUpdated'
         ],
       },
-    }),
+    }).concat(likesPersistenceMiddleware),
   devTools: process.env.NODE_ENV !== 'production',
 })
 

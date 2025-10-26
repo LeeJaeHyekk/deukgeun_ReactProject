@@ -1,10 +1,13 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { postsApi } from '@frontend/shared/api'
 import { showToast } from '@frontend/shared/lib'
 import {
   PostDTO as CommunityPost,
   PostCategoryInfo,
 } from '../../../shared/types'
+import { RootState, AppDispatch } from '@frontend/shared/store'
+import { setPosts as setPostsAction, setPagination } from '../posts/postsSlice'
 
 interface UseCommunityPostsProps {
   limit: number
@@ -18,6 +21,7 @@ interface FetchPostsParams {
 }
 
 export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
+  const dispatch = useDispatch<AppDispatch>()
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -25,6 +29,23 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
   const [availableCategories, setAvailableCategories] = useState<
     PostCategoryInfo[]
   >([])
+
+  // Redux store에서 posts 데이터 구독
+  const reduxPosts = useSelector((state: RootState) => state.posts.entities)
+  const reduxPostIds = useSelector((state: RootState) => state.posts.ids)
+
+  // Redux store 변경사항을 로컬 state에 동기화
+  useEffect(() => {
+    if (reduxPostIds.length > 0) {
+      const updatedPosts = reduxPostIds.map(id => reduxPosts[id]).filter(Boolean)
+      console.log('🔄 [useCommunityPosts] Redux store 동기화:', {
+        reduxPostIds: reduxPostIds.length,
+        updatedPosts: updatedPosts.length,
+        firstPost: updatedPosts[0]
+      })
+      setPosts(updatedPosts)
+    }
+  }, [reduxPosts, reduxPostIds])
 
   // 카테고리 목록 가져오기
   const fetchCategories = useCallback(async () => {
@@ -110,21 +131,30 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
             content: post.content || '',
             author: post.user?.nickname || post.author || '익명',
             category: post.category || '',
-            likesCount: post.like_count || post.likes || 0,
-            commentsCount: post.comment_count || post.comments || 0,
+            likeCount: post.like_count || post.likes || 0,
+            commentCount: post.comment_count || post.comments || 0,
             viewsCount: post.views_count || post.views || 0,
             createdAt:
               post.createdAt || post.created_at || new Date().toISOString(),
             updatedAt:
               post.updatedAt || post.updated_at || new Date().toISOString(),
-          }
+          } as CommunityPost
         })
 
+        // 로컬 state 업데이트
         setPosts(mappedPosts)
         setTotalPages(
           pagination.totalPages || Math.ceil(pagination.total / limit)
         )
         setCurrentPage(page)
+
+        // Redux store에도 저장 (좋아요 상태 동기화를 위해)
+        dispatch(setPostsAction(mappedPosts))
+        dispatch(setPagination({
+          page: page,
+          totalPages: pagination.totalPages || Math.ceil(pagination.total / limit),
+          total: pagination.total
+        }))
       } catch (error: unknown) {
         console.error('게시글 로드 실패:', error)
         showToast('게시글을 불러오는데 실패했습니다.', 'error')

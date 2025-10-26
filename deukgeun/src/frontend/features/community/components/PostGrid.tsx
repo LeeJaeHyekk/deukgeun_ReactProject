@@ -1,3 +1,4 @@
+import React, { memo } from "react"
 import { PostCard } from "./PostCard"
 import { PostDTO as CommunityPost } from "../../../../shared/types"
 import styles from "./PostGrid.module.css"
@@ -5,24 +6,24 @@ import styles from "./PostGrid.module.css"
 interface PostGridProps {
   posts: CommunityPost[]
   onPostClick: (post: CommunityPost) => void
-  onLikeClick: (postId: number) => void
   loading: boolean
   currentPage: number
   totalPages: number
   onPageChange: (page: number) => void
-  likedPosts?: Set<number>
 }
 
-export function PostGrid({
+export const PostGrid = memo(function PostGrid({
   posts,
   onPostClick,
-  onLikeClick,
   loading,
   currentPage,
   totalPages,
   onPageChange,
-  likedPosts = new Set(),
 }: PostGridProps) {
+  console.log('📋 [PostGrid] 렌더링됨:', { 
+    postsCount: posts.length, 
+    loading: loading 
+  })
   if (loading) {
     return (
       <div className={styles.loading}>
@@ -44,15 +45,19 @@ export function PostGrid({
   return (
     <div className={styles.container}>
       <div className={styles.grid}>
-        {posts.map(post => (
-          <PostCard
-            key={post.id}
-            post={post}
-            onClick={() => onPostClick(post)}
-            onLikeClick={() => onLikeClick(post.id)}
-            isLiked={likedPosts.has(post.id)}
-          />
-        ))}
+        {posts.map(post => {
+          console.log('📋 [PostGrid] PostCard 렌더링:', { postId: post.id, title: post.title })
+          return (
+            <PostCard
+              key={post.id}
+              post={post}
+              onClick={() => {
+                console.log('PostCard 클릭:', post.id)
+                onPostClick(post)
+              }}
+            />
+          )
+        })}
       </div>
 
       {/* 페이지네이션 */}
@@ -81,4 +86,6 @@ export function PostGrid({
       )}
     </div>
   )
-}
+})
+
+PostGrid.displayName = "PostGrid"

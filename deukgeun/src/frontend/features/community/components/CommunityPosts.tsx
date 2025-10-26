@@ -55,12 +55,10 @@ export function CommunityPosts({
       <PostGrid
         posts={posts}
         onPostClick={onPostClick}
-        onLikeClick={onLikeClick}
         loading={loading}
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={onPageChange}
-        likedPosts={likedPosts}
       />
     </section>
   )

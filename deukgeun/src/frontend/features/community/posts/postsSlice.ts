@@ -57,6 +57,58 @@ const postsSlice = createSlice({
         console.log('📝 [postsSlice] updatePost 실행:', { id, changes, updatedPost: state.entities[id] })
       }
     },
+    
+    // 댓글 수 증가
+    incrementCommentCount: (state, action: PayloadAction<{ postId: number }>) => {
+      const { postId } = action.payload
+      const post = state.entities[postId]
+      if (post) {
+        if (post.commentCount == null) post.commentCount = 0
+        post.commentCount += 1
+        console.log('📝 [postsSlice] 댓글 수 증가:', { postId, newCount: post.commentCount })
+      }
+    },
+    
+    // 댓글 수 감소
+    decrementCommentCount: (state, action: PayloadAction<{ postId: number }>) => {
+      const { postId } = action.payload
+      const post = state.entities[postId]
+      if (post) {
+        if (post.commentCount == null) post.commentCount = 0
+        post.commentCount = Math.max(0, post.commentCount - 1)
+        console.log('📝 [postsSlice] 댓글 수 감소:', { postId, newCount: post.commentCount })
+      }
+    },
+    
+    // 댓글 수 설정 (서버 응답으로 받은 정확한 값)
+    setCommentCount: (state, action: PayloadAction<{ postId: number; count: number }>) => {
+      const { postId, count } = action.payload
+      const post = state.entities[postId]
+      if (post) {
+        post.commentCount = count
+        console.log('📝 [postsSlice] 댓글 수 설정:', { postId, count })
+      }
+    },
+    
+    // 댓글 수 동기화 (commentsSlice와 연동)
+    syncCommentCount: (state, action: PayloadAction<{ postId: number; confirmedCount: number; optimisticCount: number }>) => {
+      const { postId, confirmedCount, optimisticCount } = action.payload
+      const post = state.entities[postId]
+      if (post) {
+        const previousCount = post.commentCount || 0
+        // 실제 댓글 수를 우선으로 하고, 낙관적 댓글 수를 더함
+        const finalCount = confirmedCount + optimisticCount
+        post.commentCount = finalCount
+        console.log('📝 [postsSlice] 댓글 수 동기화:', { 
+          postId, 
+          previousCount,
+          confirmedCount, 
+          optimisticCount, 
+          finalCount,
+          changed: previousCount !== finalCount
+        })
+      }
+    },
     removePost: postsAdapter.removeOne,
     clearPosts: postsAdapter.removeAll,
   },
@@ -71,6 +123,10 @@ export const {
   incLikeCount,
   decLikeCount,
   updatePost,
+  incrementCommentCount,
+  decrementCommentCount,
+  setCommentCount,
+  syncCommentCount,
   removePost,
   clearPosts,
 } = postsSlice.actions
@@ -103,7 +159,10 @@ export const fetchPosts = (params?: {
       page: data.page
     })
     
-    dispatch(setPosts(data.posts))
+    // commentCount 기본값 보장하여 초기 싱크 문제 해결
+    dispatch(setPosts(
+      data.posts.map(p => ({ ...p, commentCount: p.commentCount ?? 0 }))
+    ))
     dispatch(setPagination({
       page: data.page,
       totalPages: Math.ceil(data.total / data.limit),
@@ -128,7 +187,11 @@ export const createPost = (postData: {
   try {
     console.log('📝 [postsSlice] createPost 시작:', postData)
     const response = await postsApi.create(postData)
-    console.log('📝 [postsSlice] createPost 성공')
+    const newPost = response.data.data as any // 타입 캐스팅으로 임시 해결
+    
+    // API 성공 후 Redux 상태에 새 게시글 추가
+    dispatch(upsertPosts([newPost]))
+    console.log('📝 [postsSlice] createPost 성공 및 상태 업데이트 완료')
     return response
   } catch (error: any) {
     console.error('❌ [postsSlice] createPost 실패:', error)

@@ -168,7 +168,7 @@ const createApiClient = (): AxiosInstance => {
         })
       }
 
-      // 401 또는 403 오류 시 토큰 갱신 시도
+      // 401 또는 403 오류 시 토큰 갱신 시도 (404는 제외)
       if (
         (originalRequest.response?.status === 401 ||
           originalRequest.response?.status === 403) &&
@@ -207,8 +207,10 @@ const createApiClient = (): AxiosInstance => {
       if (originalRequest.response?.status === 404) {
         const errorMessage = originalRequest.response?.data?.message || '요청한 리소스를 찾을 수 없습니다.'
         console.warn('⚠️ 404 에러:', errorMessage)
+        console.warn('⚠️ 404 에러 URL:', originalRequest.config?.url)
+        console.warn('⚠️ 404 에러 응답 데이터:', originalRequest.response?.data)
         
-        // 사용자에게 친화적인 에러 메시지 제공
+        // 404 에러는 전역 에러 핸들러에 보고하지 않음 (토큰 갱신도 시도하지 않음)
         const userFriendlyError = new Error(errorMessage)
         return Promise.reject(userFriendlyError)
       }

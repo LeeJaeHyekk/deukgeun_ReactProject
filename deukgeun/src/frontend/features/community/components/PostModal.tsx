@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react"
 import { showToast } from "@frontend/shared/lib"
 import type { PostCategoryInfo } from "../../../../shared/types"
-import styles from "./PostModal.module.css"
+import styles from "./postModal.module.css"
 
 interface PostModalProps {
   onClose: () => void

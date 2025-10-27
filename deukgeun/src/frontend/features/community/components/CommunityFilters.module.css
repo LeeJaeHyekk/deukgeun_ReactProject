@@ -112,7 +112,7 @@
 }
 
 .categoryBtn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.25) 100%);
   border-color: rgba(102, 126, 234, 0.8);
   color: white;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
@@ -136,6 +136,22 @@
 .createPostBtn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+}
+
+.createPostBtn.disabled,
+.createPostBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #9ca3af;
+  box-shadow: none;
+}
+
+.createPostBtn.disabled:hover,
+.createPostBtn:disabled:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 /* 반응형 디자인 */

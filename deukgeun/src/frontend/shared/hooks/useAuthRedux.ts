@@ -43,6 +43,9 @@ export function useAuthRedux(): UseAuthReturn {
   const dispatch = useAppDispatch()
   const { isAuthenticated, user, isLoading, error, tokenRefreshTimer } = useAppSelector((state: any) => state.auth)
 
+  // 로그인 상태를 더 정확하게 판단
+  const isLoggedIn = isAuthenticated && user && user.id && user.accessToken
+
   // 토큰 자동 갱신 설정 (만료 5분 전)
   const setupTokenRefresh = useCallback(
     (token: string) => {
@@ -171,8 +174,30 @@ export function useAuthRedux(): UseAuthReturn {
     }
   }, [isAuthenticated, user?.accessToken, tokenRefreshTimer, setupTokenRefresh])
 
+  // localStorage와 Redux 상태 동기화 체크
+  useEffect(() => {
+    const checkStorageSync = () => {
+      const storedToken = localStorage.getItem('accessToken')
+      const storedUser = localStorage.getItem('user')
+      
+      // localStorage에 데이터가 없는데 Redux에는 있는 경우 (비정상 상태)
+      if (!storedToken && !storedUser && isAuthenticated) {
+        logger.warn('AUTH', 'localStorage와 Redux 상태 불일치 감지 - Redux 상태 초기화')
+        dispatch(resetAuth())
+      }
+      
+      // localStorage에 데이터가 있는데 Redux에는 없는 경우 (페이지 새로고침 등)
+      if ((storedToken || storedUser) && !isAuthenticated && !isLoading) {
+        logger.info('AUTH', 'localStorage 데이터 감지 - 인증 상태 재확인 필요')
+        // 이 경우는 App.tsx의 initializeAuth에서 처리됨
+      }
+    }
+
+    checkStorageSync()
+  }, [isAuthenticated, isLoading, dispatch])
+
   return {
-    isLoggedIn: isAuthenticated,
+    isLoggedIn,
     user,
     isLoading,
     error,

@@ -3,6 +3,7 @@ import { User } from '../../../shared/types'
 import { authApi } from '../../features/auth/api/authApi'
 import { storage } from '../lib'
 import { logger } from '../utils/logger'
+import { updateClientToken, updateClientUser, clearAllAuthData } from '../utils/authToken'
 
 // JWT 토큰 유효성 검사
 function isTokenValid(token: string): boolean {
@@ -107,15 +108,14 @@ export const checkAutoLogin = createAsyncThunk(
             const validatedResponse = validateRefreshTokenResponse(response)
             
             if (validatedResponse?.accessToken) {
-              storage.set("accessToken", validatedResponse.accessToken)
+              updateClientToken(validatedResponse.accessToken)
               const userWithToken = { ...validatedUser, accessToken: validatedResponse.accessToken }
               logger.debug('AUTH', '토큰 갱신 성공')
               return { user: userWithToken, token: validatedResponse.accessToken }
             }
           } catch (err) {
             logger.error('AUTH', '토큰 갱신 실패', err)
-            storage.remove("accessToken")
-            storage.remove("user")
+            clearAllAuthData()
             throw err
           }
         }
@@ -123,13 +123,11 @@ export const checkAutoLogin = createAsyncThunk(
 
       // 3. 자동 로그인 실패
       logger.debug('AUTH', '자동 로그인 실패')
-      storage.remove("accessToken")
-      storage.remove("user")
+      clearAllAuthData()
       return { user: null, token: null }
     } catch (error) {
       logger.error('AUTH', 'checkAutoLogin 오류', error)
-      storage.remove("accessToken")
-      storage.remove("user")
+      clearAllAuthData()
       return rejectWithValue(error instanceof Error ? error.message : '자동 로그인 실패')
     }
   }
@@ -152,7 +150,7 @@ export const refreshToken = createAsyncThunk(
       const validatedResponse = validateRefreshTokenResponse(response)
       
       if (validatedResponse?.accessToken) {
-        storage.set("accessToken", validatedResponse.accessToken)
+        updateClientToken(validatedResponse.accessToken)
         logger.debug('AUTH', '토큰 갱신 성공')
         return validatedResponse.accessToken
       } else {
@@ -168,14 +166,21 @@ export const refreshToken = createAsyncThunk(
 // 로그아웃 액션
 export const logout = createAsyncThunk(
   'auth/logout',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, dispatch }) => {
     try {
       await authApi.logout()
     } catch (error) {
       logger.warn('AUTH', '서버 로그아웃 실패', error)
     } finally {
-      storage.remove("accessToken")
-      storage.remove("user")
+      // 통합 인증 데이터 초기화 함수 사용
+      clearAllAuthData()
+      
+      // Redux 상태도 초기화 (동적 import로 순환 참조 방지)
+      import('../../features/community/likes/likesSlice').then(({ clearLikes }) => {
+        dispatch(clearLikes())
+      })
+      
+      logger.info('AUTH', '로그아웃 완료 - 모든 사용자 데이터 초기화')
     }
   }
 )
@@ -201,18 +206,14 @@ const authSlice = createSlice({
         return
       }
 
-      // Date 객체를 직렬화 안전하게 변환
-      const sanitizedUser = {
-        ...user,
-        createdAt: user.createdAt instanceof Date ? user.createdAt : new Date(user.createdAt),
-        updatedAt: user.updatedAt instanceof Date ? user.updatedAt : new Date(user.updatedAt),
-      }
-
-      // 사용자 데이터와 토큰 저장
-      storage.set("accessToken", token)
-      storage.set("user", sanitizedUser)
+      // 통합 토큰 관리 함수 사용
+      updateClientToken(token)
+      updateClientUser(user)
       
-      const userWithToken = { ...sanitizedUser, accessToken: token }
+      const userWithToken = { 
+        ...user, 
+        accessToken: token
+      }
       state.isAuthenticated = true
       state.user = userWithToken
       state.isLoading = false
@@ -230,7 +231,7 @@ const authSlice = createSlice({
       if (state.user) {
         const updatedUser = { ...state.user, ...action.payload }
         state.user = updatedUser
-        storage.set("user", updatedUser)
+        updateClientUser(updatedUser)
         logger.debug('AUTH', '사용자 정보 업데이트', { userId: updatedUser.id })
       }
     },
@@ -271,6 +272,9 @@ const authSlice = createSlice({
         clearTimeout(state.tokenRefreshTimer)
         state.tokenRefreshTimer = null
       }
+      
+      // 통합 인증 데이터 초기화 함수 사용
+      clearAllAuthData()
     }
   },
   extraReducers: (builder) => {
@@ -306,9 +310,14 @@ const authSlice = createSlice({
       // 토큰 갱신
       .addCase(refreshToken.fulfilled, (state, action) => {
         if (state.user) {
-          const updatedUser = { ...state.user, accessToken: action.payload }
+          const newToken = action.payload
+          const updatedUser = { ...state.user, accessToken: newToken }
           state.user = updatedUser
-          storage.set("user", updatedUser)
+          
+          // 통합 토큰 관리 함수 사용
+          updateClientToken(newToken)
+          updateClientUser(updatedUser)
+          
           logger.debug('AUTH', '토큰 갱신 성공')
         }
       })
@@ -325,9 +334,8 @@ const authSlice = createSlice({
           state.tokenRefreshTimer = null
         }
         
-        // 로컬 스토리지 정리
-        storage.remove("accessToken")
-        storage.remove("user")
+        // 통합 인증 데이터 초기화 함수 사용
+        clearAllAuthData()
         
         logger.error('AUTH', '토큰 갱신 실패', action.payload)
       })

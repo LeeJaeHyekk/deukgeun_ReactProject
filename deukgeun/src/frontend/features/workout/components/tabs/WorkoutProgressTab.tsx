@@ -78,11 +78,12 @@ export function WorkoutProgressTab({
       let periodKey: string
 
       switch (selectedTimeRange) {
-        case "weekly":
+        case "weekly": {
           const weekStart = new Date(sessionDate)
           weekStart.setDate(sessionDate.getDate() - sessionDate.getDay())
           periodKey = weekStart.toISOString().split("T")[0]
           break
+        }
         case "monthly":
           periodKey = `${sessionDate.getFullYear()}-${String(sessionDate.getMonth() + 1).padStart(2, "0")}`
           break

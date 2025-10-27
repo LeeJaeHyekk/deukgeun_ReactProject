@@ -76,9 +76,9 @@ export class StatsController {
   // 사용자별 통계 조회
   getUserStats = async (req: Request, res: Response) => {
     try {
-      const userId = (req.user as any)?.userId
+      const userId = Number((req.user as any)?.userId)
 
-      if (!userId) {
+      if (!userId || isNaN(userId)) {
         return res.status(401).json({ message: "인증이 필요합니다." })
       }
 

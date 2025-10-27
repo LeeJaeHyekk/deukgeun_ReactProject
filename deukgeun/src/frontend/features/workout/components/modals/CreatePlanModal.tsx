@@ -90,12 +90,12 @@ export function CreatePlanModal({
     const index = exercises.findIndex(ex => ex.id === exerciseId)
 
     if (direction === "up" && index > 0) {
-      ;[exercises[index], exercises[index - 1]] = [
+      [exercises[index], exercises[index - 1]] = [
         exercises[index - 1],
         exercises[index],
       ]
     } else if (direction === "down" && index < exercises.length - 1) {
-      ;[exercises[index], exercises[index + 1]] = [
+      [exercises[index], exercises[index + 1]] = [
         exercises[index + 1],
         exercises[index],
       ]

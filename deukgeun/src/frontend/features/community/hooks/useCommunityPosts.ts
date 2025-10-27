@@ -7,7 +7,7 @@ import {
   PostCategoryInfo,
 } from '../../../shared/types'
 import { RootState, AppDispatch } from '@frontend/shared/store'
-import { setPosts as setPostsAction, setPagination } from '../posts/postsSlice'
+import { setPosts as setPostsAction, setPagination, createPost as createPostThunk, fetchPosts as fetchPostsThunk } from '../posts/postsSlice'
 
 interface UseCommunityPostsProps {
   limit: number
@@ -170,7 +170,7 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
   const createPost = useCallback(
     async (postData: { title: string; content: string; category: string }) => {
       try {
-        await postsApi.create(postData)
+        await dispatch(createPostThunk(postData))
         showToast('게시글이 성공적으로 작성되었습니다.', 'success')
         return true
       } catch (error: unknown) {
@@ -179,7 +179,7 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
         return false
       }
     },
-    []
+    [dispatch]
   )
 
   // 게시글 수정

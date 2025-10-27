@@ -34,6 +34,13 @@ const likesSlice = createSlice({
     clearSyncing: (state) => {
       state.syncing = {}
     },
+    clearLikes: (state) => {
+      state.likedIds = []
+      state.syncing = {}
+      // localStorage에서 좋아요 관련 모든 데이터 제거
+      localStorage.removeItem('likedIds')
+      console.log('🔥 [likesSlice] 좋아요 상태 초기화 완료')
+    },
   },
 })
 
@@ -43,6 +50,7 @@ export const {
   removeLike,
   setSyncing,
   clearSyncing,
+  clearLikes,
 } = likesSlice.actions
 
 export default likesSlice.reducer

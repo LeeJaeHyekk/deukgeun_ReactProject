@@ -1,6 +1,7 @@
 import { PostCategoryInfo } from "../../../../shared/types"
 import { SortOption } from "../hooks/useCommunityFilters"
-import styles from "./CommunityFilters.module.css"
+import { useAuthRedux } from "@frontend/shared/hooks/useAuthRedux"
+import styles from "./communityFilters.module.css"
 
 interface CommunityFiltersProps {
   searchTerm: string
@@ -23,6 +24,7 @@ export function CommunityFilters({
   availableCategories,
   onCreatePost,
 }: CommunityFiltersProps) {
+  const { isLoggedIn } = useAuthRedux()
   // 카테고리 데이터 준비
   const categories = [
     {
@@ -79,7 +81,18 @@ export function CommunityFilters({
           ))}
         </div>
 
-        <button className={styles.createPostBtn} onClick={onCreatePost}>
+        <button 
+          className={`${styles.createPostBtn} ${!isLoggedIn ? styles.disabled : ""}`}
+          disabled={!isLoggedIn}
+          onClick={() => {
+            if (isLoggedIn) {
+              onCreatePost()
+            } else {
+              console.log('로그인이 필요합니다')
+            }
+          }}
+          title={!isLoggedIn ? "로그인이 필요합니다" : ""}
+        >
           ✏️ 글쓰기
         </button>
       </div>

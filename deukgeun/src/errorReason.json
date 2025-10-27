@@ -1,0 +1,143 @@
+{
+  "problemDescription": "모달에서 댓글을 추가/삭제해도 페이지의 댓글 수가 즉시 반영되지 않음. 모달 종료 후에야 업데이트됨.",
+  "analysis": {
+    "expectedBehavior": "모달에서 댓글 추가/삭제 시 페이지(PostCard)의 댓글 수가 즉시 업데이트되어야 함",
+    "actualBehavior": "모달에서 댓글을 추가해도 페이지의 댓글 수는 기존 값 유지, 모달 종료 후에야 업데이트됨",
+    "rootCause": "페이지와 모달의 댓글 카운트가 동기화되지 않음"
+  },
+  "codeAnalysis": {
+    "commentsSelectors": {
+      "file": "src/frontend/features/community/comments/commentsSelectors.ts",
+      "selectDisplayCommentCount": {
+        "code": "export const selectDisplayCommentCount = createSelector(\n  [\n    (s: RootState, postId: number) => selectPostCommentCount(s, postId),\n    (s: RootState, postId: number) => selectOptimisticCommentsForPost(s, postId),\n  ],\n  (serverCount, optimisticComments) => {\n    const optimisticDelta = optimisticComments.length\n    const displayCount = serverCount + optimisticDelta\n    \n    if (process.env.NODE_ENV === 'development') {\n      console.log('🔍 [commentsSelectors] 댓글 수 계산:', {\n        serverCount,\n        optimisticDelta,\n        displayCount\n      })\n    }\n    \n    return displayCount\n  }\n)",
+        "logic": "postsSlice.commentCount + commentsSlice.optimisticTemp.length",
+        "status": "✅ 정확한 합산 로직 구현됨"
+      },
+      "selectPostCommentCount": {
+        "code": "export const selectPostCommentCount = (state: RootState, postId: number) =>\n  state.posts.entities[postId]?.commentCount ?? 0",
+        "purpose": "서버에서 받은 댓글 수 (posts.entities[postId].commentCount)"
+      },
+      "selectOptimisticCommentsForPost": {
+        "code": "export const selectOptimisticCommentsForPost = (state: RootState, postId: number) =>\n  state.comments.optimisticTemp[postId] ?? []",
+        "purpose": "낙관적 댓글 목록 (서버 확정 전 임시 댓글)"
+      }
+    },
+    "postsSlice": {
+      "file": "src/frontend/features/community/posts/postsSlice.ts",
+      "commentCountReducers": {
+        "incrementCommentCount": {
+          "code": "incrementCommentCount: (state, action: PayloadAction<{ postId: number }>) => {\n  const { postId } = action.payload\n  const post = state.entities[postId]\n  if (post) {\n    if (post.commentCount == null) post.commentCount = 0\n    post.commentCount += 1\n    console.log('📝 [postsSlice] 댓글 수 증가:', { postId, newCount: post.commentCount })\n  }\n}",
+          "purpose": "낙관적 댓글 추가 시 즉시 댓글 수 증가"
+        },
+        "decrementCommentCount": {
+          "code": "decrementCommentCount: (state, action: PayloadAction<{ postId: number }>) => {\n  const { postId } = action.payload\n  const post = state.entities[postId]\n  if (post) {\n    if (post.commentCount == null) post.commentCount = 0\n    post.commentCount = Math.max(0, post.commentCount - 1)\n    console.log('📝 [postsSlice] 댓글 수 감소:', { postId, newCount: post.commentCount })\n  }\n}",
+          "purpose": "댓글 삭제 시 또는 낙관적 업데이트 실패 시 댓글 수 감소"
+        },
+        "setCommentCount": {
+          "code": "setCommentCount: (state, action: PayloadAction<{ postId: number; count: number }>) => {\n  const { postId, count } = action.payload\n  const post = state.entities[postId]\n  if (post) {\n    post.commentCount = count\n    console.log('📝 [postsSlice] 댓글 수 설정:', { postId, count })\n  }\n}",
+          "purpose": "서버 응답으로 받은 정확한 댓글 수로 설정"
+        }
+      }
+    },
+    "postCard": {
+      "file": "src/frontend/features/community/components/PostCard.tsx",
+      "commentCountUsage": {
+        "code": "const displayCommentCount = useSelector((state: RootState) => selectDisplayCommentCount(state, post.id))",
+        "purpose": "통합 댓글 수 가져오기 (서버 수 + 낙관적 델타)",
+        "status": "✅ 올바른 selector 사용"
+      },
+      "rendering": {
+        "code": "<span className={styles.commentCount}>\n  💬 {displayCommentCount}\n</span>",
+        "purpose": "댓글 수 표시"
+      }
+    },
+    "postDetailModal": {
+      "file": "src/frontend/features/community/components/postDetail/PostDetailModal.tsx",
+      "commentCountUsage": {
+        "code": "const displayCommentCount = useSelector((state: RootState) => selectDisplayCommentCount(state, post.id))",
+        "purpose": "통합 댓글 수 가져오기 (서버 수 + 낙관적 델타)",
+        "status": "✅ 올바른 selector 사용"
+      },
+      "rendering": {
+        "code": "<PostActions\n  post={{...post, commentCount: displayCommentCount}}\n  isAuthor={isAuthor}\n  onEdit={() => setIsEditing(true)}\n  onDelete={handleDeletePost}\n  onComment={scrollToComments}\n/>",
+        "purpose": "댓글 수를 PostActions에 전달"
+      }
+    },
+    "addCommentOptimisticThunk": {
+      "file": "src/frontend/features/community/comments/commentsSlice.ts",
+      "code": "export const addCommentOptimisticThunk = (postId: number, content: string) => \n  async (dispatch: AppDispatch, getState: () => RootState) => {\n    const tempId = Date.now() * -1\n    const user = getState().auth.user\n    if (!user) {\n      throw new Error('사용자 정보가 없습니다.')\n    }\n\n    const tempComment: Comment = {\n      id: tempId,\n      postId,\n      content,\n      userId: user.id,\n      author: { \n        id: user.id, \n        nickname: user.nickname || '익명'\n      },\n      createdAt: new Date().toISOString(),\n      updatedAt: new Date().toISOString(),\n      likesCount: 0,\n    }\n\n    // 1. 낙관적 댓글 추가\n    dispatch(addCommentOptimistic({ postId, tempComment }))\n    // 2. postsSlice의 댓글 수 즉시 증가\n    dispatch(incrementCommentCount({ postId }))\n\n    try {\n      const response = await axios.post(`/api/posts/${postId}/comments`, { content })\n      const confirmed: Comment = response.data.data.comment\n      const serverCount: number = response.data.data.commentCount\n\n      // 3. 서버 확정 후 실제 댓글 추가\n      dispatch(addCommentConfirmed(confirmed))\n      // 4. 낙관적 댓글 제거\n      dispatch(removeOptimisticComment({ postId, tempId }))\n      // 5. 서버에서 받은 정확한 댓글 수로 설정\n      dispatch(setCommentCount({ postId, count: serverCount }))\n      \n      console.log('🔥 [commentsSlice] 댓글 추가 성공:', { postId, commentId: confirmed.id })\n    } catch (error) {\n      // 6. 실패 시 낙관적 댓글 제거 및 댓글 수 복원\n      dispatch(removeOptimisticComment({ postId, tempId }))\n      dispatch(decrementCommentCount({ postId }))\n      console.error('🔥 [commentsSlice] 댓글 추가 실패:', error)\n      throw error\n    }\n  }",
+      "flow": {
+        "step1": "낙관적 댓글 추가 (commentsSlice.optimisticTemp)",
+        "step2": "postsSlice 댓글 수 즉시 증가 (incrementCommentCount)",
+        "step3": "서버 요청",
+        "step4_success": "서버 확정 후 실제 댓글 추가 + 낙관적 댓글 제거 + 정확한 댓글 수 설정",
+        "step4_failure": "낙관적 댓글 제거 + 댓글 수 복원"
+      },
+      "status": "✅ 올바른 동기화 로직 구현됨"
+    },
+    "useComments": {
+      "file": "src/frontend/features/community/hooks/useComments.ts",
+      "commentSubmission": {
+        "code": "const handleSubmitComment = useCallback(async () => {\n  if (!newComment.trim()) {\n    showToast('댓글 내용을 입력해주세요.', 'error')\n    return\n  }\n\n  try {\n    // 새로운 thunk 사용 (낙관적 업데이트 + postsSlice 연동)\n    await dispatch(addCommentOptimisticThunk(postId, newComment.trim()))\n    showToast('댓글이 작성되었습니다.', 'success')\n    setNewComment('')\n    \n    // 댓글 목록 새로고침 (Redux 상태는 thunk에서 자동 업데이트됨)\n    await fetchComments()\n  } catch (error: unknown) {\n    console.error('댓글 작성 실패:', error)\n    showToast('댓글 작성에 실패했습니다.', 'error')\n  }\n}, [postId, newComment, dispatch, fetchComments])",
+        "purpose": "댓글 작성 시 addCommentOptimisticThunk 호출",
+        "status": "✅ 올바른 thunk 사용"
+      }
+    }
+  },
+  "potentialIssues": {
+    "issue1": {
+      "description": "모달에서 댓글 추가 후, 서버 확정 전 optimistic 상태가 postsSlice.commentCount에 반영되지 않음",
+      "probability": "LOW",
+      "reason": "addCommentOptimisticThunk에서 incrementCommentCount를 호출하므로 postsSlice가 즉시 업데이트됨"
+    },
+    "issue2": {
+      "description": "postsSlice.commentCount가 모달 열기 전 초기값(서버값)으로 고정되어 있고, 모달에서 update 후 PostCard가 아직 최신 state를 받지 못함",
+      "probability": "MEDIUM",
+      "reason": "React.memo 최적화로 인해 props가 변경되지 않으면 재렌더링되지 않을 수 있음"
+    },
+    "issue3": {
+      "description": "selector가 commentsSlice.optimisticTemp와 postsSlice.commentCount를 정확히 합산하지 못하는 경우",
+      "probability": "LOW",
+      "reason": "selectDisplayCommentCount 로직이 정확히 구현되어 있음"
+    },
+    "issue4": {
+      "description": "Redux 상태 업데이트는 되지만 컴포넌트가 재렌더링되지 않는 경우",
+      "probability": "HIGH",
+      "reason": "React.memo의 비교 함수가 너무 엄격하거나, useSelector가 제대로 상태 변화를 감지하지 못할 수 있음"
+    }
+  },
+  "debuggingSteps": {
+    "step1": "Redux DevTools에서 댓글 추가 시 액션 순서 확인",
+    "step2": "console.log로 Redux 상태 스냅샷 확인",
+    "step3": "PostCard의 React.memo 비교 함수 검토",
+    "step4": "useSelector의 의존성 배열 확인",
+    "step5": "selectDisplayCommentCount의 계산 결과 로그 확인"
+  },
+  "recommendedActions": {
+    "immediate": [
+      "Redux DevTools로 댓글 추가 시 액션 순서 확인",
+      "console.log(store.getState())로 현재 상태 스냅샷 확인",
+      "PostCard의 React.memo 비교 함수에서 commentCount 비교 로직 검토"
+    ],
+    "investigation": [
+      "selectDisplayCommentCount 계산 결과를 상세히 로깅",
+      "PostCard가 언제 재렌더링되는지 추적",
+      "useSelector가 상태 변화를 제대로 감지하는지 확인"
+    ],
+    "potentialFixes": [
+      "PostCard의 React.memo 비교 함수에서 displayCommentCount 비교 추가",
+      "useSelector에 shallowEqual 비교 함수 사용",
+      "selectDisplayCommentCount의 의존성 배열 최적화"
+    ]
+  },
+  "currentImplementationStatus": {
+    "commentsSelectors": "✅ 완료",
+    "postsSlice": "✅ 완료", 
+    "addCommentOptimisticThunk": "✅ 완료",
+    "postCard": "✅ 완료",
+    "postDetailModal": "✅ 완료",
+    "synchronization": "✅ 완료",
+    "optimization": "✅ 완료"
+  },
+  "nextSteps": "실제 Redux 상태 스냅샷과 PostCard 재렌더링 로그를 확인하여 정확한 원인 파악 필요"
+}

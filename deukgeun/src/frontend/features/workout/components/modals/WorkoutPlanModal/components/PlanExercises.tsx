@@ -61,12 +61,13 @@ export function PlanExercises({
           : `${exercise.weight || 0}kg`
       case "restTime":
         return exercise.restSeconds ? `${exercise.restSeconds}초` : "0초"
-      default:
+      default: {
         const value = (exercise as any)[field]
         if (value instanceof Date) {
           return value.toLocaleDateString()
         }
         return String(value || "")
+      }
     }
   }
 

@@ -89,8 +89,8 @@ export interface User {
   role: UserRole
   isActive: boolean
   isEmailVerified?: boolean
-  createdAt: Date
-  updatedAt: Date
+  createdAt: string // Redux 직렬화를 위해 문자열로 변경
+  updatedAt: string // Redux 직렬화를 위해 문자열로 변경
 }
 
 // 사용자 프로필

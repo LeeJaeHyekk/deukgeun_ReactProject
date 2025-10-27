@@ -73,7 +73,7 @@ export function SessionsTab({
           return a.name.localeCompare(b.name)
         case "duration":
           return (b.totalDurationMinutes || 0) - (a.totalDurationMinutes || 0)
-        case "status":
+        case "status": {
           const statusOrder = {
             in_progress: 1,
             paused: 2,
@@ -81,6 +81,7 @@ export function SessionsTab({
             cancelled: 4,
           }
           return statusOrder[a.status as keyof typeof statusOrder] - statusOrder[b.status as keyof typeof statusOrder]
+        }
         default:
           // 기본값: 최신순
           return (

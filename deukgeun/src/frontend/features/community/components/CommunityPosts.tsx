@@ -1,6 +1,6 @@
 import { Post as CommunityPost } from "../../../../shared/types"
-import { PostGrid } from "./PostGrid"
-import styles from "./CommunityPosts.module.css"
+import { PostGrid } from "./postGrid"
+import styles from "./communityPosts.module.css"
 
 interface CommunityPostsProps {
   posts: CommunityPost[]

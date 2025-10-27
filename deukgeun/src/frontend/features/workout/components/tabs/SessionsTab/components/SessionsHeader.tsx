@@ -4,11 +4,7 @@ interface SessionsHeaderProps {
   // onCreateSession: () => void  // 주석 처리: 새 세션 생성 기능 비활성화
 }
 
-export const SessionsHeader: React.FC<SessionsHeaderProps> = (
-  {
-    // onCreateSession,  // 주석 처리: 새 세션 생성 기능 비활성화
-  }
-) => {
+export const SessionsHeader: React.FC<SessionsHeaderProps> = () => {
   console.log("📋 [SessionsHeader] 컴포넌트 렌더링")
 
   // const handleCreateSession = () => {  // 주석 처리: 새 세션 생성 기능 비활성화

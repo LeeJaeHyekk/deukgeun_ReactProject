@@ -1,21 +1,31 @@
-import { useEffect } from "react"
+import { useEffect, useCallback, useMemo } from "react"
 import { showToast } from "@frontend/shared/lib"
+import { useAuthRedux } from "@frontend/shared/hooks/useAuthRedux"
 import { Navigation } from "@widgets/Navigation/Navigation"
-import { PostModal } from "./components/PostModal"
-import { PostDetailModal } from "./components/PostDetailModal"
-import { CommunityFilters } from "./components/CommunityFilters"
-import { CommunityPosts } from "./components/CommunityPosts"
+import { PostModal } from "./components/postModal"
+import { PostDetailModal } from "./components/postDetail/PostDetailModal"
+import { CommunityFilters } from "./components/communityFilters"
+import { CommunityPosts } from "./components/communityPosts"
 import {
   useCommunityPosts,
   usePostLikes,
   useCommunityFilters,
   useCommunityModals,
 } from "./hooks"
+import { useCommentCountSync } from "./hooks/useCommentCountSync"
+import { logError, getUserFriendlyMessage } from "./utils/errorHandlers"
+import { isValidString } from "./utils/typeGuards"
 import styles from "./CommunityPage.module.css"
 
 const POSTS_PER_PAGE = 12
 
 export default function CommunityPage() {
+  // 인증 상태 확인
+  const { isLoading: authLoading } = useAuthRedux()
+  
+  // 댓글 수 동기화
+  useCommentCountSync()
+  
   // 커스텀 훅들
   const {
     posts,
@@ -32,7 +42,7 @@ export default function CommunityPage() {
     setCurrentPage,
   } = useCommunityPosts({ limit: POSTS_PER_PAGE })
 
-  const { likedPosts, toggleLike, isLiked } = usePostLikes()
+  // usePostLikes는 개별 게시글에서 사용하는 훅이므로 여기서는 제거
 
   const {
     selectedCategory,
@@ -53,40 +63,15 @@ export default function CommunityPage() {
     closeDetailModal,
   } = useCommunityModals()
 
-  // 초기 데이터 로드
+  // 초기 데이터 로드 - 인증 초기화 완료 후에만 실행
   useEffect(() => {
-    fetchCategories()
-  }, [fetchCategories])
+    if (!authLoading) {
+      fetchCategories()
+    }
+  }, [authLoading, fetchCategories])
 
   useEffect(() => {
-    fetchPosts({
-      page: 1,
-      category: selectedCategory,
-      searchTerm,
-      sortBy,
-    })
-  }, [selectedCategory, searchTerm, sortBy, fetchPosts])
-
-  useEffect(() => {
-    fetchPosts({
-      page: currentPage,
-      category: selectedCategory,
-      searchTerm,
-      sortBy,
-    })
-  }, [currentPage, fetchPosts])
-
-  // 이벤트 핸들러들
-  const handleCreatePost = async (postData: {
-    title: string
-    content: string
-    category: string
-  }) => {
-    const success = await createPost(postData)
-    if (success) {
-      closeCreateModal()
-      // 첫 페이지로 돌아가서 새 게시글 확인
-      setCurrentPage(1)
+    if (!authLoading) {
       fetchPosts({
         page: 1,
         category: selectedCategory,
@@ -94,51 +79,85 @@ export default function CommunityPage() {
         sortBy,
       })
     }
-  }
+  }, [authLoading, selectedCategory, searchTerm, sortBy, fetchPosts])
 
-  const handleUpdatePost = async (
+  useEffect(() => {
+    if (!authLoading) {
+      fetchPosts({
+        page: currentPage,
+        category: selectedCategory,
+        searchTerm,
+        sortBy,
+      })
+    }
+  }, [authLoading, currentPage, fetchPosts])
+
+  // 메모이제이션된 fetch 파라미터
+  const fetchParams = useMemo(() => ({
+    page: currentPage,
+    category: selectedCategory,
+    searchTerm,
+    sortBy,
+  }), [currentPage, selectedCategory, searchTerm, sortBy])
+
+  // 이벤트 핸들러들 (useCallback으로 메모이제이션)
+  const handleCreatePost = useCallback(async (postData: {
+    title: string
+    content: string
+    category: string
+  }) => {
+    // 입력 데이터 유효성 검사
+    if (!isValidString(postData.title) || !isValidString(postData.content)) {
+      showToast('제목과 내용을 모두 입력해주세요.', 'error')
+      return
+    }
+
+    try {
+      const success = await createPost(postData)
+      if (success) {
+        closeCreateModal()
+        // 첫 페이지로 돌아가서 새 게시글 확인
+        setCurrentPage(1)
+        fetchPosts({
+          page: 1,
+          category: selectedCategory,
+          searchTerm,
+          sortBy,
+        })
+      }
+    } catch (error) {
+      logError('CommunityPage.handleCreatePost', error, { postData })
+      showToast(getUserFriendlyMessage(error), 'error')
+    }
+  }, [createPost, closeCreateModal, setCurrentPage, fetchPosts, selectedCategory, searchTerm, sortBy])
+
+  const handleUpdatePost = useCallback(async (
     postId: number,
     updateData: { title: string; content: string; category: string }
   ) => {
     const success = await updatePost(postId, updateData)
     if (success) {
       closeDetailModal()
-      fetchPosts({
-        page: currentPage,
-        category: selectedCategory,
-        searchTerm,
-        sortBy,
-      })
+      fetchPosts(fetchParams)
     }
-  }
+  }, [updatePost, closeDetailModal, fetchPosts, fetchParams])
 
-  const handleDeletePost = async (postId: number) => {
+  const handleDeletePost = useCallback(async (postId: number) => {
     const success = await deletePost(postId)
     if (success) {
       closeDetailModal()
-      fetchPosts({
-        page: currentPage,
-        category: selectedCategory,
-        searchTerm,
-        sortBy,
-      })
+      fetchPosts(fetchParams)
     }
-  }
+  }, [deletePost, closeDetailModal, fetchPosts, fetchParams])
 
-  const handleLikePost = async (postId: number) => {
-    const success = await toggleLike(postId, posts, setPosts)
-    if (!success) {
-      // 좋아요 실패 시 전체 목록 새로고침
-      fetchPosts({
-        page: currentPage,
-        category: selectedCategory,
-        searchTerm,
-        sortBy,
-      })
+  const handleLikePost = useCallback(async (postId: number) => {
+    // 좋아요 기능은 개별 PostCard에서 처리되므로 여기서는 제거
+    if (process.env.NODE_ENV === 'development') {
+      console.log('좋아요 처리:', postId)
     }
-  }
+  }, [])
 
-  const handleOpenCreateModal = () => {
+  const handleOpenCreateModal = useCallback(() => {
     if (availableCategories.length === 0) {
       showToast(
         "카테고리를 불러오는 중입니다. 잠시 후 다시 시도해주세요.",
@@ -147,11 +166,22 @@ export default function CommunityPage() {
       return
     }
     openCreateModal()
-  }
+  }, [availableCategories.length, openCreateModal])
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page)
-  }
+  }, [setCurrentPage])
+
+  // 모달 렌더링 조건 메모이제이션
+  const shouldShowCreateModal = useMemo(() => 
+    isCreateModalOpen && availableCategories.length > 0, 
+    [isCreateModalOpen, availableCategories.length]
+  )
+
+  const shouldShowDetailModal = useMemo(() => 
+    isDetailModalOpen && selectedPost, 
+    [isDetailModalOpen, selectedPost]
+  )
 
   return (
     <div className={styles.communityPage}>
@@ -183,12 +213,12 @@ export default function CommunityPage() {
           onPostClick={openDetailModal}
           onLikeClick={handleLikePost}
           onPageChange={handlePageChange}
-          likedPosts={likedPosts}
+          likedPosts={new Set()}
           onCreatePost={handleOpenCreateModal}
         />
 
         {/* 새 게시글 작성 모달 */}
-        {isCreateModalOpen && availableCategories.length > 0 && (
+        {shouldShowCreateModal && (
           <PostModal
             onClose={closeCreateModal}
             onSubmit={handleCreatePost}
@@ -197,7 +227,7 @@ export default function CommunityPage() {
         )}
 
         {/* 게시글 상세 모달 */}
-        {isDetailModalOpen && selectedPost && (
+        {shouldShowDetailModal && selectedPost && (
           <PostDetailModal
             post={selectedPost}
             onClose={closeDetailModal}

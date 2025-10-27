@@ -66,7 +66,7 @@ export function isArray<T>(value: unknown): value is T[] {
 /**
  * 값이 함수인지 확인
  */
-export function isFunction(value: unknown): value is Function {
+export function isFunction(value: unknown): value is (...args: any[]) => any {
   return typeof value === 'function'
 }
 

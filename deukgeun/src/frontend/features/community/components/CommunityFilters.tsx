@@ -88,10 +88,11 @@ export function CommunityFilters({
             if (isLoggedIn) {
               onCreatePost()
             } else {
-              console.log('로그인이 필요합니다')
+              // 로그인 페이지로 리다이렉트
+              window.location.href = '/login'
             }
           }}
-          title={!isLoggedIn ? "로그인이 필요합니다" : ""}
+          title={!isLoggedIn ? "로그인이 필요합니다. 클릭하면 로그인 페이지로 이동합니다." : ""}
         >
           ✏️ 글쓰기
         </button>

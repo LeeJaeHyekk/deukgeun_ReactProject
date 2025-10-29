@@ -99,7 +99,7 @@ export class LevelService {
 
       // 최근 동일 액션 조회
       const recentAction = await expHistoryRepo.findOne({
-        where: { userId, actionType: action as any },
+        where: { userId, actionType: action },
         order: { createdAt: "DESC" },
       })
 
@@ -250,10 +250,10 @@ export class LevelService {
         userLevel = await this.createUserLevel(userId)
       }
 
-      // 경험치 히스토리 기록
+      // 경험치 히스토리 기록 (actionType을 문자열로 저장)
       const expHistory = expHistoryRepo.create({
         userId,
-        actionType: action as any,
+        actionType: action, // 문자열로 직접 저장
         source: reason,
         expGained: expAmount,
         metadata: data,

@@ -120,6 +120,17 @@ export default function LoginPage() {
       // RedirectIfLoggedIn 컴포넌트가 자동으로 리다이렉트를 처리합니다
     } catch (error: unknown) {
       console.log('🧪 로그인 에러:', error)
+      
+      // 401 에러는 로그인 실패이므로 리다이렉트하지 않음
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as any
+        if (axiosError.response?.status === 401) {
+          setError('이메일 또는 비밀번호가 올바르지 않습니다.')
+          setLoading(false)
+          return
+        }
+      }
+      
       handleApiError(error as any)
       setError(errorInfo.message || '로그인에 실패했습니다.')
     } finally {

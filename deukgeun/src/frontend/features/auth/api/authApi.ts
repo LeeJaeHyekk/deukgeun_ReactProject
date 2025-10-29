@@ -408,18 +408,15 @@ export const authApi = {
     return response.data
   },
 
-  // Refresh token
+  // Refresh token (쿠키 기반으로 변경됨)
   refreshToken: async (): Promise<RefreshResponse> => {
-    console.log('🔄 refreshToken API 호출 시작')
+    console.log('🔄 refreshToken API 호출 시작 (쿠키 기반)')
     console.log('🔄 호출 URL:', API_ENDPOINTS.AUTH.REFRESH)
-    console.log(
-      '🔄 API_BASE_URL:',
-      import.meta.env.VITE_BACKEND_URL
-    )
 
     try {
       const response = await api.post<RefreshResponse>(
-        API_ENDPOINTS.AUTH.REFRESH
+        API_ENDPOINTS.AUTH.REFRESH,
+        {} // 빈 body, 쿠키는 자동으로 전송됨
       )
       console.log('✅ refreshToken API 성공:', response)
       return response.data as unknown as RefreshResponse
@@ -440,7 +437,11 @@ export const authApi = {
   // Logout
   logout: async (): Promise<LogoutResponse> => {
     const response = await axios.post<LogoutResponse>(
-      `${config.api.baseURL}${API_ENDPOINTS.AUTH.LOGOUT}`
+      `${config.api.baseURL}${API_ENDPOINTS.AUTH.LOGOUT}`,
+      {},
+      {
+        withCredentials: true // 쿠키 전송을 위해 필요
+      }
     )
     return response.data as LogoutResponse
   },

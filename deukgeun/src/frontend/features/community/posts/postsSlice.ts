@@ -2,6 +2,7 @@ import { createEntityAdapter, createSlice, PayloadAction, Update } from '@reduxj
 import { AppDispatch, RootState } from '@frontend/shared/store'
 import { postsApi } from '@frontend/shared/api'
 import { PostDTO } from '@shared/types'
+import { validateTokenForAction } from '@frontend/shared/utils/tokenUtils'
 
 export type Post = PostDTO
 
@@ -183,11 +184,29 @@ export const createPost = (postData: {
   title: string
   content: string
   category: string
-}) => async (dispatch: AppDispatch) => {
+}) => async (dispatch: AppDispatch, getState: () => any) => {
   try {
     console.log('📝 [postsSlice] createPost 시작:', postData)
+    
+    // 토큰 검증
+    const token = validateTokenForAction('createPost')
+    if (!token) {
+      throw new Error('로그인이 필요합니다. 다시 로그인해주세요.')
+    }
+    
     const response = await postsApi.create(postData)
-    const newPost = response.data.data as any // 타입 캐스팅으로 임시 해결
+    
+    // 서버 응답에서 data 추출 및 id 검증
+    const newPost = response.data?.data
+    if (!newPost || !newPost.id) {
+      throw new Error('서버에서 게시글 ID를 반환하지 않았습니다.')
+    }
+    
+    console.log('📝 [postsSlice] 서버 응답 검증 완료:', { 
+      hasId: !!newPost.id, 
+      id: newPost.id,
+      title: newPost.title 
+    })
     
     // API 성공 후 Redux 상태에 새 게시글 추가
     dispatch(upsertPosts([newPost]))

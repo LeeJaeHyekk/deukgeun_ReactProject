@@ -73,8 +73,10 @@ export function useErrorHandler(options: UseErrorHandlerOptions = {}) {
       // 특정 상태 코드에 따른 자동 처리
       switch (statusCode) {
         case 401:
-          // 인증 에러 시 로그인 페이지로 리다이렉트
-          navigate("/login", { replace: true })
+          // 현재 경로가 로그인 페이지가 아닌 경우에만 리다이렉트
+          if (window.location.pathname !== '/login') {
+            navigate("/login", { replace: true })
+          }
           break
         case 403:
           // 권한 에러 시 홈으로 리다이렉트

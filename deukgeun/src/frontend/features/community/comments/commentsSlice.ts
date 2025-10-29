@@ -113,14 +113,16 @@ const commentsSlice = createSlice({
     updateComment(state, action: PayloadAction<{ postId: number; commentId: number; content: string }>) {
       const { postId, commentId, content } = action.payload
       
-      if (state.byPost[postId]) {
-        const comment = state.byPost[postId].find(c => c.id === commentId)
-        if (comment) {
-          comment.content = content
-          comment.updatedAt = new Date().toISOString()
-          console.log('🔥 [commentsSlice] 댓글 수정:', { postId, commentId })
-        }
-      }
+      const list = state.byPost[postId]
+      if (!list) return
+      
+      const next = list.map(c => 
+        c.id === commentId 
+          ? { ...c, content, updatedAt: new Date().toISOString() } 
+          : c
+      )
+      state.byPost[postId] = next
+      console.log('🔥 [commentsSlice] 댓글 수정:', { postId, commentId })
     },
     
     // 댓글 삭제
@@ -197,7 +199,19 @@ export const addCommentThunk = (postId: number, content: string) =>
     }
 
     try {
-      console.log('🔥 [commentsSlice] 댓글 추가 시작 (낙관적 업데이트):', { postId: validPostId, content, tempId })
+      console.log('=== commentsSlice 댓글 추가 시작 (낙관적 업데이트) ===')
+      console.log('postId:', validPostId, 'type:', typeof validPostId)
+      console.log('content:', content)
+      console.log('tempId:', tempId)
+      
+      // 토큰 상태 상세 확인
+      const token = localStorage.getItem('accessToken')
+      console.log('🔐 [addCommentThunk] 토큰 상태:', {
+        hasToken: !!token,
+        tokenLength: token?.length || 0,
+        tokenPreview: token ? `${token.substring(0, 20)}...` : '없음',
+        timestamp: new Date().toISOString()
+      })
       
       // 1. 낙관적 업데이트 (즉시 UI에 표시)
       dispatch(addCommentOptimistic({ postId: validPostId, tempComment }))
@@ -205,7 +219,12 @@ export const addCommentThunk = (postId: number, content: string) =>
       
       // 2. 서버에 실제 요청
       const { commentsApi } = await import('@frontend/shared/api')
+      console.log('commentsApi 로드 완료')
+      
+      console.log('API 호출 시작: POST /api/comments/' + validPostId)
+      console.log('요청 데이터:', { content })
       const response = await commentsApi.create(validPostId, { content })
+      console.log('API 응답 받음:', response)
       const confirmed: Comment = response.data.data as Comment
 
       // 3. 서버 응답 성공 시 낙관적 댓글 제거하고 실제 댓글 추가
@@ -237,13 +256,23 @@ export const updateCommentThunk = (postId: number, commentId: number, content: s
       console.log('postId:', postId, 'type:', typeof postId)
       console.log('commentId:', commentId, 'type:', typeof commentId)
       console.log('content:', content)
-      console.log('localStorage accessToken:', localStorage.getItem('accessToken') ? '있음' : '없음')
+      
+      // 토큰 상태 상세 확인
+      const token = localStorage.getItem('accessToken')
+      console.log('🔐 [updateCommentThunk] 토큰 상태:', {
+        hasToken: !!token,
+        tokenLength: token?.length || 0,
+        tokenPreview: token ? `${token.substring(0, 20)}...` : '없음',
+        timestamp: new Date().toISOString()
+      })
       
       // commentsApi를 사용하여 일관된 엔드포인트 사용
       const { commentsApi } = await import('@frontend/shared/api')
       console.log('commentsApi 로드 완료')
       
       console.log('API 호출 시작: PUT /api/comments/' + commentId)
+      console.log('요청 데이터:', { content })
+      
       const response = await commentsApi.update(commentId, { content })
       console.log('API 응답 받음:', response)
       
@@ -277,11 +306,26 @@ export const updateCommentThunk = (postId: number, commentId: number, content: s
 export const deleteCommentThunk = (postId: number, commentId: number) => 
   async (dispatch: AppDispatch) => {
     try {
-      console.log('🔥 [commentsSlice] 댓글 삭제 시작:', { postId, commentId })
+      console.log('=== commentsSlice 댓글 삭제 시작 ===')
+      console.log('postId:', postId, 'type:', typeof postId)
+      console.log('commentId:', commentId, 'type:', typeof commentId)
+      
+      // 토큰 상태 상세 확인
+      const token = localStorage.getItem('accessToken')
+      console.log('🔐 [deleteCommentThunk] 토큰 상태:', {
+        hasToken: !!token,
+        tokenLength: token?.length || 0,
+        tokenPreview: token ? `${token.substring(0, 20)}...` : '없음',
+        timestamp: new Date().toISOString()
+      })
       
       // commentsApi를 사용하여 일관된 엔드포인트 사용
       const { commentsApi } = await import('@frontend/shared/api')
+      console.log('commentsApi 로드 완료')
+      
+      console.log('API 호출 시작: DELETE /api/comments/' + commentId)
       await commentsApi.remove(commentId)
+      console.log('API 삭제 성공')
       
       // 서버 삭제 성공 후 Redux에서 제거
       dispatch(removeComment({ postId, commentId }))

@@ -3,6 +3,7 @@ import { useComments } from '../../hooks/useComments'
 import { useAuthRedux } from '@frontend/shared/hooks/useAuthRedux'
 import { getAuthorName } from '../../utils/textUtils'
 import { formatDate } from '../../utils/dateUtils'
+import { showToast } from '@frontend/shared/lib'
 import styles from './CommentsSection.module.css'
 
 interface CommentsSectionProps {
@@ -21,6 +22,15 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
     handleEditComment,
     handleDeleteComment
   } = useComments(postId)
+  
+  // 디버그 로그 추가
+  console.log('🔍 [CommentsSection] 컴포넌트 렌더링:', {
+    postId,
+    isLoggedIn,
+    user: user ? { id: user.id, nickname: user.nickname } : null,
+    commentsCount: allComments.length,
+    timestamp: new Date().toISOString()
+  })
   
   // 수정 중인 댓글 상태 관리
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
@@ -46,6 +56,31 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
 
   // 댓글 수정 시작
   const startEditComment = (commentId: number, currentContent: string) => {
+    console.log('🔧 [CommentsSection] 댓글 수정 시작:', {
+      commentId,
+      currentContent,
+      isLoggedIn,
+      user: user ? { id: user.id, nickname: user.nickname } : null,
+      timestamp: new Date().toISOString()
+    })
+    
+    // 강력한 인증 검증
+    if (!isLoggedIn || !user) {
+      console.log('❌ [CommentsSection] 로그인되지 않은 사용자의 댓글 수정 시작 시도 차단')
+      showToast('로그인이 필요합니다. 로그인 페이지로 이동합니다.', 'error')
+      window.location.href = '/login'
+      return
+    }
+    
+    // 토큰 존재 확인
+    const token = localStorage.getItem('accessToken')
+    if (!token) {
+      console.log('❌ [CommentsSection] 토큰이 없는 사용자의 댓글 수정 시작 시도 차단')
+      showToast('로그인이 만료되었습니다. 다시 로그인해주세요.', 'error')
+      window.location.href = '/login'
+      return
+    }
+    
     setEditingCommentId(commentId)
     setEditContent(currentContent)
   }
@@ -59,11 +94,31 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
   // 댓글 수정 완료
   const saveEditComment = async () => {
     if (editingCommentId && editContent.trim()) {
-      console.log('💬 [CommentsSection] 댓글 수정 시작:', {
+      console.log('💬 [CommentsSection] 댓글 수정 완료 버튼 클릭:', {
         editingCommentId,
         editContent: editContent.trim(),
-        availableComments: comments.map(c => ({ id: c.id, content: c.content }))
+        isLoggedIn,
+        user: user ? { id: user.id, nickname: user.nickname } : null,
+        availableComments: allComments.map(c => ({ id: c.id, content: c.content })),
+        timestamp: new Date().toISOString()
       })
+      
+      // 강력한 인증 검증
+      if (!isLoggedIn || !user) {
+        console.log('❌ [CommentsSection] 로그인되지 않은 사용자의 댓글 수정 시도 차단')
+        showToast('로그인이 필요합니다. 로그인 페이지로 이동합니다.', 'error')
+        window.location.href = '/login'
+        return
+      }
+      
+      // 토큰 존재 확인
+      const token = localStorage.getItem('accessToken')
+      if (!token) {
+        console.log('❌ [CommentsSection] 토큰이 없는 사용자의 댓글 수정 시도 차단')
+        showToast('로그인이 만료되었습니다. 다시 로그인해주세요.', 'error')
+        window.location.href = '/login'
+        return
+      }
       
       await handleCommentAction(async () => {
         await handleEditComment(editingCommentId, editContent.trim())
@@ -75,6 +130,30 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
 
   // 댓글 삭제 확인
   const confirmDeleteComment = async (commentId: number) => {
+    console.log('🗑️ [CommentsSection] 댓글 삭제 확인:', {
+      commentId,
+      isLoggedIn,
+      user: user ? { id: user.id, nickname: user.nickname } : null,
+      timestamp: new Date().toISOString()
+    })
+    
+    // 강력한 인증 검증
+    if (!isLoggedIn || !user) {
+      console.log('❌ [CommentsSection] 로그인되지 않은 사용자의 댓글 삭제 시도 차단')
+      showToast('로그인이 필요합니다. 로그인 페이지로 이동합니다.', 'error')
+      window.location.href = '/login'
+      return
+    }
+    
+    // 토큰 존재 확인
+    const token = localStorage.getItem('accessToken')
+    if (!token) {
+      console.log('❌ [CommentsSection] 토큰이 없는 사용자의 댓글 삭제 시도 차단')
+      showToast('로그인이 만료되었습니다. 다시 로그인해주세요.', 'error')
+      window.location.href = '/login'
+      return
+    }
+    
     if (confirm('댓글을 삭제하시겠습니까?')) {
       await handleCommentAction(async () => {
         await handleDeleteComment(commentId)
@@ -140,6 +219,22 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
                   const isCommentAuthor = user?.id === comment.userId
                   const isEditing = editingCommentId === comment.id
                   const isOptimistic = comment.id < 0 // 임시 댓글 ID는 음수
+                  const hasValidToken = !!localStorage.getItem('accessToken')
+                  const canEdit = isCommentAuthor && isLoggedIn && !isOptimistic && !!user && hasValidToken // 낙관적 댓글은 수정/삭제 불가
+                  
+                  // 디버그 로그 추가
+                  console.log('🔍 [CommentsSection] 댓글 렌더링:', {
+                    commentId: comment.id,
+                    commentUserId: comment.userId,
+                    currentUserId: user?.id,
+                    isCommentAuthor,
+                    isLoggedIn,
+                    isOptimistic,
+                    canEdit,
+                    hasUser: !!user,
+                    hasValidToken,
+                    user: user ? { id: user.id, nickname: user.nickname } : null
+                  })
                   
                   return (
                     <div 
@@ -154,17 +249,37 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
                           <span className={styles.commentDate}>
                             {formatDate(comment.createdAt.toString())}
                           </span>
-                          {isCommentAuthor && isLoggedIn && !isEditing && (
+                          {canEdit && !isEditing && (
                             <div className={styles.commentActions}>
                               <button 
                                 className={styles.editCommentButton}
-                                onClick={() => startEditComment(comment.id, comment.content)}
+                                onClick={() => {
+                                  console.log('🔧 [CommentsSection] 수정 버튼 클릭:', {
+                                    commentId: comment.id,
+                                    isLoggedIn,
+                                    user: user ? { id: user.id, nickname: user.nickname } : null,
+                                    timestamp: new Date().toISOString()
+                                  })
+                                  startEditComment(comment.id, comment.content)
+                                }}
+                                disabled={isOptimistic}
+                                title={isOptimistic ? "처리 중인 댓글은 수정할 수 없습니다" : ""}
                               >
                                 수정
                               </button>
                               <button 
                                 className={styles.deleteCommentButton}
-                                onClick={() => confirmDeleteComment(comment.id)}
+                                onClick={() => {
+                                  console.log('🗑️ [CommentsSection] 삭제 버튼 클릭:', {
+                                    commentId: comment.id,
+                                    isLoggedIn,
+                                    user: user ? { id: user.id, nickname: user.nickname } : null,
+                                    timestamp: new Date().toISOString()
+                                  })
+                                  confirmDeleteComment(comment.id)
+                                }}
+                                disabled={isOptimistic}
+                                title={isOptimistic ? "처리 중인 댓글은 삭제할 수 없습니다" : ""}
                               >
                                 삭제
                               </button>
@@ -183,16 +298,33 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
                             placeholder="댓글을 수정하세요..."
                           />
                           <div className={styles.commentEditActions}>
-                            <button
-                              className={styles.commentSaveButton}
-                              onClick={saveEditComment}
-                              disabled={!editContent.trim()}
-                            >
-                              저장
-                            </button>
+                          <button
+                            className={styles.commentSaveButton}
+                            onClick={() => {
+                              console.log('💾 [CommentsSection] 저장 버튼 클릭:', {
+                                editingCommentId,
+                                editContent: editContent.trim(),
+                                isLoggedIn,
+                                user: user ? { id: user.id, nickname: user.nickname } : null,
+                                timestamp: new Date().toISOString()
+                              })
+                              saveEditComment()
+                            }}
+                            disabled={!editContent.trim()}
+                          >
+                            저장
+                          </button>
                             <button
                               className={styles.commentCancelButton}
-                              onClick={cancelEditComment}
+                              onClick={() => {
+                                console.log('❌ [CommentsSection] 취소 버튼 클릭:', {
+                                  editingCommentId,
+                                  isLoggedIn,
+                                  user: user ? { id: user.id, nickname: user.nickname } : null,
+                                  timestamp: new Date().toISOString()
+                                })
+                                cancelEditComment()
+                              }}
                             >
                               취소
                             </button>

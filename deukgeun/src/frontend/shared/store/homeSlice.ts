@@ -78,6 +78,13 @@ export const fetchUserStats = createAsyncThunk(
     condition: (_, { getState }) => {
       const { home, auth } = getState() as { home: HomeState; auth: any }
       const userId = auth?.user?.id ?? 'guest'
+      const isLoggedIn = auth?.isLoggedIn ?? false
+      
+      // 로그인하지 않은 경우 요청 스킵
+      if (!isLoggedIn) {
+        logger.debug("[fetchUserStats] 로그인하지 않음 → 요청 스킵", `userId: ${userId}`)
+        return false
+      }
       
       if (home.loading || home.userStats) {
         logger.debug("[fetchUserStats] 캐시 존재 → 요청 스킵", `userId: ${userId}`)

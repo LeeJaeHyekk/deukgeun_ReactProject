@@ -19,25 +19,15 @@ export class ExpHistory {
   userId!: number
 
   @Column({
-    type: "enum",
-    enum: [
-      "workout_complete",
-      "workout_streak",
-      "goal_achieved",
-      "post_created",
-      "comment_created",
-      "like_received",
-      "daily_login",
-      "weekly_challenge",
-      "monthly_milestone",
-    ],
+    type: "varchar",
+    length: 50,
   })
-  actionType!: ExpActionType
+  actionType!: string
 
   @Column({ type: "int" })
   expGained!: number
 
-  @Column({ type: "varchar", length: 100 })
+  @Column({ type: "varchar", length: 200 })
   source!: string
 
   @Column({ type: "json", nullable: true })

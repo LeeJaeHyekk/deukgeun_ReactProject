@@ -4,7 +4,7 @@ import { UserLevel } from '@backend/entities/UserLevel'
 import { UserStreak } from "@backend/entities/UserStreak"
 import bcrypt from "bcrypt"
 import { verifyRecaptcha } from '@backend/utils/recaptcha'
-import { createTokens, verifyRefreshToken } from '@backend/utils/jwt'
+import { createTokens, verifyRefreshToken, hashRefreshToken, compareRefreshToken } from '@backend/utils/jwt'
 import { logger } from '@backend/utils/logger'
 import { lazyLoadDatabase } from "@backend/modules/server/LazyLoader"
 import { ApiResponse, ErrorResponse } from "@backend/types"
@@ -75,13 +75,18 @@ export async function login(
 
     const { accessToken, refreshToken } = createTokens(user.id, user.role)
 
+    // refresh token 해시 저장 (토큰 로테이션)
+    const refreshHash = await hashRefreshToken(refreshToken)
+    user.refreshTokenHash = refreshHash
+    await userRepo.save(user)
+
     logger.info(`로그인 성공 - User ID: ${user.id}, Email: ${email}`)
 
     res
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax", // localhost 간 통신을 위해 lax로 변경
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
       })
       .json({
@@ -89,7 +94,6 @@ export async function login(
         message: "로그인 성공",
         data: {
           accessToken,
-          refreshToken,
           user: UserTransformer.toDTO(user),
         }
       })
@@ -108,9 +112,14 @@ export async function refreshToken(
   res: Response<ApiResponse<{ accessToken: string }> | ErrorResponse>
 ): Promise<void> {
   try {
+    // httpOnly 쿠키에서 refresh token 읽기
     const token = req.cookies?.refreshToken
 
+    console.log("🔄 [RefreshToken] 요청 시작")
+    console.log("🔄 [RefreshToken] 쿠키에서 refreshToken:", token ? `${token.substring(0, 20)}...` : "없음")
+
     if (!token) {
+      console.log("🔄 [RefreshToken] 토큰 없음 - 401 반환")
       res.status(401).json({
         success: false,
         message: "Refresh token이 없습니다.",
@@ -134,7 +143,7 @@ export async function refreshToken(
     const userRepo = dataSource.getRepository(User)
     const user = await userRepo.findOne({ where: { id: payload.userId } })
 
-    if (!user) {
+    if (!user || !user.refreshTokenHash) {
       logger.warn(
         `Refresh token으로 사용자를 찾을 수 없음 - User ID: ${payload.userId}`
       )
@@ -146,10 +155,29 @@ export async function refreshToken(
       return
     }
 
+    // 전달된 refreshToken과 DB에 저장된 해시 비교
+    const isValid = await compareRefreshToken(token, user.refreshTokenHash)
+    if (!isValid) {
+      // 이상징후: 토큰 불일치 -> 강제 로그아웃(쿠키 제거)
+      logger.warn(`Refresh token 불일치 - User ID: ${user.id}, IP: ${req.ip}`)
+      res.clearCookie("refreshToken", { path: "/" })
+      res.status(401).json({
+        success: false,
+        message: "리프레시 토큰 불일치",
+        error: "토큰 불일치",
+      })
+      return
+    }
+
+    // rotation: 새 refresh token 발급 및 DB에 해시 저장
     const { accessToken, refreshToken: newRefreshToken } = createTokens(
       user.id,
       user.role
     )
+
+    const newRefreshHash = await hashRefreshToken(newRefreshToken)
+    user.refreshTokenHash = newRefreshHash
+    await userRepo.save(user)
 
     logger.info(`Token 갱신 성공 - User ID: ${user.id}`)
 
@@ -157,13 +185,15 @@ export async function refreshToken(
       .cookie("refreshToken", newRefreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax", // localhost 간 통신을 위해 lax로 변경
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
       })
       .json({
         success: true,
         message: "Token 갱신 성공",
-        data: { accessToken },
+        data: { 
+          accessToken
+        },
       })
   } catch (error) {
     logger.error("Token 갱신 중 오류:", error)
@@ -175,14 +205,47 @@ export async function refreshToken(
   }
 }
 
-export function logout(req: Request, res: Response<ApiResponse>): void {
+export async function logout(
+  req: Request,
+  res: Response<ApiResponse<{ message: string }> | ErrorResponse>
+): Promise<void> {
   try {
-    logger.info(`로그아웃 - User ID: ${req.user?.userId}`)
+    // 쿠키에서 refresh token 가져오기
+    const refreshToken = req.cookies?.refreshToken
 
-    res.clearCookie("refreshToken").json({
+    if (refreshToken) {
+      try {
+        const payload = verifyRefreshToken(refreshToken)
+        if (payload) {
+          const dataSource = await lazyLoadDatabase()
+          const userRepo = dataSource.getRepository(User)
+          const user = await userRepo.findOne({ where: { id: payload.userId } })
+          
+          if (user) {
+            // DB에서 refresh token 해시 제거
+            user.refreshTokenHash = null
+            await userRepo.save(user)
+            logger.info(`로그아웃 - User ID: ${user.id}, refresh token 해시 제거`)
+          }
+        }
+      } catch (error) {
+        // refresh token이 유효하지 않아도 로그아웃은 성공으로 처리
+        logger.warn("로그아웃 시 refresh token 검증 실패:", error)
+      }
+    }
+
+    // 쿠키 제거
+    res.clearCookie("refreshToken", { 
+      path: "/",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax"
+    })
+
+    res.json({
       success: true,
-      message: "로그아웃 성공",
-      data: null
+      message: "로그아웃 완료",
+      data: { message: "로그아웃이 완료되었습니다." }
     })
   } catch (error) {
     logger.error("로그아웃 처리 중 오류:", error)
@@ -190,10 +253,10 @@ export function logout(req: Request, res: Response<ApiResponse>): void {
       success: false,
       message: "서버 오류가 발생했습니다.",
       error: "서버 오류",
-      data: null
     })
   }
 }
+
 
 export function checkAuth(
   req: Request,

@@ -4,6 +4,7 @@ import { authApi } from '../../features/auth/api/authApi'
 import { storage } from '../lib'
 import { logger } from '../utils/logger'
 import { updateClientToken, updateClientUser, clearAllAuthData } from '../utils/authToken'
+import { tokenRefreshScheduler } from '../utils/tokenManager'
 
 // JWT 토큰 유효성 검사
 function isTokenValid(token: string): boolean {
@@ -79,8 +80,10 @@ export const checkAutoLogin = createAsyncThunk(
     try {
       logger.debug('AUTH', '자동 로그인 체크 시작')
       
-      const token = storage.get("accessToken")
-      const storedUser = storage.get("user")
+      // localStorage에서 직접 가져오기 (storage 유틸리티 동기화 문제 해결)
+      const token = localStorage.getItem("accessToken")
+      const storedUserStr = localStorage.getItem("user")
+      const storedUser = storedUserStr ? JSON.parse(storedUserStr) : null
 
       logger.debug('AUTH', '저장된 토큰 상태', {
         hasToken: !!token,
@@ -173,7 +176,7 @@ export const logout = createAsyncThunk(
       logger.warn('AUTH', '서버 로그아웃 실패', error)
     } finally {
       // 통합 인증 데이터 초기화 함수 사용
-      clearAllAuthData()
+      await clearAllAuthData()
       
       // Redux 상태도 초기화 (동적 import로 순환 참조 방지)
       import('../../features/community/likes/likesSlice').then(({ clearLikes }) => {
@@ -224,6 +227,9 @@ const authSlice = createSlice({
         userEmail: userWithToken.email,
         isAuthenticated: true
       })
+
+      // 자동 토큰 갱신 스케줄러 시작
+      tokenRefreshScheduler.start()
     },
 
     // 사용자 정보 업데이트
@@ -342,6 +348,9 @@ const authSlice = createSlice({
 
       // 로그아웃
       .addCase(logout.fulfilled, (state) => {
+        // 자동 토큰 갱신 스케줄러 중지
+        tokenRefreshScheduler.stop()
+        
         state.isAuthenticated = false
         state.user = null
         state.isLoading = false

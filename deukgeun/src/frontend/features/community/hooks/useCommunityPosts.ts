@@ -2,6 +2,9 @@ import { useState, useCallback, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { postsApi } from '@frontend/shared/api'
 import { showToast } from '@frontend/shared/lib'
+import { useAuthGuard } from '@frontend/shared/hooks/useAuthGuard'
+import { handleAuthAwareError } from '@frontend/shared/utils/errorHandler'
+import { validateTokenForAction } from '@frontend/shared/utils/tokenUtils'
 import {
   PostDTO as CommunityPost,
   PostCategoryInfo,
@@ -22,6 +25,7 @@ interface FetchPostsParams {
 
 export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
   const dispatch = useDispatch<AppDispatch>()
+  const { ensureAuthenticated } = useAuthGuard()
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -169,17 +173,29 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
   // 새 게시글 작성
   const createPost = useCallback(
     async (postData: { title: string; content: string; category: string }) => {
+      // 인증 사전 검증
+      if (!ensureAuthenticated()) return false
+
+      // 토큰 검증
+      const token = validateTokenForAction('createPost')
+      if (!token) {
+        showToast('로그인이 만료되었습니다. 다시 로그인해주세요.', 'error')
+        window.location.href = '/login'
+        return false
+      }
+
       try {
         await dispatch(createPostThunk(postData))
         showToast('게시글이 성공적으로 작성되었습니다.', 'success')
         return true
-      } catch (error: unknown) {
-        console.error('게시글 작성 실패:', error)
-        showToast('게시글 작성에 실패했습니다.', 'error')
-        return false
-      }
+    } catch (error: unknown) {
+      console.error('게시글 작성 실패:', error)
+      if (handleAuthAwareError(error, (m,t='error')=>showToast(m,t))) return false
+      showToast('게시글 작성에 실패했습니다.', 'error')
+      return false
+    }
     },
-    [dispatch]
+    [dispatch, ensureAuthenticated]
   )
 
   // 게시글 수정

@@ -28,6 +28,9 @@ export class User {
   @Column({ type: "varchar" })
   password!: string
 
+  @Column({ type: "varchar", nullable: true, name: "refresh_token_hash" })
+  refreshTokenHash?: string | null
+
   @Column({ type: "varchar", unique: true })
   nickname!: string
 

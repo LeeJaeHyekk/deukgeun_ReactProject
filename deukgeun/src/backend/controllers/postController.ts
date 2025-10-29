@@ -157,7 +157,13 @@ export class PostController {
         console.error("경험치 부여 실패:", levelError)
       }
 
-      res.status(201).json(newPost)
+      // DTO 변환하여 응답 (id 포함 보장)
+      const postDTO = toPostDTO(newPost)
+      res.status(201).json({
+        success: true,
+        message: "게시글이 성공적으로 생성되었습니다.",
+        data: postDTO
+      })
     } catch (error) {
       next(error)
     }

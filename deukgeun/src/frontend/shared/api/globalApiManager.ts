@@ -1,11 +1,9 @@
 // src/frontend/shared/api/globalApiManager.ts
-import axios, { AxiosError, AxiosRequestConfig } from "axios"
+import { AxiosError, AxiosRequestConfig } from "axios"
 import { logger } from "@frontend/shared/utils/logger"
+import { apiClient } from "./index"
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
-  timeout: 10000,
-})
+// 통합된 apiClient 사용 (토큰 인터셉터가 이미 설정됨)
 
 /** 중복 요청 방지를 위한 활성 요청 집합 */
 const activeRequests = new Set<string>()
@@ -30,7 +28,8 @@ export const GlobalApiManager = {
 
     activeRequests.add(requestKey)
     try {
-      const response = await api.request<T>(config)
+      // 통합된 apiClient 사용 (토큰 인터셉터 자동 적용)
+      const response = await apiClient.request<T>(config)
       logger.info(`[SUCCESS] ${requestKey}`, JSON.stringify(response.data))
       return response.data
     } catch (error) {

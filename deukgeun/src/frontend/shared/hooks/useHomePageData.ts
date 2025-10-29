@@ -27,7 +27,10 @@ export const useHomePageData = () => {
 
   // 강제 fetch 함수
   const forceFetchData = useCallback(async () => {
-    if (!isAuthenticated || !user?.id) return
+    if (!isAuthenticated || !user?.id) {
+      logger.debug("[useHomePageData] 인증되지 않음 → fetch 스킵", `isAuthenticated: ${isAuthenticated}, userId: ${user?.id}`)
+      return
+    }
 
     logger.info("[useHomePageData] 강제 데이터 fetch 시작", `userId: ${user.id}`)
     
@@ -78,8 +81,8 @@ export const useHomePageData = () => {
       return
     }
 
-    // 일반적인 데이터 fetch
-    if (!userStats && !loading) dispatch(fetchUserStats())
+    // 일반적인 데이터 fetch (인증된 경우에만)
+    if (isAuthenticated && !userStats && !loading) dispatch(fetchUserStats())
     if (!platformStats && !loading) dispatch(fetchPlatformStats())
   }, [isAuthenticated, user?.id, forceFetchData]) // forceFetchData 의존성 추가
 

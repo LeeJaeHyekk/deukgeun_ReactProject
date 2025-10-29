@@ -21,7 +21,7 @@ const POSTS_PER_PAGE = 12
 
 export default function CommunityPage() {
   // 인증 상태 확인
-  const { isLoading: authLoading } = useAuthRedux()
+  const { isLoading: authLoading, isLoggedIn } = useAuthRedux()
   
   // 댓글 수 동기화
   useCommentCountSync()
@@ -158,6 +158,13 @@ export default function CommunityPage() {
   }, [])
 
   const handleOpenCreateModal = useCallback(() => {
+    // 로그인 상태 확인 (훅은 컴포넌트 최상위에서 호출됨)
+    if (!isLoggedIn) {
+      showToast("로그인이 필요합니다. 로그인 페이지로 이동합니다.", "error")
+      window.location.href = '/login'
+      return
+    }
+
     if (availableCategories.length === 0) {
       showToast(
         "카테고리를 불러오는 중입니다. 잠시 후 다시 시도해주세요.",
@@ -166,7 +173,7 @@ export default function CommunityPage() {
       return
     }
     openCreateModal()
-  }, [availableCategories.length, openCreateModal])
+  }, [isLoggedIn, availableCategories.length, openCreateModal])
 
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page)

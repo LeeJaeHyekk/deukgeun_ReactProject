@@ -28,6 +28,9 @@ import axios, {
 import { config } from '@frontend/shared/config'
 import { storage } from '@frontend/shared/lib'
 import { globalErrorHandler } from '@pages/Error'
+import { tokenManager, isTokenExpired, isTokenExpiringSoon } from '@frontend/shared/utils/tokenManager'
+import { analyzeAuthError, isRetryableError, shouldLogout } from '@frontend/shared/utils/errorHandler'
+import { getCurrentToken, logTokenStatus } from '@frontend/shared/utils/tokenUtils'
 
 // API 응답 타입 정의
 export interface ApiResponse<T = unknown> {
@@ -56,6 +59,60 @@ export interface LikeResponse {
   }
 }
 
+// 토큰 갱신 함수 (재시도 로직 포함)
+async function performTokenRefresh(retryCount = 0): Promise<string> {
+  const maxRetries = 3
+  const retryDelay = 1000 * Math.pow(2, retryCount) // 지수 백오프
+  
+  console.log(`🔄 [TokenRefresh] 토큰 갱신 시작 (시도 ${retryCount + 1}/${maxRetries + 1})`)
+  
+  try {
+    const refreshResponse = await axios.post('/api/auth/refresh', {}, {
+      baseURL: config.api.baseURL,
+      withCredentials: true, // 쿠키 자동 포함
+      timeout: 10000, // 10초 타임아웃
+    })
+    
+    console.log('🔄 [TokenRefresh] 갱신 응답:', refreshResponse.data)
+    
+    if (!refreshResponse.data.success || !refreshResponse.data.data?.accessToken) {
+      throw new Error('유효하지 않은 갱신 응답')
+    }
+    
+    const { accessToken } = refreshResponse.data.data
+    console.log('🔄 [TokenRefresh] 새 토큰:', accessToken ? `${accessToken.substring(0, 20)}...` : '없음')
+
+    // 메모리에 새 토큰 저장
+    tokenManager.setAccessToken(accessToken)
+    
+    console.log('✅ [TokenRefresh] 토큰 갱신 성공')
+    return accessToken
+  } catch (error: any) {
+    console.error(`❌ [TokenRefresh] 토큰 갱신 실패 (시도 ${retryCount + 1}):`, error)
+    
+    // 에러 분석
+    const authError = analyzeAuthError(error)
+    console.log('🔍 [TokenRefresh] 에러 분석:', authError)
+    
+    // 토큰 만료나 탈취 의심 에러는 즉시 중단
+    if (authError.type === 'token_expired' || authError.type === 'token_invalid') {
+      console.log(`🚨 [TokenRefresh] ${authError.type} - 즉시 중단`)
+      throw error
+    }
+    
+    // 재시도 가능한 에러인지 확인
+    if (isRetryableError(error) && retryCount < maxRetries) {
+      console.log(`🔄 [TokenRefresh] ${retryDelay}ms 후 재시도... (${authError.type})`)
+      await new Promise(resolve => setTimeout(resolve, retryDelay))
+      return performTokenRefresh(retryCount + 1)
+    }
+    
+    // 재시도 불가능한 에러 또는 최대 재시도 횟수 초과
+    console.log(`❌ [TokenRefresh] 재시도 불가능: ${authError.message}`)
+    throw error
+  }
+}
+
 // API 클라이언트 설정
 const createApiClient = (): AxiosInstance => {
   const instance = axios.create({
@@ -71,33 +128,44 @@ const createApiClient = (): AxiosInstance => {
   })
 
   // 요청 인터셉터 - 토큰 추가
-  instance.interceptors.request.use(
-    (config: InternalAxiosRequestConfig) => {
-      const token = storage.get('accessToken')
-      
-      console.log(
-        'API 요청 인터셉터 - 토큰:',
-        token ? `${token.substring(0, 20)}...` : '없음'
-      )
-      console.log('요청 URL:', config.url)
-      console.log('요청 메서드:', config.method)
-      console.log('Base URL:', config.baseURL)
-      console.log('Full URL:', `${config.baseURL}${config.url}`)
+instance.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    // 통합 토큰 유틸리티 사용
+    const token = getCurrentToken()
+    
+    // 토큰 상태 로깅
+    logTokenStatus(token, 'Axios Interceptor')
+    
+    console.log('🔐 [Axios Interceptor] 요청 정보:', {
+      url: config.url,
+      method: config.method,
+      baseURL: config.baseURL,
+      fullURL: `${config.baseURL}${config.url}`,
+      hasHeaders: !!config.headers
+    })
 
-      if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`
-        console.log('Authorization 헤더 설정됨')
-      } else {
-        console.log('토큰이 없거나 헤더를 설정할 수 없음')
-      }
-      
-      return config
-    },
-    (error: Error) => {
-      console.error('요청 인터셉터 오류:', error)
-      return Promise.reject(error)
+    if (token && typeof token === 'string' && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`
+      console.log('✅ [Axios Interceptor] Authorization 헤더 설정됨:', {
+        hasAuthHeader: !!config.headers.Authorization,
+        authPreview: config.headers.Authorization ? `${config.headers.Authorization.substring(0, 30)}...` : '없음'
+      })
+    } else {
+      console.log('❌ [Axios Interceptor] 토큰이 없거나 헤더를 설정할 수 없음:', {
+        hasToken: !!token,
+        tokenType: typeof token,
+        hasHeaders: !!config.headers,
+        tokenValue: token
+      })
     }
-  )
+    
+    return config
+  },
+  (error: Error) => {
+    console.error('❌ [Axios Interceptor] 요청 인터셉터 오류:', error)
+    return Promise.reject(error)
+  }
+)
 
   // 응답 인터셉터 - 토큰 갱신 및 에러 처리
   instance.interceptors.response.use(
@@ -168,39 +236,92 @@ const createApiClient = (): AxiosInstance => {
         })
       }
 
-      // 401 또는 403 오류 시 토큰 갱신 시도 (404는 제외)
+      // 401 오류 시 토큰 갱신 처리 (403은 권한 부족으로 별도 처리)
       if (
-        (originalRequest.response?.status === 401 ||
-          originalRequest.response?.status === 403) &&
+        originalRequest.response?.status === 401 &&
         !originalRequest.config?._retry &&
         originalRequest.config?.url !== '/api/auth/refresh' // refresh 엔드포인트 자체는 제외
       ) {
-        originalRequest.config = originalRequest.config || {}
-        originalRequest.config._retry = true
+        console.log('🔐 [401 처리] 토큰 갱신 시도')
+        
+        // 이미 갱신 중인 경우 대기열에 추가
+        if (tokenManager.isRefreshing()) {
+          console.log('🔄 [401 처리] 이미 갱신 중, 대기열에 추가')
+          return new Promise((resolve, reject) => {
+            tokenManager.addToRefreshQueue(
+              (newToken) => {
+                originalRequest.config.headers = originalRequest.config.headers || {}
+                originalRequest.config.headers.Authorization = `Bearer ${newToken}`
+                resolve(instance(originalRequest.config))
+              },
+              (refreshError) => {
+                reject(refreshError)
+              }
+            )
+          })
+        }
+
+        // 토큰 갱신 시작
+        tokenManager.setRefreshing(true)
+        const refreshPromise = performTokenRefresh()
 
         try {
-          console.log('🔄 토큰 갱신 시도...')
-          const refreshResponse = await instance.post('/api/auth/refresh')
-          const { accessToken } = refreshResponse.data.data
-
-          console.log('✅ 토큰 갱신 성공, 새 토큰 설정')
-          storage.set('accessToken', accessToken)
-
+          const newToken = await refreshPromise
+          
+          // 대기열에 있는 모든 요청 처리
+          tokenManager.processRefreshQueue(newToken)
+          
           // 원래 요청의 헤더에 새 토큰 설정
-          if (originalRequest.config.headers) {
-            originalRequest.config.headers.Authorization = `Bearer ${accessToken}`
-          }
-
-          console.log('🔄 원래 요청 재시도')
+          originalRequest.config.headers = originalRequest.config.headers || {}
+          originalRequest.config.headers.Authorization = `Bearer ${newToken}`
+          
+          console.log('✅ [401 처리] 토큰 갱신 성공, 원래 요청 재시도')
           return instance(originalRequest.config)
         } catch (refreshError: unknown) {
-          // 토큰 갱신 실패 시 로그아웃
-          console.log('❌ 토큰 갱신 실패, 로그아웃 처리')
-          storage.remove('accessToken')
-          storage.remove('user')
-          window.location.href = '/login'
+          console.log('❌ [401 처리] 토큰 갱신 실패')
+          console.error('❌ [401 처리] 갱신 에러:', refreshError)
+          
+          // 에러 분석
+          const authError = analyzeAuthError(refreshError)
+          console.log('🔍 [401 처리] 에러 분석:', authError)
+          
+          // 대기열에 있는 모든 요청에 에러 전파
+          tokenManager.processRefreshQueue(null, refreshError)
+          
+            // 토큰 갱신 실패 시에만 로그아웃 (일반 401은 재시도만)
+            if (shouldLogout(refreshError)) {
+              console.log('🚪 [401 처리] 토큰 갱신 실패로 인한 로그아웃 처리')
+              
+              // 모든 토큰 데이터 초기화
+              tokenManager.clearAll()
+              localStorage.clear()
+              storage.remove('accessToken')
+              storage.remove('user')
+              
+              // Redux 상태도 초기화
+              import('@frontend/shared/store').then(({ store }) => {
+                store.dispatch({ type: 'auth/logout/fulfilled' })
+              })
+              
+              window.location.href = '/login'
+            } else {
+              console.log('⚠️ [401 처리] 토큰 갱신 실패했지만 로그아웃 불필요, 에러만 전파')
+            }
+          
           return Promise.reject(refreshError)
+        } finally {
+          // 갱신 완료 후 상태 초기화
+          tokenManager.setRefreshing(false)
+          tokenManager.setRefreshPromise(null)
         }
+      }
+
+      // 403 에러 (권한 부족) - 로그아웃 없이 에러만 전파
+      if (originalRequest.response?.status === 403) {
+        console.log('🚫 [403 처리] 권한 부족 - 로그아웃 없이 에러 전파')
+        const errorMessage = originalRequest.response?.data?.message || '권한이 부족합니다.'
+        const permissionError = new Error(errorMessage)
+        return Promise.reject(permissionError)
       }
 
       // 404 에러에 대한 특별 처리
@@ -243,7 +364,7 @@ const createApiClient = (): AxiosInstance => {
 }
 
 // API 클라이언트 인스턴스
-const apiClient = createApiClient()
+export const apiClient = createApiClient()
 
 // 타입 안전한 API 메서드들
 const api = {

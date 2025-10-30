@@ -2,7 +2,7 @@
 
 ## 📋 현재 상황
 - MySQL 서비스가 중지되어 있음
-- 새로운 루트 비밀번호: `Deukgeun6204_DB25`
+- 새로운 루트 비밀번호: `your_mysql_root_password` (환경 변수에서 설정)
 - 데이터베이스 이름: `deukgeun_db`
 
 ## 🔧 수동 설정 방법
@@ -19,8 +19,9 @@
 
 ### 2단계: MySQL 연결 테스트
 ```cmd
-"C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe" -u root -pDeukgeun6204_DB25
+"C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe" -u root -p
 ```
+> 비밀번호 입력 프롬프트가 나타나면 환경 변수에 설정한 비밀번호를 입력하세요.
 
 ### 3단계: 데이터베이스 생성
 MySQL에 연결된 후 다음 명령어 실행:
@@ -36,12 +37,13 @@ SHOW DATABASES;
 
 ### 4단계: 사용자 권한 설정
 ```sql
-CREATE USER IF NOT EXISTS 'deukgeun_user'@'localhost' IDENTIFIED BY 'Deukgeun6204_DB25';
+CREATE USER IF NOT EXISTS 'deukgeun_user'@'localhost' IDENTIFIED BY 'your_database_user_password';
 GRANT ALL PRIVILEGES ON deukgeun_db.* TO 'deukgeun_user'@'localhost';
 FLUSH PRIVILEGES;
 
 SHOW GRANTS FOR 'deukgeun_user'@'localhost';
 ```
+> `your_database_user_password`는 환경 변수에 설정한 사용자 비밀번호로 변경하세요.
 
 ### 5단계: 연결 테스트
 ```sql
@@ -54,7 +56,7 @@ SHOW TABLES;
 
 ### 환경 변수 설정 후 실행
 ```cmd
-set DB_PASSWORD=Deukgeun6204_DB25
+set DB_PASSWORD=your_database_password_here
 set DB_HOST=localhost
 set DB_PORT=3306
 set DB_USERNAME=root
@@ -64,6 +66,7 @@ set NODE_ENV=development
 cd src/backend
 npm run dev
 ```
+> `your_database_password_here`는 실제 데이터베이스 비밀번호로 변경하세요.
 
 ## 🔍 문제 해결
 
@@ -80,7 +83,7 @@ npm run dev
 
 3. **MySQL 재설치가 필요한 경우**
    - MySQL 8.4 재설치
-   - 루트 비밀번호를 `Deukgeun6204_DB25`로 설정
+   - 루트 비밀번호를 강력한 비밀번호로 설정 (환경 변수에 저장)
 
 ### 연결 오류가 발생하는 경우
 1. **방화벽 확인**

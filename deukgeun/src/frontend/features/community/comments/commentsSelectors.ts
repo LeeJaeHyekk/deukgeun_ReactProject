@@ -132,16 +132,17 @@ export const makeSelectDisplayCommentCountWithFallback = () => createSelector(
     if (hasCommentsData) {
       const finalCount = confirmedCount + optimisticCount
       
-      // 개발 환경에서만 로그 출력
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🔍 [commentsSelectors] 댓글 수 계산 (실제 댓글 기반):', {
-          confirmedCount,
-          optimisticCount,
-          finalCount,
-          hasCommentsData,
-          timestamp: new Date().toISOString()
-        })
-      }
+      // 디버깅 로그는 과도한 출력을 방지하기 위해 제거
+      // 필요 시 주석 해제하여 사용
+      // if (process.env.NODE_ENV === 'development') {
+      //   console.log('🔍 [commentsSelectors] 댓글 수 계산 (실제 댓글 기반):', {
+      //     confirmedCount,
+      //     optimisticCount,
+      //     finalCount,
+      //     hasCommentsData,
+      //     timestamp: new Date().toISOString()
+      //   })
+      // }
       
       return finalCount
     }
@@ -149,16 +150,17 @@ export const makeSelectDisplayCommentCountWithFallback = () => createSelector(
     // 댓글 데이터가 로드되지 않은 경우 postsSlice의 값 사용
     const finalCount = baseCount + optimisticCount
 
-    // 개발 환경에서만 로그 출력
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 [commentsSelectors] 댓글 수 계산 (postsSlice 기반):', {
-        baseCount,
-        optimisticCount,
-        finalCount,
-        hasCommentsData,
-        timestamp: new Date().toISOString()
-      })
-    }
+    // 디버깅 로그는 과도한 출력을 방지하기 위해 제거
+    // 필요 시 주석 해제하여 사용
+    // if (process.env.NODE_ENV === 'development') {
+    //   console.log('🔍 [commentsSelectors] 댓글 수 계산 (postsSlice 기반):', {
+    //     baseCount,
+    //     optimisticCount,
+    //     finalCount,
+    //     hasCommentsData,
+    //     timestamp: new Date().toISOString()
+    //   })
+    // }
 
     return finalCount
   }

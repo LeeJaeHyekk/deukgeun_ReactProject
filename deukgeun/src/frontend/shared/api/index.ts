@@ -130,8 +130,18 @@ const createApiClient = (): AxiosInstance => {
   // 요청 인터셉터 - 토큰 추가
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // 통합 토큰 유틸리티 사용
-    const token = getCurrentToken()
+    // 통합 토큰 유틸리티 사용 (Redux > memory > localStorage 순서)
+    const raw = getCurrentToken()
+    
+    // 토큰 정제: 따옴표 제거 및 trim (안전하게 처리)
+    let token: string | null = null
+    if (raw && typeof raw === 'string') {
+      token = String(raw).trim().replace(/^"(.*)"$/, '$1')
+      // 빈 문자열이거나 공백만 있는 경우 null로 처리
+      if (!token || token.length === 0) {
+        token = null
+      }
+    }
     
     // 토큰 상태 로깅
     logTokenStatus(token, 'Axios Interceptor')
@@ -144,19 +154,73 @@ instance.interceptors.request.use(
       hasHeaders: !!config.headers
     })
 
+    // 전체 URL 구성 (검증 도구 로깅용)
+    let fullUrlForLogging = ''
+    try {
+      if (typeof window !== 'undefined' && (window as any).verification?.addRequest) {
+        const method = config.method?.toUpperCase() || 'GET'
+        const baseURL = config.baseURL || instance.defaults.baseURL || ''
+        const urlPath = config.url || ''
+        fullUrlForLogging = urlPath.startsWith('http') ? urlPath : `${baseURL}${urlPath}`
+      }
+    } catch {
+      // URL 구성 실패 - 무시
+    }
+    
+    // Authorization 헤더 설정 (token이 유효한 경우만)
     if (token && typeof token === 'string' && config.headers) {
+      config.headers = config.headers || {}
       config.headers.Authorization = `Bearer ${token}`
       console.log('✅ [Axios Interceptor] Authorization 헤더 설정됨:', {
         hasAuthHeader: !!config.headers.Authorization,
-        authPreview: config.headers.Authorization ? `${config.headers.Authorization.substring(0, 30)}...` : '없음'
+        authPreview: config.headers.Authorization ? `${config.headers.Authorization.substring(0, 30)}...` : '없음',
+        tokenLength: token.length,
+        tokenFormat: token.startsWith('eyJ') ? 'JWT 형식' : '기타'
       })
-    } else {
+    }
+    
+    // 검증 도구에 요청 로깅 (모든 요청 추적, 토큰 유무와 관계없이)
+    // fullUrlForLogging이 비어있어도 URL 직접 구성 시도
+    let urlToLog = fullUrlForLogging
+    if (!urlToLog) {
+      const baseURL = config.baseURL || instance.defaults.baseURL || ''
+      const urlPath = config.url || ''
+      urlToLog = urlPath.startsWith('http') ? urlPath : `${baseURL}${urlPath}`
+    }
+    
+    if (urlToLog) {
+      try {
+        if (typeof window !== 'undefined' && (window as any).verification?.addRequest) {
+          const method = config.method?.toUpperCase() || 'GET'
+          console.log(`📡 [Axios Interceptor] 요청 로깅: ${method} ${urlToLog}`)
+          ;(window as any).verification.addRequest(urlToLog, method, {
+            Authorization: config.headers?.Authorization ? 'Bearer ***' : undefined
+          })
+        }
+      } catch (error) {
+        // verification 접근 실패 - 무시 (선택적 기능)
+        console.warn('⚠️ [Axios Interceptor] verification 로깅 실패:', error)
+      }
+    }
+    
+    if (!token || typeof token !== 'string' || !config.headers) {
       console.log('❌ [Axios Interceptor] 토큰이 없거나 헤더를 설정할 수 없음:', {
         hasToken: !!token,
         tokenType: typeof token,
         hasHeaders: !!config.headers,
-        tokenValue: token
+        tokenValue: token ? '***' : null
       })
+      
+      // 토큰 없이도 요청 로깅
+      try {
+        if (typeof window !== 'undefined' && (window as any).verification?.addRequest) {
+          const method = config.method?.toUpperCase() || 'GET'
+          const fullUrl = config.url || ''
+          (window as any).verification.addRequest(fullUrl, method)
+        }
+      } catch {
+        // 무시
+      }
     }
     
     return config

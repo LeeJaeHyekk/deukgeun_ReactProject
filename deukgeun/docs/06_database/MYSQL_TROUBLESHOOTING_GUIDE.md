@@ -47,16 +47,18 @@ Start-Service MySQL80
 #### MySQL 연결 (PowerShell 구문)
 ```powershell
 # PowerShell에서 실행 - 올바른 구문
-& "C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe" -u root -pDeukgeun6204_DB25
+& "C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe" -u root -p
 ```
+> 비밀번호 입력 프롬프트가 나타나면 환경 변수에 설정한 비밀번호를 입력하세요.
 
 또는
 
 ```powershell
-# 환경 변수 사용
-$env:DB_PASSWORD = "Deukgeun6204_DB25"
+# 환경 변수 사용 (보안상 권장하지 않음 - 비밀번호가 명령어 히스토리에 남을 수 있음)
+$env:DB_PASSWORD = "your_database_password_here"
 & "C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe" -u root -p$env:DB_PASSWORD
 ```
+> `your_database_password_here`는 실제 데이터베이스 비밀번호로 변경하세요.
 
 ### 방법 3: MySQL 재설치 (최후의 수단)
 
@@ -69,7 +71,7 @@ Remove-Service MySQL80
 
 #### 2. MySQL 8.4 재설치
 - [MySQL 8.4 다운로드](https://dev.mysql.com/downloads/mysql/)
-- 설치 시 루트 비밀번호를 `Deukgeun6204_DB25`로 설정
+- 설치 시 루트 비밀번호를 강력한 비밀번호로 설정 (환경 변수에 저장)
 
 ## 🔧 단계별 해결 과정
 
@@ -82,9 +84,10 @@ Start-Service MySQL80
 
 ### 2단계: 연결 테스트
 ```powershell
-# PowerShell에서 실행
-& "C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe" -u root -pDeukgeun6204_DB25 -e "SELECT 1;"
+# PowerShell에서 실행 (대화형 모드 권장)
+& "C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe" -u root -p -e "SELECT 1;"
 ```
+> 비밀번호 입력 프롬프트가 나타나면 환경 변수에 설정한 비밀번호를 입력하세요.
 
 ### 3단계: 데이터베이스 생성
 ```powershell
@@ -97,20 +100,23 @@ USE deukgeun_db;
 SHOW DATABASES;
 "@
 
-$sql | & "C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe" -u root -pDeukgeun6204_DB25
+$sql | & "C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe" -u root -p
 ```
+> 비밀번호 입력 프롬프트가 나타나면 환경 변수에 설정한 비밀번호를 입력하세요.
 
 ## 🚀 백엔드 서버 실행
 
 ### 환경 변수 설정 (PowerShell)
 ```powershell
-$env:DB_PASSWORD = "Deukgeun6204_DB25"
+$env:DB_PASSWORD = "your_database_password_here"
 $env:DB_HOST = "localhost"
 $env:DB_PORT = "3306"
 $env:DB_USERNAME = "root"
 $env:DB_NAME = "deukgeun_db"
 $env:NODE_ENV = "development"
 ```
+> `your_database_password_here`는 실제 데이터베이스 비밀번호로 변경하세요.
+> **주의**: PowerShell 명령어 히스토리에 비밀번호가 남을 수 있으므로, 환경 변수 파일(.env) 사용을 권장합니다.
 
 ### 서버 실행
 ```powershell

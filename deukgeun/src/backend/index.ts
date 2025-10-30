@@ -207,6 +207,15 @@ async function setupSafeRoutes(app: express.Application): Promise<void> {
       } catch (error) {
         console.warn("⚠️ Workout routes failed:", error)
       }
+
+      // Rewards routes
+      try {
+        const rewardsRoutes = await import("@backend/routes/rewards")
+        app.use("/api/rewards", rewardsRoutes.default)
+        console.log("✅ Rewards routes configured")
+      } catch (error) {
+        console.warn("⚠️ Rewards routes failed:", error)
+      }
     } else {
       console.log("⚠️ Database not connected, skipping database-dependent routes")
     }

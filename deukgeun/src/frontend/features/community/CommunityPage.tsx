@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useMemo } from "react"
+import { useEffect, useCallback, useMemo, useRef } from "react"
 import { showToast } from "@frontend/shared/lib"
 import { useAuthRedux } from "@frontend/shared/hooks/useAuthRedux"
 import { Navigation } from "@widgets/Navigation/Navigation"
@@ -70,8 +70,15 @@ export default function CommunityPage() {
     }
   }, [authLoading, fetchCategories])
 
+  // 게시글 로드 - 카테고리/검색어/정렬 변경 시
   useEffect(() => {
     if (!authLoading) {
+      console.log('📥 [CommunityPage] fetchPosts 호출 (카테고리/검색어/정렬 변경):', {
+        page: 1,
+        category: selectedCategory,
+        searchTerm,
+        sortBy,
+      })
       fetchPosts({
         page: 1,
         category: selectedCategory,
@@ -81,8 +88,22 @@ export default function CommunityPage() {
     }
   }, [authLoading, selectedCategory, searchTerm, sortBy, fetchPosts])
 
+  // 게시글 로드 - 페이지 변경 시 (카테고리 변경과 분리)
+  // 이전 currentPage 추적하여 실제 변경 시에만 fetchPosts 호출
+  const prevPageRef = useRef(currentPage)
   useEffect(() => {
-    if (!authLoading) {
+    const pageChanged = prevPageRef.current !== currentPage
+    
+    if (!authLoading && pageChanged && currentPage > 0) {
+      console.log('📥 [CommunityPage] fetchPosts 호출 (페이지 변경):', {
+        previousPage: prevPageRef.current,
+        currentPage,
+        category: selectedCategory,
+        searchTerm,
+        sortBy,
+        timestamp: new Date().toISOString()
+      })
+      prevPageRef.current = currentPage
       fetchPosts({
         page: currentPage,
         category: selectedCategory,
@@ -90,7 +111,7 @@ export default function CommunityPage() {
         sortBy,
       })
     }
-  }, [authLoading, currentPage, fetchPosts])
+  }, [authLoading, currentPage, selectedCategory, searchTerm, sortBy, fetchPosts])
 
   // 메모이제이션된 fetch 파라미터
   const fetchParams = useMemo(() => ({
@@ -106,15 +127,37 @@ export default function CommunityPage() {
     content: string
     category: string
   }) => {
+    console.log('📝 [CommunityPage] handleCreatePost 호출:', {
+      title: postData.title,
+      contentLength: postData.content?.length || 0,
+      category: postData.category,
+      timestamp: new Date().toISOString()
+    })
+
     // 입력 데이터 유효성 검사
-    if (!isValidString(postData.title) || !isValidString(postData.content)) {
+    const titleValid = isValidString(postData.title)
+    const contentValid = isValidString(postData.content)
+    
+    console.log('📝 [CommunityPage] 입력 데이터 유효성 검사:', {
+      titleValid,
+      contentValid,
+      titleLength: postData.title?.length || 0,
+      contentLength: postData.content?.length || 0
+    })
+    
+    if (!titleValid || !contentValid) {
+      console.error('❌ [CommunityPage] 입력 데이터 유효성 검사 실패')
       showToast('제목과 내용을 모두 입력해주세요.', 'error')
       return
     }
 
     try {
+      console.log('📝 [CommunityPage] createPost 호출 시작')
       const success = await createPost(postData)
+      console.log('📝 [CommunityPage] createPost 결과:', { success })
+      
       if (success) {
+        console.log('✅ [CommunityPage] 글쓰기 성공 - 모달 닫기 및 게시글 목록 새로고침')
         closeCreateModal()
         // 첫 페이지로 돌아가서 새 게시글 확인
         setCurrentPage(1)
@@ -124,8 +167,17 @@ export default function CommunityPage() {
           searchTerm,
           sortBy,
         })
+      } else {
+        console.warn('⚠️ [CommunityPage] 글쓰기 실패 (success가 false)')
       }
     } catch (error) {
+      console.error('❌ [CommunityPage] handleCreatePost 예외 발생:', {
+        error,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined,
+        postData,
+        timestamp: new Date().toISOString()
+      })
       logError('CommunityPage.handleCreatePost', error, { postData })
       showToast(getUserFriendlyMessage(error), 'error')
     }
@@ -176,8 +228,30 @@ export default function CommunityPage() {
   }, [isLoggedIn, availableCategories.length, openCreateModal])
 
   const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page)
-  }, [setCurrentPage])
+    console.log('📄 [CommunityPage] handlePageChange 호출:', {
+      requestedPage: page,
+      currentPage,
+      totalPages,
+      timestamp: new Date().toISOString()
+    })
+    
+    if (typeof page === 'number' && page > 0 && page <= totalPages) {
+      setCurrentPage(page)
+      // fetchPosts는 useEffect에서 currentPage 변경을 감지하여 자동으로 호출됨
+      console.log('📄 [CommunityPage] setCurrentPage 호출 완료:', {
+        newPage: page,
+        currentPage,
+        totalPages
+      })
+    } else {
+      console.warn('📄 [CommunityPage] 잘못된 페이지 번호:', {
+        page,
+        currentPage,
+        totalPages,
+        valid: typeof page === 'number' && page > 0 && page <= totalPages
+      })
+    }
+  }, [setCurrentPage, currentPage, totalPages])
 
   // 모달 렌더링 조건 메모이제이션
   const shouldShowCreateModal = useMemo(() => 

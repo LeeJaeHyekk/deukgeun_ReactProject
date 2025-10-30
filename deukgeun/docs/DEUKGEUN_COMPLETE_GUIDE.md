@@ -402,10 +402,11 @@ NODE_ENV=production
 PORT=4000
 DB_HOST=localhost
 DB_USER=root
-DB_PASSWORD=Deukgeun6204_DB25
+DB_PASSWORD=your_mysql_password_here
 DB_NAME=deukgeun
 JWT_SECRET=your_jwt_secret
 ```
+> `your_mysql_password_here`는 실제 데이터베이스 비밀번호로 변경하세요.
 
 #### 5️⃣ MySQL 설치 (로컬 DB 사용 시)
 ```bash

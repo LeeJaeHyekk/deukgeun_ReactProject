@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AppDispatch, RootState } from '@frontend/shared/store'
 import { incrementCommentCount, decrementCommentCount, setCommentCount } from '../posts/postsSlice'
 import axios from 'axios'
+import { getCurrentToken } from '@frontend/shared/utils/tokenUtils'
 
 export type Comment = {
   id: number
@@ -205,7 +206,7 @@ export const addCommentThunk = (postId: number, content: string) =>
       console.log('tempId:', tempId)
       
       // 토큰 상태 상세 확인
-      const token = localStorage.getItem('accessToken')
+      const token = getCurrentToken()
       console.log('🔐 [addCommentThunk] 토큰 상태:', {
         hasToken: !!token,
         tokenLength: token?.length || 0,
@@ -258,7 +259,7 @@ export const updateCommentThunk = (postId: number, commentId: number, content: s
       console.log('content:', content)
       
       // 토큰 상태 상세 확인
-      const token = localStorage.getItem('accessToken')
+      const token = getCurrentToken()
       console.log('🔐 [updateCommentThunk] 토큰 상태:', {
         hasToken: !!token,
         tokenLength: token?.length || 0,
@@ -311,7 +312,7 @@ export const deleteCommentThunk = (postId: number, commentId: number) =>
       console.log('commentId:', commentId, 'type:', typeof commentId)
       
       // 토큰 상태 상세 확인
-      const token = localStorage.getItem('accessToken')
+      const token = getCurrentToken()
       console.log('🔐 [deleteCommentThunk] 토큰 상태:', {
         hasToken: !!token,
         tokenLength: token?.length || 0,

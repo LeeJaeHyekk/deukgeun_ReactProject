@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { 
   login, 
@@ -43,8 +43,28 @@ export function useAuthRedux(): UseAuthReturn {
   const dispatch = useAppDispatch()
   const { isAuthenticated, user, isLoading, error, tokenRefreshTimer } = useAppSelector((state: any) => state.auth)
 
-  // 로그인 상태를 더 정확하게 판단
-  const isLoggedIn = isAuthenticated && user && user.id && user.accessToken
+  // 로그인 상태를 더 정확하게 판단 (Boolean으로 명시적 변환)
+  // && 연산자가 토큰 문자열을 반환하는 것을 방지하기 위해 !! 사용
+  const isLoggedIn = !!(isAuthenticated && user && user.id && user.accessToken)
+  
+  // 디버깅 로그는 최초 한 번만 또는 변경 시에만 출력 (과도한 로그 방지)
+  const prevIsLoggedInRef = useRef<boolean | null>(null)
+  useEffect(() => {
+    if (prevIsLoggedInRef.current !== isLoggedIn) {
+      prevIsLoggedInRef.current = isLoggedIn
+      // 로그인 상태가 변경될 때만 로그 출력
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔐 [useAuthRedux] 로그인 상태 변경:', {
+          isAuthenticated,
+          hasUser: !!user,
+          hasUserId: !!user?.id,
+          hasUserAccessToken: !!user?.accessToken,
+          isLoggedIn,
+          timestamp: new Date().toISOString()
+        })
+      }
+    }
+  }, [isAuthenticated, user, isLoggedIn])
 
   // 토큰 자동 갱신 설정 (만료 5분 전)
   const setupTokenRefresh = useCallback(

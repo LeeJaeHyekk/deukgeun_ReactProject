@@ -1,6 +1,7 @@
 import { PostCategoryInfo } from "../../../../shared/types"
 import { SortOption } from "../hooks/useCommunityFilters"
 import { useAuthRedux } from "@frontend/shared/hooks/useAuthRedux"
+import { showToast } from "@frontend/shared/lib"
 import styles from "./communityFilters.module.css"
 
 interface CommunityFiltersProps {
@@ -85,11 +86,22 @@ export function CommunityFilters({
           className={`${styles.createPostBtn} ${!isLoggedIn ? styles.disabled : ""}`}
           disabled={!isLoggedIn}
           onClick={() => {
+            console.log('📝 [CommunityFilters] 글쓰기 버튼 클릭:', {
+              isLoggedIn,
+              timestamp: new Date().toISOString()
+            })
+            
             if (isLoggedIn) {
+              console.log('✅ [CommunityFilters] 로그인 상태 확인됨 - onCreatePost 호출')
               onCreatePost()
             } else {
-              // 로그인 페이지로 리다이렉트
-              window.location.href = '/login'
+              console.error('❌ [CommunityFilters] 로그인되지 않음 - 글쓰기 버튼 클릭 차단:', {
+                isLoggedIn,
+                reason: 'isLoggedIn이 false',
+                timestamp: new Date().toISOString()
+              })
+              // 로그인 필요 토스트만 표시 (하드 리다이렉트 제거)
+              showToast('로그인이 필요합니다. 로그인 후 이용해주세요.', 'error')
             }
           }}
           title={!isLoggedIn ? "로그인이 필요합니다. 클릭하면 로그인 페이지로 이동합니다." : ""}

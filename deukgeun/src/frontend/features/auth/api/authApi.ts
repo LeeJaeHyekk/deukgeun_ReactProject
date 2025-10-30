@@ -142,7 +142,8 @@ export const authApi = {
       }
     }>(
       `${config.api.baseURL}${API_ENDPOINTS.AUTH.LOGIN}`,
-      data
+      data,
+      { withCredentials: true }
     )
     console.log('✅ 로그인 응답:', response)
     console.log('✅ 로그인 응답 데이터:', response.data)
@@ -182,7 +183,8 @@ export const authApi = {
       
       const response = await axios.post<BackendRegisterResponse>(
         fullUrl,
-        data
+        data,
+        { withCredentials: true }
       )
       console.log('✅ 회원가입 API 응답 성공:', response)
       console.log('✅ 응답 데이터:', response.data)
@@ -419,7 +421,13 @@ export const authApi = {
         {} // 빈 body, 쿠키는 자동으로 전송됨
       )
       console.log('✅ refreshToken API 성공:', response)
-      return response.data as unknown as RefreshResponse
+      // 백엔드 응답은 { success, message, data: { accessToken } } 형태
+      const dataAny = response.data as unknown as { success?: boolean; data?: { accessToken?: string } }
+      const accessToken = dataAny?.data?.accessToken
+      if (typeof accessToken === 'string' && accessToken.length > 0) {
+        return { accessToken } as unknown as RefreshResponse
+      }
+      throw new Error('Invalid refresh response shape')
     } catch (error: unknown) {
       console.error('❌ refreshToken API 실패:', error)
       console.error('❌ 에러 상세:', {

@@ -10,6 +10,10 @@ const REFRESH_TOKEN_SECRET =
   process.env.JWT_REFRESH_SECRET ||
   "default-refresh-secret-key-2024-development-only"
 
+// Centralized expiry durations (configurable via env)
+const ACCESS_TOKEN_EXPIRY = process.env.TOKEN_EXPIRY || "15m"
+const REFRESH_TOKEN_EXPIRY = process.env.REFRESH_EXPIRY || "7d"
+
 // Warn if using default secrets
 if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
   console.warn(
@@ -31,11 +35,11 @@ export function createTokens(
 ) {
   try {
     const accessToken = jwt.sign({ userId, role }, ACCESS_TOKEN_SECRET, {
-      expiresIn: "15m",
+      expiresIn: ACCESS_TOKEN_EXPIRY,
     })
 
     const refreshToken = jwt.sign({ userId }, REFRESH_TOKEN_SECRET, {
-      expiresIn: "7d",
+      expiresIn: REFRESH_TOKEN_EXPIRY,
     })
 
     return { accessToken, refreshToken }

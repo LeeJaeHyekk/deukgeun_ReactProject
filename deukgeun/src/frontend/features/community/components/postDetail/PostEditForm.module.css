@@ -95,3 +95,65 @@
   cursor: not-allowed;
   transform: none;
 }
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .editForm {
+    padding: 1.5rem;
+    margin: 0.75rem;
+    gap: 1.25rem;
+  }
+
+  .titleInput {
+    font-size: 1rem;
+    padding: 0.875rem;
+  }
+
+  .contentInput {
+    min-height: 8rem;
+    padding: 0.875rem;
+    font-size: 0.9375rem;
+  }
+
+  .editActions {
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .cancelButton,
+  .saveButton {
+    width: 100%;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .editForm {
+    padding: 1.25rem 1rem;
+    margin: 0.5rem;
+    gap: 1rem;
+  }
+
+  .titleInput {
+    font-size: 0.9375rem;
+    padding: 0.75rem;
+  }
+
+  .contentInput {
+    min-height: 7rem;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .editActions {
+    gap: 0.625rem;
+  }
+
+  .cancelButton,
+  .saveButton {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+  }
+}

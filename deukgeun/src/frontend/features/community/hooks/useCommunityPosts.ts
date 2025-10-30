@@ -11,6 +11,10 @@ import {
 } from '../../../shared/types'
 import { RootState, AppDispatch } from '@frontend/shared/store'
 import { setPosts as setPostsAction, setPagination, createPost as createPostThunk, fetchPosts as fetchPostsThunk } from '../posts/postsSlice'
+import { selectPostsPagination } from '../selectors/postsSelectors'
+import { isValidPostsApiResponse, isValidCategoriesApiResponse, isValidPost } from '../utils/typeGuards'
+import { safeLoadPosts, safeLoadCategories } from '../utils/postMappers'
+import { logError, getUserFriendlyMessage } from '../utils/errorHandlers'
 
 interface UseCommunityPostsProps {
   limit: number
@@ -37,30 +41,82 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
   // Redux store에서 posts 데이터 구독
   const reduxPosts = useSelector((state: RootState) => state.posts.entities)
   const reduxPostIds = useSelector((state: RootState) => state.posts.ids)
+  const reduxPagination = useSelector(selectPostsPagination)
 
-  // Redux store 변경사항을 로컬 state에 동기화
+  // Redux store 변경사항을 로컬 state에 동기화 (타입 가드 적용)
   useEffect(() => {
     if (reduxPostIds.length > 0) {
-      const updatedPosts = reduxPostIds.map(id => reduxPosts[id]).filter(Boolean)
-      console.log('🔄 [useCommunityPosts] Redux store 동기화:', {
-        reduxPostIds: reduxPostIds.length,
-        updatedPosts: updatedPosts.length,
-        firstPost: updatedPosts[0]
-      })
+      const updatedPosts = reduxPostIds
+        .map(id => reduxPosts[id])
+        .filter((post): post is CommunityPost => post !== null && post !== undefined && isValidPost(post))
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 [useCommunityPosts] Redux store 동기화:', {
+          reduxPostIds: reduxPostIds.length,
+          updatedPosts: updatedPosts.length,
+          firstPost: updatedPosts[0]
+        })
+      }
       setPosts(updatedPosts)
     }
   }, [reduxPosts, reduxPostIds])
 
-  // 카테고리 목록 가져오기
+  // Redux pagination 변경사항을 로컬 state에 동기화
+  useEffect(() => {
+    const reduxPage = reduxPagination.page || 1
+    const reduxTotalPages = reduxPagination.totalPages || 1
+    
+    if (reduxPage !== currentPage || reduxTotalPages !== totalPages) {
+      console.log('📄 [useCommunityPosts] Redux pagination 동기화:', {
+        previous: {
+          currentPage,
+          totalPages
+        },
+        redux: {
+          page: reduxPage,
+          totalPages: reduxTotalPages,
+          total: reduxPagination.total
+        },
+        willUpdate: reduxPage !== currentPage || reduxTotalPages !== totalPages,
+        timestamp: new Date().toISOString()
+      })
+      setCurrentPage(reduxPage)
+      setTotalPages(reduxTotalPages)
+    }
+  }, [reduxPagination, currentPage, totalPages])
+
+  // 카테고리 목록 가져오기 (타입 가드 및 예외 처리 강화)
   const fetchCategories = useCallback(async () => {
     try {
       const response = await postsApi.categories()
-      console.log('Categories API Response:', response.data)
-      const categories = response.data.data as PostCategoryInfo[]
-      setAvailableCategories(categories || [])
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Categories API Response:', response.data)
+      }
+      
+      // API 응답 타입 가드 적용
+      if (!isValidCategoriesApiResponse(response.data)) {
+        logError('fetchCategories', new Error('카테고리 API 응답이 유효하지 않습니다'), { response: response.data })
+        showToast('카테고리를 불러오는데 실패했습니다.', 'error')
+        setAvailableCategories([])
+        return
+      }
+      
+      // 안전한 매핑 함수 사용
+      const categories = safeLoadCategories(response.data)
+      
+      // 매핑된 카테고리를 PostCategoryInfo 형식으로 변환
+      const mappedCategories: PostCategoryInfo[] = categories.map(category => ({
+        id: typeof category.id === 'string' ? category.id : String(category.id),
+        name: category.name,
+        count: category.count
+      }))
+      
+      setAvailableCategories(mappedCategories)
     } catch (error: unknown) {
-      console.error('카테고리 로드 실패:', error)
-      showToast('카테고리를 불러오는데 실패했습니다.', 'error')
+      logError('fetchCategories', error)
+      showToast(getUserFriendlyMessage(error), 'error')
+      setAvailableCategories([])
     }
   }, [])
 
@@ -96,69 +152,56 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
           params.q = searchTerm.trim()
         }
 
-        console.log('Fetching posts with params:', params)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Fetching posts with params:', params)
+        }
+        
         const res = await postsApi.list(params)
 
-        console.log('Posts API Response:', res.data)
-
-        // API 응답 구조 확인 및 처리
-        const apiResponse = res.data as {
-          success: boolean
-          message: string
-          data?: {
-            posts: any[]
-            pagination: {
-              page: number
-              limit: number
-              total: number
-              totalPages: number
-            }
-          }
-          error?: string
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Posts API Response:', res.data)
         }
 
-        if (!apiResponse.success || !apiResponse.data) {
-          throw new Error(
-            apiResponse.message || '게시글을 불러오는데 실패했습니다.'
-          )
+        // API 응답 타입 가드 적용
+        if (!isValidPostsApiResponse(res.data)) {
+          throw new Error('게시글 API 응답이 유효하지 않습니다.')
         }
 
-        const { posts: rawPosts, pagination } = apiResponse.data
+        // 안전한 매핑 함수 사용
+        const { posts: mappedPosts, pagination: mappedPagination } = safeLoadPosts(res.data)
 
-        // API 응답 데이터를 안전하게 매핑
-        const mappedPosts = (rawPosts || []).map(post => {
-          console.log('Individual post:', post)
-          return {
-            id: post.id,
-            userId: post.user?.id || post.userId || 0,
-            title: post.title || '',
-            content: post.content || '',
-            author: post.user?.nickname || post.author || '익명',
-            category: post.category || '',
-            likeCount: post.like_count || post.likes || 0,
-            commentCount: post.comment_count || post.comments || 0,
-            viewsCount: post.views_count || post.views || 0,
-            createdAt:
-              post.createdAt || post.created_at || new Date().toISOString(),
-            updatedAt:
-              post.updatedAt || post.updated_at || new Date().toISOString(),
-          } as CommunityPost
-        })
-
-        // 로컬 state 업데이트
-        setPosts(mappedPosts)
-        setTotalPages(
-          pagination.totalPages || Math.ceil(pagination.total / limit)
-        )
-        setCurrentPage(page)
-
-        // Redux store에도 저장 (좋아요 상태 동기화를 위해)
+        // Redux store에 먼저 저장 (단일 진실의 원천 - Single Source of Truth)
         dispatch(setPostsAction(mappedPosts))
-        dispatch(setPagination({
-          page: page,
-          totalPages: pagination.totalPages || Math.ceil(pagination.total / limit),
-          total: pagination.total
-        }))
+        
+        if (mappedPagination) {
+          dispatch(setPagination({
+            page: page,
+            totalPages: mappedPagination.totalPages,
+            total: mappedPagination.total
+          }))
+          console.log('📄 [useCommunityPosts] Redux pagination 업데이트:', {
+            page,
+            totalPages: mappedPagination.totalPages,
+            total: mappedPagination.total,
+            timestamp: new Date().toISOString()
+          })
+        } else {
+          // pagination이 없는 경우 기본값 사용
+          dispatch(setPagination({
+            page: page,
+            totalPages: 1,
+            total: mappedPosts.length
+          }))
+          console.log('📄 [useCommunityPosts] Redux pagination 기본값 사용:', {
+            page,
+            totalPages: 1,
+            total: mappedPosts.length,
+            timestamp: new Date().toISOString()
+          })
+        }
+        
+        // 로컬 state는 Redux pagination 동기화 useEffect에서 자동 업데이트됨
+        // (중복 업데이트 방지 및 일관성 보장)
       } catch (error: unknown) {
         console.error('게시글 로드 실패:', error)
         showToast('게시글을 불러오는데 실패했습니다.', 'error')
@@ -173,24 +216,56 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
   // 새 게시글 작성
   const createPost = useCallback(
     async (postData: { title: string; content: string; category: string }) => {
+      console.log('📝 [useCommunityPosts] createPost 호출:', {
+        title: postData.title,
+        contentLength: postData.content?.length || 0,
+        category: postData.category,
+        timestamp: new Date().toISOString()
+      })
+
       // 인증 사전 검증
-      if (!ensureAuthenticated()) return false
+      console.log('🔐 [useCommunityPosts] ensureAuthenticated 호출 전')
+      const authResult = ensureAuthenticated()
+      console.log('🔐 [useCommunityPosts] ensureAuthenticated 결과:', authResult)
+      
+      if (!authResult) {
+        console.error('❌ [useCommunityPosts] ensureAuthenticated 실패 - 글쓰기 중단')
+        return false
+      }
 
       // 토큰 검증
+      console.log('🔐 [useCommunityPosts] validateTokenForAction 호출 전')
       const token = validateTokenForAction('createPost')
+      console.log('🔐 [useCommunityPosts] validateTokenForAction 결과:', {
+        hasToken: !!token,
+        tokenPreview: token ? `${token.substring(0, 20)}...` : '없음'
+      })
+      
       if (!token) {
-        showToast('로그인이 만료되었습니다. 다시 로그인해주세요.', 'error')
-        window.location.href = '/login'
+        console.error('❌ [useCommunityPosts] 토큰 검증 실패 - 글쓰기 중단')
+        showToast('로그인이 필요합니다. 로그인 후 이용해주세요.', 'error')
+        // 토스트만 표시, 자동 리다이렉트 없음 (사용자가 직접 로그인 페이지로 이동하도록)
         return false
       }
 
       try {
+        console.log('📝 [useCommunityPosts] createPostThunk dispatch 시작')
         await dispatch(createPostThunk(postData))
+        console.log('✅ [useCommunityPosts] createPostThunk 성공')
         showToast('게시글이 성공적으로 작성되었습니다.', 'success')
         return true
     } catch (error: unknown) {
-      console.error('게시글 작성 실패:', error)
-      if (handleAuthAwareError(error, (m,t='error')=>showToast(m,t))) return false
+      console.error('❌ [useCommunityPosts] 게시글 작성 실패:', {
+        error,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined,
+        postData,
+        timestamp: new Date().toISOString()
+      })
+      if (handleAuthAwareError(error, (m,t='error')=>showToast(m,t))) {
+        console.error('❌ [useCommunityPosts] 인증 관련 에러 처리됨')
+        return false
+      }
       showToast('게시글 작성에 실패했습니다.', 'error')
       return false
     }
@@ -230,12 +305,45 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
     }
   }, [])
 
+  // setCurrentPage를 Redux pagination을 업데이트하는 함수로 변경
+  const handleSetCurrentPage = useCallback((page: number) => {
+    console.log('📄 [useCommunityPosts] handleSetCurrentPage 호출:', {
+      requestedPage: page,
+      currentPage,
+      totalPages,
+      reduxPagination,
+      timestamp: new Date().toISOString()
+    })
+    
+    if (typeof page === 'number' && page > 0 && page <= totalPages) {
+      // Redux pagination 업데이트 (단일 진실의 원천)
+      dispatch(setPagination({
+        page,
+        totalPages: reduxPagination.totalPages || totalPages,
+        total: reduxPagination.total || 0
+      }))
+      console.log('📄 [useCommunityPosts] Redux pagination 업데이트 완료:', {
+        newPage: page,
+        totalPages: reduxPagination.totalPages || totalPages,
+        timestamp: new Date().toISOString()
+      })
+      // 로컬 상태는 useEffect에서 자동으로 동기화됨
+    } else {
+      console.warn('📄 [useCommunityPosts] 잘못된 페이지 번호:', {
+        page,
+        currentPage,
+        totalPages,
+        valid: typeof page === 'number' && page > 0 && page <= totalPages
+      })
+    }
+  }, [dispatch, currentPage, totalPages, reduxPagination])
+
   return {
     // 상태
     posts,
     loading,
-    currentPage,
-    totalPages,
+    currentPage, // Redux pagination과 동기화된 상태
+    totalPages,   // Redux pagination과 동기화된 상태
     availableCategories,
 
     // 액션
@@ -245,6 +353,6 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
     updatePost,
     deletePost,
     setPosts,
-    setCurrentPage,
+    setCurrentPage: handleSetCurrentPage, // Redux pagination을 업데이트하는 함수
   }
 }

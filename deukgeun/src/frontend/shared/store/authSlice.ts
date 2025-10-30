@@ -91,17 +91,7 @@ export const checkAutoLogin = createAsyncThunk(
         tokenValid: token ? isTokenValid(token) : false,
       })
 
-      // 1. localStorage에서 유효한 토큰 확인
-      if (token && storedUser && isTokenValid(token)) {
-        const validatedUser = validateUser(storedUser)
-        if (validatedUser) {
-          const userWithToken = { ...validatedUser, accessToken: token }
-          logger.debug('AUTH', '유효한 토큰으로 자동 로그인 성공')
-          return { user: userWithToken, token }
-        }
-      }
-
-      // 2. refresh token으로 갱신 시도
+      // 1. refresh token으로 갱신 시도 (쿠키 기반)
       if (storedUser) {
         const validatedUser = validateUser(storedUser)
         if (validatedUser) {
@@ -124,7 +114,7 @@ export const checkAutoLogin = createAsyncThunk(
         }
       }
 
-      // 3. 자동 로그인 실패
+      // 2. 자동 로그인 실패
       logger.debug('AUTH', '자동 로그인 실패')
       clearAllAuthData()
       return { user: null, token: null }

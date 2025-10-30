@@ -18,9 +18,9 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
     newComment,
     setNewComment,
     commentsLoading,
-    handleSubmitComment,
-    handleEditComment,
-    handleDeleteComment
+    addComment,
+    updateComment,
+    deleteComment
   } = useComments(postId)
   
   // 디버그 로그 추가
@@ -64,22 +64,16 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
       timestamp: new Date().toISOString()
     })
     
-    // 강력한 인증 검증
+    // 강력한 인증 검증: 페이지 이탈 대신 안내만
     if (!isLoggedIn || !user) {
       console.log('❌ [CommentsSection] 로그인되지 않은 사용자의 댓글 수정 시작 시도 차단')
-      showToast('로그인이 필요합니다. 로그인 페이지로 이동합니다.', 'error')
-      window.location.href = '/login'
+      showToast('로그인이 필요합니다. 로그인 후 이용해주세요.', 'error')
       return
     }
     
-    // 토큰 존재 확인
-    const token = localStorage.getItem('accessToken')
-    if (!token) {
-      console.log('❌ [CommentsSection] 토큰이 없는 사용자의 댓글 수정 시작 시도 차단')
-      showToast('로그인이 만료되었습니다. 다시 로그인해주세요.', 'error')
-      window.location.href = '/login'
-      return
-    }
+    // 토큰 존재 확인: 하드 리다이렉트 금지
+    // 토큰은 인터셉터에서 자동 갱신 시도됨. 여기서는 안내만.
+    // 추가 UX: 로그인 모달 열기 등을 연결 가능
     
     setEditingCommentId(commentId)
     setEditContent(currentContent)
@@ -103,25 +97,17 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
         timestamp: new Date().toISOString()
       })
       
-      // 강력한 인증 검증
+      // 강력한 인증 검증: 페이지 이탈 대신 안내만
       if (!isLoggedIn || !user) {
         console.log('❌ [CommentsSection] 로그인되지 않은 사용자의 댓글 수정 시도 차단')
-        showToast('로그인이 필요합니다. 로그인 페이지로 이동합니다.', 'error')
-        window.location.href = '/login'
+        showToast('로그인이 필요합니다. 로그인 후 이용해주세요.', 'error')
         return
       }
       
-      // 토큰 존재 확인
-      const token = localStorage.getItem('accessToken')
-      if (!token) {
-        console.log('❌ [CommentsSection] 토큰이 없는 사용자의 댓글 수정 시도 차단')
-        showToast('로그인이 만료되었습니다. 다시 로그인해주세요.', 'error')
-        window.location.href = '/login'
-        return
-      }
+      // 토큰 존재 확인: 인터셉터에 위임, 안내만 수행
       
       await handleCommentAction(async () => {
-        await handleEditComment(editingCommentId, editContent.trim())
+        await updateComment(editingCommentId, editContent.trim())
         setEditingCommentId(null)
         setEditContent('')
       })
@@ -137,26 +123,18 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
       timestamp: new Date().toISOString()
     })
     
-    // 강력한 인증 검증
+    // 강력한 인증 검증: 페이지 이탈 대신 안내만
     if (!isLoggedIn || !user) {
       console.log('❌ [CommentsSection] 로그인되지 않은 사용자의 댓글 삭제 시도 차단')
-      showToast('로그인이 필요합니다. 로그인 페이지로 이동합니다.', 'error')
-      window.location.href = '/login'
+      showToast('로그인이 필요합니다. 로그인 후 이용해주세요.', 'error')
       return
     }
     
-    // 토큰 존재 확인
-    const token = localStorage.getItem('accessToken')
-    if (!token) {
-      console.log('❌ [CommentsSection] 토큰이 없는 사용자의 댓글 삭제 시도 차단')
-      showToast('로그인이 만료되었습니다. 다시 로그인해주세요.', 'error')
-      window.location.href = '/login'
-      return
-    }
+    // 토큰 존재 확인: 인터셉터에 위임
     
     if (confirm('댓글을 삭제하시겠습니까?')) {
       await handleCommentAction(async () => {
-        await handleDeleteComment(commentId)
+        await deleteComment(commentId)
       })
     }
   }
@@ -177,7 +155,7 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
           <div className={styles.commentSubmitWrapper}>
             <button
               onClick={() => handleCommentAction(async () => {
-                await handleSubmitComment()
+                await addComment()
               })}
               className={styles.commentSubmitButton}
               disabled={!newComment.trim()}

@@ -2,7 +2,7 @@
 // 댓글 수 동기화 훅
 // ============================================================================
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '@frontend/shared/store'
 import { syncCommentCount } from '../posts/postsSlice'
@@ -71,9 +71,14 @@ export function useCommentCountSync() {
     const confirmedCount = commentsByPost[postId]?.length || 0
     const optimisticCount = optimisticTemp[postId]?.length || 0
 
-    if (!hasCommentsData) {
-      console.log('📥 [useCommentCountSync] 댓글 데이터 없음, 로드 시작:', postId)
-      loadCommentsForPost(postId)
+    if (!hasCommentsData && post.commentCount > 0) {
+      // 댓글이 있는 경우에만 lazy load (서버 commentCount 기준)
+      // 실제 댓글 데이터는 사용자가 포스트를 클릭할 때 로드됨
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📥 [useCommentCountSync] 댓글 데이터 없음 (lazy load 예약):', postId, '서버 댓글 수:', post.commentCount)
+      }
+      // lazy load: 포스트 클릭 시 로드되도록 예약만 함
+      // loadCommentsForPost(postId) // 주석 처리 - lazy loading
     } else {
       // 댓글 데이터가 있는 경우 동기화 확인
       const expectedCount = confirmedCount + optimisticCount
@@ -95,15 +100,41 @@ export function useCommentCountSync() {
     }
   }, [dispatch, commentsByPost, optimisticTemp, loadCommentsForPost])
 
+  // 이전 posts 객체 참조를 추적하여 실제 변경 시에만 처리
+  const prevPostsRef = useRef<typeof posts>({})
+  const processedPostsRef = useRef<Set<PostId>>(new Set())
+
   useEffect(() => {
-    // 각 포스트별로 댓글 데이터 확인 및 로드
+    // posts 객체가 실제로 변경되었는지 확인
+    const postsChanged = 
+      Object.keys(posts).length !== Object.keys(prevPostsRef.current).length ||
+      Object.keys(posts).some(postIdStr => {
+        const postId = parseInt(postIdStr)
+        return !prevPostsRef.current[postId] || prevPostsRef.current[postId] !== posts[postId]
+      })
+
+    if (!postsChanged) {
+      return // 변경사항이 없으면 스킵
+    }
+
+    // 새로 추가된 포스트만 처리 (이미 처리한 포스트는 제외)
     Object.keys(posts).forEach(postIdStr => {
       const postId = parseInt(postIdStr)
       const post = posts[postId]
       
-      if (isValidPostId(postId) && post) {
-        syncCommentCountForPost(postId, post)
+      if (isValidPostId(postId) && post && !processedPostsRef.current.has(postId)) {
+        // 댓글 데이터는 서버의 commentCount를 우선 사용하고, 
+        // 실제 댓글 데이터는 사용자가 포스트를 클릭할 때 lazy load
+        // 여기서는 동기화만 수행 (실제 댓글 로드는 하지 않음)
+        const hasCommentsData = commentsByPost[postId] !== undefined
+        if (hasCommentsData) {
+          // 이미 댓글 데이터가 있는 경우만 동기화
+          syncCommentCountForPost(postId, post)
+        }
+        processedPostsRef.current.add(postId)
       }
     })
-  }, [dispatch, posts, syncCommentCountForPost])
+
+    prevPostsRef.current = { ...posts }
+  }, [dispatch, posts, commentsByPost, syncCommentCountForPost])
 }

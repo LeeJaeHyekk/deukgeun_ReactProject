@@ -84,16 +84,28 @@ export function PostDetailModal({
     }
   }
 
-  // 게시글 수정
+  // 게시글 수정 (타입 가드 및 예외 처리 강화)
   const handleUpdatePost = async () => {
-    if (!onUpdate) return
+    if (!onUpdate) {
+      console.warn('PostDetailModal: onUpdate 핸들러가 없습니다.')
+      return
+    }
 
-    if (!editData.title.trim()) {
+    // post 객체 검증
+    if (!post || !post.id) {
+      showToast('게시글 정보가 유효하지 않습니다.', 'error')
+      return
+    }
+
+    // 입력 데이터 검증
+    const { isValidString } = await import('../../utils/typeGuards')
+    
+    if (!isValidString(editData.title)) {
       showToast('제목을 입력해주세요.', 'error')
       return
     }
 
-    if (!editData.content.trim()) {
+    if (!isValidString(editData.content)) {
       showToast('내용을 입력해주세요.', 'error')
       return
     }
@@ -102,16 +114,28 @@ export function PostDetailModal({
     try {
       await onUpdate(post.id, editData)
       setIsEditing(false)
+      showToast('게시글이 성공적으로 수정되었습니다.', 'success')
     } catch (error: unknown) {
+      const { getUserFriendlyMessage } = await import('../../utils/errorHandlers')
       console.error('게시글 수정 실패:', error)
+      showToast(getUserFriendlyMessage(error), 'error')
     } finally {
       setLoading(false)
     }
   }
 
-  // 게시글 삭제
+  // 게시글 삭제 (타입 가드 및 예외 처리 강화)
   const handleDeletePost = async () => {
-    if (!onDelete) return
+    if (!onDelete) {
+      console.warn('PostDetailModal: onDelete 핸들러가 없습니다.')
+      return
+    }
+
+    // post 객체 검증
+    if (!post || !post.id) {
+      showToast('게시글 정보가 유효하지 않습니다.', 'error')
+      return
+    }
 
     if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
       return
@@ -120,8 +144,11 @@ export function PostDetailModal({
     setLoading(true)
     try {
       await onDelete(post.id)
+      showToast('게시글이 성공적으로 삭제되었습니다.', 'success')
     } catch (error: unknown) {
+      const { getUserFriendlyMessage } = await import('../../utils/errorHandlers')
       console.error('게시글 삭제 실패:', error)
+      showToast(getUserFriendlyMessage(error), 'error')
     } finally {
       setLoading(false)
     }

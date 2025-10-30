@@ -22,7 +22,18 @@ const postsSlice = createSlice({
   reducers: {
     upsertPosts: postsAdapter.upsertMany,
     setPosts: (state, action: PayloadAction<Post[]>) => {
+      console.log('📝 [postsSlice] setPosts 실행:', {
+        previousCount: Object.keys(state.entities).length,
+        newCount: action.payload.length,
+        newPostIds: action.payload.map(p => p.id),
+        timestamp: new Date().toISOString()
+      })
       postsAdapter.setAll(state, action.payload)
+      console.log('📝 [postsSlice] setPosts 완료:', {
+        finalCount: Object.keys(state.entities).length,
+        finalIds: Object.keys(state.entities),
+        timestamp: new Date().toISOString()
+      })
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload
@@ -31,9 +42,37 @@ const postsSlice = createSlice({
       state.error = action.payload
     },
     setPagination: (state, action: PayloadAction<{ page: number; totalPages: number; total: number }>) => {
+      const previousPage = state.page
+      const previousTotalPages = state.totalPages
+      const previousTotal = state.total
+      
+      console.log('📄 [postsSlice] setPagination reducer 실행:', {
+        previous: {
+          page: previousPage,
+          totalPages: previousTotalPages,
+          total: previousTotal
+        },
+        new: {
+          page: action.payload.page,
+          totalPages: action.payload.totalPages,
+          total: action.payload.total
+        },
+        willChange: previousPage !== action.payload.page,
+        timestamp: new Date().toISOString()
+      })
+      
       state.page = action.payload.page
       state.totalPages = action.payload.totalPages
       state.total = action.payload.total
+      
+      console.log('📄 [postsSlice] setPagination reducer 완료:', {
+        final: {
+          page: state.page,
+          totalPages: state.totalPages,
+          total: state.total
+        },
+        timestamp: new Date().toISOString()
+      })
     },
     incLikeCount: (state, action: PayloadAction<{ postId: number }>) => {
       const { postId } = action.payload
@@ -135,45 +174,99 @@ export const {
 export { postsAdapter }
 export default postsSlice.reducer
 
-// Thunk: 게시글 목록 가져오기
+// Thunk: 게시글 목록 가져오기 (타입 가드 및 예외 처리 강화)
 export const fetchPosts = (params?: {
   category?: string
   page?: number
   limit?: number
-}) => async (dispatch: AppDispatch) => {
+}) => async (dispatch: AppDispatch, getState: () => any) => {
+  const currentState = getState()
+  const previousPagination = {
+    page: currentState.posts.page,
+    totalPages: currentState.posts.totalPages,
+    total: currentState.posts.total
+  }
+  
+  console.log('📥 [postsSlice] fetchPosts 시작:', {
+    params,
+    previousPagination,
+    timestamp: new Date().toISOString()
+  })
+  
   dispatch(setLoading(true))
   dispatch(setError(null))
   
   try {
-    console.log('📥 [postsSlice] fetchPosts 시작:', params)
     const response = await postsApi.list(params)
-    const data = response.data.data as {
-      posts: PostDTO[]
-      total: number
-      page: number
-      limit: number
+    
+    // API 응답 타입 가드 적용
+    const { isValidPostsApiResponse } = await import('../utils/typeGuards')
+    if (!isValidPostsApiResponse(response.data)) {
+      throw new Error('게시글 API 응답이 유효하지 않습니다.')
     }
     
-    console.log('📥 [postsSlice] API 응답 받음:', {
-      postsCount: data.posts.length,
-      total: data.total,
-      page: data.page
-    })
+    // 안전한 매핑 함수 사용
+    const { safeLoadPosts } = await import('../utils/postMappers')
+    const { posts: mappedPosts, pagination: mappedPagination } = safeLoadPosts(response.data)
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📥 [postsSlice] API 응답 받음:', {
+        postsCount: mappedPosts.length,
+        pagination: mappedPagination
+      })
+    }
     
     // commentCount 기본값 보장하여 초기 싱크 문제 해결
     dispatch(setPosts(
-      data.posts.map(p => ({ ...p, commentCount: p.commentCount ?? 0 }))
+      mappedPosts.map(p => ({ ...p, commentCount: p.commentCount ?? 0 }))
     ))
-    dispatch(setPagination({
-      page: data.page,
-      totalPages: Math.ceil(data.total / data.limit),
-      total: data.total
-    }))
     
-    console.log('📥 [postsSlice] posts 상태 업데이트 완료')
+    // pagination 업데이트
+    if (mappedPagination) {
+      const newPagination = {
+        page: mappedPagination.page,
+        totalPages: mappedPagination.totalPages,
+        total: mappedPagination.total
+      }
+      console.log('📄 [postsSlice] Pagination 업데이트:', {
+        previous: previousPagination,
+        new: newPagination,
+        requestedParams: params,
+        willUpdate: previousPagination.page !== newPagination.page || 
+                     previousPagination.totalPages !== newPagination.totalPages,
+        timestamp: new Date().toISOString()
+      })
+      dispatch(setPagination(newPagination))
+    } else {
+      // pagination이 없는 경우 기본값 사용
+      const limit = params?.limit || 12
+      const fallbackPagination = {
+        page: params?.page || 1,
+        totalPages: Math.ceil(mappedPosts.length / limit),
+        total: mappedPosts.length
+      }
+      console.log('📄 [postsSlice] Pagination 기본값 사용:', {
+        fallback: fallbackPagination,
+        requestedParams: params,
+        postsCount: mappedPosts.length,
+        timestamp: new Date().toISOString()
+      })
+      dispatch(setPagination(fallbackPagination))
+    }
+    
+    console.log('📥 [postsSlice] posts 상태 업데이트 완료:', {
+      postsCount: mappedPosts.length,
+      pagination: mappedPagination || {
+        page: params?.page || 1,
+        totalPages: Math.ceil(mappedPosts.length / (params?.limit || 12)),
+        total: mappedPosts.length
+      },
+      timestamp: new Date().toISOString()
+    })
   } catch (error: any) {
+    const { getUserFriendlyMessage } = await import('../utils/errorHandlers')
     console.error('❌ [postsSlice] fetchPosts 실패:', error)
-    dispatch(setError(error.message || '게시글을 불러오는데 실패했습니다.'))
+    dispatch(setError(getUserFriendlyMessage(error)))
   } finally {
     dispatch(setLoading(false))
   }
@@ -186,19 +279,67 @@ export const createPost = (postData: {
   category: string
 }) => async (dispatch: AppDispatch, getState: () => any) => {
   try {
-    console.log('📝 [postsSlice] createPost 시작:', postData)
+    console.log('📝 [postsSlice] createPost 시작:', {
+      title: postData.title,
+      contentLength: postData.content?.length || 0,
+      category: postData.category,
+      timestamp: new Date().toISOString()
+    })
+    
+    // Redux 상태 확인
+    const state = getState()
+    console.log('📝 [postsSlice] Redux 상태:', {
+      auth: {
+        isLoggedIn: state?.auth?.isLoggedIn,
+        hasUser: !!state?.auth?.user,
+        userId: state?.auth?.user?.id || state?.auth?.user?.userId || null,
+        userEmail: state?.auth?.user?.email || null,
+        hasAccessToken: !!state?.auth?.accessToken,
+        accessTokenPreview: state?.auth?.accessToken ? `${String(state?.auth?.accessToken).substring(0, 20)}...` : '없음'
+      }
+    })
     
     // 토큰 검증
+    console.log('🔐 [postsSlice] validateTokenForAction 호출 전')
     const token = validateTokenForAction('createPost')
+    console.log('🔐 [postsSlice] validateTokenForAction 결과:', {
+      hasToken: !!token,
+      tokenPreview: token ? `${token.substring(0, 20)}...` : '없음',
+      tokenLength: token?.length || 0
+    })
+    
     if (!token) {
+      console.error('❌ [postsSlice] 토큰 검증 실패 - 에러 발생')
       throw new Error('로그인이 필요합니다. 다시 로그인해주세요.')
     }
     
+    console.log('📡 [postsSlice] postsApi.create 호출 시작:', {
+      url: '/api/posts',
+      method: 'POST',
+      data: { title: postData.title, contentLength: postData.content?.length || 0, category: postData.category }
+    })
     const response = await postsApi.create(postData)
+    console.log('📡 [postsSlice] postsApi.create 응답 받음:', {
+      status: response.status,
+      hasData: !!response.data,
+      success: response.data?.success,
+      message: response.data?.message
+    })
     
-    // 서버 응답에서 data 추출 및 id 검증
-    const newPost = response.data?.data
-    if (!newPost || !newPost.id) {
+    // 서버 응답 타입 가드 적용
+    if (!response?.data?.success || !response.data.data) {
+      throw new Error(response?.data?.message || '서버에서 게시글을 반환하지 않았습니다.')
+    }
+    
+    // 서버 응답에서 data 추출 및 타입 검증
+    const newPost = response.data.data
+    const { isValidPost } = await import('../utils/typeGuards')
+    
+    if (!isValidPost(newPost)) {
+      throw new Error('서버에서 반환된 게시글이 유효하지 않습니다.')
+    }
+    
+    if (!newPost.id) {
       throw new Error('서버에서 게시글 ID를 반환하지 않았습니다.')
     }
     
@@ -218,15 +359,42 @@ export const createPost = (postData: {
   }
 }
 
-// Thunk: 게시글 수정
+// Thunk: 게시글 수정 (타입 가드 및 예외 처리 강화)
 export const updatePostThunk = (postId: number, updateData: {
   title: string
   content: string
   category: string
 }) => async (dispatch: AppDispatch) => {
   try {
+    // 입력 데이터 검증
+    const { isValidPostId, isValidString } = await import('../utils/typeGuards')
+    
+    if (!isValidPostId(postId)) {
+      throw new Error('유효하지 않은 게시글 ID입니다.')
+    }
+    
+    if (!isValidString(updateData.title) || !isValidString(updateData.content) || !isValidString(updateData.category)) {
+      throw new Error('게시글 제목, 내용, 카테고리를 모두 입력해주세요.')
+    }
+    
     console.log('✏️ [postsSlice] updatePost 시작:', { postId, updateData })
     const response = await postsApi.update(postId, updateData)
+    
+    // 응답 검증
+    if (!response?.data?.success || !response.data.data) {
+      throw new Error(response?.data?.message || '게시글 수정에 실패했습니다.')
+    }
+    
+    const updatedPost = response.data.data
+    const { isValidPost } = await import('../utils/typeGuards')
+    
+    if (!isValidPost(updatedPost)) {
+      throw new Error('서버에서 반환된 게시글이 유효하지 않습니다.')
+    }
+    
+    // Redux 상태 업데이트
+    dispatch(upsertPosts([updatedPost]))
+    
     console.log('✏️ [postsSlice] updatePost 성공')
     return response
   } catch (error: any) {
@@ -235,11 +403,24 @@ export const updatePostThunk = (postId: number, updateData: {
   }
 }
 
-// Thunk: 게시글 삭제
+// Thunk: 게시글 삭제 (타입 가드 및 예외 처리 강화)
 export const deletePost = (postId: number) => async (dispatch: AppDispatch) => {
   try {
+    // 입력 데이터 검증
+    const { isValidPostId } = await import('../utils/typeGuards')
+    
+    if (!isValidPostId(postId)) {
+      throw new Error('유효하지 않은 게시글 ID입니다.')
+    }
+    
     console.log('🗑️ [postsSlice] deletePost 시작:', postId)
-    await postsApi.remove(postId)
+    const response = await postsApi.remove(postId)
+    
+    // 응답 검증
+    if (!response?.data?.success) {
+      throw new Error(response?.data?.message || '게시글 삭제에 실패했습니다.')
+    }
+    
     dispatch(removePost(postId))
     console.log('🗑️ [postsSlice] deletePost 성공')
   } catch (error: any) {

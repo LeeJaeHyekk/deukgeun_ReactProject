@@ -104,3 +104,92 @@ export function isEmptyObject(obj: any): boolean {
 export function isValidError(error: any): error is Error {
   return error instanceof Error || (error && typeof error.message === 'string')
 }
+
+/**
+ * 게시글(Post) 객체가 유효한지 확인
+ */
+export function isValidPost(post: any): boolean {
+  return (
+    post &&
+    typeof post === 'object' &&
+    isValidNumber(post.id) &&
+    isValidNumber(post.userId) &&
+    isValidString(post.title) &&
+    isValidString(post.content) &&
+    (post.category === undefined || isValidString(post.category)) &&
+    (post.likeCount === undefined || isValidNumber(post.likeCount)) &&
+    (post.commentCount === undefined || isValidNumber(post.commentCount))
+  )
+}
+
+/**
+ * Pagination 객체가 유효한지 확인
+ */
+export function isValidPagination(pagination: any): boolean {
+  return (
+    pagination &&
+    typeof pagination === 'object' &&
+    isValidNumber(pagination.page) &&
+    isValidNumber(pagination.limit) &&
+    isValidNumber(pagination.total) &&
+    pagination.page > 0 &&
+    pagination.limit > 0 &&
+    pagination.total >= 0
+  )
+}
+
+/**
+ * 카테고리(Category) 객체가 유효한지 확인
+ */
+export function isValidCategory(category: any): boolean {
+  return (
+    category &&
+    typeof category === 'object' &&
+    isValidString(category.name) &&
+    (category.id === undefined || isValidNumber(category.id) || isValidString(category.id)) &&
+    (category.count === undefined || isValidNumber(category.count))
+  )
+}
+
+/**
+ * 게시글 목록 API 응답이 유효한지 확인
+ */
+export function isValidPostsApiResponse(response: any): boolean {
+  if (!isValidApiResponse(response)) {
+    return false
+  }
+  
+  if (!response.data || typeof response.data !== 'object') {
+    return false
+  }
+  
+  const data = response.data
+  
+  // posts 배열 검증
+  if (data.posts !== undefined && !isValidArray(data.posts)) {
+    return false
+  }
+  
+  // pagination 검증
+  if (data.pagination !== undefined && !isValidPagination(data.pagination)) {
+    return false
+  }
+  
+  return true
+}
+
+/**
+ * 카테고리 목록 API 응답이 유효한지 확인
+ */
+export function isValidCategoriesApiResponse(response: any): boolean {
+  if (!isValidApiResponse(response)) {
+    return false
+  }
+  
+  if (!response.data || !isValidArray(response.data)) {
+    return false
+  }
+  
+  // 모든 카테고리가 유효한지 확인
+  return response.data.every((category: any) => isValidCategory(category))
+}

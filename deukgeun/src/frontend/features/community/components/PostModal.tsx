@@ -22,41 +22,75 @@ export function PostModal({ onClose, onSubmit, categories }: PostModalProps) {
   })
   const [loading, setLoading] = useState(false)
 
-  // categories가 변경될 때 초기 카테고리 업데이트
+  // categories가 변경될 때 초기 카테고리 업데이트 (타입 가드 적용)
   useEffect(() => {
-    if (categories && categories.length > 0 && !formData.category) {
-      setFormData(prev => ({
-        ...prev,
-        category: categories[0].name,
-      }))
+    if (categories && Array.isArray(categories) && categories.length > 0 && !formData.category) {
+      const firstCategory = categories[0]
+      if (firstCategory && typeof firstCategory === 'object' && firstCategory.name) {
+        setFormData(prev => ({
+          ...prev,
+          category: firstCategory.name,
+        }))
+      }
     }
   }, [categories, formData.category])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!formData.title.trim()) {
+    console.log('📝 [PostModal] handleSubmit 호출:', {
+      title: formData.title,
+      contentLength: formData.content?.length || 0,
+      category: formData.category,
+      timestamp: new Date().toISOString()
+    })
+
+    // 입력 데이터 유효성 검사
+    const hasTitle = !!formData.title.trim()
+    const hasContent = !!formData.content.trim()
+    const hasCategory = !!formData.category
+
+    console.log('📝 [PostModal] 입력 데이터 유효성 검사:', {
+      hasTitle,
+      hasContent,
+      hasCategory,
+      titleLength: formData.title?.length || 0,
+      contentLength: formData.content?.length || 0
+    })
+
+    if (!hasTitle) {
+      console.error('❌ [PostModal] 제목 없음')
       showToast("제목을 입력해주세요.", "error")
       return
     }
 
-    if (!formData.content.trim()) {
+    if (!hasContent) {
+      console.error('❌ [PostModal] 내용 없음')
       showToast("내용을 입력해주세요.", "error")
       return
     }
 
-    if (!formData.category) {
+    if (!hasCategory) {
+      console.error('❌ [PostModal] 카테고리 없음')
       showToast("카테고리를 선택해주세요.", "error")
       return
     }
 
+    console.log('✅ [PostModal] 입력 데이터 유효성 검사 통과 - onSubmit 호출')
     setLoading(true)
     try {
       await onSubmit(formData)
+      console.log('✅ [PostModal] onSubmit 성공 - 모달 닫기')
       // 성공 시에만 모달 닫기
       onClose()
     } catch (error: unknown) {
-      console.error("게시글 작성 실패:", error)
+      console.error('❌ [PostModal] onSubmit 실패:', {
+        error,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined,
+        formData,
+        timestamp: new Date().toISOString()
+      })
       // 에러 발생 시 모달은 열린 상태로 유지
     } finally {
       setLoading(false)

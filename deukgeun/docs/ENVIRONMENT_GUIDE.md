@@ -69,7 +69,7 @@ src/backend/
 - `DB_HOST=localhost`
 - `DB_PORT=3306`
 - `DB_USERNAME=root`
-- `DB_PASSWORD=deukgeun6204`
+- `DB_PASSWORD=your_database_password_here`
 - `DB_NAME=deukgeun_db`
 
 ### 프로덕션 환경

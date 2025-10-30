@@ -86,8 +86,9 @@ export async function login(
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax", // localhost 간 통신을 위해 lax로 변경
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .json({
         success: true,
@@ -185,8 +186,9 @@ export async function refreshToken(
       .cookie("refreshToken", newRefreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax", // localhost 간 통신을 위해 lax로 변경
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .json({
         success: true,
@@ -239,7 +241,7 @@ export async function logout(
       path: "/",
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax"
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
     })
 
     res.json({
@@ -641,8 +643,9 @@ export const register = async (
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: (process.env.NODE_ENV as string) === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+        sameSite: (process.env.NODE_ENV as string) === "production" ? "none" : "lax",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .status(201)
       .json(responseData)

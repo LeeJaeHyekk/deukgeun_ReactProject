@@ -1,0 +1,110 @@
+/* ============================================================================
+   Pagination - 페이지네이션 스타일
+   ============================================================================ */
+
+.pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1rem);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  margin-top: clamp(1rem, 3vw, 1.5rem);
+}
+
+.info {
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
+  color: var(--workout-text-secondary);
+  font-weight: 500;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.25rem, 1vw, 0.5rem);
+}
+
+.navButton,
+.pageButton {
+  min-width: clamp(2rem, 5vw, 2.5rem);
+  height: clamp(2rem, 5vw, 2.5rem);
+  padding: 0;
+  border: 1px solid var(--workout-card-border);
+  border-radius: var(--workout-radius-md);
+  background: var(--workout-card-bg);
+  color: var(--workout-text-primary);
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--workout-transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navButton {
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  line-height: 1;
+}
+
+.navButton:hover:not(:disabled) {
+  background: var(--workout-primary);
+  color: white;
+  border-color: var(--workout-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--workout-card-shadow);
+}
+
+.navButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pageButton {
+  font-weight: 600;
+}
+
+.pageButton:hover:not(.active) {
+  background: var(--workout-glass-bg);
+  border-color: var(--workout-primary);
+  color: var(--workout-primary);
+  transform: translateY(-2px);
+}
+
+.pageButton.active {
+  background: var(--workout-primary);
+  color: white;
+  border-color: var(--workout-primary);
+  box-shadow: var(--workout-btn-primary-shadow);
+  font-weight: 700;
+}
+
+.pageNumbers {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.25rem, 1vw, 0.5rem);
+}
+
+.ellipsis {
+  padding: 0 clamp(0.5rem, 1.5vw, 0.75rem);
+  color: var(--workout-text-tertiary);
+  font-weight: 600;
+  user-select: none;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .pagination {
+    padding: clamp(0.75rem, 2vw, 1rem);
+  }
+
+  .navButton,
+  .pageButton {
+    min-width: clamp(2.25rem, 6vw, 2.5rem);
+    height: clamp(2.25rem, 6vw, 2.5rem);
+  }
+
+  .pageNumbers {
+    gap: clamp(0.125rem, 0.5vw, 0.25rem);
+  }
+}
+

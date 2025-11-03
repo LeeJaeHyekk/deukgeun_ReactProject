@@ -12,8 +12,9 @@ export class UserTransformer {
       email: entity.email,
       nickname: entity.nickname,
       phone: entity.phone,
+      phoneNumber: entity.phone, // 호환성을 위해 phoneNumber도 설정
       gender: entity.gender,
-      birthDate: entity.birthday,
+      birthDate: entity.birthday, // birthday → birthDate 변환
       profileImage: entity.profileImage,
       role: entity.role,
       isActive: entity.isActive,

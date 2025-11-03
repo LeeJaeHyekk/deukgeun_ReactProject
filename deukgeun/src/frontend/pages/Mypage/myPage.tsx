@@ -1,151 +1,303 @@
-import React, { useState, useEffect, memo, useMemo, useCallback } from "react"
+// ============================================================================
+// MyPage Component - 모듈화 및 최적화 버전
+// ============================================================================
+
+import React, { memo, useCallback, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useSelector } from "react-redux"
 import { useAuthRedux } from "@frontend/shared/hooks/useAuthRedux"
+import { useLevel } from "@frontend/shared/hooks/useLevel"
 import { LevelDisplay } from "@frontend/shared/components/LevelDisplay"
 import { Navigation } from "@widgets/Navigation/Navigation"
-import type { User } from "../../../shared/types"
+import { selectCompletedWorkouts, selectWorkoutStatus, selectWorkoutError } from "@frontend/features/workout/selectors/workoutSelectors"
+import { fetchGoalsFromBackend } from "@frontend/features/workout/slices/workoutSlice"
+import { useAppDispatch } from "@frontend/shared/store/hooks"
+import { LoadingState, ErrorState } from "@frontend/features/workout/components/common"
+import { calculateLevelFromTotalExp } from "@frontend/shared/utils/levelUtils"
+import { useUserInfo, useWorkoutStats, useMyPageInitialization, useUserExp } from "./hooks"
+import { InfoItem, ActionButton, StatsCard } from "./components"
 import styles from "./MyPage.module.css"
-
-// 타입 정의
-interface UserInfo {
-  nickname: string
-  email: string
-  phone?: string
-  gender?: string
-  birthday?: string
-  createdAt?: string
-}
 
 interface MyPageProps {
   className?: string
 }
 
-// Zustand selector 최적화
-
-// 메모이제이션된 컴포넌트들
-const InfoItem = memo(
-  ({ label, value, icon }: { label: string; value: string | undefined; icon?: string }) => (
-    <div className={styles.infoItem}>
-      <div className={styles.infoHeader}>
-        {icon && <span className={styles.infoIcon}>{icon}</span>}
-        <p className={styles.label}>{label}</p>
-      </div>
-      <p className={styles.value}>{value || "미등록"}</p>
-    </div>
-  )
-)
-
-const ActionButton = memo(
-  ({
-    children,
-    onClick,
-    variant = "primary",
-    icon,
-  }: {
-    children: React.ReactNode
-    onClick?: () => void
-    variant?: "primary" | "secondary" | "danger"
-    icon?: string
-  }) => (
-    <button
-      className={`${styles.actionBtn} ${styles[variant]}`}
-      onClick={onClick}
-    >
-      {icon && <span className={styles.buttonIcon}>{icon}</span>}
-      {children}
-    </button>
-  )
-)
-
-const StatsCard = memo(
-  ({
-    title,
-    value,
-    subtitle,
-    icon,
-  }: {
-    title: string
-    value: string
-    subtitle?: string
-    icon?: string
-  }) => (
-    <div className={styles.statsCard}>
-      <div className={styles.statsHeader}>
-        {icon && <span className={styles.statsIcon}>{icon}</span>}
-        <h4 className={styles.statsTitle}>{title}</h4>
-      </div>
-      <div className={styles.statsValue}>{value}</div>
-      {subtitle && <p className={styles.statsSubtitle}>{subtitle}</p>}
-    </div>
-  )
-)
-
 function MyPage({ className }: MyPageProps) {
   const navigate = useNavigate()
-  const { user, logout } = useAuthRedux()
-
-  // 사용자 정보 메모이제이션 (성능 최적화)
-  const userInfo = useMemo((): UserInfo => {
-    return {
-      nickname: user?.nickname || "사용자",
-      email: user?.email || "이메일 없음",
-      phone: user?.phone || "미등록",
-      gender:
-        user?.gender === "male"
-          ? "남성"
-          : user?.gender === "female"
-            ? "여성"
-            : "미등록",
-      birthday: user?.birthDate
-        ? new Date(user.birthDate).toLocaleDateString()
-        : "미등록",
-      createdAt: user?.createdAt
-        ? new Date(user.createdAt).toLocaleDateString()
-        : "미등록",
+  const dispatch = useAppDispatch()
+  const { user, logout, isLoggedIn } = useAuthRedux()
+  
+  // Redux 상태
+  const completedWorkouts = useSelector(selectCompletedWorkouts) || []
+  const workoutStatus = useSelector(selectWorkoutStatus)
+  const workoutError = useSelector(selectWorkoutError)
+  
+  // 커스텀 훅 사용
+  const { levelProgress, fetchLevelProgress, error: levelError, isLoading: isLevelLoading } = useLevel()
+  const { isInitializing, initializationError, setInitializationError } = useMyPageInitialization(user?.id, isLoggedIn)
+  const userInfo = useUserInfo(user)
+  const userTotalExp = useUserExp(levelProgress, completedWorkouts)
+  const workoutStats = useWorkoutStats(completedWorkouts)
+  
+  // 새로고침 상태
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  
+  // 레벨 정보 계산
+  const levelInfo = React.useMemo(() => {
+    try {
+      if (typeof userTotalExp !== 'number' || isNaN(userTotalExp) || userTotalExp < 0) {
+        return calculateLevelFromTotalExp(0)
+      }
+      return calculateLevelFromTotalExp(userTotalExp)
+    } catch (error) {
+      console.error('❌ [MyPage] 레벨 계산 오류:', error)
+      return calculateLevelFromTotalExp(0)
     }
-  }, [user])
+  }, [userTotalExp])
 
-  // 로그아웃 핸들러 메모이제이션
+  // 데이터 새로고침 핸들러 (순차 처리로 rate limit 방지)
+  const handleRefresh = useCallback(async () => {
+    if (!user?.id || !isLoggedIn) return
+    
+    setIsRefreshing(true)
+    setInitializationError(null)
+    
+    try {
+      // 순차 처리로 rate limit 방지
+      // 1. 레벨 정보 새로고침
+      await fetchLevelProgress()
+      
+      // 2. 요청 간 간격 추가 (rate limit 방지)
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // 3. 운동 목표 목록 로드
+      await dispatch(fetchGoalsFromBackend(user.id)).unwrap()
+      
+      console.log('✅ [MyPage] 데이터 새로고침 성공')
+    } catch (error: any) {
+      console.error('❌ [MyPage] 데이터 새로고침 실패:', error)
+      const errorMessage = error?.message || error?.response?.data?.message || '데이터를 불러오는데 실패했습니다.'
+      setInitializationError(errorMessage)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }, [user?.id, isLoggedIn, fetchLevelProgress, dispatch, setInitializationError])
+
+  // 핸들러 함수들
+  const handleViewWorkoutHistory = useCallback(() => {
+    try {
+      navigate("/workout", { state: { tab: "completed" } })
+    } catch (error) {
+      console.error('❌ [MyPage] 운동 기록 페이지 이동 실패:', error)
+      navigate("/workout?tab=completed")
+    }
+  }, [navigate])
+
   const handleLogout = useCallback(async () => {
     try {
+      const confirmed = window.confirm("정말 로그아웃하시겠습니까?")
+      if (!confirmed) return
+      
       await logout()
-      console.log("로그아웃 성공")
+      console.log("✅ 로그아웃 성공")
+      navigate("/")
     } catch (error) {
-      console.error("로그아웃 실패:", error)
+      console.error("❌ 로그아웃 실패:", error)
+      alert("로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.")
     }
-  }, [logout])
+  }, [logout, navigate])
 
-  // 회원정보 수정 핸들러
   const handleEditProfile = useCallback(() => {
-    navigate("/profile/edit")
-  }, [navigate])
-
-  // 운동 기록 보기 핸들러
-  const handleViewWorkoutHistory = useCallback(() => {
-    navigate("/workout/history")
-  }, [navigate])
-
-  // 운동 진행상황 보기 핸들러
-  const handleViewProgress = useCallback(() => {
-    navigate("/workout/progress")
-  }, [navigate])
-
-  // 설정 페이지 핸들러
-  const handleSettings = useCallback(() => {
-    navigate("/settings")
-  }, [navigate])
-
-  // 계정 삭제 핸들러
-  const handleDeleteAccount = useCallback(() => {
-    if (
-      window.confirm(
-        "정말로 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
-      )
-    ) {
-      // TODO: 계정 삭제 API 호출
-      console.log("계정 삭제 요청")
+    try {
+      navigate("/profile/edit")
+    } catch (error) {
+      console.error('❌ [MyPage] 회원정보 수정 페이지 이동 실패:', error)
+      alert("회원정보 수정 페이지로 이동할 수 없습니다.")
     }
-  }, [])
+  }, [navigate])
+  
+  // 에러 상태 처리
+  if (!isLoggedIn || !user) {
+    return (
+      <div className={styles.pageWrapper}>
+        <Navigation />
+        <div className={`${styles.wrapper} ${className || ""}`}>
+          <ErrorState 
+            message="로그인이 필요합니다." 
+            onRetry={() => navigate("/login")}
+          />
+        </div>
+      </div>
+    )
+  }
+  
+  // 로딩/에러 상태 계산 (메모이제이션 - 렌더링 최적화)
+  const isLoading = React.useMemo(
+    () => isInitializing || isLevelLoading || workoutStatus === "loading",
+    [isInitializing, isLevelLoading, workoutStatus]
+  )
+  
+  const hasError = React.useMemo(
+    () => !!(initializationError || workoutError || levelError),
+    [initializationError, workoutError, levelError]
+  )
+  
+  const errorMessage = React.useMemo(
+    () => initializationError || workoutError || levelError || "데이터를 불러오는데 실패했습니다.",
+    [initializationError, workoutError, levelError]
+  )
+  
+  // 레벨 디스플레이 컴포넌트 메모이제이션 (hooks 규칙 준수를 위해 컴포넌트 최상위에서 호출)
+  const levelDisplayContent = React.useMemo(() => {
+    if (!levelInfo || typeof levelInfo !== 'object') {
+      return <ErrorState message="레벨 정보를 불러올 수 없습니다." onRetry={handleRefresh} />
+    }
+    
+    return (
+      <LevelDisplay
+        userLevel={{
+          level: typeof levelInfo.level === 'number' ? Math.max(1, Math.floor(levelInfo.level)) : 1,
+          currentExp: typeof levelInfo.currentExp === 'number' ? Math.max(0, Math.floor(levelInfo.currentExp)) : 0,
+          totalExp: typeof userTotalExp === 'number' ? Math.max(0, Math.floor(userTotalExp)) : 0,
+          expToNextLevel: typeof levelInfo.nextLevelExp === 'number' ? Math.max(0, Math.floor(levelInfo.nextLevelExp)) : 0,
+          progressPercentage: typeof levelInfo.progressPercentage === 'number' 
+            ? Math.max(0, Math.min(100, levelInfo.progressPercentage)) 
+            : 0,
+        } as any}
+        showProgress={true}
+        showRewards={true}
+        className={styles.myPageLevelDisplay}
+      />
+    )
+  }, [levelInfo, userTotalExp, handleRefresh])
+  
+  // 통계 섹션 메모이제이션 (hooks 규칙 준수를 위해 컴포넌트 최상위에서 호출)
+  const statsSectionContent = React.useMemo(() => {
+    if (!workoutStats || !workoutStats.hasData || !workoutStats.formatNumber) {
+      return (
+        <div className={styles.emptyStats}>
+          <p>아직 완료한 운동이 없습니다.</p>
+          <p className={styles.emptyStatsSubtitle}>운동을 시작하고 기록을 남겨보세요!</p>
+        </div>
+      )
+    }
+    
+    return (
+      <div className={styles.statsGrid}>
+        <StatsCard
+          title="총 운동 세션"
+          value={`${workoutStats.formatNumber(workoutStats.totalSessions || 0)}회`}
+          subtitle={workoutStats.thisMonthSessions > 0 ? `이번 달: ${workoutStats.thisMonthSessions}회` : undefined}
+          icon="💪"
+        />
+        <StatsCard
+          title="완료한 세트"
+          value={`${workoutStats.formatNumber(workoutStats.totalSets || 0)}세트`}
+          subtitle={workoutStats.thisMonthSets && workoutStats.thisMonthSets > 0 ? `이번 달: ${workoutStats.formatNumber(workoutStats.thisMonthSets)}세트` : undefined}
+          icon="🎯"
+        />
+        <StatsCard
+          title="완료한 반복"
+          value={`${workoutStats.formatNumber(workoutStats.totalReps || 0)}회`}
+          subtitle="총 반복 횟수"
+          icon="🔄"
+        />
+        <StatsCard
+          title="획득한 경험치"
+          value={`${workoutStats.formatNumber(workoutStats.totalExp || 0)} EXP`}
+          subtitle="총 획득 경험치"
+          icon="⭐"
+        />
+      </div>
+    )
+  }, [workoutStats])
+  
+  // 개인 정보 섹션 메모이제이션 (hooks 규칙 준수를 위해 컴포넌트 최상위에서 호출)
+  const infoSectionContent = React.useMemo(() => (
+    <div className={styles.infoGrid}>
+      <InfoItem label="닉네임" value={userInfo.nickname} icon="👤" />
+      <InfoItem label="이메일" value={userInfo.email} icon="📧" />
+      <InfoItem label="전화번호" value={userInfo.phone} icon="📱" />
+      <InfoItem label="성별" value={userInfo.gender} icon="⚧" />
+      <InfoItem label="생년월일" value={userInfo.birthday} icon="🎂" />
+      <InfoItem label="가입일" value={userInfo.createdAt} icon="📝" />
+    </div>
+  ), [userInfo])
+  
+  // 액션 섹션 메모이제이션 (hooks 규칙 준수를 위해 컴포넌트 최상위에서 호출)
+  const actionsSectionContent = React.useMemo(() => (
+    <div className={styles.actions}>
+      <ActionButton 
+        onClick={handleEditProfile} 
+        icon="✏️"
+        disabled={isRefreshing}
+      >
+        회원정보 수정
+      </ActionButton>
+      <ActionButton
+        onClick={handleViewWorkoutHistory}
+        icon="📊"
+        variant="secondary"
+        disabled={isRefreshing}
+      >
+        운동 기록 보기
+      </ActionButton>
+      {isRefreshing && (
+        <ActionButton 
+          onClick={handleRefresh} 
+          icon="🔄"
+          variant="secondary"
+          disabled={true}
+        >
+          새로고침 중...
+        </ActionButton>
+      )}
+      {!isRefreshing && hasError && (
+        <ActionButton 
+          onClick={handleRefresh} 
+          icon="🔄"
+          variant="secondary"
+        >
+          다시 시도
+        </ActionButton>
+      )}
+      <ActionButton 
+        onClick={handleLogout} 
+        variant="danger" 
+        icon="🚪"
+        disabled={isRefreshing}
+      >
+        로그아웃
+      </ActionButton>
+    </div>
+  ), [isRefreshing, hasError, handleEditProfile, handleViewWorkoutHistory, handleRefresh, handleLogout])
+  
+  // 로딩 상태 처리
+  if (isLoading) {
+    return (
+      <div className={styles.pageWrapper}>
+        <Navigation />
+        <div className={`${styles.wrapper} ${className || ""}`}>
+          <LoadingState message="데이터를 불러오는 중..." />
+        </div>
+      </div>
+    )
+  }
+  
+  // 에러 상태 처리
+  if (hasError) {
+    return (
+      <div className={styles.pageWrapper}>
+        <Navigation />
+        <div className={`${styles.wrapper} ${className || ""}`}>
+          <ErrorState 
+            message={typeof errorMessage === 'string' ? errorMessage : "데이터를 불러오는데 실패했습니다."} 
+            onRetry={handleRefresh}
+          />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.pageWrapper}>
@@ -170,101 +322,29 @@ function MyPage({ className }: MyPageProps) {
         {/* Level Section */}
         <div className={styles.levelSection}>
           <h3 className={styles.sectionTitle}>레벨 정보</h3>
-          <LevelDisplay
-            showProgress={true}
-            showRewards={true}
-            className={styles.myPageLevelDisplay}
-          />
+          {levelDisplayContent}
         </div>
 
         {/* Stats Section */}
         <div className={styles.statsSection}>
           <h3 className={styles.sectionTitle}>운동 통계</h3>
-          <div className={styles.statsGrid}>
-            <StatsCard
-              title="총 운동 세션"
-              value="24회"
-              subtitle="이번 달"
-              icon="💪"
-            />
-            <StatsCard
-              title="총 운동 시간"
-              value="1,440분"
-              subtitle="24시간"
-              icon="⏱️"
-            />
-            <StatsCard
-              title="완료한 세트"
-              value="156세트"
-              subtitle="이번 달"
-              icon="🎯"
-            />
-            <StatsCard
-              title="평균 운동 시간"
-              value="60분"
-              subtitle="세션당"
-              icon="📊"
-            />
-          </div>
+          {statsSectionContent}
         </div>
 
         {/* Info Section */}
         <div className={styles.infoSection}>
           <h3 className={styles.sectionTitle}>개인 정보</h3>
-          <div className={styles.infoGrid}>
-            <InfoItem label="닉네임" value={userInfo.nickname} icon="👤" />
-            <InfoItem label="이메일" value={userInfo.email} icon="📧" />
-            <InfoItem label="전화번호" value={userInfo.phone} icon="📱" />
-            <InfoItem label="성별" value={userInfo.gender} icon="⚧" />
-            <InfoItem label="생년월일" value={userInfo.birthday} icon="🎂" />
-            <InfoItem label="가입일" value={userInfo.createdAt} icon="📝" />
-          </div>
+          {infoSectionContent}
         </div>
 
         {/* Actions Section */}
         <div className={styles.actionsSection}>
           <h3 className={styles.sectionTitle}>계정 관리</h3>
-          <div className={styles.actions}>
-            <ActionButton onClick={handleEditProfile} icon="✏️">
-              회원정보 수정
-            </ActionButton>
-            <ActionButton
-              onClick={handleViewWorkoutHistory}
-              icon="📊"
-              variant="secondary"
-            >
-              운동 기록 보기
-            </ActionButton>
-            <ActionButton
-              onClick={handleViewProgress}
-              icon="📈"
-              variant="secondary"
-            >
-              진행상황 보기
-            </ActionButton>
-            <ActionButton
-              onClick={handleSettings}
-              icon="⚙️"
-              variant="secondary"
-            >
-              설정
-            </ActionButton>
-            <ActionButton onClick={handleLogout} variant="danger" icon="🚪">
-              로그아웃
-            </ActionButton>
-            <ActionButton
-              onClick={handleDeleteAccount}
-              variant="danger"
-              icon="🗑️"
-            >
-              계정 삭제
-            </ActionButton>
-          </div>
+          {actionsSectionContent}
         </div>
       </div>
     </div>
   )
 }
 
-// 컴포넌트 메모이제이션
 export default memo(MyPage)

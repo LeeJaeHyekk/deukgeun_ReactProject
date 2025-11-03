@@ -25,10 +25,14 @@ function UserProfilePage() {
       setFormData({
         nickname: user.nickname || "",
         birthDate: user.birthDate
-          ? new Date(user.birthDate).toISOString().split("T")[0]
+          ? (typeof user.birthDate === "string" 
+              ? new Date(user.birthDate).toISOString().split("T")[0]
+              : user.birthDate instanceof Date
+                ? user.birthDate.toISOString().split("T")[0]
+                : "")
           : "",
         gender: user.gender || "male",
-        phoneNumber: user.phoneNumber || "",
+        phoneNumber: user.phone || user.phoneNumber || "", // phone 우선 사용
       })
     }
   }, [user])

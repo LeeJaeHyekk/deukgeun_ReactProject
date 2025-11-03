@@ -3,7 +3,7 @@ import { useAuthRedux } from './useAuthRedux'
 import { levelApiWrapper, levelApiManager } from '../api/levelApiWrapper'
 import { LevelProgress, UserReward } from '../api/levelApi'
 import { showToast } from '../lib'
-import { withRequestManagement, autoReconnectManager, stateSafetyManager } from '../utils/apiRequestManager'
+import { withRequestManagement, autoReconnectManager, stateSafetyManager, apiRequestManager } from '../utils/apiRequestManager'
 import { logger } from '../utils/logger'
 
 // ============================================================================
@@ -48,6 +48,10 @@ function useLevel() {
   // API 호출 제한을 위한 ref
   const lastFetchTime = useRef<number>(0)
   const isFetching = useRef<boolean>(false)
+  
+  // 중복 실행 방지를 위한 ref
+  const isInitializingRef = useRef<boolean>(false)
+  const autoReconnectSetupRef = useRef<boolean>(false)
 
   // ============================================================================
   // API 호출 함수들
@@ -67,10 +71,13 @@ function useLevel() {
       return
     }
 
-    // 비활성 상태 확인
+    // 비활성 상태 확인 - 마이페이지에서는 강제로 활성화
+    // 마이페이지에서 명시적으로 호출하는 경우 비활성 상태를 무시
     if (stateSafetyManager.isInactive(requestKey)) {
-      logger.debug('LEVEL', '비활성 상태 - 요청 스킵', { requestKey })
-      return
+      // 비활성 상태를 강제로 활성화하여 요청 허용
+      stateSafetyManager.resetState(requestKey) // 상태 리셋
+      stateSafetyManager.activate(requestKey) // 활성화 (lastActivity 업데이트)
+      logger.debug('LEVEL', '비활성 상태 감지 - 강제 활성화', { requestKey })
     }
 
     // 요청 관리자를 통한 안전한 요청
@@ -114,7 +121,7 @@ function useLevel() {
     if (result) {
       setLevelProgress(result)
     }
-  }, [isLoggedIn, user])
+  }, [isLoggedIn, user?.id])
 
   const fetchRewards = useCallback(async () => {
     if (!isLoggedIn || !user) {
@@ -130,10 +137,12 @@ function useLevel() {
       return
     }
 
-    // 비활성 상태 확인
+    // 비활성 상태 확인 - 마이페이지에서는 강제로 활성화
     if (stateSafetyManager.isInactive(requestKey)) {
-      logger.debug('LEVEL', '비활성 상태 - 요청 스킵', { requestKey })
-      return
+      // 비활성 상태를 강제로 활성화하여 요청 허용
+      stateSafetyManager.resetState(requestKey) // 상태 리셋
+      stateSafetyManager.activate(requestKey) // 활성화 (lastActivity 업데이트)
+      logger.debug('LEVEL', '비활성 상태 감지 - 강제 활성화', { requestKey })
     }
 
     // 요청 관리자를 통한 안전한 요청
@@ -170,7 +179,7 @@ function useLevel() {
     if (result) {
       setRewards(result)
     }
-  }, [isLoggedIn, user])
+  }, [isLoggedIn, user?.id])
 
   // ============================================================================
   // 경험치 부여 함수
@@ -265,33 +274,99 @@ function useLevel() {
   // ============================================================================
 
   useEffect(() => {
+    // 중복 실행 방지
+    if (isInitializingRef.current) {
+      logger.debug('LEVEL', '이미 초기화 중 - 스킵', { userId: user?.id })
+      return
+    }
+    
     if (isLoggedIn && user) {
       const userId = user.id
       
-      // 자동 재연결 설정
+      // 초기화 시작
+      isInitializingRef.current = true
+      
+      // 자동 재연결 설정 (순차 처리로 rate limit 방지)
       const setupAutoReconnect = () => {
+        // 중복 설정 방지
+        if (autoReconnectSetupRef.current) {
+          logger.debug('LEVEL', '자동 재연결 이미 설정됨 - 스킵', { userId })
+          return
+        }
+        
         const reconnectKey = `level-auto-reconnect-${userId}`
+        autoReconnectSetupRef.current = true
         
         autoReconnectManager.startAutoReconnect(reconnectKey, async () => {
           logger.info('LEVEL', '자동 재연결 시도', { userId })
-          await Promise.all([
-            fetchLevelProgress(),
-            fetchRewards()
-          ])
+          
+          try {
+            // 자동 재연결은 쿨다운을 무시하고 진행 (주기적 새로고침)
+            // 순차 처리로 rate limit 방지
+            // 1. 레벨 진행률 조회 (쿨다운 무시)
+            const requestKeyProgress = `level-progress-${userId}`
+            if (!stateSafetyManager.getLoading(requestKeyProgress)) {
+              // 쿨다운 상태를 임시로 리셋하여 재연결 허용
+              const state = apiRequestManager.getRequestStatus(requestKeyProgress)
+              if (state && state.cooldownUntil > 0) {
+                // 자동 재연결을 위해 쿨다운을 5초로 단축 (rate limit 방지는 유지)
+                state.cooldownUntil = Math.min(state.cooldownUntil, Date.now() + 5000)
+              }
+              await fetchLevelProgress()
+            }
+            
+            // 2. 요청 간 간격 추가 (rate limit 방지)
+            await new Promise(resolve => setTimeout(resolve, 500))
+            
+            // 3. 보상 목록 조회 (쿨다운 무시)
+            const requestKeyRewards = `user-rewards-${userId}`
+            if (!stateSafetyManager.getLoading(requestKeyRewards)) {
+              // 쿨다운 상태를 임시로 리셋하여 재연결 허용
+              const state = apiRequestManager.getRequestStatus(requestKeyRewards)
+              if (state && state.cooldownUntil > 0) {
+                // 자동 재연결을 위해 쿨다운을 5초로 단축 (rate limit 방지는 유지)
+                state.cooldownUntil = Math.min(state.cooldownUntil, Date.now() + 5000)
+              }
+              await fetchRewards()
+            }
+          } catch (error) {
+            logger.error('LEVEL', '자동 재연결 실패', { userId, error: error instanceof Error ? error.message : String(error) })
+            throw error // 에러를 다시 throw하여 재시도 로직이 작동하도록
+          }
         })
       }
 
-      // 초기 데이터 로드
-      fetchLevelProgress()
-      fetchRewards()
+      // 초기 데이터 로드 (순차 처리로 rate limit 방지)
+      const initializeData = async () => {
+        try {
+          // 1. 레벨 진행률 조회
+          await fetchLevelProgress()
+          
+          // 2. 요청 간 간격 추가 (rate limit 방지)
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          // 3. 보상 목록 조회
+          await fetchRewards()
+        } catch (error) {
+          logger.error('LEVEL', '초기 데이터 로드 실패', { userId, error: error instanceof Error ? error.message : String(error) })
+          // 초기화 실패는 치명적이지 않으므로 계속 진행
+        } finally {
+          // 초기화 완료
+          isInitializingRef.current = false
+        }
+      }
       
-      // 자동 재연결 설정
+      initializeData()
+      
+      // 자동 재연결 설정 (최소 30초 후 시작)
       setupAutoReconnect()
       
       // 컴포넌트 언마운트 시 자동 재연결 정리
       return () => {
         const reconnectKey = `level-auto-reconnect-${userId}`
         autoReconnectManager.stopAutoReconnect(reconnectKey)
+        autoReconnectSetupRef.current = false
+        isInitializingRef.current = false
         logger.debug('LEVEL', '자동 재연결 정리', { userId })
       }
     } else {
@@ -304,8 +379,10 @@ function useLevel() {
       
       // 모든 자동 재연결 정리
       autoReconnectManager.stopAllAutoReconnects()
+      autoReconnectSetupRef.current = false
+      isInitializingRef.current = false
     }
-  }, [isLoggedIn, user])
+  }, [isLoggedIn, user?.id]) // fetchLevelProgress, fetchRewards 제거하여 무한 루프 방지
 
   // ============================================================================
   // Return Values

@@ -5,15 +5,18 @@
 import { Request, Response, NextFunction } from 'express'
 import { Router } from 'express'
 import { GoalService } from '../services/goalService'
+import { LevelService } from '@backend/services/levelService'
 import { authMiddleware } from '@backend/middlewares/auth'
 import { rateLimiter } from '@backend/middlewares/rateLimiter'
 import { logger } from '@backend/utils/logger'
 
 export class GoalController {
   private goalService: GoalService
+  private levelService: LevelService
 
   constructor() {
     this.goalService = new GoalService()
+    this.levelService = new LevelService()
   }
 
   /**
@@ -256,6 +259,60 @@ export class GoalController {
       if (!goal) {
         res.status(404).json({ error: 'Goal not found' })
         return
+      }
+
+      // 운동 완료 시 경험치 부여 (history에 expEarned가 있고 새로 추가된 경우)
+      if (updateData.history && Array.isArray(updateData.history) && userId) {
+        const newHistoryEntries = updateData.history.filter((h: any) => h.expEarned && h.expEarned > 0)
+        if (newHistoryEntries.length > 0) {
+          // 최신 히스토리 엔트리에서 경험치 부여
+          const latestEntry = newHistoryEntries[newHistoryEntries.length - 1]
+          try {
+            await this.levelService.grantExp(
+              userId,
+              "workout",
+              "workout_completion",
+              {
+                goalId: goal.id,
+                goalTitle: goal.title,
+                expEarned: latestEntry.expEarned,
+                totalSets: latestEntry.totalSets,
+                totalReps: latestEntry.totalReps,
+              }
+            )
+          } catch (levelError) {
+            // 경험치 부여 실패는 목표 업데이트에 영향을 주지 않음
+            logger.error(`운동 완료 경험치 부여 실패: ${levelError}`)
+          }
+        }
+      }
+      
+      // completedWorkouts에 expEarned가 있고 새로 추가된 경우
+      if (updateData.completedWorkouts && Array.isArray(updateData.completedWorkouts) && userId) {
+        const newCompletedWorkouts = updateData.completedWorkouts.filter(
+          (cw: any) => cw.expEarned && cw.expEarned > 0
+        )
+        if (newCompletedWorkouts.length > 0) {
+          // 최신 완료 운동에서 경험치 부여
+          const latestCompleted = newCompletedWorkouts[newCompletedWorkouts.length - 1]
+          try {
+            await this.levelService.grantExp(
+              userId,
+              "workout",
+              "workout_completion",
+              {
+                goalId: goal.id,
+                goalTitle: goal.title,
+                expEarned: latestCompleted.expEarned,
+                totalSets: latestCompleted.totalSets,
+                totalReps: latestCompleted.totalReps,
+              }
+            )
+          } catch (levelError) {
+            // 경험치 부여 실패는 목표 업데이트에 영향을 주지 않음
+            logger.error(`운동 완료 경험치 부여 실패: ${levelError}`)
+          }
+        }
       }
 
       // 엔티티를 JSON으로 변환

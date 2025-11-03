@@ -47,31 +47,52 @@ export function useAuthRedux(): UseAuthReturn {
   // && 연산자가 토큰 문자열을 반환하는 것을 방지하기 위해 !! 사용
   const isLoggedIn = !!(isAuthenticated && user && user.id && user.accessToken)
   
-  // 디버깅 로그는 최초 한 번만 또는 변경 시에만 출력 (과도한 로그 방지)
+  // 이전 상태 추적을 위한 ref (렌더링 최적화)
   const prevIsLoggedInRef = useRef<boolean | null>(null)
+  const prevUserIdRef = useRef<number | undefined>(undefined)
+  const prevTokenRef = useRef<string | undefined>(undefined)
+  const tokenRefreshSetupRef = useRef<boolean>(false)
+  
+  // 로그인 상태 변경 감지 및 로깅 (렌더링 최적화)
   useEffect(() => {
-    if (prevIsLoggedInRef.current !== isLoggedIn) {
+    const hasLoggedInChanged = prevIsLoggedInRef.current !== isLoggedIn
+    const hasUserIdChanged = prevUserIdRef.current !== user?.id
+    const hasTokenChanged = prevTokenRef.current !== user?.accessToken
+    
+    // 실제로 변경된 경우에만 로그 출력
+    if (hasLoggedInChanged || hasUserIdChanged || hasTokenChanged) {
       prevIsLoggedInRef.current = isLoggedIn
+      prevUserIdRef.current = user?.id
+      prevTokenRef.current = user?.accessToken
+      
       // 로그인 상태가 변경될 때만 로그 출력
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🔐 [useAuthRedux] 로그인 상태 변경:', {
+      if (process.env.NODE_ENV === 'development' && (hasLoggedInChanged || hasUserIdChanged)) {
+        logger.debug('AUTH', '로그인 상태 변경', {
           isAuthenticated,
           hasUser: !!user,
           hasUserId: !!user?.id,
           hasUserAccessToken: !!user?.accessToken,
           isLoggedIn,
-          timestamp: new Date().toISOString()
+          userIdChanged: hasUserIdChanged,
+          loggedInChanged: hasLoggedInChanged
         })
       }
     }
-  }, [isAuthenticated, user, isLoggedIn])
+  }, [isAuthenticated, user?.id, user?.accessToken, isLoggedIn])
 
-  // 토큰 자동 갱신 설정 (만료 5분 전)
+  // 토큰 자동 갱신 설정 (만료 5분 전) - 중복 설정 방지
   const setupTokenRefresh = useCallback(
-    (token: string) => {
+    (token: string, force: boolean = false) => {
+      // 중복 설정 방지 (force가 true인 경우에만 강제 설정)
+      if (!force && tokenRefreshSetupRef.current) {
+        logger.debug('AUTH', '토큰 갱신 타이머 이미 설정됨 - 스킵', { hasTimer: !!tokenRefreshTimer })
+        return
+      }
+      
       // 기존 타이머 정리
       if (tokenRefreshTimer) {
         clearTimeout(tokenRefreshTimer)
+        logger.debug('AUTH', '기존 토큰 갱신 타이머 정리')
       }
 
       const expiryTime = getTokenExpiryTime(token)
@@ -79,16 +100,20 @@ export function useAuthRedux(): UseAuthReturn {
         const refreshTime = Math.max(expiryTime - 5 * 60 * 1000, 60000) // 최소 1분
         const timer = setTimeout(async () => {
           try {
+            // 타이머 실행 후 즉시 ref 초기화 (다음 설정을 위해)
+            tokenRefreshSetupRef.current = false
+            
             logger.debug('AUTH', '토큰 자동 갱신 시작')
             const newToken = await dispatch(refreshToken()).unwrap()
             
             // 새로운 토큰으로 다시 갱신 타이머 설정
             if (newToken) {
-              setupTokenRefresh(newToken)
+              setupTokenRefresh(newToken, true) // force=true로 재설정
             }
             logger.debug('AUTH', '토큰 자동 갱신 성공')
           } catch (error) {
             logger.error('AUTH', '토큰 자동 갱신 실패', error)
+            tokenRefreshSetupRef.current = false
             // 토큰 갱신 실패 시 로그아웃 처리
             dispatch(resetAuth())
             storage.remove("accessToken")
@@ -97,10 +122,11 @@ export function useAuthRedux(): UseAuthReturn {
         }, refreshTime)
         
         dispatch(setTokenRefreshTimer(timer))
+        tokenRefreshSetupRef.current = true
         logger.debug('AUTH', '토큰 갱신 타이머 설정', { refreshTime })
       }
     },
-    [dispatch] // tokenRefreshTimer 의존성 제거
+    [dispatch, tokenRefreshTimer] // tokenRefreshTimer 의존성 추가 (최신 타이머 참조)
   )
 
   // 로그인 처리
@@ -115,10 +141,15 @@ export function useAuthRedux(): UseAuthReturn {
         return
       }
 
-      // 중복 로그인 방지
-      if (isAuthenticated && user.id === user?.id) {
-        logger.warn('AUTH', '이미 로그인된 사용자입니다.', { userId: user.id })
+      // 중복 로그인 방지 (현재 사용자와 동일한 경우)
+      if (isAuthenticated && user.id === user?.id && user.accessToken === token) {
+        logger.debug('AUTH', '이미 로그인된 동일 사용자 - 스킵', { userId: user.id })
         return
+      }
+      
+      // 토큰이 변경된 경우에만 갱신 타이머 재설정
+      if (tokenRefreshSetupRef.current && user.accessToken === token) {
+        logger.debug('AUTH', '동일 토큰 - 갱신 타이머 유지', { userId: user.id })
       }
 
       logger.debug('AUTH', '로그인 프로세스 시작', {
@@ -131,8 +162,11 @@ export function useAuthRedux(): UseAuthReturn {
       // Redux 액션 디스패치
       dispatch(login({ user, token }))
       
-      // 토큰 갱신 설정
-      setupTokenRefresh(token)
+      // 토큰 갱신 설정 (force=true로 초기 설정)
+      // 토큰이 변경된 경우에만 설정
+      if (!tokenRefreshSetupRef.current || user?.accessToken !== token) {
+        setupTokenRefresh(token, true)
+      }
       
       logger.info('AUTH', '로그인 완료', { 
         userId: user.id, 
@@ -178,21 +212,42 @@ export function useAuthRedux(): UseAuthReturn {
   // 인증 초기화는 App.tsx에서 중앙 집중식으로 처리
   // 여기서는 추가 초기화 없음
 
-  // 토큰 갱신 타이머 정리
+  // 토큰 갱신 타이머 정리 (렌더링 최적화)
   useEffect(() => {
     return () => {
       if (tokenRefreshTimer) {
         clearTimeout(tokenRefreshTimer)
+        tokenRefreshSetupRef.current = false
       }
     }
   }, [tokenRefreshTimer])
 
-  // 로그인 상태가 변경될 때 토큰 갱신 설정 (한 번만 실행)
+  // 로그인 상태가 변경될 때 토큰 갱신 설정 (한 번만 실행 - 렌더링 최적화)
   useEffect(() => {
-    if (isAuthenticated && user?.accessToken && !tokenRefreshTimer) {
-      setupTokenRefresh(user.accessToken)
+    // 토큰이 변경되었거나 처음 로그인한 경우에만 설정
+    const currentToken = user?.accessToken
+    const shouldSetup = isAuthenticated && 
+                       currentToken && 
+                       !tokenRefreshSetupRef.current &&
+                       currentToken !== prevTokenRef.current
+    
+    if (shouldSetup) {
+      setupTokenRefresh(currentToken, true) // force=true로 초기 설정
+      prevTokenRef.current = currentToken
     }
-  }, [isAuthenticated, user?.accessToken, tokenRefreshTimer, setupTokenRefresh])
+  }, [isAuthenticated, user?.accessToken, setupTokenRefresh])
+  
+  // 로그아웃 시 토큰 갱신 타이머 정리
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      if (tokenRefreshTimer) {
+        clearTimeout(tokenRefreshTimer)
+        dispatch(clearTokenRefreshTimer())
+      }
+      tokenRefreshSetupRef.current = false
+      prevTokenRef.current = undefined
+    }
+  }, [isAuthenticated, user, tokenRefreshTimer, dispatch])
 
   // localStorage와 Redux 상태 동기화 체크
   useEffect(() => {

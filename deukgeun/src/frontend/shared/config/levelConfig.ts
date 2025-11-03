@@ -55,24 +55,17 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
   }
 ]
 
-// 레벨별 경험치 계산
+// 레벨별 경험치 계산 (백엔드와 동일한 공식 사용)
+// 백엔드 공식: baseExp * multiplier^(level-1)
+import { calculateLevelFromTotalExp } from '../utils/levelUtils'
+
 export const calculateLevel = (totalExp: number): { level: number; currentExp: number; nextLevelExp: number } => {
-  let level = 1
-  let currentExp = totalExp
-  
-  for (let i = 0; i < LEVEL_CONFIGS.length; i++) {
-    if (totalExp >= LEVEL_CONFIGS[i].requiredExp) {
-      level = LEVEL_CONFIGS[i].level
-      currentExp = totalExp - LEVEL_CONFIGS[i].requiredExp
-    } else {
-      break
-    }
+  const result = calculateLevelFromTotalExp(totalExp)
+  return {
+    level: result.level,
+    currentExp: result.currentExp,
+    nextLevelExp: result.nextLevelExp,
   }
-  
-  const nextLevelConfig = LEVEL_CONFIGS.find(config => config.level === level + 1)
-  const nextLevelExp = nextLevelConfig ? nextLevelConfig.requiredExp - totalExp : 0
-  
-  return { level, currentExp, nextLevelExp }
 }
 
 // 레벨 정보 가져오기

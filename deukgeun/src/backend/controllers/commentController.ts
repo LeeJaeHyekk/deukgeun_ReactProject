@@ -2,9 +2,15 @@ import { Request, Response } from "express"
 import { Comment } from '@backend/entities/Comment'
 import { User } from '@backend/entities/User'
 import { AppDataSource } from '@backend/config/databaseConfig'
+import { LevelService } from '@backend/services/levelService'
 import { toCommentDTO, toCommentDTOList } from "@backend/transformers"
 
 export class CommentController {
+  private levelService: LevelService
+
+  constructor() {
+    this.levelService = new LevelService()
+  }
   // 댓글 생성
   createComment = async (req: Request, res: Response) => {
     try {
@@ -52,6 +58,19 @@ export class CommentController {
 
       const savedComment = await repo.save(comment)
       console.log("댓글 저장 성공:", savedComment)
+
+      // 댓글 작성 경험치 부여
+      try {
+        await this.levelService.grantExp(
+          userId,
+          "comment",
+          "comment_creation",
+          { commentId: savedComment.id, postId: savedComment.postId }
+        )
+      } catch (levelError) {
+        // 경험치 부여 실패는 댓글 생성에 영향을 주지 않음
+        console.error("경험치 부여 실패:", levelError)
+      }
 
       // DTO 변환 적용
       const commentDTO = toCommentDTO(savedComment)

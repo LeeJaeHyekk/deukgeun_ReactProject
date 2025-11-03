@@ -107,12 +107,15 @@ const initialState: WorkoutState = {
 import { calcGoalProgress } from '../utils/goalUtils'
 export { calcGoalProgress } // 하위 호환성을 위해 export 유지
 
-/** ---------- 레벨 계산 함수 (무한루프 방지, 안정화) ---------- **/
+/** ---------- 레벨 계산 함수 (백엔드와 동일한 공식 사용) ---------- **/
+
+// 백엔드와 동일한 레벨 계산 공식 사용
+import { calculateLevelFromTotalExp } from "@frontend/shared/utils/levelUtils"
 
 const calcLevelFromExp = (exp: number): number => {
-  // 안정적인 레벨 계산: level = floor(sqrt(exp / 100)) + 1
-  // 최소 레벨은 1, 무한루프 방지
-  return Math.max(1, Math.floor(Math.sqrt(exp / 100)) + 1)
+  // 백엔드 공식 사용: baseExp * multiplier^(level-1)
+  const { level } = calculateLevelFromTotalExp(exp || 0)
+  return level
 }
 
 /** ---------- Async Thunks ---------- **/
@@ -125,6 +128,24 @@ export const fetchGoalsFromBackend = createAsyncThunk(
   async (userId: number | string, { rejectWithValue }) => {
     try {
       const goals = await goalApi.fetchGoals(userId)
+      
+      // 디버깅: 백엔드 원본 응답 확인
+      console.log('📥 [fetchGoalsFromBackend] 백엔드 원본 응답:', {
+        goalsCount: goals.length,
+        goals: goals.map((goal: any) => ({
+          goalId: goal.goalId,
+          goalTitle: goal.goalTitle,
+          completedWorkouts: goal.completedWorkouts,
+          history: goal.history,
+          completedWorkoutsType: typeof goal.completedWorkouts,
+          historyType: typeof goal.history,
+          completedWorkoutsIsArray: Array.isArray(goal.completedWorkouts),
+          historyIsArray: Array.isArray(goal.history),
+          completedWorkoutsLength: Array.isArray(goal.completedWorkouts) ? goal.completedWorkouts.length : 'N/A',
+          historyLength: Array.isArray(goal.history) ? goal.history.length : 'N/A',
+        }))
+      })
+      
       // Goal 타입으로 변환 (백엔드 원본 데이터도 포함)
       return goals.map((goal) => ({
         goalId: String(goal.goalId || ''),
@@ -733,6 +754,69 @@ const workoutSlice = createSlice({
         // 중요: 기존 state.goals를 참조하기 전에 복사본을 만들어야 함
         const existingGoals = [...state.goals] // 기존 goals 복사
         
+        // completedWorkouts 추출 (백엔드 데이터에서) - map 전에 먼저 추출
+        const allCompletedWorkouts: CompletedWorkout[] = []
+        
+        // 디버깅: 백엔드 응답 데이터 확인
+        console.log('📥 [fetchGoalsFromBackend.fulfilled] 백엔드 응답 데이터:', {
+          goalsCount: action.payload.length,
+          goals: action.payload.map((g: any) => ({
+            goalId: g.goalId,
+            title: g.title,
+            hasBackendData: !!(g as any)._backendData,
+            backendData: (g as any)._backendData ? {
+              completedWorkouts: (g as any)._backendData.completedWorkouts,
+              history: (g as any)._backendData.history,
+              completedWorkoutsType: typeof (g as any)._backendData.completedWorkouts,
+              historyType: typeof (g as any)._backendData.history,
+              completedWorkoutsIsArray: Array.isArray((g as any)._backendData.completedWorkouts),
+              historyIsArray: Array.isArray((g as any)._backendData.history),
+            } : null
+          }))
+        })
+        
+        // 먼저 모든 goal에서 completedWorkouts 추출
+        action.payload.forEach((backendGoal) => {
+          const backendData = (backendGoal as any)._backendData
+          if (backendData) {
+            // completedWorkouts 추출
+            if (backendData.completedWorkouts && Array.isArray(backendData.completedWorkouts)) {
+              backendData.completedWorkouts.forEach((cw: any) => {
+                allCompletedWorkouts.push({
+                  completedId: cw.completedId || `completed_${Date.now()}_${Math.random()}`,
+                  goalId: String(backendData.goalId || backendGoal.goalId),
+                  goalTitle: cw.goalTitle || backendData.goalTitle || backendGoal.title,
+                  completedAt: cw.completedAt || new Date().toISOString(),
+                  totalSets: cw.totalSets || 0,
+                  totalReps: cw.totalReps || 0,
+                  expEarned: cw.expEarned || 0,
+                  durationMin: cw.durationMin || cw.totalDurationMinutes,
+                  summary: cw.summary,
+                })
+              })
+            }
+            
+            // history에서도 추출
+            if (backendData.history && Array.isArray(backendData.history)) {
+              backendData.history.forEach((history: any) => {
+                if (history && history.completedAt) {
+                  allCompletedWorkouts.push({
+                    completedId: `history_${history.date || history.completedAt}_${backendData.goalId}_${Math.random()}`,
+                    goalId: String(backendData.goalId || backendGoal.goalId),
+                    goalTitle: backendData.goalTitle || backendGoal.title,
+                    completedAt: history.completedAt,
+                    totalSets: history.totalSets || 0,
+                    totalReps: history.totalReps || 0,
+                    expEarned: history.expEarned || 0,
+                    durationMin: history.totalDurationMinutes,
+                    summary: history.summary,
+                  })
+                }
+              })
+            }
+          }
+        })
+        
         state.goals = action.payload.map((backendGoal) => {
           // 기존 state에서 동일한 goalId의 goal 찾기 (이전 진행 상태 보존)
           // 복사본에서 찾아야 덮어쓰기 전의 값을 참조할 수 있음
@@ -805,6 +889,38 @@ const workoutSlice = createSlice({
           
           return goalWithPreservedProgress
         })
+        
+        // completedWorkouts 업데이트 (중복 제거)
+        if (allCompletedWorkouts.length > 0) {
+          // 기존 completedWorkouts와 병합 (중복 제거)
+          const existingIds = new Set(state.completedWorkouts.map(cw => cw.completedId))
+          const newCompletedWorkouts = allCompletedWorkouts.filter(cw => !existingIds.has(cw.completedId))
+          state.completedWorkouts = [...state.completedWorkouts, ...newCompletedWorkouts]
+          
+          console.log(`✅ [fetchGoalsFromBackend] completedWorkouts 추출 완료`, {
+            total: state.completedWorkouts.length,
+            new: newCompletedWorkouts.length,
+            existing: state.completedWorkouts.length - newCompletedWorkouts.length,
+            allCompletedWorkoutsCount: allCompletedWorkouts.length
+          })
+        } else {
+          // completedWorkouts가 없으면 빈 배열로 설정 (데이터가 없음을 명시)
+          console.log(`⚠️ [fetchGoalsFromBackend] completedWorkouts 없음`, {
+            goalsCount: action.payload.length,
+            payload: action.payload.map((g: any) => ({
+              goalId: g.goalId,
+              title: g.title,
+              hasBackendData: !!(g as any)._backendData,
+              backendData: (g as any)._backendData ? {
+                hasCompletedWorkouts: !!(g as any)._backendData.completedWorkouts,
+                hasHistory: !!(g as any)._backendData.history,
+                completedWorkoutsCount: Array.isArray((g as any)._backendData.completedWorkouts) ? (g as any)._backendData.completedWorkouts.length : 0,
+                historyCount: Array.isArray((g as any)._backendData.history) ? (g as any)._backendData.history.length : 0,
+              } : null
+            }))
+          })
+        }
+        
         state.status = "succeeded"
       })
       .addCase(fetchGoalsFromBackend.rejected, (state, action) => {

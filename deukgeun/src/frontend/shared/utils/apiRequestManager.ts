@@ -51,44 +51,39 @@ class ApiRequestManager {
     const state = this.getRequestState(key)
     const now = Date.now()
     
-    console.log('🔍 [apiRequestManager] canMakeRequest 체크', {
-      key,
-      isRequesting: state.isRequesting,
-      cooldownUntil: state.cooldownUntil,
-      now,
-      cooldownMs,
-      timestamp: new Date().toISOString()
-    })
-    
     // 쿨다운 예외 엔드포인트 확인
     const cooldownExempt = ['/api/stats/user', '/api/auth/me']
     const isExempt = cooldownExempt.some(endpoint => key.includes(endpoint))
     
     if (isExempt) {
-      console.log('✅ [apiRequestManager] 쿨다운 예외 엔드포인트 - 요청 허용', { key })
       logger.debug('API_REQUEST_MANAGER', '쿨다운 예외 엔드포인트', { key })
       return true
     }
     
+    // 쿨다운 확인 (cooldownMs와 cooldownUntil 중 더 큰 값 사용)
+    // 단, cooldownUntil이 0이면 lastRequestTime + cooldownMs만 사용
+    const baseCooldownUntil = state.lastRequestTime > 0 
+      ? state.lastRequestTime + cooldownMs 
+      : 0
+    const effectiveCooldownUntil = state.cooldownUntil > 0
+      ? Math.max(state.cooldownUntil, baseCooldownUntil)
+      : baseCooldownUntil
+    
     // 이미 요청 중이거나 쿨다운 중인 경우
-    if (state.isRequesting || now < state.cooldownUntil) {
-      console.log('⏸️ [apiRequestManager] 요청 제한됨', {
-        key,
-        isRequesting: state.isRequesting,
-        cooldownUntil: state.cooldownUntil,
-        now,
-        reason: state.isRequesting ? '이미 요청 중' : '쿨다운 중'
-      })
+    if (state.isRequesting || (effectiveCooldownUntil > 0 && now < effectiveCooldownUntil)) {
+      const remainingCooldown = effectiveCooldownUntil > now ? effectiveCooldownUntil - now : 0
       logger.debug('API_REQUEST_MANAGER', '요청 제한됨', {
         key,
         isRequesting: state.isRequesting,
-        cooldownUntil: state.cooldownUntil,
-        now
+        cooldownUntil: effectiveCooldownUntil,
+        remainingCooldown: remainingCooldown > 0 ? Math.ceil(remainingCooldown / 1000) : 0,
+        now,
+        reason: state.isRequesting ? '이미 요청 중' : '쿨다운 중'
       })
       return false
     }
     
-    console.log('✅ [apiRequestManager] 요청 허용', { key })
+    logger.debug('API_REQUEST_MANAGER', '요청 허용', { key })
     return true
   }
 
@@ -111,15 +106,21 @@ class ApiRequestManager {
     
     if (success) {
       state.retryCount = 0
-      state.cooldownUntil = 0
+      // 성공 시 쿨다운 초기화 (429 에러가 아닌 경우)
+      // 429 에러로 인한 쿨다운은 유지
+      if (state.cooldownUntil > 0) {
+        const now = Date.now()
+        // 쿨다운이 429 에러로 인한 것이 아닌 경우에만 초기화
+        // 429 에러는 handleRequestFailure에서 더 긴 쿨다운을 설정하므로 유지
+        // 단, 이미 지난 쿨다운은 초기화
+        if (state.cooldownUntil < now + 1000) {
+          // 쿨다운이 곧 끝나면 (1초 이내) 초기화
+          state.cooldownUntil = 0
+        }
+      }
     }
     
-    console.log('🏁 [apiRequestManager] 요청 완료', { 
-      key, 
-      success,
-      timestamp: new Date().toISOString()
-    })
-    logger.debug('API_REQUEST_MANAGER', '요청 완료', { key, success })
+    logger.debug('API_REQUEST_MANAGER', '요청 완료', { key, success, cooldownUntil: state.cooldownUntil })
   }
 
   // 요청 실패 처리
@@ -147,14 +148,18 @@ class ApiRequestManager {
       requestConfig.maxDelay
     )
 
-    // 429 에러인 경우 특별 처리
+    // 429 에러인 경우 특별 처리 (더 긴 쿨다운 설정)
     if (error?.response?.status === 429) {
       const retryAfter = error.response.data?.retryAfter || 60
-      state.cooldownUntil = Date.now() + (retryAfter * 1000)
+      // 429 에러는 retryAfter + 여유 시간(10초) 추가
+      const cooldownTime = (retryAfter + 10) * 1000
+      state.cooldownUntil = Date.now() + cooldownTime
       logger.warn('API_REQUEST_MANAGER', '429 에러 - 쿨다운 설정', {
         key,
         retryAfter,
-        cooldownUntil: state.cooldownUntil
+        cooldownTime,
+        cooldownUntil: state.cooldownUntil,
+        cooldownUntilDate: new Date(state.cooldownUntil).toISOString()
       })
     } else {
       state.cooldownUntil = Date.now() + delay
@@ -237,11 +242,25 @@ export async function withRequestManagement<T>(
     
     logger.debug('API_REQUEST_MANAGER', '요청 성공', { key })
     return result
-  } catch (error) {
+  } catch (error: any) {
     logger.error('API_REQUEST_MANAGER', '요청 실패', { key, error: error instanceof Error ? error.message : String(error) })
     onError?.(error)
 
-    // 재시도 처리
+    // 429 에러인 경우 재시도하지 않고 즉시 실패 처리
+    if (error?.response?.status === 429) {
+      const retryAfter = error.response.data?.retryAfter || 60
+      const state = apiRequestManager.getRequestStatus(key)
+      if (state) {
+        // 429 에러는 쿨다운을 더 길게 설정
+        state.cooldownUntil = Date.now() + (retryAfter + 10) * 1000
+        state.retryCount = 0 // 재시도 카운터 리셋 (자동 재연결에 맡김)
+      }
+      apiRequestManager.completeRequest(key, false)
+      logger.warn('API_REQUEST_MANAGER', '429 에러 - 재시도 스킵', { key, retryAfter })
+      return null
+    }
+
+    // 재시도 처리 (429 외의 에러)
     const shouldRetry = await apiRequestManager.handleRequestFailure(key, error, retryConfig)
     
     if (shouldRetry) {
@@ -261,12 +280,15 @@ class AutoReconnectManager {
   private reconnectTimers = new Map<string, NodeJS.Timeout>()
   private reconnectAttempts = new Map<string, number>()
   private maxReconnectAttempts = 5
-  private baseReconnectDelay = 5000
+  private baseReconnectDelay = 30000 // 30초로 증가 (rate limit 방지)
 
   // 자동 재연결 시작
   startAutoReconnect(key: string, reconnectFn: () => Promise<void>): void {
-    // 기존 타이머 정리
-    this.stopAutoReconnect(key)
+    // 이미 재연결 중인 경우 중복 방지
+    if (this.reconnectTimers.has(key)) {
+      logger.debug('AUTO_RECONNECT', '이미 재연결 타이머가 설정됨 - 스킵', { key })
+      return
+    }
 
     const attempts = this.reconnectAttempts.get(key) || 0
     
@@ -275,21 +297,39 @@ class AutoReconnectManager {
       return
     }
 
+    // 백오프 지연: 30초, 60초, 120초, 240초, 480초
     const delay = this.baseReconnectDelay * Math.pow(2, attempts)
     const timer = setTimeout(async () => {
       try {
         logger.info('AUTO_RECONNECT', '재연결 시도', { key, attempt: attempts + 1 })
+        
+        // 타이머 실행 후 즉시 타이머 맵에서 제거 (중복 방지)
+        this.reconnectTimers.delete(key)
+        
         await reconnectFn()
         
         // 성공 시 카운터 리셋
         this.reconnectAttempts.delete(key)
         logger.info('AUTO_RECONNECT', '재연결 성공', { key })
+        
+        // 성공 후 다음 재연결도 설정 (주기적 새로고침) - 타이머가 없을 때만
+        if (!this.reconnectTimers.has(key)) {
+          this.startAutoReconnect(key, reconnectFn)
+        }
       } catch (error) {
         logger.error('AUTO_RECONNECT', '재연결 실패', { key, error: error instanceof Error ? error.message : String(error) })
         this.reconnectAttempts.set(key, attempts + 1)
         
-        // 다음 재연결 시도
-        this.startAutoReconnect(key, reconnectFn)
+        // 실패 시 더 긴 지연 후 재시도 - 타이머가 없을 때만
+        if (!this.reconnectTimers.has(key)) {
+          const retryDelay = delay * 2 // 실패 시 지연 시간 2배
+          setTimeout(() => {
+            // 재시도 전에 다시 한 번 확인
+            if (!this.reconnectTimers.has(key)) {
+              this.startAutoReconnect(key, reconnectFn)
+            }
+          }, retryDelay)
+        }
       }
     }, delay)
 
@@ -303,8 +343,20 @@ class AutoReconnectManager {
     if (timer) {
       clearTimeout(timer)
       this.reconnectTimers.delete(key)
+      // 재시도 카운터는 유지 (나중에 다시 시작할 때 이어서)
       logger.debug('AUTO_RECONNECT', '자동 재연결 타이머 정리', { key })
     }
+  }
+  
+  // 재연결 상태 확인
+  isReconnecting(key: string): boolean {
+    return this.reconnectTimers.has(key)
+  }
+  
+  // 재시도 카운터 리셋
+  resetReconnectAttempts(key: string): void {
+    this.reconnectAttempts.delete(key)
+    logger.debug('AUTO_RECONNECT', '재시도 카운터 리셋', { key })
   }
 
   // 모든 자동 재연결 중지
@@ -315,11 +367,6 @@ class AutoReconnectManager {
     })
     this.reconnectTimers.clear()
     this.reconnectAttempts.clear()
-  }
-
-  // 재연결 상태 조회
-  isReconnecting(key: string): boolean {
-    return this.reconnectTimers.has(key)
   }
 }
 
@@ -374,6 +421,12 @@ class StateSafetyManager {
     this.errorStates.delete(key)
     this.lastActivity.delete(key)
     logger.debug('STATE_SAFETY', '상태 리셋', { key })
+  }
+  
+  // 활성화 (lastActivity 업데이트)
+  activate(key: string): void {
+    this.lastActivity.set(key, Date.now())
+    logger.debug('STATE_SAFETY', '활성화', { key })
   }
 
   // 모든 상태 리셋

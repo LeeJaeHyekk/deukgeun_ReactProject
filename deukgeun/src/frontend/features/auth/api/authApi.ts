@@ -19,25 +19,21 @@ import type {
 } from '@frontend/shared/types/auth'
 
 // 백엔드 API 응답과 프론트엔드 타입 간의 호환성을 위한 타입 정의
+import type { UserDTO } from '@shared/types/dto/user.dto'
+
 export interface ApiLoginResponse {
   message: string
   accessToken: string
-  user: {
-    id: number
-    email: string
-    nickname: string
-  }
+  user: UserDTO // UserDTO 타입 사용 (모든 필드 포함)
 }
 
 // 백엔드 실제 응답 타입
 export interface BackendLoginResponse {
   success: boolean
   message: string
-  accessToken: string
-  user: {
-    id: number
-    email: string
-    nickname: string
+  data: {
+    accessToken: string
+    user: UserDTO // UserDTO 타입 사용 (모든 필드 포함)
   }
 }
 
@@ -46,17 +42,8 @@ export interface BackendRegisterResponse {
   success: boolean
   message: string
   accessToken: string
-  user: {
-    id: number
-    email: string
-    nickname: string
-    phone?: string
-    gender?: string
-    birthday?: string
-    profileImage?: string
-    createdAt: string
-    updatedAt: string
-  }
+  refreshToken: string
+  user: UserDTO // UserDTO 타입 사용 (모든 필드 포함)
 }
 
 // API 응답 래퍼 타입
@@ -70,11 +57,7 @@ export interface ApiResponseWrapper<T> {
 export interface ApiRegisterResponse {
   message: string
   accessToken: string
-  user: {
-    id: number
-    email: string
-    nickname: string
-  }
+  user: UserDTO // UserDTO 타입 사용 (모든 필드 포함)
 }
 
 // 아이디/비밀번호 찾기 요청 타입 (프론트엔드 전용)
@@ -128,19 +111,7 @@ export const authApi = {
   // Login
   login: async (data: LoginRequest): Promise<ApiLoginResponse> => {
     console.log('✅ 로그인 요청:', data)
-    const response = await axios.post<{
-      success: boolean
-      message: string
-      data: {
-        accessToken: string
-        refreshToken: string
-        user: {
-          id: number
-          email: string
-          nickname: string
-        }
-      }
-    }>(
+    const response = await axios.post<BackendLoginResponse>(
       `${config.api.baseURL}${API_ENDPOINTS.AUTH.LOGIN}`,
       data,
       { withCredentials: true }
@@ -149,11 +120,12 @@ export const authApi = {
     console.log('✅ 로그인 응답 데이터:', response.data)
     
     // 백엔드 응답 구조에 맞게 수정 - data 필드에서 추출
+    // UserTransformer.toDTO를 통해 변환된 UserDTO 타입 (phone, phoneNumber, birthDate 등 모든 필드 포함)
     if (response.data.success && response.data.data) {
       return {
         message: response.data.message,
         accessToken: response.data.data.accessToken,
-        user: response.data.data.user,
+        user: response.data.data.user, // UserDTO 타입 (모든 필드 포함)
       }
     } else {
       throw new Error(response.data.message || '로그인에 실패했습니다.')
@@ -190,12 +162,14 @@ export const authApi = {
       console.log('✅ 응답 데이터:', response.data)
 
       // 백엔드 응답 구조에 맞게 처리
+      // UserTransformer.toDTO를 통해 변환된 UserDTO 타입 (phone, phoneNumber, birthDate 등 모든 필드 포함)
+      // 백엔드 응답 구조: { success, message, accessToken, refreshToken, user }
       const responseData = response.data as BackendRegisterResponse
-      if (responseData.success) {
+      if (responseData.success && responseData.accessToken && responseData.user) {
         return {
           message: responseData.message,
           accessToken: responseData.accessToken,
-          user: responseData.user,
+          user: responseData.user, // UserDTO 타입 (모든 필드 포함)
         } as ApiRegisterResponse
       } else {
         throw new Error(responseData.message || '회원가입에 실패했습니다.')

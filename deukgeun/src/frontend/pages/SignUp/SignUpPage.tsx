@@ -517,18 +517,27 @@ export default function SignUpPage() {
       // Redux의 login 함수 사용
       
       // 백엔드 응답을 새로운 타입 시스템과 호환되도록 변환
+      // 백엔드 응답의 user 객체를 그대로 사용 (UserDTO에 모든 필드 포함)
+      // UserTransformer.toDTO를 통해 변환된 데이터이므로 phone, phoneNumber, birthDate 등 모든 필드 포함
       const userWithToken = {
-        id: response.user.id,
-        email: response.user.email,
-        username: response.user.email, // username은 email과 동일하게 설정
-        nickname: response.user.nickname,
+        ...response.user, // 모든 필드 포함 (phone, phoneNumber, birthDate 등)
+        username: response.user.username || response.user.email, // username이 없으면 email 사용
         accessToken: response.accessToken,
-        // 새로운 타입 시스템에서 요구하는 필드들에 기본값 설정
-        role: 'user' as const,
-        isActive: true,
-        isEmailVerified: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        // 필수 필드 기본값 설정 (백엔드에서 오지 않는 경우)
+        role: response.user.role || 'user' as const,
+        isActive: response.user.isActive ?? true,
+        isEmailVerified: response.user.isEmailVerified ?? false,
+        // Date 객체를 문자열로 변환 (Redux 직렬화를 위해)
+        createdAt: response.user.createdAt instanceof Date 
+          ? response.user.createdAt.toISOString() 
+          : (response.user.createdAt || new Date().toISOString()),
+        updatedAt: response.user.updatedAt instanceof Date 
+          ? response.user.updatedAt.toISOString() 
+          : (response.user.updatedAt || new Date().toISOString()),
+        // birthDate도 Date 객체를 문자열로 변환 (있는 경우)
+        birthDate: response.user.birthDate instanceof Date
+          ? response.user.birthDate
+          : (response.user.birthDate || undefined),
       }
       
       logger.info('SIGNUP_PAGE', '로그인 함수 호출 전', {

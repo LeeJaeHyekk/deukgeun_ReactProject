@@ -2,8 +2,9 @@
 // WorkoutPage - 메인 워크아웃 페이지
 // ============================================================================
 
-import React, { useState, Suspense, lazy, useCallback } from "react"
+import React, { useState, Suspense, lazy, useCallback, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
+import { useLocation, useSearchParams } from "react-router-dom"
 import { useAuthRedux } from "@frontend/shared/hooks/useAuthRedux"
 import { Navigation } from "@widgets/Navigation/Navigation"
 import { TabBar, TabType } from "./components/TabBar"
@@ -26,16 +27,51 @@ const PanelLoader = () => <LoadingState />
 
 function WorkoutPageContent() {
   const dispatch = useDispatch()
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
   const { isLoggedIn: isAuthenticated } = useAuthRedux()
   const activeWorkout = useSelector(selectActiveWorkout)
-  const [activeTab, setActiveTab] = useState<TabType>("goals")
+  
+  // URL 쿼리 파라미터 또는 location.state에서 초기 탭 설정
+  const getInitialTab = (): TabType => {
+    // 1. URL 쿼리 파라미터 확인 (예: /workout?tab=completed)
+    const tabParam = searchParams.get("tab")
+    if (tabParam === "goals" || tabParam === "active" || tabParam === "completed") {
+      return tabParam as TabType
+    }
+    
+    // 2. location.state 확인 (navigate로 전달된 경우)
+    const stateTab = (location.state as { tab?: TabType })?.tab
+    if (stateTab === "goals" || stateTab === "active" || stateTab === "completed") {
+      return stateTab
+    }
+    
+    // 3. activeWorkout이 있으면 active 탭으로
+    if (activeWorkout) {
+      return "active"
+    }
+    
+    // 4. 기본값: goals
+    return "goals"
+  }
+  
+  const [activeTab, setActiveTab] = useState<TabType>(getInitialTab)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   // 초기 데이터 로드 (localStorage + 백엔드 병합)
   useWorkoutPageInitialization()
 
+  // URL 쿼리 파라미터나 location.state 변경 시 탭 업데이트
+  useEffect(() => {
+    const newTab = getInitialTab()
+    if (newTab !== activeTab) {
+      setActiveTab(newTab)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get("tab"), location.state])
+
   // activeWorkout이 있으면 자동으로 active 탭으로 전환 (루프 방지)
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeWorkout && activeTab !== "active") {
       setActiveTab("active")
     }

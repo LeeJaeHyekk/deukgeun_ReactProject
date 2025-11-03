@@ -32,8 +32,12 @@ function LevelDisplay({
   // 테스트용 userLevel이 제공되면 해당 데이터 사용
   const displayLevel = userLevel ? userLevel.level : levelProgress.level
   const displayExp = userLevel ? userLevel.currentExp : levelProgress.currentExp
-  const progressPercentage = levelProgress.progressPercentage
-  const expToNextLevel = levelProgress.expToNextLevel
+  const progressPercentage = userLevel 
+    ? (userLevel.progressPercentage ?? 0)
+    : levelProgress.progressPercentage
+  const expToNextLevel = userLevel 
+    ? (userLevel.expToNextLevel ?? 0)
+    : levelProgress.expToNextLevel
 
   if (isLoading && !userLevel) {
     return (
@@ -64,7 +68,7 @@ function LevelDisplay({
               <span className={styles.currentExp}>{displayExp}</span>
               <span className={styles.expSeparator}>/</span>
               <span className={styles.requiredExp}>
-                {displayExp + expToNextLevel}
+                {expToNextLevel > 0 ? displayExp + expToNextLevel : displayExp}
               </span>
               <span className={styles.expLabel}>EXP</span>
             </div>

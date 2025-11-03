@@ -1,11 +1,18 @@
 /* ============================================================================
-   CompletedList - 프로젝트 통합 디자인 (v3.0)
+   CompletedList - 프로젝트 통합 디자인 (v3.0) + 페이지네이션
    ============================================================================ */
+
+.completedListWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--workout-spacing-lg);
+}
 
 .completedList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: var(--workout-spacing-lg);
+  min-height: 200px;
 }
 
 .workoutCard {

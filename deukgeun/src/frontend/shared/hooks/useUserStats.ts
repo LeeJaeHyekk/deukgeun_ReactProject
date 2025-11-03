@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { typedApiClient } from '../../../shared/api/client'
+import { apiClient } from '../../../shared/api'
 import { useAuthRedux } from './useAuthRedux'
 import { isValidUserData } from '../../../shared/utils/apiValidation'
 
@@ -54,8 +54,12 @@ export const useUserStats = () => {
     try {
       setIsLoading(true)
       setError(null)
-      const response = await typedApiClient.get<UserStats>("/api/stats/user")
-      setUserStats(response as UserStats)
+      const response = await apiClient.get<UserStats>("/api/stats/user")
+      if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+        setUserStats((response.data as any).data as UserStats)
+      } else {
+        setUserStats(response.data as UserStats)
+      }
     } catch (err: unknown) {
       console.error("사용자 통계 조회 오류:", err)
       setError("사용자 통계를 불러오는데 실패했습니다.")

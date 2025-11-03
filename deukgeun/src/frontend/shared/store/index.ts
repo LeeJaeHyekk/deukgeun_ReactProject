@@ -8,9 +8,14 @@ import postsReducer from '@frontend/features/community/posts/postsSlice'
 import likesReducer from '@frontend/features/community/likes/likesSlice'
 import commentsReducer from '@frontend/features/community/comments/commentsSlice'
 import { likesPersistenceMiddleware } from '@frontend/features/community/likes/likesPersistenceMiddleware'
+import workoutReducer from '@frontend/features/workout/slices/workoutSlice'
+import { expMiddleware } from '@frontend/features/workout/slices/expMiddleware'
+import { workoutMiddleware } from '@frontend/features/workout/slices/workoutMiddleware'
+import { workoutPersistenceMiddleware } from '@frontend/features/workout/slices/workoutPersistenceMiddleware'
+import goalsReducer from '@frontend/features/goals/goalSlice'
 import { logger } from '../utils/logger'
 
-export const store = configureStore({
+const store = configureStore({
   reducer: {
     // homeSlice가 통계 관련 기능을 통합 관리하므로 우선순위
     home: homeReducer,
@@ -21,6 +26,8 @@ export const store = configureStore({
     posts: postsReducer,
     likes: likesReducer,
     comments: commentsReducer,
+    workout: workoutReducer,
+    goals: goalsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -33,12 +40,15 @@ export const store = configureStore({
           'auth.user.lastLoginAt', 
           'auth.user.lastActivityAt',
           'auth.tokenRefreshTimer',
-          'app.lastUpdated'
+          'app.lastUpdated',
+          'posts.entities'
         ],
       },
-    }).concat(likesPersistenceMiddleware),
+    }).concat(likesPersistenceMiddleware, expMiddleware, workoutMiddleware, workoutPersistenceMiddleware),
   devTools: process.env.NODE_ENV !== 'production',
 })
+
+export { store }
 
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch

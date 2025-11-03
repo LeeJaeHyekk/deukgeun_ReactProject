@@ -47,8 +47,8 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
   useEffect(() => {
     if (reduxPostIds.length > 0) {
       const updatedPosts = reduxPostIds
-        .map(id => reduxPosts[id])
-        .filter((post): post is CommunityPost => post !== null && post !== undefined && isValidPost(post))
+        .map((id: number) => reduxPosts[id])
+        .filter((post: CommunityPost | undefined): post is CommunityPost => post !== null && post !== undefined && isValidPost(post))
       
       if (process.env.NODE_ENV === 'development') {
         console.log('🔄 [useCommunityPosts] Redux store 동기화:', {

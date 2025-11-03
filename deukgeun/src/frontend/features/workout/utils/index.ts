@@ -1,5 +1,6 @@
 // ============================================================================
-// Workout Feature Utils Export
+// Workout Utils - Export
 // ============================================================================
 
-export * from "./workoutUtils"
+export * from './workoutUtils'
+export * from './goalUtils'

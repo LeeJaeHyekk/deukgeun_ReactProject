@@ -1,0 +1,80 @@
+/* ============================================================================
+   Workout Design System - CSS Variables (프로젝트 통합 디자인 시스템)
+   ============================================================================ */
+
+:root {
+  /* 프로젝트 공통 배경 */
+  --workout-bg-gradient: linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%);
+
+  /* 프로젝트 공통 색상 팔레트 */
+  --workout-primary: #f87171;
+  --workout-primary-dark: #ef4444;
+  --workout-primary-light: #fca5a5;
+  --workout-secondary: #3b82f6;
+  /* 성공 색상 - 가독성 개선 (더 밝고 대비가 좋은 색상) */
+  --workout-success: #34d399; /* emerald-400 - 더 밝은 초록색 */
+  --workout-success-dark: #059669; /* emerald-600 - 진한 초록색 */
+  --workout-success-light: #6ee7b7; /* emerald-300 - 더 밝은 초록색 */
+  --workout-warning: #f59e0b;
+  --workout-error: #ef4444;
+
+  /* Glassmorphism - 프로젝트 표준 */
+  --workout-glass-bg: rgba(255, 255, 255, 0.05);
+  --workout-glass-bg-hover: rgba(255, 255, 255, 0.08);
+  --workout-glass-border: rgba(255, 255, 255, 0.1);
+  --workout-glass-border-hover: rgba(255, 255, 255, 0.2);
+  --workout-glass-blur: blur(10px);
+  --workout-glass-blur-strong: blur(20px);
+
+  /* 텍스트 색상 - 프로젝트 표준 */
+  --workout-text-primary: #fff;
+  --workout-text-secondary: #ccc;
+  --workout-text-tertiary: rgba(255, 255, 255, 0.5);
+  --workout-text-muted: #999;
+
+  /* 카드 */
+  --workout-card-bg: rgba(255, 255, 255, 0.05);
+  --workout-card-bg-hover: rgba(255, 255, 255, 0.08);
+  --workout-card-border: rgba(255, 255, 255, 0.1);
+  --workout-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --workout-card-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  /* 버튼 */
+  --workout-btn-primary: linear-gradient(135deg, #f87171, #ef4444);
+  --workout-btn-primary-hover: linear-gradient(135deg, #ef4444, #dc2626);
+  --workout-btn-primary-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
+  --workout-btn-primary-shadow-hover: 0 6px 16px rgba(248, 113, 113, 0.4);
+
+  /* 간격 - 프로젝트 표준 */
+  --workout-spacing-xs: 0.5rem;
+  --workout-spacing-sm: 0.75rem;
+  --workout-spacing-md: 1rem;
+  --workout-spacing-lg: 1.5rem;
+  --workout-spacing-xl: 2rem;
+  --workout-spacing-2xl: 3rem;
+
+  /* Border Radius - 프로젝트 표준 */
+  --workout-radius-sm: 0.5rem;
+  --workout-radius-md: 0.75rem;
+  --workout-radius-lg: 1rem;
+  --workout-radius-xl: 1.5rem;
+  --workout-radius-2xl: 2rem;
+  --workout-radius-full: 9999px;
+
+  /* 애니메이션 - 프로젝트 표준 */
+  --workout-transition-fast: 0.2s ease;
+  --workout-transition-base: 0.3s ease;
+  --workout-transition-slow: 0.4s ease;
+
+  /* 타이포그래피 - 프로젝트 표준 */
+  --workout-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+
+  /* Z-index */
+  --workout-z-base: 1;
+  --workout-z-dropdown: 100;
+  --workout-z-sticky: 200;
+  --workout-z-fixed: 300;
+  --workout-z-modal-backdrop: 400;
+  --workout-z-modal: 500;
+}

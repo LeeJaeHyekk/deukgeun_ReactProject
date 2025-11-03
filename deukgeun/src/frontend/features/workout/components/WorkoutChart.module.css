@@ -1,0 +1,34 @@
+/* ============================================================================
+   WorkoutChart - 프로젝트 통합 디자인 (v3.0)
+   ============================================================================ */
+
+.workoutChart {
+  padding: var(--workout-spacing-xl);
+  background: var(--workout-card-bg);
+  backdrop-filter: var(--workout-glass-blur);
+  -webkit-backdrop-filter: var(--workout-glass-blur);
+  border-radius: var(--workout-radius-xl);
+  box-shadow: var(--workout-card-shadow);
+  border: 1px solid var(--workout-card-border);
+  margin-bottom: var(--workout-spacing-lg);
+  animation: fadeIn 0.5s ease;
+}
+
+.workoutChart h3 {
+  margin: 0 0 var(--workout-spacing-lg) 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--workout-text-primary);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .workoutChart {
+    padding: var(--workout-spacing-lg);
+  }
+
+  .workoutChart h3 {
+    font-size: 1.25rem;
+  }
+}

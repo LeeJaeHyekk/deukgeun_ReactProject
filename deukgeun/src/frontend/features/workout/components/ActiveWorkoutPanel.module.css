@@ -1,0 +1,51 @@
+/* ============================================================================
+   ActiveWorkoutPanel - 프로젝트 통합 디자인 (v3.0)
+   ============================================================================ */
+
+.activeWorkoutPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--workout-spacing-lg);
+  padding: var(--workout-spacing-lg);
+  animation: fadeIn 0.5s ease;
+}
+
+.emptyState,
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--workout-spacing-2xl);
+  text-align: center;
+  background: var(--workout-glass-bg);
+  backdrop-filter: var(--workout-glass-blur);
+  -webkit-backdrop-filter: var(--workout-glass-blur);
+  border-radius: var(--workout-radius-xl);
+  border: 1px solid var(--workout-glass-border);
+  box-shadow: var(--workout-card-shadow);
+  min-height: 400px;
+}
+
+.emptyState p {
+  margin: var(--workout-spacing-sm) 0;
+  color: var(--workout-text-secondary);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.errorState {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.errorState p {
+  color: var(--workout-error);
+  font-weight: 600;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .activeWorkoutPanel {
+    padding: var(--workout-spacing-md);
+  }
+}

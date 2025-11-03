@@ -1,0 +1,115 @@
+/* ============================================================================
+   WorkoutHeader - 프로젝트 통합 디자인 (v3.0)
+   ============================================================================ */
+
+.workoutHeader {
+  padding: var(--workout-spacing-xl);
+  background: var(--workout-glass-bg);
+  backdrop-filter: var(--workout-glass-blur);
+  -webkit-backdrop-filter: var(--workout-glass-blur);
+  color: var(--workout-text-primary);
+  border-radius: var(--workout-radius-xl);
+  margin-bottom: var(--workout-spacing-lg);
+  box-shadow: var(--workout-card-shadow);
+  border: 1px solid var(--workout-glass-border);
+  animation: fadeIn 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.titleSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--workout-spacing-md);
+  position: relative;
+  z-index: 1;
+}
+
+.titleSection h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--workout-text-primary);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.progress {
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--workout-radius-full);
+  background: var(--workout-glass-bg-hover);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 1.125rem;
+  font-weight: 700;
+  box-shadow: var(--workout-card-shadow);
+  border: 1px solid var(--workout-glass-border);
+}
+
+.statsSection {
+  display: flex;
+  gap: var(--workout-spacing-xl);
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--workout-spacing-xs);
+  padding: var(--workout-spacing-md);
+  background: var(--workout-glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: var(--workout-radius-lg);
+  border: 1px solid var(--workout-glass-border);
+  min-width: 120px;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--workout-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--workout-text-primary);
+  line-height: 1;
+}
+
+.description {
+  margin-top: var(--workout-spacing-md);
+  font-size: 0.9375rem;
+  color: var(--workout-text-secondary);
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .workoutHeader {
+    padding: var(--workout-spacing-lg);
+  }
+
+  .titleSection {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--workout-spacing-sm);
+  }
+
+  .statsSection {
+    width: 100%;
+    gap: var(--workout-spacing-md);
+  }
+
+  .statItem {
+    flex: 1;
+    min-width: auto;
+  }
+}

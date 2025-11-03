@@ -1,246 +1,70 @@
-import React, { useState, useEffect } from "react"
-import { useAuthRedux } from "@frontend/shared/hooks/useAuthRedux"
-import { useMachines } from "@shared/hooks/useMachines"
-import { Navigation } from "@widgets/Navigation/Navigation"
-import { TabNavigation } from "./components/navigation/TabNavigation"
-import { TabContent } from "./components/navigation/TabContent"
-import { WorkoutPageHeader } from "./components/WorkoutPageHeader"
-import { WorkoutPageLoading } from "./components/WorkoutPageLoading"
-import { WorkoutPageError } from "./components/WorkoutPageError"
-import { WorkoutNotifications } from "./components/WorkoutNotifications"
-import { WorkoutPlanModal } from "./components/modals/WorkoutPlanModal/WorkoutPlanModal"
-import { WorkoutSessionModal } from "./components/modals/WorkoutSessionModal/WorkoutSessionModal"
-import { WorkoutGoalModal } from "./components/modals/WorkoutGoalModal/WorkoutGoalModal"
-import {
-  useWorkoutStoreData,
-  useWorkoutInitialization,
-  useSharedState,
-  useWorkoutNotifications as useNotifications,
-  useWorkoutErrors,
-  useWorkoutTimer,
-} from "./hooks/useWorkoutStore"
-import { useWorkoutHandlers } from "./hooks/useWorkoutHandlers"
-import { TAB_CONFIG } from "./constants"
-import { isDefined, isString, isNumber } from "../../shared/utils/typeGuards"
-import { handleError } from "../../shared/utils/errorHandling"
-import type { TabType } from "./types"
-import type {
-  WorkoutPlan,
-  WorkoutSession,
-  WorkoutGoal,
-  DashboardData,
-} from "./types"
-import styles from "./WorkoutPage.module.css"
+// ============================================================================
+// WorkoutPage - 메인 워크아웃 페이지
+// ============================================================================
 
-// 로깅 유틸리티
-const logger = {
-  info: (message: string, data?: any) => {
-    if (import.meta.env.DEV) {
-      console.log(`[WorkoutPage] ${message}`, data || "")
-    }
-  },
-  debug: (message: string, data?: any) => {
-    if (import.meta.env.DEV) {
-      console.debug(`[WorkoutPage] ${message}`, data || "")
-    }
-  },
-  warn: (message: string, data?: any) => {
-    console.warn(`[WorkoutPage] ${message}`, data || "")
-  },
-  error: (message: string, data?: any) => {
-    console.error(`[WorkoutPage] ${message}`, data || "")
-  },
-  modalOperation: (operation: string, modalType: string, data?: any) => {
-    if (import.meta.env.DEV) {
-      console.log(`[WorkoutPage] ${operation} ${modalType} Modal`, data || "")
-    }
-  },
-  performance: (operation: string, duration: number) => {
-    if (import.meta.env.DEV) {
-      console.log(`[WorkoutPage] ${operation} took ${duration.toFixed(2)}ms`)
-    }
-  },
-}
+import React, { useState, Suspense, lazy, useCallback } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { useAuthRedux } from "@frontend/shared/hooks/useAuthRedux"
+import { Navigation } from "@widgets/Navigation/Navigation"
+import { TabBar, TabType } from "./components/TabBar"
+import { selectActiveWorkout } from "./selectors"
+import { pauseWorkout } from "./slices/workoutSlice"
+import { useWorkoutPageInitialization } from "./hooks/useWorkoutPageInitialization"
+import { EmptyState } from "./components/common"
+import styles from "./WorkoutPage.module.css"
+import "./styles/variables.css"
+
+// 코드 스플리팅: 탭별 패널을 lazy load로 분리 (성능 최적화)
+const GoalSettingPanel = lazy(() => import("./components/GoalSettingPanel").then(module => ({ default: module.GoalSettingPanel })))
+const ActiveWorkoutPanel = lazy(() => import("./components/ActiveWorkoutPanel").then(module => ({ default: module.ActiveWorkoutPanel })))
+const CompletedWorkoutPanel = lazy(() => import("./components/CompletedWorkoutPanel").then(module => ({ default: module.CompletedWorkoutPanel })))
+const AddGoalModal = lazy(() => import("./components/AddGoalModal").then(module => ({ default: module.AddGoalModal })))
+
+// 로딩 컴포넌트
+import { LoadingState } from "./components/common"
+const PanelLoader = () => <LoadingState />
 
 function WorkoutPageContent() {
-  const { isLoggedIn: isAuthenticated, user } = useAuthRedux()
-  const [isDataLoading, setIsDataLoading] = useState(true)
-  const [selectedGoalId, setSelectedGoalId] = useState<number | undefined>(
-    undefined
-  )
+  const dispatch = useDispatch()
+  const { isLoggedIn: isAuthenticated } = useAuthRedux()
+  const activeWorkout = useSelector(selectActiveWorkout)
+  const [activeTab, setActiveTab] = useState<TabType>("goals")
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  logger.info("워크아웃 페이지 컴포넌트 렌더링", {
-    isAuthenticated,
-    userId: user?.id,
-    timestamp: new Date().toISOString(),
-  })
+  // 초기 데이터 로드 (localStorage + 백엔드 병합)
+  useWorkoutPageInitialization()
 
-  // Zustand Store 훅들
-  const {
-    plans,
-    sessions,
-    goals,
-    dashboardData,
-    loading,
-    activeTab,
-    modals,
-    tabStates,
-    sharedState,
-  } = useWorkoutStoreData()
+  // activeWorkout이 있으면 자동으로 active 탭으로 전환 (루프 방지)
+  React.useEffect(() => {
+    if (activeWorkout && activeTab !== "active") {
+      setActiveTab("active")
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeWorkout?.sessionId]) // sessionId만 의존성으로 사용하여 루프 방지
 
-  const { initializeWorkoutData } = useWorkoutInitialization()
+  // 탭 전환 시 activeWorkout이 있으면 진행 상태 자동 저장
+  const handleTabChange = useCallback((tab: TabType) => {
+    // activeWorkout이 있고 다른 탭으로 전환하는 경우 진행 상태 저장
+    if (activeWorkout && tab !== "active") {
+      // pauseWorkout을 dispatch하여 진행 상태를 goal에 저장
+      dispatch(pauseWorkout())
+      console.log("💾 탭 전환으로 인한 진행 상태 자동 저장")
+    }
+    setActiveTab(tab)
+  }, [activeWorkout, dispatch])
 
-  // 공유 상태 훅
-  const { removeNotification } = useNotifications()
-  const { setGlobalError } = useWorkoutErrors()
-  const { timer, updateTimer } = useWorkoutTimer()
-
-  // 기계 데이터 훅
-  const { machines } = useMachines()
-
-  // 핸들러 훅
-  const {
-    handleCreatePlan,
-    handleEditPlan,
-    handleDeletePlan,
-    handleStartSession,
-    handleEditSession,
-    handleViewSession,
-    handleDeleteSession,
-    handleCreateGoal,
-    handleEditGoal,
-    handleDeleteGoal,
-    handlePlanClick,
-    handleSessionClick,
-    handleGoalClick,
-    handleTabChange,
-  } = useWorkoutHandlers()
-
-  // 로딩 상태 계산
-  const isLoading =
-    loading.plans.isLoading ||
-    loading.sessions.isLoading ||
-    loading.goals.isLoading ||
-    isDataLoading
-
-  // 탭 변경 핸들러
-  const onTabChange = (tab: TabType) => {
-    logger.info("탭 변경", { from: activeTab, to: tab })
-    handleTabChange(tab, setSelectedGoalId)
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
   }
 
-  // 클릭 핸들러들 (타입 안전성 보장)
-  const onPlanClick = (planId: number) => {
-    if (!isNumber(planId) || planId <= 0) {
-      logger.error("Invalid plan ID", { planId })
-      return
-    }
-    logger.debug("Plan clicked", { planId })
-    handlePlanClick(planId, plans)
-  }
-
-  const onSessionClick = (sessionId: number) => {
-    if (!isNumber(sessionId) || sessionId <= 0) {
-      logger.error("Invalid session ID", { sessionId })
-      return
-    }
-    logger.debug("Session clicked", { sessionId })
-    handleSessionClick(sessionId, sessions)
-  }
-
-  const onGoalClick = (goalId: number) => {
-    if (!isNumber(goalId) || goalId <= 0) {
-      logger.error("Invalid goal ID", { goalId })
-      return
-    }
-    logger.debug("Goal clicked", { goalId })
-    handleGoalClick(goalId, setSelectedGoalId)
-  }
-
-  // 데이터 초기화
-  useEffect(() => {
-    if (!isAuthenticated) {
-      console.log("[WorkoutPage] 로그인되지 않은 상태 - 데이터 초기화 스킵")
-      return
-    }
-
-    console.log("[WorkoutPage] 로그인 상태 확인:", {
-      isAuthenticated,
-      userId: user?.id,
-      userEmail: user?.email,
-      timestamp: new Date().toISOString(),
-    })
-
-    // 토큰 상태 확인
-    const token = localStorage.getItem("accessToken")
-    console.log("[WorkoutPage] 토큰 상태 확인:", {
-      hasToken: !!token,
-      tokenPreview: token ? `${token.substring(0, 20)}...` : "없음",
-      timestamp: new Date().toISOString(),
-    })
-
-    const initializeData = async () => {
-      const startTime = performance.now()
-      setIsDataLoading(true)
-
-      console.log("[WorkoutPage] 데이터 초기화 시작", {
-        isAuthenticated,
-        userId: user?.id,
-        machinesCount: machines.length,
-      })
-
-    try {
-      await initializeWorkoutData()
-      logger.performance("데이터 초기화", performance.now() - startTime)
-      logger.info("데이터 초기화 완료", {
-        plansCount: plans.length,
-        sessionsCount: sessions.length,
-        goalsCount: goals.length,
-      })
-    } catch (error) {
-      const appError = handleError(error, 'WorkoutPage.initializeData')
-      logger.error("데이터 초기화 실패", appError)
-      setGlobalError("데이터를 불러오는 중 오류가 발생했습니다.")
-    } finally {
-      setIsDataLoading(false)
-    }
-    }
-
-    if (isAuthenticated) {
-      initializeData()
-    }
-  }, [isAuthenticated, user?.id]) // initializeWorkoutData 의존성 제거
-
-  // 타이머 업데이트
-  useEffect(() => {
-    if (!timer.isRunning) return
-
-    const interval = setInterval(() => {
-      updateTimer(timer.seconds + 1000)
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [timer.isRunning, timer.seconds, updateTimer])
-
-  // 에러 처리
-  if (sharedState.globalError) {
+  if (!isAuthenticated) {
     return (
       <div className={styles.workoutPage}>
         <Navigation />
-        <WorkoutPageError 
-          error={sharedState.globalError}
-          onRetry={() => window.location.reload()}
+        <EmptyState
+          title="로그인이 필요합니다"
+          message="운동 관리를 사용하려면 로그인해주세요."
         />
-      </div>
-    )
-  }
-
-  // 로딩 상태
-  if (isLoading) {
-    return (
-      <div className={styles.workoutPage}>
-        <Navigation />
-        <WorkoutPageLoading message="운동 데이터를 불러오는 중..." />
       </div>
     )
   }
@@ -250,75 +74,31 @@ function WorkoutPageContent() {
       <Navigation />
 
       <div className={styles.workoutPageContent}>
-        <WorkoutPageHeader />
+        <div className={styles.header}>
+          <h1>운동 관리</h1>
+        </div>
 
-        <TabNavigation
-          activeTab={activeTab}
-          onTabChange={onTabChange}
-          tabs={TAB_CONFIG}
-        />
+        <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
 
-        <TabContent
-          activeTab={activeTab}
-          isLoading={isLoading}
-          dashboardData={dashboardData as any}
-          plans={plans as any}
-          sessions={sessions as any}
-          goals={goals as any}
-          workoutStats={null} // TODO: 운동 통계 데이터 추가
-          machines={machines}
-          plansLoading={loading.plans.isLoading}
-          sessionsLoading={loading.sessions.isLoading}
-          goalsLoading={loading.goals.isLoading}
-          onPlanClick={onPlanClick}
-          onSessionClick={onSessionClick}
-          onGoalClick={onGoalClick}
-          onCreatePlan={handleCreatePlan}
-          onEditPlan={(planId) => handleEditPlan(planId, plans)}
-          onStartSession={(planId) => handleStartSession(planId, plans)}
-          onEditSession={(sessionId) => handleEditSession(sessionId, sessions)}
-          onViewSession={(sessionId) => handleViewSession(sessionId, sessions)}
-          onCreateGoal={handleCreateGoal}
-          onEditGoal={(goalId) => handleEditGoal(goalId, goals)}
-          onDeletePlan={handleDeletePlan}
-          onDeleteSession={handleDeleteSession}
-          onDeleteGoal={handleDeleteGoal}
-          selectedGoalId={selectedGoalId}
-        />
+        <div className={styles.tabContent}>
+          <Suspense fallback={<PanelLoader />}>
+            {activeTab === "goals" && <GoalSettingPanel />}
+            {activeTab === "active" && <ActiveWorkoutPanel />}
+            {activeTab === "completed" && <CompletedWorkoutPanel />}
+          </Suspense>
+        </div>
+
+        {isModalOpen && (
+          <Suspense fallback={null}>
+            <AddGoalModal onClose={handleCloseModal} />
+          </Suspense>
+        )}
       </div>
-
-      {/* 알림 시스템 */}
-      <WorkoutNotifications
-        notifications={sharedState.notifications}
-        onRemove={removeNotification}
-      />
-
-      {/* 모달들 */}
-      <WorkoutPlanModal />
-      <WorkoutSessionModal />
-      <WorkoutGoalModal />
     </div>
   )
 }
 
 // 메인 컴포넌트
-function WorkoutPage() {
-  const { isLoggedIn: isAuthenticated } = useAuthRedux()
-
-  if (!isAuthenticated) {
-    return (
-      <div className={styles.workoutPage}>
-        <Navigation />
-        <div className={styles.authRequired}>
-          <h2>로그인이 필요합니다</h2>
-          <p>운동 관리를 사용하려면 로그인해주세요.</p>
-        </div>
-      </div>
-    )
-  }
-
+export function WorkoutPage() {
   return <WorkoutPageContent />
 }
-
-export default WorkoutPage
-export { WorkoutPage }

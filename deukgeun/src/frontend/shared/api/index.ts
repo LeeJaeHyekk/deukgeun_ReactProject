@@ -215,8 +215,10 @@ instance.interceptors.request.use(
       try {
         if (typeof window !== 'undefined' && (window as any).verification?.addRequest) {
           const method = config.method?.toUpperCase() || 'GET'
-          const fullUrl = config.url || ''
-          (window as any).verification.addRequest(fullUrl, method)
+          const requestUrl: string = config.url || ''
+          if (requestUrl && (window as any).verification.addRequest) {
+            (window as any).verification.addRequest(requestUrl, method)
+          }
         }
       } catch {
         // 무시
@@ -314,6 +316,10 @@ instance.interceptors.request.use(
           return new Promise((resolve, reject) => {
             tokenManager.addToRefreshQueue(
               (newToken) => {
+                if (!originalRequest.config) {
+                  reject(new Error('Request config is missing'))
+                  return
+                }
                 originalRequest.config.headers = originalRequest.config.headers || {}
                 originalRequest.config.headers.Authorization = `Bearer ${newToken}`
                 resolve(instance(originalRequest.config))
@@ -336,6 +342,9 @@ instance.interceptors.request.use(
           tokenManager.processRefreshQueue(newToken)
           
           // 원래 요청의 헤더에 새 토큰 설정
+          if (!originalRequest.config) {
+            throw new Error('Request config is missing')
+          }
           originalRequest.config.headers = originalRequest.config.headers || {}
           originalRequest.config.headers.Authorization = `Bearer ${newToken}`
           

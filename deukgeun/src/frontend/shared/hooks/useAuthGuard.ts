@@ -26,7 +26,7 @@ export function useAuthGuard() {
       isAuthenticated,
       isLoggedIn,
       hasUser: !!user,
-      userId: user?.id || user?.userId || null,
+      userId: user?.id || null,
       userEmail: user?.email || null,
       hasUserAccessToken: !!user?.accessToken,
       hasCurrentToken: !!currentToken,

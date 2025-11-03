@@ -1,0 +1,144 @@
+{
+  "userId": "로그인한 사용자 ID (number 또는 string)",
+  "goalId": "운동 목표의 고유 ID (number, 신규 생성 시 null)",
+  "goalTitle": "운동 목표명 (string)",
+  "goalType": "목표 유형 (예: 'weight' | 'reps' | 'duration' | 'frequency' | 'streak' | 'muscle_gain' | 'fat_loss' | 'weight_loss' | 'endurance' | 'strength' | 'flexibility' | 'custom')",
+  "description": "목표 설명 (string, optional)",
+  "category": "목표 카테고리 (string, optional)",
+  "targetMetrics": {
+    "muscleGain": "근육량 증가 목표 (kg, number, optional)",
+    "fatLoss": "체지방 감소 목표 (kg, number, optional)",
+    "weightTarget": "목표 체중 (kg, number, optional)",
+    "workoutFrequency": "주간 운동 횟수 목표 (number, optional)",
+    "durationWeeks": "목표 기간 (주 단위, number, optional)",
+    "targetValue": "목표 값 (number, 모든 유형에 적용)",
+    "currentValue": "현재 값 (number, 진행 상황 추적)",
+    "unit": "단위 (string, 예: 'kg', '회', '분', '주', '일')"
+  },
+  "progress": {
+    "currentWeight": "현재 체중 (kg, number, optional)",
+    "currentMuscleMass": "현재 근육량 (kg, number, optional)",
+    "currentFatMass": "현재 체지방량 (kg, number, optional)",
+    "completedWorkouts": "현재까지 완료한 운동 세션 수 (number)",
+    "completedTasks": "완료한 태스크 수 (number)",
+    "totalTasks": "전체 태스크 수 (number)",
+    "achievementRate": "달성률 (%) 자동 계산용 (number)",
+    "progressPercentage": "전체 진행률 (%) (number, 0-100)"
+  },
+  "status": "진행 상태 ('planned' | 'active' | 'paused' | 'completed' | 'done' | 'cancelled')",
+  "isCompleted": "완료 여부 (boolean)",
+  "completedAt": "완료일 (ISO string, optional)",
+  "startDate": "목표 시작일 (ISO string)",
+  "endDate": "목표 종료일 (ISO string, optional)",
+  "deadline": "목표 마감일 (ISO string, optional)",
+  "targetDate": "목표 날짜 (ISO string, optional)",
+  "createdAt": "생성일 (ISO string)",
+  "updatedAt": "수정일 (ISO string)",
+  "notes": "사용자 메모 (string, optional)",
+  "difficulty": "난이도 ('beginner' | 'intermediate' | 'advanced', optional)",
+  "expReward": "경험치 보상 (number, optional)",
+  "planId": "운동 계획 ID (number, optional)",
+  "exerciseId": "운동 ID (number, optional)",
+  "gymId": "헬스장 ID (number, optional)",
+  "tasks": [
+    {
+      "taskId": "태스크 고유 ID (string)",
+      "name": "태스크 이름 (string)",
+      "category": "태스크 카테고리 (string, optional)",
+      "exerciseName": "운동 이름 (string, optional)",
+      "machineId": "기구 ID (number, optional)",
+      "exerciseId": "운동 ID (number, optional)",
+      "setCount": "세트 수 (number)",
+      "repsPerSet": "세트당 반복 수 (number)",
+      "weightPerSet": "세트당 중량 (kg, number, optional)",
+      "restTimeSec": "휴식 시간 (초, number, optional)",
+      "durationSeconds": "지속 시간 (초, number, optional)",
+      "distanceMeters": "거리 (미터, number, optional)",
+      "completedSets": "완료한 세트 수 (number)",
+      "status": "태스크 상태 ('pending' | 'in_progress' | 'completed')",
+      "rpeRating": "운동 강도 (1-10, number, optional)",
+      "isPersonalBest": "개인 최고 기록 여부 (boolean, optional)",
+      "isCompleted": "완료 여부 (boolean)",
+      "notes": "태스크 메모 (string, optional)",
+      "photos": "사진 URL 배열 (string[], optional)",
+      "createdAt": "생성일 (ISO string)",
+      "updatedAt": "수정일 (ISO string)"
+    }
+  ],
+  "activeWorkout": {
+    "sessionId": "진행 중인 세션 ID (string 또는 number)",
+    "goalId": "목표 ID (string)",
+    "startTime": "시작 시간 (ISO string)",
+    "endTime": "종료 시간 (ISO string, optional)",
+    "progress": "진행률 (number, 0-100)",
+    "activeTaskId": "현재 활성 태스크 ID (string, optional)",
+    "currentSet": "현재 세트 번호 (number, optional)",
+    "restTimerSec": "휴식 타이머 (초, number, optional)",
+    "addedTasks": "추가된 태스크 목록 (Task[], optional)",
+    "notes": "세션 메모 (string, optional)",
+    "photos": "세션 사진 (string[], optional)",
+    "moodRating": "기분 평가 (1-5, number, optional)",
+    "energyLevel": "에너지 레벨 (1-5, number, optional)",
+    "totalDurationMinutes": "총 운동 시간 (분, number, optional)"
+  },
+  "history": [
+    {
+      "date": "날짜 (ISO string)",
+      "sessionId": "운동 세션 ID (number)",
+      "sessionName": "세션 이름 (string, optional)",
+      "completedAt": "완료 시간 (ISO string)",
+      "totalDurationMinutes": "총 운동 시간 (분, number, optional)",
+      "totalSets": "총 세트 수 (number)",
+      "totalReps": "총 반복 수 (number)",
+      "expEarned": "획득한 경험치 (number, optional)",
+      "avgIntensity": "평균 강도 (number, optional)",
+      "moodRating": "기분 평가 (1-5, number, optional)",
+      "energyLevel": "에너지 레벨 (1-5, number, optional)",
+      "notes": "세션 메모 (string, optional)",
+      "summary": {
+        "muscleGroups": "운동한 근육 부위 (string[], optional)",
+        "equipmentUsed": "사용한 기구 (string[], optional)",
+        "comment": "요약 코멘트 (string, optional)"
+      },
+      "actions": [
+        {
+          "actionId": "액션 ID (number)",
+          "exerciseId": "운동 ID (number)",
+          "exerciseName": "운동 이름 (string)",
+          "machineId": "기구 ID (number, optional)",
+          "setNumber": "세트 번호 (number)",
+          "sets": "세트 수 (number)",
+          "reps": "반복 수 (number)",
+          "weight": "중량 (kg, number, optional)",
+          "durationSeconds": "지속 시간 (초, number, optional)",
+          "distanceMeters": "거리 (미터, number, optional)",
+          "rpeRating": "운동 강도 (1-10, number, optional)",
+          "isPersonalBest": "개인 최고 기록 여부 (boolean, optional)",
+          "isCompleted": "완료 여부 (boolean)",
+          "notes": "액션 메모 (string, optional)",
+          "createdAt": "생성일 (ISO string)"
+        }
+      ]
+    }
+  ],
+  "completedWorkouts": [
+    {
+      "completedId": "완료 ID (string)",
+      "goalId": "목표 ID (string)",
+      "goalTitle": "목표 제목 (string, optional)",
+      "completedAt": "완료 시간 (ISO string)",
+      "totalSets": "총 세트 수 (number)",
+      "totalReps": "총 반복 수 (number)",
+      "avgIntensity": "평균 강도 (number, optional)",
+      "expEarned": "획득한 경험치 (number)",
+      "durationMin": "운동 시간 (분, number, optional)",
+      "summary": {
+        "muscleGroups": "운동한 근육 부위 (string[], optional)",
+        "equipmentUsed": "사용한 기구 (string[], optional)",
+        "comment": "요약 코멘트 (string, optional)"
+      },
+      "graphData": "그래프 데이터 (any, optional)"
+    }
+  ]
+}
+

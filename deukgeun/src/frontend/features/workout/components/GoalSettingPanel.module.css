@@ -1,0 +1,102 @@
+/* ============================================================================
+   GoalSettingPanel - 프로젝트 통합 디자인 (v3.0)
+   ============================================================================ */
+
+.goalSettingPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--workout-spacing-lg);
+  padding: var(--workout-spacing-lg);
+  animation: fadeIn 0.5s ease;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--workout-spacing-md);
+  flex-wrap: wrap;
+  gap: var(--workout-spacing-md);
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--workout-text-primary);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.goalList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--workout-spacing-lg);
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--workout-spacing-2xl);
+  text-align: center;
+  background: var(--workout-glass-bg);
+  backdrop-filter: var(--workout-glass-blur);
+  -webkit-backdrop-filter: var(--workout-glass-blur);
+  border-radius: var(--workout-radius-xl);
+  border: 1px solid var(--workout-glass-border);
+  box-shadow: var(--workout-card-shadow);
+  min-height: 300px;
+}
+
+.emptyState p {
+  margin: var(--workout-spacing-sm) 0;
+  color: var(--workout-text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.addButton {
+  padding: 0.875rem 1.75rem;
+  background: var(--workout-btn-primary);
+  color: var(--workout-text-primary);
+  border: none;
+  border-radius: var(--workout-radius-lg);
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: all var(--workout-transition-base);
+  box-shadow: var(--workout-btn-primary-shadow);
+}
+
+.addButton:hover {
+  background: var(--workout-btn-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--workout-btn-primary-shadow-hover);
+}
+
+.addButton:active {
+  transform: translateY(0);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .goalList {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header h2 {
+    font-size: 1.5rem;
+  }
+
+  .addButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

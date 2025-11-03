@@ -1,0 +1,54 @@
+/* ============================================================================
+   TabBar - 프로젝트 통합 디자인 (v3.0)
+   ============================================================================ */
+
+.tabBar {
+  display: flex;
+  gap: var(--workout-spacing-sm);
+  background: var(--workout-glass-bg);
+  backdrop-filter: var(--workout-glass-blur);
+  -webkit-backdrop-filter: var(--workout-glass-blur);
+  border-radius: var(--workout-radius-xl);
+  padding: var(--workout-spacing-sm);
+  border: 1px solid var(--workout-glass-border);
+  box-shadow: var(--workout-card-shadow);
+  margin-bottom: var(--workout-spacing-lg);
+  animation: fadeIn 0.4s ease;
+}
+
+.tab {
+  flex: 1;
+  padding: var(--workout-spacing-md) var(--workout-spacing-lg);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--workout-text-secondary);
+  border-radius: var(--workout-radius-lg);
+  transition: all var(--workout-transition-base);
+  position: relative;
+}
+
+.tab:hover {
+  color: var(--workout-text-primary);
+  background: var(--workout-glass-bg-hover);
+}
+
+.tab.active {
+  color: var(--workout-text-primary);
+  background: var(--workout-btn-primary);
+  box-shadow: var(--workout-btn-primary-shadow);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .tabBar {
+    flex-direction: column;
+    gap: var(--workout-spacing-xs);
+  }
+
+  .tab {
+    width: 100%;
+  }
+}

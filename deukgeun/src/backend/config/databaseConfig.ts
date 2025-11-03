@@ -25,6 +25,8 @@ import { WorkoutPlan } from "@backend/entities/WorkoutPlan"
 import { WorkoutPlanExercise } from "@backend/entities/WorkoutPlanExercise"
 import { ExerciseSet } from "@backend/entities/ExerciseSet"
 import { WorkoutGoal } from "@backend/entities/WorkoutGoal"
+import { GoalEntity } from "@backend/entities/GoalEntity"
+import { GoalHistoryEntity } from "@backend/entities/GoalHistoryEntity"
 import { VerificationToken } from "@backend/entities/VerificationToken"
 import { PasswordResetToken } from "@backend/entities/PasswordResetToken"
 
@@ -69,6 +71,10 @@ function getEntities() {
     WorkoutPlanExercise,
     ExerciseSet,
     WorkoutGoal,
+    
+    // Goal 관련 엔티티 (새로운 구조)
+    GoalEntity,
+    GoalHistoryEntity,
     
     // Auth 관련 엔티티
     VerificationToken,

@@ -49,7 +49,7 @@ export default function GymFinderPage() {
   // 메모이제이션된 핸들러들
   const handleFilterToggle = useCallback((filter: FilterOption) => {
     const newFilters = activeFilters.includes(filter)
-      ? activeFilters.filter(f => f !== filter)
+      ? activeFilters.filter((f: FilterOption) => f !== filter)
       : [...activeFilters, filter]
     updateFilters(newFilters)
     handleSearchOrFilter()
@@ -213,7 +213,7 @@ export default function GymFinderPage() {
                 ) : hasGyms ? (
                   <>
                     <div className={styles.gymList}>
-                      {currentGyms.map((gym) => (
+                      {currentGyms.map((gym: Gym) => (
                         <GymCard
                           key={gym.id}
                           gym={gym}

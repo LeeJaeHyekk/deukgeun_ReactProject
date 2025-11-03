@@ -1,0 +1,145 @@
+/* ============================================================================
+   CompletedList - 프로젝트 통합 디자인 (v3.0)
+   ============================================================================ */
+
+.completedList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--workout-spacing-lg);
+}
+
+.workoutCard {
+  background: var(--workout-card-bg);
+  backdrop-filter: var(--workout-glass-blur);
+  -webkit-backdrop-filter: var(--workout-glass-blur);
+  border-radius: var(--workout-radius-xl);
+  padding: var(--workout-spacing-lg);
+  box-shadow: var(--workout-card-shadow);
+  border: 1px solid var(--workout-card-border);
+  transition: all var(--workout-transition-base);
+  animation: fadeIn 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.workoutCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--workout-success), var(--workout-success-dark));
+}
+
+.workoutCard:hover {
+  box-shadow: var(--workout-card-shadow-hover);
+  transform: translateY(-4px);
+  background: var(--workout-card-bg-hover);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--workout-spacing-md);
+  gap: var(--workout-spacing-md);
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--workout-text-primary);
+  flex: 1;
+  line-height: 1.4;
+}
+
+.date {
+  font-size: 0.875rem;
+  color: var(--workout-text-secondary);
+  white-space: nowrap;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--workout-spacing-md);
+  margin-bottom: var(--workout-spacing-md);
+  padding: var(--workout-spacing-md);
+  background: var(--workout-glass-bg);
+  border-radius: var(--workout-radius-lg);
+  border: 1px solid var(--workout-glass-border);
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--workout-spacing-xs);
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--workout-text-tertiary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--workout-success);
+  line-height: 1;
+}
+
+.comment {
+  margin-top: var(--workout-spacing-md);
+  padding: var(--workout-spacing-md);
+  background: var(--workout-glass-bg);
+  border-radius: var(--workout-radius-lg);
+  border-left: 3px solid var(--workout-primary);
+}
+
+.comment p {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--workout-text-secondary);
+  line-height: 1.6;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--workout-spacing-2xl);
+  text-align: center;
+  background: var(--workout-glass-bg);
+  backdrop-filter: var(--workout-glass-blur);
+  -webkit-backdrop-filter: var(--workout-glass-blur);
+  border-radius: var(--workout-radius-xl);
+  border: 1px solid var(--workout-glass-border);
+  box-shadow: var(--workout-card-shadow);
+  min-height: 300px;
+}
+
+.emptyState p {
+  margin: var(--workout-spacing-sm) 0;
+  color: var(--workout-text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .completedList {
+    grid-template-columns: 1fr;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}

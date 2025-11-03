@@ -102,8 +102,8 @@ export default function LoginPage() {
         role: 'user' as const,
         isActive: true,
         isEmailVerified: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       }
       
       logger.info('LOGIN_PAGE', '로그인 함수 호출 전', {

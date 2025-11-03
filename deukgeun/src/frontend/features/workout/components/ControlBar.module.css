@@ -1,0 +1,85 @@
+/* ============================================================================
+   ControlBar - 프로젝트 통합 디자인 (v3.0)
+   ============================================================================ */
+
+.controlBar {
+  display: flex;
+  gap: var(--workout-spacing-md);
+  padding: var(--workout-spacing-lg);
+  background: var(--workout-glass-bg);
+  backdrop-filter: var(--workout-glass-blur);
+  -webkit-backdrop-filter: var(--workout-glass-blur);
+  border-radius: var(--workout-radius-xl);
+  border: 1px solid var(--workout-glass-border);
+  box-shadow: var(--workout-card-shadow);
+  margin-top: auto;
+  position: sticky;
+  bottom: var(--workout-spacing-lg);
+  z-index: var(--workout-z-sticky);
+}
+
+.pauseButton,
+.finishButton {
+  padding: 0.875rem 1.5rem;
+  border-radius: var(--workout-radius-lg);
+  border: none;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--workout-transition-base);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--workout-spacing-sm);
+}
+
+.pauseButton {
+  background: var(--workout-glass-bg-hover);
+  color: var(--workout-text-primary);
+  border: 1px solid var(--workout-glass-border-hover);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.pauseButton:hover {
+  background: var(--workout-card-bg-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--workout-card-shadow);
+}
+
+.finishButton {
+  background: var(--workout-btn-primary);
+  color: white;
+  flex: 1;
+  box-shadow: var(--workout-btn-primary-shadow);
+}
+
+.finishButton:hover:not(:disabled) {
+  background: var(--workout-btn-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--workout-btn-primary-shadow-hover);
+}
+
+.finishButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.finishButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .controlBar {
+    flex-direction: column;
+    padding: var(--workout-spacing-md);
+  }
+
+  .pauseButton,
+  .finishButton {
+    width: 100%;
+  }
+}

@@ -19,7 +19,7 @@ import {
   selectMaxDistance,
   selectError,
 } from '../slices/locationSlice'
-import { FilterOption, SortOption, SortDirection } from '../types'
+import { FilterOption, SortOption, SortDirection, Gym } from '../types'
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -114,7 +114,7 @@ export const useGymSearch = () => {
   }, [position, allGyms.length])
 
   // 거리 기반 필터링된 헬스장 목록
-  const nearbyGyms = gyms.filter(gym => {
+  const nearbyGyms = gyms.filter((gym: Gym) => {
     if (!gym.distance) return false
     return gym.distance <= maxDistance
   })

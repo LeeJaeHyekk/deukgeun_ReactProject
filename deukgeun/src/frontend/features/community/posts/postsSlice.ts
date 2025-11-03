@@ -332,7 +332,7 @@ export const createPost = (postData: {
     }
     
     // 서버 응답에서 data 추출 및 타입 검증
-    const newPost = response.data.data
+    const newPost = response.data.data as PostDTO
     const { isValidPost } = await import('../utils/typeGuards')
     
     if (!isValidPost(newPost)) {
@@ -385,7 +385,7 @@ export const updatePostThunk = (postId: number, updateData: {
       throw new Error(response?.data?.message || '게시글 수정에 실패했습니다.')
     }
     
-    const updatedPost = response.data.data
+    const updatedPost = response.data.data as PostDTO
     const { isValidPost } = await import('../utils/typeGuards')
     
     if (!isValidPost(updatedPost)) {

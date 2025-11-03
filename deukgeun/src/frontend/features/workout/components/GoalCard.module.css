@@ -1,0 +1,464 @@
+/* ============================================================================
+   GoalCard - 프로젝트 통합 디자인 (상세 개선 버전 v3.1)
+   ============================================================================ */
+
+.goalCard {
+  background: var(--workout-card-bg);
+  backdrop-filter: var(--workout-glass-blur);
+  -webkit-backdrop-filter: var(--workout-glass-blur);
+  border-radius: var(--workout-radius-xl);
+  padding: var(--workout-spacing-lg);
+  box-shadow: var(--workout-card-shadow);
+  transition: all var(--workout-transition-base);
+  border: 1px solid var(--workout-card-border);
+  animation: fadeIn 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  /* 카드 높이 최적화 */
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+}
+
+/* 상단 그라데이션 라인 */
+.goalCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: all var(--workout-transition-base);
+}
+
+.goalCard:hover {
+  box-shadow: var(--workout-card-shadow-hover);
+  transform: translateY(-4px);
+  background: var(--workout-card-bg-hover);
+  border-color: var(--workout-glass-border-hover);
+}
+
+.goalCard:hover::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(248, 113, 113, 0.6),
+    transparent
+  );
+}
+
+/* 카드 내부 그라데이션 오버레이 */
+.goalCard::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(248, 113, 113, 0.05) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity var(--workout-transition-base);
+  pointer-events: none;
+}
+
+.goalCard:hover::after {
+  opacity: 1;
+}
+
+/* 헤더 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--workout-spacing-md);
+  gap: var(--workout-spacing-md);
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--workout-text-primary);
+  flex: 1;
+  line-height: 1.4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  letter-spacing: -0.01em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 난이도 배지 - 더 세련되게 */
+.difficulty {
+  padding: 0.5rem 1rem;
+  border-radius: var(--workout-radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all var(--workout-transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.difficulty::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left var(--workout-transition-slow);
+}
+
+.difficulty:hover::before {
+  left: 100%;
+}
+
+.difficulty[data-difficulty="beginner"] {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.25) 0%, rgba(5, 150, 105, 0.25) 100%);
+  color: var(--workout-success);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  box-shadow: 0 2px 8px rgba(52, 211, 153, 0.2);
+}
+
+.difficulty[data-difficulty="intermediate"] {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.25) 100%);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+.difficulty[data-difficulty="advanced"] {
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.25) 0%, rgba(239, 68, 68, 0.25) 100%);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  box-shadow: 0 2px 8px rgba(248, 113, 113, 0.2);
+}
+
+/* 설명 */
+.description {
+  color: var(--workout-text-secondary);
+  font-size: 0.9375rem;
+  margin-bottom: var(--workout-spacing-md);
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 통계 섹션 - 더 세련되게 */
+.stats {
+  display: flex;
+  gap: var(--workout-spacing-lg);
+  margin-bottom: var(--workout-spacing-md);
+  padding: var(--workout-spacing-lg);
+  background: var(--workout-glass-bg);
+  border-radius: var(--workout-radius-xl);
+  border: 1px solid var(--workout-glass-border);
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all var(--workout-transition-base);
+}
+
+.goalCard:hover .stats {
+  background: var(--workout-glass-bg-hover);
+  border-color: var(--workout-glass-border-hover);
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--workout-spacing-xs);
+  flex: 1;
+  align-items: center;
+  text-align: center;
+}
+
+.statLabel {
+  font-size: 0.6875rem;
+  color: var(--workout-text-tertiary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+}
+
+.statValue {
+  font-size: 1.75rem;
+  font-weight: 800;
+  background: var(--workout-btn-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* 태스크 리스트 */
+.taskList {
+  margin-bottom: var(--workout-spacing-md);
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+}
+
+.taskItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--workout-spacing-sm) var(--workout-spacing-md);
+  font-size: 0.875rem;
+  color: var(--workout-text-secondary);
+  border-bottom: 1px solid var(--workout-glass-border);
+  transition: all var(--workout-transition-fast);
+  border-radius: var(--workout-radius-sm);
+  margin-bottom: 2px;
+}
+
+.taskItem:hover {
+  background: var(--workout-glass-bg);
+  padding-left: var(--workout-spacing-lg);
+  transform: translateX(4px);
+}
+
+.taskItem:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.taskProgress {
+  color: var(--workout-primary);
+  font-weight: 700;
+  font-size: 0.875rem;
+  padding: 0.25rem 0.625rem;
+  background: rgba(248, 113, 113, 0.1);
+  border-radius: var(--workout-radius-full);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  white-space: nowrap;
+}
+
+/* 액션 버튼 */
+.actions {
+  display: flex;
+  gap: var(--workout-spacing-sm);
+  align-items: center;
+  padding-top: var(--workout-spacing-md);
+  border-top: 1px solid var(--workout-glass-border);
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+.activeBadge {
+  padding: 0.5rem 1rem;
+  border-radius: var(--workout-radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.25) 0%, rgba(5, 150, 105, 0.25) 100%);
+  color: var(--workout-success);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  box-shadow: 0 2px 8px rgba(52, 211, 153, 0.2);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.activeBadge::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.startButton,
+.editButton {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--workout-radius-lg);
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--workout-transition-base);
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.02em;
+}
+
+.startButton {
+  background: var(--workout-btn-primary);
+  color: var(--workout-text-primary);
+  box-shadow: var(--workout-btn-primary-shadow);
+}
+
+.startButton::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left var(--workout-transition-slow);
+}
+
+.startButton:hover::before {
+  left: 100%;
+}
+
+.startButton:hover {
+  background: var(--workout-btn-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--workout-btn-primary-shadow-hover);
+}
+
+.startButton:active {
+  transform: translateY(0);
+}
+
+.editButton {
+  background: var(--workout-glass-bg);
+  color: var(--workout-text-primary);
+  border: 1px solid var(--workout-glass-border);
+}
+
+.editButton:hover {
+  background: var(--workout-glass-bg-hover);
+  border-color: var(--workout-glass-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.editButton:active {
+  transform: translateY(0);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .goalCard {
+    padding: var(--workout-spacing-md);
+    min-height: 260px;
+  }
+
+  .header h3 {
+    font-size: 1.125rem;
+  }
+
+  .stats {
+    flex-direction: column;
+    gap: var(--workout-spacing-sm);
+    padding: var(--workout-spacing-md);
+  }
+
+  .statItem {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .statLabel {
+    font-size: 0.75rem;
+  }
+
+  .statValue {
+    font-size: 1.5rem;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .startButton,
+  .editButton {
+    width: 100%;
+  }
+
+  .taskItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--workout-spacing-xs);
+  }
+
+  .taskProgress {
+    align-self: flex-end;
+  }
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}

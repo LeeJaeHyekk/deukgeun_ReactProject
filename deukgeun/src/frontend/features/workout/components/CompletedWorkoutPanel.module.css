@@ -1,0 +1,80 @@
+/* ============================================================================
+   CompletedWorkoutPanel - 프로젝트 통합 디자인 (v3.0)
+   ============================================================================ */
+
+.completedWorkoutPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--workout-spacing-lg);
+  padding: var(--workout-spacing-lg);
+  animation: fadeIn 0.5s ease;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--workout-spacing-md);
+  padding: var(--workout-spacing-md) var(--workout-spacing-lg);
+  background: var(--workout-glass-bg);
+  backdrop-filter: var(--workout-glass-blur);
+  -webkit-backdrop-filter: var(--workout-glass-blur);
+  border-radius: var(--workout-radius-lg);
+  border: 1px solid var(--workout-glass-border);
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--workout-text-primary);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.count {
+  padding: 0.5rem 1rem;
+  background: var(--workout-btn-primary);
+  border-radius: var(--workout-radius-full);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--workout-text-primary);
+  box-shadow: var(--workout-btn-primary-shadow);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--workout-spacing-xl);
+}
+
+.chartSection {
+  margin-top: var(--workout-spacing-lg);
+  padding: var(--workout-spacing-xl);
+  background: var(--workout-glass-bg);
+  backdrop-filter: var(--workout-glass-blur);
+  -webkit-backdrop-filter: var(--workout-glass-blur);
+  border-radius: var(--workout-radius-xl);
+  border: 1px solid var(--workout-glass-border);
+  box-shadow: var(--workout-card-shadow);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .completedWorkoutPanel {
+    padding: var(--workout-spacing-md);
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--workout-spacing-sm);
+  }
+
+  .header h2 {
+    font-size: 1.5rem;
+  }
+
+  .chartSection {
+    padding: var(--workout-spacing-lg);
+  }
+}

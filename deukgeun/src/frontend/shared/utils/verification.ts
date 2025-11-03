@@ -50,7 +50,7 @@ export function startNetworkMonitoring() {
           const entryName = entry.name || (entry as any).url || ''
           if (entryName.includes('/api/')) {
             // 중복 체크
-            const entryTime = entry.startTime || entry.fetchStart || Date.now()
+            const entryTime = entry.startTime || (entry as any).fetchStart || Date.now()
             const alreadyLogged = requestLog.some(log => {
               const timeDiff = Math.abs(log.timestamp - entryTime)
               return log.url === entryName && timeDiff < 1000
@@ -519,7 +519,7 @@ export async function verifyTokenSource(): Promise<VerificationResult> {
         const store = storeModule.store
         if (store && typeof store.getState === 'function') {
           const state = store.getState()
-          const reduxToken = state?.auth?.accessToken || state?.auth?.user?.accessToken
+          const reduxToken = state?.auth?.user?.accessToken
           checkedSources.push({ 
             name: 'Redux', 
             hasToken: !!reduxToken, 
@@ -633,7 +633,7 @@ export async function verifyTokenSource(): Promise<VerificationResult> {
       const state = storeModule.store.getState()
       checkedSources.push({ 
         name: 'Redux (직접)', 
-        hasToken: !!(state?.auth?.accessToken || state?.auth?.user?.accessToken) 
+        hasToken: !!state?.auth?.user?.accessToken 
       })
     } else {
       checkedSources.push({ name: 'Redux (직접)', hasToken: false, error: 'store 모듈 로드 실패' })

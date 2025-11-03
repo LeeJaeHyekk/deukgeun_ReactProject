@@ -4,6 +4,7 @@
 // ================================================================
 import { createSelector } from "@reduxjs/toolkit"
 import { RootState } from "@frontend/shared/store"
+import { PostDTO } from "@shared/types"
 
 // 1️⃣ 기본 엔티티 접근자
 export const selectPostsEntities = (state: RootState) => state.posts.entities
@@ -19,7 +20,7 @@ export const selectPostsPagination = (state: RootState) => ({
 // 2️⃣ 전체 게시글 배열 (메모이제이션 적용)
 export const selectAllPosts = createSelector(
   [selectPostsIds, selectPostsEntities],
-  (ids, entities) => ids.map((id) => entities[id]).filter(Boolean)
+  (ids, entities) => ids.map((id: number) => entities[id]).filter(Boolean)
 )
 
 // 3️⃣ 단일 게시글 선택 (메모이제이션 적용)
@@ -44,7 +45,7 @@ export const selectPostWithLike = (postId: number) => createSelector(
 export const selectAllPostsWithLikes = createSelector(
   [selectAllPosts, (state: RootState) => state.likes.likedIds],
   (posts, likedIds) => {
-    return posts.map(post => ({
+    return posts.map((post: PostDTO) => ({
       ...post,
       isLiked: likedIds.includes(post.id),
     }))
@@ -56,7 +57,7 @@ export const selectPostsByCategory = createSelector(
   [selectAllPostsWithLikes, (_: RootState, category: string) => category],
   (posts, category) => {
     if (!category || category === "ALL") return posts
-    return posts.filter((post) => 
+    return posts.filter((post: PostDTO) => 
       typeof post.category === 'string' 
         ? post.category === category 
         : (post.category as any)?.name === category
@@ -70,7 +71,7 @@ export const selectPostsBySearch = createSelector(
   (posts, searchTerm) => {
     if (!searchTerm.trim()) return posts
     const term = searchTerm.toLowerCase()
-    return posts.filter((post) => 
+    return posts.filter((post: PostDTO) => 
       post.title.toLowerCase().includes(term) ||
       post.content.toLowerCase().includes(term)
     )
@@ -100,10 +101,10 @@ export const selectPostsStats = createSelector(
   [selectAllPosts],
   (posts) => ({
     totalPosts: posts.length,
-    totalLikes: posts.reduce((sum, post) => sum + (post.likeCount || 0), 0),
-    totalComments: posts.reduce((sum, post) => sum + (post.commentCount || 0), 0),
+    totalLikes: posts.reduce((sum: number, post: PostDTO) => sum + (post.likeCount || post.likesCount || 0), 0),
+    totalComments: posts.reduce((sum: number, post: PostDTO) => sum + (post.commentCount || post.commentsCount || 0), 0),
     averageLikes: posts.length > 0 
-      ? posts.reduce((sum, post) => sum + (post.likeCount || 0), 0) / posts.length 
+      ? posts.reduce((sum: number, post: PostDTO) => sum + (post.likeCount || post.likesCount || 0), 0) / posts.length 
       : 0,
   })
 )

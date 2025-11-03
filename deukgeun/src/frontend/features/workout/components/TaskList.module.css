@@ -1,0 +1,38 @@
+/* ============================================================================
+   TaskList - 프로젝트 통합 디자인 (v3.0)
+   ============================================================================ */
+
+.taskList {
+  margin-bottom: var(--workout-spacing-xl);
+}
+
+.taskList h3 {
+  margin: 0 0 var(--workout-spacing-lg) 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--workout-text-primary);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--workout-spacing-lg);
+}
+
+.emptyState {
+  padding: var(--workout-spacing-2xl);
+  text-align: center;
+  background: var(--workout-glass-bg);
+  backdrop-filter: var(--workout-glass-blur);
+  -webkit-backdrop-filter: var(--workout-glass-blur);
+  border-radius: var(--workout-radius-xl);
+  border: 1px solid var(--workout-glass-border);
+  box-shadow: var(--workout-card-shadow);
+}
+
+.emptyState p {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--workout-text-secondary);
+}

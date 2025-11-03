@@ -1,5 +1,5 @@
 /* ============================================================================
-   Base Modal Styles
+   BaseModal - 프로젝트 통합 디자인 (v3.0)
    ============================================================================ */
 
 .backdrop {
@@ -11,25 +11,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  background-color: transparent;
-  transition: background-color 0.2s ease-in-out;
+  z-index: var(--workout-z-modal-backdrop);
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background-color var(--workout-transition-base);
+  padding: var(--workout-spacing-lg);
 }
 
 .backdropVisible {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 .modal {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: var(--workout-glass-blur-strong);
+  -webkit-backdrop-filter: var(--workout-glass-blur-strong);
+  border-radius: var(--workout-radius-2xl);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   max-width: 90vw;
-  max-height: 80vh;
-  animation: modalEnter 0.2s ease-out;
+  max-height: 90vh;
+  animation: modalEnter var(--workout-transition-base);
 }
 
 @keyframes modalEnter {
@@ -109,16 +115,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: var(--workout-spacing-xl);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
-  background-color: #f9fafb;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .titleSection {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--workout-spacing-md);
   flex: 1;
 }
 
@@ -128,23 +139,24 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 6px;
-  background-color: #3b82f6;
+  border-radius: var(--workout-radius-md);
+  background: var(--workout-btn-primary);
   color: white;
   font-size: 16px;
+  box-shadow: var(--workout-btn-primary-shadow);
 }
 
 .title {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #111827;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
   line-height: 1.5;
 }
 
 .subtitle {
   margin: 4px 0 0 0;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   color: #6b7280;
   line-height: 1.4;
 }
@@ -152,7 +164,7 @@
 .headerActions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--workout-spacing-sm);
 }
 
 .action {
@@ -164,24 +176,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border: none;
-  border-radius: 6px;
-  background-color: transparent;
-  color: #6b7280;
+  border-radius: var(--workout-radius-lg);
+  background: var(--workout-glass-bg);
+  color: #333;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all var(--workout-transition-base);
 }
 
 .closeButton:hover {
-  background-color: #f3f4f6;
-  color: #374151;
+  background: var(--workout-glass-bg-hover);
+  color: var(--workout-primary);
+  transform: rotate(90deg);
 }
 
 .closeButton:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #3b82f6;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
 }
 
 /* ============================================================================
@@ -190,7 +203,7 @@
 
 .body {
   flex: 1;
-  padding: 20px;
+  padding: var(--workout-spacing-xl);
   overflow: hidden;
 }
 
@@ -199,21 +212,22 @@
 }
 
 .scrollable::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .scrollable::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 }
 
 .scrollable::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+  background: rgba(248, 113, 113, 0.3);
+  border-radius: 4px;
+  transition: all var(--workout-transition-base);
 }
 
 .scrollable::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgba(248, 113, 113, 0.5);
 }
 
 /* ============================================================================
@@ -224,31 +238,36 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 20px;
-  border-top: 1px solid #e5e7eb;
+  padding: var(--workout-spacing-xl);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
-  background-color: #f9fafb;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
 }
 
 .footerActions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--workout-spacing-md);
 }
 
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px;
+  padding: 0.75rem 1.5rem;
   border: 1px solid transparent;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: var(--workout-radius-lg);
+  font-size: 0.9375rem;
+  font-weight: 600;
   line-height: 1.5;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  min-width: 80px;
+  transition: all var(--workout-transition-base);
+  min-width: 100px;
 }
 
 .button:disabled {
@@ -258,40 +277,50 @@
 
 .button:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #3b82f6;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
 }
 
 .primaryButton {
-  background-color: #3b82f6;
+  background: var(--workout-btn-primary);
   color: white;
-  border-color: #3b82f6;
+  box-shadow: var(--workout-btn-primary-shadow);
 }
 
 .primaryButton:hover:not(:disabled) {
-  background-color: #2563eb;
-  border-color: #2563eb;
+  background: var(--workout-btn-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--workout-btn-primary-shadow-hover);
+}
+
+.primaryButton:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .secondaryButton {
-  background-color: white;
-  color: #374151;
-  border-color: #d1d5db;
+  background: var(--workout-glass-bg);
+  color: #333;
+  border: 1px solid var(--workout-glass-border);
 }
 
 .secondaryButton:hover:not(:disabled) {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
+  background: var(--workout-glass-bg-hover);
+  border-color: var(--workout-glass-border-hover);
 }
 
 .dangerButton {
-  background-color: #ef4444;
+  background: linear-gradient(135deg, var(--workout-error), #dc2626);
   color: white;
-  border-color: #ef4444;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 .dangerButton:hover:not(:disabled) {
-  background-color: #dc2626;
-  border-color: #dc2626;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.dangerButton:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 /* ============================================================================
@@ -299,6 +328,10 @@
    ============================================================================ */
 
 @media (max-width: 768px) {
+  .backdrop {
+    padding: var(--workout-spacing-md);
+  }
+
   .modal {
     max-width: 95vw;
     max-height: 90vh;
@@ -314,33 +347,37 @@
   }
 
   .header {
-    padding: 16px;
+    padding: var(--workout-spacing-lg);
   }
 
   .body {
-    padding: 16px;
+    padding: var(--workout-spacing-lg);
   }
 
   .footer {
-    padding: 16px;
+    padding: var(--workout-spacing-lg);
   }
 
   .title {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
   }
 
   .footerActions {
-    gap: 8px;
+    gap: var(--workout-spacing-sm);
   }
 
   .button {
-    padding: 6px 12px;
-    font-size: 0.8125rem;
-    min-width: 70px;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    min-width: 80px;
   }
 }
 
 @media (max-width: 480px) {
+  .backdrop {
+    padding: 0;
+  }
+
   .modal {
     max-width: 100vw;
     max-height: 100vh;
@@ -348,20 +385,16 @@
     border-radius: 0;
   }
 
-  .backdrop {
-    padding: 0;
-  }
-
   .header {
-    padding: 12px;
+    padding: var(--workout-spacing-md);
   }
 
   .body {
-    padding: 12px;
+    padding: var(--workout-spacing-md);
   }
 
   .footer {
-    padding: 12px;
+    padding: var(--workout-spacing-md);
   }
 
   .footerActions {
@@ -372,66 +405,5 @@
   .button {
     flex: 1;
     justify-content: center;
-  }
-}
-
-/* ============================================================================
-   Dark Mode Support
-   ============================================================================ */
-
-@media (prefers-color-scheme: dark) {
-  .modal {
-    background-color: #1f2937;
-    color: #f9fafb;
-  }
-
-  .header {
-    background-color: #111827;
-    border-bottom-color: #374151;
-  }
-
-  .footer {
-    background-color: #111827;
-    border-top-color: #374151;
-  }
-
-  .title {
-    color: #f9fafb;
-  }
-
-  .subtitle {
-    color: #9ca3af;
-  }
-
-  .closeButton {
-    color: #9ca3af;
-  }
-
-  .closeButton:hover {
-    background-color: #374151;
-    color: #f9fafb;
-  }
-
-  .secondaryButton {
-    background-color: #374151;
-    color: #f9fafb;
-    border-color: #4b5563;
-  }
-
-  .secondaryButton:hover:not(:disabled) {
-    background-color: #4b5563;
-    border-color: #6b7280;
-  }
-
-  .scrollable::-webkit-scrollbar-track {
-    background: #374151;
-  }
-
-  .scrollable::-webkit-scrollbar-thumb {
-    background: #6b7280;
-  }
-
-  .scrollable::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
   }
 }

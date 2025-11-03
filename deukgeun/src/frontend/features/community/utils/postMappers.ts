@@ -17,6 +17,13 @@ export function mapPostData(rawPost: any): PostDTO | null {
       return null
     }
 
+    const likeCount = isValidNumber(rawPost.likeCount) 
+      ? rawPost.likeCount 
+      : (isValidNumber(rawPost.like_count) ? rawPost.like_count : 0)
+    const commentCount = isValidNumber(rawPost.commentCount) 
+      ? rawPost.commentCount 
+      : (isValidNumber(rawPost.comment_count) ? rawPost.comment_count : 0)
+    
     const post: PostDTO = {
       id: isValidNumber(rawPost.id) ? rawPost.id : 0,
       userId: isValidNumber(rawPost.userId) 
@@ -24,25 +31,26 @@ export function mapPostData(rawPost: any): PostDTO | null {
         : (isValidNumber(rawPost.user?.id) ? rawPost.user.id : 0),
       title: isValidString(rawPost.title) ? rawPost.title : '',
       content: isValidString(rawPost.content) ? rawPost.content : '',
-      author: isValidString(rawPost.author) 
-        ? rawPost.author 
-        : (isValidString(rawPost.user?.nickname) ? rawPost.user.nickname : '익명'),
+      author: (rawPost.author && typeof rawPost.author === 'object' && 'id' in rawPost.author && 'nickname' in rawPost.author)
+        ? rawPost.author
+        : (isValidString(rawPost.user?.nickname) 
+            ? { id: rawPost.user.id, nickname: rawPost.user.nickname }
+            : { id: 0, nickname: '익명' }),
       category: isValidString(rawPost.category) ? rawPost.category : '',
-      likeCount: isValidNumber(rawPost.likeCount) 
-        ? rawPost.likeCount 
-        : (isValidNumber(rawPost.like_count) ? rawPost.like_count : 0),
-      commentCount: isValidNumber(rawPost.commentCount) 
-        ? rawPost.commentCount 
-        : (isValidNumber(rawPost.comment_count) ? rawPost.comment_count : 0),
+      likesCount: likeCount,
+      commentsCount: commentCount,
       viewsCount: isValidNumber(rawPost.viewsCount) 
         ? rawPost.viewsCount 
         : (isValidNumber(rawPost.views_count) ? rawPost.views_count : 0),
       createdAt: isValidString(rawPost.createdAt) 
-        ? rawPost.createdAt 
+        ? rawPost.createdAt
         : (isValidString(rawPost.created_at) ? rawPost.created_at : new Date().toISOString()),
       updatedAt: isValidString(rawPost.updatedAt) 
-        ? rawPost.updatedAt 
+        ? rawPost.updatedAt
         : (isValidString(rawPost.updated_at) ? rawPost.updated_at : new Date().toISOString()),
+      // 호환성을 위한 선택적 속성
+      likeCount,
+      commentCount,
     }
 
     // 최종 검증

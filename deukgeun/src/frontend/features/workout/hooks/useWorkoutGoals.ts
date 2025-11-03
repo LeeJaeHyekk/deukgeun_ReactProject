@@ -1,155 +1,116 @@
-import { useState, useEffect, useCallback } from 'react'
-import { workoutApi } from '../api/workoutApi'
-import type { WorkoutGoal } from '../types'
+// ============================================================================
+// useWorkoutGoals - 목표 관리 Hook (최적화)
+// ============================================================================
+
+import { useCallback, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectGoals, selectActiveWorkout } from '../selectors'
+import { startSession, addGoal, editGoal, deleteGoal, type Goal } from '../slices/workoutSlice'
+import { calcGoalProgress, isGoalCompleted } from '../utils/goalUtils'
 
 export function useWorkoutGoals() {
-  const [goals, setGoals] = useState<WorkoutGoal[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const dispatch = useDispatch()
+  const goals = useSelector(selectGoals) as Goal[]
+  const activeWorkout = useSelector(selectActiveWorkout)
 
-  const getUserGoals = useCallback(async () => {
-    console.log(`🔍 [useWorkoutGoals] getUserGoals 호출 시작`)
-    try {
-      setLoading(true)
-      setError(null)
-
-      console.log(`📡 [useWorkoutGoals] API 호출 중...`)
-      const data = await workoutApi.getGoals()
-      console.log(`✅ [useWorkoutGoals] 운동 목표 ${data.length}개 조회 성공`)
-      setGoals(data)
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : '운동 목표를 불러오는데 실패했습니다.'
-      console.error(`❌ [useWorkoutGoals] 운동 목표 조회 실패:`, err)
-      setError(errorMessage)
-    } finally {
-      setLoading(false)
-      console.log(`🏁 [useWorkoutGoals] getUserGoals 완료`)
-    }
-  }, [])
-
-  const createGoal = useCallback(async (goalData: Partial<WorkoutGoal>) => {
-    const requestId = Math.random().toString(36).substring(2, 15)
-    console.log(`🔍 [useWorkoutGoals:${requestId}] createGoal 시작`, {
-      goalData,
-    })
-
-    try {
-      setLoading(true)
-      setError(null)
-      // userId는 백엔드에서 인증된 사용자 정보로 설정하므로 제거
-      const { userId, ...createData } = goalData
-      console.log(
-        `📝 [useWorkoutGoals:${requestId}] API 호출용 데이터:`,
-        createData
-      )
-
-      console.log(
-        `📡 [useWorkoutGoals:${requestId}] workoutApi.createGoal 호출`
-      )
-      const newGoal = await workoutApi.createGoal(createData as any)
-
-      console.log(`✅ [useWorkoutGoals:${requestId}] 목표 생성 성공:`, newGoal)
-      setGoals(prev => {
-        const updated = [newGoal, ...prev]
-        console.log(
-          `📝 [useWorkoutGoals:${requestId}] 목표 목록 업데이트:`,
-          updated
-        )
-        return updated
-      })
-      return newGoal
-    } catch (err) {
-      console.error(
-        `❌ [useWorkoutGoals:${requestId}] 운동 목표 생성 실패:`,
-        err
-      )
-      const errorMessage =
-        err instanceof Error ? err.message : '운동 목표 생성에 실패했습니다.'
-      setError(errorMessage)
-      throw err
-    } finally {
-      setLoading(false)
-      console.log(`🏁 [useWorkoutGoals:${requestId}] createGoal 완료`)
-    }
-  }, [])
-
-  const updateGoal = useCallback(
-    async (goalId: number, goalData: Partial<WorkoutGoal>) => {
-      try {
-        setLoading(true)
-        setError(null)
-        // goalId가 필수이므로 추가
-        const updateData = {
-          ...goalData,
-          goalId,
-        } as any
-        const updatedGoal = await workoutApi.updateGoal(goalId, updateData)
-        setGoals(prev =>
-          prev.map(goal => (goal.goal_id === goalId ? updatedGoal : goal))
-        )
-        return updatedGoal
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error
-            ? err.message
-            : '운동 목표 업데이트에 실패했습니다.'
-        console.error('운동 목표 업데이트 실패:', err)
-        setError(errorMessage)
-        throw err
-      } finally {
-        setLoading(false)
-      }
+  // 목표 추가
+  const handleAddGoal = useCallback(
+    (goal: Goal) => {
+      dispatch(addGoal(goal))
     },
-    []
+    [dispatch]
   )
 
-  const deleteGoal = useCallback(async (goalId: number) => {
-    try {
-      setLoading(true)
-      setError(null)
+  // 목표 수정
+  const handleEditGoal = useCallback(
+    (goalId: string, patch: Partial<Goal>) => {
+      dispatch(editGoal({ goalId, patch }))
+    },
+    [dispatch]
+  )
 
-      // 개발 환경에서 더미 데이터 처리
-      if (
-        import.meta.env.MODE === 'development' &&
-        (goalId === 1 || goalId === 2)
-      ) {
-        console.log(`🔧 개발 환경 - 더미 목표 삭제 처리: ${goalId}`)
-        setGoals(prev => prev.filter(goal => goal.goal_id !== goalId))
+  // 목표 삭제
+  const handleDeleteGoal = useCallback(
+    (goalId: string) => {
+      dispatch(deleteGoal(goalId))
+    },
+    [dispatch]
+  )
+
+  // 운동 시작
+  const handleStartWorkout = useCallback(
+    (goalId: string) => {
+      // 이미 활성 세션이 있는 경우 체크
+      if (activeWorkout) {
+        alert("이미 진행 중인 운동 세션이 있습니다. 먼저 현재 세션을 종료하거나 일시정지해주세요.")
         return
       }
 
-      await workoutApi.deleteGoal(goalId)
-      setGoals(prev => prev.filter(goal => goal.goal_id !== goalId))
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : '운동 목표 삭제에 실패했습니다.'
-      console.error('운동 목표 삭제 실패:', err)
-      setError(errorMessage)
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+      const goal = goals.find((g: Goal) => g.goalId === goalId)
+      if (!goal) {
+        alert("목표를 찾을 수 없습니다.")
+        return
+      }
 
-  const clearError = useCallback(() => {
-    setError(null)
-  }, [])
+      // 목표에 운동 항목이 없는 경우 체크
+      if (!goal.tasks || goal.tasks.length === 0) {
+        alert("운동 항목이 없습니다. 먼저 운동 항목을 추가해주세요.")
+        return
+      }
 
-  useEffect(() => {
-    getUserGoals()
-  }, [getUserGoals])
+      // 이전에 완료된 세트 총합 계산 (goal.tasks의 completedSets 합계)
+      const previousCompletedSets = goal.tasks.reduce((sum, task) => sum + (task.completedSets || 0), 0)
+      
+      const newActiveWorkout = {
+        sessionId: Date.now().toString(),
+        goalId: goal.goalId,
+        startTime: new Date().toISOString(),
+        endTime: null,
+        progress: 0,
+        // 이전에 완료된 세트 총합으로 초기화 (startSession에서 다시 계산됨)
+        currentSet: previousCompletedSets,
+        restTimerSec: 0,
+        addedTasks: goal.tasks.map((task) => ({ ...task })),
+        notes: '',
+        photos: [],
+      }
+
+      dispatch(startSession(newActiveWorkout))
+    },
+    [dispatch, goals, activeWorkout]
+  )
+
+  // 목표 수정 가능 여부
+  const canEditGoal = useCallback(
+    (goalId: string) => {
+      return activeWorkout?.goalId !== goalId
+    },
+    [activeWorkout]
+  )
+
+  // 메모이제이션된 목표 목록 (완료되지 않은 목표만 필터링)
+  // calcGoalProgress 사용으로 중복 계산 제거
+  const memoizedGoals = useMemo(() => {
+    return goals.filter((goal: Goal) => {
+      // status가 'done'이 아닌 경우
+      if (goal.status === 'done') return false
+      
+      // 진행률 및 완료 여부 계산 (통합 함수 사용)
+      const progress = calcGoalProgress(goal)
+      const completed = isGoalCompleted(goal)
+      
+      // 완료되지 않은 목표만 필터링
+      return !completed && progress < 100
+    })
+  }, [goals])
 
   return {
-    goals,
-    loading,
-    error,
-    getUserGoals,
-    createGoal,
-    updateGoal,
-    deleteGoal,
-    clearError,
+    goals: memoizedGoals,
+    activeWorkout,
+    handleAddGoal,
+    handleEditGoal,
+    handleDeleteGoal,
+    handleStartWorkout,
+    canEditGoal,
   }
 }

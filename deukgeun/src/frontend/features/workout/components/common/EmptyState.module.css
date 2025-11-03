@@ -1,0 +1,40 @@
+/* ============================================================================
+   EmptyState - 빈 상태 표시 스타일
+   ============================================================================ */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 5vw, 4rem);
+  text-align: center;
+  color: var(--workout-text-secondary);
+  min-height: 200px;
+}
+
+.icon {
+  font-size: clamp(3rem, 8vw, 5rem);
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.title {
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: var(--workout-text-primary);
+}
+
+.message {
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.secondaryMessage {
+  font-size: clamp(0.75rem, 1.5vw, 0.875rem);
+  margin: 0.5rem 0 0;
+  opacity: 0.7;
+}
+

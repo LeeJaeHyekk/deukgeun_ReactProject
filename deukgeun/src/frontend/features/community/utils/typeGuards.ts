@@ -163,7 +163,7 @@ export function isValidPostsApiResponse(response: any): boolean {
     return false
   }
   
-  const data = response.data
+  const data = response.data as { posts?: any[]; pagination?: any }
   
   // posts 배열 검증
   if (data.posts !== undefined && !isValidArray(data.posts)) {

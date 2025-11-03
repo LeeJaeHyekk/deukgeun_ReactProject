@@ -1,10 +1,12 @@
 import { Router } from "express"
 import { WorkoutController } from '@backend/controllers/workoutController'
+import { GoalController } from '@backend/controllers/goalController'
 import { authMiddleware } from '@backend/middlewares/auth'
 import { rateLimiter } from "@backend/middlewares/rateLimiter"
 
 const router = Router()
 const workoutController = new WorkoutController()
+const goalController = new GoalController()
 
 /**
  * Workout API Routes
@@ -76,30 +78,36 @@ router.post(
   workoutController.completeSession
 )
 
-// 운동 목표 라우트
+// 운동 목표 라우트 (새로운 GoalController 사용)
 router.get(
   "/goals",
   authMiddleware,
   rateLimiter(60000, 30),
-  workoutController.getUserGoals
+  goalController.getGoals.bind(goalController)
+)
+router.get(
+  "/goals/:id",
+  authMiddleware,
+  rateLimiter(60000, 30),
+  goalController.getGoal.bind(goalController)
 )
 router.post(
   "/goals",
   authMiddleware,
   rateLimiter(60000, 10),
-  workoutController.createGoal
+  goalController.createGoal.bind(goalController)
 )
 router.put(
   "/goals/:id",
   authMiddleware,
   rateLimiter(60000, 10),
-  workoutController.updateGoal
+  goalController.updateGoal.bind(goalController)
 )
 router.delete(
   "/goals/:id",
   authMiddleware,
   rateLimiter(60000, 10),
-  workoutController.deleteGoal
+  goalController.deleteGoal.bind(goalController)
 )
 
 // 운동 진행 상황 라우트

@@ -5,7 +5,7 @@ import { showToast } from '@frontend/shared/lib'
 import { postsApi } from '@frontend/shared/api'
 import { PostGrid } from '../../features/community/components/postGrid'
 import { PostModal } from '../../features/community/components/postModal'
-import { PostDetailModal } from '../../features/community/components/PostDetailModal'
+import { PostDetailModal } from '../../features/community/components/postDetail/PostDetailModal'
 import { fetchPosts, createPost, updatePostThunk, deletePost } from '../../features/community/posts/postsSlice'
 import { restoreLikedIds } from '../../features/community/likes/likesSlice'
 import { selectAllPostsWithLikes, selectPostsLoading, selectPostsPagination } from '../../features/community/selectors/postsSelectors'
@@ -121,7 +121,7 @@ export default function CommunityPage() {
         }
         
         const categories = safeLoadCategories(response.data)
-        const mappedCategories: PostCategory[] = categories.map(category => ({
+        const mappedCategories: PostCategory[] = categories.map((category: { id: number | string; name: string; count: number }) => ({
           id: typeof category.id === 'number' ? category.id : parseInt(String(category.id)) || 0,
           name: category.name,
           count: category.count

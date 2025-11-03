@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 import { RootState, AppDispatch } from '@frontend/shared/store'
 import { showToast } from '@frontend/shared/lib'
 import { postsApi } from '@frontend/shared/api'
@@ -36,70 +36,60 @@ export default function CommunityPage() {
   const [availableCategories, setAvailableCategories] = useState<PostCategory[]>([])
   const [isInitialLoad, setIsInitialLoad] = useState(true)
 
-  // Redux 상태
-  const posts = useSelector(selectAllPostsWithLikes)
+  // Redux 상태 (렌더링 최적화)
+  const posts = useSelector(selectAllPostsWithLikes, shallowEqual)
   const loading = useSelector(selectPostsLoading)
-  const pagination = useSelector(selectPostsPagination)
+  const pagination = useSelector(selectPostsPagination, shallowEqual)
   
-  // Redux pagination을 currentPage로 사용 (동기화 보장)
-  const currentPage = pagination.page || 1
+  // Redux pagination을 currentPage로 사용 (메모이제이션 - 렌더링 최적화)
+  const currentPage = useMemo(() => pagination.page || 1, [pagination.page])
   
-  // Redux store 상태 디버깅
-  const rawPosts = useSelector((state: RootState) => state.posts.entities)
-  const likedIds = useSelector((state: RootState) => state.likes.likedIds)
-
-  // 이전 pagination 값 추적 (변경 감지)
+  // 이전 상태 추적을 위한 ref (렌더링 최적화)
   const prevPaginationRef = useRef(pagination)
+  const prevPostsRef = useRef(posts)
+  
+  // Pagination 변경 감지 (렌더링 최적화)
   useEffect(() => {
-    if (prevPaginationRef.current.page !== pagination.page || 
-        prevPaginationRef.current.totalPages !== pagination.totalPages) {
-      console.log('📄 [CommunityPage] Pagination 변경 감지:', {
-        previous: {
-          page: prevPaginationRef.current.page,
-          totalPages: prevPaginationRef.current.totalPages,
-          total: prevPaginationRef.current.total
-        },
-        current: {
-          page: pagination.page,
-          totalPages: pagination.totalPages,
-          total: pagination.total
-        },
-        currentPage,
-        calculatedFromPagination: pagination.page || 1,
-        match: currentPage === (pagination.page || 1),
-        timestamp: new Date().toISOString()
-      })
+    const prevPagination = prevPaginationRef.current
+    const paginationChanged = prevPagination.page !== pagination.page ||
+                               prevPagination.totalPages !== pagination.totalPages ||
+                               prevPagination.total !== pagination.total
+    
+    if (paginationChanged) {
       prevPaginationRef.current = pagination
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📄 [CommunityPage] Pagination 변경 감지:', {
+          previous: {
+            page: prevPagination.page,
+            totalPages: prevPagination.totalPages,
+            total: prevPagination.total
+          },
+          current: {
+            page: pagination.page,
+            totalPages: pagination.totalPages,
+            total: pagination.total
+          },
+          currentPage,
+          timestamp: new Date().toISOString()
+        })
+      }
     }
   }, [pagination, currentPage])
-
-  // currentPage와 pagination.page 동기화 확인
+  
+  // Posts 변경 감지 (렌더링 최적화)
   useEffect(() => {
-    console.log('📄 [CommunityPage] currentPage 동기화 확인:', {
-      currentPage,
-      paginationPage: pagination.page,
-      paginationTotalPages: pagination.totalPages,
-      paginationTotal: pagination.total,
-      synced: currentPage === (pagination.page || 1),
-      timestamp: new Date().toISOString()
-    })
-  }, [currentPage, pagination])
-
-  console.log('🔄 [CommunityPage] Redux 상태:', { 
-    postsCount: posts.length, 
-    loading,
-    pagination: {
-      page: pagination.page,
-      totalPages: pagination.totalPages,
-      total: pagination.total
-    },
-    currentPage,
-    posts: posts.map((p: any) => ({ id: p.id, title: p.title, likeCount: p.likeCount, isLiked: p.isLiked })),
-    firstPost: posts[0], // 첫 번째 포스트 전체 구조 확인
-    rawPostsKeys: Object.keys(rawPosts),
-    likedIds,
-    rawPost10: rawPosts[10] // ID 10 포스트 확인
-  })
+    const prevPosts = prevPostsRef.current
+    const postsChanged = prevPosts.length !== posts.length ||
+                         prevPosts.some((post, index) => {
+                           const currentPost = posts[index]
+                           return !currentPost || post.id !== currentPost.id
+                         })
+    
+    if (postsChanged) {
+      prevPostsRef.current = posts
+    }
+  }, [posts])
 
   const limit = 12
 
@@ -135,40 +125,70 @@ export default function CommunityPage() {
       })
   }, [dispatch])
 
-  // 게시글 목록 가져오기
+  // 게시글 목록 가져오기 (안정적인 함수 참조)
   const fetchPostsData = useCallback(
     (page: number = 1, category?: string) => {
-      console.log('📥 [CommunityPage] fetchPostsData 호출:', {
-        page,
-        category: category || selectedCategory,
-        limit,
-        currentPagination: {
-          page: pagination.page,
-          totalPages: pagination.totalPages,
-          total: pagination.total
-        },
-        timestamp: new Date().toISOString()
-      })
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📥 [CommunityPage] fetchPostsData 호출:', {
+          page,
+          category: category || selectedCategory,
+          limit,
+          timestamp: new Date().toISOString()
+        })
+      }
+      
       dispatch(fetchPosts({
         category: category || selectedCategory,
         page,
         limit,
       }))
     },
-    [dispatch, selectedCategory, limit] // pagination 의존성 제거 (무한 루프 방지)
+    [dispatch, selectedCategory, limit]
   )
+  
+  // 페이지 변경 핸들러 (안정적인 함수 참조)
+  const handlePageChange = useCallback((page: number) => {
+    // Redux를 통해 페이지 변경 (fetchPosts가 pagination을 업데이트함)
+    // 실제로 변경된 경우에만 처리 (렌더링 최적화)
+    if (typeof page === 'number' && page > 0 && page !== currentPage) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📄 [CommunityPage] onPageChange 호출:', {
+          requestedPage: page,
+          currentPage,
+          selectedCategory,
+          willChange: page !== currentPage,
+          timestamp: new Date().toISOString()
+        })
+      }
+      fetchPostsData(page, selectedCategory)
+    } else if (process.env.NODE_ENV === 'development' && (typeof page !== 'number' || page <= 0)) {
+      console.warn('📄 [CommunityPage] 잘못된 페이지 번호:', {
+        page,
+        pageType: typeof page,
+        timestamp: new Date().toISOString()
+      })
+    }
+  }, [currentPage, selectedCategory, fetchPostsData])
 
-  // 초기 로드: 카테고리나 페이지 변경이 아닌 최초 1회만
+  // 이전 카테고리 추적 (렌더링 최적화)
+  const prevCategoryRef = useRef<string>(selectedCategory)
+  
+  // 초기 로드: 카테고리나 페이지 변경이 아닌 최초 1회만 (렌더링 최적화)
   useEffect(() => {
     if (isInitialLoad) {
       fetchPostsData(1, selectedCategory)
       setIsInitialLoad(false)
+      prevCategoryRef.current = selectedCategory
     }
   }, [isInitialLoad, fetchPostsData, selectedCategory])
 
-  // 카테고리 변경 시 게시글 다시 로드 (초기 로드 제외, 페이지 1로 리셋)
+  // 카테고리 변경 시 게시글 다시 로드 (초기 로드 제외, 페이지 1로 리셋) - 렌더링 최적화
   useEffect(() => {
-    if (!isInitialLoad) {
+    const prevCategory = prevCategoryRef.current
+    const categoryChanged = prevCategory !== selectedCategory
+    
+    if (!isInitialLoad && categoryChanged) {
+      prevCategoryRef.current = selectedCategory
       fetchPostsData(1, selectedCategory)
     }
   }, [selectedCategory, fetchPostsData, isInitialLoad])
@@ -294,37 +314,7 @@ export default function CommunityPage() {
           loading={loading}
           currentPage={currentPage}
           totalPages={pagination.totalPages || 1}
-          onPageChange={(page: number) => {
-            // Redux를 통해 페이지 변경 (fetchPosts가 pagination을 업데이트함)
-            console.log('📄 [CommunityPage] onPageChange 호출:', {
-              requestedPage: page,
-              currentPagination: {
-                page: pagination.page,
-                totalPages: pagination.totalPages,
-                total: pagination.total
-              },
-              currentPage,
-              selectedCategory,
-              pageType: typeof page,
-              pageValid: typeof page === 'number' && page > 0,
-              timestamp: new Date().toISOString()
-            })
-            if (typeof page === 'number' && page > 0) {
-              console.log('📄 [CommunityPage] fetchPostsData 호출 예정:', {
-                page,
-                selectedCategory,
-                currentPage,
-                willChange: page !== currentPage
-              })
-              fetchPostsData(page, selectedCategory)
-            } else {
-              console.error('📄 [CommunityPage] 잘못된 페이지 번호:', {
-                page,
-                pageType: typeof page,
-                timestamp: new Date().toISOString()
-              })
-            }
-          }}
+          onPageChange={handlePageChange}
         />
 
         {/* 새 게시글 작성 모달 */}

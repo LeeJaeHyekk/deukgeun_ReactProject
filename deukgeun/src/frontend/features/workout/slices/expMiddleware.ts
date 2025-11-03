@@ -60,7 +60,7 @@ export const expMiddleware: Middleware = (storeAPI) => (next) => (action: unknow
             goalId: activeWorkout.goalId,
             userId: user.userId,
             completedWorkout: completed,
-          }) as UnknownAction
+          }) as any
         )
       }
 

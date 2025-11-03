@@ -5,4 +5,5 @@
 export { InfoItem } from "./InfoItem"
 export { ActionButton } from "./ActionButton"
 export { StatsCard } from "./StatsCard"
+export { EditProfileModal } from "./EditProfileModal"
 

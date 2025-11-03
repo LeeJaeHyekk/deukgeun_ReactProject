@@ -21,4 +21,4 @@ export { Equipment } from "@backend/entities/Equipment"
 
 // Gym 크롤링 서비스
 export { getCrawlingService, initializeCrawlingService, cleanupCrawlingService } from "@backend/services/crawlingService"
-export { LEGACY_CRAWLING_SERVICES } from "@backend/services/legacy-crawling-services"
+export { LEGACY_CRAWLING_SERVICES } from "@backend/services/legacyCrawlingServices"

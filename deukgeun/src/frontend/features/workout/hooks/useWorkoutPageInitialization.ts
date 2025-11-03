@@ -58,7 +58,8 @@ export function useWorkoutPageInitialization() {
         try {
           // dispatch를 통해 실행되면 fetchGoalsFromBackend.fulfilled에서 기존 state.goals 참조 가능
           // fulfilled에서 기존 state.goals와 병합하므로 여기서는 결과만 기다림
-          const backendGoals = await dispatch(fetchGoalsFromBackend(user.id)).unwrap()
+          const result: any = (dispatch as any)(fetchGoalsFromBackend(user.id))
+          const backendGoals = await result.unwrap()
 
           // 3. 백엔드 데이터에서 completedWorkouts 추출
           const allCompletedWorkouts: any[] = []

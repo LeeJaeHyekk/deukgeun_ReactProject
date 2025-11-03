@@ -25,17 +25,39 @@ export function useMyPageInitialization(
   const dispatch = useAppDispatch()
   const { fetchLevelProgress } = useLevel()
   
+  // fetchLevelProgress 함수 참조 안정화 (렌더링 최적화)
+  const fetchLevelProgressRef = useRef<(() => Promise<void>) | null>(null)
+  
+  // 함수 참조 업데이트 (최신 참조 유지)
+  useEffect(() => {
+    if (fetchLevelProgress && typeof fetchLevelProgress === 'function') {
+      fetchLevelProgressRef.current = fetchLevelProgress
+    }
+  }, [fetchLevelProgress])
+  
   const [isInitializing, setIsInitializing] = useState(true)
   const [initializationError, setInitializationError] = useState<string | null>(null)
   
   // 중복 요청 방지를 위한 ref
   const isInitializingRef = useRef(false)
   const initializationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const prevUserIdRef = useRef<number | undefined>(undefined)
+  const prevIsLoggedInRef = useRef<boolean>(false)
+  const initializedUserIdRef = useRef<number | undefined>(undefined)
   
   useEffect(() => {
+    // 이전 상태 추적
+    const prevUserId = prevUserIdRef.current
+    const prevIsLoggedIn = prevIsLoggedInRef.current
+    const initializedUserId = initializedUserIdRef.current
+    
+    // 상태 업데이트
+    prevUserIdRef.current = userId
+    prevIsLoggedInRef.current = isLoggedIn
+    
     // 초기화 중복 방지
     if (isInitializingRef.current) {
-      logger.debug('MY_PAGE_INIT', '이미 초기화 중 - 스킵', { userId })
+      logger.debug('MY_PAGE_INIT', '이미 초기화 중 - 스킵', { userId, prevUserId })
       return
     }
     
@@ -43,6 +65,21 @@ export function useMyPageInitialization(
     if (!isLoggedIn || !userId) {
       setIsInitializing(false)
       isInitializingRef.current = false
+      initializedUserIdRef.current = undefined
+      return
+    }
+    
+    // 동일한 사용자로 이미 초기화된 경우 스킵 (불필요한 재초기화 방지)
+    if (initializedUserId === userId && prevUserId === userId && prevIsLoggedIn === isLoggedIn) {
+      logger.debug('MY_PAGE_INIT', '동일 사용자로 이미 초기화됨 - 스킵', { userId })
+      setIsInitializing(false)
+      return
+    }
+    
+    // 사용자가 변경된 경우에만 초기화 (로그인 상태만 변경된 경우는 스킵)
+    if (prevUserId !== undefined && prevUserId === userId && prevIsLoggedIn !== isLoggedIn) {
+      logger.debug('MY_PAGE_INIT', '사용자 변경 없음, 로그인 상태만 변경 - 스킵', { userId })
+      setIsInitializing(false)
       return
     }
     
@@ -102,12 +139,18 @@ export function useMyPageInitialization(
         try {
           // useLevel이 이미 초기화 중이면 스킵 (중복 방지)
           const requestKey = `level-progress-${userId}`
+          
+          // 레벨 정보가 이미 로딩 중이거나 최근에 로드된 경우 스킵
           if (stateSafetyManager.getLoading(requestKey)) {
             logger.debug('MY_PAGE_INIT', '레벨 정보 로딩 중 - 스킵', { userId })
           } else {
-            await fetchLevelProgress()
+          // 안정적인 함수 참조 사용 (ref를 통해 최신 참조 보장)
+          const fetchProgress = fetchLevelProgressRef.current || fetchLevelProgress
+          if (fetchProgress && typeof fetchProgress === 'function') {
+            await fetchProgress()
             // 레벨 정보 로드 후 간격 추가 (rate limit 방지)
             await new Promise(resolve => setTimeout(resolve, 500))
+          }
           }
         } catch (error) {
           console.error('❌ [useMyPageInitialization] 레벨 정보 로드 실패:', error)
@@ -132,6 +175,7 @@ export function useMyPageInitialization(
         // 초기화 완료
         setIsInitializing(false)
         isInitializingRef.current = false
+        initializedUserIdRef.current = userId // 초기화 완료 사용자 ID 저장
         
         // 타임아웃 정리
         if (initializationTimeoutRef.current) {
@@ -151,7 +195,7 @@ export function useMyPageInitialization(
       }
       isInitializingRef.current = false
     }
-  }, [userId, isLoggedIn, fetchLevelProgress, dispatch]) // fetchLevelProgress는 안정적인 함수이므로 의존성 유지
+  }, [userId, isLoggedIn, dispatch]) // fetchLevelProgress 의존성 제거 (안정적인 함수이므로)
   
   return {
     isInitializing,

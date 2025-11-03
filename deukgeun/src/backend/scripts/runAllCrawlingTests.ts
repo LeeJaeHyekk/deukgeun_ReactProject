@@ -1,11 +1,11 @@
 /**
  * 모든 크롤링 테스트를 순차적으로 실행하는 통합 테스트 스크립트
  */
-import { testBasicCrawling } from '@backend/scripts/test-crawling-basic'
-import { testComplexCrawling } from '@backend/scripts/test-crawling-complex'
-import { testStressCrawling } from '@backend/scripts/test-crawling-stress'
-import { testFallbackCrawling } from '@backend/scripts/test-crawling-fallback'
-import { testPerformanceCrawling } from '@backend/scripts/test-crawling-performance'
+import { testBasicCrawling } from '@backend/scripts/testCrawlingBasic'
+import { testComplexCrawling } from '@backend/scripts/testCrawlingComplex'
+import { testStressCrawling } from '@backend/scripts/testCrawlingStress'
+import { testFallbackCrawling } from '@backend/scripts/testCrawlingFallback'
+import { testPerformanceCrawling } from '@backend/scripts/testCrawlingPerformance'
 
 interface TestResult {
   testName: string

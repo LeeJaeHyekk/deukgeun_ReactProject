@@ -4,49 +4,49 @@
 // ============================================================================
 
 // Machine Transformer
-export { MachineTransformer } from "./machine.transformer"
+export { MachineTransformer } from "./machineTransformer"
 
 // User Transformer
-export { UserTransformer } from "./user.transformer"
+export { UserTransformer } from "./userTransformer"
 
 // Post Transformer
-export { PostTransformer } from "./post.transformer"
+export { PostTransformer } from "./postTransformer"
 
 // Comment Transformer
-export { CommentTransformer } from "./comment.transformer"
+export { CommentTransformer } from "./commentTransformer"
 
 // Gym Transformer
-export { GymTransformer } from "./gym.transformer"
+export { GymTransformer } from "./gymTransformer"
 
 // WorkoutSession Transformer
-export { WorkoutSessionTransformer } from "./workoutsession.transformer"
+export { WorkoutSessionTransformer } from "./workoutsessionTransformer"
 
 // ExerciseSet Transformer
-export { ExerciseSetTransformer } from "./exerciseset.transformer"
+export { ExerciseSetTransformer } from "./exercisesetTransformer"
 
 // ExpHistory Transformer
-export { ExpHistoryTransformer } from "./exphistory.transformer"
+export { ExpHistoryTransformer } from "./exphistoryTransformer"
 
 // UserLevel Transformer
-export { UserLevelTransformer } from "./userlevel.transformer"
+export { UserLevelTransformer } from "./userlevelTransformer"
 
 // Like Transformer
-export { LikeTransformer } from "./like.transformer"
+export { LikeTransformer } from "./likeTransformer"
 
 // ============================================================================
 // 통합된 Transformer 함수들 (편의성을 위해)
 // ============================================================================
 
-import { MachineTransformer } from "@backend/transformers/machine.transformer"
-import { UserTransformer } from "@backend/transformers/user.transformer"
-import { PostTransformer } from "@backend/transformers/post.transformer"
-import { CommentTransformer } from "@backend/transformers/comment.transformer"
-import { GymTransformer } from "@backend/transformers/gym.transformer"
-import { WorkoutSessionTransformer } from "@backend/transformers/workoutsession.transformer"
-import { ExerciseSetTransformer } from "@backend/transformers/exerciseset.transformer"
-import { ExpHistoryTransformer } from "@backend/transformers/exphistory.transformer"
-import { UserLevelTransformer } from "@backend/transformers/userlevel.transformer"
-import { LikeTransformer } from "@backend/transformers/like.transformer"
+import { MachineTransformer } from "@backend/transformers/machineTransformer"
+import { UserTransformer } from "@backend/transformers/userTransformer"
+import { PostTransformer } from "@backend/transformers/postTransformer"
+import { CommentTransformer } from "@backend/transformers/commentTransformer"
+import { GymTransformer } from "@backend/transformers/gymTransformer"
+import { WorkoutSessionTransformer } from "@backend/transformers/workoutsessionTransformer"
+import { ExerciseSetTransformer } from "@backend/transformers/exercisesetTransformer"
+import { ExpHistoryTransformer } from "@backend/transformers/exphistoryTransformer"
+import { UserLevelTransformer } from "@backend/transformers/userlevelTransformer"
+import { LikeTransformer } from "@backend/transformers/likeTransformer"
 
 // Machine 변환 함수들
 export const toMachineDTO = MachineTransformer.toDTO

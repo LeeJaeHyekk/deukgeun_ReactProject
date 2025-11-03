@@ -95,25 +95,25 @@ function generateRootEnvContent(config: EnvConfig): string {
 VITE_FRONTEND_PORT=5173
 VITE_BACKEND_URL=http://43.203.30.167:5000
 
-# reCAPTCHA Enterprise 설정
-VITE_RECAPTCHA_SITE_KEY=6Lcf8-ArAAAAAEGpQDCsuecM4e9ZzeJ0LE6bgiMG
+# reCAPTCHA Enterprise 설정 (실제 값은 .env 파일에 설정하세요)
+VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
 
-# Kakao Map API Keys
-VITE_LOCATION_JAVASCRIPT_MAP_API_KEY=c5c2b4e24825e98afcd558c58002519c
-VITE_LOCATION_REST_MAP_API_KEY=096728d472e6d5331b08e3318a2b4286
+# Kakao Map API Keys (실제 값은 .env 파일에 설정하세요)
+VITE_LOCATION_JAVASCRIPT_MAP_API_KEY=your_kakao_javascript_map_api_key
+VITE_LOCATION_REST_MAP_API_KEY=your_kakao_rest_map_api_key
 
-# Gym API Key
+# Gym API Key (실제 값은 .env 파일에 설정하세요)
 VITE_GYM_API_KEY=your_gym_api_key
 
 # Backend Environment Variables
 NODE_ENV=${config.env}
 BACKEND_PORT=5000
 
-# Database Configuration
+# Database Configuration (실제 값은 .env 파일에 설정하세요)
 DB_HOST=localhost
 DB_PORT=3306
 DB_USERNAME=root
-DB_PASSWORD=Deukgeun6204_DB25
+DB_PASSWORD=your_mysql_password_here
 DB_NAME=deukgeun
 
 # JWT Configuration
@@ -162,7 +162,7 @@ PORT=5000
 DB_HOST=localhost
 DB_PORT=3306
 DB_USERNAME=root
-DB_PASSWORD=Deukgeun6204_DB25
+DB_PASSWORD=your_mysql_password_here
 DB_NAME=deukgeun
 DB_SYNCHRONIZE=true
 DB_LOGGING=true
@@ -222,12 +222,12 @@ VITE_FRONTEND_PORT=5173
 VITE_BACKEND_URL=http://43.203.30.167:5000
 VITE_API_URL=http://43.203.30.167:5000/api
 
-# reCAPTCHA Enterprise 설정
-VITE_RECAPTCHA_SITE_KEY=6Lcf8-ArAAAAAEGpQDCsuecM4e9ZzeJ0LE6bgiMG
+# reCAPTCHA Enterprise 설정 (실제 값은 .env 파일에 설정하세요)
+VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
 
-# Kakao Map API Keys
-VITE_LOCATION_JAVASCRIPT_MAP_API_KEY=c5c2b4e24825e98afcd558c58002519c
-VITE_LOCATION_REST_MAP_API_KEY=096728d472e6d5331b08e3318a2b4286
+# Kakao Map API Keys (실제 값은 .env 파일에 설정하세요)
+VITE_LOCATION_JAVASCRIPT_MAP_API_KEY=your_kakao_javascript_map_api_key
+VITE_LOCATION_REST_MAP_API_KEY=your_kakao_rest_map_api_key
 
 # Gym API Key
 VITE_GYM_API_KEY=your_gym_api_key

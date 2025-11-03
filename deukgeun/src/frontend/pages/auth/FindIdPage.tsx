@@ -143,16 +143,42 @@ export default function FindIdPage() {
   const validateForm = (): boolean => {
     const newErrors: { name?: string; phone?: string; recaptcha?: string } = {}
 
-    if (!formData.name.trim()) {
+    // 이름 검증 (길이 및 특수문자 제한)
+    const sanitizedName = formData.name.trim()
+    if (!sanitizedName) {
       newErrors.name = '이름을 입력해주세요.'
+    } else if (sanitizedName.length < 2) {
+      newErrors.name = '이름은 2자 이상이어야 합니다.'
+    } else if (sanitizedName.length > 50) {
+      newErrors.name = '이름은 50자 이하여야 합니다.'
+    } else if (!/^[가-힣a-zA-Z\s]+$/.test(sanitizedName)) {
+      newErrors.name = '이름은 한글, 영문만 입력 가능합니다.'
     }
 
+    // 전화번호 검증
     if (!formData.phone.trim()) {
       newErrors.phone = '휴대폰 번호를 입력해주세요.'
-    } else if (
-      !/^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/.test(formData.phone.replace(/-/g, ''))
-    ) {
-      newErrors.phone = '유효한 휴대폰 번호를 입력해주세요.'
+    } else {
+      const phoneNumber = formData.phone.replace(/-/g, '')
+      if (!/^01[0-9][0-9]{3,4}[0-9]{4}$/.test(phoneNumber)) {
+        newErrors.phone = '유효한 휴대폰 번호를 입력해주세요. (010-0000-0000 형식)'
+      }
+    }
+
+    // 생년월일 검증 (선택사항이지만 입력된 경우 검증)
+    if (formData.birthday) {
+      const birthdayRegex = /^\d{4}-\d{2}-\d{2}$/
+      if (!birthdayRegex.test(formData.birthday)) {
+        // 생년월일 형식 오류는 무시 (선택사항이므로)
+      } else {
+        const birthdayDate = new Date(formData.birthday)
+        if (isNaN(birthdayDate.getTime())) {
+          // 유효하지 않은 날짜는 무시 (선택사항이므로)
+        } else if (birthdayDate > new Date()) {
+          // 미래 날짜는 경고 (선택사항이므로 에러로 표시하지 않음)
+          console.warn('생년월일이 미래 날짜입니다.')
+        }
+      }
     }
 
     if (!recaptchaToken) {
@@ -168,17 +194,44 @@ export default function FindIdPage() {
       return
     }
 
+    try {
+      // 입력값 정제 및 검증
+      const sanitizedName = formData.name.trim().substring(0, 50)
+      const sanitizedPhone = formData.phone.trim().substring(0, 20)
+      const sanitizedGender = formData.gender
+        ? (formData.gender as 'male' | 'female' | 'other')
+        : undefined
+
+      // 생년월일 검증 및 정제
+      let sanitizedBirthday: string | undefined = undefined
+      if (formData.birthday) {
+        const birthdayRegex = /^\d{4}-\d{2}-\d{2}$/
+        if (birthdayRegex.test(formData.birthday)) {
+          const birthdayDate = new Date(formData.birthday)
+          if (!isNaN(birthdayDate.getTime()) && birthdayDate <= new Date()) {
+            sanitizedBirthday = formData.birthday
+          }
+        }
+    }
+
     const submitData = {
-      name: formData.name.trim(),
-      phone: formData.phone.trim(),
-      gender: (formData.gender as 'male' | 'female' | 'other') || undefined,
-      birthday: formData.birthday || undefined,
+        name: sanitizedName,
+        phone: sanitizedPhone,
+        gender: sanitizedGender,
+        birthday: sanitizedBirthday,
       recaptchaToken: recaptchaToken!,
     }
 
-    console.log('🧪 아이디 찾기 요청:', submitData)
+      console.log('🧪 아이디 찾기 요청:', {
+        ...submitData,
+        recaptchaToken: '***', // 보안을 위해 토큰 숨김
+      })
 
     await findIdSimple(submitData)
+    } catch (error: any) {
+      console.error('아이디 찾기 오류:', error)
+      // 에러는 useAccountRecovery hook에서 처리됨
+    }
   }
 
   const handleRecaptchaChange = (token: string | null) => {

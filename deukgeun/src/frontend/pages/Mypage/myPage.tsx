@@ -15,7 +15,7 @@ import { useAppDispatch } from "@frontend/shared/store/hooks"
 import { LoadingState, ErrorState } from "@frontend/features/workout/components/common"
 import { calculateLevelFromTotalExp } from "@frontend/shared/utils/levelUtils"
 import { useUserInfo, useWorkoutStats, useMyPageInitialization, useUserExp } from "./hooks"
-import { InfoItem, ActionButton, StatsCard } from "./components"
+import { InfoItem, ActionButton, StatsCard, EditProfileModal } from "./components"
 import styles from "./MyPage.module.css"
 
 interface MyPageProps {
@@ -27,8 +27,17 @@ function MyPage({ className }: MyPageProps) {
   const dispatch = useAppDispatch()
   const { user, logout, isLoggedIn } = useAuthRedux()
   
-  // Redux 상태
-  const completedWorkouts = useSelector(selectCompletedWorkouts) || []
+  // Redux 상태 - 선택적 구독으로 불필요한 리렌더링 방지
+  const completedWorkouts = useSelector(selectCompletedWorkouts, (prev, next) => {
+    // 배열 길이와 내용이 동일한지 비교
+    if (!prev || !next) return prev === next
+    if (prev.length !== next.length) return false
+    return prev.every((item, index) => {
+      const nextItem = next[index]
+      return item?.completedId === nextItem?.completedId &&
+             item?.completedAt === nextItem?.completedAt
+    })
+  }) || []
   const workoutStatus = useSelector(selectWorkoutStatus)
   const workoutError = useSelector(selectWorkoutError)
   
@@ -41,8 +50,29 @@ function MyPage({ className }: MyPageProps) {
   
   // 새로고침 상태
   const [isRefreshing, setIsRefreshing] = useState(false)
+
+  // 회원정보 수정 모달 상태
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false)
   
-  // 레벨 정보 계산
+  // 이전 상태 추적을 위한 ref (렌더링 최적화)
+  const prevUserIdRef = React.useRef<number | undefined>(undefined)
+  const prevIsLoggedInRef = React.useRef<boolean>(false)
+  
+  // 사용자 ID 변경 감지 (렌더링 최적화)
+  React.useEffect(() => {
+    const currentUserId = user?.id
+    const currentIsLoggedIn = isLoggedIn
+    const prevUserId = prevUserIdRef.current
+    const prevIsLoggedIn = prevIsLoggedInRef.current
+    
+    // 실제 변경이 있을 때만 처리
+    if (prevUserId !== currentUserId || prevIsLoggedIn !== currentIsLoggedIn) {
+      prevUserIdRef.current = currentUserId
+      prevIsLoggedInRef.current = currentIsLoggedIn
+    }
+  }, [user?.id, isLoggedIn])
+  
+  // 레벨 정보 계산 (안정적인 메모이제이션)
   const levelInfo = React.useMemo(() => {
     try {
       if (typeof userTotalExp !== 'number' || isNaN(userTotalExp) || userTotalExp < 0) {
@@ -109,12 +139,21 @@ function MyPage({ className }: MyPageProps) {
 
   const handleEditProfile = useCallback(() => {
     try {
-      navigate("/profile/edit")
+      setIsEditProfileModalOpen(true)
     } catch (error) {
-      console.error('❌ [MyPage] 회원정보 수정 페이지 이동 실패:', error)
-      alert("회원정보 수정 페이지로 이동할 수 없습니다.")
+      console.error('❌ [MyPage] 회원정보 수정 모달 열기 실패:', error)
+      alert("회원정보 수정 모달을 열 수 없습니다.")
     }
-  }, [navigate])
+  }, [])
+
+  const handleCloseEditProfileModal = useCallback(() => {
+    setIsEditProfileModalOpen(false)
+  }, [])
+
+  const handleProfileUpdateSuccess = useCallback(() => {
+    console.log('✅ [MyPage] 회원정보 수정 성공')
+    // 필요시 추가 처리 (예: 토스트 메시지)
+  }, [])
   
   // 에러 상태 처리
   if (!isLoggedIn || !user) {
@@ -147,29 +186,39 @@ function MyPage({ className }: MyPageProps) {
     [initializationError, workoutError, levelError]
   )
   
-  // 레벨 디스플레이 컴포넌트 메모이제이션 (hooks 규칙 준수를 위해 컴포넌트 최상위에서 호출)
+  // 레벨 디스플레이 컴포넌트 메모이제이션 (안정적인 의존성)
   const levelDisplayContent = React.useMemo(() => {
     if (!levelInfo || typeof levelInfo !== 'object') {
       return <ErrorState message="레벨 정보를 불러올 수 없습니다." onRetry={handleRefresh} />
     }
     
+    // 레벨 데이터 계산 (안정적인 값)
+    const levelData = {
+      level: typeof levelInfo.level === 'number' ? Math.max(1, Math.floor(levelInfo.level)) : 1,
+      currentExp: typeof levelInfo.currentExp === 'number' ? Math.max(0, Math.floor(levelInfo.currentExp)) : 0,
+      totalExp: typeof userTotalExp === 'number' ? Math.max(0, Math.floor(userTotalExp)) : 0,
+      expToNextLevel: typeof levelInfo.nextLevelExp === 'number' ? Math.max(0, Math.floor(levelInfo.nextLevelExp)) : 0,
+      progressPercentage: typeof levelInfo.progressPercentage === 'number' 
+        ? Math.max(0, Math.min(100, levelInfo.progressPercentage)) 
+        : 0,
+    }
+    
     return (
       <LevelDisplay
-        userLevel={{
-          level: typeof levelInfo.level === 'number' ? Math.max(1, Math.floor(levelInfo.level)) : 1,
-          currentExp: typeof levelInfo.currentExp === 'number' ? Math.max(0, Math.floor(levelInfo.currentExp)) : 0,
-          totalExp: typeof userTotalExp === 'number' ? Math.max(0, Math.floor(userTotalExp)) : 0,
-          expToNextLevel: typeof levelInfo.nextLevelExp === 'number' ? Math.max(0, Math.floor(levelInfo.nextLevelExp)) : 0,
-          progressPercentage: typeof levelInfo.progressPercentage === 'number' 
-            ? Math.max(0, Math.min(100, levelInfo.progressPercentage)) 
-            : 0,
-        } as any}
+        userLevel={levelData as any}
         showProgress={true}
         showRewards={true}
         className={styles.myPageLevelDisplay}
       />
     )
-  }, [levelInfo, userTotalExp, handleRefresh])
+  }, [
+    levelInfo?.level, 
+    levelInfo?.currentExp, 
+    levelInfo?.nextLevelExp, 
+    levelInfo?.progressPercentage, 
+    userTotalExp, 
+    handleRefresh
+  ])
   
   // 통계 섹션 메모이제이션 (hooks 규칙 준수를 위해 컴포넌트 최상위에서 호출)
   const statsSectionContent = React.useMemo(() => {
@@ -212,7 +261,7 @@ function MyPage({ className }: MyPageProps) {
     )
   }, [workoutStats])
   
-  // 개인 정보 섹션 메모이제이션 (hooks 규칙 준수를 위해 컴포넌트 최상위에서 호출)
+  // 개인 정보 섹션 메모이제이션 (안정적인 의존성)
   const infoSectionContent = React.useMemo(() => (
     <div className={styles.infoGrid}>
       <InfoItem label="닉네임" value={userInfo.nickname} icon="👤" />
@@ -222,9 +271,16 @@ function MyPage({ className }: MyPageProps) {
       <InfoItem label="생년월일" value={userInfo.birthday} icon="🎂" />
       <InfoItem label="가입일" value={userInfo.createdAt} icon="📝" />
     </div>
-  ), [userInfo])
+  ), [
+    userInfo.nickname,
+    userInfo.email,
+    userInfo.phone,
+    userInfo.gender,
+    userInfo.birthday,
+    userInfo.createdAt
+  ])
   
-  // 액션 섹션 메모이제이션 (hooks 규칙 준수를 위해 컴포넌트 최상위에서 호출)
+  // 액션 섹션 메모이제이션 (안정적인 의존성)
   const actionsSectionContent = React.useMemo(() => (
     <div className={styles.actions}>
       <ActionButton 
@@ -343,6 +399,13 @@ function MyPage({ className }: MyPageProps) {
           {actionsSectionContent}
         </div>
       </div>
+
+      {/* 회원정보 수정 모달 */}
+      <EditProfileModal
+        isOpen={isEditProfileModalOpen}
+        onClose={handleCloseEditProfileModal}
+        onSuccess={handleProfileUpdateSuccess}
+      />
     </div>
   )
 }

@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
+import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 import { postsApi } from '@frontend/shared/api'
 import { showToast } from '@frontend/shared/lib'
 import { useAuthGuard } from '@frontend/shared/hooks/useAuthGuard'
@@ -38,50 +38,85 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
     PostCategoryInfo[]
   >([])
 
-  // Redux store에서 posts 데이터 구독
-  const reduxPosts = useSelector((state: RootState) => state.posts.entities)
-  const reduxPostIds = useSelector((state: RootState) => state.posts.ids)
-  const reduxPagination = useSelector(selectPostsPagination)
+  // Redux store에서 posts 데이터 구독 (렌더링 최적화)
+  // 객체 참조 비교를 통해 불필요한 리렌더링 방지
+  const reduxPosts = useSelector((state: RootState) => state.posts.entities, shallowEqual)
+  const reduxPostIds = useSelector((state: RootState) => state.posts.ids, (prev, next) => {
+    // 배열 길이와 내용이 동일한지 비교
+    if (prev.length !== next.length) return false
+    return prev.every((id, index) => id === next[index])
+  })
+  const reduxPagination = useSelector(selectPostsPagination, shallowEqual)
+  
+  // 이전 상태 추적을 위한 ref (렌더링 최적화)
+  const prevReduxPostsRef = useRef<typeof reduxPosts>(reduxPosts)
+  const prevReduxPostIdsRef = useRef<typeof reduxPostIds>(reduxPostIds)
+  const prevReduxPaginationRef = useRef<typeof reduxPagination>(reduxPagination)
 
-  // Redux store 변경사항을 로컬 state에 동기화 (타입 가드 적용)
+  // Redux store 변경사항을 로컬 state에 동기화 (타입 가드 적용 및 렌더링 최적화)
   useEffect(() => {
-    if (reduxPostIds.length > 0) {
-      const updatedPosts = reduxPostIds
-        .map((id: number) => reduxPosts[id])
-        .filter((post: CommunityPost | undefined): post is CommunityPost => post !== null && post !== undefined && isValidPost(post))
+    // 실제 변경 여부 확인 (렌더링 최적화)
+    const postsChanged = prevReduxPostsRef.current !== reduxPosts
+    const idsChanged = prevReduxPostIdsRef.current !== reduxPostIds
+    
+    // 실제로 변경된 경우에만 처리
+    if (postsChanged || idsChanged) {
+      // 상태 업데이트
+      prevReduxPostsRef.current = reduxPosts
+      prevReduxPostIdsRef.current = reduxPostIds
       
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🔄 [useCommunityPosts] Redux store 동기화:', {
-          reduxPostIds: reduxPostIds.length,
-          updatedPosts: updatedPosts.length,
-          firstPost: updatedPosts[0]
-        })
+      if (reduxPostIds.length > 0) {
+        const updatedPosts = reduxPostIds
+          .map((id: number) => reduxPosts[id])
+          .filter((post: CommunityPost | undefined): post is CommunityPost => post !== null && post !== undefined && isValidPost(post))
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔄 [useCommunityPosts] Redux store 동기화:', {
+            reduxPostIds: reduxPostIds.length,
+            updatedPosts: updatedPosts.length,
+            firstPost: updatedPosts[0]
+          })
+        }
+        setPosts(updatedPosts)
       }
-      setPosts(updatedPosts)
     }
   }, [reduxPosts, reduxPostIds])
 
-  // Redux pagination 변경사항을 로컬 state에 동기화
+  // Redux pagination 변경사항을 로컬 state에 동기화 (렌더링 최적화)
   useEffect(() => {
-    const reduxPage = reduxPagination.page || 1
-    const reduxTotalPages = reduxPagination.totalPages || 1
+    // 실제 변경 여부 확인 (엄격한 비교)
+    const prevPagination = prevReduxPaginationRef.current
+    const paginationChanged = prevPagination.page !== reduxPagination.page ||
+                               prevPagination.totalPages !== reduxPagination.totalPages ||
+                               prevPagination.total !== reduxPagination.total
     
-    if (reduxPage !== currentPage || reduxTotalPages !== totalPages) {
-      console.log('📄 [useCommunityPosts] Redux pagination 동기화:', {
-        previous: {
-          currentPage,
-          totalPages
-        },
-        redux: {
-          page: reduxPage,
-          totalPages: reduxTotalPages,
-          total: reduxPagination.total
-        },
-        willUpdate: reduxPage !== currentPage || reduxTotalPages !== totalPages,
-        timestamp: new Date().toISOString()
-      })
-      setCurrentPage(reduxPage)
-      setTotalPages(reduxTotalPages)
+    if (paginationChanged) {
+      // 상태 업데이트
+      prevReduxPaginationRef.current = reduxPagination
+      
+      const reduxPage = reduxPagination.page || 1
+      const reduxTotalPages = reduxPagination.totalPages || 1
+      
+      // 실제로 변경된 경우에만 업데이트
+      if (reduxPage !== currentPage || reduxTotalPages !== totalPages) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('📄 [useCommunityPosts] Redux pagination 동기화:', {
+            previous: {
+              currentPage,
+              totalPages
+            },
+            redux: {
+              page: reduxPage,
+              totalPages: reduxTotalPages,
+              total: reduxPagination.total
+            },
+            willUpdate: reduxPage !== currentPage || reduxTotalPages !== totalPages,
+            timestamp: new Date().toISOString()
+          })
+        }
+        setCurrentPage(reduxPage)
+        setTotalPages(reduxTotalPages)
+      }
     }
   }, [reduxPagination, currentPage, totalPages])
 
@@ -120,7 +155,7 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
     }
   }, [])
 
-  // 게시글 목록 가져오기
+  // 게시글 목록 가져오기 (안정적인 함수 참조)
   const fetchPosts = useCallback(
     async ({
       page = 1,
@@ -174,96 +209,115 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
         dispatch(setPostsAction(mappedPosts))
         
         if (mappedPagination) {
-          dispatch(setPagination({
-            page: page,
-            totalPages: mappedPagination.totalPages,
-            total: mappedPagination.total
-          }))
-          console.log('📄 [useCommunityPosts] Redux pagination 업데이트:', {
-            page,
-            totalPages: mappedPagination.totalPages,
-            total: mappedPagination.total,
-            timestamp: new Date().toISOString()
-          })
+          // 실제로 변경된 경우에만 업데이트 (렌더링 최적화)
+          const currentPagination = reduxPagination
+          const paginationChanged = currentPagination.page !== page ||
+                                     currentPagination.totalPages !== mappedPagination.totalPages ||
+                                     currentPagination.total !== mappedPagination.total
+          
+          if (paginationChanged) {
+            dispatch(setPagination({
+              page: page,
+              totalPages: mappedPagination.totalPages,
+              total: mappedPagination.total
+            }))
+            
+            if (process.env.NODE_ENV === 'development') {
+              console.log('📄 [useCommunityPosts] Redux pagination 업데이트:', {
+                page,
+                totalPages: mappedPagination.totalPages,
+                total: mappedPagination.total,
+                timestamp: new Date().toISOString()
+              })
+            }
+          }
         } else {
           // pagination이 없는 경우 기본값 사용
-          dispatch(setPagination({
-            page: page,
-            totalPages: 1,
-            total: mappedPosts.length
-          }))
-          console.log('📄 [useCommunityPosts] Redux pagination 기본값 사용:', {
-            page,
-            totalPages: 1,
-            total: mappedPosts.length,
-            timestamp: new Date().toISOString()
-          })
+          const currentPagination = reduxPagination
+          const paginationChanged = currentPagination.page !== page ||
+                                     currentPagination.totalPages !== 1 ||
+                                     currentPagination.total !== mappedPosts.length
+          
+          if (paginationChanged) {
+            dispatch(setPagination({
+              page: page,
+              totalPages: 1,
+              total: mappedPosts.length
+            }))
+            
+            if (process.env.NODE_ENV === 'development') {
+              console.log('📄 [useCommunityPosts] Redux pagination 기본값 사용:', {
+                page,
+                totalPages: 1,
+                total: mappedPosts.length,
+                timestamp: new Date().toISOString()
+              })
+            }
+          }
         }
         
         // 로컬 state는 Redux pagination 동기화 useEffect에서 자동 업데이트됨
         // (중복 업데이트 방지 및 일관성 보장)
       } catch (error: unknown) {
-        console.error('게시글 로드 실패:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('게시글 로드 실패:', error)
+        }
         showToast('게시글을 불러오는데 실패했습니다.', 'error')
         setPosts([])
       } finally {
         setLoading(false)
       }
     },
-    [limit]
+    [limit, dispatch, reduxPagination]
   )
 
-  // 새 게시글 작성
+  // 새 게시글 작성 (안정적인 함수 참조)
   const createPost = useCallback(
     async (postData: { title: string; content: string; category: string }) => {
-      console.log('📝 [useCommunityPosts] createPost 호출:', {
-        title: postData.title,
-        contentLength: postData.content?.length || 0,
-        category: postData.category,
-        timestamp: new Date().toISOString()
-      })
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📝 [useCommunityPosts] createPost 호출:', {
+          title: postData.title,
+          contentLength: postData.content?.length || 0,
+          category: postData.category,
+          timestamp: new Date().toISOString()
+        })
+      }
 
       // 인증 사전 검증
-      console.log('🔐 [useCommunityPosts] ensureAuthenticated 호출 전')
       const authResult = ensureAuthenticated()
-      console.log('🔐 [useCommunityPosts] ensureAuthenticated 결과:', authResult)
       
       if (!authResult) {
-        console.error('❌ [useCommunityPosts] ensureAuthenticated 실패 - 글쓰기 중단')
+        if (process.env.NODE_ENV === 'development') {
+          console.error('❌ [useCommunityPosts] ensureAuthenticated 실패 - 글쓰기 중단')
+        }
         return false
       }
 
       // 토큰 검증
-      console.log('🔐 [useCommunityPosts] validateTokenForAction 호출 전')
       const token = validateTokenForAction('createPost')
-      console.log('🔐 [useCommunityPosts] validateTokenForAction 결과:', {
-        hasToken: !!token,
-        tokenPreview: token ? `${token.substring(0, 20)}...` : '없음'
-      })
       
       if (!token) {
-        console.error('❌ [useCommunityPosts] 토큰 검증 실패 - 글쓰기 중단')
+        if (process.env.NODE_ENV === 'development') {
+          console.error('❌ [useCommunityPosts] 토큰 검증 실패 - 글쓰기 중단')
+        }
         showToast('로그인이 필요합니다. 로그인 후 이용해주세요.', 'error')
-        // 토스트만 표시, 자동 리다이렉트 없음 (사용자가 직접 로그인 페이지로 이동하도록)
         return false
       }
 
       try {
-        console.log('📝 [useCommunityPosts] createPostThunk dispatch 시작')
         await dispatch(createPostThunk(postData))
-        console.log('✅ [useCommunityPosts] createPostThunk 성공')
         showToast('게시글이 성공적으로 작성되었습니다.', 'success')
         return true
     } catch (error: unknown) {
-      console.error('❌ [useCommunityPosts] 게시글 작성 실패:', {
-        error,
-        errorMessage: error instanceof Error ? error.message : String(error),
-        errorStack: error instanceof Error ? error.stack : undefined,
-        postData,
-        timestamp: new Date().toISOString()
-      })
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ [useCommunityPosts] 게시글 작성 실패:', {
+          error,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          postData,
+          timestamp: new Date().toISOString()
+        })
+      }
       if (handleAuthAwareError(error, (m,t='error')=>showToast(m,t))) {
-        console.error('❌ [useCommunityPosts] 인증 관련 에러 처리됨')
         return false
       }
       showToast('게시글 작성에 실패했습니다.', 'error')
@@ -305,30 +359,41 @@ export function useCommunityPosts({ limit }: UseCommunityPostsProps) {
     }
   }, [])
 
-  // setCurrentPage를 Redux pagination을 업데이트하는 함수로 변경
+  // setCurrentPage를 Redux pagination을 업데이트하는 함수로 변경 (안정적인 참조)
   const handleSetCurrentPage = useCallback((page: number) => {
-    console.log('📄 [useCommunityPosts] handleSetCurrentPage 호출:', {
-      requestedPage: page,
-      currentPage,
-      totalPages,
-      reduxPagination,
-      timestamp: new Date().toISOString()
-    })
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📄 [useCommunityPosts] handleSetCurrentPage 호출:', {
+        requestedPage: page,
+        currentPage,
+        totalPages,
+        reduxPagination,
+        timestamp: new Date().toISOString()
+      })
+    }
     
     if (typeof page === 'number' && page > 0 && page <= totalPages) {
       // Redux pagination 업데이트 (단일 진실의 원천)
-      dispatch(setPagination({
-        page,
-        totalPages: reduxPagination.totalPages || totalPages,
-        total: reduxPagination.total || 0
-      }))
-      console.log('📄 [useCommunityPosts] Redux pagination 업데이트 완료:', {
-        newPage: page,
-        totalPages: reduxPagination.totalPages || totalPages,
-        timestamp: new Date().toISOString()
-      })
+      const newTotalPages = reduxPagination.totalPages || totalPages
+      const newTotal = reduxPagination.total || 0
+      
+      // 실제로 변경된 경우에만 업데이트 (렌더링 최적화)
+      if (page !== reduxPagination.page) {
+        dispatch(setPagination({
+          page,
+          totalPages: newTotalPages,
+          total: newTotal
+        }))
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('📄 [useCommunityPosts] Redux pagination 업데이트 완료:', {
+            newPage: page,
+            totalPages: newTotalPages,
+            timestamp: new Date().toISOString()
+          })
+        }
+      }
       // 로컬 상태는 useEffect에서 자동으로 동기화됨
-    } else {
+    } else if (process.env.NODE_ENV === 'development') {
       console.warn('📄 [useCommunityPosts] 잘못된 페이지 번호:', {
         page,
         currentPage,

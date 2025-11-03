@@ -11,8 +11,8 @@ export { useWorkoutStore } from "./store/workoutStore"
 // Hooks
 export * from "./hooks"
 
-// Types
-export * from "./types"
+// Types (주요 타입만 명시적 export, LoadingState는 컴포넌트와 충돌 방지)
+export type { Goal, Task, TaskStatus, CompletedWorkout, ActiveWorkout, WorkoutState } from "./slices/workoutSlice"
 
 // Constants
 export * from "./constants"
@@ -32,5 +32,6 @@ export * from "./data"
 // Contexts
 export * from "./contexts"
 
-// Components
+// Components (명시적 export로 LoadingState 컴포넌트만 export)
 export * from "./components"
+// LoadingState 컴포넌트는 components/common에서 export됨

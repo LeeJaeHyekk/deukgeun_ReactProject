@@ -534,10 +534,12 @@ export default function SignUpPage() {
         updatedAt: response.user.updatedAt instanceof Date 
           ? response.user.updatedAt.toISOString() 
           : (response.user.updatedAt || new Date().toISOString()),
-        // birthDate도 Date 객체를 문자열로 변환 (있는 경우)
+        // birthDate를 Date 객체로 변환 (있는 경우)
         birthDate: response.user.birthDate instanceof Date
           ? response.user.birthDate
-          : (response.user.birthDate || undefined),
+          : (typeof response.user.birthDate === 'string' && response.user.birthDate
+            ? new Date(response.user.birthDate)
+            : undefined),
       }
       
       logger.info('SIGNUP_PAGE', '로그인 함수 호출 전', {

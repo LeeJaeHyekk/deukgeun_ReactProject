@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express"
-import { PostService } from "@backend/services/post.service"
+import { PostService } from "@backend/services/postService"
 import { User } from '@backend/entities/User'
 import { LevelService } from '@backend/services/levelService'
 import { AppDataSource } from '@backend/config/databaseConfig'

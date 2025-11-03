@@ -49,24 +49,11 @@ export default function EnhancedErrorPage({
 }: EnhancedErrorPageProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  // Redux context가 없을 수 있으므로 안전하게 처리
-  let isAuthenticated = false
   
-  // Redux Provider가 있는지 확인
-  const hasReduxProvider = document.querySelector('[data-testid="redux-provider"]') !== null
-  
-  if (hasReduxProvider) {
-    try {
-      const authContext = useAuthRedux()
-      isAuthenticated = authContext.isLoggedIn
-    } catch (error) {
-      // Redux context가 없는 경우 기본값 사용
-      console.warn('Redux context not available:', error)
-    }
-  } else {
-    // Redux Provider가 없는 경우 기본값 사용
-    console.warn('Redux Provider not found, using default values')
-  }
+  // Redux context 접근 - hooks 규칙을 준수하기 위해 항상 호출
+  // Redux Provider가 없는 경우 에러가 발생할 수 있지만, 
+  // 실제로는 App.tsx에서 ReduxProvider로 감싸져 있으므로 안전
+  const { isLoggedIn: isAuthenticated } = useAuthRedux()
   
   const [isVideoLoaded, setIsVideoLoaded] = useState(false)
   const [errorInfo, setErrorInfo] = useState<ErrorInfo | null>(null)

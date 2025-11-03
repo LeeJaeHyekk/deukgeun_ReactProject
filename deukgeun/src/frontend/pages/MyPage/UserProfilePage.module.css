@@ -1,97 +1,250 @@
-.user-profile-page {
+/* ============================================================================
+   UserProfilePage Styles - 프로젝트 통합 디자인 시스템
+   ============================================================================ */
+
+.userProfilePage {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: var(--workout-bg-gradient, linear-gradient(to bottom, #b0b0b0 0%, #969696 50%, #7c7c7c 100%));
+  padding: var(--workout-spacing-xl, 32px);
+  box-sizing: border-box;
+  font-family: var(--workout-font-sans, "Pretendard"), sans-serif;
+  color: var(--workout-text-primary, #fff);
+  padding-top: 84px; /* 네비게이션 높이 + 여백 */
+}
+
+.userProfilePage h1 {
+  text-align: center;
+  margin-bottom: var(--workout-spacing-2xl, 48px);
+  color: var(--workout-text-primary, #fff);
+  font-size: 2rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.profileForm {
+  width: 100%;
   max-width: 600px;
   margin: 0 auto;
-  padding: 2rem;
+  background: var(--workout-glass-bg, rgba(255, 255, 255, 0.05));
+  backdrop-filter: var(--workout-glass-blur-strong, blur(20px));
+  -webkit-backdrop-filter: var(--workout-glass-blur-strong, blur(20px));
+  padding: var(--workout-spacing-2xl, 48px);
+  border-radius: var(--workout-radius-2xl, 24px);
+  border: 1px solid var(--workout-glass-border, rgba(255, 255, 255, 0.1));
+  box-shadow: var(--workout-card-shadow, 0 4px 20px rgba(0, 0, 0, 0.2));
+  transition: all var(--workout-transition-base, 0.3s ease);
 }
 
-.user-profile-page h1 {
-  text-align: center;
-  margin-bottom: 2rem;
-  color: #333;
+.profileForm:hover {
+  box-shadow: var(--workout-card-shadow-hover, 0 8px 32px rgba(0, 0, 0, 0.3));
+  border-color: var(--workout-glass-border-hover, rgba(255, 255, 255, 0.2));
 }
 
-.profile-form {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+.formGroup {
+  margin-bottom: var(--workout-spacing-xl, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--workout-spacing-xs, 8px);
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
+.formGroup label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--workout-spacing-xs, 8px);
   font-weight: 600;
-  color: #333;
+  color: var(--workout-text-primary, #fff);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  user-select: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.form-group input,
-.form-group select {
+.formGroup input,
+.formGroup select {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 14px 20px;
+  border: 1.5px solid var(--workout-glass-border, rgba(255, 255, 255, 0.2));
+  border-radius: var(--workout-radius-md, 12px);
   font-size: 1rem;
-  transition: border-color 0.2s;
+  font-family: var(--workout-font-sans, "Pretendard"), sans-serif;
+  transition: all var(--workout-transition-base, 0.3s ease);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--workout-text-primary, #fff);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-sizing: border-box;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.formGroup input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  border-color: var(--workout-primary, #f87171);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.2);
+  transform: translateY(-1px);
+}
+
+.formGroup select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+  padding-right: 48px;
+}
+
+.formGroup select option {
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 12px;
+  font-size: 1rem;
 }
 
 .message {
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  padding: var(--workout-spacing-md, 16px);
+  border-radius: var(--workout-radius-md, 12px);
+  margin-bottom: var(--workout-spacing-md, 16px);
   font-weight: 500;
+  font-size: 0.875rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .message.success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: rgba(52, 211, 153, 0.15);
+  color: var(--workout-success, #34d399);
+  border: 1px solid rgba(52, 211, 153, 0.3);
 }
 
 .message.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--workout-error, #ef4444);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-.submit-button {
+.submitButton {
   width: 100%;
-  padding: 0.75rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
+  padding: 16px 24px;
+  background: var(--workout-btn-primary, linear-gradient(135deg, #f87171, #ef4444));
+  border: 1.5px solid var(--workout-primary, #f87171);
+  color: var(--workout-text-primary, #fff);
   font-weight: 600;
+  font-size: 1.1rem;
+  border-radius: var(--workout-radius-md, 12px);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all var(--workout-transition-base, 0.3s ease);
+  box-shadow: var(--workout-btn-primary-shadow, 0 4px 12px rgba(248, 113, 113, 0.3));
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-family: var(--workout-font-sans, "Pretendard"), sans-serif;
+  margin-top: var(--workout-spacing-md, 16px);
 }
 
-.submit-button:hover:not(:disabled) {
-  background-color: #0056b3;
+.submitButton:hover:not(:disabled) {
+  background: var(--workout-btn-primary-hover, linear-gradient(135deg, #ef4444, #dc2626));
+  box-shadow: var(--workout-btn-primary-shadow-hover, 0 6px 16px rgba(248, 113, 113, 0.4));
+  transform: translateY(-2px);
 }
 
-.submit-button:disabled {
-  background-color: #6c757d;
+.submitButton:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .userProfilePage {
+    padding: var(--workout-spacing-lg, 24px);
+    padding-top: 84px;
+  }
+
+  .profileForm {
+    padding: var(--workout-spacing-xl, 40px);
+  }
+
+  .userProfilePage h1 {
+    font-size: 1.75rem;
+    margin-bottom: var(--workout-spacing-xl, 32px);
+  }
 }
 
 @media (max-width: 768px) {
-  .user-profile-page {
-    padding: 1rem;
+  .userProfilePage {
+    padding: var(--workout-spacing-md, 20px);
+    padding-top: 84px;
   }
 
-  .profile-form {
-    padding: 1.5rem;
+  .profileForm {
+    padding: var(--workout-spacing-lg, 32px);
+    border-radius: var(--workout-radius-xl, 20px);
+  }
+
+  .userProfilePage h1 {
+    font-size: 1.5rem;
+    margin-bottom: var(--workout-spacing-lg, 24px);
+  }
+
+  .formGroup {
+    margin-bottom: var(--workout-spacing-lg, 24px);
+  }
+
+  .formGroup input,
+  .formGroup select {
+    padding: 12px 16px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .userProfilePage {
+    padding: var(--workout-spacing-md, 16px);
+    padding-top: 84px;
+  }
+
+  .profileForm {
+    padding: var(--workout-spacing-md, 24px);
+    border-radius: var(--workout-radius-lg, 16px);
+  }
+
+  .userProfilePage h1 {
+    font-size: 1.3rem;
+    margin-bottom: var(--workout-spacing-md, 20px);
+  }
+
+  .formGroup {
+    margin-bottom: var(--workout-spacing-md, 20px);
+  }
+
+  .formGroup label {
+    font-size: 0.8rem;
+  }
+
+  .formGroup input,
+  .formGroup select {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+
+  .submitButton {
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+
+  .message {
+    padding: var(--workout-spacing-sm, 12px);
+    font-size: 0.8rem;
   }
 }

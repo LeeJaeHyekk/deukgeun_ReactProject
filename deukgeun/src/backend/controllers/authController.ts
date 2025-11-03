@@ -16,7 +16,7 @@ import {
 } from "../types"
 import { accountRecoveryService } from '@backend/services/accountRecoveryService'
 import { SecurityInfo } from "@backend/types"
-import { UserTransformer } from '@backend/transformers/user.transformer'
+import { UserTransformer } from '@backend/transformers/userTransformer'
 
 export async function login(
   req: Request<Record<string, never>, Record<string, never>, LoginRequest>,
@@ -1451,6 +1451,135 @@ export async function resetPasswordSimpleStep2(
       success: false,
       message: "서버 오류가 발생했습니다.",
       error: "서버 오류",
+    })
+  }
+}
+
+// 회원정보 수정
+export async function updateProfile(
+  req: Request<Record<string, never>, Record<string, never>, {
+    nickname?: string
+    phone?: string
+    currentPassword?: string
+    newPassword?: string
+  }>,
+  res: Response<ApiResponse<{ user: any }> | ErrorResponse>
+): Promise<void> {
+  try {
+    const userId = (req.user as any)?.userId
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: "인증이 필요합니다.",
+        error: "인증 실패",
+      })
+      return
+    }
+
+    const { nickname, phone, currentPassword, newPassword } = req.body
+
+    const dataSource = await lazyLoadDatabase()
+    const userRepo = dataSource.getRepository(User)
+
+    const user = await userRepo.findOne({ where: { id: userId } })
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: "사용자를 찾을 수 없습니다.",
+        error: "사용자 없음",
+      })
+      return
+    }
+
+    // 닉네임 업데이트
+    if (nickname !== undefined) {
+      if (!nickname.trim() || nickname.trim().length < 2 || nickname.trim().length > 20) {
+        res.status(400).json({
+          success: false,
+          message: "닉네임은 2자 이상 20자 이하여야 합니다.",
+          error: "유효성 검증 실패",
+        })
+        return
+      }
+      user.nickname = nickname.trim()
+    }
+
+    // 전화번호 업데이트
+    if (phone !== undefined) {
+      if (phone && !/^010-\d{4}-\d{4}$/.test(phone)) {
+        res.status(400).json({
+          success: false,
+          message: "전화번호는 010-XXXX-XXXX 형식이어야 합니다.",
+          error: "유효성 검증 실패",
+        })
+        return
+      }
+      user.phone = phone?.trim() || undefined
+    }
+
+    // 비밀번호 변경 (newPassword가 있고 비어있지 않은 경우에만)
+    if (newPassword && newPassword.trim()) {
+      if (!currentPassword || !currentPassword.trim()) {
+        res.status(400).json({
+          success: false,
+          message: "현재 비밀번호를 입력해주세요.",
+          error: "유효성 검증 실패",
+        })
+        return
+      }
+
+      // 현재 비밀번호 확인
+      const isPasswordValid = await bcrypt.compare(currentPassword.trim(), user.password)
+      if (!isPasswordValid) {
+        logger.warn(`회원정보 수정 실패 - 비밀번호 불일치: User ID: ${user.id}`)
+        res.status(401).json({
+          success: false,
+          message: "현재 비밀번호가 일치하지 않습니다.",
+          error: "비밀번호 불일치",
+        })
+        return
+      }
+
+      // 새 비밀번호 유효성 검증
+      const trimmedNewPassword = newPassword.trim()
+      if (trimmedNewPassword.length < 8 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(trimmedNewPassword)) {
+        res.status(400).json({
+          success: false,
+          message: "비밀번호는 8자 이상이며 영문 대소문자와 숫자를 포함해야 합니다.",
+          error: "유효성 검증 실패",
+        })
+        return
+      }
+
+      // 새 비밀번호 해시화
+      const saltRounds = 10
+      user.password = await bcrypt.hash(trimmedNewPassword, saltRounds)
+      logger.info(`비밀번호 변경 성공 - User ID: ${user.id}`)
+    }
+
+    // 업데이트 시간 설정
+    user.updatedAt = new Date()
+
+    // 저장
+    await userRepo.save(user)
+
+    logger.info(`회원정보 수정 성공 - User ID: ${user.id}`)
+
+    res.json({
+      success: true,
+      message: "회원정보가 성공적으로 수정되었습니다.",
+      data: {
+        user: UserTransformer.toDTO(user),
+      },
+    })
+  } catch (error: any) {
+    logger.error(`회원정보 수정 실패: ${error.message}`, error)
+    res.status(500).json({
+      success: false,
+      message: "회원정보 수정 중 오류가 발생했습니다.",
+      error: error.message || "서버 오류",
     })
   }
 }

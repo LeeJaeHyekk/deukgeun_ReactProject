@@ -86,7 +86,7 @@ export type {
   ApiResponse,
   PaginationParams,
   PaginatedResponse,
-  LoadingState,
+  LoadingState as WorkoutLoadingState, // 컴포넌트 이름과 충돌 방지
   User,
   Machine,
   Gym,

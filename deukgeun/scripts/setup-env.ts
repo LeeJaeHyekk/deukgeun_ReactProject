@@ -29,25 +29,25 @@ function setupEnvironment(): void {
 VITE_FRONTEND_PORT=5173
 VITE_BACKEND_URL=http://43.203.30.167:5000
 
-# reCAPTCHA Enterprise 설정
-VITE_RECAPTCHA_SITE_KEY=6Lcf8-ArAAAAAEGpQDCsuecM4e9ZzeJ0LE6bgiMG
+# reCAPTCHA Enterprise 설정 (실제 값은 .env 파일에 설정하세요)
+VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
 
-# Kakao Map API Keys
-VITE_LOCATION_JAVASCRIPT_MAP_API_KEY=c5c2b4e24825e98afcd558c58002519c
-VITE_LOCATION_REST_MAP_API_KEY=096728d472e6d5331b08e3318a2b4286
+# Kakao Map API Keys (실제 값은 .env 파일에 설정하세요)
+VITE_LOCATION_JAVASCRIPT_MAP_API_KEY=your_kakao_javascript_map_api_key
+VITE_LOCATION_REST_MAP_API_KEY=your_kakao_rest_map_api_key
 
-# Gym API Key
+# Gym API Key (실제 값은 .env 파일에 설정하세요)
 VITE_GYM_API_KEY=your_gym_api_key
 
 # Backend Environment Variables
 NODE_ENV=development
 BACKEND_PORT=5000
 
-# Database Configuration
+# Database Configuration (실제 값은 .env 파일에 설정하세요)
 DB_HOST=localhost
 DB_PORT=3306
 DB_USERNAME=root
-DB_PASSWORD=Deukgeun6204_DB25
+DB_PASSWORD=your_mysql_password_here
 DB_DATABASE=deukgeun_db
 
 # JWT Configuration
@@ -119,11 +119,11 @@ JWT_REFRESH_SECRET=your-jwt-refresh-secret-for-development
 JWT_REFRESH_EXPIRES_IN=7d
 
 # ============================================================================
-# 🛡️ reCAPTCHA Enterprise 보안 설정
+# 🛡️ reCAPTCHA Enterprise 보안 설정 (실제 값은 .env 파일에 설정하세요)
 # ============================================================================
 RECAPTCHA_SECRET=your_recaptcha_enterprise_secret_key
-RECAPTCHA_SITE_KEY=6Lcf8-ArAAAAAEGpQDCsuecM4e9ZzeJ0LE6bgiMG
-RECAPTCHA_PROJECT_ID=secure-theme-468004-f1
+RECAPTCHA_SITE_KEY=your_recaptcha_site_key
+RECAPTCHA_PROJECT_ID=your_recaptcha_project_id
 RECAPTCHA_API_KEY=your_recaptcha_enterprise_api_key
 ACCESS_TOKEN_SECRET=yourAccessSecret
 REFRESH_TOKEN_SECRET=yourRefreshSecret
@@ -131,7 +131,7 @@ RATE_LIMIT_WINDOW=900000
 RATE_LIMIT_MAX=100
 
 # ============================================================================
-# 📧 이메일 설정 (Gmail SMTP)
+# 📧 이메일 설정 (Gmail SMTP) (실제 값은 .env 파일에 설정하세요)
 # ============================================================================
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
@@ -139,7 +139,7 @@ EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_app_password
 
 # ============================================================================
-# 📱 SMS 설정
+# 📱 SMS 설정 (실제 값은 .env 파일에 설정하세요)
 # ============================================================================
 SMS_API_KEY=your_sms_api_key
 SMS_API_SECRET=your_sms_api_secret
@@ -161,13 +161,13 @@ AUTO_UPDATE_TYPE=enhanced
 AUTO_UPDATE_INTERVAL_DAYS=3
 
 # ============================================================================
-# 🗺️ 카카오 API 설정
+# 🗺️ 카카오 API 설정 (실제 값은 .env 파일에 설정하세요)
 # ============================================================================
-KAKAO_API_KEY=a15bf17d25ab2adec8208f1fdeca3bf8
-KAKAO_JAVASCRIPT_MAP_API_KEY=c5c2b4e24825e98afcd558c58002519c
-KAKAO_Location_MobileMapApiKey=c5c2b4e24825e98afcd558c58002519c
-KAKAO_REST_MAP_API_KEY=096728d472e6d5331b08e3318a2b4286
-KAKAO_Location_AdminMapKey=1ac1e90eb3199352cc87542696395ec4
+KAKAO_API_KEY=your_kakao_api_key
+KAKAO_JAVASCRIPT_MAP_API_KEY=your_kakao_javascript_map_api_key
+KAKAO_Location_MobileMapApiKey=your_kakao_location_mobile_map_api_key
+KAKAO_REST_MAP_API_KEY=your_kakao_rest_map_api_key
+KAKAO_Location_AdminMapKey=your_kakao_location_admin_map_key
 
 # ============================================================================
 # 🔍 구글 API 설정

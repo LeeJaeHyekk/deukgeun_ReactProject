@@ -54,31 +54,43 @@ export function useAuthRedux(): UseAuthReturn {
   const tokenRefreshSetupRef = useRef<boolean>(false)
   
   // 로그인 상태 변경 감지 및 로깅 (렌더링 최적화)
+  // 실제 상태 변경이 있을 때만 처리하도록 개선
   useEffect(() => {
-    const hasLoggedInChanged = prevIsLoggedInRef.current !== isLoggedIn
-    const hasUserIdChanged = prevUserIdRef.current !== user?.id
-    const hasTokenChanged = prevTokenRef.current !== user?.accessToken
+    const currentUserId = user?.id
+    const currentToken = user?.accessToken
+    const currentIsLoggedIn = isLoggedIn
     
-    // 실제로 변경된 경우에만 로그 출력
+    const prevUserId = prevUserIdRef.current
+    const prevToken = prevTokenRef.current
+    const prevIsLoggedIn = prevIsLoggedInRef.current
+    
+    // 실제 변경 여부 확인 (엄격한 비교)
+    const hasLoggedInChanged = prevIsLoggedIn !== currentIsLoggedIn
+    const hasUserIdChanged = prevUserId !== currentUserId
+    const hasTokenChanged = prevToken !== currentToken
+    
+    // 실제로 변경된 경우에만 처리
     if (hasLoggedInChanged || hasUserIdChanged || hasTokenChanged) {
-      prevIsLoggedInRef.current = isLoggedIn
-      prevUserIdRef.current = user?.id
-      prevTokenRef.current = user?.accessToken
+      // 상태 업데이트 (다음 비교를 위해)
+      prevIsLoggedInRef.current = currentIsLoggedIn
+      prevUserIdRef.current = currentUserId
+      prevTokenRef.current = currentToken
       
-      // 로그인 상태가 변경될 때만 로그 출력
+      // 로그인 상태가 실제로 변경될 때만 로그 출력 (중복 방지)
       if (process.env.NODE_ENV === 'development' && (hasLoggedInChanged || hasUserIdChanged)) {
         logger.debug('AUTH', '로그인 상태 변경', {
           isAuthenticated,
           hasUser: !!user,
-          hasUserId: !!user?.id,
-          hasUserAccessToken: !!user?.accessToken,
-          isLoggedIn,
+          hasUserId: !!currentUserId,
+          hasUserAccessToken: !!currentToken,
+          isLoggedIn: currentIsLoggedIn,
           userIdChanged: hasUserIdChanged,
-          loggedInChanged: hasLoggedInChanged
+          loggedInChanged: hasLoggedInChanged,
+          tokenChanged: hasTokenChanged
         })
       }
     }
-  }, [isAuthenticated, user?.id, user?.accessToken, isLoggedIn])
+  }, [isAuthenticated, user?.id, user?.accessToken, isLoggedIn, user])
 
   // 토큰 자동 갱신 설정 (만료 5분 전) - 중복 설정 방지
   const setupTokenRefresh = useCallback(
@@ -226,10 +238,14 @@ export function useAuthRedux(): UseAuthReturn {
   useEffect(() => {
     // 토큰이 변경되었거나 처음 로그인한 경우에만 설정
     const currentToken = user?.accessToken
+    const prevToken = prevTokenRef.current
+    
+    // 실제 토큰 변경 여부 확인 (엄격한 비교)
+    const tokenChanged = currentToken !== prevToken
     const shouldSetup = isAuthenticated && 
                        currentToken && 
                        !tokenRefreshSetupRef.current &&
-                       currentToken !== prevTokenRef.current
+                       tokenChanged
     
     if (shouldSetup) {
       setupTokenRefresh(currentToken, true) // force=true로 초기 설정
@@ -249,8 +265,28 @@ export function useAuthRedux(): UseAuthReturn {
     }
   }, [isAuthenticated, user, tokenRefreshTimer, dispatch])
 
-  // localStorage와 Redux 상태 동기화 체크
+  // localStorage와 Redux 상태 동기화 체크 (렌더링 최적화)
+  // 이전 상태 추적을 통한 불필요한 실행 방지
+  const prevAuthStateRef = useRef<{ isAuthenticated: boolean; isLoading: boolean }>({
+    isAuthenticated: false,
+    isLoading: true
+  })
+  
   useEffect(() => {
+    const prevState = prevAuthStateRef.current
+    const currentState = { isAuthenticated, isLoading }
+    
+    // 실제 상태 변경이 있을 때만 체크
+    const stateChanged = prevState.isAuthenticated !== currentState.isAuthenticated ||
+                         prevState.isLoading !== currentState.isLoading
+    
+    if (!stateChanged) {
+      return
+    }
+    
+    // 상태 업데이트
+    prevAuthStateRef.current = currentState
+    
     const checkStorageSync = () => {
       const storedToken = localStorage.getItem('accessToken')
       const storedUser = localStorage.getItem('user')

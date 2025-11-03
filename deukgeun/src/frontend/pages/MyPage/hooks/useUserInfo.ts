@@ -36,16 +36,16 @@ export function useUserInfo(user: User | null | undefined): UserInfo {
     
     try {
       // 전화번호: phone 또는 phoneNumber (둘 다 동일한 값)
-      const phone = (user?.phone || user?.phoneNumber || null) as string | null
+      const phone: string = (user?.phone || user?.phoneNumber || '') as string
       
       // 생년월일 포맷팅
-      const birthday = formatDateToKorean(user?.birthDate) || null
+      const birthday = (formatDateToKorean(user?.birthDate) || DEFAULT_USER_INFO.birthday) as string
       
       // 가입일 포맷팅
-      const createdAt = formatDateToKorean(user?.createdAt) || null
+      const createdAt = (formatDateToKorean(user?.createdAt) || DEFAULT_USER_INFO.createdAt) as string
       
       // 성별 변환
-      const getGenderLabel = (gender?: string): string => {
+      const getGenderLabel = (gender?: string) => {
         switch (gender) {
           case "male": return "남성"
           case "female": return "여성"
@@ -61,12 +61,12 @@ export function useUserInfo(user: User | null | undefined): UserInfo {
         email: (user?.email && typeof user.email === 'string' && user.email.trim() !== '') 
           ? user.email.trim() 
           : DEFAULT_USER_INFO.email,
-        phone: phone && typeof phone === 'string' && phone.trim() !== '' 
+        phone: ((phone && typeof phone === 'string' && phone.trim() !== '') 
           ? phone.trim() 
-          : DEFAULT_USER_INFO.phone,
+          : DEFAULT_USER_INFO.phone) as string,
         gender: getGenderLabel(user?.gender),
-        birthday: birthday || DEFAULT_USER_INFO.birthday,
-        createdAt: createdAt || DEFAULT_USER_INFO.createdAt,
+        birthday: birthday,
+        createdAt: createdAt,
       }
     } catch (error) {
       console.error('❌ [useUserInfo] 사용자 정보 처리 오류:', error)

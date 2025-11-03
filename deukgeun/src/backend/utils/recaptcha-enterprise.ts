@@ -46,10 +46,15 @@ export const verifyRecaptchaEnterprise = async (
     }
 
     // reCAPTCHA Enterprise API 요청 데이터 구성
+    const siteKey = process.env.RECAPTCHA_SITE_KEY
+    if (!siteKey) {
+      throw new Error('RECAPTCHA_SITE_KEY 환경 변수가 설정되지 않았습니다.')
+    }
+
     const requestData: RecaptchaAssessmentRequest = {
       event: {
         token,
-        siteKey: process.env.RECAPTCHA_SITE_KEY || '6Lcf8-ArAAAAAEGpQDCsuecM4e9ZzeJ0LE6bgiMG',
+        siteKey,
         expectedAction
       }
     }

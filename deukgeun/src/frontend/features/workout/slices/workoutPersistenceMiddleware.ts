@@ -42,19 +42,19 @@ export const workoutPersistenceMiddleware: Middleware = (storeAPI) => (next) => 
       // recordSet, undoSet, pauseWorkout 시 상세 로그 출력
       if (action.type.includes("recordSet") || action.type.includes("undoSet") || action.type.includes("pauseWorkout")) {
         // 저장된 goals의 completedSets 확인
-        const totalCompletedSets = workoutState.goals.reduce((sum, goal) => {
-          return sum + (goal.tasks?.reduce((taskSum, task) => taskSum + (task.completedSets || 0), 0) || 0)
+        const totalCompletedSets = workoutState.goals.reduce((sum: number, goal: any) => {
+          return sum + (goal.tasks?.reduce((taskSum: number, task: any) => taskSum + (task.completedSets || 0), 0) || 0)
         }, 0)
         
         console.log("💾 진행 상태 저장됨 (localStorage)", {
           action: action.type,
           totalGoals: workoutState.goals.length,
           totalCompletedSets,
-          goals: workoutState.goals.map(g => ({
+          goals: workoutState.goals.map((g: any) => ({
             goalId: g.goalId,
             title: g.title,
-            completedSets: g.tasks?.reduce((sum, t) => sum + (t.completedSets || 0), 0) || 0,
-            tasks: g.tasks?.map(t => ({
+            completedSets: g.tasks?.reduce((sum: number, t: any) => sum + (t.completedSets || 0), 0) || 0,
+            tasks: g.tasks?.map((t: any) => ({
               taskId: t.taskId,
               name: t.name,
               completedSets: t.completedSets,

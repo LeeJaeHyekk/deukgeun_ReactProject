@@ -13,6 +13,7 @@ import {
 } from "../types"
 import bcrypt from "bcrypt"
 import crypto from "crypto"
+import { MoreThan } from "typeorm"
 
 class AccountRecoveryService {
   private userRepo = AppDataSource.getRepository(User)
@@ -90,9 +91,12 @@ class AccountRecoveryService {
     const limits: Record<string, number> = {
       find_id_step1: 5, // 5 attempts per hour
       find_id_step2: 10, // 10 attempts per hour
+      find_id_simple: 5, // 5 attempts per hour
       reset_password_step1: 5,
       reset_password_step2: 10,
       reset_password_step3: 5,
+      reset_password_simple_step1: 5, // 5 attempts per hour
+      reset_password_simple_step2: 10, // 10 attempts per hour
       email_verification: 3, // 3 emails per hour
     }
     return limits[action] || 5
@@ -149,24 +153,86 @@ class AccountRecoveryService {
         } as const
       }
 
-      // Build where clause based on provided fields
-      const whereClause: any = {
-        nickname: name.trim(),
-        phone: phone.trim(),
+      // 입력값 검증 및 정제 (XSS 방지)
+      const sanitizedName = name.trim().substring(0, 50) // 최대 길이 제한
+      const sanitizedPhone = phone.trim().substring(0, 20) // 최대 길이 제한
+      const sanitizedGender = gender ? gender.trim().substring(0, 10) : undefined
+
+      // 이름 검증 (특수문자 제한)
+      if (!/^[가-힣a-zA-Z\s]+$/.test(sanitizedName)) {
+        return {
+          success: false,
+          error: "이름은 한글, 영문만 입력 가능합니다.",
+        }
       }
 
-      if (gender) {
-        whereClause.gender = gender
+      // QueryBuilder를 사용하여 동적 조건 생성 (SQL 인젝션 방지)
+      const queryBuilder = this.userRepo
+        .createQueryBuilder("user")
+        .where("user.phone = :phone", { phone: sanitizedPhone })
+        .andWhere("(user.name = :name OR user.nickname = :name)", { name: sanitizedName })
+
+      // gender 조건 추가 (검증된 값만 사용)
+      if (sanitizedGender && ["male", "female", "other"].includes(sanitizedGender)) {
+        queryBuilder.andWhere("user.gender = :gender", { gender: sanitizedGender })
       }
 
+      // birthday 조건 추가 (날짜 형식 처리)
       if (birthday) {
-        whereClause.birthday = birthday
+        let birthdayDate: Date
+        try {
+          if (birthday instanceof Date) {
+            birthdayDate = birthday
+          } else if (typeof birthday === "string") {
+            // 문자열을 Date로 변환 (YYYY-MM-DD 형식 지원)
+            birthdayDate = new Date(birthday)
+            // 날짜 유효성 검증
+            if (isNaN(birthdayDate.getTime())) {
+              return {
+                success: false,
+                error: "올바른 생년월일 형식을 입력해주세요.",
+              }
+            }
+
+            // 미래 날짜 검증
+            if (birthdayDate > new Date()) {
+              return {
+                success: false,
+                error: "생년월일은 미래 날짜가 될 수 없습니다.",
+              }
+            }
+
+            // 너무 오래된 날짜 검증 (100년 이상)
+            const hundredYearsAgo = new Date()
+            hundredYearsAgo.setFullYear(hundredYearsAgo.getFullYear() - 100)
+            if (birthdayDate < hundredYearsAgo) {
+              return {
+                success: false,
+                error: "유효한 생년월일을 입력해주세요.",
+              }
+            }
+          } else {
+            birthdayDate = birthday as Date
+          }
+
+          // 날짜만 비교 (시간 제외) - DATE 형식으로 비교
+          const year = birthdayDate.getFullYear()
+          const month = String(birthdayDate.getMonth() + 1).padStart(2, "0")
+          const day = String(birthdayDate.getDate()).padStart(2, "0")
+          const dateString = `${year}-${month}-${day}`
+
+          queryBuilder.andWhere("DATE(user.birthday) = :birthday", { birthday: dateString })
+        } catch (error) {
+          logger.error("생년월일 처리 중 오류:", error)
+          return {
+            success: false,
+            error: "생년월일 처리 중 오류가 발생했습니다.",
+          }
+        }
       }
 
       // Find user by provided fields
-      const user = await this.userRepo.findOne({
-        where: whereClause,
-      })
+      const user = await queryBuilder.getOne()
 
       if (!user) {
         this.logRecoveryAction({
@@ -266,25 +332,98 @@ class AccountRecoveryService {
         }
       }
 
-      // Build where clause based on provided fields
-      const whereClause: any = {
-        email: username.trim(),
-        nickname: name.trim(),
-        phone: phone.trim(),
+      // 입력값 검증 및 정제 (XSS 방지)
+      const sanitizedUsername = username.toLowerCase().trim().substring(0, 100)
+      const sanitizedName = name.trim().substring(0, 50)
+      const sanitizedPhone = phone.trim().substring(0, 20)
+      const sanitizedGender = gender ? gender.trim().substring(0, 10) : undefined
+
+      // 이름 검증 (특수문자 제한)
+      if (!/^[가-힣a-zA-Z\s]+$/.test(sanitizedName)) {
+        return {
+          success: false,
+          error: "이름은 한글, 영문만 입력 가능합니다.",
+        }
       }
 
-      if (gender) {
-        whereClause.gender = gender
+      // 이메일 형식 검증
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(sanitizedUsername)) {
+        return {
+          success: false,
+          error: "유효한 이메일 주소를 입력하세요.",
+        }
       }
 
+      // QueryBuilder를 사용하여 동적 조건 생성 (SQL 인젝션 방지)
+      // email, name(nickname 또는 name 필드), phone, gender, birthday로 검색
+      const queryBuilder = this.userRepo
+        .createQueryBuilder("user")
+        .where("user.email = :email", { email: sanitizedUsername })
+        .andWhere("user.phone = :phone", { phone: sanitizedPhone })
+        .andWhere("(user.name = :name OR user.nickname = :name)", { name: sanitizedName })
+
+      // gender 조건 추가 (검증된 값만 사용)
+      if (sanitizedGender && ["male", "female", "other"].includes(sanitizedGender)) {
+        queryBuilder.andWhere("user.gender = :gender", { gender: sanitizedGender })
+      }
+
+      // birthday 조건 추가 (날짜 형식 처리)
       if (birthday) {
-        whereClause.birthday = birthday
+        let birthdayDate: Date
+        try {
+          if (birthday instanceof Date) {
+            birthdayDate = birthday
+          } else if (typeof birthday === "string") {
+            // 문자열을 Date로 변환 (YYYY-MM-DD 형식 지원)
+            birthdayDate = new Date(birthday)
+            // 날짜 유효성 검증
+            if (isNaN(birthdayDate.getTime())) {
+              return {
+                success: false,
+                error: "올바른 생년월일 형식을 입력해주세요.",
+              }
+            }
+
+            // 미래 날짜 검증
+            if (birthdayDate > new Date()) {
+              return {
+                success: false,
+                error: "생년월일은 미래 날짜가 될 수 없습니다.",
+              }
+            }
+
+            // 너무 오래된 날짜 검증 (100년 이상)
+            const hundredYearsAgo = new Date()
+            hundredYearsAgo.setFullYear(hundredYearsAgo.getFullYear() - 100)
+            if (birthdayDate < hundredYearsAgo) {
+              return {
+                success: false,
+                error: "유효한 생년월일을 입력해주세요.",
+              }
+            }
+          } else {
+            birthdayDate = birthday as Date
+          }
+
+          // 날짜만 비교 (시간 제외) - DATE 형식으로 비교
+          const year = birthdayDate.getFullYear()
+          const month = String(birthdayDate.getMonth() + 1).padStart(2, "0")
+          const day = String(birthdayDate.getDate()).padStart(2, "0")
+          const dateString = `${year}-${month}-${day}`
+
+          queryBuilder.andWhere("DATE(user.birthday) = :birthday", { birthday: dateString })
+        } catch (error) {
+          logger.error("생년월일 처리 중 오류:", error)
+          return {
+            success: false,
+            error: "생년월일 처리 중 오류가 발생했습니다.",
+          }
+        }
       }
 
       // Find user by provided fields
-      const user = await this.userRepo.findOne({
-        where: whereClause,
-      })
+      const user = await queryBuilder.getOne()
 
       if (!user) {
         this.logRecoveryAction({
@@ -324,6 +463,16 @@ class AccountRecoveryService {
 
       await this.verificationTokenRepo.save(verificationToken)
 
+      // 인증 코드는 이메일로 전송 (직접 반환하지 않음 - 보안 강화)
+      try {
+        await emailService.sendVerificationCode(user.email, code, "reset_password", user.nickname)
+        logger.info(`인증 코드 이메일 전송 완료: ${user.email}`)
+      } catch (emailError) {
+        logger.error("인증 코드 이메일 전송 실패:", emailError)
+        // 이메일 전송 실패 시에도 사용자에게는 일반적인 메시지 반환
+        // 실제 코드는 로그에만 기록
+      }
+
       this.logRecoveryAction({
         action: "reset_password_simple_step1_success",
         email: user.email,
@@ -342,7 +491,8 @@ class AccountRecoveryService {
           nickname: user.nickname,
           maskedEmail: this.maskData(user.email, "email"),
           maskedPhone: this.maskData(user.phone || "", "phone"),
-          verificationCode: code, // 인증 코드 직접 반환
+          // 인증 코드는 이메일로 전송되므로 직접 반환하지 않음
+          message: "인증 코드가 이메일로 전송되었습니다.",
         },
       }
     } catch (error) {
@@ -400,25 +550,33 @@ class AccountRecoveryService {
         } as const
       }
 
-      // 개발 환경에서는 인증 코드 검증 건너뛰기
-      if (process.env.NODE_ENV === "development" && code === "000000") {
+      // 입력값 검증 및 정제
+      const sanitizedUsername = username.toLowerCase().trim().substring(0, 100)
+      const sanitizedCode = code.trim().substring(0, 10)
+
+      // 개발 환경에서는 인증 코드 검증 건너뛰기 (개발 환경에서만)
+      const isDevelopmentMode = process.env.NODE_ENV === "development"
+      const isDevCode = isDevelopmentMode && code === "000000"
+
+      if (isDevCode) {
         logger.info("개발 환경에서 인증 코드 검증 건너뛰기")
       } else {
-        // Find verification token
+        // Find verification token (만료되지 않은 것만)
+        const now = new Date()
         const verificationToken = await this.verificationTokenRepo.findOne({
           where: {
-            email: username.toLowerCase().trim(),
+            email: sanitizedUsername,
             type: "reset_password",
-            code,
+            code: sanitizedCode,
             isUsed: false,
-            expiresAt: new Date(), // Not expired
+            expiresAt: MoreThan(now), // 만료되지 않은 토큰만
           },
         })
 
         if (!verificationToken) {
           this.logRecoveryAction({
             action: "reset_password_simple_step2_invalid_code",
-            email: username,
+            email: sanitizedUsername,
             type: "reset_password",
             status: "failure",
             ipAddress: securityInfo.ipAddress,
@@ -427,33 +585,121 @@ class AccountRecoveryService {
             error: "Invalid or expired code",
             success: false,
           })
+          // 보안을 위해 구체적인 오류 원인 노출 방지
           return {
             success: false,
-            error: "인증 코드가 유효하지 않거나 만료되었습니다.",
+            error: "인증 코드가 유효하지 않거나 만료되었습니다. 다시 시도해주세요.",
           }
         }
 
-        // Mark verification token as used
-        verificationToken.isUsed = true
-        verificationToken.usedAt = new Date()
-        await this.verificationTokenRepo.save(verificationToken)
+        // 동시성 제어: 트랜잭션 내에서 토큰 사용 처리
+        const queryRunner = AppDataSource.createQueryRunner()
+        await queryRunner.connect()
+        await queryRunner.startTransaction()
+
+        try {
+          // 트랜잭션 내에서 다시 확인 (Race condition 방지)
+          const lockedToken = await queryRunner.manager.findOne(VerificationToken, {
+            where: {
+              id: verificationToken.id,
+              isUsed: false,
+            },
+            lock: { mode: "pessimistic_write" },
+          })
+
+          if (!lockedToken) {
+            await queryRunner.rollbackTransaction()
+            return {
+              success: false,
+              error: "인증 코드가 이미 사용되었거나 유효하지 않습니다.",
+            }
+          }
+
+          // Mark verification token as used
+          lockedToken.isUsed = true
+          lockedToken.usedAt = new Date()
+          await queryRunner.manager.save(lockedToken)
+          await queryRunner.commitTransaction()
+          logger.info(`인증 토큰 사용 완료: ${verificationToken.id}`)
+        } catch (transactionError) {
+          await queryRunner.rollbackTransaction()
+          logger.error("트랜잭션 처리 중 오류:", transactionError)
+          throw transactionError
+        } finally {
+          await queryRunner.release()
+        }
+      }
+
+      // 입력값 검증 및 정제
+      const sanitizedNewPassword = newPassword.trim()
+
+      // 비밀번호 유효성 검증
+      if (sanitizedNewPassword.length < 8 || sanitizedNewPassword.length > 128) {
+        return {
+          success: false,
+          error: "비밀번호는 8자 이상 128자 이하여야 합니다.",
+        }
+      }
+
+      if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(sanitizedNewPassword)) {
+        return {
+          success: false,
+          error: "비밀번호는 영문 대소문자와 숫자를 포함해야 합니다.",
+        }
       }
 
       // Find user
       const user = await this.userRepo.findOne({
-        where: { email: username.toLowerCase().trim() },
+        where: { email: sanitizedUsername },
       })
 
       if (!user) {
-        return { success: false, error: "사용자를 찾을 수 없습니다." }
+        logger.warn(`비밀번호 재설정 시도 - 사용자 없음: ${sanitizedUsername}`)
+        // 보안을 위해 구체적인 오류 메시지 노출 방지
+        return {
+          success: false,
+          error: "인증에 실패했습니다. 다시 시도해주세요.",
+        }
       }
 
-      // Hash new password
-      const hashedPassword = await bcrypt.hash(newPassword, 12)
+      // 트랜잭션으로 비밀번호 업데이트 (동시성 제어)
+      const queryRunner = AppDataSource.createQueryRunner()
+      await queryRunner.connect()
+      await queryRunner.startTransaction()
 
-      // Update user password
-      user.password = hashedPassword
-      await this.userRepo.save(user)
+      try {
+        // Hash new password
+        const saltRounds = 12
+        const hashedPassword = await bcrypt.hash(sanitizedNewPassword, saltRounds)
+
+        // Update user password
+        user.password = hashedPassword
+        user.updatedAt = new Date()
+        await queryRunner.manager.save(user)
+
+        // 기존 인증 토큰 무효화 (보안 강화)
+        await queryRunner.manager.update(
+          VerificationToken,
+          {
+            email: sanitizedUsername,
+            type: "reset_password",
+            isUsed: false,
+          },
+          {
+            isUsed: true,
+            usedAt: new Date(),
+          }
+        )
+
+        await queryRunner.commitTransaction()
+        logger.info(`비밀번호 재설정 완료: ${user.email}`)
+      } catch (transactionError) {
+        await queryRunner.rollbackTransaction()
+        logger.error("비밀번호 재설정 트랜잭션 처리 중 오류:", transactionError)
+        throw transactionError
+      } finally {
+        await queryRunner.release()
+      }
 
       this.logRecoveryAction({
         action: "reset_password_simple_step2_success",
@@ -470,11 +716,35 @@ class AccountRecoveryService {
         success: true,
         data: { message: "비밀번호가 성공적으로 재설정되었습니다." },
       }
-    } catch (error) {
+    } catch (error: any) {
       logger.error("단순 비밀번호 재설정 Step 2 처리 중 오류:", error)
+
+      // 보안을 위해 구체적인 오류 정보 노출 방지
+      if (error?.code === "ER_DUP_ENTRY") {
+        return {
+          success: false,
+          error: "시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+        }
+      }
+
+      if (error?.code === "ECONNREFUSED" || error?.code === "ETIMEDOUT") {
+        return {
+          success: false,
+          error: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
+        }
+      }
+
+      // 비밀번호 해싱 오류
+      if (error?.message?.includes("bcrypt") || error?.message?.includes("password")) {
+        return {
+          success: false,
+          error: "비밀번호 처리 중 오류가 발생했습니다. 다시 시도해주세요.",
+        }
+      }
+
       return {
         success: false,
-        error: "서버 오류가 발생했습니다.",
+        error: "요청 처리 중 오류가 발생했습니다. 다시 시도해주세요.",
       }
     }
   }

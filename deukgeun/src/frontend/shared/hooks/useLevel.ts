@@ -57,6 +57,10 @@ function useLevel() {
   // API 호출 함수들
   // ============================================================================
 
+  // 함수 참조 안정화를 위한 ref (렌더링 최적화)
+  const fetchLevelProgressRef = useRef<(() => Promise<void>) | null>(null)
+  const fetchRewardsRef = useRef<(() => Promise<void>) | null>(null)
+  
   const fetchLevelProgress = useCallback(async () => {
     if (!isLoggedIn || !user) {
       setLevelProgress(DEFAULT_LEVEL_PROGRESS)
@@ -122,6 +126,9 @@ function useLevel() {
       setLevelProgress(result)
     }
   }, [isLoggedIn, user?.id])
+  
+  // 함수 참조 저장 (안정적인 참조 유지)
+  fetchLevelProgressRef.current = fetchLevelProgress
 
   const fetchRewards = useCallback(async () => {
     if (!isLoggedIn || !user) {
@@ -180,6 +187,9 @@ function useLevel() {
       setRewards(result)
     }
   }, [isLoggedIn, user?.id])
+  
+  // 함수 참조 저장 (안정적인 참조 유지)
+  fetchRewardsRef.current = fetchRewards
 
   // ============================================================================
   // 경험치 부여 함수
@@ -273,15 +283,42 @@ function useLevel() {
   // Effects
   // ============================================================================
 
+  // 이전 상태 추적을 위한 ref (렌더링 최적화)
+  const prevUserIdRef = useRef<number | undefined>(undefined)
+  const prevIsLoggedInRef = useRef<boolean>(false)
+  const initializedUserIdRef = useRef<number | undefined>(undefined)
+  
   useEffect(() => {
+    // 이전 상태 추적
+    const prevUserId = prevUserIdRef.current
+    const prevIsLoggedIn = prevIsLoggedInRef.current
+    const initializedUserId = initializedUserIdRef.current
+    const currentUserId = user?.id
+    
+    // 상태 업데이트
+    prevUserIdRef.current = currentUserId
+    prevIsLoggedInRef.current = isLoggedIn
+    
     // 중복 실행 방지
     if (isInitializingRef.current) {
-      logger.debug('LEVEL', '이미 초기화 중 - 스킵', { userId: user?.id })
+      logger.debug('LEVEL', '이미 초기화 중 - 스킵', { userId: currentUserId, prevUserId })
       return
     }
     
-    if (isLoggedIn && user) {
-      const userId = user.id
+    // 동일한 사용자로 이미 초기화된 경우 스킵 (불필요한 재초기화 방지)
+    if (initializedUserId === currentUserId && prevUserId === currentUserId && prevIsLoggedIn === isLoggedIn) {
+      logger.debug('LEVEL', '동일 사용자로 이미 초기화됨 - 스킵', { userId: currentUserId })
+      return
+    }
+    
+    // 사용자가 변경되지 않고 로그인 상태만 변경된 경우 스킵
+    if (prevUserId !== undefined && prevUserId === currentUserId && prevIsLoggedIn !== isLoggedIn) {
+      logger.debug('LEVEL', '사용자 변경 없음, 로그인 상태만 변경 - 스킵', { userId: currentUserId })
+      return
+    }
+    
+    if (isLoggedIn && user && currentUserId) {
+      const userId = currentUserId
       
       // 초기화 시작
       isInitializingRef.current = true
@@ -301,6 +338,10 @@ function useLevel() {
           logger.info('LEVEL', '자동 재연결 시도', { userId })
           
           try {
+            // 안정적인 함수 참조 사용
+            const fetchProgress = fetchLevelProgressRef.current || fetchLevelProgress
+            const fetchRewardsFn = fetchRewardsRef.current || fetchRewards
+            
             // 자동 재연결은 쿨다운을 무시하고 진행 (주기적 새로고침)
             // 순차 처리로 rate limit 방지
             // 1. 레벨 진행률 조회 (쿨다운 무시)
@@ -312,7 +353,7 @@ function useLevel() {
                 // 자동 재연결을 위해 쿨다운을 5초로 단축 (rate limit 방지는 유지)
                 state.cooldownUntil = Math.min(state.cooldownUntil, Date.now() + 5000)
               }
-              await fetchLevelProgress()
+              await fetchProgress()
             }
             
             // 2. 요청 간 간격 추가 (rate limit 방지)
@@ -327,7 +368,7 @@ function useLevel() {
                 // 자동 재연결을 위해 쿨다운을 5초로 단축 (rate limit 방지는 유지)
                 state.cooldownUntil = Math.min(state.cooldownUntil, Date.now() + 5000)
               }
-              await fetchRewards()
+              await fetchRewardsFn()
             }
           } catch (error) {
             logger.error('LEVEL', '자동 재연결 실패', { userId, error: error instanceof Error ? error.message : String(error) })
@@ -339,20 +380,25 @@ function useLevel() {
       // 초기 데이터 로드 (순차 처리로 rate limit 방지)
       const initializeData = async () => {
         try {
+          // 안정적인 함수 참조 사용 (ref를 통해 최신 함수 참조 보장)
+          const fetchProgress = fetchLevelProgressRef.current || fetchLevelProgress
+          const fetchRewardsFn = fetchRewardsRef.current || fetchRewards
+          
           // 1. 레벨 진행률 조회
-          await fetchLevelProgress()
+          await fetchProgress()
           
           // 2. 요청 간 간격 추가 (rate limit 방지)
           await new Promise(resolve => setTimeout(resolve, 500))
           
           // 3. 보상 목록 조회
-          await fetchRewards()
+          await fetchRewardsFn()
         } catch (error) {
           logger.error('LEVEL', '초기 데이터 로드 실패', { userId, error: error instanceof Error ? error.message : String(error) })
           // 초기화 실패는 치명적이지 않으므로 계속 진행
         } finally {
           // 초기화 완료
           isInitializingRef.current = false
+          initializedUserIdRef.current = userId // 초기화 완료 사용자 ID 저장
         }
       }
       
@@ -370,19 +416,22 @@ function useLevel() {
         logger.debug('LEVEL', '자동 재연결 정리', { userId })
       }
     } else {
-      // 로그아웃 시 기본값 설정
-      setLevelProgress(DEFAULT_LEVEL_PROGRESS)
-      setRewards([])
-      setCooldownInfo(null)
-      setDailyLimitInfo(null)
-      setError(null)
-      
-      // 모든 자동 재연결 정리
-      autoReconnectManager.stopAllAutoReconnects()
-      autoReconnectSetupRef.current = false
-      isInitializingRef.current = false
+      // 로그아웃 시 기본값 설정 (이전 상태와 다른 경우에만)
+      if (prevIsLoggedIn || initializedUserIdRef.current !== undefined) {
+        setLevelProgress(DEFAULT_LEVEL_PROGRESS)
+        setRewards([])
+        setCooldownInfo(null)
+        setDailyLimitInfo(null)
+        setError(null)
+        
+        // 모든 자동 재연결 정리
+        autoReconnectManager.stopAllAutoReconnects()
+        autoReconnectSetupRef.current = false
+        isInitializingRef.current = false
+        initializedUserIdRef.current = undefined
+      }
     }
-  }, [isLoggedIn, user?.id]) // fetchLevelProgress, fetchRewards 제거하여 무한 루프 방지
+  }, [isLoggedIn, user?.id]) // 함수 참조는 ref를 통해 관리하므로 의존성 제거
 
   // ============================================================================
   // Return Values

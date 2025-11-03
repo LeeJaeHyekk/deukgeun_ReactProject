@@ -851,6 +851,9 @@ const workoutSlice = createSlice({
               // 이전 진행 상태 보존 (기존 completedSets 우선)
               completedSets: preservedCompletedSets,
               status: preservedStatus,
+              // createdAt과 updatedAt이 없으면 기본값 설정
+              createdAt: backendTask.createdAt || new Date().toISOString(),
+              updatedAt: backendTask.updatedAt || new Date().toISOString(),
             }
           }) || []
           

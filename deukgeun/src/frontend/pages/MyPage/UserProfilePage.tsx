@@ -54,25 +54,56 @@ function UserProfilePage() {
 
     try {
       // API 호출하여 사용자 정보 업데이트
-      const response = await fetch("/api/users/profile", {
+      const updateData: any = {
+        nickname: formData.nickname.trim(),
+        phone: formData.phoneNumber.trim() || undefined,
+      }
+
+      // 생년월일이 있으면 추가
+      if (formData.birthDate) {
+        updateData.birthDate = formData.birthDate
+      }
+
+      // 성별이 있으면 추가
+      if (formData.gender) {
+        updateData.gender = formData.gender
+      }
+
+      const response = await fetch("/api/auth/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user?.accessToken}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(updateData),
       })
 
-      if (response.ok) {
-        const updatedUser = await response.json()
-        updateUser(updatedUser)
-        setMessage("프로필이 성공적으로 업데이트되었습니다.")
-      } else {
-        const error = await response.json()
-        setMessage(`업데이트 실패: ${error.message}`)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: "업데이트 실패" }))
+        const errorMessage = errorData.message || errorData.error || "업데이트에 실패했습니다."
+        setMessage(errorMessage)
+        return
       }
-    } catch (error) {
-      setMessage("네트워크 오류가 발생했습니다.")
+
+      const result = await response.json()
+      
+      // 응답 구조에 따라 user 데이터 추출
+      const updatedUser = result.data?.user || result.data || result.user || result
+
+      // Redux 상태 업데이트
+      if (updatedUser && updatedUser.id) {
+        const mergedUser = {
+          ...user,
+          ...updatedUser,
+          accessToken: user?.accessToken || updatedUser.accessToken,
+        }
+        updateUser(mergedUser)
+      }
+
+      setMessage("프로필이 성공적으로 업데이트되었습니다.")
+    } catch (error: any) {
+      console.error("프로필 업데이트 오류:", error)
+      setMessage(error?.message || "네트워크 오류가 발생했습니다.")
     } finally {
       setIsLoading(false)
     }

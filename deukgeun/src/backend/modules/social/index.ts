@@ -13,7 +13,7 @@ export { CommentController } from "@backend/controllers/commentController"
 export { LikeController } from "@backend/controllers/likeController"
 
 // Social 서비스
-export { PostService } from "@backend/services/post.service"
+export { PostService } from "@backend/services/postService"
 
 // Social 엔티티
 export { Post } from "@backend/entities/Post"

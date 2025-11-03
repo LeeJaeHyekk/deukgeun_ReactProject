@@ -44,6 +44,7 @@ export default function FindPasswordPage() {
 
   // Step 2: 비밀번호 재설정 폼 데이터
   const [step2Data, setStep2Data] = useState({
+    code: "", // 인증 코드 추가
     newPassword: "",
     confirmPassword: "",
   })
@@ -53,6 +54,7 @@ export default function FindPasswordPage() {
     username?: string
     name?: string
     phone?: string
+    code?: string
     newPassword?: string
     confirmPassword?: string
     recaptcha?: string
@@ -208,10 +210,20 @@ export default function FindPasswordPage() {
   const validateStep2 = () => {
     const newErrors: typeof errors = {}
 
+    // 인증 코드 검증
+    if (!step2Data.code || !step2Data.code.trim()) {
+      newErrors.code = "인증 코드를 입력하세요."
+    } else if (!/^\d{6}$/.test(step2Data.code.trim())) {
+      newErrors.code = "인증 코드는 6자리 숫자여야 합니다."
+    }
+
+    // 비밀번호 검증
     if (!step2Data.newPassword) {
       newErrors.newPassword = "새 비밀번호를 입력하세요."
     } else if (step2Data.newPassword.length < 8) {
       newErrors.newPassword = "비밀번호는 최소 8자 이상이어야 합니다."
+    } else if (step2Data.newPassword.length > 128) {
+      newErrors.newPassword = "비밀번호는 128자 이하여야 합니다."
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(step2Data.newPassword)) {
       newErrors.newPassword =
         "비밀번호는 영문 대소문자와 숫자를 포함해야 합니다."
@@ -236,16 +248,37 @@ export default function FindPasswordPage() {
     if (!validateStep1()) return
 
     try {
+      // 입력값 정제 및 검증
+      const sanitizedUsername = step1Data.username.trim().toLowerCase().substring(0, 100)
+      const sanitizedName = step1Data.name.trim().substring(0, 50)
+      const sanitizedPhone = step1Data.phone.trim().substring(0, 20)
+      const sanitizedGender = step1Data.gender
+        ? (step1Data.gender as "male" | "female" | "other")
+        : undefined
+
+      // 생년월일 검증 및 정제
+      let sanitizedBirthday: string | undefined = undefined
+      if (step1Data.birthday) {
+        const birthdayRegex = /^\d{4}-\d{2}-\d{2}$/
+        if (birthdayRegex.test(step1Data.birthday)) {
+          const birthdayDate = new Date(step1Data.birthday)
+          if (!isNaN(birthdayDate.getTime()) && birthdayDate <= new Date()) {
+            sanitizedBirthday = step1Data.birthday
+          }
+        }
+      }
+
       await resetPasswordSimpleStep1({
-        username: step1Data.username,
-        name: step1Data.name,
-        phone: step1Data.phone,
-        gender: step1Data.gender as "male" | "female" | "other",
-        birthday: step1Data.birthday,
+        username: sanitizedUsername,
+        name: sanitizedName,
+        phone: sanitizedPhone,
+        gender: sanitizedGender,
+        birthday: sanitizedBirthday,
         recaptchaToken: recaptchaToken!,
       })
-    } catch (error) {
+    } catch (error: any) {
       console.error("Step 1 오류:", error)
+      // 에러는 useAccountRecovery hook에서 처리됨
     }
   }
 
@@ -256,13 +289,19 @@ export default function FindPasswordPage() {
     try {
       await resetPasswordSimpleStep2({
         username: step1Data.username,
-        code: "000000", // 더미 인증 코드
+        code: step2Data.code.trim(), // 실제 인증 코드 사용
         newPassword: step2Data.newPassword,
         confirmPassword: step2Data.confirmPassword,
         recaptchaToken: recaptchaToken!,
       })
-    } catch (error) {
+    } catch (error: any) {
       console.error("Step 2 오류:", error)
+      // 에러 메시지 표시
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "비밀번호 재설정에 실패했습니다."
+      setErrors(prev => ({ ...prev, code: errorMessage }))
     }
   }
 
@@ -344,7 +383,30 @@ export default function FindPasswordPage() {
           </button>
 
           <h1 className={styles.title}>비밀번호 재설정</h1>
-          <p className={styles.description}>새 비밀번호를 설정하세요.</p>
+          <p className={styles.description}>인증 코드를 입력하고 새 비밀번호를 설정하세요.</p>
+
+          {/* 인증 코드 입력 */}
+          <div className={styles.inputGroup}>
+            <input
+              type="text"
+              value={step2Data.code}
+              onChange={e => {
+                // 숫자만 입력 허용, 최대 6자리
+                const value = e.target.value.replace(/[^\d]/g, "").substring(0, 6)
+                setStep2Data(prev => ({ ...prev, code: value }))
+                if (errors.code) {
+                  setErrors(prev => ({ ...prev, code: undefined }))
+                }
+              }}
+              className={styles.input}
+              placeholder="인증 코드 (6자리)"
+              maxLength={6}
+              inputMode="numeric"
+            />
+            {errors.code && (
+              <span className={styles.errorText}>{errors.code}</span>
+            )}
+          </div>
 
           {/* 새 비밀번호 입력 */}
           <div className={styles.inputGroup}>

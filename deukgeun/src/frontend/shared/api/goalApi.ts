@@ -110,8 +110,8 @@ export const goalApi = {
       status: goal.status === 'done' ? 'completed' : goal.status,
     }
 
-    // 목표 업데이트
-    return await goalApi.updateGoal(goalId, updatedGoal)
+    // 목표 업데이트 (타입 단언으로 호환성 문제 해결)
+    return await goalApi.updateGoal(goalId, updatedGoal as any)
   }
 }
 

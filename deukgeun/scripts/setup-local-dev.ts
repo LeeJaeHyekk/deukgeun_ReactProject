@@ -15,28 +15,28 @@ const localEnvConfig = {
 VITE_FRONTEND_PORT=5173
 VITE_BACKEND_URL=http://localhost:5000
 
-# Kakao Map API Keys
-VITE_LOCATION_JAVASCRIPT_MAP_API_KEY=c5c2b4e24825e98afcd558c58002519c
-VITE_LOCATION_REST_MAP_API_KEY=096728d472e6d5331b08e3318a2b4286
+# Kakao Map API Keys (실제 값은 .env 파일에 설정하세요)
+VITE_LOCATION_JAVASCRIPT_MAP_API_KEY=your_kakao_javascript_map_api_key
+VITE_LOCATION_REST_MAP_API_KEY=your_kakao_rest_map_api_key
 
-# Gym API Key
-VITE_GYM_API_KEY=467572475373737933314e4e494377
+# Gym API Key (실제 값은 .env 파일에 설정하세요)
+VITE_GYM_API_KEY=your_gym_api_key
 
-# reCAPTCHA
+# reCAPTCHA (실제 값은 .env 파일에 설정하세요)
 VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
 
 # Backend Environment Variables
 NODE_ENV=development
 BACKEND_PORT=5000
 
-# Database Configuration
+# Database Configuration (실제 값은 .env 파일에 설정하세요)
 DB_HOST=localhost
 DB_PORT=3306
 DB_USERNAME=root
-DB_PASSWORD=Deukgeun6204_DB25
+DB_PASSWORD=your_mysql_password_here
 DB_DATABASE=deukgeun_db
 
-# JWT Configuration
+# JWT Configuration (실제 값은 .env 파일에 설정하세요 - 강력한 랜덤 문자열 사용)
 JWT_SECRET=your_production_jwt_secret_key_here_make_it_long_and_random
 JWT_EXPIRES_IN=7d
 
@@ -83,11 +83,11 @@ DB_NAME=deukgeun_db
 # ============================================================================
 JWT_SECRET=your_production_jwt_secret_key_here_make_it_long_and_random
 JWT_EXPIRES_IN=7d
-# ACCESS TOKEN
-JWT_ACCESS_SECRET=15bde18cf0ad0a5ef4c6179c6c2e1ff34ae9cc3fda7b2a8e77b7234d9c2b5b82
+# ACCESS TOKEN (실제 값은 .env 파일에 설정하세요 - 강력한 랜덤 문자열 사용)
+JWT_ACCESS_SECRET=your_jwt_access_secret_key_here_make_it_long_and_random
 JWT_ACCESS_EXPIRES_IN=15m
-# REFRESH TOKEN
-JWT_REFRESH_SECRET=ddfa8fc5b7d48cd537f24ef3abf49c1987c0c187fce00321fa24d0315df06d4c
+# REFRESH TOKEN (실제 값은 .env 파일에 설정하세요 - 강력한 랜덤 문자열 사용)
+JWT_REFRESH_SECRET=your_jwt_refresh_secret_key_here_make_it_long_and_random
 JWT_REFRESH_EXPIRES_IN=7d
 
 # ============================================================================
@@ -131,29 +131,29 @@ AUTO_UPDATE_TYPE=enhanced
 AUTO_UPDATE_INTERVAL_DAYS=3
 
 # ============================================================================
-# 🗺️ 카카오 API 설정
+# 🗺️ 카카오 API 설정 (실제 값은 .env 파일에 설정하세요)
 # ============================================================================
 KAKAO_API_KEY=your_kakao_api_key
-KAKAO_JAVASCRIPT_MAP_API_KEY=c5c2b4e24825e98afcd558c58002519c
-KAKAO_Location_MobileMapApiKey=a15bf17d25ab2adec8208f1fdeca3bf8
-KAKAO_REST_MAP_API_KEY=096728d472e6d5331b08e3318a2b4286
-KAKAO_Location_AdminMapKey=1ac1e90eb3199352cc87542696395ec4
+KAKAO_JAVASCRIPT_MAP_API_KEY=your_kakao_javascript_map_api_key
+KAKAO_Location_MobileMapApiKey=your_kakao_location_mobile_map_api_key
+KAKAO_REST_MAP_API_KEY=your_kakao_rest_map_api_key
+KAKAO_Location_AdminMapKey=your_kakao_location_admin_map_key
 
 # ============================================================================
-# 🔍 구글 API 설정
+# 🔍 구글 API 설정 (실제 값은 .env 파일에 설정하세요)
 # ============================================================================
 GOOGLE_PLACES_API_KEY=your_google_places_api_key
 GOOGLE_secure_secret_generator=your_google_secure_secret
 
 # ============================================================================
-# 🏛️ 서울시 API 설정
+# 🏛️ 서울시 API 설정 (실제 값은 .env 파일에 설정하세요)
 # ============================================================================
-SEOUL_OPENAPI_KEY=467572475373737933314e4e494377
+SEOUL_OPENAPI_KEY=your_seoul_openapi_key
 
 # ============================================================================
-# 🏋️ 헬스장 API 설정
+# 🏋️ 헬스장 API 설정 (실제 값은 .env 파일에 설정하세요)
 # ============================================================================
-VITE_GYM_API_KEY=467572475373737933314e4e494377`
+VITE_GYM_API_KEY=your_gym_api_key`
 }
 
 function setupLocalEnvironment() {

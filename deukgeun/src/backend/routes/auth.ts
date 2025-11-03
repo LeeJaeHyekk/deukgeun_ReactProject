@@ -15,6 +15,7 @@ import {
   findIdSimple,
   resetPasswordSimpleStep1,
   resetPasswordSimpleStep2,
+  updateProfile,
 } from '@backend/controllers/authController'
 import { authMiddleware } from '@backend/middlewares/auth'
 import { recaptchaEnterpriseMiddleware } from "@backend/utils/recaptcha-enterprise"
@@ -41,5 +42,8 @@ router.post("/find-id/verify-code", findIdStep2 as any)
 router.post("/reset-password/verify-user", resetPasswordStep1 as any)
 router.post("/reset-password/verify-code", resetPasswordStep2 as any)
 router.post("/reset-password/complete", resetPasswordStep3 as any)
+
+// 회원정보 수정
+router.put("/profile", authMiddleware, updateProfile as any)
 
 export default router

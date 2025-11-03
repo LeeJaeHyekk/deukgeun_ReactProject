@@ -11,11 +11,21 @@ export const selectPostsEntities = (state: RootState) => state.posts.entities
 export const selectPostsIds = (state: RootState) => state.posts.ids
 export const selectPostsLoading = (state: RootState) => state.posts.loading
 export const selectPostsError = (state: RootState) => state.posts.error
-export const selectPostsPagination = (state: RootState) => ({
-  page: state.posts.page,
-  totalPages: state.posts.totalPages,
-  total: state.posts.total,
-})
+
+// Pagination 기본 접근자 (메모이제이션을 위한 입력 셀렉터)
+const selectPostsPage = (state: RootState) => state.posts.page
+const selectPostsTotalPages = (state: RootState) => state.posts.totalPages
+const selectPostsTotal = (state: RootState) => state.posts.total
+
+// Pagination 셀렉터 (메모이제이션 적용 - 렌더링 최적화)
+export const selectPostsPagination = createSelector(
+  [selectPostsPage, selectPostsTotalPages, selectPostsTotal],
+  (page, totalPages, total) => ({
+    page,
+    totalPages,
+    total,
+  })
+)
 
 // 2️⃣ 전체 게시글 배열 (메모이제이션 적용)
 export const selectAllPosts = createSelector(

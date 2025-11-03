@@ -514,15 +514,7 @@ export const formatTime = (seconds: number): string => {
 }
 
 // 난이도 색상 반환
-export const getDifficultyColor = (difficulty: string): string => {
-  const colors = {
-    beginner: "#4CAF50",
-    intermediate: "#FF9800",
-    advanced: "#F44336",
-    expert: "#9C27B0",
-  }
-  return colors[difficulty as keyof typeof colors] || "#9E9E9E"
-}
+// getDifficultyColor는 goalUtils.ts로 이동되었으므로 제거됨
 
 // 난이도 텍스트 반환
 export const getDifficultyText = (difficulty: string): string => {

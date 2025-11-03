@@ -1,0 +1,387 @@
+/* ============================================================================
+   EditProfileModal Styles - 프로젝트 통합 디자인 시스템
+   다크 그라데이션 배경과 글래스모피즘 스타일 적용
+   ============================================================================ */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--workout-z-modal-backdrop, 1000);
+  padding: var(--workout-spacing-lg, 20px);
+  animation: fadeIn var(--workout-transition-base, 0.3s ease);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modalContent {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  backdrop-filter: var(--workout-glass-blur-strong, blur(20px));
+  -webkit-backdrop-filter: var(--workout-glass-blur-strong, blur(20px));
+  border-radius: var(--workout-radius-2xl, 24px);
+  padding: var(--workout-spacing-xl, 32px);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--workout-glass-border, rgba(255, 255, 255, 0.2));
+  animation: modalEnter var(--workout-transition-base, 0.3s ease);
+  font-family: var(--workout-font-sans, "Pretendard"), sans-serif;
+  color: var(--workout-text-primary, #fff);
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--workout-spacing-xl, 32px);
+  padding-bottom: var(--workout-spacing-lg, 20px);
+  border-bottom: 1px solid var(--workout-glass-border, rgba(255, 255, 255, 0.1));
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--workout-text-primary, #fff);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.5px;
+}
+
+.closeButton {
+  background: var(--workout-glass-bg, rgba(255, 255, 255, 0.1));
+  border: 1px solid var(--workout-glass-border, rgba(255, 255, 255, 0.2));
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--workout-text-secondary, rgba(255, 255, 255, 0.7));
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border-radius: var(--workout-radius-full, 50%);
+  transition: all var(--workout-transition-base, 0.3s ease);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.closeButton:hover {
+  background: var(--workout-glass-bg-hover, rgba(255, 255, 255, 0.2));
+  border-color: var(--workout-primary, #f87171);
+  color: var(--workout-primary, #f87171);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
+}
+
+.closeButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.3);
+}
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--workout-spacing-lg, 20px);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--workout-spacing-xs, 8px);
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--workout-text-primary, #fff);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  user-select: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.input {
+  padding: 14px 20px;
+  border: 1.5px solid var(--workout-glass-border, rgba(255, 255, 255, 0.2));
+  border-radius: var(--workout-radius-md, 12px);
+  font-size: 1rem;
+  font-family: var(--workout-font-sans, "Pretendard"), sans-serif;
+  transition: all var(--workout-transition-base, 0.3s ease);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--workout-text-primary, #fff);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-weight: 500;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--workout-primary, #f87171);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.2);
+  transform: translateY(-1px);
+}
+
+.input:disabled {
+  background-color: rgba(255, 255, 255, 0.05);
+  cursor: not-allowed;
+  opacity: 0.6;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.error {
+  color: var(--workout-primary-light, #fca5a5);
+  font-size: 0.75rem;
+  margin-top: 4px;
+  font-weight: 500;
+  padding-left: 4px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.submitError {
+  color: var(--workout-primary-light, #fca5a5);
+  font-size: 0.875rem;
+  padding: 12px 16px;
+  background-color: rgba(239, 68, 68, 0.15);
+  border-radius: var(--workout-radius-md, 12px);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.toggleButton {
+  padding: 12px 20px;
+  background: var(--workout-glass-bg, rgba(255, 255, 255, 0.1));
+  border: 1.5px solid var(--workout-glass-border, rgba(255, 255, 255, 0.2));
+  border-radius: var(--workout-radius-md, 12px);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--workout-text-primary, #fff);
+  transition: all var(--workout-transition-base, 0.3s ease);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-family: var(--workout-font-sans, "Pretendard"), sans-serif;
+}
+
+.toggleButton:hover:not(:disabled) {
+  background: var(--workout-glass-bg-hover, rgba(255, 255, 255, 0.15));
+  border-color: var(--workout-primary, #f87171);
+  color: var(--workout-primary, #f87171);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
+}
+
+.toggleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.modalActions,
+.modalFooter {
+  display: flex;
+  gap: var(--workout-spacing-md, 12px);
+  margin-top: var(--workout-spacing-lg, 20px);
+  padding-top: var(--workout-spacing-lg, 20px);
+  border-top: 1px solid var(--workout-glass-border, rgba(255, 255, 255, 0.1));
+}
+
+.submitButton {
+  flex: 1;
+  padding: 14px 24px;
+  background: var(--workout-btn-primary, linear-gradient(135deg, #f87171, #ef4444));
+  border: 1.5px solid var(--workout-primary, #f87171);
+  color: var(--workout-text-primary, #fff);
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: var(--workout-radius-md, 12px);
+  cursor: pointer;
+  transition: all var(--workout-transition-base, 0.3s ease);
+  box-shadow: var(--workout-btn-primary-shadow, 0 4px 12px rgba(248, 113, 113, 0.3));
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-family: var(--workout-font-sans, "Pretendard"), sans-serif;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: var(--workout-btn-primary-hover, linear-gradient(135deg, #ef4444, #dc2626));
+  box-shadow: var(--workout-btn-primary-shadow-hover, 0 6px 16px rgba(248, 113, 113, 0.4));
+  transform: translateY(-2px);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.submitButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.3);
+}
+
+.cancelButton {
+  flex: 1;
+  padding: 14px 24px;
+  background: var(--workout-glass-bg, rgba(255, 255, 255, 0.1));
+  border: 1.5px solid var(--workout-glass-border, rgba(255, 255, 255, 0.2));
+  color: var(--workout-text-primary, #fff);
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: var(--workout-radius-md, 12px);
+  cursor: pointer;
+  transition: all var(--workout-transition-base, 0.3s ease);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: var(--workout-font-sans, "Pretendard"), sans-serif;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.cancelButton:hover {
+  background: var(--workout-glass-bg-hover, rgba(255, 255, 255, 0.15));
+  border-color: var(--workout-glass-border-hover, rgba(255, 255, 255, 0.3));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.cancelButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+/* 스크롤바 스타일링 */
+.modalContent::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modalContent::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.modalContent::-webkit-scrollbar-thumb {
+  background: rgba(248, 113, 113, 0.3);
+  border-radius: 4px;
+  transition: all var(--workout-transition-base, 0.3s ease);
+}
+
+.modalContent::-webkit-scrollbar-thumb:hover {
+  background: rgba(248, 113, 113, 0.5);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .modalContent {
+    padding: var(--workout-spacing-lg, 24px);
+    max-width: 95%;
+    border-radius: var(--workout-radius-xl, 20px);
+  }
+
+  .modalTitle {
+    font-size: 1.25rem;
+  }
+
+  .modalHeader {
+    margin-bottom: var(--workout-spacing-lg, 20px);
+    padding-bottom: var(--workout-spacing-md, 12px);
+  }
+
+  .modalForm {
+    gap: var(--workout-spacing-md, 16px);
+  }
+
+  .modalActions,
+  .modalFooter {
+    flex-direction: column;
+  }
+
+  .submitButton,
+  .cancelButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalOverlay {
+    padding: var(--workout-spacing-md, 16px);
+  }
+
+  .modalContent {
+    padding: var(--workout-spacing-md, 20px);
+    border-radius: var(--workout-radius-lg, 16px);
+    max-width: 100%;
+  }
+
+  .modalTitle {
+    font-size: 1.1rem;
+  }
+
+  .closeButton {
+    width: 36px;
+    height: 36px;
+    font-size: 1.25rem;
+  }
+
+  .input {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+
+  .toggleButton {
+    padding: 10px 16px;
+    font-size: 0.8rem;
+  }
+
+  .submitButton,
+  .cancelButton {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+}

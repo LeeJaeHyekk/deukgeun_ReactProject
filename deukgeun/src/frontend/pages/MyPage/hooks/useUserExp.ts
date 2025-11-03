@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { useMemo } from "react"
-import type { LevelProgress } from "@shared/types"
+import type { LevelProgress } from "@frontend/shared/api/levelApi"
 import type { CompletedWorkout } from "@frontend/features/workout/slices/workoutSlice"
 import { safeParseNumber } from "../utils/numberUtils"
 

@@ -142,7 +142,7 @@ export class MachineService {
     console.log(`📊 필터링 결과: ${result.length}개 기구 발견`)
     if (filters.target && result.length > 0) {
       console.log(`✅ 타겟 "${filters.target}"으로 필터링된 기구들:`)
-      result.forEach(machine => {
+      result.forEach((machine: Machine) => {
         console.log(`   - ${machine.name}: [${machine.targetMuscles?.join(', ')}]`)
       })
     }
@@ -203,7 +203,7 @@ export class MachineService {
       console.log(`📊 타겟 "${target}" 결과: ${result.length}개 기구 발견`)
       if (result.length > 0) {
         console.log(`✅ 타겟 "${target}"으로 조회된 기구들:`)
-        result.forEach(machine => {
+        result.forEach((machine: Machine) => {
           console.log(`   - ${machine.name}: [${machine.targetMuscles?.join(', ')}]`)
         })
       }
@@ -236,7 +236,7 @@ export class MachineService {
         : undefined,
       videoUrl: data.videoUrl ? this.sanitizeString(data.videoUrl) : undefined,
       targetMuscles: data.targetMuscles
-        ? data.targetMuscles.map(muscle => this.sanitizeString(muscle))
+        ? data.targetMuscles.map((muscle: string) => this.sanitizeString(muscle))
         : undefined,
     }
   }

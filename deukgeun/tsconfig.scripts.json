@@ -12,7 +12,7 @@
     "resolveJsonModule": true,
     "declaration": false,
     "outDir": "./dist/scripts",
-    "rootDir": "./scripts",
+    "rootDir": ".",
     "types": ["node"],
     "typeRoots": ["./node_modules/@types"],
     "allowJs": false,
@@ -20,7 +20,13 @@
     "lib": ["ES2020", "DOM"],
     "isolatedModules": true,
     "noEmit": false,
-    "emitDeclarationOnly": false
+    "emitDeclarationOnly": false,
+    "baseUrl": ".",
+    "paths": {
+      "@backend/*": ["src/backend/*"],
+      "@shared/*": ["src/shared/*"],
+      "@frontend/*": ["src/frontend/*"]
+    }
   },
   "include": ["scripts/**/*.ts"],
   "exclude": ["node_modules", "dist", "build", "scripts/**/*.js", "scripts/**/*.cjs"]

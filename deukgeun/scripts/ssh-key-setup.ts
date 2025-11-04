@@ -578,4 +578,5 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   main()
 }
 
-export { SSHKeySetup, SSHKeyConfig }
+export type { SSHKeyConfig }
+export { SSHKeySetup }

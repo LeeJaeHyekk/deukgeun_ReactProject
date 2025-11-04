@@ -43,7 +43,8 @@ async function resetDatabase() {
           await AppDataSource.query(statement)
           console.log(`✅ SQL 문장 ${i + 1} 실행 완료`)
         } catch (error) {
-          console.log(`⚠️ SQL 문장 ${i + 1} 실행 중 오류 (무시하고 계속):`, error.message)
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          console.log(`⚠️ SQL 문장 ${i + 1} 실행 중 오류 (무시하고 계속):`, errorMessage)
         }
       }
     }

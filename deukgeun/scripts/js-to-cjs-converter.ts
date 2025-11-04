@@ -1602,7 +1602,9 @@ async function main(): Promise<void> {
       }
       
       // 3. CJS 파일에서 ESM 문법 변환
-      await this.convertCjsFilesWithEsmSyntax(integrator)
+      // Note: convertCjsFilesWithEsmSyntax는 BuildIntegrator의 메서드이므로
+      // integrator 객체를 통해 직접 호출할 수 없습니다.
+      // 이 기능은 필요시 별도로 구현하거나 제거합니다.
       
       // 4. 변환된 파일 적용 확인 (이미 executeConversion에서 적용됨)
       logStep('APPLY', '변환된 파일 적용 상태 확인...')

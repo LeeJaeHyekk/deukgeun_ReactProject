@@ -69,8 +69,15 @@ async function insertMachineData() {
       machine.imageUrl = machineDataItem.imageUrl
       machine.shortDesc = machineDataItem.shortDesc
       machine.detailDesc = machineDataItem.detailDesc
-      machine.description = machineDataItem.description
-      machine.instructions = machineDataItem.instructions
+      // Note: Machine 엔티티에는 description과 instructions 필드가 없습니다
+      // description과 instructions는 detailDesc로 매핑됩니다
+      if (machineDataItem.description) {
+        machine.detailDesc = machineDataItem.description
+      }
+      if (machineDataItem.instructions) {
+        // instructions는 detailDesc에 추가하거나 별도로 처리
+        machine.detailDesc = machine.detailDesc + (machineDataItem.instructions ? '\n\n사용법: ' + machineDataItem.instructions : '')
+      }
       machine.positiveEffect = machineDataItem.positiveEffect
       machine.category = machineDataItem.category
       machine.targetMuscles = machineDataItem.targetMuscles

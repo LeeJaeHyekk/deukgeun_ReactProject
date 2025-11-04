@@ -754,7 +754,7 @@ class EnhancedJsToCjsConverter {
       /export\s+enum\s+(\w+)\s*\{([^}]*)\}/g,
       (match, enumName, enumBody) => {
         // enum을 CommonJS 형태로 변환
-        const enumValues = enumBody.split(',').map(item => {
+        const enumValues = enumBody.split(',').map((item: string) => {
           const trimmed = item.trim()
           if (trimmed.includes('=')) {
             return trimmed
@@ -770,7 +770,7 @@ class EnhancedJsToCjsConverter {
     convertedContent = convertedContent.replace(
       /import\s+React\s*,\s*\{([^}]+)\}\s*from\s*['"]react['"]/g,
       (match, reactImports) => {
-        const imports = reactImports.split(',').map(imp => imp.trim()).join(', ')
+        const imports = reactImports.split(',').map((imp: string) => imp.trim()).join(', ')
         return `const React = require('react')\nconst { ${imports} } = require('react')`
       }
     )
@@ -785,7 +785,7 @@ class EnhancedJsToCjsConverter {
     convertedContent = convertedContent.replace(
       /import\s*\{([^}]+)\}\s*from\s*['"]react['"]/g,
       (match, hooks) => {
-        const hookList = hooks.split(',').map(hook => hook.trim()).join(', ')
+        const hookList = hooks.split(',').map((hook: string) => hook.trim()).join(', ')
         return `const { ${hookList} } = require('react')`
       }
     )

@@ -162,7 +162,7 @@ async function fixBackendPaths() {
     const files = await new Promise<string[]>((resolve, reject) => {
       glob(`${BACKEND_DIR}/**/*.ts`, { 
         ignore: ['**/node_modules/**', '**/dist/**', '**/*.d.ts'] 
-      }, (err, matches) => {
+      }, (err: Error | null, matches: string[] | undefined) => {
         if (err) reject(err)
         else resolve(matches || [])
       })

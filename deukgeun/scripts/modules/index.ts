@@ -19,7 +19,7 @@ import * as BuildFunctions from './build-functions'
 import * as DeployFunctions from './deploy-functions'
 import * as HealthFunctions from './health-functions'
 import * as PM2Functions from './pm2-functions'
-import * as TestFunctions from './test-functions'
+// import * as TestFunctions from './test-functions' // 파일이 없으므로 주석 처리
 import * as EnvFunctions from './env-functions'
 import * as DataFunctions from './data-functions'
 import * as SafetyFunctions from './safety-functions'
@@ -50,7 +50,7 @@ export {
   DeployFunctions,
   HealthFunctions,
   PM2Functions,
-  TestFunctions,
+  // TestFunctions, // 파일이 없으므로 주석 처리
   EnvFunctions,
   DataFunctions,
   SafetyFunctions,

@@ -68,13 +68,14 @@ class TypeSafetyChecker {
       })
       console.log('✅ TypeScript 컴파일 에러 없음')
     } catch (error) {
-      const output = error.stdout?.toString() || error.stderr?.toString() || ''
+      const execError = error as { stdout?: { toString(): string }; stderr?: { toString(): string } }
+      const output = execError.stdout?.toString() || execError.stderr?.toString() || ''
       const errorCount = (output.match(/error TS/g) || []).length
       this.report.typeErrors = errorCount
       
       // 에러 파싱
       const lines = output.split('\n')
-      lines.forEach(line => {
+      lines.forEach((line: string) => {
         if (line.includes('error TS')) {
           const match = line.match(/(.+?)\((\d+),(\d+)\): error TS(\d+): (.+)/)
           if (match) {
@@ -376,4 +377,5 @@ if (require.main === module) {
     })
 }
 
-export { TypeSafetyChecker, TypeSafetyReport, TypeSafetyIssue }
+export type { TypeSafetyReport, TypeSafetyIssue }
+export { TypeSafetyChecker }

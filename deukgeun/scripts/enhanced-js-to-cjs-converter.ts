@@ -300,8 +300,8 @@ class EnhancedJsToCjsConverter {
         const stat = fs.statSync(itemPath)
         
         if (stat.isDirectory()) {
-          // 특정 디렉토리는 제외
-          if (!['node_modules', '.git', '.conversion-backup'].includes(item)) {
+          // 특정 디렉토리는 제외 (프론트엔드 빌드 결과는 변환하지 않음)
+          if (!['node_modules', '.git', '.conversion-backup', 'frontend'].includes(item)) {
             this.scanDirectory(itemPath, fileList, extensions)
           }
         } else if (extensions.some(ext => item.endsWith(ext)) && !item.endsWith('.min.js')) {

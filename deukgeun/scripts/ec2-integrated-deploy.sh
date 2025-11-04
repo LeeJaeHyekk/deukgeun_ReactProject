@@ -471,16 +471,38 @@ EOF
             "CORS_ORIGIN"
         )
         
+        # 선택적이지만 권장되는 환경 변수
+        local recommended_vars=(
+            "JWT_SECRET"
+            "DATABASE_URL"
+            "VITE_BACKEND_URL"
+            "VITE_FRONTEND_URL"
+        )
+        
         local missing_vars=()
+        local missing_recommended=()
+        
         for var in "${required_vars[@]}"; do
             if ! grep -q "^${var}=" .env 2>/dev/null; then
                 missing_vars+=("$var")
             fi
         done
         
+        for var in "${recommended_vars[@]}"; do
+            if ! grep -q "^${var}=" .env 2>/dev/null; then
+                missing_recommended+=("$var")
+            fi
+        done
+        
         if [ ${#missing_vars[@]} -gt 0 ]; then
-            log_warning "필수 환경 변수가 없습니다: ${missing_vars[*]}"
+            log_error "필수 환경 변수가 없습니다: ${missing_vars[*]}"
             log_info ".env 파일을 확인하고 필수 변수를 추가하세요."
+            errors=$((errors + 1))
+        fi
+        
+        if [ ${#missing_recommended[@]} -gt 0 ]; then
+            log_warning "권장 환경 변수가 없습니다: ${missing_recommended[*]}"
+            log_info "애플리케이션이 제대로 동작하지 않을 수 있습니다."
         fi
         
         # 환경 변수 로드 (안전하게)
@@ -601,47 +623,108 @@ run_build() {
     # 통합 빌드 실행 (타임아웃 포함)
     log_info "통합 빌드 실행 중..."
     
+    # 빌드 실행 (상세 로그 활성화)
+    log_info "빌드 명령어 실행: npm run build"
     if ! run_with_timeout "$MAX_BUILD_TIME" "npm run build" "프로젝트 빌드"; then
         log_error "빌드 실패"
         errors=$((errors + 1))
         
         # 빌드 로그 확인
-        if [[ -f "$LOG_DIR/build-error.log" ]]; then
+        log_info "빌드 로그 확인 중..."
+        if grep -q "프론트엔드" "$LOG_FILE" 2>/dev/null; then
+            log_info "프론트엔드 빌드 관련 로그 (최근 30줄):"
+            grep -i "프론트엔드\|frontend" "$LOG_FILE" 2>/dev/null | tail -n 30 || true
+        fi
+        
+        if grep -q "error\|실패\|fail" "$LOG_FILE" 2>/dev/null; then
             log_info "빌드 에러 로그 (최근 50줄):"
-            tail -n 50 "$LOG_DIR/build-error.log" || true
+            grep -i "error\|실패\|fail" "$LOG_FILE" 2>/dev/null | tail -n 50 || true
+        fi
+    else
+        # 빌드 성공 시에도 로그 확인
+        log_info "빌드 성공 로그 확인 중..."
+        if grep -q "프론트엔드\|frontend" "$LOG_FILE" 2>/dev/null; then
+            log_success "프론트엔드 빌드가 로그에 나타났습니다."
+            # 프론트엔드 빌드 관련 로그 출력
+            grep -i "프론트엔드\|frontend" "$LOG_FILE" 2>/dev/null | tail -n 10 || true
+        else
+            log_warning "프론트엔드 빌드 로그를 찾을 수 없습니다."
         fi
     fi
     
     # 빌드 결과 검증
     log_info "빌드 결과 검증 중..."
     
+    # 필수 빌드 디렉토리 확인 (backend, frontend, shared, data)
     local required_dirs=(
         "dist/backend"
         "dist/frontend"
+        "dist/shared"
+        "dist/data"
     )
     
     local missing_dirs=()
+    local existing_dirs=()
+    
     for dir in "${required_dirs[@]}"; do
         if [[ ! -d "$dir" ]]; then
             missing_dirs+=("$dir")
+        else
+            # 디렉토리 내 파일 개수 확인
+            local file_count=$(find "$dir" -type f 2>/dev/null | wc -l)
+            if [ $file_count -eq 0 ]; then
+                log_warning "$dir 디렉토리가 비어있습니다."
+                missing_dirs+=("$dir (비어있음)")
+            else
+                existing_dirs+=("$dir ($file_count개 파일)")
+                log_success "$dir 디렉토리 확인: $file_count개 파일"
+            fi
         fi
     done
     
     if [ ${#missing_dirs[@]} -gt 0 ]; then
-        log_error "필수 빌드 디렉토리가 없습니다: ${missing_dirs[*]}"
+        log_error "필수 빌드 디렉토리가 없거나 비어있습니다: ${missing_dirs[*]}"
         errors=$((errors + 1))
+    else
+        log_success "모든 필수 빌드 디렉토리 확인 완료: ${existing_dirs[*]}"
     fi
     
     # 백엔드 빌드 파일 확인
-    if [[ ! -f "dist/backend/backend/index.cjs" ]]; then
-        log_error "백엔드 진입점 파일이 없습니다: dist/backend/backend/index.cjs"
+    local backend_entry_points=(
+        "dist/backend/backend/index.cjs"
+        "dist/backend/index.cjs"
+        "dist/backend/index.js"
+    )
+    
+    local backend_entry_found=false
+    for entry_point in "${backend_entry_points[@]}"; do
+        if [[ -f "$entry_point" ]]; then
+            log_success "백엔드 진입점 파일 확인: $entry_point"
+            backend_entry_found=true
+            break
+        fi
+    done
+    
+    if [[ "$backend_entry_found" == false ]]; then
+        log_error "백엔드 진입점 파일을 찾을 수 없습니다."
+        log_info "확인한 경로: ${backend_entry_points[*]}"
+        log_info "dist/backend 디렉토리 내용:"
+        find dist/backend -name "*.cjs" -o -name "*.js" 2>/dev/null | head -n 20 || true
         errors=$((errors + 1))
     fi
     
     # 프론트엔드 빌드 파일 확인
-    if [[ ! -f "dist/frontend/index.html" ]]; then
-        log_error "프론트엔드 진입점 파일이 없습니다: dist/frontend/index.html"
+    if [[ ! -d "dist/frontend" ]]; then
+        log_error "프론트엔드 빌드 디렉토리가 없습니다: dist/frontend"
         errors=$((errors + 1))
+    elif [[ ! -f "dist/frontend/index.html" ]]; then
+        log_error "프론트엔드 진입점 파일이 없습니다: dist/frontend/index.html"
+        log_info "프론트엔드 디렉토리 내용:"
+        ls -la dist/frontend/ 2>/dev/null | head -n 20 || true
+        errors=$((errors + 1))
+    else
+        local frontend_files=$(find dist/frontend -type f | wc -l)
+        log_success "프론트엔드 빌드 확인: index.html 존재, 총 ${frontend_files}개 파일"
     fi
     
     # 빌드 결과 크기 확인
@@ -651,6 +734,39 @@ run_build() {
         errors=$((errors + 1))
     else
         log_info "빌드 결과 크기: $dist_size"
+        
+        # 각 디렉토리별 크기 확인
+        for dir in "${required_dirs[@]}"; do
+            if [[ -d "$dir" ]]; then
+                local dir_size=$(du -sh "$dir" 2>/dev/null | cut -f1 || echo "0")
+                log_info "  - $dir: $dir_size"
+            fi
+        done
+    fi
+    
+    # shared와 data 디렉토리 추가 확인 (상세)
+    if [[ ! -d "dist/shared" ]]; then
+        log_warning "dist/shared 디렉토리가 없습니다."
+    else
+        local shared_files=$(find dist/shared -type f 2>/dev/null | wc -l)
+        local shared_size=$(du -sh dist/shared 2>/dev/null | cut -f1 || echo "0")
+        if [[ $shared_files -gt 0 ]]; then
+            log_success "dist/shared 확인: $shared_files 개 파일 ($shared_size)"
+        else
+            log_warning "dist/shared 디렉토리가 비어있습니다."
+        fi
+    fi
+    
+    if [[ ! -d "dist/data" ]]; then
+        log_warning "dist/data 디렉토리가 없습니다."
+    else
+        local data_files=$(find dist/data -type f 2>/dev/null | wc -l)
+        local data_size=$(du -sh dist/data 2>/dev/null | cut -f1 || echo "0")
+        if [[ $data_files -gt 0 ]]; then
+            log_success "dist/data 확인: $data_files 개 파일 ($data_size)"
+        else
+            log_warning "dist/data 디렉토리가 비어있습니다."
+        fi
     fi
     
     if [ $errors -gt 0 ]; then
@@ -960,21 +1076,42 @@ setup_nginx() {
             }
             
             # 프론트엔드 파일 복사
-            sudo cp -r dist/frontend/* "$nginx_html_dir/" || {
+            if sudo cp -r dist/frontend/* "$nginx_html_dir/"; then
+                log_success "프론트엔드 파일 복사 완료"
+                
+                # 복사된 파일 확인
+                local copied_files=$(sudo find "$nginx_html_dir" -type f | wc -l)
+                if [[ $copied_files -gt 0 ]]; then
+                    log_success "프론트엔드 파일 확인: $copied_files 개 파일"
+                    
+                    # index.html 확인
+                    if sudo test -f "$nginx_html_dir/index.html"; then
+                        log_success "index.html 확인됨"
+                    else
+                        log_error "index.html이 복사되지 않았습니다."
+                        errors=$((errors + 1))
+                    fi
+                else
+                    log_error "프론트엔드 파일이 복사되지 않았습니다."
+                    errors=$((errors + 1))
+                fi
+            else
                 log_error "프론트엔드 파일 복사 실패"
                 errors=$((errors + 1))
-            }
+            fi
             
             # 권한 설정
-            sudo chown -R nginx:nginx "$nginx_html_dir" || {
-                log_warning "nginx HTML 디렉토리 권한 설정 실패"
-            }
+            if sudo chown -R nginx:nginx "$nginx_html_dir"; then
+                log_success "nginx HTML 디렉토리 소유자 설정 완료"
+            else
+                log_warning "nginx HTML 디렉토리 소유자 설정 실패"
+            fi
             
-            sudo chmod -R 755 "$nginx_html_dir" || {
+            if sudo chmod -R 755 "$nginx_html_dir"; then
+                log_success "nginx HTML 디렉토리 권한 설정 완료"
+            else
                 log_warning "nginx HTML 디렉토리 권한 설정 실패"
-            }
-            
-            log_success "프론트엔드 파일 복사 완료"
+            fi
         fi
     else
         log_error "프론트엔드 빌드 디렉토리가 없습니다: dist/frontend"
@@ -1042,8 +1179,43 @@ start_services() {
     # PM2 로그 정리
     pm2 flush 2>/dev/null || true
     
+    # 백엔드 진입점 파일 확인 (PM2 시작 전 필수)
+    local backend_entry_points=(
+        "dist/backend/backend/index.cjs"
+        "dist/backend/index.cjs"
+        "dist/backend/index.js"
+    )
+    
+    local backend_entry_found=false
+    local backend_entry_path=""
+    for entry_point in "${backend_entry_points[@]}"; do
+        if [[ -f "$entry_point" ]]; then
+            backend_entry_found=true
+            backend_entry_path="$entry_point"
+            log_success "백엔드 진입점 파일 확인: $entry_point"
+            break
+        fi
+    done
+    
+    if [[ "$backend_entry_found" == false ]]; then
+        log_error "백엔드 진입점 파일이 없습니다. PM2 서비스를 시작할 수 없습니다."
+        log_info "확인한 경로: ${backend_entry_points[*]}"
+        log_info "dist/backend 디렉토리 내용:"
+        find dist/backend -name "*.cjs" -o -name "*.js" 2>/dev/null | head -n 20 || true
+        errors=$((errors + 1))
+        return 1
+    fi
+    
+    # ecosystem.config.cjs의 script 경로 확인
+    if grep -q "dist/backend" ecosystem.config.cjs; then
+        log_info "ecosystem.config.cjs의 백엔드 경로 확인됨"
+    else
+        log_warning "ecosystem.config.cjs에 백엔드 경로가 올바르게 설정되지 않았을 수 있습니다."
+    fi
+    
     # PM2 서비스 시작 (타임아웃 포함)
     log_info "PM2로 서비스 시작 중... (EC2 환경: production)"
+    log_info "백엔드 진입점: $backend_entry_path"
     
     # EC2 환경 변수 설정
     export NODE_ENV=production
@@ -1149,51 +1321,108 @@ check_services() {
         errors=$((errors + 1))
     fi
     
-    # 서비스 헬스체크 (재시도 포함)
+    # 서비스 헬스체크 (재시도 포함, 강화된 로직)
     log_info "서비스 헬스체크 중..."
     
-    # 백엔드 헬스체크
+    # 백엔드 헬스체크 (재시도 10회, 간격 3초)
     local backend_health_ok=false
-    for i in {1..5}; do
-        log_info "백엔드 헬스체크 시도 $i/5..."
-        sleep 2
+    local backend_health_attempts=10
+    local backend_health_interval=3
+    
+    for i in $(seq 1 $backend_health_attempts); do
+        log_info "백엔드 헬스체크 시도 $i/$backend_health_attempts..."
         
-        if curl -f -s -m 10 http://localhost:5000/health >/dev/null 2>&1; then
+        # 백엔드 포트 확인
+        if command -v netstat &> /dev/null; then
+            if netstat -tlnp 2>/dev/null | grep -q ":5000 "; then
+                log_info "백엔드 포트 5000이 열려있습니다."
+            fi
+        elif command -v ss &> /dev/null; then
+            if ss -tlnp 2>/dev/null | grep -q ":5000 "; then
+                log_info "백엔드 포트 5000이 열려있습니다."
+            fi
+        fi
+        
+        # 헬스체크 실행
+        local health_response=$(curl -f -s -m 10 http://localhost:5000/health 2>&1)
+        local health_status=$?
+        
+        if [ $health_status -eq 0 ]; then
             log_success "백엔드 서비스 정상 동작"
+            log_info "헬스체크 응답: $health_response"
             backend_health_ok=true
             break
+        else
+            log_warning "백엔드 헬스체크 실패 (시도 $i/$backend_health_attempts)"
+            if [ $i -lt $backend_health_attempts ]; then
+                sleep $backend_health_interval
+            fi
         fi
     done
     
     if [ "$backend_health_ok" = false ]; then
-        log_error "백엔드 서비스 헬스체크 실패"
+        log_error "백엔드 서비스 헬스체크 실패 (모든 시도 실패)"
         errors=$((errors + 1))
         
         # PM2 로그 확인
-        log_info "백엔드 PM2 로그 (최근 30줄):"
-        pm2 logs deukgeun-backend --lines 30 --nostream 2>/dev/null || true
+        log_info "백엔드 PM2 로그 (최근 50줄):"
+        pm2 logs deukgeun-backend --lines 50 --nostream 2>/dev/null || true
+        
+        # PM2 프로세스 상태 확인
+        log_info "백엔드 PM2 프로세스 상태:"
+        pm2 describe deukgeun-backend 2>/dev/null || true
     fi
     
-    # 프론트엔드 헬스체크
+    # 프론트엔드 헬스체크 (재시도 10회, 간격 3초)
     local frontend_health_ok=false
-    for i in {1..5}; do
-        log_info "프론트엔드 헬스체크 시도 $i/5..."
-        sleep 2
+    local frontend_health_attempts=10
+    local frontend_health_interval=3
+    
+    for i in $(seq 1 $frontend_health_attempts); do
+        log_info "프론트엔드 헬스체크 시도 $i/$frontend_health_attempts..."
         
-        if curl -f -s -m 10 http://localhost/health >/dev/null 2>&1; then
+        # nginx 포트 확인
+        if command -v netstat &> /dev/null; then
+            if netstat -tlnp 2>/dev/null | grep -q ":80 "; then
+                log_info "nginx 포트 80이 열려있습니다."
+            fi
+        elif command -v ss &> /dev/null; then
+            if ss -tlnp 2>/dev/null | grep -q ":80 "; then
+                log_info "nginx 포트 80이 열려있습니다."
+            fi
+        fi
+        
+        # 헬스체크 실행 (index.html 확인)
+        local index_response=$(curl -f -s -m 10 http://localhost/ 2>&1)
+        local index_status=$?
+        
+        if [ $index_status -eq 0 ]; then
             log_success "프론트엔드 서비스 정상 동작"
+            log_info "index.html 응답 크기: ${#index_response} bytes"
             frontend_health_ok=true
             break
+        else
+            log_warning "프론트엔드 헬스체크 실패 (시도 $i/$frontend_health_attempts)"
+            if [ $i -lt $frontend_health_attempts ]; then
+                sleep $frontend_health_interval
+            fi
         fi
     done
     
     if [ "$frontend_health_ok" = false ]; then
-        log_error "프론트엔드 서비스 헬스체크 실패"
+        log_error "프론트엔드 서비스 헬스체크 실패 (모든 시도 실패)"
         errors=$((errors + 1))
         
         # nginx 로그 확인
-        log_info "nginx 에러 로그 (최근 30줄):"
-        sudo tail -n 30 /var/log/nginx/error.log 2>/dev/null || true
+        log_info "nginx 에러 로그 (최근 50줄):"
+        sudo tail -n 50 /var/log/nginx/error.log 2>/dev/null || true
+        
+        log_info "nginx 액세스 로그 (최근 30줄):"
+        sudo tail -n 30 /var/log/nginx/access.log 2>/dev/null || true
+        
+        # nginx 설정 확인
+        log_info "nginx 설정 테스트:"
+        sudo nginx -t 2>&1 || true
     fi
     
     # 최종 상태 보고

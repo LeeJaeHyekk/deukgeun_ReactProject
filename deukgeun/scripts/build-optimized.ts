@@ -123,6 +123,9 @@ class OptimizedBuildProcess {
       // 6. 빌드된 파일 추가 수정 (__dirname, require 경로)
       await this.fixBuiltFiles()
       
+      // 7. 최종 빌드 결과 검증
+      await this.validateBuildResult()
+      
       const duration = ((Date.now() - startTime) / 1000).toFixed(2)
       logSuccess(`빌드가 완료되었습니다! (소요시간: ${duration}초)`)
       logSeparator('=', 60, 'green')
@@ -153,10 +156,45 @@ class OptimizedBuildProcess {
       log('✅ 로그 디렉토리 생성 완료', 'green')
     }
     
-    // dist 폴더 정리
+    // dist 폴더 정리 (프론트엔드 빌드 결과는 보존)
     if (this.options.cleanDist && fs.existsSync(this.distPath)) {
       log('dist 폴더를 정리합니다...', 'blue')
+      
+      // 프론트엔드 빌드 결과 백업 (이미 있다면)
+      const frontendBackupPath = path.join(this.options.projectRoot, '.frontend-backup')
+      const frontendDistPath = path.join(this.distPath, 'frontend')
+      
+      if (fs.existsSync(frontendDistPath)) {
+        log('기존 프론트엔드 빌드 결과를 백업합니다...', 'blue')
+        if (fs.existsSync(frontendBackupPath)) {
+          fs.rmSync(frontendBackupPath, { recursive: true, force: true })
+        }
+        try {
+          fs.cpSync(frontendDistPath, frontendBackupPath, { recursive: true })
+          log('프론트엔드 백업 완료', 'green')
+        } catch (backupError) {
+          logWarning(`프론트엔드 백업 실패: ${(backupError as Error).message}`)
+        }
+      }
+      
+      // dist 폴더 삭제
       fs.rmSync(this.distPath, { recursive: true, force: true })
+      
+      // dist 폴더 재생성
+      fs.mkdirSync(this.distPath, { recursive: true })
+      
+      // 프론트엔드 백업 복원 (있다면)
+      if (fs.existsSync(frontendBackupPath)) {
+        log('프론트엔드 빌드 결과를 복원합니다...', 'blue')
+        try {
+          fs.cpSync(frontendBackupPath, frontendDistPath, { recursive: true })
+          fs.rmSync(frontendBackupPath, { recursive: true, force: true })
+          log('프론트엔드 복원 완료', 'green')
+        } catch (restoreError) {
+          logWarning(`프론트엔드 복원 실패: ${(restoreError as Error).message}`)
+          // 백업 폴더는 나중에 정리
+        }
+      }
     }
     
     // 임시 폴더 생성
@@ -253,8 +291,18 @@ class OptimizedBuildProcess {
         if (fs.existsSync(distSharedPath)) {
           fs.rmSync(distSharedPath, { recursive: true, force: true })
         }
+        
+        // dist/shared 디렉토리 생성
+        fs.mkdirSync(distSharedPath, { recursive: true })
+        
+        // src/shared 내용 복사
         fs.cpSync(srcSharedPath, distSharedPath, { recursive: true })
-        logSuccess('Shared 폴더 복사 완료')
+        
+        // 복사 결과 확인
+        const files = fs.readdirSync(distSharedPath)
+        logSuccess(`Shared 폴더 복사 완료: ${files.length}개 항목`)
+      } else {
+        logWarning('src/shared 디렉토리가 없습니다.')
       }
     } catch (error) {
       logError(`Shared 폴더 빌드 실패: ${(error as Error).message}`)
@@ -288,17 +336,58 @@ class OptimizedBuildProcess {
       const normalizedRoot = this.options.projectRoot.replace(/\\/g, '/')
       
       // Vite 빌드 실행 (프로덕션 모드)
-      execSync('npx vite build --mode production', {
-        stdio: this.options.verbose ? 'inherit' : 'pipe',
-        cwd: normalizedRoot,
-        timeout: 300000, // 5분
-        env: env,
-        shell: process.platform === 'win32' ? undefined : '/bin/bash'
-      })
-      
-      logSuccess('프론트엔드 빌드 완료 (프로덕션 모드)')
+      try {
+        execSync('npx vite build --mode production', {
+          stdio: this.options.verbose ? 'inherit' : 'pipe',
+          cwd: normalizedRoot,
+          timeout: 300000, // 5분
+          env: env,
+          shell: process.platform === 'win32' ? undefined : '/bin/bash'
+        })
+        
+        // 프론트엔드 빌드 결과 확인
+        const frontendDistPath = path.join(normalizedRoot, 'dist', 'frontend')
+        if (fs.existsSync(frontendDistPath)) {
+          const files = fs.readdirSync(frontendDistPath)
+          if (files.length > 0) {
+            const fileCount = files.length
+            logSuccess(`프론트엔드 빌드 완료 (프로덕션 모드) - ${fileCount}개 파일 생성`)
+            
+            // index.html 확인
+            const indexPath = path.join(frontendDistPath, 'index.html')
+            if (fs.existsSync(indexPath)) {
+              log('✅ index.html 생성 확인', 'green')
+            } else {
+              logWarning('⚠️ index.html이 생성되지 않았습니다.')
+            }
+          } else {
+            logWarning('프론트엔드 빌드 디렉토리가 비어있습니다.')
+          }
+        } else {
+          logError('프론트엔드 빌드 디렉토리가 생성되지 않았습니다: dist/frontend')
+          throw new Error('프론트엔드 빌드 디렉토리 생성 실패')
+        }
+      } catch (buildError: any) {
+        // 빌드 에러 출력 (상세 로그)
+        if (!this.options.verbose && buildError.stdout) {
+          const stdout = buildError.stdout.toString()
+          if (stdout) {
+            logError(`프론트엔드 빌드 에러 출력:\n${stdout}`)
+          }
+        }
+        if (buildError.stderr) {
+          const stderr = buildError.stderr.toString()
+          if (stderr) {
+            logError(`프론트엔드 빌드 에러:\n${stderr}`)
+          }
+        }
+        const errorMessage = buildError instanceof Error ? buildError.message : String(buildError)
+        logError(`프론트엔드 빌드 실패: ${errorMessage}`)
+        throw buildError
+      }
     } catch (error) {
-      logError(`프론트엔드 빌드 실패: ${(error as Error).message}`)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      logError(`프론트엔드 빌드 실패: ${errorMessage}`)
       throw error
     }
   }
@@ -350,8 +439,8 @@ class OptimizedBuildProcess {
       const stat = fs.statSync(itemPath)
       
       if (stat.isDirectory()) {
-        // 특정 디렉토리는 제외
-        if (!['node_modules', '.git', '.temp-build'].includes(item)) {
+        // 특정 디렉토리는 제외 (프론트엔드 빌드 결과는 변환하지 않음)
+        if (!['node_modules', '.git', '.temp-build', 'frontend'].includes(item)) {
           jsFiles.push(...this.findJsFiles(itemPath))
         }
       } else if (item.endsWith('.js') && !item.endsWith('.min.js')) {
@@ -651,7 +740,8 @@ class OptimizedBuildProcess {
       const stat = fs.statSync(itemPath)
       
       if (stat.isDirectory()) {
-        if (!['node_modules', '.git', '.temp-build'].includes(item)) {
+        // 특정 디렉토리는 제외 (프론트엔드 빌드 결과는 변환하지 않음)
+        if (!['node_modules', '.git', '.temp-build', 'frontend'].includes(item)) {
           cjsFiles.push(...this.findCjsFiles(itemPath))
         }
       } else if (item.endsWith('.cjs')) {
@@ -677,13 +767,84 @@ class OptimizedBuildProcess {
         if (fs.existsSync(distDataPath)) {
           fs.rmSync(distDataPath, { recursive: true, force: true })
         }
+        
+        // dist/data 디렉토리 생성
+        fs.mkdirSync(distDataPath, { recursive: true })
+        
+        // src/data 내용 복사
         fs.cpSync(srcDataPath, distDataPath, { recursive: true })
-        log('✅ data 폴더 복사 완료', 'green')
+        
+        // 복사 결과 확인
+        const files = fs.readdirSync(distDataPath)
+        logSuccess(`data 폴더 복사 완료: ${files.length}개 항목`)
+      } else {
+        logWarning('src/data 디렉토리가 없습니다.')
+      }
+      
+      // shared 폴더가 없다면 다시 복사 (안전장치)
+      const distSharedPath = path.join(this.distPath, 'shared')
+      if (!fs.existsSync(distSharedPath)) {
+        logWarning('dist/shared 디렉토리가 없습니다. 다시 복사합니다...')
+        await this.buildShared()
       }
       
       logSuccess('dist 폴더 구조 정리 완료')
     } catch (error) {
       logWarning(`dist 폴더 구조 정리 실패: ${(error as Error).message}`)
+    }
+  }
+
+  /**
+   * 빌드 결과 검증
+   */
+  private async validateBuildResult(): Promise<void> {
+    logStep('VALIDATE', '빌드 결과 검증 중...')
+    
+    const requiredDirs = [
+      { path: 'backend', name: '백엔드' },
+      { path: 'frontend', name: '프론트엔드' },
+      { path: 'shared', name: '공유 모듈' },
+      { path: 'data', name: '데이터' }
+    ]
+    
+    const missingDirs: string[] = []
+    const existingDirs: string[] = []
+    
+    for (const dir of requiredDirs) {
+      const dirPath = path.join(this.distPath, dir.path)
+      if (fs.existsSync(dirPath)) {
+        const files = fs.readdirSync(dirPath)
+        if (files.length > 0) {
+          existingDirs.push(dir.name)
+          log(`✅ ${dir.name} 디렉토리 확인: ${dirPath} (${files.length}개 항목)`, 'green')
+        } else {
+          missingDirs.push(dir.name)
+          logWarning(`${dir.name} 디렉토리가 비어있습니다: ${dirPath}`)
+        }
+      } else {
+        missingDirs.push(dir.name)
+        logError(`${dir.name} 디렉토리가 없습니다: ${dirPath}`)
+      }
+    }
+    
+    // 특정 파일 확인
+    const criticalFiles = [
+      { path: path.join(this.distPath, 'backend', 'backend', 'index.cjs'), name: '백엔드 진입점' },
+      { path: path.join(this.distPath, 'frontend', 'index.html'), name: '프론트엔드 진입점' }
+    ]
+    
+    for (const file of criticalFiles) {
+      if (fs.existsSync(file.path)) {
+        log(`✅ ${file.name} 확인: ${file.path}`, 'green')
+      } else {
+        logWarning(`${file.name} 파일이 없습니다: ${file.path}`)
+      }
+    }
+    
+    if (missingDirs.length > 0) {
+      logWarning(`일부 디렉토리가 없습니다: ${missingDirs.join(', ')}`)
+    } else {
+      logSuccess(`모든 필수 디렉토리 확인 완료: ${existingDirs.join(', ')}`)
     }
   }
 

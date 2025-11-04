@@ -3,14 +3,14 @@
 // ============================================================================
 
 export type MachineCategory =
+  | 'cardio'
+  | 'fullbody'
   | 'chest'
   | 'back'
   | 'shoulders'
   | 'arms'
   | 'legs'
   | 'core'
-  | 'cardio'
-  | 'fullbody'
 
 export type DifficultyLevel =
   | 'beginner'

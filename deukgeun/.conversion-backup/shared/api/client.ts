@@ -34,8 +34,8 @@ const getApiConfig = () => {
     // 프론트엔드에서는 에러를 발생시키지 않고 경고만 표시
   }
 
-  // baseURL이 없을 때는 빈 문자열로 설정 (API 호출 시 에러 발생)
-  const safeBaseURL = baseURL || ''
+  // baseURL이 없을 때는 현재 도메인의 포트를 5000으로 변경하여 fallback
+  const safeBaseURL = baseURL || window.location.origin.replace(':5173', ':5000')
 
   if (isDevelopment) {
     return {
@@ -289,9 +289,6 @@ class ApiClient {
 
 // 싱글톤 인스턴스
 export const apiClient = new ApiClient()
-
-// 타입 안전한 API 클라이언트 인스턴스
-export const typedApiClient = new TypedApiClient("", {})
 
 // 기본 export
 export default apiClient

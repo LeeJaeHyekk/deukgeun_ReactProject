@@ -59,6 +59,8 @@
     "**/*.js", 
     "**/*.jsx",
     "../frontend/**/*",
-    "../shared/**/*"
+    "../shared/**/*",
+    "**/scripts/unifiedSeedScript.ts",
+    "**/scripts/**/*.ts"
   ]
 }

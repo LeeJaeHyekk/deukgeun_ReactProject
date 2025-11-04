@@ -886,10 +886,29 @@ class EnhancedJsToCjsConverter {
     }
     
     // __dirname 사용 시 CommonJS에서 정상 작동하도록 보장
-    if (convertedContent.includes('__dirname')) {
-      // __dirname이 사용되는 파일에 필요한 require 추가
+    // CommonJS에서는 __dirname이 자동 제공되므로, const __dirname = ... 선언 제거
+    // 패턴: const __dirname = (0, pathUtils_1.getDirname)();
+    // 패턴: const __dirname = (0, pathUtils_1.getDirname)();
+    convertedContent = convertedContent.replace(
+      /const __dirname\s*=\s*\(0,\s*[^)]*\)\.getDirname\(\)\s*;?\s*/g,
+      '// __dirname is automatically available in CommonJS\n'
+    )
+    
+    // 패턴: const __dirname = (pathUtils_1.getDirname)();
+    convertedContent = convertedContent.replace(
+      /const __dirname\s*=\s*\([^)]*\)\.getDirname\(\)\s*;?\s*/g,
+      '// __dirname is automatically available in CommonJS\n'
+    )
+    
+    // pathUtils_1.getDirname() 호출을 __dirname으로 직접 교체 (사용되는 곳에서)
+    // 하지만 선언이 아닌 사용 부분은 제외하고 선언만 제거
+    
+    // __dirname 사용 시 필요한 require 추가 (path가 필요한 경우)
+    if (convertedContent.includes('__dirname') && convertedContent.includes('path.resolve') || convertedContent.includes('path.join')) {
       if (!convertedContent.includes('const path = require(') && 
-          !convertedContent.includes('import path from')) {
+          !convertedContent.includes('import path from') &&
+          !convertedContent.includes('require("path")') &&
+          !convertedContent.includes("require('path')")) {
         convertedContent = `const path = require('path');\n${convertedContent}`
       }
     }

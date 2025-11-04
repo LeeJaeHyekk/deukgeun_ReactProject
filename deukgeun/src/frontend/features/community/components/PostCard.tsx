@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useCallback } from "react"
+import React, { memo, useEffect, useMemo, useCallback, useRef } from "react"
 import { PostDTO as CommunityPost } from "../../../../shared/types"
 import { usePostLikes } from "../hooks/usePostLikes"
 import { getAuthorName, getCategoryName, truncateText } from "../utils/textUtils"
@@ -21,57 +21,47 @@ const PostCardInner: React.FC<PostCardProps> = ({ post, displayCommentCount, onP
   const truncatedContent = useMemo(() => truncateText(post.content), [post.content])
   const formattedDate = useMemo(() => formatRelativeTime(post.createdAt.toString()), [post.createdAt])
   
-  // 좋아요 버튼 클릭 핸들러 메모이제이션
+  // 이전 상태 추적을 위한 ref (렌더링 최적화)
+  const prevDisplayCommentCountRef = useRef(displayCommentCount)
+  const prevIsLikedRef = useRef(isLiked)
+  const prevLikeCountRef = useRef(post.likeCount)
+  
+  // 좋아요 버튼 클릭 핸들러 메모이제이션 (안정적인 참조)
   const handleLikeClick = useCallback((e: React.MouseEvent) => {
-    console.log("💳 [PostCard] 좋아요 버튼 클릭 이벤트:", { 
-      isLoggedIn, 
-      syncing, 
-      disabled: !isLoggedIn || syncing 
-    })
     e.stopPropagation()
     handleToggleLike()
-  }, [isLoggedIn, syncing, handleToggleLike])
+  }, [handleToggleLike])
   
-  // 디버깅용 로그 (개발 환경에서만)
+  // 상태 변경 감지 (렌더링 최적화)
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 [PostCard] 댓글 수 변화 감지:', {
-        postId: post.id,
-        displayCommentCount,
-        timestamp: new Date().toISOString()
-      })
+    const prevDisplayCommentCount = prevDisplayCommentCountRef.current
+    const prevIsLiked = prevIsLikedRef.current
+    const prevLikeCount = prevLikeCountRef.current
+    
+    const commentCountChanged = prevDisplayCommentCount !== displayCommentCount
+    const isLikedChanged = prevIsLiked !== isLiked
+    const likeCountChanged = prevLikeCount !== post.likeCount
+    
+    if (commentCountChanged || isLikedChanged || likeCountChanged) {
+      // 상태 업데이트
+      prevDisplayCommentCountRef.current = displayCommentCount
+      prevIsLikedRef.current = isLiked
+      prevLikeCountRef.current = post.likeCount
+      
+      if (process.env.NODE_ENV === 'development' && (commentCountChanged || isLikedChanged || likeCountChanged)) {
+        console.log("💳 [PostCard] 상태 변경:", { 
+          postId: post.id, 
+          title: post.title,
+          displayCommentCount,
+          isLiked,
+          likeCount: post.likeCount,
+          commentCountChanged,
+          isLikedChanged,
+          likeCountChanged
+        })
+      }
     }
-  }, [displayCommentCount, post.id])
-  
-  // 개발 환경에서만 렌더링 로그 출력
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log("💳 [PostCard] 렌더링됨:", { 
-        postId: post.id, 
-        title: post.title, 
-        likeCount: post.likeCount,
-        originalCommentCount: post.commentCount,
-        displayCommentCount,
-        isLiked,
-        syncing,
-        isLoggedIn,
-        timestamp: new Date().toISOString()
-      })
-    }
-  }, [post.id, post.title, post.likeCount, post.commentCount, displayCommentCount, isLiked, syncing, isLoggedIn])
-
-  // displayCommentCount 변화 추적 (디버깅용)
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 [PostCard] displayCommentCount 변화:', {
-        postId: post.id,
-        displayCommentCount,
-        originalCommentCount: post.commentCount,
-        difference: displayCommentCount - (post.commentCount || 0),
-        timestamp: new Date().toISOString()
-      })
-    }
-  }, [displayCommentCount, post.id, post.commentCount])
+  }, [post.id, post.title, post.likeCount, displayCommentCount, isLiked])
 
   return (
     <div className={styles.card} onClick={() => onPostClick(post)}>

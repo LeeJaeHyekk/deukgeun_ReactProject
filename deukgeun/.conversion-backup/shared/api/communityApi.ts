@@ -37,52 +37,52 @@ export const communityApi = {
     if (category) params.append('category', category)
 
     const response = await apiClient.get<{ posts: PostDTO[]; total: number }>(
-      `/community/posts?${params}`
+      `/api/posts?${params}`
     )
     return response.data!
   },
 
   async getPostById(id: number): Promise<PostDTO> {
-    const response = await apiClient.get<PostDTO>(`/community/posts/${id}`)
+    const response = await apiClient.get<PostDTO>(`/api/posts/${id}`)
     return response.data!
   },
 
   async createPost(postData: CreatePostRequest): Promise<PostDTO> {
-    const response = await apiClient.post<PostDTO>('/community/posts', postData)
+    const response = await apiClient.post<PostDTO>('/api/posts', postData)
     return response.data!
   },
 
   async updatePost(id: number, postData: UpdatePostRequest): Promise<PostDTO> {
     const response = await apiClient.put<PostDTO>(
-      `/community/posts/${id}`,
+      `/api/posts/${id}`,
       postData
     )
     return response.data!
   },
 
   async deletePost(id: number): Promise<void> {
-    await apiClient.delete(`/community/posts/${id}`)
+    await apiClient.delete(`/api/posts/${id}`)
   },
 
   // Comments
   async getComments(postId: number): Promise<CommentDTO[]> {
     const response = await apiClient.get<CommentDTO[]>(
-      `/community/posts/${postId}/comments`
+      `/api/comments/${postId}`
     )
     return response.data!
   },
 
   async createComment(commentData: CreateCommentRequest): Promise<CommentDTO> {
     const response = await apiClient.post<CommentDTO>(
-      '/community/comments',
-      commentData
+      `/api/comments/${commentData.postId}`,
+      { content: commentData.content }
     )
     return response.data!
   },
 
   async updateComment(id: number, content: string): Promise<CommentDTO> {
     const response = await apiClient.put<CommentDTO>(
-      `/community/comments/${id}`,
+      `/api/comments/${id}`,
       {
         content,
       }
@@ -91,7 +91,7 @@ export const communityApi = {
   },
 
   async deleteComment(id: number): Promise<void> {
-    await apiClient.delete(`/community/comments/${id}`)
+    await apiClient.delete(`/api/comments/${id}`)
   },
 
   // Likes

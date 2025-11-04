@@ -144,9 +144,12 @@ module.exports = {
   },
 
   // 배포 설정 개선
+  // 참고: Amazon Linux 2023은 'ec2-user', Ubuntu는 'ubuntu' 사용
+  // 실제 환경에 맞게 user 필드를 수정하세요
   deploy: {
     production: {
-      user: 'ubuntu',
+      // Amazon Linux 2023: 'ec2-user', Ubuntu/Debian: 'ubuntu'
+      user: 'ec2-user',  // Amazon Linux 2023 기본 사용자
       host: ['your-server-ip'],
       ref: 'origin/main',
       repo: 'git@github.com:your-username/deukgeun.git',
@@ -158,7 +161,8 @@ module.exports = {
       'post-setup': 'pm2 startup && pm2 save'
     },
     staging: {
-      user: 'ubuntu',
+      // Amazon Linux 2023: 'ec2-user', Ubuntu/Debian: 'ubuntu'
+      user: 'ec2-user',  // Amazon Linux 2023 기본 사용자
       host: ['staging-server-ip'],
       ref: 'origin/develop',
       repo: 'git@github.com:your-username/deukgeun.git',

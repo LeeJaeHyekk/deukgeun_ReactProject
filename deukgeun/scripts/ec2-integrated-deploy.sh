@@ -213,12 +213,53 @@ check_port() {
 }
 
 # =============================================================================
-# 1. 시스템 환경 확인 (안전장치 강화)
+# OS 감지 및 패키지 매니저 확인 (Amazon Linux 2023 최적화)
+# =============================================================================
+detect_os_and_package_manager() {
+    # OS 정보 확인
+    if [[ -f /etc/os-release ]]; then
+        source /etc/os-release
+        export OS_ID="${ID:-}"
+        export OS_VERSION="${VERSION_ID:-}"
+    fi
+    
+    # 패키지 매니저 감지
+    if command -v dnf &> /dev/null; then
+        export PACKAGE_MANAGER="dnf"
+        export INSTALL_CMD="sudo dnf install -y"
+        export UPDATE_CMD="sudo dnf update -y"
+    elif command -v yum &> /dev/null; then
+        export PACKAGE_MANAGER="yum"
+        export INSTALL_CMD="sudo yum install -y"
+        export UPDATE_CMD="sudo yum update -y"
+    elif command -v apt-get &> /dev/null; then
+        export PACKAGE_MANAGER="apt-get"
+        export INSTALL_CMD="sudo apt-get install -y"
+        export UPDATE_CMD="sudo apt-get update"
+    else
+        log_error "지원되지 않는 패키지 매니저입니다."
+        return 1
+    fi
+    
+    log_info "OS 감지: ${OS_ID:-unknown} ${OS_VERSION:-}"
+    log_info "패키지 매니저: $PACKAGE_MANAGER"
+    
+    return 0
+}
+
+# =============================================================================
+# 1. 시스템 환경 확인 (안전장치 강화, Amazon Linux 2023 최적화)
 # =============================================================================
 check_system_requirements() {
     log_step "시스템 환경 확인 중..."
     
     local errors=0
+    
+    # OS 및 패키지 매니저 감지
+    if ! detect_os_and_package_manager; then
+        log_error "OS 감지 실패"
+        exit 1
+    fi
     
     # OS 확인
     if [[ "$OSTYPE" != "linux-gnu"* ]]; then
@@ -226,18 +267,29 @@ check_system_requirements() {
         exit 1
     fi
     
-    # Node.js 확인 및 설치
+    # Node.js 확인 및 설치 (Amazon Linux 2023 최적화)
     if ! command -v node &> /dev/null; then
         log_warning "Node.js가 설치되지 않았습니다."
         log_info "Node.js 설치 중..."
         
-        if ! run_with_retry 3 5 "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && sudo apt-get install -y nodejs" "Node.js 설치"; then
-            log_error "Node.js 설치 실패"
-            errors=$((errors + 1))
+        if [[ "$PACKAGE_MANAGER" == "dnf" ]] || [[ "$PACKAGE_MANAGER" == "yum" ]]; then
+            # Amazon Linux 2023용 Node.js 설치
+            if ! run_with_retry 3 5 "curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash - && $INSTALL_CMD nodejs" "Node.js 설치"; then
+                log_error "Node.js 설치 실패"
+                errors=$((errors + 1))
+            else
+                local node_version=$(node --version 2>/dev/null || echo "unknown")
+                log_success "Node.js 설치 완료: $node_version"
+            fi
         else
-            # 설치 후 버전 확인
-            local node_version=$(node --version 2>/dev/null || echo "unknown")
-            log_success "Node.js 설치 완료: $node_version"
+            # Ubuntu/Debian용 Node.js 설치
+            if ! run_with_retry 3 5 "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && $INSTALL_CMD nodejs" "Node.js 설치"; then
+                log_error "Node.js 설치 실패"
+                errors=$((errors + 1))
+            else
+                local node_version=$(node --version 2>/dev/null || echo "unknown")
+                log_success "Node.js 설치 완료: $node_version"
+            fi
         fi
     else
         local node_version=$(node --version)
@@ -276,12 +328,12 @@ check_system_requirements() {
         log_success "PM2 확인 완료: $pm2_version"
     fi
     
-    # nginx 확인 및 설치
+    # nginx 확인 및 설치 (Amazon Linux 2023 최적화)
     if ! command -v nginx &> /dev/null; then
         log_warning "nginx가 설치되지 않았습니다."
         log_info "nginx 설치 중..."
         
-        if ! run_with_retry 3 5 "sudo apt-get update && sudo apt-get install -y nginx" "nginx 설치"; then
+        if ! run_with_retry 3 5 "$UPDATE_CMD && $INSTALL_CMD nginx" "nginx 설치"; then
             log_error "nginx 설치 실패"
             errors=$((errors + 1))
         else
@@ -292,12 +344,12 @@ check_system_requirements() {
         log_success "nginx 확인 완료: $nginx_version"
     fi
     
-    # Git 확인
+    # Git 확인 (Amazon Linux 2023 최적화)
     if ! command -v git &> /dev/null; then
         log_warning "Git이 설치되지 않았습니다."
         log_info "Git 설치 중..."
         
-        if ! run_with_retry 3 5 "sudo apt-get install -y git" "Git 설치"; then
+        if ! run_with_retry 3 5 "$INSTALL_CMD git" "Git 설치"; then
             log_error "Git 설치 실패"
             errors=$((errors + 1))
         else
@@ -622,36 +674,73 @@ setup_database() {
         return 0
     fi
     
-    # PostgreSQL 확인
+    # PostgreSQL 확인 (Amazon Linux 2023 최적화)
     if ! command -v psql &> /dev/null; then
         log_warning "PostgreSQL이 설치되지 않았습니다."
         log_info "PostgreSQL 설치 중..."
         
-        if ! run_with_retry 3 10 "sudo apt-get update && sudo apt-get install -y postgresql postgresql-contrib" "PostgreSQL 설치"; then
-            log_error "PostgreSQL 설치 실패"
-            return 1
+        if [[ "$PACKAGE_MANAGER" == "dnf" ]] || [[ "$PACKAGE_MANAGER" == "yum" ]]; then
+            # Amazon Linux 2023용 PostgreSQL 설치
+            if ! run_with_retry 3 10 "$UPDATE_CMD && $INSTALL_CMD postgresql15 postgresql15-server postgresql15-contrib" "PostgreSQL 설치"; then
+                log_error "PostgreSQL 설치 실패"
+                return 1
+            fi
+            
+            # PostgreSQL 초기화 (Amazon Linux 2023)
+            if [[ ! -d /var/lib/pgsql/data ]]; then
+                log_info "PostgreSQL 데이터베이스 초기화 중..."
+                sudo postgresql-setup --initdb || sudo /usr/pgsql-15/bin/postgresql-15-setup initdb || {
+                    log_warning "PostgreSQL 초기화 실패, 수동으로 초기화하세요"
+                }
+            fi
+        else
+            # Ubuntu/Debian용 PostgreSQL 설치
+            if ! run_with_retry 3 10 "$UPDATE_CMD && $INSTALL_CMD postgresql postgresql-contrib" "PostgreSQL 설치"; then
+                log_error "PostgreSQL 설치 실패"
+                return 1
+            fi
         fi
         
-        # PostgreSQL 서비스 시작
-        if ! sudo systemctl start postgresql; then
-            log_error "PostgreSQL 서비스 시작 실패"
+        # PostgreSQL 서비스 시작 (Amazon Linux 2023은 서비스 이름이 다를 수 있음)
+        local postgresql_service="postgresql"
+        if [[ "$PACKAGE_MANAGER" == "dnf" ]] || [[ "$PACKAGE_MANAGER" == "yum" ]]; then
+            # Amazon Linux 2023에서 PostgreSQL 15 서비스 이름 확인
+            if systemctl list-unit-files | grep -q postgresql-15; then
+                postgresql_service="postgresql-15"
+            elif systemctl list-unit-files | grep -q postgresql15; then
+                postgresql_service="postgresql15"
+            fi
+        fi
+        
+        if ! sudo systemctl start "$postgresql_service"; then
+            log_error "PostgreSQL 서비스 시작 실패 (서비스명: $postgresql_service)"
             return 1
         fi
         
         # PostgreSQL 서비스 자동 시작 설정
-        sudo systemctl enable postgresql || {
-            log_warning "PostgreSQL 자동 시작 설정 실패"
+        sudo systemctl enable "$postgresql_service" || {
+            log_warning "PostgreSQL 자동 시작 설정 실패 (서비스명: $postgresql_service)"
         }
         
-        log_success "PostgreSQL 설치 및 시작 완료"
+        log_success "PostgreSQL 설치 및 시작 완료 (서비스명: $postgresql_service)"
     else
         # PostgreSQL 서비스 상태 확인
-        if sudo systemctl is-active --quiet postgresql; then
-            log_success "PostgreSQL 서비스 정상 실행 중"
+        local postgresql_service="postgresql"
+        if [[ "$PACKAGE_MANAGER" == "dnf" ]] || [[ "$PACKAGE_MANAGER" == "yum" ]]; then
+            # Amazon Linux 2023에서 PostgreSQL 15 서비스 이름 확인
+            if systemctl list-unit-files | grep -q postgresql-15; then
+                postgresql_service="postgresql-15"
+            elif systemctl list-unit-files | grep -q postgresql15; then
+                postgresql_service="postgresql15"
+            fi
+        fi
+        
+        if sudo systemctl is-active --quiet "$postgresql_service"; then
+            log_success "PostgreSQL 서비스 정상 실행 중 (서비스명: $postgresql_service)"
         else
-            log_warning "PostgreSQL 서비스가 실행되지 않았습니다. 시작 시도 중..."
-            sudo systemctl start postgresql || {
-                log_error "PostgreSQL 서비스 시작 실패"
+            log_warning "PostgreSQL 서비스가 실행되지 않았습니다. 시작 시도 중... (서비스명: $postgresql_service)"
+            sudo systemctl start "$postgresql_service" || {
+                log_error "PostgreSQL 서비스 시작 실패 (서비스명: $postgresql_service)"
                 return 1
             }
         fi
@@ -674,65 +763,131 @@ setup_database() {
 setup_firewall() {
     log_step "방화벽 설정 중..."
     
-    # UFW 확인 및 설정
-    if ! command -v ufw &> /dev/null; then
-        log_warning "UFW가 설치되지 않았습니다."
-        log_info "UFW 설치 중..."
-        
-        if ! run_with_retry 3 5 "sudo apt-get install -y ufw" "UFW 설치"; then
-            log_error "UFW 설치 실패"
-            log_warning "수동으로 포트를 열어주세요:"
-            log_warning "  - SSH (22): sudo ufw allow 22"
-            log_warning "  - HTTP (80): sudo ufw allow 80"
-            log_warning "  - HTTPS (443): sudo ufw allow 443"
-            log_warning "  - Backend API (5000): sudo ufw allow 5000"
-            return 1
+    # Amazon Linux 2023은 기본적으로 firewalld 사용, UFW는 Ubuntu/Debian용
+    if [[ "$PACKAGE_MANAGER" == "dnf" ]] || [[ "$PACKAGE_MANAGER" == "yum" ]]; then
+        # firewalld 사용 (Amazon Linux 2023)
+        if ! command -v firewall-cmd &> /dev/null; then
+            log_warning "firewalld가 설치되지 않았습니다."
+            log_info "firewalld 설치 중..."
+            
+            if ! run_with_retry 3 5 "$INSTALL_CMD firewalld" "firewalld 설치"; then
+                log_error "firewalld 설치 실패"
+                log_warning "수동으로 포트를 열어주세요:"
+                log_warning "  - SSH (22): sudo firewall-cmd --permanent --add-service=ssh"
+                log_warning "  - HTTP (80): sudo firewall-cmd --permanent --add-service=http"
+                log_warning "  - HTTPS (443): sudo firewall-cmd --permanent --add-service=https"
+                log_warning "  - Backend API (5000): sudo firewall-cmd --permanent --add-port=5000/tcp"
+                log_warning "  - sudo firewall-cmd --reload"
+                return 1
+            fi
         fi
-    fi
-    
-    # 현재 방화벽 상태 확인
-    local ufw_status=$(sudo ufw status 2>/dev/null | head -n 1 || echo "inactive")
-    if [[ "$ufw_status" == *"active"* ]]; then
-        log_info "UFW 방화벽이 이미 활성화되어 있습니다."
-    else
-        log_info "UFW 방화벽 설정 중..."
         
-        # 기본 규칙 설정
-        sudo ufw --force reset 2>/dev/null || true
+        # firewalld 서비스 시작
+        if ! sudo systemctl is-active --quiet firewalld; then
+            log_info "firewalld 서비스 시작 중..."
+            sudo systemctl start firewalld || {
+                log_error "firewalld 서비스 시작 실패"
+                return 1
+            }
+        fi
+        
+        # firewalld 자동 시작 설정
+        sudo systemctl enable firewalld || {
+            log_warning "firewalld 자동 시작 설정 실패"
+        }
         
         # 필수 포트 허용
-        sudo ufw allow 22/tcp comment 'SSH' || {
-            log_error "SSH 포트 설정 실패"
+        log_info "방화벽 규칙 설정 중..."
+        
+        sudo firewall-cmd --permanent --add-service=ssh || {
+            log_warning "SSH 포트 설정 실패"
+        }
+        
+        sudo firewall-cmd --permanent --add-service=http || {
+            log_warning "HTTP 포트 설정 실패"
+        }
+        
+        sudo firewall-cmd --permanent --add-service=https || {
+            log_warning "HTTPS 포트 설정 실패"
+        }
+        
+        sudo firewall-cmd --permanent --add-port=5000/tcp || {
+            log_warning "Backend API 포트 설정 실패"
+        }
+        
+        # 방화벽 규칙 적용
+        sudo firewall-cmd --reload || {
+            log_error "방화벽 규칙 적용 실패"
             return 1
         }
         
-        sudo ufw allow 80/tcp comment 'HTTP' || {
-            log_error "HTTP 포트 설정 실패"
-            return 1
-        }
+        log_success "firewalld 방화벽 설정 완료"
         
-        sudo ufw allow 443/tcp comment 'HTTPS' || {
-            log_error "HTTPS 포트 설정 실패"
-            return 1
-        }
+        # 방화벽 규칙 확인
+        log_info "현재 방화벽 규칙:"
+        sudo firewall-cmd --list-all 2>/dev/null || true
         
-        sudo ufw allow 5000/tcp comment 'Backend API' || {
-            log_error "Backend API 포트 설정 실패"
-            return 1
-        }
-        
-        # 방화벽 활성화
-        if sudo ufw --force enable; then
-            log_success "UFW 방화벽 활성화 완료"
-        else
-            log_error "UFW 방화벽 활성화 실패"
-            return 1
+    else
+        # UFW 사용 (Ubuntu/Debian)
+        if ! command -v ufw &> /dev/null; then
+            log_warning "UFW가 설치되지 않았습니다."
+            log_info "UFW 설치 중..."
+            
+            if ! run_with_retry 3 5 "$INSTALL_CMD ufw" "UFW 설치"; then
+                log_error "UFW 설치 실패"
+                log_warning "수동으로 포트를 열어주세요:"
+                log_warning "  - SSH (22): sudo ufw allow 22"
+                log_warning "  - HTTP (80): sudo ufw allow 80"
+                log_warning "  - HTTPS (443): sudo ufw allow 443"
+                log_warning "  - Backend API (5000): sudo ufw allow 5000"
+                return 1
+            fi
         fi
+        
+        # 현재 방화벽 상태 확인
+        local ufw_status=$(sudo ufw status 2>/dev/null | head -n 1 || echo "inactive")
+        if [[ "$ufw_status" == *"active"* ]]; then
+            log_info "UFW 방화벽이 이미 활성화되어 있습니다."
+        else
+            log_info "UFW 방화벽 설정 중..."
+            
+            # 기본 규칙 설정
+            sudo ufw --force reset 2>/dev/null || true
+            
+            # 필수 포트 허용
+            sudo ufw allow 22/tcp comment 'SSH' || {
+                log_error "SSH 포트 설정 실패"
+                return 1
+            }
+            
+            sudo ufw allow 80/tcp comment 'HTTP' || {
+                log_error "HTTP 포트 설정 실패"
+                return 1
+            }
+            
+            sudo ufw allow 443/tcp comment 'HTTPS' || {
+                log_error "HTTPS 포트 설정 실패"
+                return 1
+            }
+            
+            sudo ufw allow 5000/tcp comment 'Backend API' || {
+                log_error "Backend API 포트 설정 실패"
+                return 1
+            }
+            
+            # 방화벽 활성화
+            if sudo ufw --force enable; then
+                log_success "UFW 방화벽 활성화 완료"
+            else
+                log_error "UFW 방화벽 활성화 실패"
+                return 1
+            fi
+        fi
+        
+        # 방화벽 규칙 확인
+        log_info "현재 방화벽 규칙:"
+        sudo ufw status numbered 2>/dev/null || true
     fi
-    
-    # 방화벽 규칙 확인
-    log_info "현재 방화벽 규칙:"
-    sudo ufw status numbered 2>/dev/null || true
     
     log_success "방화벽 설정 완료"
     return 0

@@ -228,55 +228,111 @@ class SafeCrawlingManager {
         return { processed: 0, successful: 0, errors: [] }
       }
 
-      // 배치 단위로 병렬 처리
+      // 배치 단위로 병렬 처리 (메모리 관리)
       const batches = this.createBatches(existingGyms, this.batchSize)
       console.log(`📊 총 ${existingGyms.length}개 헬스장을 ${batches.length}개 배치로 처리`)
+      
+      // 타임아웃 설정 (배치당 최대 5분)
+      const BATCH_TIMEOUT = 5 * 60 * 1000 // 5분
       
       for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
         const batch = batches[batchIndex]
         console.log(`🔄 배치 ${batchIndex + 1}/${batches.length} 처리 중 (${batch.length}개 헬스장)`)
         
-        const batchPromises = batch.map(async (gym, gymIndex) => {
-          try {
-            // 필수 필드 검증
-            if (!gym.name || !gym.address) {
-              throw new Error('헬스장 이름 또는 주소가 없습니다')
-            }
+        try {
+          // 배치 타임아웃 설정
+          const batchPromise = Promise.allSettled(
+            batch.map(async (gym, gymIndex) => {
+              try {
+                // 필수 필드 검증
+                if (!gym || typeof gym !== 'object') {
+                  throw new Error('헬스장 데이터가 유효하지 않습니다')
+                }
 
-            const result = await this.crawlingService.crawlGymDetails({
-              gymName: gym.name,
-              gymAddress: gym.address
+                if (!gym.name || !gym.address) {
+                  throw new Error('헬스장 이름 또는 주소가 없습니다')
+                }
+
+                // 데이터 타입 검증
+                if (typeof gym.name !== 'string' || typeof gym.address !== 'string') {
+                  throw new Error('헬스장 이름 또는 주소 타입이 올바르지 않습니다')
+                }
+
+                // 데이터 크기 검증
+                if (gym.name.length > 200 || gym.address.length > 500) {
+                  throw new Error('헬스장 이름 또는 주소가 너무 깁니다')
+                }
+
+                // 개별 크롤링 타임아웃 (1분)
+                const CRAWL_TIMEOUT = 60 * 1000 // 1분
+                const crawlPromise = this.crawlingService.crawlGymDetails({
+                  gymName: gym.name.trim(),
+                  gymAddress: gym.address.trim()
+                })
+
+                const timeoutPromise = new Promise<null>((_, reject) => {
+                  setTimeout(() => {
+                    reject(new Error('크롤링 타임아웃 (1분 초과)'))
+                  }, CRAWL_TIMEOUT)
+                })
+
+                const result = await Promise.race([crawlPromise, timeoutPromise])
+                
+                processed++
+                if (result) {
+                  successful++
+                  console.log(`✅ 크롤링 성공: ${gym.name}`)
+                } else {
+                  console.log(`⚠️ 크롤링 결과 없음: ${gym.name}`)
+                }
+                
+                return { success: true, result, gymName: gym.name }
+              } catch (error) {
+                processed++
+                const errorMsg = `크롤링 실패 (${gym.name}): ${error instanceof Error ? error.message : String(error)}`
+                errors.push(errorMsg)
+                console.log(`❌ ${errorMsg}`)
+                return { success: false, error, gymName: gym.name }
+              }
             })
-            
-            processed++
-            if (result) {
-              successful++
-              console.log(`✅ 크롤링 성공: ${gym.name}`)
-            } else {
-              console.log(`⚠️ 크롤링 결과 없음: ${gym.name}`)
-            }
-            
-            return { success: true, result, gymName: gym.name }
-          } catch (error) {
-            processed++
-            const errorMsg = `크롤링 실패 (${gym.name}): ${error instanceof Error ? error.message : String(error)}`
-            errors.push(errorMsg)
-            console.log(`❌ ${errorMsg}`)
-            return { success: false, error, gymName: gym.name }
-          }
-        })
+          )
 
-        // 배치 완료 대기 (타임아웃 포함)
-        const batchResults = await Promise.allSettled(batchPromises)
-        
-        // 배치 결과 로깅
-        const batchSuccess = batchResults.filter(r => r.status === 'fulfilled' && r.value.success).length
-        console.log(`📊 배치 ${batchIndex + 1} 완료: ${batchSuccess}/${batch.length} 성공`)
+          // 배치 타임아웃 처리
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => {
+              reject(new Error(`배치 ${batchIndex + 1} 타임아웃 (${BATCH_TIMEOUT / 1000}초 초과)`))
+            }, BATCH_TIMEOUT)
+          })
+
+          const batchResults = await Promise.race([batchPromise, timeoutPromise])
+          
+          // 배치 결과 로깅
+          if (Array.isArray(batchResults)) {
+            const batchSuccess = batchResults.filter(r => r.status === 'fulfilled' && r.value && r.value.success).length
+            console.log(`📊 배치 ${batchIndex + 1} 완료: ${batchSuccess}/${batch.length} 성공`)
+          } else {
+            console.error(`❌ 배치 ${batchIndex + 1} 타임아웃`)
+            errors.push(`배치 ${batchIndex + 1} 타임아웃`)
+          }
+        } catch (batchError) {
+          console.error(`❌ 배치 ${batchIndex + 1} 처리 실패:`, batchError)
+          errors.push(`배치 ${batchIndex + 1} 처리 실패: ${batchError instanceof Error ? batchError.message : String(batchError)}`)
+          // 에러가 발생해도 다음 배치 계속 처리
+          continue
+        }
         
         // 배치 간 지연 (마지막 배치가 아닌 경우)
         if (batchIndex < batches.length - 1) {
           console.log(`⏳ ${this.retryDelay}ms 대기 중...`)
           await this.delay(this.retryDelay)
+        }
+
+        // 메모리 정리 (큰 데이터셋 처리 시)
+        if (batchIndex % 10 === 0 && batchIndex > 0) {
+          // 가비지 컬렉션 힌트
+          if (global.gc) {
+            global.gc()
+          }
         }
       }
 
@@ -323,17 +379,46 @@ class SafeCrawlingManager {
         return { updated: 0, errors: [] }
       }
 
-      // 데이터 유효성 검증
+      // 데이터 유효성 검증 강화
       const validNewData = newData.filter(item => {
-        if (!item || typeof item !== 'object') {
-          console.warn('⚠️ 유효하지 않은 데이터 항목 제외:', item)
+        try {
+          // 기본 타입 검증
+          if (!item || typeof item !== 'object') {
+            console.warn('⚠️ 유효하지 않은 데이터 항목 제외: 타입이 객체가 아닙니다')
+            return false
+          }
+
+          // 필수 필드 검증
+          if (!item.name || !item.address) {
+            console.warn('⚠️ 필수 필드가 없는 데이터 제외')
+            return false
+          }
+
+          // 필드 타입 검증
+          if (typeof item.name !== 'string' || typeof item.address !== 'string') {
+            console.warn('⚠️ 필수 필드 타입이 올바르지 않습니다')
+            return false
+          }
+
+          // 데이터 크기 검증
+          if (item.name.length > 200 || item.address.length > 500) {
+            console.warn(`⚠️ 데이터 항목이 너무 깁니다: ${item.name}`)
+            return false
+          }
+
+          // 데이터 무결성 검증 (순환 참조 등)
+          try {
+            JSON.stringify(item)
+          } catch (error) {
+            console.warn('⚠️ 데이터 항목에 순환 참조가 있습니다')
+            return false
+          }
+
+          return true
+        } catch (error) {
+          console.warn(`⚠️ 데이터 항목 검증 실패: ${error instanceof Error ? error.message : String(error)}`)
           return false
         }
-        if (!item.name || !item.address) {
-          console.warn('⚠️ 필수 필드가 없는 데이터 제외:', item)
-          return false
-        }
-        return true
       })
 
       if (validNewData.length === 0) {
@@ -341,19 +426,64 @@ class SafeCrawlingManager {
         return { updated: 0, errors: [] }
       }
 
-      console.log(`📊 기존 데이터: ${existingData.length}개, 새 데이터: ${validNewData.length}개`)
+      // 메모리 사용량 제한 (최대 50000개 항목)
+      const MAX_ITEMS = 50000
+      const maxNewData = MAX_ITEMS - existingData.length
+      const limitedNewData = validNewData.length > maxNewData 
+        ? validNewData.slice(0, maxNewData)
+        : validNewData
+
+      if (validNewData.length > maxNewData) {
+        console.warn(`⚠️ 새 데이터가 너무 많습니다 (${validNewData.length}개). 최대 ${maxNewData}개만 사용합니다.`)
+      }
+
+      console.log(`📊 기존 데이터: ${existingData.length}개, 새 데이터: ${limitedNewData.length}개`)
 
       // 데이터 병합 (기존 파일 수정 방식)
-      const mergedData = this.mergeGymData(existingData, validNewData)
+      const mergedData = this.mergeGymData(existingData, limitedNewData)
       updated = mergedData.length - existingData.length
 
       console.log(`📊 병합 후: ${mergedData.length}개 (${updated > 0 ? '+' : ''}${updated}개 추가)`)
 
+      // 데이터 무결성 최종 검증
+      const finalValidData = mergedData.filter(item => {
+        try {
+          if (!item || typeof item !== 'object') return false
+          if (!item.name || !item.address) return false
+          if (typeof item.name !== 'string' || typeof item.address !== 'string') return false
+          
+          // 순환 참조 검증
+          try {
+            JSON.stringify(item)
+          } catch {
+            return false
+          }
+          
+          return true
+        } catch {
+          return false
+        }
+      })
+
+      if (finalValidData.length !== mergedData.length) {
+        const invalidCount = mergedData.length - finalValidData.length
+        console.warn(`⚠️ 최종 검증에서 ${invalidCount}개 항목이 제외되었습니다`)
+      }
+
       // 안전하게 파일 저장
-      await SafeFileManager.safeWriteFile(
-        gymsRawPath,
-        JSON.stringify(mergedData, null, 2)
-      )
+      try {
+        const jsonData = JSON.stringify(finalValidData, null, 2)
+        
+        // 파일 크기 검증 (최대 100MB)
+        const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB
+        if (jsonData.length > MAX_FILE_SIZE) {
+          throw new Error(`파일 크기가 너무 큽니다: ${(jsonData.length / 1024 / 1024).toFixed(2)}MB (최대 ${MAX_FILE_SIZE / 1024 / 1024}MB)`)
+        }
+
+        await SafeFileManager.safeWriteFile(gymsRawPath, jsonData)
+      } catch (writeError) {
+        throw new Error(`파일 쓰기 실패: ${writeError instanceof Error ? writeError.message : String(writeError)}`)
+      }
 
       console.log(`✅ gyms_raw.json 업데이트 완료: ${updated}개 추가`)
 
@@ -379,62 +509,120 @@ class SafeCrawlingManager {
   }
 
   private mergeGymData(existing: any[], newData: any[]): any[] {
-    const merged = [...existing]
+    // 메모리 사용량 제한 (최대 50000개 항목)
+    const MAX_ITEMS = 50000
+    const MAX_EXISTING_ITEMS = 45000 // 기존 데이터 최대 크기
+    
+    // 기존 데이터 크기 제한
+    const limitedExisting = existing.length > MAX_EXISTING_ITEMS 
+      ? existing.slice(0, MAX_EXISTING_ITEMS)
+      : existing
+    
+    // 새 데이터 크기 제한
+    const maxNewData = MAX_ITEMS - limitedExisting.length
+    const limitedNewData = newData.length > maxNewData 
+      ? newData.slice(0, maxNewData)
+      : newData
+
+    if (existing.length > MAX_EXISTING_ITEMS) {
+      console.warn(`⚠️ 기존 데이터가 너무 많습니다 (${existing.length}개). 최대 ${MAX_EXISTING_ITEMS}개만 사용합니다.`)
+    }
+
+    if (newData.length > maxNewData) {
+      console.warn(`⚠️ 새 데이터가 너무 많습니다 (${newData.length}개). 최대 ${maxNewData}개만 사용합니다.`)
+    }
+
+    // Map을 사용하여 성능 개선 (O(n) vs O(n²))
+    const mergedMap = new Map<string, any>()
     const now = new Date().toISOString()
     let updatedCount = 0
     let addedCount = 0
+    let invalidCount = 0
 
-    for (const newGym of newData) {
-      // 필수 필드 검증
-      if (!newGym.name || !newGym.address) {
-        console.warn('⚠️ 필수 필드가 없는 데이터 건너뛰기:', newGym)
+    // 기존 데이터를 Map에 추가
+    for (const existingGym of limitedExisting) {
+      try {
+        // 필수 필드 검증
+        if (!existingGym.name || !existingGym.address) {
+          invalidCount++
+          continue
+        }
+
+        const key = this.generateGymKey(existingGym.name, existingGym.address)
+        mergedMap.set(key, existingGym)
+      } catch (error) {
+        invalidCount++
+        console.warn(`⚠️ 기존 데이터 항목 처리 실패: ${error instanceof Error ? error.message : String(error)}`)
         continue
-      }
-
-      // 정규화된 검색을 위한 함수
-      const normalizeString = (str: string): string => {
-        return str.trim().toLowerCase().replace(/\s+/g, ' ')
-      }
-
-      const existingIndex = merged.findIndex(
-        (existing) => {
-          if (!existing.name || !existing.address) return false
-          
-          const existingName = normalizeString(existing.name)
-          const existingAddress = normalizeString(existing.address)
-          const newName = normalizeString(newGym.name)
-          const newAddress = normalizeString(newGym.address)
-          
-          return existingName === newName && existingAddress === newAddress
-        }
-      )
-
-      if (existingIndex >= 0) {
-        // 기존 데이터 업데이트 (중복 제거를 위해 기존 데이터 우선)
-        const existingGym = merged[existingIndex]
-        merged[existingIndex] = {
-          ...newGym,
-          ...existingGym, // 기존 데이터 우선
-          updatedAt: now,
-          // 기존 생성일 보존
-          createdAt: existingGym.createdAt || now
-        }
-        updatedCount++
-        console.log(`🔄 업데이트: ${newGym.name}`)
-      } else {
-        // 새 데이터 추가
-        merged.push({
-          ...newGym,
-          createdAt: now,
-          updatedAt: now
-        })
-        addedCount++
-        console.log(`➕ 추가: ${newGym.name}`)
       }
     }
 
-    console.log(`📊 병합 결과: ${updatedCount}개 업데이트, ${addedCount}개 추가`)
+    // 새 데이터 병합
+    for (const newGym of limitedNewData) {
+      try {
+        // 필수 필드 검증
+        if (!newGym.name || !newGym.address) {
+          invalidCount++
+          continue
+        }
+
+        // 데이터 무결성 검증
+        if (typeof newGym.name !== 'string' || typeof newGym.address !== 'string') {
+          invalidCount++
+          console.warn('⚠️ 필수 필드 타입이 올바르지 않습니다:', newGym)
+          continue
+        }
+
+        // 데이터 크기 검증
+        if (newGym.name.length > 200 || newGym.address.length > 500) {
+          invalidCount++
+          console.warn(`⚠️ 데이터 항목이 너무 깁니다: ${newGym.name}`)
+          continue
+        }
+
+        const key = this.generateGymKey(newGym.name, newGym.address)
+        
+        if (mergedMap.has(key)) {
+          // 기존 데이터 업데이트 (기존 데이터 우선)
+          const existingGym = mergedMap.get(key)!
+          mergedMap.set(key, {
+            ...existingGym,
+            ...newGym, // 새 데이터로 보완
+            updatedAt: now,
+            createdAt: existingGym.createdAt || now
+          })
+          updatedCount++
+        } else {
+          // 새 데이터 추가
+          mergedMap.set(key, {
+            ...newGym,
+            createdAt: now,
+            updatedAt: now
+          })
+          addedCount++
+        }
+      } catch (error) {
+        invalidCount++
+        console.warn(`⚠️ 새 데이터 항목 처리 실패: ${error instanceof Error ? error.message : String(error)}`)
+        continue
+      }
+    }
+
+    const merged = Array.from(mergedMap.values())
+    
+    console.log(`📊 병합 결과: ${updatedCount}개 업데이트, ${addedCount}개 추가, ${invalidCount}개 유효하지 않음`)
+    console.log(`📊 최종 데이터: ${merged.length}개 (최대 ${MAX_ITEMS}개)`)
+    
     return merged
+  }
+
+  /**
+   * 헬스장 키 생성 (성능 최적화)
+   */
+  private generateGymKey(name: string, address: string): string {
+    const normalizedName = name.trim().toLowerCase().replace(/\s+/g, '')
+    const normalizedAddress = address.trim().toLowerCase().replace(/\s+/g, '')
+    return `${normalizedName}-${normalizedAddress}`
   }
 
   private createBatches<T>(array: T[], batchSize: number): T[][] {

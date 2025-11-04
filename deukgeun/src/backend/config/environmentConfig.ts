@@ -226,6 +226,12 @@ export const appConfig: AppConfig = {
   port: safeParseInt(process.env.PORT, 5000, "PORT"),
   jwt: jwtConfig,
   corsOrigin: process.env.CORS_ORIGIN?.split(",").filter(origin => origin.trim() !== "") || [
+    // 프로덕션 도메인
+    "https://devtrail.net",
+    "https://www.devtrail.net",
+    "http://43.203.30.167:3000",
+    "http://43.203.30.167:5000",
+    // 개발 환경 localhost
     "http://localhost:3000",
     "http://localhost:5173", 
     "http://localhost:5000",

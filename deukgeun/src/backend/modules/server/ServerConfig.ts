@@ -19,6 +19,12 @@ export interface ServerConfig {
  * 기본 CORS Origins 설정 (캐시된 상수)
  */
 const DEFAULT_CORS_ORIGINS = [
+  // 프로덕션 도메인
+  "https://devtrail.net",
+  "https://www.devtrail.net",
+  "http://43.203.30.167:3000",
+  "http://43.203.30.167:5000",
+  // 개발 환경 localhost
   "http://localhost:3000",
   "http://localhost:5173", 
   "http://localhost:5000",

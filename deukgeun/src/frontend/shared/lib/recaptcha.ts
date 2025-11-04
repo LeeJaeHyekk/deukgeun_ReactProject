@@ -28,7 +28,8 @@ export const config = {
   },
 }
 
-// reCAPTCHA 타입 정의
+// reCAPTCHA 타입 정의 (shared에서 import하여 사용)
+// 타입 충돌 방지를 위해 declare global은 shared/lib/recaptcha.ts에서만 선언
 interface RecaptchaInstance {
   ready: (callback: () => void) => void
   execute: (siteKey: string, options?: { action: string }) => Promise<string>
@@ -41,7 +42,8 @@ interface RecaptchaInstance {
   }
 }
 
-// Global declaration moved to avoid conflicts
+// Window 인터페이스 확장은 shared/lib/recaptcha.ts에서만 수행
+// 타입 충돌 방지를 위해 이 파일에서는 제거
 
 // reCAPTCHA 상태 관리
 interface RecaptchaState {
@@ -63,11 +65,20 @@ const loadRecaptchaScript = (): Promise<void> => {
     return Promise.resolve()
   }
 
+  // HTML에 이미 스크립트가 로드되어 있는지 확인 (Enterprise 포함)
+  const existingScript = document.querySelector('script[src*="recaptcha"]')
+  if (existingScript && window.grecaptcha) {
+    recaptchaState.isLoaded = true
+    console.log("✅ reCAPTCHA 스크립트가 이미 HTML에 로드되어 있습니다")
+    return Promise.resolve()
+  }
+
   // 로딩 중인 경우
   if (recaptchaState.isLoading) {
     return new Promise((resolve, reject) => {
       const checkLoaded = () => {
-        if (recaptchaState.isLoaded) {
+        if (recaptchaState.isLoaded || window.grecaptcha) {
+          recaptchaState.isLoaded = true
           resolve()
         } else if (recaptchaState.error) {
           reject(new Error(recaptchaState.error))
@@ -93,9 +104,34 @@ const loadRecaptchaScript = (): Promise<void> => {
   recaptchaState.isLoading = true
   recaptchaState.error = null
 
+  // HTML에 이미 스크립트가 있는지 확인 (중복 로드 방지)
+  const scriptExists = document.querySelector('script[src*="recaptcha"]')
+  if (scriptExists) {
+    // 이미 스크립트가 있으면 로드 완료를 기다림
+    return new Promise((resolve) => {
+      const checkGrecaptcha = () => {
+        if (window.grecaptcha) {
+          recaptchaState.isLoaded = true
+          recaptchaState.isLoading = false
+          console.log("✅ reCAPTCHA 스크립트가 HTML에서 로드되었습니다")
+          resolve()
+        } else {
+          setTimeout(checkGrecaptcha, 100)
+        }
+      }
+      checkGrecaptcha()
+    })
+  }
+
   return new Promise((resolve, reject) => {
+    // reCAPTCHA Enterprise 사용 여부 확인
+    const isEnterprise = config.RECAPTCHA.SITE_KEY === '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P'
+    const scriptUrl = isEnterprise 
+      ? `https://www.google.com/recaptcha/enterprise.js?render=${config.RECAPTCHA.SITE_KEY}`
+      : `https://www.google.com/recaptcha/api.js?render=${config.RECAPTCHA.SITE_KEY}`
+    
     const script = document.createElement("script")
-    script.src = `https://www.google.com/recaptcha/api.js?render=${config.RECAPTCHA.SITE_KEY}`
+    script.src = scriptUrl
     script.async = true
     script.defer = true
 
@@ -139,9 +175,15 @@ export const executeRecaptcha = async (
         reject(new Error("reCAPTCHA 실행 시간 초과"))
       }, 10000) // 10초 타임아웃
 
-      window.grecaptcha.ready(async () => {
+      // reCAPTCHA Enterprise 사용 여부 확인
+      const isEnterprise = config.RECAPTCHA.SITE_KEY === '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P'
+      const recaptchaInstance = isEnterprise && window.grecaptcha?.enterprise 
+        ? window.grecaptcha.enterprise 
+        : window.grecaptcha
+      
+      recaptchaInstance.ready(async () => {
         try {
-          const token = await window.grecaptcha.execute(
+          const token = await recaptchaInstance.execute(
             config.RECAPTCHA.SITE_KEY,
             { action }
           )

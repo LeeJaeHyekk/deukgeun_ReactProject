@@ -32,6 +32,8 @@ import {
   performStartupValidation, 
   performPostStartupHealthCheck 
 } from "@backend/middlewares/serverStartup"
+// 주간 크롤링 스케줄러
+import { weeklyCrawlingScheduler } from "@backend/schedulers/weeklyCrawlingScheduler"
 
 /**
  * Express 앱 생성 (DB 연결 포함)
@@ -216,6 +218,15 @@ async function setupSafeRoutes(app: express.Application): Promise<void> {
       } catch (error) {
         console.warn("⚠️ Rewards routes failed:", error)
       }
+
+      // Crawling routes (크롤링 상태 및 수동 실행)
+      try {
+        const crawlingRoutes = await import("@backend/routes/crawling")
+        app.use("/api/crawling", crawlingRoutes.default)
+        console.log("✅ Crawling routes configured")
+      } catch (error) {
+        console.warn("⚠️ Crawling routes failed:", error)
+      }
     } else {
       console.log("⚠️ Database not connected, skipping database-dependent routes")
     }
@@ -384,6 +395,11 @@ async function startServer(): Promise<void> {
       } else {
         console.warn("⚠️ Post-startup health check failed, but server is running")
       }
+      
+      // Step 6: 주간 크롤링 스케줄러 시작
+      console.log("🔄 Step 6: Starting weekly crawling scheduler...")
+      weeklyCrawlingScheduler.start()
+      console.log("✅ Weekly crawling scheduler started")
     })
     
     // 서버 에러 핸들링
@@ -400,6 +416,7 @@ async function startServer(): Promise<void> {
     // Graceful shutdown
     process.on('SIGTERM', () => {
       console.log('🔄 SIGTERM received, shutting down gracefully')
+      weeklyCrawlingScheduler.stop()
       server.close(() => {
         console.log('✅ Server closed')
         process.exit(0)
@@ -408,6 +425,7 @@ async function startServer(): Promise<void> {
 
     process.on('SIGINT', () => {
       console.log('🔄 SIGINT received, shutting down gracefully')
+      weeklyCrawlingScheduler.stop()
       server.close(() => {
         console.log('✅ Server closed')
         process.exit(0)

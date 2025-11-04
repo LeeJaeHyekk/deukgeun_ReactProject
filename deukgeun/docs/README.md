@@ -16,12 +16,10 @@
 - 완전 통합 가이드
 
 **주요 문서:**
-- [프로젝트 개요](./01_PROJECT_OVERVIEW.md)
-- [개발 환경 설정](./02_DEVELOPMENT_ENVIRONMENT.md)
-- [환경 변수 빠른 시작](./ENV_QUICK_START.md)
-- [환경 설정 가이드](./ENVIRONMENT_SETUP.md)
-- [백엔드 환경 가이드](./ENVIRONMENT_GUIDE.md)
-- [완전 통합 가이드](./DEUKGEUN_COMPLETE_GUIDE.md)
+- [프로젝트 개요](./01_getting-started/01_PROJECT_OVERVIEW.md)
+- [개발 환경 설정](./01_getting-started/02_DEVELOPMENT_ENVIRONMENT.md)
+- [환경 설정 가이드](./01_getting-started/ENVIRONMENT_SETUP.md)
+- [완전 통합 가이드](./08_deployment/DEUKGEUN_COMPLETE_GUIDE.md)
 
 ### 💻 [02. Development](./02_development/README.md)
 개발 가이드 및 베스트 프랙티스
@@ -53,6 +51,7 @@
 - [향상된 크롤링 기능](./03_crawling/ENHANCED_CRAWLING_FEATURES.md)
 - [향상된 크롤링 시스템 가이드](./03_crawling/ENHANCED_CRAWLING_SYSTEM_GUIDE.md)
 - [주간 크롤링 가이드](./03_crawling/WEEKLY_CRAWLING_GUIDE.md)
+- [백엔드 내부 스케줄링 구조](./03_crawling/BACKEND_INTERNAL_SCHEDULING.md)
 - [크롤링 테스트 가이드](./03_crawling/CRAWLING_TEST_GUIDE.md)
 - [크롤링 403 에러 해결](./03_crawling/CRAWLING_403_ERROR_FIX.md)
 
@@ -110,7 +109,7 @@
 
 **주요 문서:**
 - [보안 가이드](./08_deployment/SECURITY_GUIDE.md)
-- [완전 통합 가이드](./DEUKGEUN_COMPLETE_GUIDE.md) (EC2, PM2, Nginx 포함)
+- [완전 통합 가이드](./08_deployment/DEUKGEUN_COMPLETE_GUIDE.md) (EC2, PM2, Nginx 포함)
 
 ### 🏋️ [09. Equipment](./09_equipment/README.md)
 운동 기구 관련 문서

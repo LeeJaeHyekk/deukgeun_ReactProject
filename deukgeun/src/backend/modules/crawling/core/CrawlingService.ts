@@ -83,82 +83,179 @@ export class CrawlingService {
   }
 
   /**
-   * 공공 API를 통한 헬스장 데이터 수집
+   * 공공 API를 통한 헬스장 데이터 수집 (안전장치 강화)
    */
   async collectFromPublicAPI(): Promise<ProcessedGymData[]> {
     console.log('📡 공공 API에서 헬스장 데이터 수집 시작')
     
+    const startTime = Date.now()
+    const maxExecutionTime = 5 * 60 * 1000 // 5분 타임아웃
+    
     try {
+      // 타임아웃 설정
+      const timeoutPromise = new Promise<ProcessedGymData[]>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('공공 API 데이터 수집 타임아웃 (5분 초과)'))
+        }, maxExecutionTime)
+      })
+
       // 공공 API 소스에서 데이터 수집
-      const publicApiData = await this.publicApiSource.fetchAllPublicAPIData()
+      const apiPromise = this.publicApiSource.fetchAllPublicAPIData()
       
+      const publicApiData = await Promise.race([apiPromise, timeoutPromise])
+      
+      // 데이터 크기 검증
+      if (!Array.isArray(publicApiData)) {
+        console.error('❌ 공공 API 데이터가 배열 형식이 아닙니다')
+        return []
+      }
+
+      // 메모리 사용량 제한 (최대 10000개 항목)
+      const MAX_ITEMS = 10000
+      const limitedData = publicApiData.length > MAX_ITEMS 
+        ? publicApiData.slice(0, MAX_ITEMS)
+        : publicApiData
+
+      if (publicApiData.length > MAX_ITEMS) {
+        console.warn(`⚠️ 공공 API 데이터가 너무 많습니다 (${publicApiData.length}개). 최대 ${MAX_ITEMS}개만 사용합니다.`)
+      }
+
       // 데이터 병합 및 정제
-      const mergedData = this.dataMerger.mergeGymData(publicApiData)
+      const mergedData = this.dataMerger.mergeGymData(limitedData)
       
-      console.log(`✅ 공공 API 데이터 수집 완료: ${mergedData.length}개 헬스장`)
+      const duration = Date.now() - startTime
+      console.log(`✅ 공공 API 데이터 수집 완료: ${mergedData.length}개 헬스장 (${(duration / 1000).toFixed(2)}초)`)
+      
       return mergedData
       
     } catch (error) {
+      const duration = Date.now() - startTime
       console.error('❌ 공공 API 데이터 수집 실패:', error)
+      if (error instanceof Error) {
+        console.error(`   에러 메시지: ${error.message}`)
+        if (error.stack) {
+          console.error(`   스택 트레이스: ${error.stack.substring(0, 500)}`)
+        }
+      }
+      console.error(`   소요 시간: ${(duration / 1000).toFixed(2)}초`)
       return []
     }
   }
 
   /**
-   * 특정 헬스장 정보 크롤링 (웹 크롤링)
+   * 특정 헬스장 정보 크롤링 (웹 크롤링, 안전장치 강화)
    */
   async crawlGymDetails(options: CrawlingOptions): Promise<ProcessedGymData | null> {
+    // 입력 검증
+    if (!options || typeof options !== 'object') {
+      console.error('❌ 크롤링 옵션이 유효하지 않습니다')
+      return null
+    }
+
     if (!this.config.enableCrawling) {
       console.log('⚠️ 크롤링이 비활성화되어 있습니다')
       return null
     }
 
-    if (!options.gymName) {
-      console.log('❌ 헬스장 이름이 필요합니다')
+    if (!options.gymName || typeof options.gymName !== 'string' || options.gymName.trim().length === 0) {
+      console.error('❌ 헬스장 이름이 필요합니다')
       return null
     }
 
+    // 데이터 크기 검증
+    if (options.gymName.length > 200) {
+      console.error(`❌ 헬스장 이름이 너무 깁니다: ${options.gymName.length}자 (최대 200자)`)
+      return null
+    }
+
+    if (options.gymAddress && options.gymAddress.length > 500) {
+      console.error(`❌ 헬스장 주소가 너무 깁니다: ${options.gymAddress.length}자 (최대 500자)`)
+      return null
+    }
+
+    const startTime = Date.now()
+    const maxExecutionTime = 2 * 60 * 1000 // 2분 타임아웃
+    
     console.log(`🔍 헬스장 정보 크롤링 시작: ${options.gymName}`)
     
     try {
+      // 타임아웃 설정
+      const timeoutPromise = new Promise<ProcessedGymData | null>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('헬스장 크롤링 타임아웃 (2분 초과)'))
+        }, maxExecutionTime)
+      })
+
       // 웹 크롤링으로 헬스장 정보 수집
-      // 웹 크롤링은 OptimizedGymCrawlingSource를 통해 처리
-      const webResult = await this.optimizedCrawlingSource.crawlGymsFromRawData([{
-        name: options.gymName || '',
-        address: options.gymAddress || '',
+      const crawlPromise = this.optimizedCrawlingSource.crawlGymsFromRawData([{
+        name: options.gymName.trim(),
+        address: (options.gymAddress || '').trim(),
         source: 'manual_search',
         confidence: 0.5
       }])
       
-      if (!webResult) {
+      const webResult = await Promise.race([crawlPromise, timeoutPromise])
+      
+      if (!webResult || !Array.isArray(webResult) || webResult.length === 0) {
         console.log(`❌ 헬스장 크롤링 실패: ${options.gymName}`)
         return null
       }
-      
-      console.log(`✅ 헬스장 크롤링 완료: ${options.gymName}`)
-      return webResult[0] || null
+
+      // 결과 검증
+      const result = webResult[0]
+      if (!result || typeof result !== 'object') {
+        console.error(`❌ 헬스장 크롤링 결과가 유효하지 않습니다: ${options.gymName}`)
+        return null
+      }
+
+      // 필수 필드 검증
+      if (!result.name || !result.address) {
+        console.warn(`⚠️ 헬스장 크롤링 결과에 필수 필드가 없습니다: ${options.gymName}`)
+        return null
+      }
+
+      const duration = Date.now() - startTime
+      console.log(`✅ 헬스장 크롤링 완료: ${options.gymName} (${(duration / 1000).toFixed(2)}초)`)
+      return result
       
     } catch (error) {
+      const duration = Date.now() - startTime
       console.error(`❌ 헬스장 크롤링 오류: ${options.gymName}`, error)
+      if (error instanceof Error) {
+        console.error(`   에러 메시지: ${error.message}`)
+        if (error.stack) {
+          console.error(`   스택 트레이스: ${error.stack.substring(0, 500)}`)
+        }
+      }
+      console.error(`   소요 시간: ${(duration / 1000).toFixed(2)}초`)
       return null
     }
   }
 
   /**
-   * 통합 크롤링 실행 (새로운 구조)
+   * 통합 크롤링 실행 (새로운 구조, 안전장치 강화)
    */
   async executeIntegratedCrawling(): Promise<CrawlingResult> {
+    // 중복 실행 방지
     if (this.status.isRunning) {
-      throw new Error('크롤링이 이미 실행 중입니다')
+      const errorMsg = '크롤링이 이미 실행 중입니다'
+      console.error(`❌ ${errorMsg}`)
+      throw new Error(errorMsg)
     }
 
+    // 실행 락 설정
     this.status.isRunning = true
     this.status.startTime = new Date()
     this.status.errors = []
     this.status.currentStep = '초기화'
 
     // 히스토리 추적 시작
-    const sessionId = this.historyTracker.startSession(this.config)
+    let sessionId: string | null = null
+    try {
+      sessionId = this.historyTracker.startSession(this.config)
+    } catch (error) {
+      console.warn('⚠️ 히스토리 추적 시작 실패:', error)
+    }
 
     console.log('🚀 통합 크롤링 시작 (새로운 구조)')
 

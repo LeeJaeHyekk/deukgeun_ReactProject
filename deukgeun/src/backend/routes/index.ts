@@ -144,6 +144,15 @@ if (isDatabaseConnected) {
   router.use("/enhanced-gym", enhancedGymRoutes)
   console.log("✅ Enhanced Gym routes configured")
   
+  // Crawling routes (크롤링 상태 및 수동 실행)
+  try {
+    const crawlingRoutes = await import("@backend/routes/crawling")
+    router.use("/crawling", crawlingRoutes.default)
+    console.log("✅ Crawling routes configured")
+  } catch (error) {
+    console.warn("⚠️ Crawling routes failed:", error)
+  }
+  
   console.log("✅ All API routes configured (full functionality)")
 } else {
   console.log("🔄 Step 3: Configuring limited API routes (database disconnected)...")

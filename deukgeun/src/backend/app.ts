@@ -29,6 +29,12 @@ const __dirname = getDirname()
 // 간단한 config 객체 정의
 const config = {
   corsOrigin: process.env.CORS_ORIGIN?.split(",").filter(origin => origin.trim() !== "") || [
+    // 프로덕션 도메인
+    "https://devtrail.net",
+    "https://www.devtrail.net",
+    "http://43.203.30.167:3000",
+    "http://43.203.30.167:5000",
+    // 개발 환경 localhost
     "http://localhost:3000",
     "http://localhost:5173", 
     "http://localhost:5000",
@@ -61,8 +67,14 @@ const getCorsOptions = () => {
   console.log(`   - Environment: ${config.environment}`)
   console.log(`   - Is Development: ${isDevelopment}`)
   
-  // 기본 localhost origins (환경 변수가 없을 때 사용)
-  const defaultLocalhostOrigins = [
+  // 기본 origins (환경 변수가 없을 때 사용)
+  const defaultOrigins = [
+    // 프로덕션 도메인
+    "https://devtrail.net",
+    "https://www.devtrail.net",
+    "http://43.203.30.167:3000",
+    "http://43.203.30.167:5000",
+    // 개발 환경 localhost
     "http://localhost:3000",
     "http://localhost:5173",
     "http://localhost:5000",
@@ -72,19 +84,19 @@ const getCorsOptions = () => {
     "http://127.0.0.1:5000",
     "http://127.0.0.1:5001",
   ]
-  console.log(`   - Default localhost origins: ${defaultLocalhostOrigins.length} origins`)
+  console.log(`   - Default origins: ${defaultOrigins.length} origins`)
   
   // 환경 변수에서 CORS origins 가져오기
   let envOrigins = config.corsOrigin && config.corsOrigin.length > 0 
     ? config.corsOrigin 
-    : (isDevelopment ? defaultLocalhostOrigins : [])
+    : (isDevelopment ? defaultOrigins : defaultOrigins.filter(origin => !origin.startsWith('http://localhost') && !origin.startsWith('http://127.0.0.1')))
   
   console.log(`   - Environment CORS origins: ${envOrigins.length} origins`)
   console.log(`   - Environment CORS origins: ${envOrigins.join(', ')}`)
   
   // 개발 환경에서는 항상 localhost origins 포함
   if (isDevelopment) {
-    envOrigins = [...new Set([...envOrigins, ...defaultLocalhostOrigins])]
+    envOrigins = [...new Set([...envOrigins, ...defaultOrigins])]
     console.log(`   - Final origins (with defaults): ${envOrigins.length} origins`)
   }
   
@@ -131,11 +143,18 @@ app.use(
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "https:"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: [
+          "'self'", 
+          "'unsafe-inline'",
+          "https://www.google.com",
+          "https://www.gstatic.com"
+        ],
         connectSrc: [
           "'self'",
           "https://api.kakao.com",
           "https://maps.googleapis.com",
+          "https://www.google.com",
+          "https://recaptchaenterprise.googleapis.com",
         ],
       },
     },

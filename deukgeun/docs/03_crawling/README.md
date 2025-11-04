@@ -4,14 +4,14 @@ Deukgeun 프로젝트의 크롤링 시스템에 관한 모든 문서입니다.
 
 ## 📚 문서 목록
 
-### [크롤링 모듈 README](../CRAWLING_MODULE_README.md)
+### [크롤링 모듈 README](./CRAWLING_MODULE_README.md)
 크롤링 모듈의 구조 및 사용법
 - 디렉토리 구조
 - 시스템 변경사항
 - 새로운 크롤링 플로우
 - 사용법
 
-### [향상된 크롤링 가이드](../ENHANCED_CRAWLING_GUIDE.md)
+### [향상된 크롤링 가이드](./ENHANCED_CRAWLING_GUIDE.md)
 개선된 크롤링 시스템의 구조, 기능, 사용법
 - 시스템 구조
 - 주요 기능
@@ -21,47 +21,57 @@ Deukgeun 프로젝트의 크롤링 시스템에 관한 모든 문서입니다.
 - 데이터 병합
 - 히스토리 추적
 
-### [향상된 크롤링 기능](../ENHANCED_CRAWLING_FEATURES.md)
+### [향상된 크롤링 기능](./ENHANCED_CRAWLING_FEATURES.md)
 향상된 크롤링 시스템의 기능 목록
 - 기능 개요
 - 구현 내용
 
-### [향상된 크롤링 시스템 가이드](../ENHANCED_CRAWLING_SYSTEM_GUIDE.md)
+### [향상된 크롤링 시스템 가이드](./ENHANCED_CRAWLING_SYSTEM_GUIDE.md)
 향상된 크롤링 시스템 전체 가이드
 - 시스템 개요
 - 아키텍처
 - 사용법
 
-### [주간 크롤링 가이드](../WEEKLY_CRAWLING_GUIDE.md)
+### [주간 크롤링 가이드](./WEEKLY_CRAWLING_GUIDE.md)
 주간 크롤링 스케줄링 및 관리
-- 주간 크롤링 설정
-- 스케줄링
-- 관리 방법
+- 백엔드 서버 내부 스케줄링 구조
+- 자동 실행 방법
+- 수동 실행 방법
+- 크롤링 상태 확인
+- 모니터링
 
-### [크롤링 테스트 가이드](../CRAWLING_TEST_GUIDE.md)
+### [백엔드 내부 스케줄링 구조](./BACKEND_INTERNAL_SCHEDULING.md)
+백엔드 서버 내부 스케줄링 구조 설명
+- 구조 비교 (PM2 Cron vs 백엔드 내부 스케줄링)
+- 구현 구조
+- 실행 흐름
+- 장점 상세
+- 구현 예시
+
+### [크롤링 테스트 가이드](./CRAWLING_TEST_GUIDE.md)
 크롤링 시스템 테스트 방법
 - 테스트 스크립트 개요
 - 테스트 실행 방법
 - 테스트 결과 확인
 
-### [크롤링 403 에러 해결](../CRAWLING_403_ERROR_FIX.md)
+### [크롤링 403 에러 해결](./CRAWLING_403_ERROR_FIX.md)
 네이버 카페 검색 403 에러 해결 방안
 - 문제 분석
 - 원인
 - 해결 방법
 
-### [크롤링 요약](../CRAWLING_SUMMARY.md)
+### [크롤링 요약](./CRAWLING_SUMMARY.md)
 크롤링 시스템 403 에러 해결 요약
 - 문제 상황
 - 원인 분석
 - 해결 방법
 
-### [크롤링 시스템 요약](../CRAWLING_SYSTEM_SUMMARY.md)
+### [크롤링 시스템 요약](./CRAWLING_SYSTEM_SUMMARY.md)
 크롤링 시스템 정상 동작 확인 및 수정 요약
 - 검증 요청 사항
 - 수정 내역
 
-### [크롤링 테스트 요약](../crawling-test-summary.md)
+### [크롤링 테스트 요약](./crawling-test-summary.md)
 크롤링 테스트 결과 요약
 - 테스트 결과
 - 문제점 및 해결

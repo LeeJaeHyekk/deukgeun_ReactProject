@@ -91,8 +91,13 @@ class OptimizedBuildProcess {
     const startTime = Date.now()
     
     try {
-      log('🚀 최적화된 빌드 프로세스를 시작합니다...', 'bright')
+      // 프로덕션 환경 변수 설정
+      process.env.NODE_ENV = process.env.NODE_ENV || 'production'
+      process.env.MODE = process.env.MODE || 'production'
+      
+      log('🚀 최적화된 빌드 프로세스를 시작합니다... (프로덕션 모드)', 'bright')
       logSeparator('=', 60, 'bright')
+      log(`🌍 환경: ${process.env.NODE_ENV}`, 'cyan')
       
       // 1. 빌드 전 준비
       await this.prepareBuild()
@@ -168,6 +173,15 @@ class OptimizedBuildProcess {
     }
     
     try {
+      // 프로덕션 환경 변수 설정
+      const env = {
+        ...process.env,
+        NODE_ENV: 'production',
+        MODE: 'production',
+        CORS_ORIGIN: process.env.CORS_ORIGIN || 'https://devtrail.net,https://www.devtrail.net,http://43.203.30.167:3000,http://43.203.30.167:5000',
+        RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY || '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P',
+      }
+      
       // 백엔드 TypeScript 컴파일 실행
       // 타입 오류가 있어도 빌드 파일은 생성될 수 있으므로 에러를 catch하여 처리
       const tscCommand = 'npx tsc -p src/backend/tsconfig.build.json'
@@ -177,7 +191,8 @@ class OptimizedBuildProcess {
         execSync(tscCommand, {
           stdio: this.options.verbose ? 'inherit' : 'pipe',
           cwd: this.options.projectRoot,
-          timeout: 300000
+          timeout: 300000,
+          env: env
         })
         tscSuccess = true
       } catch (tscError) {
@@ -248,14 +263,25 @@ class OptimizedBuildProcess {
     }
     
     try {
-      // Vite 빌드 실행
-      execSync('npx vite build', {
+      // 프로덕션 환경 변수 설정
+      const env = {
+        ...process.env,
+        NODE_ENV: 'production',
+        MODE: 'production',
+        VITE_BACKEND_URL: process.env.VITE_BACKEND_URL || 'http://43.203.30.167:5000',
+        VITE_FRONTEND_URL: process.env.VITE_FRONTEND_URL || 'https://devtrail.net',
+        VITE_RECAPTCHA_SITE_KEY: process.env.VITE_RECAPTCHA_SITE_KEY || '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P',
+      }
+      
+      // Vite 빌드 실행 (프로덕션 모드)
+      execSync('npx vite build --mode production', {
         stdio: this.options.verbose ? 'inherit' : 'pipe',
         cwd: this.options.projectRoot,
-        timeout: 300000 // 5분
+        timeout: 300000, // 5분
+        env: env
       })
       
-      logSuccess('프론트엔드 빌드 완료')
+      logSuccess('프론트엔드 빌드 완료 (프로덕션 모드)')
     } catch (error) {
       logError(`프론트엔드 빌드 실패: ${(error as Error).message}`)
       throw error

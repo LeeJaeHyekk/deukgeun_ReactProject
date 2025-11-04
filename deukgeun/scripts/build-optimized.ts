@@ -146,6 +146,13 @@ class OptimizedBuildProcess {
       return
     }
     
+    // 로그 디렉토리 생성 (EC2 환경 대비)
+    const logsDir = path.join(this.options.projectRoot, 'logs')
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true })
+      log('✅ 로그 디렉토리 생성 완료', 'green')
+    }
+    
     // dist 폴더 정리
     if (this.options.cleanDist && fs.existsSync(this.distPath)) {
       log('dist 폴더를 정리합니다...', 'blue')
@@ -187,12 +194,16 @@ class OptimizedBuildProcess {
       const tscCommand = 'npx tsc -p src/backend/tsconfig.build.json'
       let tscSuccess = false
       
+      // 경로 구분자 정규화 (EC2 Linux 환경 대비)
+      const normalizedRoot = this.options.projectRoot.replace(/\\/g, '/')
+      
       try {
         execSync(tscCommand, {
           stdio: this.options.verbose ? 'inherit' : 'pipe',
-          cwd: this.options.projectRoot,
+          cwd: normalizedRoot,
           timeout: 300000,
-          env: env
+          env: env,
+          shell: process.platform === 'win32' ? undefined : '/bin/bash'
         })
         tscSuccess = true
       } catch (tscError) {
@@ -273,12 +284,16 @@ class OptimizedBuildProcess {
         VITE_RECAPTCHA_SITE_KEY: process.env.VITE_RECAPTCHA_SITE_KEY || '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P',
       }
       
+      // 경로 구분자 정규화 (EC2 Linux 환경 대비)
+      const normalizedRoot = this.options.projectRoot.replace(/\\/g, '/')
+      
       // Vite 빌드 실행 (프로덕션 모드)
       execSync('npx vite build --mode production', {
         stdio: this.options.verbose ? 'inherit' : 'pipe',
-        cwd: this.options.projectRoot,
+        cwd: normalizedRoot,
         timeout: 300000, // 5분
-        env: env
+        env: env,
+        shell: process.platform === 'win32' ? undefined : '/bin/bash'
       })
       
       logSuccess('프론트엔드 빌드 완료 (프로덕션 모드)')

@@ -31,10 +31,12 @@ module.exports = {
         RECAPTCHA_SITE_KEY: '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P',
         NODE_PATH: './dist/backend/backend'
       },
-      // 로그 설정 개선
+      // 로그 설정 개선 (EC2 환경에서 절대 경로 사용)
       error_file: './logs/backend-error.log',
       out_file: './logs/backend-out.log',
       log_file: './logs/backend-combined.log',
+      // 로그 디렉토리 자동 생성 보장
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
       time: true,
       // 메모리 설정 최적화
       max_memory_restart: '2G',

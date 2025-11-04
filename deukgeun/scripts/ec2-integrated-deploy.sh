@@ -866,6 +866,16 @@ start_services() {
         return 1
     fi
     
+    # 로그 디렉토리 생성 (PM2 시작 전)
+    mkdir -p "$LOG_DIR" || {
+        log_warning "로그 디렉토리 생성 실패, 계속 진행..."
+    }
+    
+    # 로그 디렉토리 권한 설정 (EC2 환경)
+    chmod -R 755 "$LOG_DIR" 2>/dev/null || {
+        log_warning "로그 디렉토리 권한 설정 실패"
+    }
+    
     # 기존 서비스 중지 (안전하게)
     log_info "기존 PM2 서비스 중지 중..."
     if pm2 list | grep -q "online\|restarting"; then
@@ -878,7 +888,11 @@ start_services() {
     pm2 flush 2>/dev/null || true
     
     # PM2 서비스 시작 (타임아웃 포함)
-    log_info "PM2로 서비스 시작 중..."
+    log_info "PM2로 서비스 시작 중... (EC2 환경: production)"
+    
+    # EC2 환경 변수 설정
+    export NODE_ENV=production
+    export MODE=production
     
     if ! run_with_timeout "$MAX_SERVICE_START_TIME" "pm2 start ecosystem.config.cjs --env production" "PM2 서비스 시작"; then
         log_error "PM2 서비스 시작 실패"
@@ -1271,6 +1285,13 @@ main() {
     
     # 6. 빌드 실행 (필수)
     log_step "[6/$total_steps] 빌드 실행"
+    
+    # 로그 디렉토리 생성 (빌드 전)
+    mkdir -p "$LOG_DIR" || {
+        log_warning "로그 디렉토리 생성 실패, 계속 진행..."
+    }
+    
+    # 빌드 실행
     if ! run_build; then
         log_error "빌드 실패"
         step_errors=$((step_errors + 1))

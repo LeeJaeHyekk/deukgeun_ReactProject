@@ -29,6 +29,35 @@ Deukgeun 프로젝트의 배포 및 운영 관련 문서입니다.
 - 문제 해결
 - 보안
 
+### [SSH 연결 문제 해결](./SSH_CONNECTION_TROUBLESHOOTING.md)
+SSH 연결 실패 문제 해결 가이드
+- EC2 인스턴스 상태 확인
+- 보안 그룹 설정
+- SSH 키 파일 권한
+- 사용자 이름 확인
+- 빠른 해결 방법
+
+### [Cursor Remote SSH 설정](./CURSOR_REMOTE_SSH_SETUP.md)
+Cursor Remote SSH 확장 설정 가이드
+- Windows SSH Config 파일 설정
+- SSH 키 파일 권한
+- Cursor 설정 확인
+- 연결 문제 해결
+
+### [Cursor SSH 빠른 해결](./CURSOR_SSH_FIX.md)
+Cursor Remote SSH 연결 문제 즉시 해결 방법
+- SSH Config 파일 수정
+- SSH 키 파일 권한 설정
+- Cursor 설정 확인
+- EC2 인스턴스 상태 확인
+
+### [EC2 환경 문제 해결](./EC2_ENVIRONMENT_FIXES.md)
+EC2 환경에서 발생할 수 있는 문제 및 해결 방법
+- Windows 전용 빌드 명령어 문제
+- 경로 구분자 문제
+- 환경 변수 설정 문제
+- 로그 디렉토리 권한 문제
+
 ## 🔧 배포 프로세스
 
 ### 빌드

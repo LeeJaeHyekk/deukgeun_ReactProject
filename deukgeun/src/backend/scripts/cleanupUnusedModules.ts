@@ -41,17 +41,7 @@ const UNUSED_CRAWLING_MODULES = [
  * 사용하지 않는 스크립트들
  */
 const UNUSED_SCRIPTS = [
-  "src/backend/scripts/test-crawling-basic.ts",
-  "src/backend/scripts/test-crawling-complex.ts",
-  "src/backend/scripts/test-crawling-fallback.ts",
-  "src/backend/scripts/test-crawling-performance.ts",
-  "src/backend/scripts/test-crawling-stress.ts",
-  "src/backend/scripts/test-cross-validation-crawling.ts",
-  "src/backend/scripts/test-improved-crawling.ts",
-  "src/backend/scripts/test-integrated-crawling.ts",
-  "src/backend/scripts/test-naver-cafe-search.ts",
-  "src/backend/scripts/test-optimized-crawling.ts",
-  "src/backend/scripts/test-seoul-api.ts",
+  // 이미 제거된 파일들 (목록에만 유지)
   "src/backend/scripts/test-crawling-simple.cjs",
   "src/backend/scripts/test-crawling-simple.mjs",
   "src/backend/scripts/test-data-merging.cjs",
@@ -61,7 +51,14 @@ const UNUSED_SCRIPTS = [
   "src/backend/scripts/test-results-simulation.cjs",
   "src/backend/scripts/test-results-simulation.mjs",
   "src/backend/scripts/test-simple-crawling.cjs",
-  "src/backend/scripts/test-simple-crawling.mjs"
+  "src/backend/scripts/test-simple-crawling.mjs",
+  // 사용되지 않는 테스트 파일들 (다른 파일에서 import되지 않음)
+  "src/backend/scripts/testCrossValidationCrawling.ts",
+  "src/backend/scripts/testNaverCafeSearch.ts",
+  "src/backend/scripts/testIntegratedCrawling.ts",
+  "src/backend/scripts/testImprovedCrawling.ts",
+  "src/backend/scripts/testOptimizedCrawling.ts",
+  "src/backend/scripts/testSeoulApi.ts"
 ]
 
 /**

@@ -35,7 +35,9 @@ export const useErrorHandling = () => {
   // 비디오 에러 설정
   const setVideoErrorState = useCallback((error: boolean, message?: string) => {
     setVideoError(error)
-    if (error && message) {
+    // 비디오 오류는 dataError로 설정하지 않음 (videoFallback UI로 처리)
+    // 단, 명시적으로 메시지가 전달된 경우에만 dataError 설정
+    if (error && message && message !== ERROR_MESSAGES.VIDEO_LOAD_ERROR) {
       setDataError(message)
     }
   }, [])

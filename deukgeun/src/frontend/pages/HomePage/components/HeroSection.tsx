@@ -3,7 +3,7 @@ import styles from '../HomePage.module.css'
 import { ERROR_MESSAGES } from '../constants'
 
 interface HeroSectionProps {
-  heroVideoUrl: string
+  heroVideoUrl?: string
   onVideoError: (error: boolean, message?: string) => void
   videoError: boolean
   isAuthenticated: boolean
@@ -22,6 +22,9 @@ export const HeroSection = ({
   onLogin,
   onLocation
 }: HeroSectionProps) => {
+  // 비디오 URL이 유효한지 확인 (빈 문자열이나 undefined 처리)
+  const validVideoUrl = heroVideoUrl && heroVideoUrl.trim() !== '' ? heroVideoUrl : '/video/serviceMovie.mp4'
+  
   const handleVideoError = useCallback((e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
     console.error('Video loading error:', e)
     onVideoError(true, ERROR_MESSAGES.VIDEO_LOAD_ERROR)
@@ -30,7 +33,7 @@ export const HeroSection = ({
   return (
     <div className={styles.heroSection}>
       <video
-        src={heroVideoUrl}
+        src={validVideoUrl}
         autoPlay
         muted
         loop

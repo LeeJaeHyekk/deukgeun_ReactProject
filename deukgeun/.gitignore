@@ -93,6 +93,7 @@ authorized_keys
 # Deployment and infrastructure files
 docker-compose.override.yml
 docker-compose.local.yml
+docker-compose.ec2.yml
 *.bat
 *.sh
 !scripts/**/*.sh
@@ -100,6 +101,7 @@ docker-compose.local.yml
 connect-ec2.bat
 quick-deploy.bat
 deploy-ssh-commands.sh
+ssh-config
 
 # Database configuration and credentials
 ormconfig.json
@@ -138,7 +140,9 @@ src/data/*.json
 
 # Configuration files with sensitive data
 nginx.conf
+nginx-site.conf
 *.conf
+!nginx.conf.example
 config.json
 secrets.json
 credentials.json
@@ -146,6 +150,12 @@ credentials.json
 # Scripts with hardcoded sensitive values
 scripts/build-optimized.ts
 scripts/setup-database.sh
+scripts/ec2-integrated-deploy.sh
+scripts/ssh-permission-fixer.ts
+scripts/ssh-diagnostic.ts
+scripts/optimize-environment.sh
+scripts/setup-windows-ssh-config.ps1
+scripts/fix-windows-ssh-config.ps1
 
 # Documentation files with hardcoded keys
 RECAPTCHA_V3_FIX_COMPLETE.md
@@ -153,6 +163,8 @@ recaptcha_v3_summary.md
 Recaptcha_troubleshooting.md
 RECAPTCHA_SETUP_GUIDE.md
 docs/00_security/SECURITY_AUDIT_REPORT.md
+# Note: docs 폴더의 문서들은 이미 parameterize되었지만, 
+# 하드코딩된 값이 포함된 문서는 개별적으로 추가 가능
 
 # IDE and editor specific
 .vscode/settings.json

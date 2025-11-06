@@ -269,6 +269,46 @@ const initialState: WorkoutStoreState = {
 }
 
 // ============================================================================
+// Helper Functions for Validation
+// ============================================================================
+
+/**
+ * ID 유효성 검증
+ */
+function isValidId(id: number): boolean {
+  return (
+    typeof id === "number" &&
+    !isNaN(id) &&
+    isFinite(id) &&
+    id > 0 &&
+    Number.isInteger(id)
+  )
+}
+
+/**
+ * 배열 타입 검증 및 정규화
+ */
+function ensureArray<T>(data: T[] | null | undefined): T[] {
+  if (!data) return []
+  if (!Array.isArray(data)) {
+    console.warn("[workoutStore] 배열이 아닌 데이터를 배열로 변환:", data)
+    return []
+  }
+  return data
+}
+
+/**
+ * 객체 타입 검증
+ */
+function ensureObject<T>(data: T | null | undefined, fallback: T): T {
+  if (!data || typeof data !== "object") {
+    console.warn("[workoutStore] 유효하지 않은 객체 데이터:", data)
+    return fallback
+  }
+  return data
+}
+
+// ============================================================================
 // Store Implementation
 // ============================================================================
 
@@ -283,6 +323,13 @@ export const useWorkoutStore = create<WorkoutStore>()(
         // ============================================================================
 
         fetchPlans: async () => {
+          // 중복 실행 방지
+          const currentState = get()
+          if (currentState.loading.plans.isLoading) {
+            console.warn("[workoutStore] fetchPlans 이미 로딩 중입니다")
+            return
+          }
+
           console.log("[workoutStore] fetchPlans 호출됨", {
             timestamp: new Date().toISOString(),
             stack: new Error().stack?.split("\n").slice(1, 4).join("\n"),
@@ -297,11 +344,13 @@ export const useWorkoutStore = create<WorkoutStore>()(
 
           try {
             const plans = await workoutApi.getPlans()
+            // API 응답 검증
+            const validatedPlans = ensureArray(plans)
             console.log("[workoutStore] fetchPlans 완료", {
-              plansCount: plans.length,
+              plansCount: validatedPlans.length,
             })
             set(state => ({
-              plans,
+              plans: validatedPlans,
               loading: {
                 ...state.loading,
                 plans: {
@@ -327,6 +376,18 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         createPlan: async (planData: CreatePlanRequest) => {
+          // 입력 데이터 검증
+          if (!planData || typeof planData !== "object") {
+            console.error("[workoutStore] createPlan: 유효하지 않은 planData", planData)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 계획 데이터입니다",
+              },
+            }))
+            return null
+          }
+
           set(state => ({
             sharedState: {
               ...state.sharedState,
@@ -336,6 +397,10 @@ export const useWorkoutStore = create<WorkoutStore>()(
 
           try {
             const newPlan = await workoutApi.createPlan(planData)
+            // API 응답 검증
+            if (!newPlan || typeof newPlan !== "object") {
+              throw new Error("생성된 계획 데이터가 유효하지 않습니다")
+            }
             set(state => ({
               plans: [...state.plans, newPlan],
               sharedState: {
@@ -346,6 +411,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
             }))
             return newPlan
           } catch (error) {
+            console.error("[workoutStore] createPlan 실패", error)
             set(state => ({
               sharedState: {
                 ...state.sharedState,
@@ -359,6 +425,43 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         updatePlan: async (planId: number, updates: UpdatePlanRequest) => {
+          // ID 유효성 검증
+          if (!isValidId(planId)) {
+            console.error("[workoutStore] updatePlan: 유효하지 않은 planId", planId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 계획 ID입니다",
+              },
+            }))
+            return null
+          }
+
+          // 업데이트 데이터 검증
+          if (!updates || typeof updates !== "object") {
+            console.error("[workoutStore] updatePlan: 유효하지 않은 updates", updates)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 업데이트 데이터입니다",
+              },
+            }))
+            return null
+          }
+
+          // 존재하는 계획인지 확인
+          const existingPlan = get().plans.find(plan => plan.id === planId)
+          if (!existingPlan) {
+            console.warn("[workoutStore] updatePlan: 존재하지 않는 계획", planId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "존재하지 않는 계획입니다",
+              },
+            }))
+            return null
+          }
+
           set(state => ({
             sharedState: {
               ...state.sharedState,
@@ -368,6 +471,10 @@ export const useWorkoutStore = create<WorkoutStore>()(
 
           try {
             const updatedPlan = await workoutApi.updatePlan(planId, updates)
+            // API 응답 검증
+            if (!updatedPlan || typeof updatedPlan !== "object") {
+              throw new Error("업데이트된 계획 데이터가 유효하지 않습니다")
+            }
             set(state => ({
               plans: state.plans.map(plan =>
                 plan.id === planId ? updatedPlan : plan
@@ -380,6 +487,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
             }))
             return updatedPlan
           } catch (error) {
+            console.error("[workoutStore] updatePlan 실패", error)
             set(state => ({
               sharedState: {
                 ...state.sharedState,
@@ -393,6 +501,26 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         deletePlan: async (planId: number) => {
+          // ID 유효성 검증
+          if (!isValidId(planId)) {
+            console.error("[workoutStore] deletePlan: 유효하지 않은 planId", planId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 계획 ID입니다",
+              },
+            }))
+            return false
+          }
+
+          // 존재하는 계획인지 확인
+          const existingPlan = get().plans.find(plan => plan.id === planId)
+          if (!existingPlan) {
+            console.warn("[workoutStore] deletePlan: 존재하지 않는 계획", planId)
+            // 존재하지 않아도 성공으로 처리 (이미 삭제된 상태)
+            return true
+          }
+
           set(state => ({
             sharedState: {
               ...state.sharedState,
@@ -411,6 +539,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
             }))
             return true
           } catch (error) {
+            console.error("[workoutStore] deletePlan 실패", error)
             set(state => ({
               sharedState: {
                 ...state.sharedState,
@@ -424,27 +553,58 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         duplicatePlan: async (planId: number) => {
+          // ID 유효성 검증
+          if (!isValidId(planId)) {
+            console.error("[workoutStore] duplicatePlan: 유효하지 않은 planId", planId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 계획 ID입니다",
+              },
+            }))
+            return null
+          }
+
           const plan = get().plans.find(p => p.id === planId)
-          if (!plan) return null
+          if (!plan) {
+            console.warn("[workoutStore] duplicatePlan: 존재하지 않는 계획", planId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "존재하지 않는 계획입니다",
+              },
+            }))
+            return null
+          }
+
+          // exercises 배열 검증 및 안전한 매핑
+          const exercises = ensureArray(plan.exercises).map((exercise: any) => {
+            // exercise 객체 검증
+            if (!exercise || typeof exercise !== "object") {
+              console.warn("[workoutStore] duplicatePlan: 유효하지 않은 exercise", exercise)
+              return null
+            }
+            return {
+              machineId: exercise.machineId ?? undefined,
+              exerciseName: exercise.exerciseName ?? "",
+              exerciseOrder: exercise.exerciseOrder ?? 0,
+              sets: exercise.sets ?? 0,
+              repsRange: exercise.repsRange ?? undefined,
+              weightRange: exercise.weightRange ?? undefined,
+              restSeconds: exercise.restSeconds ?? 0,
+              notes: exercise.notes ?? undefined,
+            }
+          }).filter((exercise): exercise is NonNullable<typeof exercise> => exercise !== null)
 
           const duplicateData: CreatePlanRequest = {
-            name: `${plan.name} (복사본)`,
-            description: plan.description,
-            difficulty: plan.difficulty,
-            estimatedDurationMinutes: plan.estimatedDurationMinutes,
-            targetMuscleGroups: plan.targetMuscleGroups,
-            isTemplate: plan.isTemplate,
+            name: `${plan.name || "이름 없음"} (복사본)`,
+            description: plan.description ?? undefined,
+            difficulty: plan.difficulty ?? "beginner",
+            estimatedDurationMinutes: plan.estimatedDurationMinutes ?? 0,
+            targetMuscleGroups: ensureArray(plan.targetMuscleGroups),
+            isTemplate: plan.isTemplate ?? false,
             isPublic: false,
-            exercises: plan.exercises.map((exercise: any) => ({
-              machineId: exercise.machineId,
-              exerciseName: exercise.exerciseName,
-              exerciseOrder: exercise.exerciseOrder,
-              sets: exercise.sets,
-              repsRange: exercise.repsRange,
-              weightRange: exercise.weightRange,
-              restSeconds: exercise.restSeconds,
-              notes: exercise.notes,
-            })),
+            exercises,
           }
 
           return get().createPlan(duplicateData)
@@ -455,6 +615,13 @@ export const useWorkoutStore = create<WorkoutStore>()(
         // ============================================================================
 
         fetchSessions: async () => {
+          // 중복 실행 방지
+          const currentState = get()
+          if (currentState.loading.sessions.isLoading) {
+            console.warn("[workoutStore] fetchSessions 이미 로딩 중입니다")
+            return
+          }
+
           set(state => ({
             loading: {
               ...state.loading,
@@ -464,8 +631,10 @@ export const useWorkoutStore = create<WorkoutStore>()(
 
           try {
             const sessions = await workoutApi.getSessions()
+            // API 응답 검증
+            const validatedSessions = ensureArray(sessions)
             set(state => ({
-              sessions,
+              sessions: validatedSessions,
               loading: {
                 ...state.loading,
                 sessions: {
@@ -476,6 +645,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
               },
             }))
           } catch (error) {
+            console.error("[workoutStore] fetchSessions 실패", error)
             set(state => ({
               loading: {
                 ...state.loading,
@@ -490,6 +660,18 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         createSession: async (sessionData: CreateSessionRequest) => {
+          // 입력 데이터 검증
+          if (!sessionData || typeof sessionData !== "object") {
+            console.error("[workoutStore] createSession: 유효하지 않은 sessionData", sessionData)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 세션 데이터입니다",
+              },
+            }))
+            return null
+          }
+
           set(state => ({
             sharedState: {
               ...state.sharedState,
@@ -499,6 +681,10 @@ export const useWorkoutStore = create<WorkoutStore>()(
 
           try {
             const newSession = await workoutApi.createSession(sessionData)
+            // API 응답 검증
+            if (!newSession || typeof newSession !== "object") {
+              throw new Error("생성된 세션 데이터가 유효하지 않습니다")
+            }
             set(state => ({
               sessions: [...state.sessions, newSession],
               sharedState: {
@@ -509,6 +695,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
             }))
             return newSession
           } catch (error) {
+            console.error("[workoutStore] createSession 실패", error)
             set(state => ({
               sharedState: {
                 ...state.sharedState,
@@ -525,6 +712,43 @@ export const useWorkoutStore = create<WorkoutStore>()(
           sessionId: number,
           updates: UpdateSessionRequest
         ) => {
+          // ID 유효성 검증
+          if (!isValidId(sessionId)) {
+            console.error("[workoutStore] updateSession: 유효하지 않은 sessionId", sessionId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 세션 ID입니다",
+              },
+            }))
+            return null
+          }
+
+          // 업데이트 데이터 검증
+          if (!updates || typeof updates !== "object") {
+            console.error("[workoutStore] updateSession: 유효하지 않은 updates", updates)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 업데이트 데이터입니다",
+              },
+            }))
+            return null
+          }
+
+          // 존재하는 세션인지 확인
+          const existingSession = get().sessions.find(session => session.id === sessionId)
+          if (!existingSession) {
+            console.warn("[workoutStore] updateSession: 존재하지 않는 세션", sessionId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "존재하지 않는 세션입니다",
+              },
+            }))
+            return null
+          }
+
           set(state => ({
             sharedState: {
               ...state.sharedState,
@@ -537,6 +761,10 @@ export const useWorkoutStore = create<WorkoutStore>()(
               sessionId,
               updates
             )
+            // API 응답 검증
+            if (!updatedSession || typeof updatedSession !== "object") {
+              throw new Error("업데이트된 세션 데이터가 유효하지 않습니다")
+            }
             set(state => ({
               sessions: state.sessions.map(session =>
                 session.id === sessionId ? updatedSession : session
@@ -549,6 +777,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
             }))
             return updatedSession
           } catch (error) {
+            console.error("[workoutStore] updateSession 실패", error)
             set(state => ({
               sharedState: {
                 ...state.sharedState,
@@ -562,6 +791,26 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         deleteSession: async (sessionId: number) => {
+          // ID 유효성 검증
+          if (!isValidId(sessionId)) {
+            console.error("[workoutStore] deleteSession: 유효하지 않은 sessionId", sessionId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 세션 ID입니다",
+              },
+            }))
+            return false
+          }
+
+          // 존재하는 세션인지 확인
+          const existingSession = get().sessions.find(session => session.id === sessionId)
+          if (!existingSession) {
+            console.warn("[workoutStore] deleteSession: 존재하지 않는 세션", sessionId)
+            // 존재하지 않아도 성공으로 처리 (이미 삭제된 상태)
+            return true
+          }
+
           set(state => ({
             sharedState: {
               ...state.sharedState,
@@ -582,6 +831,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
             }))
             return true
           } catch (error) {
+            console.error("[workoutStore] deleteSession 실패", error)
             set(state => ({
               sharedState: {
                 ...state.sharedState,
@@ -595,49 +845,190 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         startSession: async (sessionId: number) => {
+          // ID 유효성 검증
+          if (!isValidId(sessionId)) {
+            console.error("[workoutStore] startSession: 유효하지 않은 sessionId", sessionId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 세션 ID입니다",
+              },
+            }))
+            return
+          }
+
           const session = get().sessions.find(s => s.id === sessionId)
-          if (!session) return
+          if (!session) {
+            console.warn("[workoutStore] startSession: 존재하지 않는 세션", sessionId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "존재하지 않는 세션입니다",
+              },
+            }))
+            return
+          }
 
-          await get().updateSession(sessionId, {
-            id: sessionId,
-            status: "in_progress",
-            startTime: new Date(),
-          })
+          // 세션 상태 검증 (이미 진행 중이거나 완료된 세션은 시작할 수 없음)
+          if (session.status === "in_progress") {
+            console.warn("[workoutStore] startSession: 이미 진행 중인 세션", sessionId)
+            return
+          }
+          if (session.status === "completed") {
+            console.warn("[workoutStore] startSession: 이미 완료된 세션", sessionId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "이미 완료된 세션은 시작할 수 없습니다",
+              },
+            }))
+            return
+          }
 
-          // Start timer
-          get().startTimer()
+          try {
+            await get().updateSession(sessionId, {
+              id: sessionId,
+              status: "in_progress",
+              startTime: new Date(),
+            })
+
+            // Start timer
+            get().startTimer()
+          } catch (error) {
+            console.error("[workoutStore] startSession 실패", error)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError:
+                  error instanceof Error ? error.message : "세션 시작 실패",
+              },
+            }))
+          }
         },
 
         pauseSession: async (sessionId: number) => {
-          await get().updateSession(sessionId, {
-            id: sessionId,
-            status: "paused",
-          })
+          // ID 유효성 검증
+          if (!isValidId(sessionId)) {
+            console.error("[workoutStore] pauseSession: 유효하지 않은 sessionId", sessionId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 세션 ID입니다",
+              },
+            }))
+            return
+          }
 
-          // Pause timer
-          get().pauseTimer()
+          const session = get().sessions.find(s => s.id === sessionId)
+          if (!session) {
+            console.warn("[workoutStore] pauseSession: 존재하지 않는 세션", sessionId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "존재하지 않는 세션입니다",
+              },
+            }))
+            return
+          }
+
+          // 세션 상태 검증 (진행 중인 세션만 일시정지 가능)
+          if (session.status !== "in_progress") {
+            console.warn("[workoutStore] pauseSession: 일시정지할 수 없는 세션 상태", {
+              sessionId,
+              status: session.status,
+            })
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "진행 중인 세션만 일시정지할 수 있습니다",
+              },
+            }))
+            return
+          }
+
+          try {
+            await get().updateSession(sessionId, {
+              id: sessionId,
+              status: "paused",
+            })
+
+            // Pause timer
+            get().pauseTimer()
+          } catch (error) {
+            console.error("[workoutStore] pauseSession 실패", error)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError:
+                  error instanceof Error ? error.message : "세션 일시정지 실패",
+              },
+            }))
+          }
         },
 
         completeSession: async (sessionId: number) => {
+          // ID 유효성 검증
+          if (!isValidId(sessionId)) {
+            console.error("[workoutStore] completeSession: 유효하지 않은 sessionId", sessionId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 세션 ID입니다",
+              },
+            }))
+            return
+          }
+
           const session = get().sessions.find(s => s.id === sessionId)
-          if (!session) return
+          if (!session) {
+            console.warn("[workoutStore] completeSession: 존재하지 않는 세션", sessionId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "존재하지 않는 세션입니다",
+              },
+            }))
+            return
+          }
+
+          // 세션 상태 검증 (이미 완료된 세션은 다시 완료할 수 없음)
+          if (session.status === "completed") {
+            console.warn("[workoutStore] completeSession: 이미 완료된 세션", sessionId)
+            return
+          }
 
           const endTime = new Date()
-          const duration = session.startTime
-            ? Math.round(
-                (endTime.getTime() - session.startTime.getTime()) / 60000
-              )
-            : 0
+          // startTime 검증 및 duration 계산
+          let duration = 0
+          if (session.startTime) {
+            const startTime = session.startTime instanceof Date
+              ? session.startTime
+              : new Date(session.startTime)
+            const durationMs = endTime.getTime() - startTime.getTime()
+            // 음수 duration 방지
+            duration = Math.max(0, Math.round(durationMs / 60000))
+          }
 
-          await get().updateSession(sessionId, {
-            id: sessionId,
-            status: "completed",
-            endTime,
-            totalDurationMinutes: duration,
-          })
+          try {
+            await get().updateSession(sessionId, {
+              id: sessionId,
+              status: "completed",
+              endTime,
+              totalDurationMinutes: duration,
+            })
 
-          // Stop timer
-          get().resetTimer()
+            // Stop timer
+            get().resetTimer()
+          } catch (error) {
+            console.error("[workoutStore] completeSession 실패", error)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError:
+                  error instanceof Error ? error.message : "세션 완료 실패",
+              },
+            }))
+          }
         },
 
         // ============================================================================
@@ -645,6 +1036,13 @@ export const useWorkoutStore = create<WorkoutStore>()(
         // ============================================================================
 
         fetchGoals: async () => {
+          // 중복 실행 방지
+          const currentState = get()
+          if (currentState.loading.goals.isLoading) {
+            console.warn("[workoutStore] fetchGoals 이미 로딩 중입니다")
+            return
+          }
+
           console.log("🎯 [workoutStore] fetchGoals 시작")
           set(state => ({
             loading: {
@@ -655,12 +1053,14 @@ export const useWorkoutStore = create<WorkoutStore>()(
 
           try {
             const goals = await workoutApi.getGoals()
+            // API 응답 검증
+            const validatedGoals = ensureArray(goals)
             console.log("🎯 [workoutStore] fetchGoals 성공", {
-              goalsCount: goals.length,
-              goals,
+              goalsCount: validatedGoals.length,
+              goals: validatedGoals,
             })
             set(state => ({
-              goals,
+              goals: validatedGoals,
               loading: {
                 ...state.loading,
                 goals: {
@@ -687,6 +1087,18 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         createGoal: async (goalData: CreateGoalRequest) => {
+          // 입력 데이터 검증
+          if (!goalData || typeof goalData !== "object") {
+            console.error("[workoutStore] createGoal: 유효하지 않은 goalData", goalData)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 목표 데이터입니다",
+              },
+            }))
+            return null
+          }
+
           set(state => ({
             sharedState: {
               ...state.sharedState,
@@ -696,6 +1108,10 @@ export const useWorkoutStore = create<WorkoutStore>()(
 
           try {
             const newGoal = await workoutApi.createGoal(goalData)
+            // API 응답 검증
+            if (!newGoal || typeof newGoal !== "object") {
+              throw new Error("생성된 목표 데이터가 유효하지 않습니다")
+            }
             set(state => ({
               goals: [...state.goals, newGoal],
               sharedState: {
@@ -706,6 +1122,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
             }))
             return newGoal
           } catch (error) {
+            console.error("[workoutStore] createGoal 실패", error)
             set(state => ({
               sharedState: {
                 ...state.sharedState,
@@ -719,6 +1136,43 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         updateGoal: async (goalId: number, updates: UpdateGoalRequest) => {
+          // ID 유효성 검증
+          if (!isValidId(goalId)) {
+            console.error("[workoutStore] updateGoal: 유효하지 않은 goalId", goalId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 목표 ID입니다",
+              },
+            }))
+            return null
+          }
+
+          // 업데이트 데이터 검증
+          if (!updates || typeof updates !== "object") {
+            console.error("[workoutStore] updateGoal: 유효하지 않은 updates", updates)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 업데이트 데이터입니다",
+              },
+            }))
+            return null
+          }
+
+          // 존재하는 목표인지 확인
+          const existingGoal = get().goals.find(goal => goal.id === goalId)
+          if (!existingGoal) {
+            console.warn("[workoutStore] updateGoal: 존재하지 않는 목표", goalId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "존재하지 않는 목표입니다",
+              },
+            }))
+            return null
+          }
+
           set(state => ({
             sharedState: {
               ...state.sharedState,
@@ -728,6 +1182,10 @@ export const useWorkoutStore = create<WorkoutStore>()(
 
           try {
             const updatedGoal = await workoutApi.updateGoal(goalId, updates)
+            // API 응답 검증
+            if (!updatedGoal || typeof updatedGoal !== "object") {
+              throw new Error("업데이트된 목표 데이터가 유효하지 않습니다")
+            }
             set(state => ({
               goals: state.goals.map(goal =>
                 goal.id === goalId ? updatedGoal : goal
@@ -740,6 +1198,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
             }))
             return updatedGoal
           } catch (error) {
+            console.error("[workoutStore] updateGoal 실패", error)
             set(state => ({
               sharedState: {
                 ...state.sharedState,
@@ -753,6 +1212,26 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         deleteGoal: async (goalId: number) => {
+          // ID 유효성 검증
+          if (!isValidId(goalId)) {
+            console.error("[workoutStore] deleteGoal: 유효하지 않은 goalId", goalId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 목표 ID입니다",
+              },
+            }))
+            return false
+          }
+
+          // 존재하는 목표인지 확인
+          const existingGoal = get().goals.find(goal => goal.id === goalId)
+          if (!existingGoal) {
+            console.warn("[workoutStore] deleteGoal: 존재하지 않는 목표", goalId)
+            // 존재하지 않아도 성공으로 처리 (이미 삭제된 상태)
+            return true
+          }
+
           set(state => ({
             sharedState: {
               ...state.sharedState,
@@ -771,6 +1250,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
             }))
             return true
           } catch (error) {
+            console.error("[workoutStore] deleteGoal 실패", error)
             set(state => ({
               sharedState: {
                 ...state.sharedState,
@@ -784,10 +1264,51 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         completeGoal: async (goalId: number) => {
-          await get().updateGoal(goalId, {
-            id: goalId,
-            isCompleted: true,
-          })
+          // ID 유효성 검증
+          if (!isValidId(goalId)) {
+            console.error("[workoutStore] completeGoal: 유효하지 않은 goalId", goalId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "유효하지 않은 목표 ID입니다",
+              },
+            }))
+            return
+          }
+
+          const goal = get().goals.find(g => g.id === goalId)
+          if (!goal) {
+            console.warn("[workoutStore] completeGoal: 존재하지 않는 목표", goalId)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError: "존재하지 않는 목표입니다",
+              },
+            }))
+            return
+          }
+
+          // 이미 완료된 목표인지 확인
+          if (goal.isCompleted) {
+            console.warn("[workoutStore] completeGoal: 이미 완료된 목표", goalId)
+            return
+          }
+
+          try {
+            await get().updateGoal(goalId, {
+              id: goalId,
+              isCompleted: true,
+            })
+          } catch (error) {
+            console.error("[workoutStore] completeGoal 실패", error)
+            set(state => ({
+              sharedState: {
+                ...state.sharedState,
+                globalError:
+                  error instanceof Error ? error.message : "목표 완료 실패",
+              },
+            }))
+          }
         },
 
         // ============================================================================
@@ -795,6 +1316,13 @@ export const useWorkoutStore = create<WorkoutStore>()(
         // ============================================================================
 
         fetchDashboardData: async () => {
+          // 중복 실행 방지
+          const currentState = get()
+          if (currentState.loading.overview.isLoading) {
+            console.warn("[workoutStore] fetchDashboardData 이미 로딩 중입니다")
+            return
+          }
+
           set(state => ({
             loading: {
               ...state.loading,
@@ -804,6 +1332,10 @@ export const useWorkoutStore = create<WorkoutStore>()(
 
           try {
             const dashboardData = await workoutApi.getProgress()
+            // API 응답 검증
+            if (!dashboardData || typeof dashboardData !== "object") {
+              throw new Error("대시보드 데이터가 유효하지 않습니다")
+            }
             set(state => ({
               dashboardData,
               loading: {
@@ -816,6 +1348,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
               },
             }))
           } catch (error) {
+            console.error("[workoutStore] fetchDashboardData 실패", error)
             set(state => ({
               loading: {
                 ...state.loading,
@@ -838,6 +1371,12 @@ export const useWorkoutStore = create<WorkoutStore>()(
         // ============================================================================
 
         setActiveTab: (tab: TabType) => {
+          // 유효한 탭인지 검증
+          const validTabs: TabType[] = ["overview", "goals", "plans", "sessions", "workoutProgress"]
+          if (!validTabs.includes(tab)) {
+            console.error("[workoutStore] setActiveTab: 유효하지 않은 탭", tab)
+            return
+          }
           set({ activeTab: tab })
         },
 
@@ -926,9 +1465,21 @@ export const useWorkoutStore = create<WorkoutStore>()(
         addNotification: (
           notification: Omit<Notification, "id" | "timestamp">
         ) => {
+          // 알림 데이터 검증
+          if (!notification || typeof notification !== "object") {
+            console.error("[workoutStore] addNotification: 유효하지 않은 notification", notification)
+            return
+          }
+
+          // 필수 필드 검증
+          if (!notification.message || typeof notification.message !== "string") {
+            console.error("[workoutStore] addNotification: message가 없거나 유효하지 않음", notification)
+            return
+          }
+
           const newNotification: Notification = {
             ...notification,
-            id: Date.now().toString(),
+            id: Date.now().toString() + Math.random().toString(36).substring(7), // 중복 방지
             timestamp: new Date(),
           }
 
@@ -936,7 +1487,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
             sharedState: {
               ...state.sharedState,
               notifications: [
-                ...state.sharedState.notifications,
+                ...(state.sharedState.notifications || []),
                 newNotification,
               ],
             },
@@ -944,11 +1495,17 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         removeNotification: (id: string) => {
+          // ID 검증
+          if (!id || typeof id !== "string") {
+            console.error("[workoutStore] removeNotification: 유효하지 않은 id", id)
+            return
+          }
+
           set(state => ({
             sharedState: {
               ...state.sharedState,
-              notifications: state.sharedState.notifications.filter(
-                n => n.id !== id
+              notifications: (state.sharedState.notifications || []).filter(
+                n => n && n.id !== id
               ),
             },
           }))
@@ -1029,12 +1586,25 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         updateTimer: (elapsedTime: number) => {
+          // elapsedTime 검증 (음수, NaN, Infinity 방지)
+          if (
+            typeof elapsedTime !== "number" ||
+            isNaN(elapsedTime) ||
+            !isFinite(elapsedTime) ||
+            elapsedTime < 0
+          ) {
+            console.warn("[workoutStore] updateTimer: 유효하지 않은 elapsedTime", elapsedTime)
+            return
+          }
+
           set(state => ({
             sharedState: {
               ...state.sharedState,
               timer: {
                 ...state.sharedState.timer,
                 elapsedTime,
+                seconds: Math.floor(elapsedTime),
+                totalSeconds: Math.floor(elapsedTime),
               },
             },
           }))
@@ -1045,6 +1615,12 @@ export const useWorkoutStore = create<WorkoutStore>()(
         // ============================================================================
 
         updateOverviewTabState: (updates: Partial<OverviewTabState>) => {
+          // 업데이트 데이터 검증
+          if (!updates || typeof updates !== "object") {
+            console.error("[workoutStore] updateOverviewTabState: 유효하지 않은 updates", updates)
+            return
+          }
+
           set(state => ({
             tabStates: {
               ...state.tabStates,
@@ -1054,6 +1630,20 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         updatePlansTabState: (updates: Partial<PlansTabState>) => {
+          // 업데이트 데이터 검증
+          if (!updates || typeof updates !== "object") {
+            console.error("[workoutStore] updatePlansTabState: 유효하지 않은 updates", updates)
+            return
+          }
+
+          // selectedPlanId 검증 (유효한 ID인지 확인)
+          if (updates.selectedPlanId !== undefined && updates.selectedPlanId !== null) {
+            if (!isValidId(updates.selectedPlanId)) {
+              console.warn("[workoutStore] updatePlansTabState: 유효하지 않은 selectedPlanId", updates.selectedPlanId)
+              updates.selectedPlanId = null
+            }
+          }
+
           set(state => ({
             tabStates: {
               ...state.tabStates,
@@ -1063,6 +1653,12 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         updateSessionsTabState: (updates: Partial<SessionsTabState>) => {
+          // 업데이트 데이터 검증
+          if (!updates || typeof updates !== "object") {
+            console.error("[workoutStore] updateSessionsTabState: 유효하지 않은 updates", updates)
+            return
+          }
+
           set(state => ({
             tabStates: {
               ...state.tabStates,
@@ -1072,6 +1668,20 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         updateGoalsTabState: (updates: Partial<GoalsTabState>) => {
+          // 업데이트 데이터 검증
+          if (!updates || typeof updates !== "object") {
+            console.error("[workoutStore] updateGoalsTabState: 유효하지 않은 updates", updates)
+            return
+          }
+
+          // selectedGoalId 검증 (유효한 ID인지 확인)
+          if (updates.selectedGoalId !== undefined && updates.selectedGoalId !== null) {
+            if (!isValidId(updates.selectedGoalId)) {
+              console.warn("[workoutStore] updateGoalsTabState: 유효하지 않은 selectedGoalId", updates.selectedGoalId)
+              updates.selectedGoalId = undefined
+            }
+          }
+
           set(state => ({
             tabStates: {
               ...state.tabStates,
@@ -1081,6 +1691,12 @@ export const useWorkoutStore = create<WorkoutStore>()(
         },
 
         updateProgressTabState: (updates: Partial<ProgressTabState>) => {
+          // 업데이트 데이터 검증
+          if (!updates || typeof updates !== "object") {
+            console.error("[workoutStore] updateProgressTabState: 유효하지 않은 updates", updates)
+            return
+          }
+
           set(state => ({
             tabStates: {
               ...state.tabStates,

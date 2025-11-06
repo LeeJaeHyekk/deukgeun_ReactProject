@@ -2,10 +2,10 @@ import { useEffect, useCallback, useMemo, useRef } from "react"
 import { showToast } from "@frontend/shared/lib"
 import { useAuthRedux } from "@frontend/shared/hooks/useAuthRedux"
 import { Navigation } from "@widgets/Navigation/Navigation"
-import { PostModal } from "./components/postModal"
+import { PostModal } from "./components/PostModal"
 import { PostDetailModal } from "./components/postDetail/PostDetailModal"
-import { CommunityFilters } from "./components/communityFilters"
-import { CommunityPosts } from "./components/communityPosts"
+import { CommunityFilters } from "./components/CommunityFilters"
+import { CommunityPosts } from "./components/CommunityPosts"
 import {
   useCommunityPosts,
   usePostLikes,

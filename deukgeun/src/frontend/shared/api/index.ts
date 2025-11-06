@@ -113,10 +113,45 @@ async function performTokenRefresh(retryCount = 0): Promise<string> {
   }
 }
 
+// API baseURL을 런타임에 동적으로 결정하는 함수
+function getRuntimeBaseURL(): string {
+  if (typeof window === 'undefined') {
+    return config.api.baseURL
+  }
+  
+  const currentOrigin = window.location.origin
+  const isProduction = import.meta.env.MODE === 'production'
+  
+  // 환경 변수가 있으면 사용
+  if (import.meta.env.VITE_BACKEND_URL) {
+    const envURL = import.meta.env.VITE_BACKEND_URL
+    // 프로덕션에서 HTTP를 HTTPS로 변경
+    if (isProduction && envURL.startsWith('http://') && !envURL.includes('localhost')) {
+      return currentOrigin
+    }
+    return envURL
+  }
+  
+  // 프로덕션 환경: 현재 도메인 사용
+  if (isProduction) {
+    return currentOrigin
+  }
+  
+  // 개발 환경: localhost:5000 또는 현재 도메인
+  if (currentOrigin.includes('localhost')) {
+    return 'http://localhost:5000'
+  }
+  
+  return currentOrigin
+}
+
 // API 클라이언트 설정
 const createApiClient = (): AxiosInstance => {
+  // 런타임에 baseURL 결정
+  const baseURL = getRuntimeBaseURL()
+  
   const instance = axios.create({
-    baseURL: config.api.baseURL,
+    baseURL: baseURL,
     timeout: 10000,
     withCredentials: true, // 쿠키 전송을 위해 필요
     headers: {
@@ -144,7 +179,7 @@ instance.interceptors.request.use(
     }
     
     // 토큰 상태 로깅
-    logTokenStatus(token, 'Axios Interceptor')
+    logTokenStatus()
     
     console.log('🔐 [Axios Interceptor] 요청 정보:', {
       url: config.url,

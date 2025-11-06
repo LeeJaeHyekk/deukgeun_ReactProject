@@ -108,6 +108,7 @@ export function LoginForm({ onSubmit, loading = false }: LoginFormProps) {
       <div className="recaptcha-container">
         <RecaptchaWidget
           onChange={handleRecaptchaChange}
+          action="LOGIN"
           aria-describedby={
             errors.recaptchaToken ? "recaptcha-error" : undefined
           }

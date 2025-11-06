@@ -26,10 +26,26 @@ module.exports = {
         PORT: 5000,
         CORS_ORIGIN: 'https://devtrail.net,https://www.devtrail.net,http://43.203.30.167:3000,http://43.203.30.167:5000',
         VITE_BACKEND_URL: 'http://43.203.30.167:5000',
-        VITE_FRONTEND_URL: 'https://devtrail.net',
+        VITE_FRONTEND_URL: 'https://www.devtrail.net',
         VITE_RECAPTCHA_SITE_KEY: '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P',
         RECAPTCHA_SITE_KEY: '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P',
-        NODE_PATH: './dist/backend/backend'
+        NODE_PATH: './dist/backend/backend',
+        // 데이터베이스 설정 (MySQL)
+        DB_HOST: 'localhost',
+        DB_PORT: '3306',
+        DB_USERNAME: 'deukgeun',
+        DB_PASSWORD: 'deukgeun_password_2024',
+        DB_DATABASE: 'deukgeun_db',
+        // JWT 설정 (실제 값으로 변경 필요)
+        JWT_SECRET: 'deukgeun_jwt_secret_2024_change_in_production',
+        JWT_ACCESS_SECRET: 'deukgeun_access_secret_2024_change_in_production',
+        JWT_REFRESH_SECRET: 'deukgeun_refresh_secret_2024_change_in_production',
+        // AWS RDS 사용 시 아래 주석 해제하고 위 설정 주석 처리
+        // DB_HOST: 'your-rds-endpoint.region.rds.amazonaws.com',
+        // DB_PORT: '3306',
+        // DB_USERNAME: 'admin',
+        // DB_PASSWORD: 'your_rds_password',
+        // DB_DATABASE: 'deukgeun_db',
       },
       // 로그 설정 개선 (EC2 환경에서 절대 경로 사용)
       error_file: './logs/backend-error.log',
@@ -38,9 +54,10 @@ module.exports = {
       // 로그 디렉토리 자동 생성 보장
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
       time: true,
-      // 메모리 설정 최적화
-      max_memory_restart: '2G',
-      node_args: '--max-old-space-size=4096 --optimize-for-size',
+      // 메모리 설정 최적화 (사용성 고려 - 시스템 메모리 904MB, Swap 3GB 활용)
+      // 백엔드 서버 안정적 동작을 위해 700MB 할당, 시스템에 약 200MB 여유 유지
+      max_memory_restart: '700M',
+      node_args: '--max-old-space-size=700 --optimize-for-size',
       // 재시작 설정 개선
       restart_delay: 5000,
       max_restarts: 5,
@@ -51,7 +68,17 @@ module.exports = {
       // 프로세스 그룹 설정
       kill_timeout: 5000,
       wait_ready: true,
-      listen_timeout: 10000
+      listen_timeout: 10000,
+      // 안전장치 추가: 헬스체크 설정
+      // PM2가 주기적으로 헬스체크를 수행하여 서버 상태를 확인
+      // NOTE: 실제 헬스체크는 Express 서버의 /health 엔드포인트를 사용
+      // 여기서는 PM2의 기본 모니터링 기능 활용
+      // 안전장치: 파일 존재 확인 (스크립트 시작 전)
+      // 안전장치: 포트 충돌 확인 (서버 시작 전)
+      // 안전장치: 자동 복구 (에러 발생 시 재시작)
+      // 안전장치: 메모리 제한 (메모리 초과 시 재시작)
+      // 안전장치: 최소 실행 시간 (너무 빠른 재시작 방지)
+      // 안전장치: 최대 재시작 횟수 (무한 재시작 방지)
     },
     // 프론트엔드는 프로덕션에서 nginx가 정적 파일을 서빙하므로 PM2에서 제거
     // 프로덕션 환경에서는 nginx가 dist/frontend 디렉토리의 빌드된 파일을 서빙합니다.

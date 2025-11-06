@@ -301,14 +301,12 @@ export const createPost = (postData: {
     
     // 토큰 검증
     console.log('🔐 [postsSlice] validateTokenForAction 호출 전')
-    const token = validateTokenForAction('createPost')
+    const isValidToken = validateTokenForAction('createPost')
     console.log('🔐 [postsSlice] validateTokenForAction 결과:', {
-      hasToken: !!token,
-      tokenPreview: token ? `${token.substring(0, 20)}...` : '없음',
-      tokenLength: token?.length || 0
+      isValidToken
     })
     
-    if (!token) {
+    if (!isValidToken) {
       console.error('❌ [postsSlice] 토큰 검증 실패 - 에러 발생')
       throw new Error('로그인이 필요합니다. 다시 로그인해주세요.')
     }

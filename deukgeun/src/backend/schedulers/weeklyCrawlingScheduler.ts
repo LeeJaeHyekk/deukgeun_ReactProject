@@ -184,7 +184,23 @@ class WeeklyCrawlingScheduler {
 
         // 다음 실행 시간 설정
         try {
-          const nextRun = this.job.nextDates().toDate()
+          const nextDates = this.job.nextDates()
+          if (!nextDates) {
+            console.warn('⚠️ 다음 실행 시간을 가져올 수 없습니다')
+            this.status.nextRun = null
+            return
+          }
+          
+          const nextRun = Array.isArray(nextDates) 
+            ? (nextDates[0] ? nextDates[0].toDate() : null)
+            : (nextDates.toDate ? nextDates.toDate() : null)
+          
+          if (!nextRun) {
+            console.warn('⚠️ 다음 실행 시간을 Date 객체로 변환할 수 없습니다')
+            this.status.nextRun = null
+            return
+          }
+          
           this.status.nextRun = nextRun
 
           // 다음 실행 시간이 일요일 오전 6시인지 검증
@@ -495,7 +511,15 @@ class WeeklyCrawlingScheduler {
     // 다음 실행 시간 업데이트
     try {
       if (this.job) {
-        this.status.nextRun = this.job.nextDates().toDate()
+        const nextDates = this.job.nextDates()
+        if (!nextDates) {
+          this.status.nextRun = null
+          return
+        }
+        const nextRun = Array.isArray(nextDates) 
+          ? (nextDates[0] ? nextDates[0].toDate() : null)
+          : (nextDates.toDate ? nextDates.toDate() : null)
+        this.status.nextRun = nextRun || null
       }
     } catch (dateError) {
       console.warn('⚠️ 다음 실행 시간 업데이트 실패:', dateError)
@@ -522,7 +546,15 @@ class WeeklyCrawlingScheduler {
     // 다음 실행 시간 업데이트
     try {
       if (this.job) {
-        this.status.nextRun = this.job.nextDates().toDate()
+        const nextDates = this.job.nextDates()
+        if (!nextDates) {
+          this.status.nextRun = null
+          return
+        }
+        const nextRun = Array.isArray(nextDates) 
+          ? (nextDates[0] ? nextDates[0].toDate() : null)
+          : (nextDates.toDate ? nextDates.toDate() : null)
+        this.status.nextRun = nextRun || null
       }
     } catch (dateError) {
       console.warn('⚠️ 다음 실행 시간 업데이트 실패:', dateError)
@@ -672,7 +704,15 @@ class WeeklyCrawlingScheduler {
     // 다음 실행 시간 업데이트
     if (this.job && !this.status.isRunning) {
       try {
-        this.status.nextRun = this.job.nextDates().toDate()
+        const nextDates = this.job.nextDates()
+        if (!nextDates) {
+          this.status.nextRun = null
+          return
+        }
+        const nextRun = Array.isArray(nextDates) 
+          ? (nextDates[0] ? nextDates[0].toDate() : null)
+          : (nextDates.toDate ? nextDates.toDate() : null)
+        this.status.nextRun = nextRun || null
       } catch (error) {
         // 다음 실행 시간 계산 실패 시 무시
       }

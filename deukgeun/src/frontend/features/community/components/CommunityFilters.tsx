@@ -2,7 +2,7 @@ import { PostCategoryInfo } from "../../../../shared/types"
 import { SortOption } from "../hooks/useCommunityFilters"
 import { useAuthRedux } from "@frontend/shared/hooks/useAuthRedux"
 import { showToast } from "@frontend/shared/lib"
-import styles from "./communityFilters.module.css"
+import styles from "./CommunityFilters.module.css"
 
 interface CommunityFiltersProps {
   searchTerm: string

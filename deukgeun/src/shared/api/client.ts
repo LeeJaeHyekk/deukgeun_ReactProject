@@ -28,14 +28,22 @@ const getApiConfig = () => {
     console.log('🔧 개발 환경 감지: localhost:5000 사용')
   }
   
-  if (!baseURL) {
+  // 프로덕션 환경에서 환경 변수가 없을 때 현재 도메인 사용
+  if (!baseURL && isProduction && typeof window !== 'undefined') {
+    baseURL = window.location.origin
+    console.log('🔧 프로덕션 환경: 현재 도메인을 API URL로 사용:', baseURL)
+  }
+  
+  if (!baseURL && !isProduction) {
     console.warn('⚠️ VITE_BACKEND_URL 환경 변수가 설정되지 않았습니다.')
     console.warn('⚠️ API 연결에 문제가 발생할 수 있습니다.')
     // 프론트엔드에서는 에러를 발생시키지 않고 경고만 표시
   }
 
-  // baseURL이 없을 때는 현재 도메인의 포트를 5000으로 변경하여 fallback
-  const safeBaseURL = baseURL || window.location.origin.replace(':5173', ':5000')
+  // baseURL이 없을 때 fallback 처리
+  const safeBaseURL = baseURL || (isProduction && typeof window !== 'undefined' 
+    ? window.location.origin 
+    : window.location.origin.replace(':5173', ':5000'))
 
   if (isDevelopment) {
     return {
@@ -85,6 +93,38 @@ export function assertApiResponse<T>(data: unknown): T {
   return data as T
 }
 
+// API baseURL을 런타임에 동적으로 결정하는 함수
+function getRuntimeBaseURL(configBaseURL: string): string {
+  if (typeof window === 'undefined') {
+    return configBaseURL
+  }
+  
+  const currentOrigin = window.location.origin
+  const isProduction = import.meta.env.MODE === 'production'
+  
+  // 환경 변수가 있으면 사용
+  if (import.meta.env.VITE_BACKEND_URL) {
+    const envURL = import.meta.env.VITE_BACKEND_URL
+    // 프로덕션에서 HTTP를 HTTPS로 변경
+    if (isProduction && envURL.startsWith('http://') && !envURL.includes('localhost')) {
+      return currentOrigin
+    }
+    return envURL
+  }
+  
+  // 프로덕션 환경: 현재 도메인 사용
+  if (isProduction) {
+    return currentOrigin
+  }
+  
+  // 개발 환경: localhost:5000 또는 현재 도메인
+  if (currentOrigin.includes('localhost')) {
+    return 'http://localhost:5000'
+  }
+  
+  return currentOrigin || configBaseURL
+}
+
 // API 클라이언트 클래스
 class ApiClient {
   private baseURL: string
@@ -92,7 +132,8 @@ class ApiClient {
   private defaultHeaders: Record<string, string>
 
   constructor(config = API_CONFIG) {
-    this.baseURL = config.baseURL
+    // 런타임에 baseURL 결정
+    this.baseURL = getRuntimeBaseURL(config.baseURL)
     this.timeout = config.timeout
     this.defaultHeaders = config.headers
   }

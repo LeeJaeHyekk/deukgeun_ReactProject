@@ -12,6 +12,7 @@ export interface FrontendConfig {
 }
 
 // 환경 변수에서 설정 가져오기
+// 런타임에 동적으로 결정하도록 수정 (빌드 시점 고정 방지)
 const getConfig = (): FrontendConfig => {
   console.log('🔧 환경 변수 로딩 중...')
   console.log('🔧 VITE_BACKEND_URL:', import.meta.env.VITE_BACKEND_URL)
@@ -19,12 +20,56 @@ const getConfig = (): FrontendConfig => {
   console.log('🔧 VITE_RECAPTCHA_SITE_KEY:', import.meta.env.VITE_RECAPTCHA_SITE_KEY)
   console.log('🔧 MODE:', import.meta.env.MODE)
   
+  // 런타임에 API URL 결정 (빌드 시점이 아닌 실행 시점)
+  let apiBaseURL = import.meta.env.VITE_BACKEND_URL
+  
+  // 브라우저 환경에서만 실행
+  if (typeof window !== 'undefined') {
+    const currentOrigin = window.location.origin
+    const isProduction = import.meta.env.MODE === 'production'
+    const isDevelopment = import.meta.env.MODE === 'development'
+    
+    // 환경 변수가 없거나 빈 문자열인 경우
+    if (!apiBaseURL || apiBaseURL.trim() === '') {
+      // 프로덕션 환경: 현재 도메인 사용 (HTTPS)
+      if (isProduction) {
+        apiBaseURL = currentOrigin
+        console.log('🔧 프로덕션 환경: 현재 도메인을 API URL로 사용:', apiBaseURL)
+      }
+      // 개발 환경: localhost:5000 사용
+      else if (isDevelopment && currentOrigin.includes('localhost')) {
+        apiBaseURL = 'http://localhost:5000'
+        console.log('🔧 개발 환경: localhost:5000 사용')
+      }
+      // 기타 환경: 현재 도메인 사용
+      else {
+        apiBaseURL = currentOrigin
+        console.log('🔧 기타 환경: 현재 도메인을 API URL로 사용:', apiBaseURL)
+      }
+    }
+    
+    // 환경 변수가 HTTP로 시작하는 경우 프로덕션에서는 HTTPS로 변경
+    if (isProduction && apiBaseURL.startsWith('http://')) {
+      // localhost가 아닌 경우 현재 도메인 사용 (HTTPS)
+      if (!apiBaseURL.includes('localhost')) {
+        apiBaseURL = currentOrigin
+        console.log('🔧 프로덕션 환경: HTTP를 HTTPS로 변경:', apiBaseURL)
+      }
+    }
+  } else {
+    // 서버 사이드 렌더링 환경
+    if (!apiBaseURL) {
+      apiBaseURL = ''
+      console.warn('⚠️ 서버 사이드 환경: API URL을 설정할 수 없습니다.')
+    }
+  }
+  
   const config = {
-    apiBaseUrl: import.meta.env.VITE_BACKEND_URL || "",
+    apiBaseUrl: apiBaseURL || "",
     recaptchaSiteKey: import.meta.env.VITE_RECAPTCHA_SITE_KEY || "",
     environment: (import.meta.env.MODE as "development" | "production" | "test") || "development",
     api: {
-      baseURL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
+      baseURL: apiBaseURL || "",
     },
   }
   
@@ -32,7 +77,47 @@ const getConfig = (): FrontendConfig => {
   return config
 }
 
+// 런타임에 동적으로 결정
 export const config = getConfig()
+
+// API baseURL을 런타임에 다시 계산하는 함수 추가
+export function getApiBaseURL(): string {
+  if (typeof window === 'undefined') {
+    return config.api.baseURL
+  }
+  
+  const currentOrigin = window.location.origin
+  const isProduction = import.meta.env.MODE === 'production'
+  const isDevelopment = import.meta.env.MODE === 'development'
+  
+  // 환경 변수가 있으면 사용하되, 프로덕션에서는 HTTPS로 변환
+  if (import.meta.env.VITE_BACKEND_URL) {
+    let envURL = import.meta.env.VITE_BACKEND_URL
+    
+    // 프로덕션 환경에서 HTTP로 시작하는 경우 HTTPS로 변환
+    if (isProduction && envURL.startsWith('http://')) {
+      // localhost가 아닌 경우 현재 도메인 사용 (HTTPS)
+      if (!envURL.includes('localhost')) {
+        console.log('🔧 프로덕션 환경: HTTP를 HTTPS로 변경 (getApiBaseURL):', envURL, '→', currentOrigin)
+        return currentOrigin
+      }
+    }
+    
+    return envURL
+  }
+  
+  // 프로덕션 환경: 현재 도메인 사용 (HTTPS)
+  if (isProduction) {
+    return currentOrigin
+  }
+  
+  // 개발 환경: localhost:5000 또는 현재 도메인
+  if (isDevelopment && currentOrigin.includes('localhost')) {
+    return 'http://localhost:5000'
+  }
+  
+  return currentOrigin
+}
 
 // API 엔드포인트 정의 (백엔드 라우팅 기준으로 통일)
 export const API_ENDPOINTS = {
@@ -180,6 +265,7 @@ export const API_ENDPOINTS = {
     VERIFY: "/api/recaptcha/verify",
     HEALTH: "/api/recaptcha/health",
     CONFIG: "/api/recaptcha/config",
+    LOG: "/api/recaptcha/log", // 프론트엔드 로그 전송 엔드포인트
   },
 } as const
 

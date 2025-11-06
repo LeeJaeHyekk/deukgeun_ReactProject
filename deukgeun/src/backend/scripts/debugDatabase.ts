@@ -160,7 +160,7 @@ async function runDatabaseDebug() {
     console.log(`   - Connection Name: ${testDataSource.name}`)
     
     // 간단한 쿼리 테스트
-    const result = await testDataSource.query("SELECT 1 as test, NOW() as current_time")
+    const result = await testDataSource.query("SELECT 1 as test, NOW() as `current_time`")
     console.log("   - Query test result:", result)
     
     await testDataSource.destroy()

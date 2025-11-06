@@ -632,6 +632,8 @@ export default function SignUpPage() {
       <div className={styles.inputGroup}>
         <div className={styles.inputWrapper}>
           <input
+            id={field}
+            name={field}
             type={type}
             value={value}
             onChange={e => handleInputChange(field, e.target.value)}
@@ -689,6 +691,8 @@ export default function SignUpPage() {
           <div className={styles.inputGroup}>
             <div className={styles.passwordWrapper}>
               <input
+                id="password"
+                name="password"
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={e => handleInputChange('password', e.target.value)}
@@ -738,6 +742,8 @@ export default function SignUpPage() {
           <div className={styles.inputGroup}>
             <div className={styles.passwordWrapper}>
               <input
+                id="confirmPassword"
+                name="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={formData.confirmPassword}
                 onChange={e =>
@@ -792,13 +798,15 @@ export default function SignUpPage() {
             'nickname',
             'text',
             '닉네임 * (2-20자)',
-            'nickname'
+            'username' // 표준 autocomplete 값 사용
           )}
 
           {/* 휴대폰 번호 입력 */}
           <div className={styles.inputGroup}>
             <div className={styles.inputWrapper}>
               <input
+                id="phone"
+                name="phone"
                 type="tel"
                 value={formData.phone}
                 onChange={e => handlePhoneChange(e.target.value)}

@@ -105,8 +105,17 @@ if (isDatabaseConnected) {
   router.use("/auth", authRoutes)
   console.log("✅ Auth routes configured")
   
-  router.use("/gyms", gymRoutes)
-  console.log("✅ Gym routes configured")
+  // Gym routes (File is not defined 오류 방지)
+  try {
+    router.use("/gyms", gymRoutes)
+    console.log("✅ Gym routes configured")
+  } catch (error) {
+    console.warn("⚠️ Gym routes failed:", error)
+    // File is not defined 오류는 undici 모듈 문제이므로 무시하고 계속 진행
+    if (error instanceof ReferenceError && (error as Error).message.includes('File is not defined')) {
+      console.warn("⚠️ File is not defined 오류는 무시하고 계속 진행합니다 (undici 모듈 문제)")
+    }
+  }
   
   router.use("/machines", machineRoutes)
   console.log("✅ Machine routes configured")
@@ -180,14 +189,20 @@ if (isDatabaseConnected) {
 }
 
 console.log("🔄 Step 4: Configuring 404 handler...")
-router.use("*", (req, res) => {
-  console.log(`🔍 404 - API endpoint not found: ${req.method} ${req.url}`)
-  res.status(404).json({ 
-    message: "API endpoint not found",
-    method: req.method,
-    url: req.url,
-    timestamp: new Date().toISOString()
-  })
+// path-to-regexp 오류 방지를 위해 미들웨어 함수로 변경
+router.use((req, res, next) => {
+  // 모든 라우트를 거친 후에 도달하는 경우 404 처리
+  if (!res.headersSent) {
+    console.log(`🔍 404 - API endpoint not found: ${req.method} ${req.url}`)
+    res.status(404).json({ 
+      message: "API endpoint not found",
+      method: req.method,
+      url: req.url,
+      timestamp: new Date().toISOString()
+    })
+  } else {
+    next()
+  }
 })
 console.log("✅ 404 handler configured")
 

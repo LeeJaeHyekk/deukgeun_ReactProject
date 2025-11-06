@@ -88,7 +88,7 @@ async function runMinimalReproduction() {
     console.log(`   - Is Initialized: ${dataSource.isInitialized}`)
     
     // 간단한 쿼리 테스트
-    const result = await dataSource.query("SELECT 1 as test, NOW() as current_time")
+    const result = await dataSource.query("SELECT 1 as test, NOW() as `current_time`")
     console.log("   - Query result:", result)
     
     await dataSource.destroy()

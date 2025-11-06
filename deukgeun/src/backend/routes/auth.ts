@@ -18,12 +18,12 @@ import {
   updateProfile,
 } from '@backend/controllers/authController'
 import { authMiddleware } from '@backend/middlewares/auth'
-import { recaptchaEnterpriseMiddleware } from "@backend/utils/recaptcha-enterprise"
 
 const router = Router()
 
-router.post("/login", recaptchaEnterpriseMiddleware("LOGIN", 0.5), login as any)
-router.post("/register", recaptchaEnterpriseMiddleware("REGISTER", 0.7), register as any)
+// reCAPTCHA v3 검증은 authController에서 직접 수행
+router.post("/login", login as any)
+router.post("/register", register as any)
 router.post("/refresh", refreshToken as any)
 router.post("/logout", logout as any)
 router.get("/check", authMiddleware, checkAuth as any)

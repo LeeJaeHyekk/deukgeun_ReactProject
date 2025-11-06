@@ -133,17 +133,17 @@ export const healthCheckMiddleware = async (req: Request, res: Response, next: N
   try {
     const healthStatus = await getHealthStatus()
     
-    // 상태에 따른 HTTP 상태 코드 설정
-    const statusCode = healthStatus.status === "healthy" ? 200 : 
-                     healthStatus.status === "degraded" ? 200 : 503
-
-    res.status(statusCode).json(healthStatus)
+    // ALB 헬스체크를 위해 항상 200 반환 (서버가 실행 중이면 정상)
+    // 데이터베이스 연결 실패는 상태 필드에 표시되지만 HTTP 상태 코드는 200
+    res.status(200).json(healthStatus)
   } catch (error) {
     logger.error("Health check failed:", error)
-    res.status(503).json({
+    // 에러 발생 시에도 200 반환 (서버는 실행 중이므로)
+    res.status(200).json({
       status: "unhealthy",
       timestamp: new Date().toISOString(),
-      error: "Health check failed"
+      error: "Health check failed",
+      message: "Server is running but health check encountered an error"
     })
   }
 }

@@ -346,6 +346,8 @@ export default function FindIdPage() {
 
         <div className={styles.inputGroup}>
           <input
+            id="name"
+            name="name"
             type="text"
             value={formData.name}
             onChange={e => {
@@ -364,6 +366,7 @@ export default function FindIdPage() {
             className={`${styles.input} ${
               errors.name ? styles.inputError : ''
             }`}
+            autoComplete="name"
           />
           {errors.name && (
             <span className={styles.errorText}>{errors.name}</span>
@@ -372,6 +375,8 @@ export default function FindIdPage() {
 
         <div className={styles.inputGroup}>
           <input
+            id="phone"
+            name="phone"
             type="tel"
             value={formData.phone}
             onChange={handlePhoneChange}
@@ -385,6 +390,7 @@ export default function FindIdPage() {
             className={`${styles.input} ${
               errors.phone ? styles.inputError : ''
             }`}
+            autoComplete="tel"
             maxLength={13}
           />
           {errors.phone && (
@@ -437,6 +443,7 @@ export default function FindIdPage() {
         <div className={styles.recaptchaContainer}>
           <RecaptchaWidget
             onChange={handleRecaptchaChange}
+            action="FIND_ACCOUNT"
             className={styles.recaptchaWidget}
             aria-describedby={errors.recaptcha ? 'recaptcha-error' : undefined}
           />

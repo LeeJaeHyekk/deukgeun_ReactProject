@@ -47,8 +47,8 @@ export async function login(
       return
     }
 
-    // reCAPTCHA 검증
-    const isHuman = await verifyRecaptcha(recaptchaToken)
+    // reCAPTCHA 검증 (action: LOGIN)
+    const isHuman = await verifyRecaptcha(recaptchaToken, "LOGIN", req)
     if (!isHuman) {
       logger.warn(`reCAPTCHA 실패 - IP: ${req.ip}, Email: ${email}`)
       res.status(403).json({
@@ -445,8 +445,8 @@ export const register = async (
     }
 
     console.log("🔄 reCAPTCHA 검증 시작")
-    // reCAPTCHA 검증
-    const isHuman = await verifyRecaptcha(recaptchaToken)
+    // reCAPTCHA 검증 (action: REGISTER)
+    const isHuman = await verifyRecaptcha(recaptchaToken, "REGISTER", req)
     if (!isHuman) {
       console.log("❌ reCAPTCHA 검증 실패")
       logger.warn(`회원가입 reCAPTCHA 실패 - IP: ${req.ip}, Email: ${email}`)
@@ -701,8 +701,8 @@ export async function findId(
       return
     }
 
-    // reCAPTCHA 검증
-    const isHuman = await verifyRecaptcha(recaptchaToken)
+    // reCAPTCHA 검증 (action: FIND_ACCOUNT)
+    const isHuman = await verifyRecaptcha(recaptchaToken, "FIND_ACCOUNT", req)
     if (!isHuman) {
       logger.warn(
         `reCAPTCHA 실패 (아이디 찾기) - IP: ${req.ip}, Email: ${email}`
@@ -788,8 +788,8 @@ export async function findPassword(
       return
     }
 
-    // reCAPTCHA 검증
-    const isHuman = await verifyRecaptcha(recaptchaToken)
+    // reCAPTCHA 검증 (action: FIND_PASSWORD)
+    const isHuman = await verifyRecaptcha(recaptchaToken, "FIND_PASSWORD", req)
     if (!isHuman) {
       logger.warn(
         `reCAPTCHA 실패 (비밀번호 찾기) - IP: ${req.ip}, Email: ${email}`
@@ -866,8 +866,8 @@ export async function findIdStep1(
       return
     }
 
-    // reCAPTCHA 검증
-    const isHuman = await verifyRecaptcha(recaptchaToken)
+    // reCAPTCHA 검증 (action: FIND_ACCOUNT)
+    const isHuman = await verifyRecaptcha(recaptchaToken, "FIND_ACCOUNT", req)
     if (!isHuman) {
       logger.warn(`reCAPTCHA 실패 (아이디 찾기 Step 1) - IP: ${req.ip}`)
       res.status(403).json({
@@ -940,8 +940,8 @@ export async function findIdStep2(
       return
     }
 
-    // reCAPTCHA 검증
-    const isHuman = await verifyRecaptcha(recaptchaToken)
+    // reCAPTCHA 검증 (action: FIND_ACCOUNT)
+    const isHuman = await verifyRecaptcha(recaptchaToken, "FIND_ACCOUNT", req)
     if (!isHuman) {
       logger.warn(`reCAPTCHA 실패 (아이디 찾기 Step 2) - IP: ${req.ip}`)
       res.status(403).json({
@@ -1014,8 +1014,8 @@ export async function resetPasswordStep1(
       return
     }
 
-    // reCAPTCHA 검증
-    const isHuman = await verifyRecaptcha(recaptchaToken)
+    // reCAPTCHA 검증 (action: FIND_ACCOUNT)
+    const isHuman = await verifyRecaptcha(recaptchaToken, "FIND_ACCOUNT", req)
     if (!isHuman) {
       logger.warn(`reCAPTCHA 실패 (비밀번호 재설정 Step 1) - IP: ${req.ip}`)
       res.status(403).json({
@@ -1088,8 +1088,8 @@ export async function resetPasswordStep2(
       return
     }
 
-    // reCAPTCHA 검증
-    const isHuman = await verifyRecaptcha(recaptchaToken)
+    // reCAPTCHA 검증 (action: FIND_ACCOUNT)
+    const isHuman = await verifyRecaptcha(recaptchaToken, "FIND_ACCOUNT", req)
     if (!isHuman) {
       logger.warn(`reCAPTCHA 실패 (비밀번호 재설정 Step 2) - IP: ${req.ip}`)
       res.status(403).json({
@@ -1168,8 +1168,8 @@ export async function resetPasswordStep3(
       return
     }
 
-    // reCAPTCHA 검증
-    const isHuman = await verifyRecaptcha(recaptchaToken)
+    // reCAPTCHA 검증 (action: FIND_ACCOUNT)
+    const isHuman = await verifyRecaptcha(recaptchaToken, "FIND_ACCOUNT", req)
     if (!isHuman) {
       logger.warn(`reCAPTCHA 실패 (비밀번호 재설정 Step 3) - IP: ${req.ip}`)
       res.status(403).json({
@@ -1251,8 +1251,8 @@ export async function findIdSimple(
       return
     }
 
-    // reCAPTCHA 검증
-    const isHuman = await verifyRecaptcha(recaptchaToken)
+    // reCAPTCHA 검증 (action: FIND_ACCOUNT)
+    const isHuman = await verifyRecaptcha(recaptchaToken, "FIND_ACCOUNT", req)
     if (!isHuman) {
       logger.warn(`reCAPTCHA 실패 (단순 아이디 찾기) - IP: ${req.ip}`)
       res.status(403).json({
@@ -1331,8 +1331,8 @@ export async function resetPasswordSimpleStep1(
       birthday,
     })
 
-    // reCAPTCHA 검증
-    const recaptchaValid = await verifyRecaptcha(recaptchaToken)
+    // reCAPTCHA 검증 (action: FIND_ACCOUNT 또는 FIND_PASSWORD)
+    const recaptchaValid = await verifyRecaptcha(recaptchaToken, "FIND_ACCOUNT", req)
     if (!recaptchaValid) {
       res.status(400).json({
         success: false,
@@ -1403,8 +1403,8 @@ export async function resetPasswordSimpleStep2(
       req.body
     console.log("단순 비밀번호 재설정 Step 2 요청:", { username, code })
 
-    // reCAPTCHA 검증
-    const recaptchaValid = await verifyRecaptcha(recaptchaToken)
+    // reCAPTCHA 검증 (action: FIND_ACCOUNT 또는 FIND_PASSWORD)
+    const recaptchaValid = await verifyRecaptcha(recaptchaToken, "FIND_ACCOUNT", req)
     if (!recaptchaValid) {
       res.status(400).json({
         success: false,

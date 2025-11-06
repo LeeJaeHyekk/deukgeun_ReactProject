@@ -47,7 +47,12 @@ const productionFormat = winston.format.combine(
 )
 
 // 로그 파일 경로 설정
-const logDir = config.environment === "production" ? "/app/logs" : "./logs"
+// 프로덕션 환경에서도 프로젝트 루트의 logs 디렉토리 사용
+const logDir = path.join(process.cwd(), "logs")
+// 로그 디렉토리가 없으면 생성
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true })
+}
 const errorLogPath = path.join(logDir, "error.log")
 const combinedLogPath = path.join(logDir, "combined.log")
 const accessLogPath = path.join(logDir, "access.log")

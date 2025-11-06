@@ -291,6 +291,7 @@ export default function LoginPage() {
           <div className={styles.recaptchaContainer}>
             <RecaptchaWidget
               onChange={handleRecaptchaChange}
+              action="LOGIN"
               className={styles.recaptchaWidget}
               aria-describedby={
                 errors.recaptcha ? 'recaptcha-error' : undefined

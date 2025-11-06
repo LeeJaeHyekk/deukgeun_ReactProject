@@ -4,7 +4,7 @@
 // 기존 TypeORM 설정을 활용하되 엔티티 import 문제를 회피
 // EC2 환경에서 안정적으로 실행
 
-import { AppDataSource } from '../src/backend/config/databaseConfig'
+import { AppDataSource } from '../src/backend/config/databaseConfig.js'
 import bcrypt from 'bcrypt'
 import { readFileSync } from 'fs'
 import { join, dirname } from 'path'

@@ -166,12 +166,21 @@ async function setupSafeRoutes(app: express.Application): Promise<void> {
       console.warn("⚠️ Level routes failed:", error)
     }
     
+    // 6. reCAPTCHA 라우트 (우선순위 5 - 프론트엔드 로그 전송에 필요)
+    try {
+      const recaptchaRoutes = await import("@backend/routes/recaptcha")
+      app.use("/api/recaptcha", recaptchaRoutes.default)
+      console.log("✅ Recaptcha routes configured")
+    } catch (error) {
+      console.warn("⚠️ Recaptcha routes failed:", error)
+    }
+    
     // 5. 나머지 라우트들 (데이터베이스 연결 후)
     const isDatabaseConnected = await checkDatabaseConnection()
     if (isDatabaseConnected) {
       console.log("🔄 Database connected, loading additional routes...")
       
-      // Gym routes
+      // Gym routes (File is not defined 오류 방지)
       try {
         const { gymRoutes, enhancedGymRoutes } = await import("@backend/modules/gym")
         app.use("/api/gyms", gymRoutes)
@@ -179,6 +188,10 @@ async function setupSafeRoutes(app: express.Application): Promise<void> {
         console.log("✅ Gym routes configured")
       } catch (error) {
         console.warn("⚠️ Gym routes failed:", error)
+        // File is not defined 오류는 undici 모듈 문제이므로 무시하고 계속 진행
+        if (error instanceof ReferenceError && error.message.includes('File is not defined')) {
+          console.warn("⚠️ File is not defined 오류는 무시하고 계속 진행합니다 (undici 모듈 문제)")
+        }
       }
       
       // Machine routes
@@ -231,15 +244,20 @@ async function setupSafeRoutes(app: express.Application): Promise<void> {
       console.log("⚠️ Database not connected, skipping database-dependent routes")
     }
     
-    // 6. 404 핸들러
-    app.use("*", (req, res) => {
-      console.log(`🔍 404 - API endpoint not found: ${req.method} ${req.url}`)
-      res.status(404).json({ 
-        message: "API endpoint not found",
-        method: req.method,
-        url: req.url,
-        timestamp: new Date().toISOString()
-      })
+    // 6. 404 핸들러 (path-to-regexp 오류 방지를 위해 미들웨어 함수로 변경)
+    app.use((req, res, next) => {
+      // 모든 라우트를 거친 후에 도달하는 경우 404 처리
+      if (!res.headersSent) {
+        console.log(`🔍 404 - API endpoint not found: ${req.method} ${req.url}`)
+        res.status(404).json({ 
+          message: "API endpoint not found",
+          method: req.method,
+          url: req.url,
+          timestamp: new Date().toISOString()
+        })
+      } else {
+        next()
+      }
     })
     
     console.log("✅ All safe routes configured")
@@ -367,7 +385,8 @@ async function startServer(): Promise<void> {
     
     console.log(`🔄 Step 4: Starting server on port ${port}...`)
     
-    const server = app.listen(port, async () => {
+    // ALB 헬스체크를 위해 0.0.0.0에서 리스닝 (모든 인터페이스)
+    const server = app.listen(port, '0.0.0.0', async () => {
       console.log("=".repeat(60))
       console.log("🚀 DEUKGEUN BACKEND SERVER STARTED")
       console.log("=".repeat(60))

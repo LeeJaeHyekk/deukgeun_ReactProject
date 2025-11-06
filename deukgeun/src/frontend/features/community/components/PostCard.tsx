@@ -3,7 +3,7 @@ import { PostDTO as CommunityPost } from "../../../../shared/types"
 import { usePostLikes } from "../hooks/usePostLikes"
 import { getAuthorName, getCategoryName, truncateText } from "../utils/textUtils"
 import { formatRelativeTime } from "../utils/dateUtils"
-import styles from "./postCard.module.css"
+import styles from "./PostCard.module.css"
 
 interface PostCardProps {
   post: CommunityPost

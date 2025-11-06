@@ -1,10 +1,10 @@
 import React, { memo, useMemo, useCallback, useEffect, useRef } from "react"
 import { useSelector } from "react-redux"
-import { PostCard } from "./postCard"
+import { PostCard } from "./PostCard"
 import { PostDTO as CommunityPost } from "../../../../shared/types"
 import { makeSelectDisplayCommentCountWithFallback } from "../comments/commentsSelectors"
 import { RootState } from "../../../shared/store"
-import styles from "./postGrid.module.css"
+import styles from "./PostGrid.module.css"
 
 // PostCard with selector factory-based comment count
 const PostCardWithCommentCount = memo(function PostCardWithCommentCount({

@@ -26,14 +26,34 @@ const getApiConfig = () => {
     console.log('🔧 개발 환경 감지: localhost:5000 사용')
   }
   
-  if (!baseURL) {
+  // 프로덕션 환경에서 환경 변수가 없을 때 현재 도메인 사용
+  if (!baseURL && isProduction && typeof window !== 'undefined') {
+    baseURL = window.location.origin
+    console.log('🔧 프로덕션 환경: 현재 도메인을 API URL로 사용:', baseURL)
+  }
+  
+  if (!baseURL && !isProduction) {
     console.warn('⚠️ VITE_BACKEND_URL 환경 변수가 설정되지 않았습니다.')
     console.warn('⚠️ API 연결에 문제가 발생할 수 있습니다.')
     // 프론트엔드에서는 에러를 발생시키지 않고 경고만 표시
   }
 
-  // baseURL이 없을 때는 빈 문자열로 설정 (API 호출 시 에러 발생)
-  const safeBaseURL = baseURL || ''
+  // baseURL이 없을 때 런타임에 결정
+  let safeBaseURL = baseURL || ''
+  
+  // 브라우저 환경에서 런타임에 동적으로 결정
+  if (typeof window !== 'undefined' && !safeBaseURL) {
+    const currentOrigin = window.location.origin
+    const isProduction = import.meta.env.MODE === 'production'
+    
+    if (isProduction) {
+      safeBaseURL = currentOrigin
+    } else if (currentOrigin.includes('localhost')) {
+      safeBaseURL = 'http://localhost:5000'
+    } else {
+      safeBaseURL = currentOrigin
+    }
+  }
 
   if (isDevelopment) {
     return {

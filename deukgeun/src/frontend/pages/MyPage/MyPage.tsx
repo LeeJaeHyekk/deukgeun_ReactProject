@@ -10,8 +10,9 @@ import { useLevel } from "@frontend/shared/hooks/useLevel"
 import { LevelDisplay } from "@frontend/shared/components/LevelDisplay"
 import { Navigation } from "@widgets/Navigation/Navigation"
 import { selectCompletedWorkouts, selectWorkoutStatus, selectWorkoutError } from "@frontend/features/workout/selectors/workoutSelectors"
-import { fetchGoalsFromBackend } from "@frontend/features/workout/slices/workoutSlice"
+import { fetchGoalsFromBackend, type CompletedWorkout } from "@frontend/features/workout/slices/workoutSlice"
 import { useAppDispatch } from "@frontend/shared/store/hooks"
+import type { RootState } from "@frontend/shared/store"
 import { LoadingState, ErrorState } from "@frontend/features/workout/components/common"
 import { calculateLevelFromTotalExp } from "@frontend/shared/utils/levelUtils"
 import { useUserInfo, useWorkoutStats, useMyPageInitialization, useUserExp } from "./hooks"
@@ -28,16 +29,19 @@ function MyPage({ className }: MyPageProps) {
   const { user, logout, isLoggedIn } = useAuthRedux()
   
   // Redux 상태 - 선택적 구독으로 불필요한 리렌더링 방지
-  const completedWorkouts = useSelector(selectCompletedWorkouts, (prev, next) => {
-    // 배열 길이와 내용이 동일한지 비교
-    if (!prev || !next) return prev === next
-    if (prev.length !== next.length) return false
-    return prev.every((item, index) => {
-      const nextItem = next[index]
-      return item?.completedId === nextItem?.completedId &&
-             item?.completedAt === nextItem?.completedAt
-    })
-  }) || []
+  const completedWorkouts = useSelector<RootState, CompletedWorkout[]>(
+    selectCompletedWorkouts,
+    (prev, next) => {
+      // 배열 길이와 내용이 동일한지 비교
+      if (!prev || !next) return prev === next
+      if (prev.length !== next.length) return false
+      return prev.every((item, index) => {
+        const nextItem = next[index]
+        return item?.completedId === nextItem?.completedId &&
+               item?.completedAt === nextItem?.completedAt
+      })
+    }
+  ) || []
   const workoutStatus = useSelector(selectWorkoutStatus)
   const workoutError = useSelector(selectWorkoutError)
   

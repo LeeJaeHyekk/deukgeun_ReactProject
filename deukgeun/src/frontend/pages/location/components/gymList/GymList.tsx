@@ -1,5 +1,5 @@
 import { Gym } from "@frontend/pages/location/types/index"
-import { GymCard } from "../gymCard/GymCard"
+import { GymCard } from "../GymCard/GymCard"
 // import { SortSelect } from "@frontend/pages/location/components/SortSelect/SortSelect"
 import { SortOption, SortDirection } from "@frontend/pages/location/types"
 import styles from "./GymList.module.css"

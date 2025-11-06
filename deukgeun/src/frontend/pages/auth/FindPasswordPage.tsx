@@ -388,6 +388,8 @@ export default function FindPasswordPage() {
           {/* 인증 코드 입력 */}
           <div className={styles.inputGroup}>
             <input
+              id="code"
+              name="code"
               type="text"
               value={step2Data.code}
               onChange={e => {
@@ -411,6 +413,8 @@ export default function FindPasswordPage() {
           {/* 새 비밀번호 입력 */}
           <div className={styles.inputGroup}>
             <input
+              id="newPassword"
+              name="newPassword"
               type="password"
               value={step2Data.newPassword}
               onChange={e => {
@@ -430,6 +434,8 @@ export default function FindPasswordPage() {
           {/* 비밀번호 확인 입력 */}
           <div className={styles.inputGroup}>
             <input
+              id="confirmPassword"
+              name="confirmPassword"
               type="password"
               value={step2Data.confirmPassword}
               onChange={e => {
@@ -453,6 +459,7 @@ export default function FindPasswordPage() {
           <div className={styles.inputGroup}>
             <RecaptchaWidget
               onChange={handleRecaptchaChange}
+              action="FIND_PASSWORD"
               className={styles.recaptchaWidget}
             />
             {errors.recaptcha && (
@@ -494,6 +501,8 @@ export default function FindPasswordPage() {
         {/* 아이디 입력 */}
         <div className={styles.inputGroup}>
           <input
+            id="username"
+            name="username"
             type="email"
             value={step1Data.username}
             onChange={e => {
@@ -513,6 +522,8 @@ export default function FindPasswordPage() {
         {/* 이름 입력 */}
         <div className={styles.inputGroup}>
           <input
+            id="name"
+            name="name"
             type="text"
             value={step1Data.name}
             onChange={e => {
@@ -532,11 +543,14 @@ export default function FindPasswordPage() {
         {/* 휴대폰 번호 입력 */}
         <div className={styles.inputGroup}>
           <input
+            id="phone"
+            name="phone"
             type="tel"
             value={step1Data.phone}
             onChange={handlePhoneChange}
             className={styles.input}
             placeholder="휴대폰 번호 (010-1234-5678)"
+            autoComplete="tel"
             maxLength={13}
           />
           {errors.phone && (
@@ -579,10 +593,13 @@ export default function FindPasswordPage() {
             isClearable
             customInput={
               <input
+                id="birthday"
+                name="birthday"
                 className={styles.input}
                 placeholder="생년월일 (선택사항)"
                 value={step1Data.birthday}
                 onChange={handleBirthdayInputChange}
+                autoComplete="bday"
               />
             }
           />

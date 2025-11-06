@@ -39,16 +39,19 @@ function loadEnvironmentVariables() {
   console.log(`🔧 Backend directory: ${backendDir}`)
   console.log(`🔧 Project root: ${projectRoot}`)
   
-  // 우선순위에 따른 경로 선택 (백엔드 디렉토리 우선)
+  // 우선순위에 따른 경로 선택 (점 포함 .env.production 최우선)
   const envPaths = [
-    // 백엔드 디렉토리의 환경 파일들 (우선순위 높음)
-    path.join(backendDir, '.env.local'),
-    path.join(backendDir, '.env'),
-    path.join(backendDir, nodeEnv === 'production' ? 'env.production' : 'env.development'),
-    // 프로젝트 루트의 환경 파일들 (백업)
+    // 프로젝트 루트의 환경 파일들 (최우선 - 점 포함 형식)
+    path.join(projectRoot, nodeEnv === 'production' ? '.env.production' : '.env.development'),
+    // 프로젝트 루트의 환경 파일들 (점 없이 형식 - 호환성)
+    path.join(projectRoot, nodeEnv === 'production' ? 'env.production' : 'env.development'),
     path.join(projectRoot, '.env.local'),
     path.join(projectRoot, '.env'),
-    path.join(projectRoot, nodeEnv === 'production' ? 'env.production' : 'env.development'),
+    // 백엔드 디렉토리의 환경 파일들 (백업)
+    path.join(backendDir, '.env.local'),
+    path.join(backendDir, '.env'),
+    path.join(backendDir, nodeEnv === 'production' ? '.env.production' : '.env.development'),
+    path.join(backendDir, nodeEnv === 'production' ? 'env.production' : 'env.development'),
     // 상대 경로 (현재 작업 디렉토리 기준)
     '.env.local',
     '.env'

@@ -54,7 +54,7 @@ export async function verifyRecaptcha(
 **주요 변경사항:**
 ```typescript
 // 이전: Enterprise 체크
-const isEnterprise = config.RECAPTCHA.SITE_KEY === 'your_recaptcha_site_key_here'
+const isEnterprise = config.RECAPTCHA.SITE_KEY === '${VITE_RECAPTCHA_SITE_KEY}'
 const scriptUrl = isEnterprise 
   ? `https://www.google.com/recaptcha/enterprise.js?render=...`
   : `https://www.google.com/recaptcha/api.js?render=...`
@@ -216,11 +216,11 @@ tail -n 100 logs/recaptcha.log | jq '.'
     "expectedAction": "LOGIN",
     "score": 0.9,
     "action": "LOGIN",
-    "hostname": "deukgeun.site",
+    "hostname": "${RECAPTCHA_REGISTERED_DOMAINS}",
     "challenge_ts": "2025-11-06T08:15:23Z",
     "duration": "234ms",
     "userAgent": "Mozilla/5.0...",
-    "userIpAddress": "123.456.789.0",
+    "userIpAddress": "${USER_IP_ADDRESS}",
     "requestUrl": "/api/auth/login"
   },
   "environment": "production",

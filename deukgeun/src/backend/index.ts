@@ -1,6 +1,26 @@
 import "reflect-metadata"
 // 환경 변수 로딩을 가장 먼저 처리
-import "@backend/config/environmentConfig"
+import "@backend/config/env"
+
+// File polyfill for Node.js (undici 모듈 호환성)
+// Node.js 환경에서 브라우저 전용 API인 File을 사용하려고 할 때 발생하는 오류 방지
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  var File: any
+}
+
+if (typeof globalThis.File === 'undefined') {
+  // File이 정의되지 않은 경우 기본 구현 제공
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  globalThis.File = class File {
+    constructor(
+      public readonly name: string = '',
+      public readonly size: number = 0,
+      public readonly type: string = '',
+      public readonly lastModified: number = Date.now()
+    ) {}
+  }
+}
 
 // Express 기본 설정
 import express from "express"
@@ -41,6 +61,13 @@ import { weeklyCrawlingScheduler } from "@backend/schedulers/weeklyCrawlingSched
  */
 async function createApp(): Promise<express.Application> {
   const app = express()
+  
+  // Trust proxy 설정 (Nginx 리버스 프록시 사용 시 실제 클라이언트 IP 추출)
+  // 프로덕션 환경에서 리버스 프록시를 사용하는 경우 활성화
+  if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', true)
+    console.log('✅ Trust proxy 활성화 (프로덕션 환경)')
+  }
   
   // 기본 미들웨어 설정
   app.use(helmet())

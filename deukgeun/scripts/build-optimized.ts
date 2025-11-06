@@ -11,6 +11,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { execSync } from 'child_process'
 import { fileURLToPath } from 'url'
+import * as dotenv from 'dotenv'
 
 // 색상 출력을 위한 유틸리티
 const colors = {
@@ -311,6 +312,136 @@ class OptimizedBuildProcess {
   }
 
   /**
+   * .env.production 파일 로드 (안전장치 포함)
+   * env.ts와 동일한 우선순위 적용: .env.production > env.production
+   */
+  private loadProductionEnv(): Record<string, string> {
+    // env.ts와 동일한 우선순위 적용
+    const envPaths = [
+      path.join(this.options.projectRoot, '.env.production'), // 최우선 (점 포함)
+      path.join(this.options.projectRoot, 'env.production'),   // 호환성 (점 없음)
+    ]
+    
+    // 1. 파일 존재 확인 및 로드 시도
+    for (const envPath of envPaths) {
+      if (fs.existsSync(envPath)) {
+        try {
+          // 파일 읽기 권한 확인
+          fs.accessSync(envPath, fs.constants.R_OK)
+          
+          // 파일 내용 확인 (빈 파일 방지)
+          const fileContent = fs.readFileSync(envPath, 'utf-8').trim()
+          if (fileContent.length === 0) {
+            logWarning(`⚠️ ${envPath} 파일이 비어있습니다.`)
+            continue
+          }
+          
+          // dotenv 파싱 (에러 처리 포함)
+          const envProductionResult = dotenv.config({ 
+            path: envPath,
+            debug: this.options.verbose
+          })
+          
+          // 파싱 결과 확인
+          if (envProductionResult.parsed && Object.keys(envProductionResult.parsed).length > 0) {
+            const parsedCount = Object.keys(envProductionResult.parsed).length
+            log(`✅ .env.production 파일 로드 완료 (${parsedCount}개 변수) [${envPath}]`, 'green')
+            return envProductionResult.parsed
+          } else {
+            logWarning(`⚠️ ${envPath} 파일에서 변수를 파싱할 수 없습니다.`)
+            if (envProductionResult.error) {
+              logWarning(`   파싱 오류: ${envProductionResult.error.message}`)
+            }
+            continue
+          }
+        } catch (error) {
+          logError(`❌ ${envPath} 파일 로드 실패: ${(error as Error).message}`)
+          continue
+        }
+      }
+    }
+    
+    // 모든 파일이 없거나 로드 실패한 경우
+    logWarning(`⚠️ .env.production 파일이 존재하지 않거나 로드할 수 없습니다.`)
+    logWarning('   빌드는 계속 진행되지만 기본값 또는 process.env의 값이 사용됩니다.')
+    return {}
+  }
+
+  /**
+   * 환경 변수 유효성 검증
+   */
+  private validateEnvVar(key: string, value: string | undefined, isRequired: boolean = false): { isValid: boolean; error?: string } {
+    // 빈 값 체크
+    if (!value || value.trim() === '') {
+      if (isRequired) {
+        return { isValid: false, error: `${key}는 필수 환경 변수입니다.` }
+      }
+      return { isValid: true } // 선택적 변수는 빈 값 허용
+    }
+    
+    // 특정 변수 타입 검증
+    switch (key) {
+      case 'VITE_BACKEND_URL':
+      case 'VITE_FRONTEND_URL': {
+        // URL 형식 검증
+        try {
+          const url = new URL(value)
+          if (!['http:', 'https:'].includes(url.protocol)) {
+            return { isValid: false, error: `${key}는 http:// 또는 https://로 시작해야 합니다.` }
+          }
+        } catch {
+          return { isValid: false, error: `${key}는 유효한 URL 형식이어야 합니다.` }
+        }
+        break
+      }
+      
+      case 'VITE_FRONTEND_PORT': {
+        // 포트 번호 검증 (1-65535)
+        const port = parseInt(value, 10)
+        if (isNaN(port) || port < 1 || port > 65535) {
+          return { isValid: false, error: `${key}는 1-65535 범위의 유효한 포트 번호여야 합니다.` }
+        }
+        break
+      }
+      
+      case 'VITE_RECAPTCHA_SITE_KEY': {
+        // reCAPTCHA 키 형식 검증 (일반적으로 40자)
+        if (value.length < 20) {
+          return { isValid: false, error: `${key}는 유효한 reCAPTCHA Site Key 형식이어야 합니다.` }
+        }
+        break
+      }
+    }
+    
+    return { isValid: true }
+  }
+
+  /**
+   * 필수 환경 변수 검증
+   */
+  private validateRequiredEnvVars(env: Record<string, string>): { isValid: boolean; errors: string[] } {
+    const requiredVars = [
+      { key: 'VITE_BACKEND_URL', isRequired: true },
+      { key: 'VITE_FRONTEND_URL', isRequired: true },
+      { key: 'VITE_RECAPTCHA_SITE_KEY', isRequired: true }
+    ]
+    
+    const errors: string[] = []
+    
+    for (const { key, isRequired } of requiredVars) {
+      const validation = this.validateEnvVar(key, env[key], isRequired)
+      if (!validation.isValid) {
+        errors.push(validation.error || `${key} 검증 실패`)
+      }
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    }
+  }
+
+  /**
    * 프론트엔드 빌드
    */
   private async buildFrontend(): Promise<void> {
@@ -322,20 +453,122 @@ class OptimizedBuildProcess {
     }
     
     try {
-      // 프로덕션 환경 변수 설정
-      const env = {
+      // .env.production 파일에서 환경 변수 로드 (안전장치 포함)
+      let productionEnv: Record<string, string> = {}
+      try {
+        productionEnv = this.loadProductionEnv()
+      } catch (envError) {
+        // 파일 로드 실패 시 경고만 출력하고 계속 진행
+        logWarning(`⚠️ .env.production 파일 로드 실패: ${(envError as Error).message}`)
+        logWarning('   빌드는 계속 진행되지만 process.env의 값이 사용됩니다.')
+      }
+      
+      // 프로덕션 환경 변수 설정 (안전한 병합 및 우선순위)
+      // 우선순위: .env.production > process.env > 기본값
+      const envDefaults = {
+        VITE_BACKEND_URL: 'http://43.203.30.167:5000',
+        VITE_FRONTEND_URL: 'https://devtrail.net',
+        VITE_FRONTEND_PORT: '3000',
+        VITE_GYM_API_KEY: '',
+        VITE_RECAPTCHA_SITE_KEY: '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P'
+      }
+      
+      // 1. 기본값으로 시작
+      const env: Record<string, string> = {
         ...process.env,
         NODE_ENV: 'production',
         MODE: 'production',
-        VITE_BACKEND_URL: process.env.VITE_BACKEND_URL || 'http://43.203.30.167:5000',
-        VITE_FRONTEND_URL: process.env.VITE_FRONTEND_URL || 'https://devtrail.net',
-        VITE_RECAPTCHA_SITE_KEY: process.env.VITE_RECAPTCHA_SITE_KEY || '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P',
       }
+      
+      // 2. .env.production의 모든 VITE_* 변수 먼저 추가 (최우선)
+      Object.keys(productionEnv)
+        .filter(key => key.startsWith('VITE_'))
+        .forEach(key => {
+          const value = productionEnv[key]
+          if (value && value.trim() !== '') {
+            env[key] = value.trim()
+          }
+        })
+      
+      // 3. 명시적으로 정의된 변수들 처리 (우선순위: .env.production > process.env > 기본값)
+      const envKeys = Object.keys(envDefaults) as Array<keyof typeof envDefaults>
+      envKeys.forEach(key => {
+        env[key] = productionEnv[key] || process.env[key] || envDefaults[key]
+        
+        // 빈 문자열을 기본값으로 대체하지 않음 (의도적으로 빈 값일 수 있음)
+        if (env[key] === '' && envDefaults[key] !== '') {
+          env[key] = envDefaults[key]
+        }
+      })
+      
+      // 4. 환경 변수 유효성 검증
+      logStep('VALIDATE', '환경 변수 유효성 검증 중...')
+      const validation = this.validateRequiredEnvVars(env)
+      
+      if (!validation.isValid) {
+        logError('❌ 필수 환경 변수 검증 실패:')
+        validation.errors.forEach(error => {
+          logError(`   - ${error}`)
+        })
+        
+        logError('\n💡 해결 방법:')
+        logError('   1. .env.production 파일을 확인하고 필수 환경 변수를 설정하세요')
+        logError('   2. 또는 환경 변수로 직접 설정하세요 (process.env)')
+        logError('   3. 필수 환경 변수: VITE_BACKEND_URL, VITE_FRONTEND_URL, VITE_RECAPTCHA_SITE_KEY')
+        
+        throw new Error(`환경 변수 검증 실패: ${validation.errors.join(', ')}`)
+      }
+      
+      logSuccess('환경 변수 검증 완료')
       
       // 경로 구분자 정규화 (EC2 Linux 환경 대비)
       const normalizedRoot = this.options.projectRoot.replace(/\\/g, '/')
       
+      // 로드된 환경 변수 로그 (안전한 마스킹)
+      log('📋 프론트엔드 빌드 환경 변수:', 'cyan')
+      const viteEnvKeys = Object.keys(env).filter(key => key.startsWith('VITE_'))
+      
+      if (viteEnvKeys.length === 0) {
+        logWarning('⚠️ VITE_* 환경 변수가 하나도 설정되지 않았습니다.')
+      } else {
+        viteEnvKeys.forEach(key => {
+          const value = env[key] || ''
+          let displayValue: string
+          
+          // 민감 정보 마스킹 (KEY, SECRET 포함)
+          if (key.includes('SECRET') || key.includes('KEY') || key.includes('PASSWORD')) {
+            if (value.length > 15) {
+              displayValue = value.substring(0, 10) + '...' + value.substring(value.length - 4)
+            } else if (value.length > 0) {
+              displayValue = '***' + value.substring(value.length - 4)
+            } else {
+              displayValue = '(empty)'
+            }
+          } else {
+            displayValue = value || '(empty)'
+          }
+          
+          // 소스 표시 (어디서 왔는지)
+          const source = productionEnv[key] ? '.env.production' : 
+                        process.env[key] ? 'process.env' : 
+                        'default'
+          
+          log(`  ${key}=${displayValue} [${source}]`, 'blue')
+        })
+      }
+      
+      // 누락된 중요 환경 변수 경고
+      const importantVars = ['VITE_BACKEND_URL', 'VITE_FRONTEND_URL', 'VITE_RECAPTCHA_SITE_KEY']
+      const missingImportant = importantVars.filter(key => !env[key] || env[key].trim() === '')
+      
+      if (missingImportant.length > 0) {
+        logWarning(`⚠️ 중요 환경 변수가 설정되지 않았습니다: ${missingImportant.join(', ')}`)
+        logWarning('   기본값이 사용되지만, 프로덕션 환경에서는 명시적으로 설정하는 것을 권장합니다.')
+      }
+      
       // Vite 빌드 실행 (프로덕션 모드)
+      // Vite는 자동으로 .env.production 파일을 로드하지만, 
+      // 명시적으로 환경 변수를 전달하여 빌드 스크립트의 우선순위 보장
       try {
         execSync('npx vite build --mode production', {
           stdio: this.options.verbose ? 'inherit' : 'pipe',

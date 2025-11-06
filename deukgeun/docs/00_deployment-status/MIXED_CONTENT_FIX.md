@@ -5,16 +5,16 @@
 ### 발생한 오류
 ```
 페이지: https://www.devtrail.net/
-요청: http://43.203.30.167:5000/api/homepage/config ❌ (HTTP)
+요청: http://${VITE_BACKEND_HOST}:5000/api/homepage/config ❌ (HTTP)
 차단 사유: HTTPS 페이지에서 HTTP 호출 발생
 ```
 
 ### 근본 원인
 
-프론트엔드가 EC2 IP 주소(`43.203.30.167:5000`)를 API 기본 URL로 사용하고 있습니다:
+프론트엔드가 EC2 IP 주소(`${VITE_BACKEND_HOST}:5000`)를 API 기본 URL로 사용하고 있습니다:
 
 1. **하드코딩된 IP 주소**
-   - `http://43.203.30.167:5000`이 환경 변수나 코드에 하드코딩됨
+   - `http://${VITE_BACKEND_HOST}:5000`이 환경 변수나 코드에 하드코딩됨
    - ALB와 nginx를 건너뛰고 백엔드에 직접 접속 시도
 
 2. **Mixed Content 정책**
@@ -30,7 +30,7 @@
 ### 1. 프론트엔드 API URL 설정 수정
 
 **변경 전:**
-- `VITE_BACKEND_URL=http://43.203.30.167:5000` (하드코딩)
+- `VITE_BACKEND_URL=http://${VITE_BACKEND_HOST}:5000` (하드코딩)
 - 또는 환경 변수 없음 → fallback이 IP 주소 사용
 
 **변경 후:**
@@ -87,7 +87,7 @@ const safeBaseURL = baseURL || (isProduction && typeof window !== 'undefined'
 ```bash
 # Production Environment Variables
 VITE_BACKEND_URL=https://www.devtrail.net
-VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key_here
+VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY}
 ```
 
 **참고:** 환경 변수가 없어도 코드에서 자동으로 현재 도메인을 사용하도록 수정됨
@@ -155,7 +155,7 @@ curl -I https://www.devtrail.net/api/homepage/config
   ↓
 프론트엔드 JS 실행
   ↓
-API 요청: http://43.203.30.167:5000/api/homepage/config
+API 요청: http://${VITE_BACKEND_HOST}:5000/api/homepage/config
   ↓
 ❌ Mixed Content 차단
 ```
@@ -207,7 +207,7 @@ location /api/ {
 ## 📝 요약
 
 **문제:**
-- 프론트엔드가 `http://43.203.30.167:5000`을 API URL로 사용
+- 프론트엔드가 `http://${VITE_BACKEND_HOST}:5000`을 API URL로 사용
 - HTTPS 페이지에서 HTTP 호출로 Mixed Content 오류 발생
 
 **해결:**

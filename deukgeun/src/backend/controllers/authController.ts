@@ -445,6 +445,23 @@ export const register = async (
     }
 
     console.log("🔄 reCAPTCHA 검증 시작")
+    // reCAPTCHA 토큰 검증 (토큰 존재 여부 확인)
+    if (!recaptchaToken || typeof recaptchaToken !== 'string' || recaptchaToken.trim() === '') {
+      console.log("❌ reCAPTCHA 토큰이 없거나 유효하지 않음")
+      logger.warn(`회원가입 reCAPTCHA 토큰 누락 - IP: ${req.ip}, Email: ${email}`)
+      res.status(400).json({
+        success: false,
+        message: "보안 인증 토큰이 필요합니다. 페이지를 새로고침하고 다시 시도해주세요.",
+        error: "reCAPTCHA 토큰 누락",
+      })
+      return
+    }
+
+    console.log("✅ reCAPTCHA 토큰 수신:", {
+      tokenLength: recaptchaToken.length,
+      tokenPreview: recaptchaToken.substring(0, 20) + '...',
+    })
+
     // reCAPTCHA 검증 (action: REGISTER)
     const isHuman = await verifyRecaptcha(recaptchaToken, "REGISTER", req)
     if (!isHuman) {
@@ -452,8 +469,8 @@ export const register = async (
       logger.warn(`회원가입 reCAPTCHA 실패 - IP: ${req.ip}, Email: ${email}`)
       res.status(403).json({
         success: false,
-        message: "reCAPTCHA 검증에 실패했습니다.",
-        error: "reCAPTCHA 실패",
+        message: "보안 인증에 실패했습니다. 페이지를 새로고침하고 다시 시도해주세요.",
+        error: "reCAPTCHA 검증 실패",
       })
       return
     }

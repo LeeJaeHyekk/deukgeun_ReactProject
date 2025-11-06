@@ -887,16 +887,47 @@ class EnhancedJsToCjsConverter {
     
     // __dirname 사용 시 CommonJS에서 정상 작동하도록 보장
     // CommonJS에서는 __dirname이 자동 제공되므로, const __dirname = ... 선언 제거
-    // 패턴: const __dirname = (0, pathUtils_1.getDirname)();
-    // 패턴: const __dirname = (0, pathUtils_1.getDirname)();
+    // 더 포괄적인 패턴으로 개선 (모든 변형 처리)
+    
+    // 패턴 1: const __dirname = (0, pathUtils_1.getDirname)();
     convertedContent = convertedContent.replace(
       /const __dirname\s*=\s*\(0,\s*[^)]*\)\.getDirname\(\)\s*;?\s*/g,
       '// __dirname is automatically available in CommonJS\n'
     )
     
-    // 패턴: const __dirname = (pathUtils_1.getDirname)();
+    // 패턴 2: const __dirname = (pathUtils_1.getDirname)();
     convertedContent = convertedContent.replace(
       /const __dirname\s*=\s*\([^)]*\)\.getDirname\(\)\s*;?\s*/g,
+      '// __dirname is automatically available in CommonJS\n'
+    )
+    
+    // 패턴 3: const __dirname = getDirname();
+    convertedContent = convertedContent.replace(
+      /const __dirname\s*=\s*getDirname\(\)\s*;?\s*/g,
+      '// __dirname is automatically available in CommonJS\n'
+    )
+    
+    // 패턴 4: const __dirname = pathUtils_1.getDirname();
+    convertedContent = convertedContent.replace(
+      /const __dirname\s*=\s*pathUtils_[^.]*\.getDirname\(\)\s*;?\s*/g,
+      '// __dirname is automatically available in CommonJS\n'
+    )
+    
+    // 패턴 6: const __dirname = require('path').dirname(__filename) (다른 형태)
+    convertedContent = convertedContent.replace(
+      /const __dirname\s*=\s*require\(['"]path['"]\)\.dirname\(__filename\)\s*;?\s*/g,
+      '// __dirname is automatically available in CommonJS\n'
+    )
+    
+    // 패턴 7: const __dirname = require("path").dirname(__filename) (다른 따옴표)
+    convertedContent = convertedContent.replace(
+      /const __dirname\s*=\s*require\(["']path["']\)\.dirname\(__filename\)\s*;?\s*/g,
+      '// __dirname is automatically available in CommonJS\n'
+    )
+    
+    // 패턴 8: let __dirname = ... 또는 var __dirname = ... (다른 선언 키워드)
+    convertedContent = convertedContent.replace(
+      /(let|var)\s+__dirname\s*=\s*[^;]+;?\s*/g,
       '// __dirname is automatically available in CommonJS\n'
     )
     

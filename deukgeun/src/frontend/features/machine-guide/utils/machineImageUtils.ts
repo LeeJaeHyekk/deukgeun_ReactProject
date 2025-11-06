@@ -46,7 +46,7 @@ const machineImageMapping: Record<string, string> = {
   풀업딥스스테이션: "/img/machine/chin-up-dip-station.png",
   셀렉터라이즈드랫풀다운: "/img/machine/selectorized-lat-pulldown.png",
   셀렉터라이즈드레그컬: "/img/machine/selectorized-leg-curl.png",
-  그라운드베이스콤보인클라인: "/img/machine/ground-base-combo-incline.png",
+  그라운드베이스콤보인클라인: "/img/machine/Ground-Base-Combo-Incline.png",
   플레이트로디드레그프레스: "/img/machine/plate-loaded-leg-press.png",
   플레이트로디드스쿼트: "/img/machine/plate-loaded-squat.png",
   플레이트로디드와이드풀다운: "/img/machine/plate-loaded-wide-pulldown.png",

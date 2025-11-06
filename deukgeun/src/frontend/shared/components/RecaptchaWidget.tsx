@@ -268,8 +268,10 @@ function RecaptchaWidget({
           
           // 프론트엔드 로그를 백엔드로 전송
           try {
+            const { getApiBaseURL } = await import('@frontend/shared/config')
+            const { API_ENDPOINTS } = await import('@frontend/shared/config')
             const apiBaseUrl = getApiBaseURL()
-            await fetch(`${apiBaseUrl}/api/recaptcha/log`, {
+            await fetch(`${apiBaseUrl}${API_ENDPOINTS.RECAPTCHA.LOG}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({

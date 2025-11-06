@@ -40,8 +40,7 @@ env.production
 env.development
 env.sample
 env.unified
-env.ec2
-env.development 
+env.ec2 
 
 # TypeScript build artifacts
 *.tsbuildinfo
@@ -112,7 +111,9 @@ database.yml
 
 # PM2 and process management
 # Note: ecosystem.config.cjs는 Git에 커밋하되, 민감한 정보는 환경 변수로 관리
-# ecosystem.config.js
+# 하지만 하드코딩된 키가 포함되어 있으므로 gitignore에 추가
+ecosystem.config.cjs
+ecosystem.config.js
 pm2.config.js
 .pm2/
 
@@ -141,6 +142,17 @@ nginx.conf
 config.json
 secrets.json
 credentials.json
+
+# Scripts with hardcoded sensitive values
+scripts/build-optimized.ts
+scripts/setup-database.sh
+
+# Documentation files with hardcoded keys
+RECAPTCHA_V3_FIX_COMPLETE.md
+recaptcha_v3_summary.md
+Recaptcha_troubleshooting.md
+RECAPTCHA_SETUP_GUIDE.md
+docs/00_security/SECURITY_AUDIT_REPORT.md
 
 # IDE and editor specific
 .vscode/settings.json

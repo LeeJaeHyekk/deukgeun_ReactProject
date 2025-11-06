@@ -37,11 +37,13 @@
 NODE_ENV=production
 MODE=production
 PORT=5000
-CORS_ORIGIN=https://devtrail.net,https://www.devtrail.net,http://43.203.30.167:3000,http://43.203.30.167:5000
-VITE_BACKEND_URL=http://43.203.30.167:5000
-VITE_FRONTEND_URL=https://www.devtrail.net
-VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key_here
-RECAPTCHA_SITE_KEY=your_recaptcha_site_key_here
+CORS_ORIGIN=${CORS_ORIGIN}
+VITE_BACKEND_URL=${VITE_BACKEND_URL}
+VITE_FRONTEND_URL=${VITE_FRONTEND_URL}
+VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY}
+RECAPTCHA_SITE_KEY=${RECAPTCHA_SITE_KEY}
+
+**⚠️ 중요:** 실제 값은 환경 변수 파일에 설정하거나 환경 변수로 직접 설정해야 합니다.
 NODE_PATH=./dist/backend/backend
 ```
 

@@ -24,8 +24,8 @@ env_production: {
   JWT_SECRET: 'deukgeun_jwt_secret_2024_change_in_production',  // ⚠️ JWT 시크릿 노출
   JWT_ACCESS_SECRET: 'deukgeun_access_secret_2024_change_in_production',  // ⚠️ JWT 액세스 시크릿 노출
   JWT_REFRESH_SECRET: 'deukgeun_refresh_secret_2024_change_in_production',  // ⚠️ JWT 리프레시 시크릿 노출
-  VITE_RECAPTCHA_SITE_KEY: '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P',  // ⚠️ reCAPTCHA Site Key 노출
-  RECAPTCHA_SITE_KEY: '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P',  // ⚠️ reCAPTCHA Site Key 노출
+  VITE_RECAPTCHA_SITE_KEY: '${VITE_RECAPTCHA_SITE_KEY}',  // ⚠️ reCAPTCHA Site Key 노출 (환경 변수로 대체 필요)
+  RECAPTCHA_SITE_KEY: '${RECAPTCHA_SITE_KEY}',  // ⚠️ reCAPTCHA Site Key 노출 (환경 변수로 대체 필요)
 }
 ```
 
@@ -49,7 +49,7 @@ env_production: {
 **문제점**: reCAPTCHA Site Key가 HTML 파일에 직접 하드코딩되어 있음
 
 ```html
-<script src="https://www.google.com/recaptcha/enterprise.js?render=6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P"></script>
+<script src="https://www.google.com/recaptcha/enterprise.js?render=${VITE_RECAPTCHA_SITE_KEY}"></script>
 ```
 
 **위험도**: 🟡 **중간**
@@ -174,7 +174,7 @@ env_production: {
 
 **현재**:
 ```html
-<script src="https://www.google.com/recaptcha/enterprise.js?render=6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P"></script>
+<script src="https://www.google.com/recaptcha/enterprise.js?render=${VITE_RECAPTCHA_SITE_KEY}"></script>
 ```
 
 **권장**:
@@ -193,7 +193,7 @@ env_production: {
 
 **권장**:
 - 모든 문서의 실제 키를 예제 값으로 변경
-- 예: `6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P` → `your_recaptcha_site_key_here`
+- 예: `${VITE_RECAPTCHA_SITE_KEY}` → 환경 변수로 설정
 - 예: `deukgeun_password_2024` → `your_database_password_here`
 
 ---

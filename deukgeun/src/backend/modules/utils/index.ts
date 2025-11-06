@@ -32,6 +32,6 @@ export { performanceMonitor } from "@backend/middlewares/performanceMonitor"
 export { mixValidation } from "@backend/middlewares/mixValidation"
 
 // 설정
-export { config } from "@backend/config/environmentConfig"
+export { config } from "@backend/config/env"
 export { AppDataSource } from "@backend/config/databaseConfig"
 export { levelConfig } from "@backend/config/levelConfig"

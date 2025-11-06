@@ -7,8 +7,8 @@ import path from 'path'
 
 // ESM/CJS 호환 __dirname 대체
 export function getDirname(): string {
-  // CJS 환경에서 __dirname 사용
-  if (typeof __dirname !== 'undefined') {
+  // CJS 환경에서 __dirname 사용 (단, 이미 선언되지 않은 경우에만)
+  if (typeof __dirname !== 'undefined' && typeof (global as any).__dirname === 'undefined') {
     return __dirname
   }
   

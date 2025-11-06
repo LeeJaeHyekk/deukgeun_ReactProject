@@ -117,8 +117,8 @@ JWT_REFRESH_SECRET=your_refresh_secret_change_this_in_production
 CORS_ORIGIN=https://www.devtrail.net,https://devtrail.net
 
 # reCAPTCHA 설정
-RECAPTCHA_SITE_KEY=your_recaptcha_site_key_here
-RECAPTCHA_SECRET=your_recaptcha_secret
+RECAPTCHA_SITE_KEY=${RECAPTCHA_SITE_KEY}
+RECAPTCHA_SECRET=${RECAPTCHA_SECRET}
 EOF
 
 # 파일 권한 설정 (보안)
@@ -132,11 +132,11 @@ env_production: {
   NODE_ENV: 'production',
   MODE: 'production',
   PORT: 5000,
-  CORS_ORIGIN: 'https://devtrail.net,https://www.devtrail.net,http://43.203.30.167:3000,http://43.203.30.167:5000',
-  VITE_BACKEND_URL: 'http://43.203.30.167:5000',
-  VITE_FRONTEND_URL: 'https://www.devtrail.net',
-  VITE_RECAPTCHA_SITE_KEY: 'your_recaptcha_site_key_here',
-  RECAPTCHA_SITE_KEY: 'your_recaptcha_site_key_here',
+  CORS_ORIGIN: '${CORS_ORIGIN}',
+  VITE_BACKEND_URL: '${VITE_BACKEND_URL}',
+  VITE_FRONTEND_URL: '${VITE_FRONTEND_URL}',
+  VITE_RECAPTCHA_SITE_KEY: '${VITE_RECAPTCHA_SITE_KEY}',
+  RECAPTCHA_SITE_KEY: '${RECAPTCHA_SITE_KEY}',
   NODE_PATH: './dist/backend/backend',
   // 데이터베이스 설정 추가
   DB_HOST: 'localhost',
@@ -186,8 +186,8 @@ JWT_REFRESH_SECRET=your_refresh_secret
 CORS_ORIGIN=https://www.devtrail.net,https://devtrail.net
 
 # reCAPTCHA 설정
-RECAPTCHA_SITE_KEY=your_recaptcha_site_key_here
-RECAPTCHA_SECRET=your_recaptcha_secret
+RECAPTCHA_SITE_KEY=${RECAPTCHA_SITE_KEY}
+RECAPTCHA_SECRET=${RECAPTCHA_SECRET}
 EOF
 
 # ecosystem.config.cjs 업데이트

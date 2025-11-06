@@ -1,5 +1,5 @@
 import { createConnection } from "typeorm"
-import { config } from "@backend/config/environmentConfig"
+import { config } from "@backend/config/env"
 import { WorkoutSession } from '@backend/entities/WorkoutSession'
 import { ExerciseSet } from "@backend/entities/ExerciseSet"
 import { WorkoutGoal } from "@backend/entities/WorkoutGoal"

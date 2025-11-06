@@ -15,7 +15,9 @@
 - **포트**: 3306
 - **사용자**: deukgeun
 - **데이터베이스**: deukgeun_db
-- **비밀번호**: your_database_password_here
+- **비밀번호**: ${DB_PASSWORD}
+
+**⚠️ 중요:** 실제 값은 환경 변수 파일에 설정하거나 환경 변수로 직접 설정해야 합니다.
 
 ### 3. 연결 테스트 결과
 - ✅ **TCP/IP 연결**: 성공 (127.0.0.1:3306)
@@ -42,7 +44,7 @@ env_production: {
   DB_HOST: 'localhost',
   DB_PORT: '3306',
   DB_USERNAME: 'deukgeun',
-  DB_PASSWORD: 'your_database_password_here',
+  DB_PASSWORD: '${DB_PASSWORD}',
   DB_DATABASE: 'deukgeun_db',
 }
 ```
@@ -60,12 +62,12 @@ database: process.env.DB_DATABASE || process.env.DB_NAME || "deukgeun_db",
 
 ### 기본 연결 테스트
 ```bash
-mysql -u deukgeun -p'your_database_password_here' -h 127.0.0.1 -P 3306 -e "SELECT 1 as test;"
+mysql -u deukgeun -p'${DB_PASSWORD}' -h 127.0.0.1 -P 3306 -e "SELECT 1 as test;"
 ```
 
 ### 데이터베이스 확인
 ```bash
-mysql -u deukgeun -p'your_database_password_here' -h 127.0.0.1 -P 3306 -e "SHOW DATABASES;"
+mysql -u deukgeun -p'${DB_PASSWORD}' -h 127.0.0.1 -P 3306 -e "SHOW DATABASES;"
 ```
 
 ### 프로젝트 디버그 스크립트

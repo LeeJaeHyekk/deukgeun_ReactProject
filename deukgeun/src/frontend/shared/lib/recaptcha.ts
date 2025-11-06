@@ -19,6 +19,9 @@ if (typeof window === 'undefined') {
   global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
 }
 
+// Console 타입 정의 보장 (타입 오류 방지)
+declare const console: Console
+
 // Default config values
 export const config = {
   RECAPTCHA: {

@@ -1,3 +1,46 @@
+// env.production 파일에서 환경 변수 로드
+const fs = require('fs')
+const path = require('path')
+const dotenv = require('dotenv')
+
+// 프로젝트 루트 경로
+const projectRoot = __dirname
+
+// env.production 파일 경로
+const envProductionPath = path.join(projectRoot, 'env.production')
+
+// env.production 파일 로드
+let envProduction = {}
+if (fs.existsSync(envProductionPath)) {
+  try {
+    const envFileContent = fs.readFileSync(envProductionPath, 'utf-8')
+    envProduction = dotenv.parse(envFileContent)
+    console.log(`✅ env.production 파일 로드 완료: ${Object.keys(envProduction).length}개 변수`)
+  } catch (error) {
+    console.warn(`⚠️ env.production 파일 로드 실패: ${error.message}`)
+  }
+} else {
+  console.warn(`⚠️ env.production 파일이 존재하지 않습니다: ${envProductionPath}`)
+}
+
+// 환경 변수 우선순위: env.production > process.env > 기본값
+// 단, process.env의 값이 placeholder이면 env.production 우선
+function getEnvVar(key, defaultValue = '') {
+  const processValue = process.env[key]
+  const envProdValue = envProduction[key]
+  
+  // process.env 값이 placeholder이면 무시하고 env.production 값 사용
+  if (processValue && (processValue.includes('your_recaptcha') || processValue.includes('placeholder'))) {
+    if (envProdValue && !envProdValue.includes('your_recaptcha') && !envProdValue.includes('placeholder')) {
+      return envProdValue
+    }
+    return defaultValue
+  }
+  
+  // 정상적인 우선순위: env.production > process.env > 기본값
+  return envProdValue || processValue || defaultValue
+}
+
 module.exports = {
   apps: [
     {
@@ -23,23 +66,47 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         MODE: 'production',
-        PORT: process.env.PORT || 5000,
-        CORS_ORIGIN: process.env.CORS_ORIGIN || 'https://devtrail.net,https://www.devtrail.net',
-        VITE_BACKEND_URL: process.env.VITE_BACKEND_URL || '',
-        VITE_FRONTEND_URL: process.env.VITE_FRONTEND_URL || 'https://www.devtrail.net',
-        VITE_RECAPTCHA_SITE_KEY: process.env.VITE_RECAPTCHA_SITE_KEY || '',
-        RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY || '',
+        PORT: getEnvVar('PORT', '5000'),
+        CORS_ORIGIN: getEnvVar('CORS_ORIGIN', 'https://devtrail.net,https://www.devtrail.net,http://43.203.30.167:3000,http://43.203.30.167:5000'),
+        VITE_BACKEND_URL: getEnvVar('VITE_BACKEND_URL', ''),
+        VITE_FRONTEND_URL: getEnvVar('VITE_FRONTEND_URL', 'https://www.devtrail.net'),
+        // reCAPTCHA v3 설정 (프로덕션) - env.production에서 우선 로드
+        VITE_RECAPTCHA_SITE_KEY: getEnvVar('VITE_RECAPTCHA_SITE_KEY', '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P'),
+        RECAPTCHA_SITE_KEY: getEnvVar('RECAPTCHA_SITE_KEY', '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P'),
+        RECAPTCHA_SECRET_KEY: getEnvVar('RECAPTCHA_SECRET_KEY') || getEnvVar('RECAPTCHA_SECRET') || '',
+        RECAPTCHA_SECRET: getEnvVar('RECAPTCHA_SECRET') || getEnvVar('RECAPTCHA_SECRET_KEY') || '',
+        // 등록된 도메인 목록 (쉼표로 구분, Google Console에 등록된 도메인과 일치해야 함)
+        RECAPTCHA_REGISTERED_DOMAINS: getEnvVar('RECAPTCHA_REGISTERED_DOMAINS', 'devtrail.net,www.devtrail.net,43.203.30.167,localhost,127.0.0.1'),
+        // 서울시 공공데이터 API 키 (스케줄링 크롤링용)
+        SEOUL_OPENAPI_KEY: getEnvVar('SEOUL_OPENAPI_KEY', '467572475373737933314e4e494377'),
         NODE_PATH: './dist/backend/backend',
-        // 데이터베이스 설정 (환경 변수에서 읽어옴)
-        DB_HOST: process.env.DB_HOST || 'localhost',
-        DB_PORT: process.env.DB_PORT || '3306',
-        DB_USERNAME: process.env.DB_USERNAME || '',
-        DB_PASSWORD: process.env.DB_PASSWORD || '',
-        DB_DATABASE: process.env.DB_DATABASE || process.env.DB_NAME || 'deukgeun_db',
-        // JWT 설정 (환경 변수에서 읽어옴)
-        JWT_SECRET: process.env.JWT_SECRET || '',
-        JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || '',
-        JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || '',
+        // 데이터베이스 설정 (env.production에서 우선 로드)
+        DB_HOST: getEnvVar('DB_HOST', 'localhost'),
+        DB_PORT: getEnvVar('DB_PORT', '3306'),
+        DB_USERNAME: getEnvVar('DB_USERNAME', ''),
+        DB_PASSWORD: getEnvVar('DB_PASSWORD', ''),
+        DB_DATABASE: getEnvVar('DB_DATABASE') || getEnvVar('DB_NAME', 'deukgeun_db'),
+        // JWT 설정 (env.production에서 우선 로드)
+        JWT_SECRET: getEnvVar('JWT_SECRET', ''),
+        JWT_ACCESS_SECRET: getEnvVar('JWT_ACCESS_SECRET', ''),
+        JWT_REFRESH_SECRET: getEnvVar('JWT_REFRESH_SECRET', ''),
+        // 이메일 설정 (env.production에서 우선 로드)
+        EMAIL_HOST: getEnvVar('EMAIL_HOST', 'smtp.gmail.com'),
+        EMAIL_PORT: getEnvVar('EMAIL_PORT', '587'),
+        EMAIL_USER: getEnvVar('EMAIL_USER', ''),
+        EMAIL_PASS: getEnvVar('EMAIL_PASS', ''),
+        // Rate Limiting 설정 (env.production에서 우선 로드)
+        RATE_LIMIT_WINDOW: getEnvVar('RATE_LIMIT_WINDOW', '900000'),
+        RATE_LIMIT_MAX: getEnvVar('RATE_LIMIT_MAX', '100'),
+        // 파일 업로드 설정 (env.production에서 우선 로드)
+        UPLOAD_PATH: getEnvVar('UPLOAD_PATH', './uploads'),
+        MAX_FILE_SIZE: getEnvVar('MAX_FILE_SIZE', '10485760'),
+        // 스케줄러 설정 (env.production에서 우선 로드)
+        AUTO_UPDATE_ENABLED: getEnvVar('AUTO_UPDATE_ENABLED', 'true'),
+        AUTO_UPDATE_HOUR: getEnvVar('AUTO_UPDATE_HOUR', '6'),
+        AUTO_UPDATE_MINUTE: getEnvVar('AUTO_UPDATE_MINUTE', '0'),
+        AUTO_UPDATE_TYPE: getEnvVar('AUTO_UPDATE_TYPE', 'enhanced'),
+        AUTO_UPDATE_INTERVAL_DAYS: getEnvVar('AUTO_UPDATE_INTERVAL_DAYS', '3'),
         // AWS RDS 사용 시 환경 변수에 설정
         // DB_HOST: process.env.DB_HOST || 'your-rds-endpoint.region.rds.amazonaws.com',
       },

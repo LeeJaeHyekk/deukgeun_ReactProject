@@ -13,7 +13,7 @@
 ### 1단계: Google reCAPTCHA 콘솔에서 키 확인
 
 1. [Google reCAPTCHA 관리자 페이지](https://www.google.com/recaptcha/admin) 접속
-2. Site Key `6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P` 클릭
+2. Site Key `your_recaptcha_site_key_here` 클릭
 3. 다음 항목 확인:
 
 #### 필수 확인 사항:

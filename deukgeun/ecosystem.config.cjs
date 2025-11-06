@@ -23,29 +23,25 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         MODE: 'production',
-        PORT: 5000,
-        CORS_ORIGIN: 'https://devtrail.net,https://www.devtrail.net,http://43.203.30.167:3000,http://43.203.30.167:5000',
-        VITE_BACKEND_URL: 'http://43.203.30.167:5000',
-        VITE_FRONTEND_URL: 'https://www.devtrail.net',
-        VITE_RECAPTCHA_SITE_KEY: '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P',
-        RECAPTCHA_SITE_KEY: '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P',
+        PORT: process.env.PORT || 5000,
+        CORS_ORIGIN: process.env.CORS_ORIGIN || 'https://devtrail.net,https://www.devtrail.net',
+        VITE_BACKEND_URL: process.env.VITE_BACKEND_URL || '',
+        VITE_FRONTEND_URL: process.env.VITE_FRONTEND_URL || 'https://www.devtrail.net',
+        VITE_RECAPTCHA_SITE_KEY: process.env.VITE_RECAPTCHA_SITE_KEY || '',
+        RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY || '',
         NODE_PATH: './dist/backend/backend',
-        // 데이터베이스 설정 (MySQL)
-        DB_HOST: 'localhost',
-        DB_PORT: '3306',
-        DB_USERNAME: 'deukgeun',
-        DB_PASSWORD: 'deukgeun_password_2024',
-        DB_DATABASE: 'deukgeun_db',
-        // JWT 설정 (실제 값으로 변경 필요)
-        JWT_SECRET: 'deukgeun_jwt_secret_2024_change_in_production',
-        JWT_ACCESS_SECRET: 'deukgeun_access_secret_2024_change_in_production',
-        JWT_REFRESH_SECRET: 'deukgeun_refresh_secret_2024_change_in_production',
-        // AWS RDS 사용 시 아래 주석 해제하고 위 설정 주석 처리
-        // DB_HOST: 'your-rds-endpoint.region.rds.amazonaws.com',
-        // DB_PORT: '3306',
-        // DB_USERNAME: 'admin',
-        // DB_PASSWORD: 'your_rds_password',
-        // DB_DATABASE: 'deukgeun_db',
+        // 데이터베이스 설정 (환경 변수에서 읽어옴)
+        DB_HOST: process.env.DB_HOST || 'localhost',
+        DB_PORT: process.env.DB_PORT || '3306',
+        DB_USERNAME: process.env.DB_USERNAME || '',
+        DB_PASSWORD: process.env.DB_PASSWORD || '',
+        DB_DATABASE: process.env.DB_DATABASE || process.env.DB_NAME || 'deukgeun_db',
+        // JWT 설정 (환경 변수에서 읽어옴)
+        JWT_SECRET: process.env.JWT_SECRET || '',
+        JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || '',
+        JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || '',
+        // AWS RDS 사용 시 환경 변수에 설정
+        // DB_HOST: process.env.DB_HOST || 'your-rds-endpoint.region.rds.amazonaws.com',
       },
       // 로그 설정 개선 (EC2 환경에서 절대 경로 사용)
       error_file: './logs/backend-error.log',

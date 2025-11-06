@@ -6,7 +6,7 @@
 
 **수정 기간**: 2025-11-05  
 **최종 버전**: reCAPTCHA v3 (표준 API)  
-**Site Key**: `6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P`
+**Site Key**: `your_recaptcha_site_key_here`
 
 ---
 

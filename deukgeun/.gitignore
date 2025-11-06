@@ -111,7 +111,8 @@ database.yml
 *.sqlite3
 
 # PM2 and process management
-ecosystem.config.js
+# Note: ecosystem.config.cjs는 Git에 커밋하되, 민감한 정보는 환경 변수로 관리
+# ecosystem.config.js
 pm2.config.js
 .pm2/
 

@@ -117,7 +117,7 @@ JWT_REFRESH_SECRET=your_refresh_secret_change_this_in_production
 CORS_ORIGIN=https://www.devtrail.net,https://devtrail.net
 
 # reCAPTCHA 설정
-RECAPTCHA_SITE_KEY=6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P
+RECAPTCHA_SITE_KEY=your_recaptcha_site_key_here
 RECAPTCHA_SECRET=your_recaptcha_secret
 EOF
 
@@ -135,8 +135,8 @@ env_production: {
   CORS_ORIGIN: 'https://devtrail.net,https://www.devtrail.net,http://43.203.30.167:3000,http://43.203.30.167:5000',
   VITE_BACKEND_URL: 'http://43.203.30.167:5000',
   VITE_FRONTEND_URL: 'https://www.devtrail.net',
-  VITE_RECAPTCHA_SITE_KEY: '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P',
-  RECAPTCHA_SITE_KEY: '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P',
+  VITE_RECAPTCHA_SITE_KEY: 'your_recaptcha_site_key_here',
+  RECAPTCHA_SITE_KEY: 'your_recaptcha_site_key_here',
   NODE_PATH: './dist/backend/backend',
   // 데이터베이스 설정 추가
   DB_HOST: 'localhost',
@@ -186,7 +186,7 @@ JWT_REFRESH_SECRET=your_refresh_secret
 CORS_ORIGIN=https://www.devtrail.net,https://devtrail.net
 
 # reCAPTCHA 설정
-RECAPTCHA_SITE_KEY=6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P
+RECAPTCHA_SITE_KEY=your_recaptcha_site_key_here
 RECAPTCHA_SECRET=your_recaptcha_secret
 EOF
 

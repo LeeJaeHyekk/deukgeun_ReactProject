@@ -54,7 +54,7 @@ export async function verifyRecaptcha(
 **주요 변경사항:**
 ```typescript
 // 이전: Enterprise 체크
-const isEnterprise = config.RECAPTCHA.SITE_KEY === '6LeKXgIsAAAAAO_09k3lshBH0jagb2uyNf2kvE8P'
+const isEnterprise = config.RECAPTCHA.SITE_KEY === 'your_recaptcha_site_key_here'
 const scriptUrl = isEnterprise 
   ? `https://www.google.com/recaptcha/enterprise.js?render=...`
   : `https://www.google.com/recaptcha/api.js?render=...`

@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const statsController_1 = require("../controllers/statsController.cjs");
-const rateLimiter_1 = require("../middlewares/rateLimiter.cjs");
-const auth_1 = require("../middlewares/auth.cjs");
+const statsController_1 = require('../controllers/statsController.cjs');
+const rateLimiter_1 = require('../middlewares/rateLimiter.cjs');
+const auth_1 = require('../middlewares/auth.cjs');
 const router = (0, express_1.Router)();
 const statsController = new statsController_1.StatsController();
 router.get("/platform", (0, rateLimiter_1.rateLimiter)(), statsController.getOverallStats);

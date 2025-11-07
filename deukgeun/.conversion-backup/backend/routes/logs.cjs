@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const auth_1 = require("../middlewares/auth.cjs");
-const logger_1 = require("../utils/logger.cjs");
+const auth_1 = require('../middlewares/auth.cjs');
+const logger_1 = require('../utils/logger.cjs');
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const router = express_1.default.Router();

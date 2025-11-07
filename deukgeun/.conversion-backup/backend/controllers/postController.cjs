@@ -34,11 +34,11 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostController = void 0;
-const postService_1 = require("../services/postService.cjs");
-const User_1 = require("../entities/User.cjs");
-const levelService_1 = require("../services/levelService.cjs");
-const databaseConfig_1 = require("../config/databaseConfig.cjs");
-const index_1 = require("../transformers/index.cjs");
+const postService_1 = require('../services/postService.cjs');
+const User_1 = require('../entities/User.cjs');
+const levelService_1 = require('../services/levelService.cjs');
+const databaseConfig_1 = require('../config/databaseConfig.cjs');
+const index_1 = require('../transformers/index.cjs');
 class PostController {
     constructor() {
         this.getAllPosts = async (req, res, next) => {
@@ -183,7 +183,7 @@ class PostController {
                     "achievements",
                     "challenges",
                 ];
-                const { Post } = await Promise.resolve().then(() => __importStar(require("../entities/Post.cjs")));
+                const { Post } = await Promise.resolve().then(() => __importStar(require('./entities/Post.cjs')));
                 const repo = databaseConfig_1.AppDataSource.getRepository(Post);
                 const categoryCounts = await Promise.all(categories.map(async (category) => {
                     const count = await repo.count({ where: { category } });
@@ -209,7 +209,7 @@ class PostController {
         };
         this.getCategoriesLive = async (_req, res, next) => {
             try {
-                const { Post } = await Promise.resolve().then(() => __importStar(require("../entities/Post.cjs")));
+                const { Post } = await Promise.resolve().then(() => __importStar(require('./entities/Post.cjs')));
                 const repo = databaseConfig_1.AppDataSource.getRepository(Post);
                 const result = await repo.query("SHOW COLUMNS FROM posts LIKE 'category'");
                 const type = result?.[0]?.Type;

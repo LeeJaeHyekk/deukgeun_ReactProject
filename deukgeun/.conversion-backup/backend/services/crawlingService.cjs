@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCrawlingService = getCrawlingService;
 exports.initializeCrawlingService = initializeCrawlingService;
 exports.cleanupCrawlingService = cleanupCrawlingService;
-const CrawlingService_1 = require("../modules/crawling/core/CrawlingService.cjs");
+const CrawlingService_1 = require('../modules/crawling/core/CrawlingService.cjs');
 let crawlingServiceInstance = null;
 function getCrawlingService(gymRepo) {
     if (!crawlingServiceInstance && gymRepo) {

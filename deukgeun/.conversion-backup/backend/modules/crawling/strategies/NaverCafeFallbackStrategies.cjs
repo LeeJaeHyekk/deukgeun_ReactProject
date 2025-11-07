@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NaverCafeFallbackStrategies = void 0;
-const AntiDetectionUtils_1 = require("../utils/AntiDetectionUtils.cjs");
+const AntiDetectionUtils_1 = require('../utils/AntiDetectionUtils.cjs');
 const axios_1 = __importDefault(require("axios"));
 class NaverCafeFallbackStrategies {
     static createSimplifiedQueryStrategy() {

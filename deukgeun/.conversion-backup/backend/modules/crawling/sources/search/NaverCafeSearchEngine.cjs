@@ -34,9 +34,9 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NaverCafeSearchEngine = void 0;
-const BaseSearchEngine_1 = require("./BaseSearchEngine.cjs");
-const AntiDetectionUtils_1 = require("../../utils/AntiDetectionUtils.cjs");
-const NaverCafeFallbackStrategies_1 = require("../../strategies/NaverCafeFallbackStrategies.cjs");
+const BaseSearchEngine_1 = require('./BaseSearchEngine.cjs');
+const AntiDetectionUtils_1 = require('../../utils/AntiDetectionUtils.cjs');
+const NaverCafeFallbackStrategies_1 = require('../../strategies/NaverCafeFallbackStrategies.cjs');
 const cheerio = __importStar(require("cheerio"));
 class NaverCafeSearchEngine extends BaseSearchEngine_1.BaseSearchEngine {
     initializeFallbackStrategies() {

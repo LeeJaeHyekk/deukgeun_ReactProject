@@ -19,20 +19,25 @@ exports.findIdSimple = findIdSimple;
 exports.resetPasswordSimpleStep1 = resetPasswordSimpleStep1;
 exports.resetPasswordSimpleStep2 = resetPasswordSimpleStep2;
 exports.updateProfile = updateProfile;
-const User_1 = require("../entities/User.cjs");
-const UserLevel_1 = require("../entities/UserLevel.cjs");
-const UserStreak_1 = require("../entities/UserStreak.cjs");
+const User_1 = require('../entities/User.cjs');
+const UserLevel_1 = require('../entities/UserLevel.cjs');
+const UserStreak_1 = require('../entities/UserStreak.cjs');
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const recaptcha_1 = require("../utils/recaptcha.cjs");
-const jwt_1 = require("../utils/jwt.cjs");
-const logger_1 = require("../utils/logger.cjs");
-const LazyLoader_1 = require("../modules/server/LazyLoader.cjs");
-const accountRecoveryService_1 = require("../services/accountRecoveryService.cjs");
-const userTransformer_1 = require("../transformers/userTransformer.cjs");
+const recaptcha_1 = require('../utils/recaptcha.cjs');
+const jwt_1 = require('../utils/jwt.cjs');
+const logger_1 = require('../utils/logger.cjs');
+const LazyLoader_1 = require('../modules/server/LazyLoader.cjs');
+const accountRecoveryService_1 = require('../services/accountRecoveryService.cjs');
+const userTransformer_1 = require('../transformers/userTransformer.cjs');
 async function login(req, res) {
     try {
         const { email, password, recaptchaToken } = req.body;
-        console.log("로그인 요청 body:", req.body);
+        logger_1.logger.info(`로그인 요청 시작 - IP: ${req.ip}, Email: ${email}`, {
+            email,
+            hasPassword: !!password,
+            hasRecaptchaToken: !!recaptchaToken,
+            recaptchaTokenLength: recaptchaToken?.length || 0
+        });
         if (!email || !password || !recaptchaToken) {
             res.status(400).json({
                 success: false,
@@ -141,7 +146,12 @@ async function login(req, res) {
         });
     }
     catch (error) {
-        logger_1.logger.error("로그인 처리 중 오류:", error);
+        logger_1.logger.error("로그인 처리 중 오류:", {
+            error: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            email: req.body?.email,
+            ip: req.ip
+        });
         res.status(500).json({
             success: false,
             message: "서버 오류가 발생했습니다.",

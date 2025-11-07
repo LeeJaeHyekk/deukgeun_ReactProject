@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FallbackStrategyManager = void 0;
-const AdaptiveRetryManager_1 = require("./AdaptiveRetryManager.cjs");
+const AdaptiveRetryManager_1 = require('./AdaptiveRetryManager.cjs');
 class FallbackStrategyManager {
     constructor() {
         this.strategies = [];

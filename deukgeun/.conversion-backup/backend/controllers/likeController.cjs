@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LikeController = void 0;
-const Like_1 = require("../entities/Like.cjs");
-const Post_1 = require("../entities/Post.cjs");
-const databaseConfig_1 = require("../config/databaseConfig.cjs");
-const transformers_1 = require("../transformers/index.cjs");
+const Like_1 = require('../entities/Like.cjs');
+const Post_1 = require('../entities/Post.cjs');
+const databaseConfig_1 = require('../config/databaseConfig.cjs');
+const transformers_1 = require('../transformers/index.cjs.cjs');
 class LikeController {
     constructor() {
         this.toggleLike = async (req, res) => {

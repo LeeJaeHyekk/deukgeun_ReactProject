@@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startExpressServer = startExpressServer;
 exports.setupGracefulShutdown = setupGracefulShutdown;
-const app_1 = __importDefault(require("../../app.cjs"));
-const logger_1 = require("../../utils/logger.cjs");
-const getAvailablePort_1 = require("../../utils/getAvailablePort.cjs");
+const app_1 = __importDefault(require('../app.cjs'));
+const logger_1 = require('../../utils/logger.cjs');
+const getAvailablePort_1 = require('../../utils/getAvailablePort.cjs');
 async function startExpressServer(config, databaseResult) {
     console.log("🔄 Step 3: Getting available port...");
     const portStartTime = Date.now();

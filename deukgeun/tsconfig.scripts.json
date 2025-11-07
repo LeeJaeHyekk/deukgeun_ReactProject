@@ -21,6 +21,9 @@
     "isolatedModules": true,
     "noEmit": false,
     "emitDeclarationOnly": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false,
     "baseUrl": ".",
     "paths": {
       "@backend/*": ["src/backend/*"],
@@ -29,5 +32,5 @@
     }
   },
   "include": ["scripts/**/*.ts"],
-  "exclude": ["node_modules", "dist", "build", "scripts/**/*.js", "scripts/**/*.cjs"]
+  "exclude": ["node_modules", "dist", "build", "scripts/**/*.js", "scripts/**/*.cjs", "src/backend/entities/**/*"]
 }

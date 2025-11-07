@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isAdmin = exports.authMiddleware = void 0;
 exports.optionalAuth = optionalAuth;
-const jwt_1 = require("../utils/jwt.cjs");
-const logger_1 = require("../utils/logger.cjs");
+const jwt_1 = require('../utils/jwt.cjs');
+const logger_1 = require('../utils/logger.cjs');
 const authMiddleware = (req, res, next) => {
     const requestId = Math.random().toString(36).substring(2, 15);
     console.log(`🔐 [AuthMiddleware:${requestId}] 인증 미들웨어 시작`);

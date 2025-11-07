@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LevelService = void 0;
-const databaseConfig_1 = require("../config/databaseConfig.cjs");
-const UserLevel_1 = require("../entities/UserLevel.cjs");
-const ExpHistory_1 = require("../entities/ExpHistory.cjs");
-const UserReward_1 = require("../entities/UserReward.cjs");
-const Milestone_1 = require("../entities/Milestone.cjs");
+const databaseConfig_1 = require('../config/databaseConfig.cjs');
+const UserLevel_1 = require('../entities/UserLevel.cjs');
+const ExpHistory_1 = require('../entities/ExpHistory.cjs');
+const UserReward_1 = require('../entities/UserReward.cjs');
+const Milestone_1 = require('../entities/Milestone.cjs');
 const typeorm_1 = require("typeorm");
-const levelConfig_1 = require("../config/levelConfig.cjs");
+const levelConfig_1 = require('../config/levelConfig.cjs');
 class LevelService {
     calculateRequiredExp(level) {
         const config = (0, levelConfig_1.getLevelConfig)();

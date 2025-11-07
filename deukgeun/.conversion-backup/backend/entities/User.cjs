@@ -11,13 +11,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
-const UserLevel_1 = require("./UserLevel.cjs");
-const ExpHistory_1 = require("./ExpHistory.cjs");
-const UserReward_1 = require("./UserReward.cjs");
-const Milestone_1 = require("./Milestone.cjs");
-const UserStreak_1 = require("./UserStreak.cjs");
-const Comment_1 = require("./Comment.cjs");
-const nullableDate_1 = require("../transformers/nullableDate.cjs");
+const UserLevel_1 = require('./UserLevel.cjs');
+const ExpHistory_1 = require('./ExpHistory.cjs');
+const UserReward_1 = require('./UserReward.cjs');
+const Milestone_1 = require('./Milestone.cjs');
+const UserStreak_1 = require('./UserStreak.cjs');
+const Comment_1 = require('./Comment.cjs');
+const nullableDate_1 = require('../transformers/nullableDate.cjs');
 let User = class User {
     constructor() {
         this.birthday = null;

@@ -1,17 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OptimizedGymCrawlingSource = void 0;
-const NaverSearchEngine_1 = require("./search/NaverSearchEngine.cjs");
-const GoogleSearchEngine_1 = require("./search/GoogleSearchEngine.cjs");
-const DaumSearchEngine_1 = require("./search/DaumSearchEngine.cjs");
-const NaverBlogSearchEngine_1 = require("./search/NaverBlogSearchEngine.cjs");
-const NaverCafeSearchEngine_1 = require("./search/NaverCafeSearchEngine.cjs");
-const CrossValidator_1 = require("../processors/CrossValidator.cjs");
-const PriceExtractor_1 = require("../processors/PriceExtractor.cjs");
-const AntiDetectionUtils_1 = require("../utils/AntiDetectionUtils.cjs");
-const PerformanceMonitor_1 = require("../utils/PerformanceMonitor.cjs");
-const BatchProcessor_1 = require("../processors/BatchProcessor.cjs");
-const CrawlingConfigManager_1 = require("../config/CrawlingConfigManager.cjs");
+const NaverSearchEngine_1 = require('./search/NaverSearchEngine.cjs');
+const GoogleSearchEngine_1 = require('./search/GoogleSearchEngine.cjs');
+const DaumSearchEngine_1 = require('./search/DaumSearchEngine.cjs');
+const NaverBlogSearchEngine_1 = require('./search/NaverBlogSearchEngine.cjs');
+const NaverCafeSearchEngine_1 = require('./search/NaverCafeSearchEngine.cjs');
+const CrossValidator_1 = require('../processors/CrossValidator.cjs');
+const PriceExtractor_1 = require('../processors/PriceExtractor.cjs');
+const AntiDetectionUtils_1 = require('../utils/AntiDetectionUtils.cjs');
+const PerformanceMonitor_1 = require('../utils/PerformanceMonitor.cjs');
+const BatchProcessor_1 = require('../processors/BatchProcessor.cjs');
+const CrawlingConfigManager_1 = require('../config/CrawlingConfigManager.cjs');
 class OptimizedGymCrawlingSource {
     constructor(timeout = 30000, delay = 1000, config) {
         this.configManager = new CrawlingConfigManager_1.CrawlingConfigManager({

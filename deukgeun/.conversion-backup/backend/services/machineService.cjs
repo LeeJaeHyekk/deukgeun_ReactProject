@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MachineService = void 0;
-const databaseConfig_1 = require("../config/databaseConfig.cjs");
-const Machine_1 = require("../entities/Machine.cjs");
+const databaseConfig_1 = require('../config/databaseConfig.cjs');
+const Machine_1 = require('../entities/Machine.cjs');
 class MachineService {
     constructor() {
         this.machineRepository = databaseConfig_1.AppDataSource.getRepository(Machine_1.Machine);

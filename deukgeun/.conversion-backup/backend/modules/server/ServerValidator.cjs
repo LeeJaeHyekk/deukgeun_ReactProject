@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateEnvironmentVariables = validateEnvironmentVariables;
 exports.shouldStartServer = shouldStartServer;
-const typeGuards_1 = require("../../utils/typeGuards.cjs");
-const ConfigCache_1 = require("./ConfigCache.cjs");
+const typeGuards_1 = require('../../utils/typeGuards.cjs');
+const ConfigCache_1 = require('./ConfigCache.cjs');
 async function validateEnvironmentVariables(config) {
     return (0, ConfigCache_1.getCachedValidationResult)(async () => {
         console.log("=".repeat(60));

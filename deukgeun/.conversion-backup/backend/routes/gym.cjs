@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const gymController_1 = require("../controllers/gymController.cjs");
+const gymController_1 = require('../controllers/gymController.cjs');
 const router = (0, express_1.Router)();
 router.get("/", gymController_1.getAllGyms);
 router.get("/:id", gymController_1.getGymById);

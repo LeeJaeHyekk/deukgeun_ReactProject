@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SearchEngineFactory = void 0;
-const NaverCafeSearchEngine_1 = require("./NaverCafeSearchEngine.cjs");
-const NaverSearchEngine_1 = require("./NaverSearchEngine.cjs");
-const GoogleSearchEngine_1 = require("./GoogleSearchEngine.cjs");
-const DaumSearchEngine_1 = require("./DaumSearchEngine.cjs");
-const NaverBlogSearchEngine_1 = require("./NaverBlogSearchEngine.cjs");
+const NaverCafeSearchEngine_1 = require('./NaverCafeSearchEngine.cjs');
+const NaverSearchEngine_1 = require('./NaverSearchEngine.cjs');
+const GoogleSearchEngine_1 = require('./GoogleSearchEngine.cjs');
+const DaumSearchEngine_1 = require('./DaumSearchEngine.cjs');
+const NaverBlogSearchEngine_1 = require('./NaverBlogSearchEngine.cjs');
 class SearchEngineFactory {
     constructor(config = {}) {
         this.engines = new Map();

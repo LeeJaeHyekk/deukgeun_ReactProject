@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NaverBlogSearchEngine = void 0;
-const BaseSearchEngine_1 = require("./BaseSearchEngine.cjs");
+const BaseSearchEngine_1 = require('./BaseSearchEngine.cjs');
 class NaverBlogSearchEngine extends BaseSearchEngine_1.BaseSearchEngine {
     async search(gymName, address) {
         try {

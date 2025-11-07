@@ -34,10 +34,10 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const recaptcha_1 = require("../utils/recaptcha.cjs");
+const recaptcha_1 = require('../utils/recaptcha.cjs');
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-const logger_1 = require("../utils/logger.cjs");
+const logger_1 = require('../utils/logger.cjs');
 const router = (0, express_1.Router)();
 const logDir = path.join(process.cwd(), 'logs');
 const logFile = path.join(logDir, 'recaptcha.log');

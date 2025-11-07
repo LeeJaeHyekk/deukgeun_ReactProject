@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const machineController_1 = require("../controllers/machineController.cjs");
-const rateLimiter_1 = require("../middlewares/rateLimiter.cjs");
+const machineController_1 = require('../controllers/machineController.cjs');
+const rateLimiter_1 = require('../middlewares/rateLimiter.cjs');
 const router = (0, express_1.Router)();
 router.get("/", rateLimiter_1.machineRateLimiter, machineController_1.getAllMachines);
 router.get("/filter", rateLimiter_1.machineRateLimiter, machineController_1.filterMachines);

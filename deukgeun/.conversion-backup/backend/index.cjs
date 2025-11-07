@@ -37,7 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
-require("./config/env.cjs");
+require('./config/env.cjs');
 if (typeof globalThis.File === 'undefined') {
     globalThis.File = class File {
         constructor(name = '', size = 0, type = '', lastModified = Date.now()) {
@@ -54,12 +54,12 @@ const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const net = __importStar(require("net"));
-const databaseConfig_1 = require("./config/databaseConfig.cjs");
-const healthMonitor_1 = require("./middlewares/healthMonitor.cjs");
-const resilience_1 = require("./middlewares/resilience.cjs");
-const advancedLogging_1 = require("./middlewares/advancedLogging.cjs");
-const serverStartup_1 = require("./middlewares/serverStartup.cjs");
-const weeklyCrawlingScheduler_1 = require("./schedulers/weeklyCrawlingScheduler.cjs");
+const databaseConfig_1 = require('./config/databaseConfig.cjs');
+const healthMonitor_1 = require('./middlewares/healthMonitor.cjs');
+const resilience_1 = require('./middlewares/resilience.cjs');
+const advancedLogging_1 = require('./middlewares/advancedLogging.cjs');
+const serverStartup_1 = require('./middlewares/serverStartup.cjs');
+const weeklyCrawlingScheduler_1 = require('./schedulers/weeklyCrawlingScheduler.cjs');
 async function createApp() {
     const app = (0, express_1.default)();
     if (process.env.NODE_ENV === 'production') {
@@ -137,7 +137,7 @@ async function setupSafeRoutes(app) {
         });
         console.log("✅ Basic API routes configured");
         try {
-            const { authRoutes } = await Promise.resolve().then(() => __importStar(require("./modules/auth/index.cjs")));
+            const { authRoutes } = await Promise.resolve().then(() => __importStar(require('./modules/auth/index.cjs')));
             app.use("/api/auth", authRoutes);
             console.log("✅ Auth routes configured");
         }
@@ -145,7 +145,7 @@ async function setupSafeRoutes(app) {
             console.warn("⚠️ Auth routes failed:", error);
         }
         try {
-            const { homePageRoutes } = await Promise.resolve().then(() => __importStar(require("./modules/homepage/index.cjs")));
+            const { homePageRoutes } = await Promise.resolve().then(() => __importStar(require('./modules/homepage/index.cjs')));
             app.use("/api/homepage", homePageRoutes);
             console.log("✅ Homepage routes configured");
         }
@@ -153,7 +153,7 @@ async function setupSafeRoutes(app) {
             console.warn("⚠️ Homepage routes failed:", error);
         }
         try {
-            const { statsRoutes } = await Promise.resolve().then(() => __importStar(require("./modules/user/index.cjs")));
+            const { statsRoutes } = await Promise.resolve().then(() => __importStar(require('./modules/user/index.cjs')));
             app.use("/api/stats", statsRoutes);
             console.log("✅ Stats routes configured");
         }
@@ -161,7 +161,7 @@ async function setupSafeRoutes(app) {
             console.warn("⚠️ Stats routes failed:", error);
         }
         try {
-            const levelRoutes = await Promise.resolve().then(() => __importStar(require("./routes/level.cjs")));
+            const levelRoutes = await Promise.resolve().then(() => __importStar(require('./routes/level.cjs')));
             app.use("/api/level", levelRoutes.default);
             console.log("✅ Level routes configured");
         }
@@ -169,7 +169,7 @@ async function setupSafeRoutes(app) {
             console.warn("⚠️ Level routes failed:", error);
         }
         try {
-            const recaptchaRoutes = await Promise.resolve().then(() => __importStar(require("./routes/recaptcha.cjs")));
+            const recaptchaRoutes = await Promise.resolve().then(() => __importStar(require('./routes/recaptcha.cjs')));
             app.use("/api/recaptcha", recaptchaRoutes.default);
             console.log("✅ Recaptcha routes configured");
         }
@@ -180,7 +180,7 @@ async function setupSafeRoutes(app) {
         if (isDatabaseConnected) {
             console.log("🔄 Database connected, loading additional routes...");
             try {
-                const { gymRoutes, enhancedGymRoutes } = await Promise.resolve().then(() => __importStar(require("./modules/gym/index.cjs")));
+                const { gymRoutes, enhancedGymRoutes } = await Promise.resolve().then(() => __importStar(require('./modules/gym/index.cjs')));
                 app.use("/api/gyms", gymRoutes);
                 app.use("/api/enhanced-gym", enhancedGymRoutes);
                 console.log("✅ Gym routes configured");
@@ -192,7 +192,7 @@ async function setupSafeRoutes(app) {
                 }
             }
             try {
-                const { machineRoutes } = await Promise.resolve().then(() => __importStar(require("./modules/machine/index.cjs")));
+                const { machineRoutes } = await Promise.resolve().then(() => __importStar(require('./modules/machine/index.cjs')));
                 app.use("/api/machines", machineRoutes);
                 console.log("✅ Machine routes configured");
             }
@@ -200,7 +200,7 @@ async function setupSafeRoutes(app) {
                 console.warn("⚠️ Machine routes failed:", error);
             }
             try {
-                const { postRoutes, commentRoutes, likeRoutes } = await Promise.resolve().then(() => __importStar(require("./modules/social/index.cjs")));
+                const { postRoutes, commentRoutes, likeRoutes } = await Promise.resolve().then(() => __importStar(require('./modules/social/index.cjs')));
                 app.use("/api/posts", postRoutes);
                 app.use("/api/comments", commentRoutes);
                 app.use("/api/likes", likeRoutes);
@@ -210,7 +210,7 @@ async function setupSafeRoutes(app) {
                 console.warn("⚠️ Social routes failed:", error);
             }
             try {
-                const { workoutRoutes } = await Promise.resolve().then(() => __importStar(require("./modules/workout/index.cjs")));
+                const { workoutRoutes } = await Promise.resolve().then(() => __importStar(require('./modules/workout/index.cjs')));
                 app.use("/api/workouts", workoutRoutes);
                 console.log("✅ Workout routes configured");
             }
@@ -218,7 +218,7 @@ async function setupSafeRoutes(app) {
                 console.warn("⚠️ Workout routes failed:", error);
             }
             try {
-                const rewardsRoutes = await Promise.resolve().then(() => __importStar(require("./routes/rewards.cjs")));
+                const rewardsRoutes = await Promise.resolve().then(() => __importStar(require('./routes/rewards.cjs')));
                 app.use("/api/rewards", rewardsRoutes.default);
                 console.log("✅ Rewards routes configured");
             }
@@ -226,7 +226,7 @@ async function setupSafeRoutes(app) {
                 console.warn("⚠️ Rewards routes failed:", error);
             }
             try {
-                const crawlingRoutes = await Promise.resolve().then(() => __importStar(require("./routes/crawling.cjs")));
+                const crawlingRoutes = await Promise.resolve().then(() => __importStar(require('./routes/crawling.cjs')));
                 app.use("/api/crawling", crawlingRoutes.default);
                 console.log("✅ Crawling routes configured");
             }
@@ -259,7 +259,7 @@ async function setupSafeRoutes(app) {
 }
 async function checkDatabaseConnection() {
     try {
-        const { AppDataSource } = await Promise.resolve().then(() => __importStar(require("./config/databaseConfig.cjs")));
+        const { AppDataSource } = await Promise.resolve().then(() => __importStar(require('./config/databaseConfig.cjs')));
         return AppDataSource.isInitialized;
     }
     catch (error) {

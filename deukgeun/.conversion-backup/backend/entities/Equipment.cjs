@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Equipment = exports.EquipmentCategory = exports.EquipmentType = void 0;
 const typeorm_1 = require("typeorm");
-const Gym_1 = require("./Gym.cjs");
+const Gym_1 = require('./Gym.cjs');
 var EquipmentType;
 (function (EquipmentType) {
     EquipmentType["CARDIO"] = "cardio";

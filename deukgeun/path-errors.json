@@ -1,0 +1,280 @@
+{
+  "summary": {
+    "totalErrors": 10,
+    "lastUpdated": "2025-11-07T11:42:00Z",
+    "description": "현재 발생하고 있는 모든 경로 오류 목록"
+  },
+  "errors": [
+    {
+      "id": 1,
+      "file": "dist/backend/backend/controllers/goalController.cjs",
+      "incorrectPath": "./services/goalService.cjs",
+      "correctPath": "../services/goalService.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "controllers 디렉토리에서 services 디렉토리로 접근할 때 상위 디렉토리로 이동해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 2,
+      "file": "dist/backend/backend/services/goalService.cjs",
+      "incorrectPath": "./entities/GoalEntity.cjs",
+      "correctPath": "../entities/GoalEntity.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "services 디렉토리에서 entities 디렉토리로 접근할 때 상위 디렉토리로 이동해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 3,
+      "file": "dist/backend/backend/services/goalService.cjs",
+      "incorrectPath": "./entities/GoalHistoryEntity.cjs",
+      "correctPath": "../entities/GoalHistoryEntity.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "services 디렉토리에서 entities 디렉토리로 접근할 때 상위 디렉토리로 이동해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 4,
+      "file": "dist/backend/backend/controllers/postController.cjs",
+      "incorrectPath": "./entities/Post.cjs",
+      "correctPath": "../entities/Post.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "controllers 디렉토리에서 entities 디렉토리로 접근할 때 상위 디렉토리로 이동해야 함",
+      "frequency": "medium",
+      "status": "pending"
+    },
+    {
+      "id": 5,
+      "file": "dist/backend/backend/modules/crawling/sources/search/BaseSearchEngine.cjs",
+      "incorrectPath": "./modules/crawling/utils/AntiDetectionUtils",
+      "correctPath": "../../utils/AntiDetectionUtils.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "search 디렉토리에서 utils 디렉토리로 접근할 때 상위 상위 디렉토리로 이동해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 6,
+      "file": "dist/backend/backend/modules/crawling/sources/search/BaseSearchEngine.cjs",
+      "incorrectPath": "./modules/crawling/utils/AdaptiveRetryManager",
+      "correctPath": "../../utils/AdaptiveRetryManager.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "search 디렉토리에서 utils 디렉토리로 접근할 때 상위 상위 디렉토리로 이동해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 7,
+      "file": "dist/backend/backend/modules/crawling/sources/search/BaseSearchEngine.cjs",
+      "incorrectPath": "./modules/crawling/utils/FallbackStrategyManager",
+      "correctPath": "../../utils/FallbackStrategyManager.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "search 디렉토리에서 utils 디렉토리로 접근할 때 상위 상위 디렉토리로 이동해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 8,
+      "file": "dist/backend/backend/modules/crawling/sources/search/BaseSearchEngine.cjs",
+      "incorrectPath": "./modules/crawling/utils/CrawlingMetrics",
+      "correctPath": "../../utils/CrawlingMetrics.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "search 디렉토리에서 utils 디렉토리로 접근할 때 상위 상위 디렉토리로 이동해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 9,
+      "file": "dist/backend/backend/modules/crawling/sources/search/DaumSearchEngine.cjs",
+      "incorrectPath": "./modules/crawling/sources/search/BaseSearchEngine",
+      "correctPath": "./BaseSearchEngine.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "같은 디렉토리 내의 BaseSearchEngine을 참조할 때는 ./modules/crawling/sources/search가 아닌 ./BaseSearchEngine.cjs로 참조해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 10,
+      "file": "dist/backend/backend/modules/crawling/sources/search/GoogleSearchEngine.cjs",
+      "incorrectPath": "./modules/crawling/sources/search/BaseSearchEngine",
+      "correctPath": "./BaseSearchEngine.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "같은 디렉토리 내의 BaseSearchEngine을 참조할 때는 ./modules/crawling/sources/search가 아닌 ./BaseSearchEngine.cjs로 참조해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 11,
+      "file": "dist/backend/backend/modules/crawling/sources/search/NaverBlogSearchEngine.cjs",
+      "incorrectPath": "./modules/crawling/sources/search/BaseSearchEngine",
+      "correctPath": "./BaseSearchEngine.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "같은 디렉토리 내의 BaseSearchEngine을 참조할 때는 ./modules/crawling/sources/search가 아닌 ./BaseSearchEngine.cjs로 참조해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 12,
+      "file": "dist/backend/backend/modules/crawling/sources/search/NaverCafeSearchEngine.cjs",
+      "incorrectPath": "./modules/crawling/sources/search/BaseSearchEngine",
+      "correctPath": "./BaseSearchEngine.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "같은 디렉토리 내의 BaseSearchEngine을 참조할 때는 ./modules/crawling/sources/search가 아닌 ./BaseSearchEngine.cjs로 참조해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 13,
+      "file": "dist/backend/backend/modules/crawling/sources/search/NaverCafeSearchEngine.cjs",
+      "incorrectPath": "./modules/crawling/utils/AntiDetectionUtils",
+      "correctPath": "../../utils/AntiDetectionUtils.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "search 디렉토리에서 utils 디렉토리로 접근할 때 상위 상위 디렉토리로 이동해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 14,
+      "file": "dist/backend/backend/modules/crawling/sources/search/NaverCafeSearchEngine.cjs",
+      "incorrectPath": "./modules/crawling/strategies/NaverCafeFallbackStrategies",
+      "correctPath": "../../strategies/NaverCafeFallbackStrategies.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "search 디렉토리에서 strategies 디렉토리로 접근할 때 상위 상위 디렉토리로 이동해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 15,
+      "file": "dist/backend/backend/modules/crawling/sources/search/NaverSearchEngine.cjs",
+      "incorrectPath": "./modules/crawling/sources/search/BaseSearchEngine",
+      "correctPath": "./BaseSearchEngine.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "같은 디렉토리 내의 BaseSearchEngine을 참조할 때는 ./modules/crawling/sources/search가 아닌 ./BaseSearchEngine.cjs로 참조해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 16,
+      "file": "dist/backend/backend/modules/crawling/sources/search/SearchEngineFactory.cjs",
+      "incorrectPath": "./modules/crawling/sources/search/NaverCafeSearchEngine",
+      "correctPath": "./NaverCafeSearchEngine.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "같은 디렉토리 내의 파일을 참조할 때는 ./modules/crawling/sources/search가 아닌 ./파일명.cjs로 참조해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 17,
+      "file": "dist/backend/backend/modules/crawling/sources/search/SearchEngineFactory.cjs",
+      "incorrectPath": "./modules/crawling/sources/search/NaverSearchEngine",
+      "correctPath": "./NaverSearchEngine.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "같은 디렉토리 내의 파일을 참조할 때는 ./modules/crawling/sources/search가 아닌 ./파일명.cjs로 참조해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 18,
+      "file": "dist/backend/backend/modules/crawling/sources/search/SearchEngineFactory.cjs",
+      "incorrectPath": "./modules/crawling/sources/search/GoogleSearchEngine",
+      "correctPath": "./GoogleSearchEngine.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "같은 디렉토리 내의 파일을 참조할 때는 ./modules/crawling/sources/search가 아닌 ./파일명.cjs로 참조해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 19,
+      "file": "dist/backend/backend/modules/crawling/sources/search/SearchEngineFactory.cjs",
+      "incorrectPath": "./modules/crawling/sources/search/DaumSearchEngine",
+      "correctPath": "./DaumSearchEngine.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "같은 디렉토리 내의 파일을 참조할 때는 ./modules/crawling/sources/search가 아닌 ./파일명.cjs로 참조해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 20,
+      "file": "dist/backend/backend/modules/crawling/sources/search/SearchEngineFactory.cjs",
+      "incorrectPath": "./modules/crawling/sources/search/NaverBlogSearchEngine",
+      "correctPath": "./NaverBlogSearchEngine.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "같은 디렉토리 내의 파일을 참조할 때는 ./modules/crawling/sources/search가 아닌 ./파일명.cjs로 참조해야 함",
+      "frequency": "high",
+      "status": "pending"
+    },
+    {
+      "id": 21,
+      "file": "dist/backend/backend/services/equipmentService.cjs",
+      "incorrectPath": "../shared/types/equipment.cjs",
+      "correctPath": "../../shared/types/equipment.cjs",
+      "errorType": "relative_path_incorrect",
+      "description": "services 디렉토리에서 shared 디렉토리로 접근할 때 상위 상위 디렉토리로 이동해야 함",
+      "frequency": "high",
+      "status": "pending"
+    }
+  ],
+  "errorPatterns": {
+    "controllers_to_services": {
+      "pattern": "./services/*",
+      "correct": "../services/*",
+      "affectedFiles": ["goalController.cjs"],
+      "count": 1
+    },
+    "services_to_entities": {
+      "pattern": "./entities/*",
+      "correct": "../entities/*",
+      "affectedFiles": ["goalService.cjs"],
+      "count": 2
+    },
+    "controllers_to_entities": {
+      "pattern": "./entities/*",
+      "correct": "../entities/*",
+      "affectedFiles": ["postController.cjs"],
+      "count": 1
+    },
+    "search_to_utils": {
+      "pattern": "./modules/crawling/utils/*",
+      "correct": "../../utils/*",
+      "affectedFiles": ["BaseSearchEngine.cjs", "NaverCafeSearchEngine.cjs"],
+      "count": 5
+    },
+    "search_to_same_directory": {
+      "pattern": "./modules/crawling/sources/search/*",
+      "correct": "./*.cjs",
+      "affectedFiles": ["DaumSearchEngine.cjs", "GoogleSearchEngine.cjs", "NaverBlogSearchEngine.cjs", "NaverCafeSearchEngine.cjs", "NaverSearchEngine.cjs", "SearchEngineFactory.cjs"],
+      "count": 6
+    },
+    "search_to_strategies": {
+      "pattern": "./modules/crawling/strategies/*",
+      "correct": "../../strategies/*",
+      "affectedFiles": ["NaverCafeSearchEngine.cjs"],
+      "count": 1
+    },
+    "services_to_shared": {
+      "pattern": "../shared/*",
+      "correct": "../../shared/*",
+      "affectedFiles": ["equipmentService.cjs"],
+      "count": 1
+    }
+  },
+  "statistics": {
+    "totalFilesAffected": 10,
+    "totalErrors": 21,
+    "errorsByType": {
+      "relative_path_incorrect": 21
+    },
+    "errorsByFrequency": {
+      "high": 20,
+      "medium": 1
+    },
+    "errorsByDirectory": {
+      "controllers": 2,
+      "services": 3,
+      "modules/crawling/sources/search": 16
+    }
+  }
+}
+

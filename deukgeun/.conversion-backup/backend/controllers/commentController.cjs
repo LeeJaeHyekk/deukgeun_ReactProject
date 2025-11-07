@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommentController = void 0;
-const Comment_1 = require("../entities/Comment.cjs");
-const User_1 = require("../entities/User.cjs");
-const databaseConfig_1 = require("../config/databaseConfig.cjs");
-const levelService_1 = require("../services/levelService.cjs");
-const transformers_1 = require("../transformers/index.cjs");
+const Comment_1 = require('../entities/Comment.cjs');
+const User_1 = require('../entities/User.cjs');
+const databaseConfig_1 = require('../config/databaseConfig.cjs');
+const levelService_1 = require('../services/levelService.cjs');
+const transformers_1 = require('../transformers/index.cjs.cjs');
 class CommentController {
     constructor() {
         this.createComment = async (req, res) => {

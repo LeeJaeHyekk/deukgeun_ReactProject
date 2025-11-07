@@ -35,7 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.businessLogicLoggingMiddleware = exports.performanceMonitoringMiddleware = exports.errorTrackingMiddleware = exports.securityMonitoringMiddleware = exports.requestTrackingMiddleware = exports.SecurityLogger = void 0;
 exports.cleanupOldLogs = cleanupOldLogs;
-const logger_1 = require("../utils/logger.cjs");
+const logger_1 = require('../utils/logger.cjs');
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 function generateRequestId() {

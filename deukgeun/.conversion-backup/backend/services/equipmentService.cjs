@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EquipmentService = void 0;
-const equipment_1 = require("../../shared/types/equipment.cjs");
+const equipment_1 = require('../../shared/types/equipment.cjs');
 class EquipmentService {
     constructor(equipmentRepo, gymRepo) {
         this.equipmentRepo = equipmentRepo;

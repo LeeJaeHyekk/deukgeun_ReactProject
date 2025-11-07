@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const typeorm_1 = require("typeorm");
-const Gym_1 = require("../entities/Gym.cjs");
-const crawlingService_1 = require("../services/crawlingService.cjs");
-const legacyCrawlingServices_1 = require("../services/legacyCrawlingServices.cjs");
+const Gym_1 = require('../entities/Gym.cjs');
+const crawlingService_1 = require('../services/crawlingService.cjs');
+const legacyCrawlingServices_1 = require('../services/legacyCrawlingServices.cjs');
 const router = (0, express_1.Router)();
 let gymRepo = null;
 let crawlingService = null;

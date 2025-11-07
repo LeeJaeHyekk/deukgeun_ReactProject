@@ -34,11 +34,11 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OptimizedCrawlingService = void 0;
-const PublicApiSource_1 = require("../sources/PublicApiSource.cjs");
-const SearchEngineFactory_1 = require("../sources/search/SearchEngineFactory.cjs");
-const UnifiedDataMerger_1 = require("../processors/UnifiedDataMerger.cjs");
-const DataValidator_1 = require("../processors/DataValidator.cjs");
-const CrawlingHistoryTracker_1 = require("../tracking/CrawlingHistoryTracker.cjs");
+const PublicApiSource_1 = require('../sources/PublicApiSource.cjs');
+const SearchEngineFactory_1 = require('../sources/search/SearchEngineFactory.cjs');
+const UnifiedDataMerger_1 = require('../processors/UnifiedDataMerger.cjs');
+const DataValidator_1 = require('../processors/DataValidator.cjs');
+const CrawlingHistoryTracker_1 = require('../tracking/CrawlingHistoryTracker.cjs');
 class OptimizedCrawlingService {
     constructor(gymRepo) {
         this.cache = new Map();

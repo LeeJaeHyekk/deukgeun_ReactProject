@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.initializePerformanceMonitoring = exports.garbageCollectionMonitor = exports.connectionPoolMonitor = exports.memoryLeakDetector = exports.performanceMonitor = void 0;
-const logger_1 = require("../utils/logger.cjs");
+const logger_1 = require('../utils/logger.cjs');
 const performanceMonitor = (req, res, next) => {
     const startTime = process.hrtime();
     const startMemory = process.memoryUsage();

@@ -3,9 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectDatabase = connectDatabase;
 exports.isDatabaseConnected = isDatabaseConnected;
 exports.logDatabaseStatus = logDatabaseStatus;
-const databaseConfig_1 = require("../../config/databaseConfig.cjs");
-const logger_1 = require("../../utils/logger.cjs");
-const LazyLoader_1 = require("./LazyLoader.cjs");
+const databaseConfig_1 = require('../../config/databaseConfig.cjs.cjs');
+const logger_1 = require('../../utils/logger.cjs');
+const LazyLoader_1 = require('./LazyLoader.cjs');
 async function connectDatabase(config) {
     console.log("🔄 Step 2: Attempting database connection...");
     const dbStartTime = Date.now();

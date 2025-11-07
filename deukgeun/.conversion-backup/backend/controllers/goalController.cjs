@@ -3,11 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GoalController = void 0;
 exports.createGoalRouter = createGoalRouter;
 const express_1 = require("express");
-const goalService_1 = require("../services/goalService.cjs");
-const levelService_1 = require("../services/levelService.cjs");
-const auth_1 = require("../middlewares/auth.cjs");
-const rateLimiter_1 = require("../middlewares/rateLimiter.cjs");
-const logger_1 = require("../utils/logger.cjs");
+const goalService_1 = require('../services/goalService.cjs.cjs');
+const levelService_1 = require('../services/levelService.cjs');
+const auth_1 = require('../middlewares/auth.cjs');
+const rateLimiter_1 = require('../middlewares/rateLimiter.cjs');
+const logger_1 = require('../utils/logger.cjs');
 class GoalController {
     constructor() {
         this.goalService = new goalService_1.GoalService();

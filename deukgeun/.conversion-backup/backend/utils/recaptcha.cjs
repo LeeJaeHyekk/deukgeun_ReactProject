@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyRecaptcha = verifyRecaptcha;
 exports.validateRecaptchaConfig = validateRecaptchaConfig;
 const axios_1 = __importDefault(require("axios"));
-const logger_1 = require("./logger.cjs");
+const logger_1 = require('./logger.cjs');
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const tokenCache = new Map();
@@ -312,32 +312,14 @@ async function verifyRecaptcha(token, expectedAction, context) {
             });
             return false;
         }
+        const errorCodes = response.data["error-codes"] || [];
         const challengeTs = response.data.challenge_ts;
         let tokenAge = null;
         if (challengeTs) {
             try {
                 const challengeTime = new Date(challengeTs).getTime();
-                if (isNaN(challengeTime)) {
-                    logger_1.logger.warn("reCAPTCHA challenge_ts 파싱 실패:", { challengeTs });
-                }
-                else {
+                if (!isNaN(challengeTime)) {
                     tokenAge = Math.round((Date.now() - challengeTime) / 1000);
-                    const TOKEN_MAX_AGE = 120;
-                    if (tokenAge > TOKEN_MAX_AGE) {
-                        logger_1.logger.warn("reCAPTCHA 토큰 만료:", {
-                            tokenAge: `${tokenAge}초`,
-                            maxAge: `${TOKEN_MAX_AGE}초`,
-                            challengeTs,
-                        });
-                        writeRecaptchaLog("warn", "reCAPTCHA 토큰 만료", {
-                            requestId,
-                            expectedAction,
-                            tokenAge: `${tokenAge}초`,
-                            maxAge: `${TOKEN_MAX_AGE}초`,
-                            challengeTs,
-                        });
-                        return false;
-                    }
                     if (tokenAge < 0) {
                         logger_1.logger.warn("reCAPTCHA 토큰 시간 불일치 (시스템 시간 확인 필요):", {
                             tokenAge: `${tokenAge}초`,
@@ -346,10 +328,44 @@ async function verifyRecaptcha(token, expectedAction, context) {
                         });
                     }
                 }
+                else {
+                    logger_1.logger.warn("reCAPTCHA challenge_ts 파싱 실패:", { challengeTs });
+                }
             }
             catch (error) {
                 logger_1.logger.warn("reCAPTCHA 토큰 만료 시간 파싱 실패:", error);
             }
+        }
+        if (errorCodes.includes("timeout-or-duplicate")) {
+            logger_1.logger.warn("reCAPTCHA 토큰 만료 또는 재사용 (Google API 확인):", {
+                errorCodes,
+                tokenAge: tokenAge !== null ? `${tokenAge}초` : "알 수 없음",
+                challengeTs,
+            });
+            writeRecaptchaLog("warn", "reCAPTCHA 토큰 만료 또는 재사용", {
+                requestId,
+                expectedAction,
+                errorCodes,
+                tokenAge: tokenAge !== null ? `${tokenAge}초` : "알 수 없음",
+                challengeTs,
+            });
+            return false;
+        }
+        if (tokenAge !== null && tokenAge > 300) {
+            logger_1.logger.warn("reCAPTCHA 토큰 만료 (보조 검증):", {
+                tokenAge: `${tokenAge}초`,
+                maxAge: "300초 (5분)",
+                challengeTs,
+                note: "Google API가 확인하지 않은 경우에만 보조 검증으로 사용",
+            });
+            writeRecaptchaLog("warn", "reCAPTCHA 토큰 만료 (보조 검증)", {
+                requestId,
+                expectedAction,
+                tokenAge: `${tokenAge}초`,
+                maxAge: "300초 (5분)",
+                challengeTs,
+            });
+            return false;
         }
         console.log("🔍 [reCAPTCHA] Google API 응답:", JSON.stringify({
             success: response.data.success,
@@ -421,17 +437,23 @@ async function verifyRecaptcha(token, expectedAction, context) {
                     errorMessage = `도메인 불일치: ${domainMismatchDetails?.reason || "hostname이 null입니다"}. ${domainMismatchDetails?.suggestion || "Google Console에서 도메인을 확인하세요."}`;
                 }
                 else {
-                    errorMessage = "토큰이 유효하지 않습니다. 가능한 원인: 1) 토큰 만료 (2분 초과), 2) 토큰 재사용, 3) Site Key와 Secret Key 불일치, 4) 토큰 형식 오류";
+                    errorMessage = "토큰이 유효하지 않습니다. 가능한 원인: 1) 토큰 만료, 2) 토큰 재사용, 3) Site Key와 Secret Key 불일치, 4) 토큰 형식 오류";
                 }
             }
             else if (errorCodes.includes("invalid-input-secret")) {
-                errorMessage = "Secret Key가 유효하지 않습니다.";
+                errorMessage = "Secret Key가 유효하지 않습니다. Google Console에서 Secret Key를 확인하세요.";
             }
             else if (errorCodes.includes("timeout-or-duplicate")) {
-                errorMessage = "토큰이 만료되었거나 이미 사용되었습니다 (재사용 불가).";
+                errorMessage = "토큰이 만료되었거나 이미 사용되었습니다 (재사용 불가). 새로고침 후 다시 시도해주세요.";
+            }
+            else if (errorCodes.includes("missing-input-response")) {
+                errorMessage = "reCAPTCHA 토큰이 누락되었습니다.";
+            }
+            else if (errorCodes.includes("missing-input-secret")) {
+                errorMessage = "Secret Key가 설정되지 않았습니다.";
             }
             else {
-                errorMessage = "알 수 없는 오류";
+                errorMessage = `알 수 없는 오류 (error-codes: ${errorCodes.join(", ")})`;
             }
             const detailInfo = {
                 errorCodes,
@@ -490,6 +512,9 @@ async function verifyRecaptcha(token, expectedAction, context) {
                     actual: response.data.action,
                     normalizedExpected,
                     normalizedActual,
+                    score: response.data.score,
+                    hostname: response.data.hostname,
+                    suggestion: "프론트엔드와 백엔드의 action 이름이 일치하는지 확인하세요. (대소문자 무시 비교)"
                 });
                 writeRecaptchaLog("warn", "reCAPTCHA action 불일치", {
                     requestId,
@@ -504,6 +529,7 @@ async function verifyRecaptcha(token, expectedAction, context) {
                     userAgent,
                     userIpAddress,
                     requestUrl,
+                    suggestion: "프론트엔드와 백엔드의 action 이름이 일치하는지 확인하세요."
                 });
                 return false;
             }
@@ -512,21 +538,59 @@ async function verifyRecaptcha(token, expectedAction, context) {
                 actual: response.data.action,
                 normalizedExpected,
                 normalizedActual,
+                score: response.data.score,
+            });
+        }
+        else if (expectedAction && !response.data.action) {
+            logger_1.logger.warn("reCAPTCHA action이 응답에 없습니다:", {
+                expected: expectedAction,
+                actual: response.data.action,
+                score: response.data.score,
+                suggestion: "reCAPTCHA v3를 사용하는지 확인하세요."
+            });
+            writeRecaptchaLog("warn", "reCAPTCHA action 누락", {
+                requestId,
+                expectedAction,
+                actualAction: response.data.action,
+                score: response.data.score,
+                hostname: response.data.hostname,
+                challenge_ts: response.data.challenge_ts,
+                duration: `${duration}ms`,
+                userAgent,
+                userIpAddress,
+                requestUrl,
+                suggestion: "reCAPTCHA v3를 사용하는지 확인하세요."
             });
         }
         if (response.data.score !== undefined && response.data.score !== null) {
             const score = parseFloat(String(response.data.score));
             let minScore;
-            if (expectedAction === "LOGIN") {
-                const loginMinScore = process.env.RECAPTCHA_MIN_SCORE_LOGIN;
-                minScore = loginMinScore ? parseFloat(loginMinScore) : 0.1;
+            const isDevelopment = process.env.NODE_ENV === 'development';
+            if (expectedAction === "LOGIN" || expectedAction === "login") {
+                if (isDevelopment) {
+                    minScore = 0.0;
+                }
+                else {
+                    const loginMinScore = process.env.RECAPTCHA_MIN_SCORE_LOGIN;
+                    minScore = loginMinScore ? parseFloat(loginMinScore) : 0.3;
+                }
             }
-            else if (expectedAction === "REGISTER") {
-                const registerMinScore = process.env.RECAPTCHA_MIN_SCORE_REGISTER;
-                minScore = registerMinScore ? parseFloat(registerMinScore) : parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5");
+            else if (expectedAction === "REGISTER" || expectedAction === "register") {
+                if (isDevelopment) {
+                    minScore = 0.0;
+                }
+                else {
+                    const registerMinScore = process.env.RECAPTCHA_MIN_SCORE_REGISTER;
+                    minScore = registerMinScore ? parseFloat(registerMinScore) : parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5");
+                }
             }
             else {
-                minScore = parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5");
+                if (isDevelopment) {
+                    minScore = 0.0;
+                }
+                else {
+                    minScore = parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5");
+                }
             }
             if (isNaN(score) || score < 0 || score > 1) {
                 logger_1.logger.error("reCAPTCHA 점수가 유효하지 않습니다:", {
@@ -551,17 +615,28 @@ async function verifyRecaptcha(token, expectedAction, context) {
                 margin: (score - minScore).toFixed(3)
             });
             if (score < minScore) {
-                logger_1.logger.warn("reCAPTCHA 점수가 너무 낮습니다:", {
+                const scoreDetails = {
                     score,
                     minScore,
                     margin: (score - minScore).toFixed(3),
-                });
+                    percentage: `${(score * 100).toFixed(1)}%`,
+                    threshold: `${(minScore * 100).toFixed(1)}%`,
+                    action: response.data.action,
+                    hostname: response.data.hostname,
+                    environment: process.env.NODE_ENV || 'unknown',
+                    suggestion: score === 0
+                        ? "점수가 0인 경우 봇으로 판단되었을 가능성이 높습니다. 사용자 행동 패턴을 확인하세요."
+                        : `점수가 임계값(${minScore})보다 낮습니다. 환경 변수 RECAPTCHA_MIN_SCORE_LOGIN을 조정하거나 사용자 행동을 확인하세요.`
+                };
+                logger_1.logger.warn("reCAPTCHA 점수가 너무 낮습니다:", scoreDetails);
                 writeRecaptchaLog("warn", "reCAPTCHA 점수 낮음", {
                     requestId,
                     expectedAction,
                     score,
                     minScore,
                     margin: (score - minScore).toFixed(3),
+                    percentage: `${(score * 100).toFixed(1)}%`,
+                    threshold: `${(minScore * 100).toFixed(1)}%`,
                     action: response.data.action,
                     hostname: response.data.hostname,
                     challenge_ts: response.data.challenge_ts,
@@ -573,6 +648,8 @@ async function verifyRecaptcha(token, expectedAction, context) {
                     requestHost: host || xForwardedHost,
                     xForwardedHost,
                     xForwardedProto,
+                    environment: process.env.NODE_ENV || 'unknown',
+                    suggestion: scoreDetails.suggestion
                 });
                 return false;
             }

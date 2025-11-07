@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const auth_1 = require("../middlewares/auth.cjs");
-const likeController_1 = require("../controllers/likeController.cjs");
+const auth_1 = require('../middlewares/auth.cjs');
+const likeController_1 = require('../controllers/likeController.cjs');
 const router = (0, express_1.Router)();
 const likeController = new likeController_1.LikeController();
 router.post("/:id", auth_1.authMiddleware, likeController.toggleLike);

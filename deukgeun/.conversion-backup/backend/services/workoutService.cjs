@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WorkoutService = void 0;
-const databaseConfig_1 = require("../config/databaseConfig.cjs");
-const WorkoutPlan_1 = require("../entities/WorkoutPlan.cjs");
-const WorkoutSession_1 = require("../entities/WorkoutSession.cjs");
-const ExerciseSet_1 = require("../entities/ExerciseSet.cjs");
-const WorkoutGoal_1 = require("../entities/WorkoutGoal.cjs");
+const databaseConfig_1 = require('../config/databaseConfig.cjs');
+const WorkoutPlan_1 = require('../entities/WorkoutPlan.cjs');
+const WorkoutSession_1 = require('../entities/WorkoutSession.cjs');
+const ExerciseSet_1 = require('../entities/ExerciseSet.cjs');
+const WorkoutGoal_1 = require('../entities/WorkoutGoal.cjs');
 const typeorm_1 = require("typeorm");
 class WorkoutService {
     async createWorkoutPlan(planData) {

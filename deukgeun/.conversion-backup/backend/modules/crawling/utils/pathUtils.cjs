@@ -39,7 +39,7 @@ exports.getDataDir = getDataDir;
 exports.getCrawlingHistoryDir = getCrawlingHistoryDir;
 exports.getCrawlingHistoryPath = getCrawlingHistoryPath;
 const path = __importStar(require("path"));
-const pathUtils_1 = require("./pathUtils.cjs");
+const pathUtils_1 = require('./pathUtils.cjs');
 function getProjectRoot() {
     const __filename = (0, pathUtils_1.getFilename)();
     return path.resolve(__filename, '..', '..', '..', '..', '..', '..');

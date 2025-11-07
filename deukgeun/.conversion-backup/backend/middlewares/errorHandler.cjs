@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.errorHandler = void 0;
-const logger_1 = require("../utils/logger.cjs");
+const logger_1 = require('../utils/logger.cjs');
 const errorHandler = (error, req, res, _next) => {
     const statusCode = error.statusCode || 500;
     const message = error.message || "Internal Server Error";

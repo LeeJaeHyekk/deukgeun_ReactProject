@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WorkoutController = void 0;
-const workoutService_1 = require("../services/workoutService.cjs");
-const logger_1 = require("../utils/logger.cjs");
+const workoutService_1 = require('../services/workoutService.cjs');
+const logger_1 = require('../utils/logger.cjs');
 class WorkoutController {
     constructor() {
         this.workoutService = new workoutService_1.WorkoutService();

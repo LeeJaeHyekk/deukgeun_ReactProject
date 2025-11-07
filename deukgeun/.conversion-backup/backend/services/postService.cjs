@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostService = void 0;
-const databaseConfig_1 = require("../config/databaseConfig.cjs");
-const Post_1 = require("../entities/Post.cjs");
-const User_1 = require("../entities/User.cjs");
+const databaseConfig_1 = require('../config/databaseConfig.cjs');
+const Post_1 = require('../entities/Post.cjs');
+const User_1 = require('../entities/User.cjs');
 class PostService {
     async getAllPosts(params) {
         try {

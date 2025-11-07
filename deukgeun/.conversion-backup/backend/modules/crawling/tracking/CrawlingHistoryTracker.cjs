@@ -34,7 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CrawlingHistoryTracker = void 0;
-const pathUtils_1 = require("../utils/pathUtils.cjs");
+const pathUtils_1 = require('../utils/pathUtils.cjs');
 class CrawlingHistoryTracker {
     constructor() {
         this.sessions = new Map();

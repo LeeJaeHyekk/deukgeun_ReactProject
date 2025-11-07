@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HomePageController = void 0;
-const HomePageConfig_1 = require("../entities/HomePageConfig.cjs");
-const LazyLoader_1 = require("../modules/server/LazyLoader.cjs");
+const HomePageConfig_1 = require('../entities/HomePageConfig.cjs');
+const LazyLoader_1 = require('../modules/server/LazyLoader.cjs');
 class HomePageController {
     constructor() {
         this.getHomePageConfig = async (req, res) => {

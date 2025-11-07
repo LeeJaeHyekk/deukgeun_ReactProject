@@ -378,34 +378,19 @@ export async function verifyRecaptcha(
       return false
     }
     
-    // 토큰 만료 시간 검증 (challenge_ts 기반)
+    // Google API 응답의 success와 error-codes를 먼저 확인 (공식 문서 권장)
+    // reCAPTCHA v3 공식 문서: https://developers.google.com/recaptcha/docs/v3
+    // Google API가 토큰 만료를 확인한 경우 error-codes에 "timeout-or-duplicate" 포함
+    const errorCodes = response.data["error-codes"] || []
     const challengeTs = response.data.challenge_ts
     let tokenAge: number | null = null
+    
+    // challenge_ts 기반 토큰 나이 계산 (로깅 및 보조 검증용)
     if (challengeTs) {
       try {
         const challengeTime = new Date(challengeTs).getTime()
-        if (isNaN(challengeTime)) {
-          logger.warn("reCAPTCHA challenge_ts 파싱 실패:", { challengeTs })
-        } else {
+        if (!isNaN(challengeTime)) {
           tokenAge = Math.round((Date.now() - challengeTime) / 1000) // 초 단위
-          
-          // 토큰이 2분(120초) 이상 지났으면 만료로 간주
-          const TOKEN_MAX_AGE = 120 // 2분
-          if (tokenAge > TOKEN_MAX_AGE) {
-            logger.warn("reCAPTCHA 토큰 만료:", {
-              tokenAge: `${tokenAge}초`,
-              maxAge: `${TOKEN_MAX_AGE}초`,
-              challengeTs,
-            })
-            writeRecaptchaLog("warn", "reCAPTCHA 토큰 만료", {
-              requestId,
-              expectedAction,
-              tokenAge: `${tokenAge}초`,
-              maxAge: `${TOKEN_MAX_AGE}초`,
-              challengeTs,
-            })
-            return false
-          }
           
           // 토큰이 음수 나이를 가지는 경우 (시스템 시간 불일치)
           if (tokenAge < 0) {
@@ -416,10 +401,51 @@ export async function verifyRecaptcha(
             })
             // 음수 나이는 허용하되 경고만 기록 (시스템 시간 불일치 가능성)
           }
+        } else {
+          logger.warn("reCAPTCHA challenge_ts 파싱 실패:", { challengeTs })
         }
       } catch (error) {
         logger.warn("reCAPTCHA 토큰 만료 시간 파싱 실패:", error)
       }
+    }
+    
+    // Google API 응답에서 토큰 만료 확인 (우선 검증)
+    // 공식 문서: error-codes에 "timeout-or-duplicate"가 있으면 토큰 만료 또는 재사용
+    if (errorCodes.includes("timeout-or-duplicate")) {
+      logger.warn("reCAPTCHA 토큰 만료 또는 재사용 (Google API 확인):", {
+        errorCodes,
+        tokenAge: tokenAge !== null ? `${tokenAge}초` : "알 수 없음",
+        challengeTs,
+      })
+      writeRecaptchaLog("warn", "reCAPTCHA 토큰 만료 또는 재사용", {
+        requestId,
+        expectedAction,
+        errorCodes,
+        tokenAge: tokenAge !== null ? `${tokenAge}초` : "알 수 없음",
+        challengeTs,
+      })
+      return false
+    }
+    
+    // challenge_ts 기반 보조 검증 (Google API가 확인하지 않은 경우에만)
+    // reCAPTCHA v3 토큰은 일반적으로 2분 동안 유효하지만, 실제로는 더 길 수 있음
+    // 공식 문서에 따르면 Google API 응답을 우선 확인해야 함
+    // 보조 검증으로는 5분까지 허용 (네트워크 지연 등을 고려)
+    if (tokenAge !== null && tokenAge > 300) { // 5분 (300초)
+      logger.warn("reCAPTCHA 토큰 만료 (보조 검증):", {
+        tokenAge: `${tokenAge}초`,
+        maxAge: "300초 (5분)",
+        challengeTs,
+        note: "Google API가 확인하지 않은 경우에만 보조 검증으로 사용",
+      })
+      writeRecaptchaLog("warn", "reCAPTCHA 토큰 만료 (보조 검증)", {
+        requestId,
+        expectedAction,
+        tokenAge: `${tokenAge}초`,
+        maxAge: "300초 (5분)",
+        challengeTs,
+      })
+      return false
     }
 
     // Google API 응답 로깅 (디버깅용) - 항상 출력 (전체 응답 포함)
@@ -507,19 +533,26 @@ export async function verifyRecaptcha(
       }
       
       // 상세한 오류 정보 로깅
+      // reCAPTCHA v3 공식 문서: https://developers.google.com/recaptcha/docs/v3
+      // error-codes 참조: https://developers.google.com/recaptcha/docs/verify
       let errorMessage = ""
       if (errorCodes.includes("invalid-input-response")) {
         if (domainMismatch) {
           errorMessage = `도메인 불일치: ${domainMismatchDetails?.reason || "hostname이 null입니다"}. ${domainMismatchDetails?.suggestion || "Google Console에서 도메인을 확인하세요."}`
         } else {
-          errorMessage = "토큰이 유효하지 않습니다. 가능한 원인: 1) 토큰 만료 (2분 초과), 2) 토큰 재사용, 3) Site Key와 Secret Key 불일치, 4) 토큰 형식 오류"
+          errorMessage = "토큰이 유효하지 않습니다. 가능한 원인: 1) 토큰 만료, 2) 토큰 재사용, 3) Site Key와 Secret Key 불일치, 4) 토큰 형식 오류"
         }
       } else if (errorCodes.includes("invalid-input-secret")) {
-        errorMessage = "Secret Key가 유효하지 않습니다."
+        errorMessage = "Secret Key가 유효하지 않습니다. Google Console에서 Secret Key를 확인하세요."
       } else if (errorCodes.includes("timeout-or-duplicate")) {
-        errorMessage = "토큰이 만료되었거나 이미 사용되었습니다 (재사용 불가)."
+        // 공식 문서: "timeout-or-duplicate"는 토큰이 만료되었거나 이미 사용되었음을 의미
+        errorMessage = "토큰이 만료되었거나 이미 사용되었습니다 (재사용 불가). 새로고침 후 다시 시도해주세요."
+      } else if (errorCodes.includes("missing-input-response")) {
+        errorMessage = "reCAPTCHA 토큰이 누락되었습니다."
+      } else if (errorCodes.includes("missing-input-secret")) {
+        errorMessage = "Secret Key가 설정되지 않았습니다."
       } else {
-        errorMessage = "알 수 없는 오류"
+        errorMessage = `알 수 없는 오류 (error-codes: ${errorCodes.join(", ")})`
       }
 
       // 상세 정보를 console.log로도 출력 (PM2 로그에서 확인 가능)
@@ -580,6 +613,7 @@ export async function verifyRecaptcha(
 
     // action 검증 (v3의 경우)
     // 대소문자 무시 비교 (Google API는 소문자로 반환하지만, expectedAction은 대문자일 수 있음)
+    // 프론트엔드와 백엔드의 action 이름이 일치하는지 확인
     if (expectedAction && response.data.action) {
       const normalizedExpected = expectedAction.toLowerCase().trim()
       const normalizedActual = response.data.action.toLowerCase().trim()
@@ -590,6 +624,9 @@ export async function verifyRecaptcha(
           actual: response.data.action,
           normalizedExpected,
           normalizedActual,
+          score: response.data.score,
+          hostname: response.data.hostname,
+          suggestion: "프론트엔드와 백엔드의 action 이름이 일치하는지 확인하세요. (대소문자 무시 비교)"
         })
         
         writeRecaptchaLog("warn", "reCAPTCHA action 불일치", {
@@ -605,6 +642,7 @@ export async function verifyRecaptcha(
           userAgent,
           userIpAddress,
           requestUrl,
+          suggestion: "프론트엔드와 백엔드의 action 이름이 일치하는지 확인하세요."
         })
         
         return false
@@ -615,6 +653,29 @@ export async function verifyRecaptcha(
         actual: response.data.action,
         normalizedExpected,
         normalizedActual,
+        score: response.data.score,
+      })
+    } else if (expectedAction && !response.data.action) {
+      // action이 기대되었지만 응답에 없는 경우
+      logger.warn("reCAPTCHA action이 응답에 없습니다:", {
+        expected: expectedAction,
+        actual: response.data.action,
+        score: response.data.score,
+        suggestion: "reCAPTCHA v3를 사용하는지 확인하세요."
+      })
+      
+      writeRecaptchaLog("warn", "reCAPTCHA action 누락", {
+        requestId,
+        expectedAction,
+        actualAction: response.data.action,
+        score: response.data.score,
+        hostname: response.data.hostname,
+        challenge_ts: response.data.challenge_ts,
+        duration: `${duration}ms`,
+        userAgent,
+        userIpAddress,
+        requestUrl,
+        suggestion: "reCAPTCHA v3를 사용하는지 확인하세요."
       })
     }
 
@@ -625,19 +686,40 @@ export async function verifyRecaptcha(
       const score = parseFloat(String(response.data.score))
       
       // Action별 최소 점수 설정 (로그인은 더 낮은 점수 허용)
+      // 프로덕션 환경에서도 사용자 경험을 위해 점수 임계값을 낮춤
       let minScore: number
-      if (expectedAction === "LOGIN") {
+      
+      // 개발 환경에서는 점수 검증 완화 (0점도 허용)
+      const isDevelopment = process.env.NODE_ENV === 'development'
+      
+      if (expectedAction === "LOGIN" || expectedAction === "login") {
         // 로그인은 사용자가 자주 접근하므로 더 낮은 점수 허용
-        // 환경 변수가 설정되어 있으면 사용, 없으면 기본값 0.1 사용
-        const loginMinScore = process.env.RECAPTCHA_MIN_SCORE_LOGIN
-        minScore = loginMinScore ? parseFloat(loginMinScore) : 0.1
-      } else if (expectedAction === "REGISTER") {
+        // 프로덕션에서는 0.3으로 설정 (기존 0.1에서 완화)
+        // 환경 변수가 설정되어 있으면 우선 사용
+        if (isDevelopment) {
+          minScore = 0.0 // 개발 환경에서는 점수 검증 완화
+        } else {
+          const loginMinScore = process.env.RECAPTCHA_MIN_SCORE_LOGIN
+          // 환경 변수가 없으면 기본값 0.3 사용 (기존 0.1에서 완화)
+          minScore = loginMinScore ? parseFloat(loginMinScore) : 0.3
+        }
+      } else if (expectedAction === "REGISTER" || expectedAction === "register") {
         // 회원가입은 보안이 중요하므로 기본값 사용
-        const registerMinScore = process.env.RECAPTCHA_MIN_SCORE_REGISTER
-        minScore = registerMinScore ? parseFloat(registerMinScore) : parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5")
+        // 개발 환경에서는 점수 검증 완화
+        if (isDevelopment) {
+          minScore = 0.0 // 개발 환경에서는 점수 검증 완화
+        } else {
+          const registerMinScore = process.env.RECAPTCHA_MIN_SCORE_REGISTER
+          minScore = registerMinScore ? parseFloat(registerMinScore) : parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5")
+        }
       } else {
         // 기타 액션은 기본값 사용
-        minScore = parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5")
+        // 개발 환경에서는 점수 검증 완화
+        if (isDevelopment) {
+          minScore = 0.0 // 개발 환경에서는 점수 검증 완화
+        } else {
+          minScore = parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5")
+        }
       }
       
       // 점수 유효성 검증 (0.0 ~ 1.0 범위)
@@ -667,11 +749,22 @@ export async function verifyRecaptcha(
 
       // 점수 검증 (경계값 포함: score >= minScore)
       if (score < minScore) {
-        logger.warn("reCAPTCHA 점수가 너무 낮습니다:", { 
-          score, 
+        // 점수가 낮을 때 더 자세한 로깅
+        const scoreDetails = {
+          score,
           minScore,
           margin: (score - minScore).toFixed(3),
-        })
+          percentage: `${(score * 100).toFixed(1)}%`,
+          threshold: `${(minScore * 100).toFixed(1)}%`,
+          action: response.data.action,
+          hostname: response.data.hostname,
+          environment: process.env.NODE_ENV || 'unknown',
+          suggestion: score === 0 
+            ? "점수가 0인 경우 봇으로 판단되었을 가능성이 높습니다. 사용자 행동 패턴을 확인하세요."
+            : `점수가 임계값(${minScore})보다 낮습니다. 환경 변수 RECAPTCHA_MIN_SCORE_LOGIN을 조정하거나 사용자 행동을 확인하세요.`
+        }
+        
+        logger.warn("reCAPTCHA 점수가 너무 낮습니다:", scoreDetails)
         
         writeRecaptchaLog("warn", "reCAPTCHA 점수 낮음", {
           requestId,
@@ -679,6 +772,8 @@ export async function verifyRecaptcha(
           score,
           minScore,
           margin: (score - minScore).toFixed(3),
+          percentage: `${(score * 100).toFixed(1)}%`,
+          threshold: `${(minScore * 100).toFixed(1)}%`,
           action: response.data.action,
           hostname: response.data.hostname,
           challenge_ts: response.data.challenge_ts,
@@ -690,6 +785,8 @@ export async function verifyRecaptcha(
           requestHost: host || xForwardedHost,
           xForwardedHost,
           xForwardedProto,
+          environment: process.env.NODE_ENV || 'unknown',
+          suggestion: scoreDetails.suggestion
         })
         
         return false

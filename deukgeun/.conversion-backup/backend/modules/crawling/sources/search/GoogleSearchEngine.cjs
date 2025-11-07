@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GoogleSearchEngine = void 0;
-const BaseSearchEngine_1 = require("./BaseSearchEngine.cjs");
+const BaseSearchEngine_1 = require('./BaseSearchEngine.cjs');
 class GoogleSearchEngine extends BaseSearchEngine_1.BaseSearchEngine {
     async search(gymName, address) {
         try {

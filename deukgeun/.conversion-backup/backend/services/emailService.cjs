@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.emailService = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
-const logger_1 = require("../utils/logger.cjs");
+const logger_1 = require('../utils/logger.cjs');
 class EmailService {
     constructor() {
         this.transporter = null;

@@ -11,8 +11,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Like = void 0;
 const typeorm_1 = require("typeorm");
-const Post_1 = require("./Post.cjs");
-const User_1 = require("./User.cjs");
+const Post_1 = require('./Post.cjs');
+const User_1 = require('./User.cjs');
 let Like = class Like {
 };
 exports.Like = Like;

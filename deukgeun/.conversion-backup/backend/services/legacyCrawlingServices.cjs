@@ -5,7 +5,7 @@ exports.getLegacyServiceMessage = getLegacyServiceMessage;
 exports.warnLegacyServiceUsage = warnLegacyServiceUsage;
 exports.isLegacyService = isLegacyService;
 exports.getLegacyServices = getLegacyServices;
-const crawlingMigration_1 = require("./crawlingMigration.cjs");
+const crawlingMigration_1 = require('./crawlingMigration.cjs');
 exports.LEGACY_CRAWLING_SERVICES = {
     integratedCrawlingService: null,
     enhancedCrawlerService: null,

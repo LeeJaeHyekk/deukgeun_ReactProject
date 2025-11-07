@@ -11,8 +11,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GoalEntity = void 0;
 const typeorm_1 = require("typeorm");
-const User_1 = require("./User.cjs");
-const GoalHistoryEntity_1 = require("./GoalHistoryEntity.cjs");
+const User_1 = require('./User.cjs');
+const GoalHistoryEntity_1 = require('./GoalHistoryEntity.cjs');
 let GoalEntity = class GoalEntity {
 };
 exports.GoalEntity = GoalEntity;

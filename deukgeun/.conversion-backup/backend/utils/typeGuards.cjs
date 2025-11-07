@@ -16,7 +16,7 @@ exports.validateDatabaseConnectionConfig = validateDatabaseConnectionConfig;
 exports.validateJWTConfig = validateJWTConfig;
 exports.validateServerConfig = validateServerConfig;
 exports.validateAllConfigs = validateAllConfigs;
-const guards_1 = require("../../shared/types/guards.cjs");
+const guards_1 = require('../shared/types/guards.cjs');
 function isValidEnvironment(value) {
     return (0, guards_1.isString)(value) && ['development', 'production', 'test'].includes(value);
 }

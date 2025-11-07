@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DataMerger = void 0;
-const DataValidator_1 = require("./DataValidator.cjs");
+const DataValidator_1 = require('./DataValidator.cjs');
 class DataMerger {
     constructor() {
         this.validator = new DataValidator_1.DataValidator();

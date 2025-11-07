@@ -32,6 +32,7 @@
     "db:check": "npx tsx src/backend/scripts/debugDatabase.ts",
     "deploy:ec2": "bash scripts/ec2-integrated-deploy.sh",
     "deploy:ec2:ts": "tsc -p tsconfig.scripts.json && cp dist/scripts/ec2-integrated-runner.js dist/scripts/ec2-integrated-runner.cjs && node dist/scripts/ec2-integrated-runner.cjs",
+    "pm2": "pm2 start ecosystem.config.cjs",
     "pm2:start": "npm run build:backend && pm2 start ecosystem.config.cjs",
     "pm2:stop": "pm2 stop ecosystem.config.cjs",
     "pm2:restart": "npm run build:backend && pm2 restart ecosystem.config.cjs",

@@ -10,7 +10,7 @@ exports.hashRefreshToken = hashRefreshToken;
 exports.compareRefreshToken = compareRefreshToken;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const logger_1 = require("./logger.cjs");
+const logger_1 = require('./logger.cjs');
 const ACCESS_TOKEN_SECRET = process.env.JWT_ACCESS_SECRET ||
     "default-access-secret-key-2024-development-only";
 const REFRESH_TOKEN_SECRET = process.env.JWT_REFRESH_SECRET ||

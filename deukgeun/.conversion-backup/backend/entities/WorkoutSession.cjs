@@ -11,10 +11,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WorkoutSession = void 0;
 const typeorm_1 = require("typeorm");
-const User_1 = require("./User.cjs");
-const WorkoutPlan_1 = require("./WorkoutPlan.cjs");
-const Gym_1 = require("./Gym.cjs");
-const ExerciseSet_1 = require("./ExerciseSet.cjs");
+const User_1 = require('./User.cjs');
+const WorkoutPlan_1 = require('./WorkoutPlan.cjs');
+const Gym_1 = require('./Gym.cjs');
+const ExerciseSet_1 = require('./ExerciseSet.cjs');
 let WorkoutSession = class WorkoutSession {
 };
 exports.WorkoutSession = WorkoutSession;

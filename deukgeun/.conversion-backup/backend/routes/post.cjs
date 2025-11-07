@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const postController_1 = require("../controllers/postController.cjs");
-const auth_1 = require("../middlewares/auth.cjs");
+const postController_1 = require('../controllers/postController.cjs');
+const auth_1 = require('../middlewares/auth.cjs');
 const router = (0, express_1.Router)();
 const postController = new postController_1.PostController();
 router.get("/", postController.getAllPosts);

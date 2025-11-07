@@ -40,7 +40,7 @@ exports.logConfigInfo = logConfigInfo;
 const dotenv = __importStar(require("dotenv"));
 const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
-const pathUtils_1 = require("../utils/pathUtils.cjs");
+const pathUtils_1 = require('../utils/pathUtils.cjs');
 const nodeEnv = process.env.NODE_ENV || 'development';
 // __dirname is automatically available in CommonJS
 const backendDir = path.resolve(__dirname, '..');

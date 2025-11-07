@@ -20,8 +20,8 @@ exports.isWorkoutPlanExerciseDTO = isWorkoutPlanExerciseDTO;
 exports.isWorkoutSessionDTO = isWorkoutSessionDTO;
 exports.isWorkoutGoalDTO = isWorkoutGoalDTO;
 exports.isMachineDTO = isMachineDTO;
-__exportStar(require("./workoutPlanExercise.types.cjs"), exports);
-__exportStar(require("../../utils/transform/workoutPlanExercise.cjs"), exports);
+__exportStar(require('./workoutPlanExercise.types.cjs'), exports);
+__exportStar(require('../utils/transform/workoutPlanExercise.cjs'), exports);
 function isUserDTO(obj) {
     return (typeof obj === 'object' &&
         obj !== null &&

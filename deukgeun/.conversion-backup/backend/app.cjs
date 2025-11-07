@@ -9,12 +9,12 @@ const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 require("reflect-metadata");
-const errorHandler_1 = require("./middlewares/errorHandler.cjs");
-const routes_1 = __importDefault(require("./routes/index.cjs"));
+const errorHandler_1 = require('./middlewares/errorHandler.cjs');
+const routes_1 = __importDefault(require('./routes/index.cjs'));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
-const pathUtils_1 = require("./utils/pathUtils.cjs");
+const pathUtils_1 = require('./utils/pathUtils.cjs');
 // __dirname is automatically available in CommonJS
 const config = {
     corsOrigin: process.env.CORS_ORIGIN?.split(",").filter(origin => origin.trim() !== "") || [

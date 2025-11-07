@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CrossValidator = void 0;
-const PriceExtractor_1 = require("./PriceExtractor.cjs");
+const PriceExtractor_1 = require('./PriceExtractor.cjs');
 class CrossValidator {
     constructor() {
         this.priceExtractor = new PriceExtractor_1.PriceExtractor();

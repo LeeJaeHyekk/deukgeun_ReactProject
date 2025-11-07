@@ -5,9 +5,9 @@ exports.getGymById = getGymById;
 exports.searchGyms = searchGyms;
 exports.getGymsByLocation = getGymsByLocation;
 exports.updateGymData = updateGymData;
-const Gym_1 = require("../entities/Gym.cjs");
-const databaseConfig_1 = require("../config/databaseConfig.cjs");
-const index_1 = require("../transformers/index.cjs");
+const Gym_1 = require('../entities/Gym.cjs');
+const databaseConfig_1 = require('../config/databaseConfig.cjs');
+const index_1 = require('../transformers/index.cjs');
 async function getAllGyms(req, res) {
     try {
         const gymRepository = databaseConfig_1.AppDataSource.getRepository(Gym_1.Gym);

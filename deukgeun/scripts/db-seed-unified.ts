@@ -398,7 +398,9 @@ async function seedMachines(): Promise<void> {
         try {
           // 데이터 검증
           if (!validateMachineData(machine)) {
-            console.warn(`⚠️ 유효하지 않은 기구 데이터 건너뜀: ${machine.id || 'unknown'}`)
+            // 검증 실패 시 타입 단언 사용
+            const machineData = machine as Partial<MachineSeedData>
+            console.warn(`⚠️ 유효하지 않은 기구 데이터 건너뜀: ${machineData.id || 'unknown'}`)
             errorCount++
             continue
           }
@@ -510,7 +512,9 @@ async function seedUsers(): Promise<UserSeedData[]> {
       try {
         // 데이터 검증
         if (!validateUserData(userData)) {
-          console.warn(`⚠️ 유효하지 않은 사용자 데이터 건너뜀: ${userData.email}`)
+          // 검증 실패 시 타입 단언 사용
+          const userDataPartial = userData as Partial<UserSeedData>
+          console.warn(`⚠️ 유효하지 않은 사용자 데이터 건너뜀: ${userDataPartial.email || 'unknown'}`)
           continue
         }
 
@@ -636,7 +640,9 @@ async function seedGyms(): Promise<void> {
       try {
         // 데이터 검증
         if (!validateGymData(gymData)) {
-          console.warn(`⚠️ 유효하지 않은 헬스장 데이터 건너뜀: ${gymData.name}`)
+          // 검증 실패 시 타입 단언 사용
+          const gymDataPartial = gymData as Partial<GymSeedData>
+          console.warn(`⚠️ 유효하지 않은 헬스장 데이터 건너뜀: ${gymDataPartial.name || 'unknown'}`)
           continue
         }
 

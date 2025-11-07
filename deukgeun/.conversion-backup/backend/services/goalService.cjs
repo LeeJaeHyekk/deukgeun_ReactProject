@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GoalService = void 0;
-const databaseConfig_1 = require("../config/databaseConfig.cjs");
-const GoalEntity_1 = require("../entities/GoalEntity.cjs");
-const GoalHistoryEntity_1 = require("../entities/GoalHistoryEntity.cjs");
+const databaseConfig_1 = require('../config/databaseConfig.cjs');
+const GoalEntity_1 = require('../entities/GoalEntity.cjs');
+const GoalHistoryEntity_1 = require('../entities/GoalHistoryEntity.cjs');
 class GoalService {
     async listByUser(userId) {
         try {

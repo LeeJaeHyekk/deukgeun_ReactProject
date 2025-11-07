@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StatsController = void 0;
 const typeorm_1 = require("typeorm");
-const User_1 = require("../entities/User.cjs");
-const Gym_1 = require("../entities/Gym.cjs");
-const Post_1 = require("../entities/Post.cjs");
-const UserLevel_1 = require("../entities/UserLevel.cjs");
-const LazyLoader_1 = require("../modules/server/LazyLoader.cjs");
+const User_1 = require('../entities/User.cjs');
+const Gym_1 = require('../entities/Gym.cjs');
+const Post_1 = require('../entities/Post.cjs');
+const UserLevel_1 = require('../entities/UserLevel.cjs');
+const LazyLoader_1 = require('../modules/server/LazyLoader.cjs');
 class StatsController {
     constructor() {
         this.getOverallStats = async (req, res) => {

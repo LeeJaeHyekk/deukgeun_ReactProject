@@ -11,8 +11,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WorkoutPlanExercise = void 0;
 const typeorm_1 = require("typeorm");
-const WorkoutPlan_1 = require("./WorkoutPlan.cjs");
-const Machine_1 = require("./Machine.cjs");
+const WorkoutPlan_1 = require('./WorkoutPlan.cjs');
+const Machine_1 = require('./Machine.cjs');
 let WorkoutPlanExercise = class WorkoutPlanExercise {
 };
 exports.WorkoutPlanExercise = WorkoutPlanExercise;

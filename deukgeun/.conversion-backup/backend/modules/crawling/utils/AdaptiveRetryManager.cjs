@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdaptiveRetryManager = void 0;
-const CircuitBreaker_1 = require("./CircuitBreaker.cjs");
+const CircuitBreaker_1 = require('./CircuitBreaker.cjs');
 class AdaptiveRetryManager {
     constructor(config = {}) {
         this.metrics = {

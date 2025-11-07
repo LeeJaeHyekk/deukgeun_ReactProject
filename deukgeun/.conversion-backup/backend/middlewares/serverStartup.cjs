@@ -8,7 +8,7 @@ exports.validateMemoryUsage = validateMemoryUsage;
 exports.validateDependencies = validateDependencies;
 exports.performStartupValidation = performStartupValidation;
 exports.performPostStartupHealthCheck = performPostStartupHealthCheck;
-const databaseConfig_1 = require("../config/databaseConfig.cjs");
+const databaseConfig_1 = require('../config/databaseConfig.cjs');
 class StartupTracker {
     constructor() {
         this.phases = [];

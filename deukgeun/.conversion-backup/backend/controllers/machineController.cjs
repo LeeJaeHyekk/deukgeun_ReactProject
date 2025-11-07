@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMachinesByTarget = exports.getMachinesByDifficulty = exports.getMachinesByCategory = exports.filterMachines = exports.deleteMachine = exports.updateMachine = exports.getMachineById = exports.getAllMachines = exports.createMachine = void 0;
-const machineService_1 = require("../services/machineService.cjs");
-const index_1 = require("../transformers/index.cjs");
-const logger_1 = require("../utils/logger.cjs");
+const machineService_1 = require('../services/machineService.cjs');
+const index_1 = require('../transformers/index.cjs');
+const logger_1 = require('../utils/logger.cjs');
 let machineService = null;
 function getMachineService() {
     if (!machineService) {

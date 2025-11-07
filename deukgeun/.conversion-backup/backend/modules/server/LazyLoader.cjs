@@ -7,8 +7,8 @@ exports.getLazyModuleStatus = getLazyModuleStatus;
 exports.logLazyModuleStatus = logLazyModuleStatus;
 exports.reloadLazyModule = reloadLazyModule;
 exports.reloadAllLazyModules = reloadAllLazyModules;
-const databaseConfig_1 = require("../../config/databaseConfig.cjs");
-const logger_1 = require("../../utils/logger.cjs");
+const databaseConfig_1 = require('../../config/databaseConfig.cjs.cjs');
+const logger_1 = require('../../utils/logger.cjs');
 const lazyModules = new Map();
 async function lazyLoad(moduleName, loader, fallback) {
     const state = lazyModules.get(moduleName);

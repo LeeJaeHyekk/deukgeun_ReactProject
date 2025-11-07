@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const workoutController_1 = require("../controllers/workoutController.cjs");
-const goalController_1 = require("../controllers/goalController.cjs");
-const auth_1 = require("../middlewares/auth.cjs");
-const rateLimiter_1 = require("../middlewares/rateLimiter.cjs");
+const workoutController_1 = require('../controllers/workoutController.cjs');
+const goalController_1 = require('../controllers/goalController.cjs');
+const auth_1 = require('../middlewares/auth.cjs');
+const rateLimiter_1 = require('../middlewares/rateLimiter.cjs');
 const router = (0, express_1.Router)();
 const workoutController = new workoutController_1.WorkoutController();
 const goalController = new goalController_1.GoalController();

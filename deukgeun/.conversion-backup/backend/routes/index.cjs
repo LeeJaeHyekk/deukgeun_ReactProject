@@ -37,22 +37,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const auth_1 = __importDefault(require("./auth.cjs"));
-const gym_1 = __importDefault(require("./gym.cjs"));
-const machine_1 = __importDefault(require("./machine.cjs"));
-const post_1 = __importDefault(require("./post.cjs"));
-const comment_1 = __importDefault(require("./comment.cjs"));
-const like_1 = __importDefault(require("./like.cjs"));
-const level_1 = __importDefault(require("./level.cjs"));
-const stats_1 = __importDefault(require("./stats.cjs"));
-const workout_1 = __importDefault(require("./workout.cjs"));
-const logs_1 = __importDefault(require("./logs.cjs"));
-const recaptcha_1 = __importDefault(require("./recaptcha.cjs"));
-const homePage_1 = __importDefault(require("./homePage.cjs"));
-const enhancedGymRoutes_1 = __importDefault(require("./enhancedGymRoutes.cjs"));
-const databaseConfig_1 = require("../config/databaseConfig.cjs");
-const healthMonitor_1 = require("../middlewares/healthMonitor.cjs");
-const typeGuards_1 = require("../utils/typeGuards.cjs");
+const auth_1 = __importDefault(require('./auth.cjs'));
+const gym_1 = __importDefault(require('./gym.cjs'));
+const machine_1 = __importDefault(require('./machine.cjs'));
+const post_1 = __importDefault(require('./post.cjs'));
+const comment_1 = __importDefault(require('./comment.cjs'));
+const like_1 = __importDefault(require('./like.cjs'));
+const level_1 = __importDefault(require('./level.cjs'));
+const stats_1 = __importDefault(require('./stats.cjs'));
+const workout_1 = __importDefault(require('./workout.cjs'));
+const logs_1 = __importDefault(require('./logs.cjs'));
+const recaptcha_1 = __importDefault(require('./recaptcha.cjs'));
+const homePage_1 = __importDefault(require('./homePage.cjs'));
+const enhancedGymRoutes_1 = __importDefault(require('./enhancedGymRoutes.cjs'));
+const databaseConfig_1 = require('../config/databaseConfig.cjs');
+const healthMonitor_1 = require('../middlewares/healthMonitor.cjs');
+const typeGuards_1 = require('../utils/typeGuards.cjs');
 console.log("=".repeat(60));
 console.log("🔧 API ROUTES INITIALIZATION DEBUG START");
 console.log("=".repeat(60));
@@ -156,7 +156,7 @@ if (isDatabaseConnected) {
     console.log("✅ Enhanced Gym routes configured");
     (async () => {
         try {
-            const crawlingRoutes = await Promise.resolve().then(() => __importStar(require("./crawling.cjs")));
+            const crawlingRoutes = await Promise.resolve().then(() => __importStar(require('./crawling.cjs')));
             router.use("/crawling", crawlingRoutes.default);
             console.log("✅ Crawling routes configured");
         }

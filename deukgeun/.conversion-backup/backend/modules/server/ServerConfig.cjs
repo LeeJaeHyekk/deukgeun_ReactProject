@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createServerConfig = createServerConfig;
 exports.logServerConfig = logServerConfig;
-const typeGuards_1 = require("../../utils/typeGuards.cjs");
-const ConfigCache_1 = require("./ConfigCache.cjs");
+const typeGuards_1 = require('../../utils/typeGuards.cjs');
+const ConfigCache_1 = require('./ConfigCache.cjs');
 const DEFAULT_CORS_ORIGINS = [
     "https://devtrail.net",
     "https://www.devtrail.net",

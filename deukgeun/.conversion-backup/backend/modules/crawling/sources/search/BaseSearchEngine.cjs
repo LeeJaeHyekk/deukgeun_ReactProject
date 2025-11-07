@@ -36,10 +36,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BaseSearchEngine = void 0;
 const axios_1 = __importStar(require("axios"));
 const cheerio = __importStar(require("cheerio"));
-const AntiDetectionUtils_1 = require("../../utils/AntiDetectionUtils.cjs");
-const AdaptiveRetryManager_1 = require("../../utils/AdaptiveRetryManager.cjs");
-const FallbackStrategyManager_1 = require("../../utils/FallbackStrategyManager.cjs");
-const CrawlingMetrics_1 = require("../../utils/CrawlingMetrics.cjs");
+const AntiDetectionUtils_1 = require('../../utils/AntiDetectionUtils.cjs');
+const AdaptiveRetryManager_1 = require('../../utils/AdaptiveRetryManager.cjs');
+const FallbackStrategyManager_1 = require('../../utils/FallbackStrategyManager.cjs');
+const CrawlingMetrics_1 = require('../../utils/CrawlingMetrics.cjs');
 class BaseSearchEngine {
     constructor(timeout = 30000, delay = 2000) {
         this.timeout = 30000;

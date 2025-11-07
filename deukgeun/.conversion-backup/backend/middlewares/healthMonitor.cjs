@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.metricsMiddleware = exports.detailedHealthCheckMiddleware = exports.healthCheckMiddleware = void 0;
 exports.checkDatabaseHealth = checkDatabaseHealth;
 exports.getHealthStatus = getHealthStatus;
-const databaseConfig_1 = require("../config/databaseConfig.cjs");
-const logger_1 = require("../utils/logger.cjs");
+const databaseConfig_1 = require('../config/databaseConfig.cjs');
+const logger_1 = require('../utils/logger.cjs');
 async function checkDatabaseHealth() {
     if (!databaseConfig_1.AppDataSource.isInitialized) {
         return { connected: false, error: "Database not initialized" };

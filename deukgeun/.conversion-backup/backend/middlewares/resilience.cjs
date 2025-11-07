@@ -4,7 +4,7 @@ exports.getCircuitBreakerStatus = exports.memoryMonitorMiddleware = exports.apiR
 exports.retryWithBackoff = retryWithBackoff;
 exports.executeWithCircuitBreaker = executeWithCircuitBreaker;
 exports.executeWithTimeout = executeWithTimeout;
-const logger_1 = require("../utils/logger.cjs");
+const logger_1 = require('../utils/logger.cjs');
 const DEFAULT_RETRY_CONFIG = {
     maxRetries: 3,
     baseDelay: 1000,

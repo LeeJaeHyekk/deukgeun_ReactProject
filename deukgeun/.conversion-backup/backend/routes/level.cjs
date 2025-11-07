@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const levelController_1 = require("../controllers/levelController.cjs");
-const auth_1 = require("../middlewares/auth.cjs");
-const rateLimiter_1 = require("../middlewares/rateLimiter.cjs");
+const levelController_1 = require('../controllers/levelController.cjs');
+const auth_1 = require('../middlewares/auth.cjs');
+const rateLimiter_1 = require('../middlewares/rateLimiter.cjs');
 const router = (0, express_1.Router)();
 router.get("/user/:userId", auth_1.authMiddleware, (0, rateLimiter_1.rateLimiter)(60000, 30), levelController_1.getUserLevel);
 router.get("/user/:userId/progress", auth_1.authMiddleware, (0, rateLimiter_1.rateLimiter)(60000, 30), levelController_1.getUserProgress);

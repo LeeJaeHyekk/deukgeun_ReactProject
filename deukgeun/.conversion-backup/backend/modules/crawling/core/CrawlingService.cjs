@@ -34,14 +34,14 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CrawlingService = void 0;
-const DataProcessor_1 = require("./DataProcessor.cjs");
-const PublicApiSource_1 = require("../sources/PublicApiSource.cjs");
-const OptimizedGymCrawlingSource_1 = require("../sources/OptimizedGymCrawlingSource.cjs");
-const DataMerger_1 = require("../processors/DataMerger.cjs");
-const EnhancedDataMerger_1 = require("../processors/EnhancedDataMerger.cjs");
-const DataValidator_1 = require("../processors/DataValidator.cjs");
-const CrawlingHistoryTracker_1 = require("../tracking/CrawlingHistoryTracker.cjs");
-const pathUtils_1 = require("../utils/pathUtils.cjs");
+const DataProcessor_1 = require('./DataProcessor.cjs');
+const PublicApiSource_1 = require('../sources/PublicApiSource.cjs');
+const OptimizedGymCrawlingSource_1 = require('../sources/OptimizedGymCrawlingSource.cjs');
+const DataMerger_1 = require('../processors/DataMerger.cjs');
+const EnhancedDataMerger_1 = require('../processors/EnhancedDataMerger.cjs');
+const DataValidator_1 = require('../processors/DataValidator.cjs');
+const CrawlingHistoryTracker_1 = require('../tracking/CrawlingHistoryTracker.cjs');
+const pathUtils_1 = require('../utils/pathUtils.cjs');
 class CrawlingService {
     constructor(gymRepo) {
         this.gymRepo = gymRepo;

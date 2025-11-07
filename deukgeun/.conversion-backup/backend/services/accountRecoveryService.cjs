@@ -4,12 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.accountRecoveryService = void 0;
-const databaseConfig_1 = require("../config/databaseConfig.cjs");
-const User_1 = require("../entities/User.cjs");
-const VerificationToken_1 = require("../entities/VerificationToken.cjs");
-const PasswordResetToken_1 = require("../entities/PasswordResetToken.cjs");
-const emailService_1 = require("./emailService.cjs");
-const logger_1 = require("../utils/logger.cjs");
+const databaseConfig_1 = require('../config/databaseConfig.cjs');
+const User_1 = require('../entities/User.cjs');
+const VerificationToken_1 = require('../entities/VerificationToken.cjs');
+const PasswordResetToken_1 = require('../entities/PasswordResetToken.cjs');
+const emailService_1 = require('./emailService.cjs');
+const logger_1 = require('../utils/logger.cjs');
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const crypto_1 = __importDefault(require("crypto"));
 const typeorm_1 = require("typeorm");

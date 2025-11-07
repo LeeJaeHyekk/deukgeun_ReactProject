@@ -348,8 +348,10 @@ export class CrawlingService {
       this.status.isRunning = false
       this.status.currentStep = '완료'
       
-      // 세션 종료
-      this.historyTracker.endSession(sessionId, result.success ? 'completed' : 'failed')
+      // 세션 종료 (null 체크)
+      if (sessionId) {
+        this.historyTracker.endSession(sessionId, result.success ? 'completed' : 'failed')
+      }
       
       // 히스토리 저장
       await this.historyTracker.saveHistoryToFile()

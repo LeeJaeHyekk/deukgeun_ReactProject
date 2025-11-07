@@ -37,6 +37,7 @@ export function analyzeAuthError(error: any): AuthError {
   // 401 에러 (토큰 만료) - 토큰 갱신 시도 후 실패 시에만 로그아웃
   if (error.response?.status === 401) {
     const errorData = error.response?.data
+    const errorMessage = error.message || ''
     const url = error.config?.url || ''
     
     // refresh token 엔드포인트에서 401 에러는 토큰 갱신 실패
@@ -50,7 +51,13 @@ export function analyzeAuthError(error: any): AuthError {
     }
     
     // refresh token 만료 (토큰 갱신 실패)
-    if (errorData?.error === 'INVALID_TOKEN' || errorData?.error === '토큰 무효' || errorData?.error === '토큰 만료') {
+    if (
+      errorData?.error === 'REFRESH_TOKEN_EXPIRED' ||
+      errorData?.error === 'INVALID_TOKEN' || 
+      errorData?.error === '토큰 무효' || 
+      errorData?.error === '토큰 만료' ||
+      errorMessage.includes('Refresh token이 만료')
+    ) {
       return {
         type: 'token_expired',
         message: '로그인이 만료되었습니다. 다시 로그인해주세요.',

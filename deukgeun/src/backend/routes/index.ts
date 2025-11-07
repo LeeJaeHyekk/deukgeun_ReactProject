@@ -154,13 +154,18 @@ if (isDatabaseConnected) {
   console.log("✅ Enhanced Gym routes configured")
   
   // Crawling routes (크롤링 상태 및 수동 실행)
-  try {
-    const crawlingRoutes = await import("@backend/routes/crawling")
-    router.use("/crawling", crawlingRoutes.default)
-    console.log("✅ Crawling routes configured")
-  } catch (error) {
-    console.warn("⚠️ Crawling routes failed:", error)
-  }
+  // Top-level await 방지를 위해 IIFE로 감싸서 실행
+  ;(async () => {
+    try {
+      const crawlingRoutes = await import("@backend/routes/crawling")
+      router.use("/crawling", crawlingRoutes.default)
+      console.log("✅ Crawling routes configured")
+    } catch (error) {
+      console.warn("⚠️ Crawling routes failed:", error)
+    }
+  })().catch((error) => {
+    console.warn("⚠️ Crawling routes async initialization failed:", error)
+  })
   
   console.log("✅ All API routes configured (full functionality)")
 } else {

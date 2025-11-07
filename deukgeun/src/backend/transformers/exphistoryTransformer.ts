@@ -11,7 +11,7 @@ export class ExpHistoryTransformer {
     return {
       id: entity.id,
       userId: entity.userId,
-      actionType: entity.actionType,
+      actionType: entity.actionType as ExpActionType,
       expGained: entity.expGained,
       source: entity.source,
       metadata: entity.metadata,

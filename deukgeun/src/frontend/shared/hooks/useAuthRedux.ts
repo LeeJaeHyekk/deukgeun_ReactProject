@@ -92,6 +92,9 @@ export function useAuthRedux(): UseAuthReturn {
     }
   }, [isAuthenticated, user?.id, user?.accessToken, isLoggedIn, user])
 
+  // 리프레시 토큰 만료 체크 (주기적으로 확인)
+  const refreshTokenCheckIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
   // 토큰 자동 갱신 설정 (만료 5분 전) - 중복 설정 방지
   const setupTokenRefresh = useCallback(
     (token: string, force: boolean = false) => {
@@ -123,13 +126,40 @@ export function useAuthRedux(): UseAuthReturn {
               setupTokenRefresh(newToken, true) // force=true로 재설정
             }
             logger.debug('AUTH', '토큰 자동 갱신 성공')
-          } catch (error) {
+          } catch (error: any) {
             logger.error('AUTH', '토큰 자동 갱신 실패', error)
             tokenRefreshSetupRef.current = false
-            // 토큰 갱신 실패 시 로그아웃 처리
-            dispatch(resetAuth())
-            storage.remove("accessToken")
-            storage.remove("user")
+            
+            // 리프레시 토큰 만료 에러 확인
+            const errorMessage = error?.message || ''
+            const errorData = error?.response?.data || {}
+            const isRefreshTokenExpired = 
+              errorData?.error === 'REFRESH_TOKEN_EXPIRED' ||
+              errorMessage.includes('Refresh token이 만료') ||
+              errorMessage.includes('REFRESH_TOKEN_EXPIRED')
+            
+            if (isRefreshTokenExpired) {
+              logger.warn('AUTH', '리프레시 토큰 만료 - 자동 로그아웃 처리')
+              // 리프레시 토큰 만료 시 자동 로그아웃
+              dispatch(resetAuth())
+              storage.remove("accessToken")
+              storage.remove("user")
+              
+              // 로그아웃 액션 호출하여 서버에도 알림
+              dispatch(logoutAction()).catch((logoutError) => {
+                logger.error('AUTH', '서버 로그아웃 실패', logoutError)
+              })
+              
+              // 로그인 페이지로 리다이렉트
+              if (typeof window !== 'undefined') {
+                window.location.href = '/login'
+              }
+            } else {
+              // 일반 토큰 갱신 실패 시 로그아웃 처리
+              dispatch(resetAuth())
+              storage.remove("accessToken")
+              storage.remove("user")
+            }
           }
         }, refreshTime)
         
@@ -138,7 +168,7 @@ export function useAuthRedux(): UseAuthReturn {
         logger.debug('AUTH', '토큰 갱신 타이머 설정', { refreshTime })
       }
     },
-    [dispatch, tokenRefreshTimer] // tokenRefreshTimer 의존성 추가 (최신 타이머 참조)
+    [dispatch, tokenRefreshTimer, logoutAction] // tokenRefreshTimer 의존성 추가 (최신 타이머 참조)
   )
 
   // 로그인 처리
@@ -260,10 +290,88 @@ export function useAuthRedux(): UseAuthReturn {
         clearTimeout(tokenRefreshTimer)
         dispatch(clearTokenRefreshTimer())
       }
+      // 리프레시 토큰 만료 체크 인터벌 정리
+      if (refreshTokenCheckIntervalRef.current) {
+        clearInterval(refreshTokenCheckIntervalRef.current)
+        refreshTokenCheckIntervalRef.current = null
+      }
       tokenRefreshSetupRef.current = false
       prevTokenRef.current = undefined
     }
   }, [isAuthenticated, user, tokenRefreshTimer, dispatch])
+
+  // 리프레시 토큰 만료 주기적 체크 (1시간마다)
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // 기존 인터벌 정리
+      if (refreshTokenCheckIntervalRef.current) {
+        clearInterval(refreshTokenCheckIntervalRef.current)
+      }
+      
+      // 리프레시 토큰 만료 체크 함수
+      const checkRefreshTokenExpiry = async () => {
+        try {
+          logger.debug('AUTH', '리프레시 토큰 만료 체크 시작')
+          // 리프레시 토큰 유효성 확인을 위해 갱신 시도
+          const newToken = await dispatch(refreshToken()).unwrap()
+          
+          if (newToken) {
+            logger.debug('AUTH', '리프레시 토큰 유효 - 갱신 성공')
+            // 새로운 액세스 토큰으로 갱신 타이머 재설정
+            setupTokenRefresh(newToken, true)
+          }
+        } catch (error: any) {
+          logger.error('AUTH', '리프레시 토큰 만료 체크 실패', error)
+          
+          // 리프레시 토큰 만료 에러 확인
+          const errorMessage = error?.message || ''
+          const errorData = error?.response?.data || {}
+          const isRefreshTokenExpired = 
+            errorData?.error === 'REFRESH_TOKEN_EXPIRED' ||
+            errorMessage.includes('Refresh token이 만료') ||
+            errorMessage.includes('REFRESH_TOKEN_EXPIRED')
+          
+          if (isRefreshTokenExpired) {
+            logger.warn('AUTH', '리프레시 토큰 만료 - 자동 로그아웃 처리')
+            // 리프레시 토큰 만료 시 자동 로그아웃
+            dispatch(resetAuth())
+            storage.remove("accessToken")
+            storage.remove("user")
+            
+            // 로그아웃 액션 호출하여 서버에도 알림
+            dispatch(logoutAction()).catch((logoutError) => {
+              logger.error('AUTH', '서버 로그아웃 실패', logoutError)
+            })
+            
+            // 로그인 페이지로 리다이렉트
+            if (typeof window !== 'undefined') {
+              window.location.href = '/login'
+            }
+          }
+        }
+      }
+      
+      // 1시간마다 리프레시 토큰 만료 체크
+      refreshTokenCheckIntervalRef.current = setInterval(() => {
+        checkRefreshTokenExpiry()
+      }, 60 * 60 * 1000) // 1시간
+      
+      logger.debug('AUTH', '리프레시 토큰 만료 체크 인터벌 설정 (1시간)')
+      
+      return () => {
+        if (refreshTokenCheckIntervalRef.current) {
+          clearInterval(refreshTokenCheckIntervalRef.current)
+          refreshTokenCheckIntervalRef.current = null
+        }
+      }
+    } else {
+      // 로그아웃 시 인터벌 정리
+      if (refreshTokenCheckIntervalRef.current) {
+        clearInterval(refreshTokenCheckIntervalRef.current)
+        refreshTokenCheckIntervalRef.current = null
+      }
+    }
+  }, [isAuthenticated, user, dispatch, setupTokenRefresh, logoutAction])
 
   // localStorage와 Redux 상태 동기화 체크 (렌더링 최적화)
   // 이전 상태 추적을 통한 불필요한 실행 방지

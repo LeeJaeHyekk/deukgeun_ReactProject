@@ -108,7 +108,7 @@ export interface RegisterRequest {
 export interface LoginResponse {
   user: UserDTO
   accessToken: string
-  refreshToken: string
+  refreshToken?: string // 쿠키로 전송되므로 선택적
 }
 
 export interface RegisterResponse {

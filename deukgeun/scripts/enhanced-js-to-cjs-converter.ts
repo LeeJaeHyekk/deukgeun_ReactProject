@@ -913,6 +913,12 @@ class EnhancedJsToCjsConverter {
       '// __dirname is automatically available in CommonJS\n'
     )
     
+    // 패턴 5: const __dirname = require('utils/pathUtils').getDirname();
+    convertedContent = convertedContent.replace(
+      /const __dirname\s*=\s*require\(['"][^'"]*pathUtils[^'"]*['"]\)\.getDirname\(\)\s*;?\s*/g,
+      '// __dirname is automatically available in CommonJS\n'
+    )
+    
     // 패턴 6: const __dirname = require('path').dirname(__filename) (다른 형태)
     convertedContent = convertedContent.replace(
       /const __dirname\s*=\s*require\(['"]path['"]\)\.dirname\(__filename\)\s*;?\s*/g,
@@ -928,6 +934,12 @@ class EnhancedJsToCjsConverter {
     // 패턴 8: let __dirname = ... 또는 var __dirname = ... (다른 선언 키워드)
     convertedContent = convertedContent.replace(
       /(let|var)\s+__dirname\s*=\s*[^;]+;?\s*/g,
+      '// __dirname is automatically available in CommonJS\n'
+    )
+    
+    // 패턴 9: 모든 __dirname 선언 제거 (포괄적 패턴)
+    convertedContent = convertedContent.replace(
+      /(const|let|var)\s+__dirname\s*=\s*[^;]+;?\s*/g,
       '// __dirname is automatically available in CommonJS\n'
     )
     
@@ -1018,9 +1030,12 @@ class EnhancedJsToCjsConverter {
         const content = fs.readFileSync(cjsFile, 'utf8')
         let modifiedContent = content
         
-        // require 경로 수정 - 더 포괄적인 패턴
-        modifiedContent = modifiedContent.replace(/require\("\.\/([^"]+)\.js"\)/g, 'require("./$1.cjs")')
-        modifiedContent = modifiedContent.replace(/require\("\.\/([^"]+)"\)/g, (match, moduleName) => {
+        // 1. 경로 별칭 변환 (utils/*, config/* 등) - 가장 먼저 처리
+        modifiedContent = this.fixPathAliasRequires(modifiedContent, cjsFile)
+        
+        // 2. require 경로 수정 - 더 포괄적인 패턴
+        modifiedContent = modifiedContent.replace(/require\(['"]\.\/([^'"]+)\.js['"]\)/g, 'require("./$1.cjs")')
+        modifiedContent = modifiedContent.replace(/require\(['"]\.\/([^'"]+)['"]\)/g, (match, moduleName) => {
           // .cjs 파일이 존재하는지 확인
           const cjsPath = path.join(path.dirname(cjsFile), `${moduleName}.cjs`)
           if (fs.existsSync(cjsPath)) {
@@ -1029,8 +1044,8 @@ class EnhancedJsToCjsConverter {
           return match
         })
         
-        modifiedContent = modifiedContent.replace(/require\("\.\.\/([^"]+)\.js"\)/g, 'require("../$1.cjs")')
-        modifiedContent = modifiedContent.replace(/require\("\.\.\/([^"]+)"\)/g, (match, moduleName) => {
+        modifiedContent = modifiedContent.replace(/require\(['"]\.\.\/([^'"]+)\.js['"]\)/g, 'require("../$1.cjs")')
+        modifiedContent = modifiedContent.replace(/require\(['"]\.\.\/([^'"]+)['"]\)/g, (match, moduleName) => {
           // .cjs 파일이 존재하는지 확인
           const cjsPath = path.join(path.dirname(cjsFile), '..', `${moduleName}.cjs`)
           if (fs.existsSync(cjsPath)) {
@@ -1040,8 +1055,8 @@ class EnhancedJsToCjsConverter {
         })
         
         // 더 깊은 상대 경로 처리
-        modifiedContent = modifiedContent.replace(/require\("\.\.\/\.\.\/([^"]+)\.js"\)/g, 'require("../../$1.cjs")')
-        modifiedContent = modifiedContent.replace(/require\("\.\.\/\.\.\/([^"]+)"\)/g, (match, moduleName) => {
+        modifiedContent = modifiedContent.replace(/require\(['"]\.\.\/\.\.\/([^'"]+)\.js['"]\)/g, 'require("../../$1.cjs")')
+        modifiedContent = modifiedContent.replace(/require\(['"]\.\.\/\.\.\/([^'"]+)['"]\)/g, (match, moduleName) => {
           const cjsPath = path.join(path.dirname(cjsFile), '..', '..', `${moduleName}.cjs`)
           if (fs.existsSync(cjsPath)) {
             return `require("../../${moduleName}.cjs")`
@@ -1059,6 +1074,100 @@ class EnhancedJsToCjsConverter {
         logWarning(`require 경로 수정 실패: ${cjsFile} - ${(error as Error).message}`)
       }
     }
+  }
+
+  /**
+   * 경로 별칭 require 경로 변환 (utils/*, config/* 등)
+   */
+  private fixPathAliasRequires(content: string, filePath: string): string {
+    let modifiedContent = content
+    const fileDir = path.dirname(filePath)
+    
+    // 경로 별칭 패턴 정의 (dist/backend/backend 기준)
+    const pathAliasPatterns = [
+      // utils/* 패턴
+      {
+        pattern: /require\(['"]utils\/([^'"]+)['"]\)/g,
+        resolve: (moduleName: string) => {
+          // dist/backend/backend/utils/*.cjs 찾기
+          const possiblePaths = [
+            path.join(fileDir, '..', 'utils', `${moduleName}.cjs`),
+            path.join(fileDir, '..', '..', 'utils', `${moduleName}.cjs`),
+            path.join(fileDir, 'utils', `${moduleName}.cjs`),
+          ]
+          
+          for (const possiblePath of possiblePaths) {
+            if (fs.existsSync(possiblePath)) {
+              const relativePath = path.relative(fileDir, possiblePath).replace(/\\/g, '/')
+              return `require('${relativePath}')`
+            }
+          }
+          
+          // 기본 경로 (dist/backend/backend/utils/*)
+          const defaultPath = path.join(fileDir, '..', 'utils', `${moduleName}.cjs`)
+          const relativePath = path.relative(fileDir, defaultPath).replace(/\\/g, '/')
+          return `require('${relativePath}')`
+        }
+      },
+      // config/* 패턴
+      {
+        pattern: /require\(['"]config\/([^'"]+)['"]\)/g,
+        resolve: (moduleName: string) => {
+          // dist/backend/backend/config/*.cjs 찾기
+          const possiblePaths = [
+            path.join(fileDir, '..', 'config', `${moduleName}.cjs`),
+            path.join(fileDir, '..', '..', 'config', `${moduleName}.cjs`),
+            path.join(fileDir, 'config', `${moduleName}.cjs`),
+          ]
+          
+          for (const possiblePath of possiblePaths) {
+            if (fs.existsSync(possiblePath)) {
+              const relativePath = path.relative(fileDir, possiblePath).replace(/\\/g, '/')
+              return `require('${relativePath}')`
+            }
+          }
+          
+          // 기본 경로 (dist/backend/backend/config/*)
+          const defaultPath = path.join(fileDir, '..', 'config', `${moduleName}.cjs`)
+          const relativePath = path.relative(fileDir, defaultPath).replace(/\\/g, '/')
+          return `require('${relativePath}')`
+        }
+      },
+      // controllers/*, middlewares/*, routes/* 등
+      {
+        pattern: /require\(['"](controllers|middlewares|routes|services|entities|transformers|modules)\/([^'"]+)['"]\)/g,
+        resolve: (dirName: string, moduleName: string) => {
+          const possiblePaths = [
+            path.join(fileDir, '..', dirName, `${moduleName}.cjs`),
+            path.join(fileDir, '..', '..', dirName, `${moduleName}.cjs`),
+            path.join(fileDir, dirName, `${moduleName}.cjs`),
+          ]
+          
+          for (const possiblePath of possiblePaths) {
+            if (fs.existsSync(possiblePath)) {
+              const relativePath = path.relative(fileDir, possiblePath).replace(/\\/g, '/')
+              return `require('${relativePath}')`
+            }
+          }
+          
+          // 기본 경로
+          const defaultPath = path.join(fileDir, '..', dirName, `${moduleName}.cjs`)
+          const relativePath = path.relative(fileDir, defaultPath).replace(/\\/g, '/')
+          return `require('${relativePath}')`
+        }
+      }
+    ]
+    
+    // 각 패턴에 대해 변환 수행
+    for (const { pattern, resolve } of pathAliasPatterns) {
+      modifiedContent = modifiedContent.replace(pattern, (match, ...args) => {
+        const resolved = resolve(...args)
+        this.conversionStats.pathAliasesFixed++
+        return resolved
+      })
+    }
+    
+    return modifiedContent
   }
 
   /**

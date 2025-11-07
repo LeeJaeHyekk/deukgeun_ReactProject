@@ -440,7 +440,7 @@ export default function HomePage() {
             </div>
             
             <div className={styles.footerBottom}>
-              <p>&copy; 2024 {homePageConfig?.footerCompanyName || '득근득근'}. All rights reserved.</p>
+              <p>&copy; 2025 {homePageConfig?.footerCompanyName || '득근득근'}. All rights reserved.</p>
             </div>
           </div>
         </footer>

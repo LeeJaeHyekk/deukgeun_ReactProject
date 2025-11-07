@@ -179,9 +179,9 @@ export class DataMerger {
         latitude: this.safeMergeNumber(existing.latitude, newData.latitude),
         longitude: this.safeMergeNumber(existing.longitude, newData.longitude),
         facilities: this.safeMergeString(existing.facilities, newData.facilities, false),
-        openHour: this.safeMergeNumber(existing.openHour, newData.openHour),
-        closeHour: this.safeMergeNumber(existing.closeHour, newData.closeHour),
-        price: this.safeMergeNumber(existing.price, newData.price),
+        openHour: this.safeMergeString(existing.openHour, newData.openHour, false),
+        closeHour: this.safeMergeString(existing.closeHour, newData.closeHour, false),
+        price: this.safeMergeString(existing.price, newData.price, false),
         rating: this.safeMergeNumber(existing.rating, newData.rating),
         reviewCount: this.safeMergeNumber(existing.reviewCount, newData.reviewCount),
         // 신뢰도는 더 높은 값으로 설정

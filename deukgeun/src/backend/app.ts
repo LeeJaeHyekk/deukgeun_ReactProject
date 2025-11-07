@@ -72,6 +72,8 @@ const getCorsOptions = () => {
     // 프로덕션 도메인
     "https://devtrail.net",
     "https://www.devtrail.net",
+    "http://devtrail.net",
+    "http://www.devtrail.net",
     "http://43.203.30.167:3000",
     "http://43.203.30.167:5000",
     // 개발 환경 localhost
@@ -106,26 +108,52 @@ const getCorsOptions = () => {
   return {
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       console.log(`🔍 CORS Check - Origin: ${origin || 'no origin'}`)
-      // origin이 없거나 허용된 목록에 있으면 허용
-      if (!origin || envOrigins.includes(origin)) {
-        console.log(`✅ CORS 허용: ${origin || 'no origin'}`)
+      
+      // origin이 없으면 (같은 도메인 요청) 허용
+      if (!origin) {
+        console.log(`✅ CORS 허용: no origin (same-origin request)`)
         callback(null, true)
-      } else {
-        console.warn(`❌ CORS 차단: ${origin}`)
-        console.warn(`🌐 허용된 Origins: ${envOrigins.join(', ')}`)
-        callback(new Error(`Not allowed by CORS in ${config.environment}`), false)
+        return
       }
+      
+      // 허용된 목록에 있으면 허용
+      if (envOrigins.includes(origin)) {
+        console.log(`✅ CORS 허용: ${origin}`)
+        callback(null, true)
+        return
+      }
+      
+      // 프로덕션 환경에서 localhost는 차단
+      if (!isDevelopment && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+        console.warn(`❌ CORS 차단: ${origin} (프로덕션 환경에서 localhost 차단)`)
+        callback(new Error(`Not allowed by CORS in ${config.environment}`), false)
+        return
+      }
+      
+      // 개발 환경에서는 경고만
+      if (isDevelopment) {
+        console.warn(`⚠️ CORS 경고: ${origin} (개발 환경에서 허용)`)
+        callback(null, true)
+        return
+      }
+      
+      // 그 외는 차단
+      console.warn(`❌ CORS 차단: ${origin}`)
+      console.warn(`🌐 허용된 Origins: ${envOrigins.join(', ')}`)
+      callback(new Error(`Not allowed by CORS in ${config.environment}`), false)
     },
-    credentials: true,
+    credentials: true, // 쿠키 전송 허용
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
       "Authorization",
       "X-Requested-With",
       "X-API-Key",
+      "Cookie", // 쿠키 헤더 명시적 허용
     ],
-    exposedHeaders: ["X-Total-Count"],
+    exposedHeaders: ["X-Total-Count", "Set-Cookie"], // Set-Cookie 헤더 노출
     maxAge: 86400, // 24시간
+    optionsSuccessStatus: 200, // 일부 브라우저 호환성
   }
 }
 

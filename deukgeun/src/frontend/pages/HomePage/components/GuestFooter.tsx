@@ -26,7 +26,7 @@ export const GuestFooter = ({
               alt="득근 로고"
               className={styles.guestFooterLogoImg}
             />
-            <h3>득근</h3>
+            <h3>득근득근</h3>
           </div>
           <p className={styles.guestFooterDescription}>
             헬스장 찾기부터 운동 기록까지, 모든 것을 한 곳에서
@@ -48,7 +48,7 @@ export const GuestFooter = ({
         </div>
         <div className={styles.guestFooterBottom}>
           <p className={styles.guestFooterCopyright}>
-            © 2024 득근. All rights reserved.
+            © 2025 득근득근. All rights reserved.
           </p>
         </div>
       </div>

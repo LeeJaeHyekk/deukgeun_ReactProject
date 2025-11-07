@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const levelController_1 = require("../controllers/levelController.cjs");
+const auth_1 = require("../middlewares/auth.cjs");
+const rateLimiter_1 = require("../middlewares/rateLimiter.cjs");
+const router = (0, express_1.Router)();
+router.get("/user/:userId", auth_1.authMiddleware, (0, rateLimiter_1.rateLimiter)(60000, 30), levelController_1.getUserLevel);
+router.get("/user/:userId/progress", auth_1.authMiddleware, (0, rateLimiter_1.rateLimiter)(60000, 30), levelController_1.getUserProgress);
+router.get("/user/:userId/rewards", auth_1.authMiddleware, (0, rateLimiter_1.rateLimiter)(60000, 30), levelController_1.getUserRewards);
+router.post("/exp/grant", auth_1.authMiddleware, (0, rateLimiter_1.rateLimiter)(60000, 10), levelController_1.grantExp);
+router.get("/cooldown/:actionType/:userId", auth_1.authMiddleware, (0, rateLimiter_1.rateLimiter)(60000, 30), levelController_1.checkCooldown);
+router.get("/leaderboard/global", (0, rateLimiter_1.rateLimiter)(60000, 30), levelController_1.getGlobalLeaderboard);
+router.get("/leaderboard/season/:seasonId", (0, rateLimiter_1.rateLimiter)(60000, 30), levelController_1.getSeasonLeaderboard);
+router.put("/admin/config", auth_1.authMiddleware, auth_1.isAdmin, (0, rateLimiter_1.rateLimiter)(60000, 5), levelController_1.updateLevelConfig);
+router.post("/admin/reset/:userId", auth_1.authMiddleware, auth_1.isAdmin, (0, rateLimiter_1.rateLimiter)(60000, 5), levelController_1.resetUserProgress);
+router.get("/admin/stats", auth_1.authMiddleware, auth_1.isAdmin, (0, rateLimiter_1.rateLimiter)(60000, 10), levelController_1.getSystemStats);
+exports.default = router;

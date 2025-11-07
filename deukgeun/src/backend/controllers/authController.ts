@@ -24,7 +24,12 @@ export async function login(
 ): Promise<void> {
   try {
     const { email, password, recaptchaToken } = req.body
-    console.log("로그인 요청 body:", req.body)
+    logger.info(`로그인 요청 시작 - IP: ${req.ip}, Email: ${email}`, {
+      email,
+      hasPassword: !!password,
+      hasRecaptchaToken: !!recaptchaToken,
+      recaptchaTokenLength: recaptchaToken?.length || 0
+    })
 
     // 입력 검증
     if (!email || !password || !recaptchaToken) {
@@ -48,23 +53,45 @@ export async function login(
     }
 
     // reCAPTCHA 검증 (action: LOGIN)
-    const isHuman = await verifyRecaptcha(recaptchaToken, "LOGIN", req)
-    if (!isHuman) {
-      logger.warn(`reCAPTCHA 실패 - IP: ${req.ip}, Email: ${email}`)
-      res.status(403).json({
-        success: false,
-        message: "reCAPTCHA 검증에 실패했습니다.",
-        error: "reCAPTCHA 실패",
-      })
-      return
+    try {
+      logger.info(`reCAPTCHA 검증 시작 - IP: ${req.ip}, Email: ${email}`)
+      const isHuman = await verifyRecaptcha(recaptchaToken, "LOGIN", req)
+      if (!isHuman) {
+        logger.warn(`reCAPTCHA 실패 - IP: ${req.ip}, Email: ${email}`)
+        res.status(403).json({
+          success: false,
+          message: "reCAPTCHA 검증에 실패했습니다. 페이지를 새로고침한 후 다시 시도해주세요.",
+          error: "RECAPTCHA_VERIFICATION_FAILED",
+        })
+        return
+      }
+      logger.info(`reCAPTCHA 검증 통과 - IP: ${req.ip}, Email: ${email}`)
+    } catch (recaptchaError: any) {
+      // reCAPTCHA 검증 중 오류 발생 (네트워크 오류, 타임아웃 등)
+      logger.error(`reCAPTCHA 검증 오류 - IP: ${req.ip}, Email: ${email}`, recaptchaError)
+      
+      // 개발 환경에서는 reCAPTCHA 오류를 무시하고 계속 진행
+      if (process.env.NODE_ENV === 'development') {
+        logger.warn('개발 환경: reCAPTCHA 검증 오류를 무시하고 계속 진행합니다.')
+      } else {
+        // 프로덕션 환경에서는 503 Service Unavailable 반환
+        res.status(503).json({
+          success: false,
+          message: "reCAPTCHA 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
+          error: "RECAPTCHA_SERVICE_UNAVAILABLE",
+        })
+        return
+      }
     }
 
+    logger.info(`데이터베이스 조회 시작 - Email: ${email}`)
     const dataSource = await lazyLoadDatabase()
     const userRepo = dataSource.getRepository(User)
     const user = await userRepo.findOne({ where: { email } })
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      logger.warn(`로그인 실패 - IP: ${req.ip}, Email: ${email}`)
+    // 사용자 존재 여부 확인 및 로깅
+    if (!user) {
+      logger.warn(`로그인 실패 - 사용자 없음 - IP: ${req.ip}, Email: ${email}`)
       res.status(401).json({
         success: false,
         message: "이메일 또는 비밀번호가 틀렸습니다.",
@@ -72,6 +99,23 @@ export async function login(
       })
       return
     }
+
+    logger.info(`사용자 찾음 - User ID: ${user.id}, Email: ${email}`)
+
+    // 비밀번호 비교 및 상세 로깅
+    logger.info(`비밀번호 비교 시작 - User ID: ${user.id}`)
+    const isPasswordValid = await bcrypt.compare(password, user.password)
+    if (!isPasswordValid) {
+      logger.warn(`로그인 실패 - 비밀번호 불일치 - IP: ${req.ip}, Email: ${email}, User ID: ${user.id}`)
+      res.status(401).json({
+        success: false,
+        message: "이메일 또는 비밀번호가 틀렸습니다.",
+        error: "인증 실패",
+      })
+      return
+    }
+
+    logger.info(`비밀번호 검증 통과 - User ID: ${user.id}`)
 
     const { accessToken, refreshToken } = createTokens(user.id, user.role)
 
@@ -82,13 +126,35 @@ export async function login(
 
     logger.info(`로그인 성공 - User ID: ${user.id}, Email: ${email}`)
 
+    // 쿠키 설정 검증 및 최적화
+    const isProduction = process.env.NODE_ENV === "production"
+    const isSecure = isProduction || process.env.FORCE_SECURE_COOKIES === "true"
+    
+    // CORS 설정 확인
+    const origin = req.headers.origin
+    const isHttps = origin?.startsWith('https://') || req.protocol === 'https'
+    
+    // sameSite 설정: 프로덕션에서 HTTPS면 "none", 그 외는 "lax"
+    const sameSite: "none" | "lax" | "strict" = 
+      (isProduction && isSecure && isHttps) ? "none" : "lax"
+    
+    logger.debug("쿠키 설정", {
+      isProduction,
+      isSecure,
+      isHttps,
+      sameSite,
+      origin,
+      protocol: req.protocol
+    })
+    
     res
       .cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        path: "/",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        httpOnly: true, // XSS 방지
+        secure: isSecure, // HTTPS에서만 전송
+        sameSite, // CSRF 방지
+        path: "/", // 모든 경로에서 사용 가능
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+        domain: isProduction ? process.env.COOKIE_DOMAIN : undefined, // 프로덕션에서만 도메인 설정
       })
       .json({
         success: true,
@@ -99,7 +165,12 @@ export async function login(
         }
       })
   } catch (error) {
-    logger.error("로그인 처리 중 오류:", error)
+    logger.error("로그인 처리 중 오류:", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      email: req.body?.email,
+      ip: req.ip
+    })
     res.status(500).json({
       success: false,
       message: "서버 오류가 발생했습니다.",
@@ -132,10 +203,12 @@ export async function refreshToken(
     const payload = verifyRefreshToken(token)
     if (!payload) {
       logger.warn(`유효하지 않은 refresh token - IP: ${req.ip}`)
+      // 리프레시 토큰 만료 시 쿠키 제거
+      res.clearCookie("refreshToken", { path: "/" })
       res.status(401).json({
         success: false,
-        message: "Refresh token이 유효하지 않습니다.",
-        error: "토큰 무효",
+        message: "Refresh token이 만료되었습니다. 다시 로그인해주세요.",
+        error: "REFRESH_TOKEN_EXPIRED",
       })
       return
     }
@@ -182,13 +255,35 @@ export async function refreshToken(
 
     logger.info(`Token 갱신 성공 - User ID: ${user.id}`)
 
+    // 쿠키 설정 검증 및 최적화 (login과 동일한 로직)
+    const isProduction = process.env.NODE_ENV === "production"
+    const isSecure = isProduction || process.env.FORCE_SECURE_COOKIES === "true"
+    
+    // CORS 설정 확인
+    const origin = req.headers.origin
+    const isHttps = origin?.startsWith('https://') || req.protocol === 'https'
+    
+    // sameSite 설정: 프로덕션에서 HTTPS면 "none", 그 외는 "lax"
+    const sameSite: "none" | "lax" | "strict" = 
+      (isProduction && isSecure && isHttps) ? "none" : "lax"
+    
+    logger.debug("쿠키 설정 (refreshToken)", {
+      isProduction,
+      isSecure,
+      isHttps,
+      sameSite,
+      origin,
+      protocol: req.protocol
+    })
+
     res
       .cookie("refreshToken", newRefreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        path: "/",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        httpOnly: true, // XSS 방지
+        secure: isSecure, // HTTPS에서만 전송
+        sameSite, // CSRF 방지
+        path: "/", // 모든 경로에서 사용 가능
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+        domain: isProduction ? process.env.COOKIE_DOMAIN : undefined, // 프로덕션에서만 도메인 설정
       })
       .json({
         success: true,
@@ -656,13 +751,35 @@ export const register = async (
       userNickname: responseData.user.nickname,
     })
 
+    // 쿠키 설정 검증 및 최적화 (login과 동일한 로직)
+    const isProduction = process.env.NODE_ENV === "production"
+    const isSecure = isProduction || process.env.FORCE_SECURE_COOKIES === "true"
+    
+    // CORS 설정 확인
+    const origin = req.headers.origin
+    const isHttps = origin?.startsWith('https://') || req.protocol === 'https'
+    
+    // sameSite 설정: 프로덕션에서 HTTPS면 "none", 그 외는 "lax"
+    const sameSite: "none" | "lax" | "strict" = 
+      (isProduction && isSecure && isHttps) ? "none" : "lax"
+    
+    logger.debug("쿠키 설정 (register)", {
+      isProduction,
+      isSecure,
+      isHttps,
+      sameSite,
+      origin,
+      protocol: req.protocol
+    })
+
     res
       .cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: (process.env.NODE_ENV as string) === "production",
-        sameSite: (process.env.NODE_ENV as string) === "production" ? "none" : "lax",
-        path: "/",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        httpOnly: true, // XSS 방지
+        secure: isSecure, // HTTPS에서만 전송
+        sameSite, // CSRF 방지
+        path: "/", // 모든 경로에서 사용 가능
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+        domain: isProduction ? process.env.COOKIE_DOMAIN : undefined, // 프로덕션에서만 도메인 설정
       })
       .status(201)
       .json(responseData)

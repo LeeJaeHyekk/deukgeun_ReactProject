@@ -57,7 +57,9 @@ export class GoalService {
       }
       
       const entity = repo.create(goalData as any)
-      return await repo.save(entity)
+      const saved = await repo.save(entity)
+      // save는 배열을 반환할 수 있으므로 단일 엔티티인 경우 첫 번째 요소 반환
+      return Array.isArray(saved) ? saved[0] : saved
     } catch (error) {
       console.error('목표 생성 오류:', error)
       throw error
@@ -115,7 +117,9 @@ export class GoalService {
         date: historyData.date || new Date()
       } as any)
       
-      return await historyRepo.save(historyEntity)
+      const saved = await historyRepo.save(historyEntity)
+      // save는 배열을 반환할 수 있으므로 단일 엔티티인 경우 첫 번째 요소 반환
+      return Array.isArray(saved) ? saved[0] : saved
     } catch (error) {
       console.error('히스토리 추가 오류:', error)
       throw error

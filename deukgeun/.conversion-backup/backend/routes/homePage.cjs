@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const homePageController_1 = require("../controllers/homePageController.cjs");
+const rateLimiter_1 = require("../middlewares/rateLimiter.cjs");
+const auth_1 = require("../middlewares/auth.cjs");
+const router = (0, express_1.Router)();
+const homePageController = new homePageController_1.HomePageController();
+router.get("/config", (0, rateLimiter_1.rateLimiter)(), homePageController.getHomePageConfig);
+router.put("/config", (0, rateLimiter_1.rateLimiter)(), auth_1.authMiddleware, auth_1.isAdmin, homePageController.updateHomePageConfig);
+router.put("/config/batch", (0, rateLimiter_1.rateLimiter)(), auth_1.authMiddleware, auth_1.isAdmin, homePageController.updateMultipleConfigs);
+exports.default = router;

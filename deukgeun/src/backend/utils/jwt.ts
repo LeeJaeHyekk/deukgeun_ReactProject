@@ -34,13 +34,21 @@ export function createTokens(
   role: "user" | "admin" | "moderator"
 ) {
   try {
-    const accessToken = jwt.sign({ userId, role }, ACCESS_TOKEN_SECRET, {
-      expiresIn: ACCESS_TOKEN_EXPIRY,
-    })
+    const accessToken = jwt.sign(
+      { userId, role } as object,
+      ACCESS_TOKEN_SECRET as string,
+      {
+        expiresIn: ACCESS_TOKEN_EXPIRY,
+      } as jwt.SignOptions
+    )
 
-    const refreshToken = jwt.sign({ userId }, REFRESH_TOKEN_SECRET, {
-      expiresIn: REFRESH_TOKEN_EXPIRY,
-    })
+    const refreshToken = jwt.sign(
+      { userId } as object,
+      REFRESH_TOKEN_SECRET as string,
+      {
+        expiresIn: REFRESH_TOKEN_EXPIRY,
+      } as jwt.SignOptions
+    )
 
     return { accessToken, refreshToken }
   } catch (error) {

@@ -1,0 +1,23 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.equipmentRoutes = exports.Equipment = exports.Machine = exports.EquipmentService = exports.MachineService = exports.updateMachine = exports.getMachineById = exports.getAllMachines = exports.createMachine = exports.machineRoutes = void 0;
+var machine_1 = require("../../routes/machine.cjs");
+Object.defineProperty(exports, "machineRoutes", { enumerable: true, get: function () { return __importDefault(machine_1).default; } });
+var machineController_1 = require("../../controllers/machineController.cjs");
+Object.defineProperty(exports, "createMachine", { enumerable: true, get: function () { return machineController_1.createMachine; } });
+Object.defineProperty(exports, "getAllMachines", { enumerable: true, get: function () { return machineController_1.getAllMachines; } });
+Object.defineProperty(exports, "getMachineById", { enumerable: true, get: function () { return machineController_1.getMachineById; } });
+Object.defineProperty(exports, "updateMachine", { enumerable: true, get: function () { return machineController_1.updateMachine; } });
+var machineService_1 = require("../../services/machineService.cjs");
+Object.defineProperty(exports, "MachineService", { enumerable: true, get: function () { return machineService_1.MachineService; } });
+var equipmentService_1 = require("../../services/equipmentService.cjs");
+Object.defineProperty(exports, "EquipmentService", { enumerable: true, get: function () { return equipmentService_1.EquipmentService; } });
+var Machine_1 = require("../../entities/Machine.cjs");
+Object.defineProperty(exports, "Machine", { enumerable: true, get: function () { return Machine_1.Machine; } });
+var Equipment_1 = require("../../entities/Equipment.cjs");
+Object.defineProperty(exports, "Equipment", { enumerable: true, get: function () { return Equipment_1.Equipment; } });
+var equipment_1 = require("../../routes/equipment.cjs");
+Object.defineProperty(exports, "equipmentRoutes", { enumerable: true, get: function () { return __importDefault(equipment_1).default; } });

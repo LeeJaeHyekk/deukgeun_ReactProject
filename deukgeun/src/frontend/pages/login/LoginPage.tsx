@@ -141,8 +141,22 @@ export default function LoginPage() {
         }
       }
       
+      // 에러 메시지 추출
+      const errorMessage = (error as any)?.message || '로그인에 실패했습니다.'
+      setError(errorMessage)
+      showToast(errorMessage, 'error')
+      
+      // reCAPTCHA 실패인 경우 페이지 새로고침 제안
+      if (errorMessage.includes('reCAPTCHA')) {
+        setTimeout(() => {
+          if (confirm('reCAPTCHA 검증에 실패했습니다. 페이지를 새로고침하시겠습니까?')) {
+            window.location.reload()
+          }
+        }, 2000)
+      }
+      
       handleApiError(error as any)
-      setError(errorInfo.message || '로그인에 실패했습니다.')
+      setError(errorInfo.message || errorMessage)
     } finally {
       setLoading(false)
       console.log('🧪 로그인 처리 완료')

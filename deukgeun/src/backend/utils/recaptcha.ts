@@ -623,7 +623,22 @@ export async function verifyRecaptcha(
     // 점수가 없으면 v2이거나 설정 오류일 수 있으므로 경고 로그 기록
     if (response.data.score !== undefined && response.data.score !== null) {
       const score = parseFloat(String(response.data.score))
-      const minScore = parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5")
+      
+      // Action별 최소 점수 설정 (로그인은 더 낮은 점수 허용)
+      let minScore: number
+      if (expectedAction === "LOGIN") {
+        // 로그인은 사용자가 자주 접근하므로 더 낮은 점수 허용
+        // 환경 변수가 설정되어 있으면 사용, 없으면 기본값 0.1 사용
+        const loginMinScore = process.env.RECAPTCHA_MIN_SCORE_LOGIN
+        minScore = loginMinScore ? parseFloat(loginMinScore) : 0.1
+      } else if (expectedAction === "REGISTER") {
+        // 회원가입은 보안이 중요하므로 기본값 사용
+        const registerMinScore = process.env.RECAPTCHA_MIN_SCORE_REGISTER
+        minScore = registerMinScore ? parseFloat(registerMinScore) : parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5")
+      } else {
+        // 기타 액션은 기본값 사용
+        minScore = parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5")
+      }
       
       // 점수 유효성 검증 (0.0 ~ 1.0 범위)
       if (isNaN(score) || score < 0 || score > 1) {

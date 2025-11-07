@@ -191,16 +191,19 @@ class WeeklyCrawlingScheduler {
             return
           }
           
-          const nextRun = Array.isArray(nextDates) 
-            ? (nextDates[0] ? nextDates[0].toDate() : null)
-            : (nextDates.toDate ? nextDates.toDate() : null)
+          // nextDates()는 Date 객체를 반환하므로 바로 사용
+          const nextRunRaw = Array.isArray(nextDates) 
+            ? (nextDates[0] || null)
+            : (nextDates || null)
           
-          if (!nextRun) {
+          if (!nextRunRaw) {
             console.warn('⚠️ 다음 실행 시간을 Date 객체로 변환할 수 없습니다')
             this.status.nextRun = null
             return
           }
           
+          // Date 타입으로 명시적 변환
+          const nextRun = nextRunRaw instanceof Date ? nextRunRaw : new Date(nextRunRaw as any)
           this.status.nextRun = nextRun
 
           // 다음 실행 시간이 일요일 오전 6시인지 검증
@@ -516,10 +519,13 @@ class WeeklyCrawlingScheduler {
           this.status.nextRun = null
           return
         }
-        const nextRun = Array.isArray(nextDates) 
-          ? (nextDates[0] ? nextDates[0].toDate() : null)
-          : (nextDates.toDate ? nextDates.toDate() : null)
-        this.status.nextRun = nextRun || null
+        // nextDates()는 Date 객체를 반환하므로 바로 사용
+        const nextRunRaw = Array.isArray(nextDates) 
+          ? (nextDates[0] || null)
+          : (nextDates || null)
+        // Date 타입으로 명시적 변환
+        const nextRun = nextRunRaw instanceof Date ? nextRunRaw : (nextRunRaw ? new Date(nextRunRaw as any) : null)
+        this.status.nextRun = nextRun
       }
     } catch (dateError) {
       console.warn('⚠️ 다음 실행 시간 업데이트 실패:', dateError)
@@ -551,10 +557,13 @@ class WeeklyCrawlingScheduler {
           this.status.nextRun = null
           return
         }
-        const nextRun = Array.isArray(nextDates) 
-          ? (nextDates[0] ? nextDates[0].toDate() : null)
-          : (nextDates.toDate ? nextDates.toDate() : null)
-        this.status.nextRun = nextRun || null
+        // nextDates()는 Date 객체를 반환하므로 바로 사용
+        const nextRunRaw = Array.isArray(nextDates) 
+          ? (nextDates[0] || null)
+          : (nextDates || null)
+        // Date 타입으로 명시적 변환
+        const nextRun = nextRunRaw instanceof Date ? nextRunRaw : (nextRunRaw ? new Date(nextRunRaw as any) : null)
+        this.status.nextRun = nextRun
       }
     } catch (dateError) {
       console.warn('⚠️ 다음 실행 시간 업데이트 실패:', dateError)
@@ -707,17 +716,19 @@ class WeeklyCrawlingScheduler {
         const nextDates = this.job.nextDates()
         if (!nextDates) {
           this.status.nextRun = null
-          return
+          return this.status
         }
-        const nextRun = Array.isArray(nextDates) 
-          ? (nextDates[0] ? nextDates[0].toDate() : null)
-          : (nextDates.toDate ? nextDates.toDate() : null)
-        this.status.nextRun = nextRun || null
+        // nextDates()는 Date 객체를 반환하므로 바로 사용
+        const nextRunRaw = Array.isArray(nextDates) 
+          ? (nextDates[0] || null)
+          : (nextDates || null)
+        // Date 타입으로 명시적 변환
+        const nextRun = nextRunRaw instanceof Date ? nextRunRaw : (nextRunRaw ? new Date(nextRunRaw as any) : null)
+        this.status.nextRun = nextRun
       } catch (error) {
         // 다음 실행 시간 계산 실패 시 무시
       }
     }
-
     return { ...this.status }
   }
 

@@ -19,8 +19,8 @@ if (typeof window === 'undefined') {
   global.requestAnimationFrame = global.requestAnimationFrame || (cb => setTimeout(cb, 16))
 }
 
-// Console 타입 정의 보장 (타입 오류 방지)
-declare const console: Console
+// Console은 전역 객체이므로 별도 선언 불필요
+// TypeScript가 자동으로 인식함
 
 // Default config values
 export const config = {
@@ -236,7 +236,9 @@ export const loadRecaptchaScript = (): Promise<void> => {
             attempts: attempts + 1,
             siteKey: config.RECAPTCHA.SITE_KEY ? 'set' : 'not set'
           }
-          console.error("❌ [loadRecaptchaScript] reCAPTCHA grecaptcha 객체 또는 execute 함수 로드 실패", errorDetails)
+          if (typeof console !== 'undefined' && console.error) {
+            console.error("❌ [loadRecaptchaScript] reCAPTCHA grecaptcha 객체 또는 execute 함수 로드 실패", errorDetails)
+          }
           
           // 백엔드로 로그 전송
           (async () => {
@@ -373,12 +375,14 @@ export const executeRecaptcha = async (
               resolve(token)
             }).catch((error: Error) => {
               clearTimeout(timeout)
-              console.error("❌ [executeRecaptcha] execute 함수 호출 실패:", {
+              if (typeof console !== 'undefined' && console.error) {
+                console.error("❌ [executeRecaptcha] execute 함수 호출 실패:", {
                 error: error.message,
                 errorStack: error.stack,
                 action,
                 siteKey: config.RECAPTCHA.SITE_KEY ? 'set' : 'not set'
-              })
+                })
+              }
               
               // 프론트엔드 로그를 백엔드로 전송
               (async () => {
@@ -414,14 +418,16 @@ export const executeRecaptcha = async (
           } else {
             clearTimeout(timeout)
             const error = new Error("reCAPTCHA execute 함수가 준비되지 않았습니다.")
-            console.error("❌ [executeRecaptcha] execute 함수 준비 실패 (최대 시도 횟수 초과):", {
+            if (typeof console !== 'undefined' && console.error) {
+              console.error("❌ [executeRecaptcha] execute 함수 준비 실패 (최대 시도 횟수 초과):", {
               attempts: attempts + 1,
               maxAttempts,
               hasGrecaptcha: typeof window !== 'undefined' && !!window.grecaptcha,
               hasExecute: typeof window !== 'undefined' && window.grecaptcha && typeof window.grecaptcha.execute === 'function',
               recaptchaState,
               action
-            })
+              })
+            }
             
             // 백엔드로 로그 전송
             (async () => {
@@ -461,13 +467,15 @@ export const executeRecaptcha = async (
     })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error("❌ [executeRecaptcha] reCAPTCHA 실행 중 오류:", {
+    if (typeof console !== 'undefined' && console.error) {
+      console.error("❌ [executeRecaptcha] reCAPTCHA 실행 중 오류:", {
       error: errorMessage,
       errorStack: error instanceof Error ? error.stack : undefined,
       action,
       recaptchaState,
       siteKey: config.RECAPTCHA.SITE_KEY ? 'set' : 'not set'
-    })
+      })
+    }
     
     // 백엔드로 로그 전송
     (async () => {

@@ -345,36 +345,72 @@ instance.interceptors.request.use(
       ) {
         console.log('🔐 [401 처리] 토큰 갱신 시도')
         
-        // 이미 갱신 중인 경우 대기열에 추가
+        // 이미 갱신 중인 경우 기존 Promise 사용 (Race Condition 방지)
         if (tokenManager.isRefreshing()) {
-          console.log('🔄 [401 처리] 이미 갱신 중, 대기열에 추가')
-          return new Promise((resolve, reject) => {
-            tokenManager.addToRefreshQueue(
-              (newToken) => {
-                if (!originalRequest.config) {
-                  reject(new Error('Request config is missing'))
-                  return
-                }
-                originalRequest.config.headers = originalRequest.config.headers || {}
-                originalRequest.config.headers.Authorization = `Bearer ${newToken}`
-                resolve(instance(originalRequest.config))
-              },
-              (refreshError) => {
-                reject(refreshError)
+          console.log('🔄 [401 처리] 이미 갱신 중, 기존 Promise 사용')
+          const existingPromise = tokenManager.getRefreshPromise()
+          
+          if (existingPromise) {
+            // 기존 갱신 Promise가 있으면 대기
+            try {
+              const newToken = await existingPromise
+              if (!originalRequest.config) {
+                throw new Error('Request config is missing')
               }
-            )
-          })
+              originalRequest.config.headers = originalRequest.config.headers || {}
+              originalRequest.config.headers.Authorization = `Bearer ${newToken}`
+              console.log('✅ [401 처리] 기존 갱신 Promise 사용, 원래 요청 재시도')
+              return instance(originalRequest.config)
+            } catch (refreshError) {
+              // 기존 갱신 실패 시 대기열에 추가
+              return new Promise((resolve, reject) => {
+                tokenManager.addToRefreshQueue(
+                  (newToken) => {
+                    if (!originalRequest.config) {
+                      reject(new Error('Request config is missing'))
+                      return
+                    }
+                    originalRequest.config.headers = originalRequest.config.headers || {}
+                    originalRequest.config.headers.Authorization = `Bearer ${newToken}`
+                    resolve(instance(originalRequest.config))
+                  },
+                  (refreshError) => {
+                    reject(refreshError)
+                  }
+                )
+              })
+            }
+          } else {
+            // 기존 Promise가 없으면 대기열에 추가
+            return new Promise((resolve, reject) => {
+              tokenManager.addToRefreshQueue(
+                (newToken) => {
+                  if (!originalRequest.config) {
+                    reject(new Error('Request config is missing'))
+                    return
+                  }
+                  originalRequest.config.headers = originalRequest.config.headers || {}
+                  originalRequest.config.headers.Authorization = `Bearer ${newToken}`
+                  resolve(instance(originalRequest.config))
+                },
+                (refreshError) => {
+                  reject(refreshError)
+                }
+              )
+            })
+          }
         }
 
-        // 토큰 갱신 시작
+        // 토큰 갱신 시작 (Race Condition 방지)
         tokenManager.setRefreshing(true)
         const refreshPromise = performTokenRefresh()
+        tokenManager.setRefreshPromise(refreshPromise) // Promise 저장
 
         try {
           const newToken = await refreshPromise
           
-          // 대기열에 있는 모든 요청 처리
-          tokenManager.processRefreshQueue(newToken)
+          // 대기열에 있는 모든 요청 처리 (에러 처리 개선)
+          tokenManager.processRefreshQueue(newToken, undefined)
           
           // 원래 요청의 헤더에 새 토큰 설정
           if (!originalRequest.config) {
@@ -382,6 +418,10 @@ instance.interceptors.request.use(
           }
           originalRequest.config.headers = originalRequest.config.headers || {}
           originalRequest.config.headers.Authorization = `Bearer ${newToken}`
+          
+          // 갱신 완료 후 상태 초기화
+          tokenManager.setRefreshing(false)
+          tokenManager.setRefreshPromise(null)
           
           console.log('✅ [401 처리] 토큰 갱신 성공, 원래 요청 재시도')
           return instance(originalRequest.config)
@@ -393,8 +433,12 @@ instance.interceptors.request.use(
           const authError = analyzeAuthError(refreshError)
           console.log('🔍 [401 처리] 에러 분석:', authError)
           
-          // 대기열에 있는 모든 요청에 에러 전파
+          // 대기열에 있는 모든 요청에 에러 전파 (에러 처리 개선)
           tokenManager.processRefreshQueue(null, refreshError)
+          
+          // 갱신 실패 후 상태 초기화
+          tokenManager.setRefreshing(false)
+          tokenManager.setRefreshPromise(null)
           
             // 토큰 갱신 실패 시에만 로그아웃 (일반 401은 재시도만)
             if (shouldLogout(refreshError)) {

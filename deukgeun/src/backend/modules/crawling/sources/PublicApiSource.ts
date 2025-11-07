@@ -394,9 +394,9 @@ export class PublicApiSource {
           
           // 시설 상세 정보
           insuranceCode: this.safeTrim(item.INSURJNYNCODE),
-          leaderCount: this.safeParseFloat(item.LDERCNT),
-          buildingCount: this.safeParseFloat(item.BDNGDNGNUM),
-          buildingArea: this.safeParseFloat(item.BDNGYAREA)
+          leaderCount: this.safeTrim(item.LDERCNT),
+          buildingCount: this.safeTrim(item.BDNGDNGNUM),
+          buildingArea: this.safeTrim(item.BDNGYAREA)
         }
 
         // 필수 필드 최종 검증

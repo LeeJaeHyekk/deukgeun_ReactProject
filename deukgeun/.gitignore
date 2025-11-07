@@ -156,6 +156,12 @@ scripts/ssh-diagnostic.ts
 scripts/optimize-environment.sh
 scripts/setup-windows-ssh-config.ps1
 scripts/fix-windows-ssh-config.ps1
+scripts/db-seed-unified.ts
+scripts/seed-database-pure-sql.ts
+scripts/seed-database-final.ts
+scripts/ssh-key-setup.ts
+scripts/aws-key-pair-recovery.ts
+scripts/enhanced-build-optimized.ts
 
 # Documentation files with hardcoded keys
 RECAPTCHA_V3_FIX_COMPLETE.md
@@ -163,6 +169,9 @@ recaptcha_v3_summary.md
 Recaptcha_troubleshooting.md
 RECAPTCHA_SETUP_GUIDE.md
 docs/00_security/SECURITY_AUDIT_REPORT.md
+docs/08_deployment/DEUKGEUN_COMPLETE_GUIDE.md
+docs/00_recaptcha/RECAPTCHA_COMPLETE_ANALYSIS.md
+docs/DOCUMENTATION_ORGANIZATION_SUMMARY.md
 # Note: docs 폴더의 문서들은 이미 parameterize되었지만, 
 # 하드코딩된 값이 포함된 문서는 개별적으로 추가 가능
 

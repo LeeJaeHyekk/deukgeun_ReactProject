@@ -95,9 +95,32 @@ export function toWorkoutPlanExerciseList(apiList: WorkoutPlanExercise[]): Worko
 }
 
 /**
+ * 레거시 객체 타입 (호환성을 위한 부분 타입)
+ */
+interface LegacyWorkoutPlanExercise {
+  id?: number
+  planId?: number
+  exerciseId?: number
+  machineId?: number
+  exerciseName?: string
+  exerciseOrder?: number
+  order?: number
+  sets?: number
+  reps?: number
+  repsRange?: { min: number; max: number }
+  weight?: number
+  weightRange?: { min: number; max: number }
+  restTime?: number
+  restSeconds?: number
+  notes?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+/**
  * 레거시 객체를 도메인 객체로 변환 (호환성)
  */
-export function fromLegacyToWorkoutPlanExercise(legacy: any): WorkoutPlanExercise {
+export function fromLegacyToWorkoutPlanExercise(legacy: LegacyWorkoutPlanExercise): WorkoutPlanExercise {
   return {
     id: legacy.id,
     planId: legacy.planId,

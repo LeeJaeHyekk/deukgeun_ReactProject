@@ -4,9 +4,9 @@ import { PostCard } from "./PostCard"
 import { PostDTO as CommunityPost } from "../../../../shared/types"
 import { makeSelectDisplayCommentCountWithFallback } from "../comments/commentsSelectors"
 import { RootState } from "../../../shared/store"
-import styles from "./PostGrid.module.css"
+import styles from "./postGrid.module.css"
 
-// PostCard with selector factory-based comment count
+// PostCard with selector factory-based comment count (렌더링 최적화)
 const PostCardWithCommentCount = memo(function PostCardWithCommentCount({
   post,
   onPostClick,
@@ -14,23 +14,35 @@ const PostCardWithCommentCount = memo(function PostCardWithCommentCount({
   post: CommunityPost
   onPostClick: (post: CommunityPost) => void
 }) {
-  // Selector factory를 올바르게 사용 - 한 번 생성하고 재사용
+  // Selector factory를 올바르게 사용 - 한 번 생성하고 재사용 (안정적인 참조)
   const selectDisplayCommentCount = useMemo(() => 
     makeSelectDisplayCommentCountWithFallback(), []
   )
   
+  // 이전 displayCommentCount 추적 (렌더링 최적화)
+  const prevDisplayCommentCountRef = useRef<number | null>(null)
+  
   const displayCommentCount = useSelector((state: RootState) =>
     selectDisplayCommentCount(state, post.id)
   )
-
-  if (process.env.NODE_ENV === 'development') {
-    console.log('📋 [PostCardWithCommentCount] 렌더링:', { 
-      postId: post.id, 
-      title: post.title,
-      displayCommentCount,
-      originalCommentCount: post.commentCount
-    })
-  }
+  
+  // 실제 변경이 있을 때만 로그 출력 (렌더링 최적화)
+  useEffect(() => {
+    const prevCount = prevDisplayCommentCountRef.current
+    if (prevCount !== displayCommentCount) {
+      prevDisplayCommentCountRef.current = displayCommentCount
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📋 [PostCardWithCommentCount] 상태 변경:', { 
+          postId: post.id, 
+          title: post.title,
+          displayCommentCount,
+          originalCommentCount: post.commentCount,
+          changed: prevCount !== null
+        })
+      }
+    }
+  }, [displayCommentCount, post.id, post.title, post.commentCount])
 
   return (
     <PostCard
@@ -38,6 +50,16 @@ const PostCardWithCommentCount = memo(function PostCardWithCommentCount({
       displayCommentCount={displayCommentCount}
       onPostClick={onPostClick}
     />
+  )
+}, (prevProps, nextProps) => {
+  // props 비교 함수 (렌더링 최적화)
+  // post 객체가 동일한 참조이거나 중요한 필드가 동일한지 확인
+  return (
+    prevProps.post.id === nextProps.post.id &&
+    prevProps.post.title === nextProps.post.title &&
+    prevProps.post.likeCount === nextProps.post.likeCount &&
+    prevProps.post.commentCount === nextProps.post.commentCount &&
+    prevProps.onPostClick === nextProps.onPostClick
   )
 })
 
@@ -58,53 +80,55 @@ export const PostGrid = memo(function PostGrid({
   totalPages,
   onPageChange,
 }: PostGridProps) {
-  // 페이지네이션 상태 로깅 (변경 감지 강화)
+  // 페이지네이션 상태 추적 (렌더링 최적화)
   const prevPaginationRef = useRef({ currentPage, totalPages })
   useEffect(() => {
-    const changed = prevPaginationRef.current.currentPage !== currentPage || 
-                    prevPaginationRef.current.totalPages !== totalPages
+    const prevPagination = prevPaginationRef.current
+    const changed = prevPagination.currentPage !== currentPage || 
+                    prevPagination.totalPages !== totalPages
     if (changed) {
-      console.log('📄 [PostGrid] 페이지네이션 상태 변경:', {
-        previous: {
-          currentPage: prevPaginationRef.current.currentPage,
-          totalPages: prevPaginationRef.current.totalPages
-        },
-        current: {
-          currentPage,
-          totalPages
-        },
-        postsCount: posts.length,
-        hasPosts: posts.length > 0,
-        canGoPrevious: currentPage > 1,
-        canGoNext: currentPage < totalPages,
-        timestamp: new Date().toISOString()
-      })
       prevPaginationRef.current = { currentPage, totalPages }
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📄 [PostGrid] 페이지네이션 상태 변경:', {
+          previous: {
+            currentPage: prevPagination.currentPage,
+            totalPages: prevPagination.totalPages
+          },
+          current: {
+            currentPage,
+            totalPages
+          },
+          postsCount: posts.length,
+          timestamp: new Date().toISOString()
+        })
+      }
     }
   }, [currentPage, totalPages, posts.length])
 
-  // 페이지네이션 버튼 상태 확인 (렌더링 시마다)
+  // 이전 posts 추적 (렌더링 최적화)
+  const prevPostsRef = useRef(posts)
   useEffect(() => {
-    console.log('📄 [PostGrid] 페이지네이션 버튼 상태:', {
-      currentPage,
-      totalPages,
-      isPreviousDisabled: currentPage <= 1,
-      isNextDisabled: currentPage >= totalPages,
-      canGoPrevious: currentPage > 1,
-      canGoNext: currentPage < totalPages,
-      timestamp: new Date().toISOString()
-    })
-  }, [currentPage, totalPages])
-
-  // 개발 환경에서만 렌더링 로그 출력
-  if (process.env.NODE_ENV === 'development') {
-    console.log('📋 [PostGrid] 렌더링됨:', { 
-      postsCount: posts.length, 
-      loading: loading,
-      currentPage,
-      totalPages
-    })
-  }
+    const prevPosts = prevPostsRef.current
+    const postsChanged = prevPosts.length !== posts.length ||
+                         prevPosts.some((post, index) => {
+                           const currentPost = posts[index]
+                           return !currentPost || post.id !== currentPost.id
+                         })
+    
+    if (postsChanged) {
+      prevPostsRef.current = posts
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📋 [PostGrid] 렌더링됨:', {
+          postsCount: posts.length,
+          loading,
+          currentPage,
+          totalPages
+        })
+      }
+    }
+  }, [posts, loading, currentPage, totalPages])
 
   // 로딩 상태
   if (loading) {
@@ -126,11 +150,8 @@ export const PostGrid = memo(function PostGrid({
     )
   }
 
-  // PostCard 클릭 핸들러 메모이제이션
+  // PostCard 클릭 핸들러 메모이제이션 (안정적인 참조)
   const handlePostClick = useCallback((post: CommunityPost) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('PostCard 클릭:', post.id)
-    }
     onPostClick(post)
   }, [onPostClick])
 
@@ -160,26 +181,16 @@ export const PostGrid = memo(function PostGrid({
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
-              console.log('📄 [PostGrid] 이전 페이지 버튼 클릭:', {
-                currentPage,
-                totalPages,
-                isDisabled: currentPage <= 1,
-                timestamp: new Date().toISOString()
-              })
               if (currentPage > 1) {
                 const newPage = currentPage - 1
-                console.log('📄 [PostGrid] 이전 페이지로 이동:', {
-                  from: currentPage,
-                  to: newPage,
-                  totalPages,
-                  timestamp: new Date().toISOString()
-                })
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('📄 [PostGrid] 이전 페이지로 이동:', {
+                    from: currentPage,
+                    to: newPage,
+                    totalPages
+                  })
+                }
                 onPageChange(newPage)
-              } else {
-                console.warn('📄 [PostGrid] 이전 페이지 버튼 클릭 - 이미 첫 페이지:', {
-                  currentPage,
-                  totalPages
-                })
               }
             }}
             disabled={currentPage <= 1}
@@ -197,26 +208,16 @@ export const PostGrid = memo(function PostGrid({
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
-              console.log('📄 [PostGrid] 다음 페이지 버튼 클릭:', {
-                currentPage,
-                totalPages,
-                isDisabled: currentPage >= totalPages,
-                timestamp: new Date().toISOString()
-              })
               if (currentPage < totalPages) {
                 const newPage = currentPage + 1
-                console.log('📄 [PostGrid] 다음 페이지로 이동:', {
-                  from: currentPage,
-                  to: newPage,
-                  totalPages,
-                  timestamp: new Date().toISOString()
-                })
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('📄 [PostGrid] 다음 페이지로 이동:', {
+                    from: currentPage,
+                    to: newPage,
+                    totalPages
+                  })
+                }
                 onPageChange(newPage)
-              } else {
-                console.warn('📄 [PostGrid] 다음 페이지 버튼 클릭 - 이미 마지막 페이지:', {
-                  currentPage,
-                  totalPages
-                })
               }
             }}
             disabled={currentPage >= totalPages}

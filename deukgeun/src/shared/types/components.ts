@@ -33,8 +33,8 @@ export interface ModalProps extends BaseComponentProps {
 }
 
 // 폼 Props
-export interface FormProps extends BaseComponentProps {
-  onSubmit: (data: any) => void
+export interface FormProps<T = Record<string, unknown>> extends BaseComponentProps {
+  onSubmit: (data: T) => void
   onCancel?: () => void
   isSubmitting?: boolean
   errors?: Record<string, string>
@@ -237,7 +237,7 @@ export interface FilterProps extends BaseComponentProps {
     key: string
     label: string
     type: 'select' | 'checkbox' | 'date' | 'range'
-    options?: Array<{ value: any; label: string }>
+    options?: Array<{ value: string | number; label: string }>
   }>
 }
 
@@ -258,7 +258,7 @@ export interface TableProps<T> extends BaseComponentProps {
     key: string
     label: string
     sortable?: boolean
-    render?: (value: any, item: T) => ReactNode
+    render?: (value: unknown, item: T) => ReactNode
     width?: string
   }>
   data: T[]
@@ -271,12 +271,12 @@ export interface TableProps<T> extends BaseComponentProps {
 }
 
 // 차트 Props
-export interface ChartProps extends BaseComponentProps {
-  data: any[]
+export interface ChartProps<T = Record<string, unknown>> extends BaseComponentProps {
+  data: T[]
   type: 'line' | 'bar' | 'pie' | 'doughnut' | 'area'
   width?: number
   height?: number
-  options?: any
+  options?: Record<string, unknown>
   loading?: boolean
 }
 
@@ -738,14 +738,14 @@ export interface BreakpointProps extends Omit<BaseComponentProps, 'children'> {
 }
 
 // 반응형 Props
-export interface ResponsiveProps extends Omit<BaseComponentProps, 'children'> {
-  xs?: any
-  sm?: any
-  md?: any
-  lg?: any
-  xl?: any
-  xxl?: any
-  children: (props: any) => ReactNode
+export interface ResponsiveProps<T = Record<string, unknown>> extends Omit<BaseComponentProps, 'children'> {
+  xs?: T
+  sm?: T
+  md?: T
+  lg?: T
+  xl?: T
+  xxl?: T
+  children: (props: T) => ReactNode
 }
 
 // 테마 Props
@@ -873,7 +873,7 @@ export interface ValidationProps extends BaseComponentProps {
     minLength?: number
     maxLength?: number
     pattern?: RegExp
-    custom?: (value: any) => boolean | string
+    custom?: (value: unknown) => boolean | string
   }>
   validateOnChange?: boolean
   validateOnBlur?: boolean
@@ -908,7 +908,7 @@ export interface PerformanceProps extends BaseComponentProps {
 export interface DebugProps extends BaseComponentProps {
   debug?: boolean
   logLevel?: 'error' | 'warn' | 'info' | 'debug'
-  onLog?: (level: string, message: string, data?: any) => void
+  onLog?: (level: string, message: string, data?: unknown) => void
 }
 
 // 테스트 Props

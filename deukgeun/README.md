@@ -45,7 +45,7 @@ Providing machine guides, workout goal management, community features, and locat
 📦 Repository Size: ~500+ files
 🔧 Technology Stack: TypeScript, React, Node.js, Express, MySQL
 📚 Documentation: Comprehensive guides and API documentation
-🚀 Deployment: AWS EC2 with PM2 process management
+🚀 Deployment: Cloud-based deployment with process management
 🔒 Security: JWT authentication, bcrypt hashing, multi-factor recovery
 ```
 
@@ -157,7 +157,7 @@ Providing machine guides, workout goal management, community features, and locat
 📊 Monitoring: Winston Logger
 🔍 Code Quality: ESLint + Prettier
 🧪 Testing: Jest + Vitest
-☁️  Cloud: AWS EC2
+☁️  Cloud: Cloud Platform
 ```
 
 ---
@@ -254,7 +254,7 @@ cp env.example src/backend/.env
 ```bash
 # Create database
 mysql -u root -p
-CREATE DATABASE deukgeun_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE your_database_name CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 EXIT;
 
 # Sync database schema
@@ -283,10 +283,8 @@ npm run dev:backend   # Backend only (http://localhost:5000)
 
 ### Test Credentials
 
-```
-Email: user1@test.com
-Password: user123!
-```
+> **Note**: Test credentials are only available in local development environment.  
+> For production, use proper authentication and user management.
 
 ---
 
@@ -294,69 +292,17 @@ Password: user123!
 
 ```
 deukgeun/
-│
 ├── src/
-│   ├── frontend/                 # React frontend application
-│   │   ├── features/            # Feature-based modules
-│   │   │   ├── workout/        # Workout management
-│   │   │   ├── machine-guide/  # Equipment guide
-│   │   │   ├── community/      # Community features
-│   │   │   └── admin/          # Admin dashboard
-│   │   ├── pages/              # Page components
-│   │   │   ├── HomePage/       # Landing page
-│   │   │   ├── login/          # Authentication pages
-│   │   │   ├── MyPage/         # User profile
-│   │   │   └── location/       # Gym finder
-│   │   ├── shared/             # Shared components & utilities
-│   │   │   ├── components/    # Reusable UI components
-│   │   │   ├── hooks/          # Custom React hooks
-│   │   │   ├── store/          # State management
-│   │   │   ├── utils/          # Utility functions
-│   │   │   └── types/          # TypeScript types
-│   │   └── App.tsx             # Main application component
-│   │
-│   ├── backend/                 # Express backend application
-│   │   ├── controllers/        # Request handlers
-│   │   ├── services/           # Business logic layer
-│   │   ├── routes/             # API route definitions
-│   │   ├── middlewares/        # Express middlewares
-│   │   │   ├── auth.ts         # Authentication middleware
-│   │   │   ├── errorHandler.ts # Error handling
-│   │   │   └── validator.ts    # Request validation
-│   │   ├── entities/           # TypeORM entities
-│   │   ├── repositories/       # Data access layer
-│   │   ├── config/             # Configuration files
-│   │   ├── utils/              # Utility functions
-│   │   └── app.ts              # Express app setup
-│   │
+│   ├── frontend/              # React frontend application
+│   ├── backend/                # Express backend application
 │   └── shared/                 # Shared code between frontend/backend
-│       ├── types/              # Shared TypeScript types
-│       ├── constants/          # Shared constants
-│       └── utils/              # Shared utilities
-│
 ├── docs/                       # Project documentation
-│   ├── 00_database/           # Database documentation
-│   ├── 00_deployment/          # Deployment guides
-│   ├── 01_getting-started/    # Getting started guides
-│   └── ...
-│
 ├── scripts/                    # Build and deployment scripts
-│   ├── build-optimized.ts     # Production build script
-│   └── ...
-│
 ├── public/                     # Static assets
-│   ├── img/                   # Images
-│   ├── video/                 # Video files
-│   └── fonts/                 # Font files
-│
-├── dist/                       # Build output directory
-│
-├── .env                        # Environment variables (not in git)
-├── package.json               # Project dependencies
-├── tsconfig.json              # TypeScript configuration
-├── vite.config.ts             # Vite configuration
-└── README.md                  # This file
+└── dist/                       # Build output directory
 ```
+
+> **Note**: Detailed project structure is available in the [documentation](docs/).
 
 ---
 
@@ -406,7 +352,7 @@ npm run format:check           # Check code formatting
 npm run pm2:start              # Start application with PM2
 npm run pm2:stop               # Stop PM2 processes
 npm run pm2:restart            # Restart PM2 processes
-npm run deploy:ec2             # Deploy to AWS EC2
+npm run deploy:ec2             # Deploy to cloud platform
 ```
 
 ### Development Guidelines
@@ -421,13 +367,16 @@ npm run deploy:ec2             # Deploy to AWS EC2
 
 Key environment variables required:
 
+> **⚠️ Security Note**: Never commit actual values to version control.  
+> Use environment variable files (`.env`) and ensure they are in `.gitignore`.
+
 ```env
 # Database
 DB_HOST=localhost
 DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=deukgeun_db
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_NAME=your_database_name
 
 # JWT
 JWT_SECRET=your_jwt_secret_key
@@ -446,6 +395,8 @@ SMTP_PASS=your_app_password
 PORT=5000
 NODE_ENV=development
 ```
+
+> **Important**: Replace all placeholder values with actual secure values in your `.env` file.
 
 ---
 
